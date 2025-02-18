@@ -40,11 +40,15 @@ import com.github.scribejava.apis.openid.OpenIdOAuth2AccessToken;
 import com.github.scribejava.core.model.OAuth2AccessToken;
 import com.github.scribejava.core.oauth.OAuth20Service;
 import com.github.scribejava.core.revoke.TokenTypeHint;
+import com.servoy.j2db.ClientLogin;
+import com.servoy.j2db.Credentials;
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.server.ngclient.AngularIndexPageWriter;
 import com.servoy.j2db.server.ngclient.StatelessLoginHandler;
 import com.servoy.j2db.server.ngclient.auth.OAuthUtils.OAuthParameters;
+import com.servoy.j2db.server.shared.ApplicationServerRegistry;
+import com.servoy.j2db.server.shared.IApplicationServer;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.ServoyJSONObject;
 import com.servoy.j2db.util.Utils;
@@ -54,6 +58,8 @@ import com.servoy.j2db.util.Utils;
  */
 public class OAuthHandler
 {
+	private static final String GET_OAUTH_CONFIG = "getOAuthConfig";
+	
 	static final Logger log = LoggerFactory.getLogger("stateless.login");
 
 	public static Pair<Boolean, String> handleOauth(HttpServletRequest req, HttpServletResponse resp) throws IOException
@@ -372,5 +378,53 @@ public class OAuthHandler
 				log.error("Could not revoke the refresh token.", e);
 			}
 		}
+	}
+
+	public static void redirectToAuthenticator(HttpServletRequest request, HttpServletResponse response, Solution solution)
+	{
+		Solution authenticatorModule = AuthenticatorManager.findAuthenticator(solution);
+		if (authenticatorModule != null)
+		{
+			JSONObject json = new JSONObject();
+			Map<String, String[]> parameters = request.getParameterMap();
+			for (Map.Entry<String, String[]> entry : parameters.entrySet())
+			{
+				String[] values = entry.getValue();
+				for (String value : values)
+				{
+					json.put(entry.getKey(), value);
+				}
+			}
+
+			JSONObject config = getConfig(authenticatorModule, json);
+			if (config != null)
+			{
+				generateOauthCall(request, response, config);
+			}
+		}
+	}
+
+	private static JSONObject getConfig(Solution authenticatorModule, JSONObject json)
+	{
+		Credentials credentials = new Credentials(null, authenticatorModule.getName(), GET_OAUTH_CONFIG, json.toString());
+		IApplicationServer applicationServer = ApplicationServerRegistry.getService(IApplicationServer.class);
+		try
+		{
+			ClientLogin login = applicationServer.login(credentials);
+			if (login != null && login.getJsReturn() != null)
+			{
+				JSONObject config = new JSONObject(login.getJsReturn());
+				return config;
+			}
+			else
+			{
+				log.error("The authenticator did not return an oauth config.");
+			}
+		}
+		catch (Exception e)
+		{
+			log.error("Could not call the authenticator.", e);
+		}
+		return null;
 	}
 }

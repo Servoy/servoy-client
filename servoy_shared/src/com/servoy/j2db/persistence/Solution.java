@@ -101,7 +101,8 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 		DEFAULT(1),
 		SERVOY_CLOUD(2),
 		AUTHENTICATOR(3),
-		OAUTH(4);
+		OAUTH(4),
+		OAUTH_AUTHENTICATOR(5);
 
 		private final int value;
 
@@ -132,6 +133,8 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 					return AUTHENTICATOR;
 				case 4 :
 					return OAUTH;
+				case 5 :
+					return OAUTH_AUTHENTICATOR;
 			}
 			return null;
 		}

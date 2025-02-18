@@ -217,7 +217,7 @@ public class StatelessLoginHandler
 			if (jwt.getClaim(REFRESH_TOKEN).asString() != null)
 			{
 				AUTHENTICATOR_TYPE authenticator = solution.getAuthenticator();
-				if (authenticator == AUTHENTICATOR_TYPE.OAUTH)
+				if (authenticator == AUTHENTICATOR_TYPE.OAUTH || authenticator == AUTHENTICATOR_TYPE.OAUTH_AUTHENTICATOR)
 				{
 					OAuthHandler.revokeToken(solution, jwt);
 				}
@@ -244,16 +244,29 @@ public class StatelessLoginHandler
 		catch (RepositoryException e)
 		{
 			log.error("Can't load solution " + solutionName, e);
+			return;
 		}
-		if (solution != null && solution.getAuthenticator() == AUTHENTICATOR_TYPE.OAUTH)
+		
+		if (solution == null)
+		{
+			log.error("The solution is null " + solutionName);
+			return;
+		}
+		if (solution.getAuthenticator() == AUTHENTICATOR_TYPE.OAUTH)
 		{
 			OAuthHandler.redirectToOAuthLogin(request, response, solution);
 			return;
 		}
 
+		if (solution.getAuthenticator() == AUTHENTICATOR_TYPE.OAUTH_AUTHENTICATOR)
+		{
+			OAuthHandler.redirectToAuthenticator(request, response, solution);
+			return;
+		}
+
 		ContentSecurityPolicyConfig contentSecurityPolicyConfig = null;
 		String loginHtml = null;
-		if (solution != null && solution.getAuthenticator() == AUTHENTICATOR_TYPE.SERVOY_CLOUD)
+		if (solution.getAuthenticator() == AUTHENTICATOR_TYPE.SERVOY_CLOUD)
 		{
 			if (customHTML != null && customHTML.startsWith("<"))
 			{
