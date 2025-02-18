@@ -2084,11 +2084,25 @@ public class DataProviderDateTest
 			return null;
 		}
 
-		/* (non-Javadoc)
+		/*
+		 * (non-Javadoc)
+		 *
 		 * @see com.servoy.j2db.IApplication#getEventsManager()
 		 */
 		@Override
 		public IEventsManager getEventsManager()
+		{
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		/*
+		 * (non-Javadoc)
+		 *
+		 * @see com.servoy.j2db.INGClientApplication#getUserAgentAndPlatform()
+		 */
+		@Override
+		public JSONObject getUserAgentAndPlatform()
 		{
 			// TODO Auto-generated method stub
 			return null;
