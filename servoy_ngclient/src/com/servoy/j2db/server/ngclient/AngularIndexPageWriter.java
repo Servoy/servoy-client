@@ -447,7 +447,7 @@ public class AngularIndexPageWriter
 
 	private static void setDirectiveOverride(ContentSecurityPolicyConfig contentSecurityPolicyConfig, String directive, Settings settings)
 	{
-		String override = settings.getProperty("servoy.ngclient.contentSecurityPolicy." + directive);
+		String override = (String)settings.get("servoy.ngclient.contentSecurityPolicy." + directive);
 		if (override != null && override.trim().length() > 0 && override.indexOf(';') < 0)
 		{
 			contentSecurityPolicyConfig.setDirective(directive, override);
