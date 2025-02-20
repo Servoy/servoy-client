@@ -534,7 +534,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	/**
 	 * Get a persistent property value (from servoy.properties file).
 	 *
-	 * @sample var value = application.getUserProperty('ServerManager.numberOfServers');
+	 * @sample var value = application.getServoyProperty('ServerManager.numberOfServers');
 	 *
 	 * @param name Name of the property
 	 *
