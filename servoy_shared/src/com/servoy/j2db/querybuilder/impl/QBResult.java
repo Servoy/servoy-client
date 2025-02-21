@@ -71,7 +71,7 @@ public class QBResult extends QBPart implements IQueryBuilderResult
 	}
 
 	@Override
-	@JSReadonlyProperty
+	@JSReadonlyProperty(debuggerRepresentation = "Query parent part")
 	public QBSelect getParent()
 	{
 		return (QBSelect)super.getParent();

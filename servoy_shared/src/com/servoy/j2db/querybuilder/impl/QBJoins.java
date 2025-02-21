@@ -127,7 +127,7 @@ public class QBJoins extends DefaultJavaScope implements IQueryBuilderJoins
 	 *
 	 *  @return the parent table clause for these joins.
 	 */
-	@JSReadonlyProperty
+	@JSReadonlyProperty(debuggerRepresentation = "Query parent part")
 	public QBTableClause getParent()
 	{
 		return parent;
@@ -152,7 +152,7 @@ public class QBJoins extends DefaultJavaScope implements IQueryBuilderJoins
 	 *
 	 *  @return the root query builder for these joins.
 	 */
-	@JSReadonlyProperty
+	@JSReadonlyProperty(debuggerRepresentation = "Query root part")
 	public QBSelect getRoot()
 	{
 		return root;

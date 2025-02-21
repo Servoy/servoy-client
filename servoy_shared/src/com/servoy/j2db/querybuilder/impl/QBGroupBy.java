@@ -60,7 +60,7 @@ public class QBGroupBy extends QBPart implements IQueryBuilderGroupby
 	}
 
 	@Override
-	@JSReadonlyProperty
+	@JSReadonlyProperty(debuggerRepresentation = "Query parent part")
 	public QBSelect getParent()
 	{
 		return (QBSelect)super.getParent();

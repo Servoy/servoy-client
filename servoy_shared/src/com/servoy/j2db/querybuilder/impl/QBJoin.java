@@ -139,7 +139,7 @@ public class QBJoin extends QBTableClause implements IQueryBuilderJoin, IConstan
 	 *
 	 * @return the logical condition for the join.
 	 */
-	@JSReadonlyProperty
+	@JSReadonlyProperty(debuggerRepresentation = "Query join on clause")
 	public QBLogicalCondition on()
 	{
 		if (on == null)

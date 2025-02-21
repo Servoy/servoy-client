@@ -60,7 +60,7 @@ public class QBParameter extends QBPart implements IQueryBuilderParameter
 	}
 
 	@Override
-	@JSReadonlyProperty
+	@JSReadonlyProperty(debuggerRepresentation = "Query parent part")
 	public QBSelect getParent()
 	{
 		return (QBSelect)super.getParent();

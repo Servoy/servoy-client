@@ -62,7 +62,7 @@ public class QBSorts extends QBPart implements IQueryBuilderSorts
 	 *  @return the parent QBSelect query associated with these sorts.
 	 */
 	@Override
-	@JSReadonlyProperty
+	@JSReadonlyProperty(debuggerRepresentation = "Query parent part")
 	public final QBSelect getParent()
 	{
 		return (QBSelect)super.getParent();

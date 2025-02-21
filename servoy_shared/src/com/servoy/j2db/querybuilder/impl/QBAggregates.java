@@ -56,7 +56,7 @@ public class QBAggregates extends QBPart implements IQueryBuilderAggregates
 	}
 
 	@Override
-	@JSReadonlyProperty
+	@JSReadonlyProperty(debuggerRepresentation = "Query parent part")
 	public QBSelect getParent()
 	{
 		return (QBSelect)super.getParent();

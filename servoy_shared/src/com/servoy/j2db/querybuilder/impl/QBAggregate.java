@@ -73,7 +73,7 @@ public class QBAggregate extends QBColumn implements IQueryBuilderAggregate
 	 * var query = datasources.db.example_data.orders.createSelect();
 	 * query.result.add(query.columns.shipcountry.count.distinct);
 	 */
-	@JSReadonlyProperty
+	@JSReadonlyProperty(debuggerRepresentation = "Query distinct clause")
 	public QBAggregate distinct()
 	{
 		return new QBAggregate(getRoot(), getParent(), getQueryColumn(), aggregateType, QueryAggregate.DISTINCT);
