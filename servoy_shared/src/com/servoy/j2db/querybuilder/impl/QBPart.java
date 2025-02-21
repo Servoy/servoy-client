@@ -64,7 +64,7 @@ public abstract class QBPart implements IQueryBuilderPart, IJavaScriptType
 	 * 	query.where.add(query.joins.person_to_parent.joins.person_to_parent.columns.name.eq('john'))
 	 * 	foundset.loadRecords(query)
 	 */
-	@JSReadonlyProperty
+	@JSReadonlyProperty(debuggerRepresentation = "Query parent part")
 	public QBTableClause getParent()
 	{
 		return parent;
@@ -87,7 +87,7 @@ public abstract class QBPart implements IQueryBuilderPart, IJavaScriptType
 	 *
 	 * 	foundset.loadRecords(query)
 	 */
-	@JSReadonlyProperty
+	@JSReadonlyProperty(debuggerRepresentation = "Query root part")
 	public QBSelect getRoot()
 	{
 		return root;

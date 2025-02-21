@@ -256,7 +256,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	 *
 	 *  @return a QBCondition representing the "is null" comparison.
 	 */
-	@JSReadonlyProperty
+	@JSReadonlyProperty(debuggerRepresentation = "Query isNull clause")
 	public QBCondition isNull()
 	{
 		return eq(null);
@@ -337,7 +337,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	 *  @return a QBColumn representing the negated condition.
 	 *
 	 */
-	@JSReadonlyProperty
+	@JSReadonlyProperty(debuggerRepresentation = "Query not clause")
 	public QBColumn not()
 	{
 		return new QBColumn(getRoot(), getParent(), getQuerySelectValue(), !negate);
@@ -354,7 +354,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	 *
 	 *  @return a QBSort representing an ascending sort order.
 	 */
-	@JSReadonlyProperty
+	@JSReadonlyProperty(debuggerRepresentation = "Query sort clause")
 	public QBSort asc()
 	{
 		return new QBSort(getRoot(), this, true);
@@ -371,7 +371,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	 *
 	 *  @return a QBSort representing a descending sort order.
 	 */
-	@JSReadonlyProperty
+	@JSReadonlyProperty(debuggerRepresentation = "Query sort clause")
 	public QBSort desc()
 	{
 		return new QBSort(getRoot(), this, false);
@@ -387,7 +387,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	 *
 	 *  @return a QBAggregate representing the count aggregate function.
 	 */
-	@JSReadonlyProperty
+	@JSReadonlyProperty(debuggerRepresentation = "Query count clause")
 	public QBAggregate count()
 	{
 		return getRoot().aggregates().count(this);
@@ -403,7 +403,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	 *
 	 *  @return a QBAggregate representing the average aggregate function.
 	 */
-	@JSReadonlyProperty
+	@JSReadonlyProperty(debuggerRepresentation = "Query avg clause")
 	public QBAggregate avg()
 	{
 		return getRoot().aggregates().avg(this);
@@ -419,7 +419,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	 *
 	 *  @return a QBAggregate representing the maximum aggregate function.
 	 */
-	@JSReadonlyProperty
+	@JSReadonlyProperty(debuggerRepresentation = "Query max clause")
 	public QBAggregate max()
 	{
 		return getRoot().aggregates().max(this);
@@ -435,7 +435,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	 *
 	 *  @return a QBAggregate representing the minimum aggregate function.
 	 */
-	@JSReadonlyProperty
+	@JSReadonlyProperty(debuggerRepresentation = "Query min clause")
 	public QBAggregate min()
 	{
 		return getRoot().aggregates().min(this);
@@ -451,7 +451,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	 *
 	 *  @return a QBAggregate representing the sum aggregate function.
 	 */
-	@JSReadonlyProperty
+	@JSReadonlyProperty(debuggerRepresentation = "Query sum clause")
 	public QBAggregate sum()
 	{
 		return getRoot().aggregates().sum(this);
@@ -464,7 +464,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	 *
 	 *  @return a QBFunction representing the upper case transformation.
 	 */
-	@JSReadonlyProperty
+	@JSReadonlyProperty(debuggerRepresentation = "Query upper clause")
 	public QBFunction upper()
 	{
 		return getRoot().functions().upper(this);
@@ -477,7 +477,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	 *
 	 *  @return a QBFunction representing the absolute value function.
 	 */
-	@JSReadonlyProperty
+	@JSReadonlyProperty(debuggerRepresentation = "Query abs clause")
 	public QBFunction abs()
 	{
 		return getRoot().functions().abs(this);
@@ -490,7 +490,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	 *
 	 *  @return a QBFunction representing the square root function.
 	 */
-	@JSReadonlyProperty
+	@JSReadonlyProperty(debuggerRepresentation = "Query sqrt function clause")
 	public QBFunction sqrt()
 	{
 		return getRoot().functions().sqrt(this);
@@ -503,7 +503,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	 *
 	 *  @return a QBFunction representing the lower case transformation.
 	 */
-	@JSReadonlyProperty
+	@JSReadonlyProperty(debuggerRepresentation = "Query lowe function clause")
 	public QBFunction lower()
 	{
 		return getRoot().functions().lower(this);
@@ -516,7 +516,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	 *
 	 *  @return a QBFunction representing the trim function.
 	 */
-	@JSReadonlyProperty
+	@JSReadonlyProperty(debuggerRepresentation = "Query trim function")
 	public QBFunction trim()
 	{
 		return getRoot().functions().trim(this);
@@ -529,7 +529,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	 *
 	 *  @return a QBFunction representing the length function.
 	 */
-	@JSReadonlyProperty
+	@JSReadonlyProperty(debuggerRepresentation = "Query length clause")
 	public QBFunction len()
 	{
 		return length();
@@ -547,7 +547,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	 *
 	 *  @return a QBFunction representing the bit length function.
 	 */
-	@JSReadonlyProperty
+	@JSReadonlyProperty(debuggerRepresentation = "Query bit_length clause")
 	public QBFunction bit_length()
 	{
 		return getRoot().functions().bit_length(this);
@@ -730,7 +730,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	 *
 	 *  @return a QBFunction representing the floor function.
 	 */
-	@JSReadonlyProperty
+	@JSReadonlyProperty(debuggerRepresentation = "Query floor function")
 	public QBFunction floor()
 	{
 		return getRoot().functions().floor(this);
@@ -743,7 +743,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	 *
 	 *  @return a QBFunction representing the round function.
 	 */
-	@JSReadonlyProperty
+	@JSReadonlyProperty(debuggerRepresentation = "Query round function")
 	public QBFunction round()
 	{
 		return getRoot().functions().round(this);
@@ -756,7 +756,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	 *
 	 *  @return a QBFunction representing the ceil function.
 	 */
-	@JSReadonlyProperty
+	@JSReadonlyProperty(debuggerRepresentation = "Query ceil function")
 	public QBFunction ceil()
 	{
 		return getRoot().functions().ceil(this);
@@ -769,7 +769,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	 *
 	 *  @return a QBFunction representing the extraction of the second from a date.
 	 */
-	@JSReadonlyProperty
+	@JSReadonlyProperty(debuggerRepresentation = "Query timestamp second function")
 	public QBFunction second()
 	{
 		return getRoot().functions().second(this);
@@ -782,7 +782,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	 *
 	 *  @return a QBFunction representing the extraction of the minute from a date.
 	 */
-	@JSReadonlyProperty
+	@JSReadonlyProperty(debuggerRepresentation = "Query timestamp minute function")
 	public QBFunction minute()
 	{
 		return getRoot().functions().minute(this);
@@ -795,7 +795,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	 *
 	 *  @return a QBFunction representing the extraction of the hour from a date.
 	 */
-	@JSReadonlyProperty
+	@JSReadonlyProperty(debuggerRepresentation = "Query timestamp hour function")
 	public QBFunction hour()
 	{
 		return getRoot().functions().hour(this);
@@ -808,7 +808,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	 *
 	 *  @return a QBFunction representing the extraction of the day from a date.
 	 */
-	@JSReadonlyProperty
+	@JSReadonlyProperty(debuggerRepresentation = "Query timestamp day function")
 	public QBFunction day()
 	{
 		return getRoot().functions().day(this);
@@ -821,7 +821,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	 *
 	 *  @return a QBFunction representing the extraction of the month from a date.
 	 */
-	@JSReadonlyProperty
+	@JSReadonlyProperty(debuggerRepresentation = "Query timestamp month function")
 	public QBFunction month()
 	{
 		return getRoot().functions().month(this);
@@ -834,7 +834,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	 *
 	 *  @return a QBFunction representing the extraction of the year from a date.
 	 */
-	@JSReadonlyProperty
+	@JSReadonlyProperty(debuggerRepresentation = "Query timestamp year function")
 	public QBFunction year()
 	{
 		return getRoot().functions().year(this);
