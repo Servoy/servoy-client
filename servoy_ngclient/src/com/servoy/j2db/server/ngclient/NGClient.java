@@ -161,6 +161,8 @@ public class NGClient extends AbstractApplication
 
 	private URL serverURL;
 
+	private JSONObject userAgentAndPlatform;
+
 	private final IDesignerCallback designerCallback;
 
 	public NGClient(INGClientWebsocketSession wsSession, IDesignerCallback designerCallback) throws Exception
@@ -1031,27 +1033,20 @@ public class NGClient extends AbstractApplication
 		return IApplication.NG_CLIENT;
 	}
 
+
 	@Override
 	public String getClientOSName()
 	{
-		try
+		JSONObject retValue = getUserAgentAndPlatform();
+		if (retValue != null)
 		{
-			Object retValue = this.getWebsocketSession().getClientService(NGClient.APPLICATION_SERVICE).executeServiceCall("getUserAgentAndPlatform", null);
-			if (retValue instanceof JSONObject)
+			String userAgent = retValue.optString("userAgent");
+			if (userAgent != null)
 			{
-				String userAgent = ((JSONObject)retValue).optString("userAgent");
-				if (userAgent != null)
-				{
-					return HCUtils
-						.getOSName(userAgent);
-				}
-				String platform = ((JSONObject)retValue).optString("platform");
-				if (platform != null) return platform;
+				return HCUtils.getOSName(userAgent);
 			}
-		}
-		catch (IOException e)
-		{
-			Debug.error(e);
+			String platform = retValue.optString("platform");
+			if (platform != null) return platform;
 		}
 		return super.getClientOSName();
 	}
@@ -1059,23 +1054,43 @@ public class NGClient extends AbstractApplication
 	@Override
 	public int getClientPlatform()
 	{
+		JSONObject retValue = getUserAgentAndPlatform();
+		if (retValue != null)
+		{
+			String platform = retValue.optString("platform");
+			if (platform != null)
+			{
+				return Utils.getPlatform(platform);
+			}
+		}
+		return super.getClientPlatform();
+	}
+
+	/**
+	 * @return
+	 * @throws IOException
+	 */
+	public JSONObject getUserAgentAndPlatform()
+	{
+		if (userAgentAndPlatform != null)
+		{
+			return userAgentAndPlatform;
+		}
+		Object retValue = null;
 		try
 		{
-			Object retValue = this.getWebsocketSession().getClientService(NGClient.APPLICATION_SERVICE).executeServiceCall("getUserAgentAndPlatform", null);
-			if (retValue instanceof JSONObject)
-			{
-				String platform = ((JSONObject)retValue).optString("platform");
-				if (platform != null)
-				{
-					return Utils.getPlatform(platform);
-				}
-			}
+			retValue = this.getWebsocketSession().getClientService(NGClient.APPLICATION_SERVICE).executeServiceCall("getUserAgentAndPlatform", null);
 		}
 		catch (IOException e)
 		{
 			Debug.error(e);
 		}
-		return super.getClientPlatform();
+		if (retValue instanceof JSONObject json)
+		{
+			userAgentAndPlatform = json;
+			return userAgentAndPlatform;
+		}
+		return null;
 	}
 
 	@Override

@@ -33,6 +33,7 @@ import javax.servlet.http.HttpSession;
 import org.apache.commons.collections4.map.PassiveExpiringMap;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.text.StringEscapeUtils;
+import org.sablo.security.ContentSecurityPolicyConfig;
 import org.sablo.util.HTTPUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -216,7 +217,7 @@ public class StatelessLoginHandler
 			if (jwt.getClaim(REFRESH_TOKEN).asString() != null)
 			{
 				AUTHENTICATOR_TYPE authenticator = solution.getAuthenticator();
-				if (authenticator == AUTHENTICATOR_TYPE.OAUTH)
+				if (authenticator == AUTHENTICATOR_TYPE.OAUTH || authenticator == AUTHENTICATOR_TYPE.OAUTH_AUTHENTICATOR)
 				{
 					OAuthHandler.revokeToken(solution, jwt);
 				}
@@ -229,7 +230,7 @@ public class StatelessLoginHandler
 	}
 
 	public static void writeLoginPage(HttpServletRequest request, HttpServletResponse response, String solutionName, String customHTML)
-		throws IOException
+		throws IOException, ServletException
 	{
 		if (request.getCharacterEncoding() == null) request.setCharacterEncoding("UTF8");
 		HTTPUtils.setNoCacheHeaders(response);
@@ -243,15 +244,29 @@ public class StatelessLoginHandler
 		catch (RepositoryException e)
 		{
 			log.error("Can't load solution " + solutionName, e);
+			return;
 		}
-		if (solution != null && solution.getAuthenticator() == AUTHENTICATOR_TYPE.OAUTH)
+
+		if (solution == null)
+		{
+			log.error("The solution is null " + solutionName);
+			return;
+		}
+		if (solution.getAuthenticator() == AUTHENTICATOR_TYPE.OAUTH)
 		{
 			OAuthHandler.redirectToOAuthLogin(request, response, solution);
 			return;
 		}
 
+		if (solution.getAuthenticator() == AUTHENTICATOR_TYPE.OAUTH_AUTHENTICATOR)
+		{
+			OAuthHandler.redirectToAuthenticator(request, response, solution);
+			return;
+		}
+
+		ContentSecurityPolicyConfig contentSecurityPolicyConfig = null;
 		String loginHtml = null;
-		if (solution != null && solution.getAuthenticator() == AUTHENTICATOR_TYPE.SERVOY_CLOUD)
+		if (solution.getAuthenticator() == AUTHENTICATOR_TYPE.SERVOY_CLOUD)
 		{
 			if (customHTML != null && customHTML.startsWith("<"))
 			{
@@ -261,7 +276,12 @@ public class StatelessLoginHandler
 			else
 			{
 				loginHtml = CloudStatelessAccessManager.getCloudLoginPage(request, solution, loginHtml);
+				contentSecurityPolicyConfig = CloudStatelessAccessManager.addcontentSecurityPolicyHeader(request, response);
 			}
+		}
+		else
+		{
+			contentSecurityPolicyConfig = AngularIndexPageWriter.addcontentSecurityPolicyHeader(request, response, false);
 		}
 		if (solution != null && loginHtml == null)
 		{
@@ -343,6 +363,13 @@ public class StatelessLoginHandler
 		if (requestLanguage != null)
 		{
 			loginHtml = loginHtml.replace("lang=\"en\"", "lang=\"" + request.getLocale().getLanguage() + "\"");
+		}
+
+		String contentSecurityPolicyNonce = contentSecurityPolicyConfig != null ? contentSecurityPolicyConfig.getNonce() : null;
+		if (contentSecurityPolicyNonce != null)
+		{
+			loginHtml = loginHtml.replace("<script ", "<script nonce='" + contentSecurityPolicyNonce + '\'');
+			loginHtml = loginHtml.replace("<style", "<style nonce='" + contentSecurityPolicyNonce + '\'');
 		}
 
 		response.setCharacterEncoding("UTF-8");

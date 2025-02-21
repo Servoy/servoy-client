@@ -19,7 +19,9 @@ package com.servoy.j2db.scripting;
 import java.util.Arrays;
 
 import org.mozilla.javascript.Wrapper;
+import org.mozilla.javascript.annotations.JSFunction;
 
+import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
 
 /**
@@ -43,6 +45,8 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "JSEvent")
 public class JSEvent extends JSBaseEvent
 {
+	private boolean propagationStopped = false;
+
 	@Override
 	public String toString()
 	{
@@ -68,5 +72,23 @@ public class JSEvent extends JSBaseEvent
 	public String getPrefix()
 	{
 		return "JSEvent"; //$NON-NLS-1$
+	}
+
+	/**
+	 * stopPropagation is used in case of multiple event listeners (added via application.addEventListener). When application.fireEventListeners is called you can use this api to stop executing further listeners.
+	 *
+	 * @sample event.stopPropagation()
+	 *
+	 */
+	@JSFunction
+	@ServoyClientSupport(ng = true, wc = true, sc = true, mc = false)
+	public void stopPropagation()
+	{
+		propagationStopped = true;
+	}
+
+	public boolean isPropagationStopped()
+	{
+		return propagationStopped;
 	}
 }
