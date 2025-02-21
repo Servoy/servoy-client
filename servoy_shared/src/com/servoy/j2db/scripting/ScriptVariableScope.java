@@ -162,12 +162,9 @@ public abstract class ScriptVariableScope extends LazyCompilationScope
 				allIndex.put(new Integer(allIndex.size()), name);
 			}
 			Context currentContext = Context.getCurrentContext();
-			if (currentContext != null)
+			if (currentContext != null && currentContext.getDebugger() instanceof IDebuggerWithWatchPoints watchPointDebugger)
 			{
-				if (currentContext.getDebugger() instanceof IDebuggerWithWatchPoints watchPointDebugger)
-				{
-					watchPointDebugger.registerVariable(name, var.getSerializableRuntimeProperty(IScriptProvider.FILENAME), var.getLineNumberOffset(), this);
-				}
+				watchPointDebugger.registerVariable(name, var.getSerializableRuntimeProperty(IScriptProvider.FILENAME), var.getLineNumberOffset(), this);
 			}
 		}
 	}
