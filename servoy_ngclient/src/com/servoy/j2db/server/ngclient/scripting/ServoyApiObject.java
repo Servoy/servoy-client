@@ -21,12 +21,15 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.TimeoutException;
 
 import org.mozilla.javascript.IdScriptableObject;
 import org.mozilla.javascript.NativeArray;
 import org.mozilla.javascript.NativeObject;
 import org.mozilla.javascript.annotations.JSFunction;
 import org.sablo.Container;
+import org.sablo.eventthread.IEventDispatcher;
 
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.dataprocessing.FoundSet;
@@ -490,5 +493,40 @@ public class ServoyApiObject
 		event.setFormName(this.component.findParent(IWebFormUI.class).getController().getName());
 		event.setElementName(this.component.getFormElement().getRawName());
 		return event;
+	}
+
+
+	/**
+	 * This can be called by server side code of components or services to suspend the api call that is done from Servoy Scripting.
+	 * So the server side code will block the servoy scripting call but it self does call a async client side function where it waits for some results
+	 * This is handy if the result come in through another call which can't directly be handled  through the websocket message, like a large file upload.
+	 *
+	 * It is very important that when this call is done there is always a {@link #resume()} call done! Else the event thread will not resume the call that triggered this.
+	 */
+	@JSFunction
+	public void suspend()
+	{
+		try
+		{
+			app.getWebsocketSession().getEventDispatcher().suspend(this, IEventDispatcher.EVENT_LEVEL_DEFAULT,
+				IEventDispatcher.NO_TIMEOUT);
+		}
+		catch (CancellationException | TimeoutException e)
+		{
+			Debug.error(e);
+		}
+		return;
+
+	}
+
+	/**
+	 * This needs to be called when {@link #suspend()} is called to resume the servoy scripting call that was suspended.
+	 *
+	 * So this can be called in an serverside call from the client that couldn't really be done directly in a sync call to the client.
+	 */
+	@JSFunction
+	public void resume()
+	{
+		app.getWebsocketSession().getEventDispatcher().resume(this);
 	}
 }
