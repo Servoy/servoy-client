@@ -40,11 +40,53 @@ public class BigInt
 	 *
 	 * @sample const hugeString = BigInt("9007199254740991");
 	 *
-	 * @param value The value to be converted to a BigInt value. It may be a string, an integer, a boolean, or another BigInt.
+	 * @param value
 	 *
 	 * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/BigInt/BigInt
 	 */
-	public void jsConstructor_BigInt(Object value)
+	public void jsConstructor_BigInt(String value)
+	{
+	}
+
+	/**
+	 * The BigInt() function returns primitive values of type BigInt.
+	 * Note: BigInt() can only be called without new. Attempting to construct it with new throws a TypeError.
+	 *
+	 * @sample const b = BigInt(9007199254740991);
+	 *
+	 * @param value
+	 *
+	 * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/BigInt/BigInt
+	 */
+	public void jsConstructor_BigInt(Number value)
+	{
+	}
+
+	/**
+	 * The BigInt() function returns primitive values of type BigInt.
+	 * Note: BigInt() can only be called without new. Attempting to construct it with new throws a TypeError.
+	 *
+	 * @sample const b = BigInt(false);
+	 *
+	 * @param value
+	 *
+	 * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/BigInt/BigInt
+	 */
+	public void jsConstructor_BigInt(Boolean value)
+	{
+	}
+
+	/**
+	 * The BigInt() function returns primitive values of type BigInt.
+	 * Note: BigInt() can only be called without new. Attempting to construct it with new throws a TypeError.
+	 *
+	 * @sample const b = BigInt(9007199254740991n);
+	 *
+	 * @param value
+	 *
+	 * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/BigInt/BigInt
+	 */
+	public void jsConstructor_BigInt(BigInt value)
 	{
 	}
 
