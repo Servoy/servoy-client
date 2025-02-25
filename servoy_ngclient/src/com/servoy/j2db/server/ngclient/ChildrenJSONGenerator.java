@@ -262,8 +262,16 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 
 			writer.key("children");
 			writer.array();
-			o.acceptVisitor(new ChildrenJSONGenerator(writer, context, o, cache, null, this.form, false, designer),
-				PositionComparator.XY_PERSIST_COMPARATOR);
+			if ("csspositioncontainer".equals(layoutContainer.getSpecName()))
+			{
+				o.acceptVisitor(new ChildrenJSONGenerator(writer, context, o, cache, null, this.form, false, designer),
+					ChildrenJSONGenerator.FORM_INDEX_WITH_HIERARCHY_COMPARATOR);
+			}
+			else
+			{
+				o.acceptVisitor(new ChildrenJSONGenerator(writer, context, o, cache, null, this.form, false, designer),
+					PositionComparator.XY_PERSIST_COMPARATOR);
+			}
 			writer.endArray();
 			writer.endObject();
 			return IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER;
