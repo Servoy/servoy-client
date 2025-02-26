@@ -83,6 +83,7 @@ import com.servoy.j2db.server.ngclient.property.types.ValueListPropertyType.Valu
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.Settings;
+import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -399,11 +400,13 @@ public class ValueListTypeSabloValue
 		List<Map<String, Object>> array = new ArrayList<>(size);
 		boolean displayAreDates = false;
 		realAreDates = false;
+		boolean realAreUUIDs = false;
 		for (int i = 0; i < size; i++)
 		{
 			Map<String, Object> map = new HashMap<String, Object>();
 			Object realValue = (filteredValuelist != null) ? filteredValuelist.getRealElementAt(i) : getCurrentValueList().getRealElementAt(i);
-			realAreDates = realAreDates | realValue instanceof Date;
+			if (!realAreUUIDs) realAreDates = realAreDates | realValue instanceof Date;
+			if (!realAreDates) realAreUUIDs = realAreUUIDs | realValue instanceof UUID;
 			map.put("realValue", convertDate(realValue));
 			if (Utils.equalObjects(realValue, dpRealValue)) containsDpValue = true;
 			Object displayValue = (filteredValuelist != null) ? filteredValuelist.getElementAt(i) : getCurrentValueList().getElementAt(i);
@@ -442,10 +445,18 @@ public class ValueListTypeSabloValue
 			// only add it if it was removed
 			valueList.addListDataListener(this);
 		}
-		writer.key("realValueAreDates");
-		writer.value(realAreDates);
-		writer.key("displayValueAreDates");
-		writer.value(displayAreDates);
+
+		if (realAreDates || realAreUUIDs)
+		{
+			writer.key("realValueType");
+			writer.value(realAreDates ? "Date" : "UUID");
+		}
+		if (displayAreDates)
+		{
+			writer.key("displayValueType");
+			writer.value("Date");
+		}
+
 		return jsonValue;
 	}
 
