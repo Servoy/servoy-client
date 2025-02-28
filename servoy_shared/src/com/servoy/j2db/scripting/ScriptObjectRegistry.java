@@ -263,11 +263,6 @@ public class ScriptObjectRegistry
 							}
 						}
 
-						/*
-						 * (non-Javadoc)
-						 *
-						 * @see com.servoy.j2db.scripting.InstanceJavaMembers#isJsMethod(java.lang.String)
-						 */
 						@Override
 						protected boolean isJsMethod(Method method, Class< ? > originalClass)
 						{
