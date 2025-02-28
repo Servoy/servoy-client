@@ -17,6 +17,8 @@
 
 package com.servoy.j2db.documentation.scripting.docs;
 
+import org.mozilla.javascript.annotations.JSFunction;
+
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
 
@@ -49,6 +51,7 @@ public class Promise
 	 *
 	 * @param iterable
 	 */
+	@JSFunction
 	public Promise all(Array iterable)
 	{
 		return null;
@@ -62,6 +65,7 @@ public class Promise
 	 *
 	 * @param iterable
 	 */
+	@JSFunction
 	public Promise allSettled(Array iterable)
 	{
 		return null;
@@ -73,6 +77,7 @@ public class Promise
 	 *
 	 * @param iterable
 	 */
+	@JSFunction
 	public Promise race(Array iterable)
 	{
 		return null;
@@ -83,6 +88,7 @@ public class Promise
 	 *
 	 * @param reason
 	 */
+	@JSFunction
 	public Promise reject(Object reason)
 	{
 		return null;
@@ -100,6 +106,7 @@ public class Promise
 	 *
 	 * @param value
 	 */
+	@JSFunction
 	public Promise resolve(Object value)
 	{
 		return null;
@@ -113,6 +120,7 @@ public class Promise
 	 *
 	 * @param onFulfilled
 	 */
+	@JSFunction
 	public Promise then(Function onFulfilled)
 	{
 		return null;
@@ -127,6 +135,7 @@ public class Promise
 	 * @param onFulfilled
 	 * @param onRejected
 	 */
+	@JSFunction
 	public Promise then(Function onFulfilled, Function onRejected)
 	{
 		return null;
@@ -139,6 +148,7 @@ public class Promise
 	 *
 	 * @param onRejected
 	 */
+	@JSFunction
 	public Promise js_catch(Function onRejected)
 	{
 		return null;
@@ -153,6 +163,7 @@ public class Promise
 	 *
 	 * @param onFinally
 	 */
+	@JSFunction
 	public Promise js_finally(Function onFinally)
 	{
 		return null;
