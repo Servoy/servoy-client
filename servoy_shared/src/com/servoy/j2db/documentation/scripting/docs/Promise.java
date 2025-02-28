@@ -43,6 +43,74 @@ public class Promise
 	}
 
 	/**
+	 * The Promise.all() static method takes an iterable of promises as input and returns a single Promise.
+	 * This returned promise fulfills when all of the input's promises fulfill (including when an empty iterable is passed),
+	 * with an array of the fulfillment values. It rejects when any of the input's promises rejects, with this first rejection reason.
+	 *
+	 * @param iterable
+	 */
+	public Promise all(Array iterable)
+	{
+		return null;
+	}
+
+
+	/**
+	 * The Promise.allSettled() static method takes an iterable of promises as input and returns a single Promise.
+	 * This returned promise fulfills when all of the input's promises settle (including when an empty iterable is passed),
+	 * with an array of objects that describe the outcome of each promise.
+	 *
+	 * @param iterable
+	 */
+	public Promise allSettled(Array iterable)
+	{
+		return null;
+	}
+
+	/**
+	 * The Promise.race() static method takes an iterable of promises as input and returns a single Promise.
+	 * This returned promise settles with the eventual state of the first promise that settles.
+	 *
+	 * @param iterable
+	 */
+	public Promise race(Array iterable)
+	{
+		return null;
+	}
+
+	/**
+	 * The Promise.reject() static method returns a Promise object that is rejected with a given reason.
+	 *
+	 * @param reason
+	 */
+	public Promise reject(Object reason)
+	{
+		return null;
+	}
+
+	/**
+	 * The Promise.resolve() static method "resolves" a given value to a Promise.
+	 * If the value is a promise, that promise is returned;
+	 * if the value is a thenable, Promise.resolve() will call the then() method with two callbacks it prepared;
+	 * otherwise the returned promise will be fulfilled with the value.
+	 *
+	 * This function flattens nested layers of promise-like objects
+	 * (e.g. a promise that fulfills to a promise that fulfills to something)
+	 * into a single layer — a promise that fulfills to a non-thenable value.
+	 *
+	 * @param value
+	 */
+	public Promise resolve(Object value)
+	{
+		return null;
+	}
+
+	/**
+	 * The then() method of Promise instances takes up to two arguments:
+	 * callback functions for the fulfilled and rejected cases of the Promise.
+	 * It stores the callbacks within the promise it is called on and immediately returns another Promise object,
+	 * allowing you to chain calls to other promise methods.
+	 *
 	 * @param onFulfilled
 	 */
 	public Promise then(Function onFulfilled)
@@ -51,6 +119,11 @@ public class Promise
 	}
 
 	/**
+	 * The then() method of Promise instances takes up to two arguments:
+	 * callback functions for the fulfilled and rejected cases of the Promise.
+	 * It stores the callbacks within the promise it is called on and immediately returns another Promise object,
+	 * allowing you to chain calls to other promise methods.
+	 *
 	 * @param onFulfilled
 	 * @param onRejected
 	 */
@@ -60,6 +133,10 @@ public class Promise
 	}
 
 	/**
+	 * The catch() method of Promise instances schedules a function to be called when the promise is rejected.
+	 * It immediately returns another Promise object, allowing you to chain calls to other promise methods.
+	 * It is a shortcut for then(undefined, onRejected).
+	 *
 	 * @param onRejected
 	 */
 	public Promise js_catch(Function onRejected)
@@ -68,6 +145,12 @@ public class Promise
 	}
 
 	/**
+	 * The finally() method of Promise instances schedules a function to be called when the promise is settled
+	 * (either fulfilled or rejected). It immediately returns another Promise object,
+	 * allowing you to chain calls to other promise methods.
+	 *
+	 * This lets you avoid duplicating code in both the promise's then() and catch() handlers.
+	 *
 	 * @param onFinally
 	 */
 	public Promise js_finally(Function onFinally)
@@ -75,43 +158,5 @@ public class Promise
 		return null;
 	}
 
-	/**
-	 * @param iterable
-	 */
-	public Promise allSettled(Array iterable)
-	{
-		return null;
-	}
 
-	/**
-	 * @param iterable
-	 */
-	public Promise all(Array iterable)
-	{
-		return null;
-	}
-
-	/**
-	 * @param iterable
-	 */
-	public Promise race(Array iterable)
-	{
-		return null;
-	}
-
-	/**
-	 * @param reason
-	 */
-	public Promise reject(Object reason)
-	{
-		return null;
-	}
-
-	/**
-	 * @param value
-	 */
-	public Promise resolve(Object value)
-	{
-		return null;
-	}
 }
