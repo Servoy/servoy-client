@@ -845,4 +845,192 @@ public class Array
 	{
 		return null;
 	}
+
+	/**
+	 *  Iterates the array in reverse order and returns the value of the first element that satisfies the provided testing function.
+	 *  If no elements satisfy the testing function, undefined is returned.
+	 *  The callback function can invoked with three arguments: the element value, the element index (optional), the array being traversed (optional).
+	 *
+	 *  @sample
+	 *  const array1 = [5, 12, 50, 130, 44];
+	 *  const found = array1.findLast((element) => element > 45);
+	 *  application.output(found); // prints 130
+	 *
+	 * @param callback a testing function
+	 * @return the index of the first element which satisfies the function or undefined
+	 */
+	public Object js_findLast(Function callback)
+	{
+		return null;
+	}
+
+	/**
+	 *  Iterates the array in reverse order and returns the index of the first element that satisfies the provided testing function.
+	 *  If no elements satisfy the testing function, -1 is returned.
+	 *  The callback function can invoked with three arguments: the element value, the element index (optional), the array being traversed (optional).
+	 *
+	 *  @sample
+	 *  const array1 = [5, 12, 50, 130, 44];
+	 *  const found = array1.findLast((element) => element > 45);
+	 *  application.output(found); // prints 3
+	 *
+	 * @param callback a testing function
+	 * @return the index of the first element which satisfies the function or undefined
+	 */
+	public Object js_findLastIndex(Function callback)
+	{
+		return null;
+	}
+
+	/**
+	 * The toReversed() method transposes the elements of the calling array object in reverse order and returns a new array.
+	 * When used on sparse arrays, the toReversed() method iterates empty slots as if they have the value undefined.
+	 *
+	 * @sample
+	 * const items = [1, 2, 3];
+	 * application.output(items); // [1, 2, 3]
+	 * const reversedItems = items.toReversed();
+	 * application.output(reversedItems); // [3, 2, 1]
+	 *
+	 * @return a new array containing the elements in reversed order
+	 *
+	 * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/toReversed
+	 */
+	public Array js_toReversed()
+	{
+		return null;
+	}
+
+	/**
+	 * It is the copying version of the sort() method. It returns a new array with the elements sorted in ascending order.
+	 * The array elements are converted to strings, then sorted according to each character's Unicode code point value.
+	 * When used on sparse arrays, the toSorted() method iterates empty slots as if they have the value undefined.
+	 *
+	 * @sample
+	 * const months = ["Mar", "Jan", "Feb", "Dec"];
+	 * const sortedMonths = months.toSorted();
+	 * application.output(sortedMonths); // ['Dec', 'Feb', 'Jan', 'Mar']
+	 *
+	 * @return a new array containing the elements sorted in ascending order
+	 *
+	 * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/toSorted
+	 */
+	public Array js_toSorted()
+	{
+		return null;
+	}
+
+	/**
+	 * It is the copying version of the sort() method. It returns a new array with the elements sorted in ascending order.
+	 * When used on sparse arrays, the toSorted() method iterates empty slots as if they have the value undefined.
+	 *
+	 * @sample
+	 * const values = [1, 10, 21, 2];
+	 * const sortedValues = values.toSorted((a, b) => a - b);
+	 * application.output(sortedValues); // [1, 2, 10, 21]
+	 *
+	 * @param callback a comparator function
+	 * @return a new array containing the elements sorted in ascending order
+	 *
+	 * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/toSorted
+	 */
+	public Array js_toSorted(Function comparator)
+	{
+		return null;
+	}
+
+	/**
+	 * It is the copying version of the splice() method. It returns a new array with some elements removed and/or replaced at a given index.
+	 *
+	 * @sample
+	 * const months = ["Jan", "Mar", "Apr", "May"];
+	 * const months2 = months.toSpliced(2);
+	 * application.output(months2); // ["Jan", "Mar"]
+	 *
+	 * @param start
+	 * @return a new array that consists of all elements before start
+	 *
+	 * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/toSpliced
+	 */
+	public Array js_toSpliced(Object start)
+	{
+		return null;
+	}
+
+	/**
+	 * It is the copying version of the splice() method. It returns a new array with some elements removed and/or replaced at a given index.
+	 *
+	 * @sample
+	 * const months = ["Jan", "Mar", "Apr", "May"];
+	 * const months2 = months.toSpliced(2, 2);
+	 * application.output(months2); // ["Jan", "Mar", "May"]
+	 *
+	 * @param start
+	 * @param deleteCount
+	 * @return a new array that consists of all elements before start and all elements after start + deleteCount.
+	 *
+	 * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/toSpliced
+	 */
+	public Array js_toSpliced(Object start, Object deleteCount)
+	{
+		return null;
+	}
+
+	/**
+	 * It is the copying version of the splice() method. It returns a new array with some elements removed and/or replaced at a given index.
+	 *
+	 * @sample
+	 * const months = ["Jan", "Mar", "Apr", "May"];
+	 * const months2 = months.toSpliced(1, 0, "Feb");
+	 * application.output(months2); // ["Jan", "Feb", "Mar", "Apr", "May"]
+	 *
+	 * @param start
+	 * @param deleteCount
+	 * @param item1
+	 * @return a new array that consists of all elements before start, adds item1 to the array (beginning from start) and all elements after start + deleteCount.
+	 *
+	 * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/toSpliced
+	 */
+	public Array js_toSpliced(Object start, Object deleteCount, Object item1)
+	{
+		return null;
+	}
+
+	/**
+	 * It is the copying version of the splice() method. It returns a new array with some elements removed and/or replaced at a given index.
+	 *
+	 * @sample
+	 * const months = ["Jan", "Feb", "May"];
+	 * const months2 = months.toSpliced(1, 1, "Feb", "Mar");
+	 * application.output(months2); // ["Jan", "Feb", "Mar", "May"]
+	 *
+	 * @param start
+	 * @param deleteCount
+	 * @param items
+	 * @return a new array that consists of all elements before start, adds items to the array (beginning from start) and all elements after start + deleteCount.
+	 *
+	 * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/toSpliced
+	 */
+	public Array js_toSpliced(Object start, Object deleteCount, Object... items)
+	{
+		return null;
+	}
+
+	/**
+	 * It is the copying version of using the bracket notation to change the value of a given index.
+	 *
+	 * @sample
+	 * const arr = [1, 2, 3, 4, 5];
+	 * application.output(arr.with(2, 6)); // [1, 2, 6, 4, 5]
+	 *
+	 * @param index
+	 * @param value
+	 * @return a new array with the element at the given index replaced with the given value.
+	 *
+	 * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/with
+	 */
+	public Array js_with(Object index, Object value)
+	{
+		return null;
+	}
 }
