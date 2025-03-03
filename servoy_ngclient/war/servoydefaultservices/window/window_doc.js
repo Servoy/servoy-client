@@ -1,3 +1,12 @@
+var shortcuts;
+
+var popupform;
+
+var popupMenus;
+
+var popupMenuShowCommand;
+
+
 /**
  * Creates a new popup menu, either empty, or initialized from an existing JSMenu.
  * 

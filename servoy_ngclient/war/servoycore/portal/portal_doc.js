@@ -1,3 +1,42 @@
+var childElements;
+
+var headers;
+
+var findmode;
+
+var readOnly;
+
+var scrollbars;
+
+var tabSeq;
+
+
+
+var handlers = {
+    /**
+     * @param {JSDNDEvent} event
+     */
+    onDragEndMethodID: function() {},
+
+    /**
+     * @param {JSDNDEvent} event
+     * @returns {Number}
+     */
+    onDragMethodID: function() {},
+
+    /**
+     * @param {JSDNDEvent} event
+     * @returns {Boolean}
+     */
+    onDragOverMethodID: function() {},
+
+    /**
+     * @param {JSDNDEvent} event
+     * @returns {Boolean}
+     */
+    onDropMethodID: function() {}
+};
+
 /**
  * Retrieves the sorting columns applied to the portal's related foundset.
  *

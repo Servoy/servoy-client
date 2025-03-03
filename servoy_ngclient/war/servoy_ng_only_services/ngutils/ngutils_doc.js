@@ -1,3 +1,8 @@
+var styleclasses;
+
+var backActionCB;
+
+
 
 /**
  * This will register a callback that will be triggered on all history/window popstate events (back,forward but also next main form).
