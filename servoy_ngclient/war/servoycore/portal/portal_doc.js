@@ -1,3 +1,84 @@
+var background;
+
+var borderType;
+
+var enabled;
+
+var editable;
+
+var foreground;
+
+var headerHeight;
+
+var initialSort;
+
+var intercellSpacing;
+
+var location;
+
+var multiLine;
+
+var readOnlyMode;
+
+var relatedFoundset;
+
+var reorderable;
+
+var resizable;
+
+var resizeble;
+
+var rowBGColorCalculation;
+
+var rowHeight;
+
+var scrollbars;
+
+var showHorizontalLines;
+
+var showVerticalLines;
+
+var size;
+
+var sortable;
+
+var styleClass;
+
+var tabSeq;
+
+var transparent;
+
+var visible;
+
+
+var handlers = {
+    /**
+     * @param {JSDNDEvent} event
+     */
+    onDragEndMethodID: function() {},
+
+    /**
+     * @param {JSDNDEvent} event
+     *
+     * @returns {Number}
+     */
+    onDragMethodID: function() {},
+
+    /**
+     * @param {JSDNDEvent} event
+     *
+     * @returns {Boolean}
+     */
+    onDragOverMethodID: function() {},
+
+    /**
+     * @param {JSDNDEvent} event
+     *
+     * @returns {Boolean}
+     */
+    onDropMethodID: function() {}
+};
+
 /**
  * Retrieves the sorting columns applied to the portal's related foundset.
  *
