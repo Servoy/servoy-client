@@ -292,7 +292,7 @@ public class WebServiceScriptable implements Scriptable
 			apiFunction = serviceSpecification.getInternalApiFunction(name);
 			if (apiFunction != null)
 			{
-				// internal functios should be on the pure scope object.
+				// internal functions should be on the pure scope object.
 				// just like executeScopeFunction
 				scope = scopeObject;
 			}
