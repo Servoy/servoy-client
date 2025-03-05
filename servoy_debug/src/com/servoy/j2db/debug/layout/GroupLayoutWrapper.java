@@ -23,12 +23,12 @@ import java.util.List;
 
 import com.servoy.base.persistence.IMobileProperties.MobileProperty;
 import com.servoy.j2db.persistence.FormElementGroup;
-import com.servoy.j2db.persistence.IFormElement;
+import com.servoy.j2db.persistence.ISupportFormElement;
 import com.servoy.j2db.scripting.solutionmodel.JSForm;
 
 /**
  * Layout wrapper for solution model gouped elements.
- * 
+ *
  * @author rgansevles
  *
  */
@@ -77,7 +77,7 @@ public class GroupLayoutWrapper implements ILayoutWrapper
 	private List<ILayoutWrapper> getLayoutElements()
 	{
 		List<ILayoutWrapper> elements = new ArrayList<ILayoutWrapper>();
-		for (IFormElement element : MobileFormLayout.getGroupElements(group))
+		for (ISupportFormElement element : MobileFormLayout.getGroupElements(group))
 		{
 			ILayoutWrapper wrapper = MobileFormLayout.createLayoutWrapper(element, jsform);
 			if (wrapper != null)

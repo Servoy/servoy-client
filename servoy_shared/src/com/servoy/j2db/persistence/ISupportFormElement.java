@@ -16,21 +16,24 @@
  */
 package com.servoy.j2db.persistence;
 
-
-/**
- * An element which can be placed on a form
- * @author jblok
- */
-public interface IFormElement
-	extends ISupportFormElement, ISupportUpdateableName, IPersist, ISupportExtendsID, ISupportCSSPosition
+public interface ISupportFormElement extends IPersist, ISupportExtendsID, ISupportBounds, ISupportName
 {
-	public boolean getLocked();
+	public void setFormIndex(int arg);
 
-	public void setLocked(boolean arg);
+	/**
+	 * Form index returns the z-index of the form element. If two elements overlap,
+	 * then the element with higher Z index is displayed above the form element with lower Z index.
+	 * In case of form inheritance, form index is evaluated in the context (form) where property is defined.
+	 * Elements which have child form as context will always be on top of elements which have parent form.
+	 * If element is overridden in child form but form index property is still inherited its context is still parent form.
+	 */
+	public int getFormIndex();
 
-	public void setName(String name);
+	public String getGroupID();
 
-	public void setVisible(boolean arg);
+	public void setGroupID(String arg);
 
-	public void setEnabled(boolean arg);
+	public boolean getVisible();
+
+	public boolean getEnabled();
 }
