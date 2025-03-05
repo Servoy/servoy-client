@@ -26,8 +26,6 @@ import java.util.stream.Collectors;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
 
-import com.servoy.base.scripting.annotations.ServoyClientSupport;
-import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.scripting.info.EVENTS_AGGREGATION_TYPE;
 import com.servoy.j2db.util.Debug;
@@ -38,8 +36,6 @@ import com.servoy.j2db.util.Utils;
  * @author lvostinar
  *
  */
-@ServoyClientSupport(ng = true, mc = false, wc = false, sc = false)
-@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "EventTypes", scriptingName = "eventTypes")
 public class EventsManager implements IEventsManager, Scriptable
 {
 	private final ClientState application;
@@ -89,8 +85,7 @@ public class EventsManager implements IEventsManager, Scriptable
 	}
 
 
-	@Override
-	public List<Function> getListeners(String eventType, String context)
+	private List<Function> getListeners(String eventType, String context)
 	{
 		if (eventType != null)
 		{
@@ -124,26 +119,43 @@ public class EventsManager implements IEventsManager, Scriptable
 	}
 
 	@Override
-	public Object fireListeners(String eventType, String context, Object[] callbackArguments, int returnValueAggregationType)
+	public Object fireListeners(String eventType, String context, Object[] callbackArguments, EVENTS_AGGREGATION_TYPE returnValueAggregationType)
 	{
 		List<Function> functions = getListeners(eventType, context);
 		if (functions != null)
 		{
-			boolean retAsBoolean = false;
+			Boolean retAsBoolean = null;
 			List<Object> retAsList = new ArrayList<Object>();
 			for (Function function : functions)
 			{
 				JSEvent event = new JSEvent();
 				event.setType(eventType);
 				event.setName(eventType);
+				event.setSource(context);
+				if (context != null && context.startsWith("forms.")) //$NON-NLS-1$
+				{
+					event.setFormName(context.substring("forms.".length())); //$NON-NLS-1$
+				}
+				event.setData(callbackArguments);
+				Object[] args = null;
+				if (callbackArguments != null && callbackArguments.length > 0)
+				{
+					args = new Object[callbackArguments.length + 1];
+					args[0] = event;
+					System.arraycopy(callbackArguments, 0, args, 1, callbackArguments.length);
+				}
+				else args = new Object[] { event };
 				try
 				{
 					Object retValue = application.getScriptEngine().executeFunction(function, function.getParentScope(), function.getParentScope(),
-						Utils.arrayMerge(new Object[] { event }, callbackArguments), false,
-						false);
+						args, false, false);
 					if (returnValueAggregationType == EVENTS_AGGREGATION_TYPE.RETURN_VALUE_BOOLEAN)
 					{
-						retAsBoolean = retAsBoolean && Utils.getAsBoolean(retValue);
+						if (retAsBoolean == null)
+						{
+							retAsBoolean = Boolean.valueOf(Utils.getAsBoolean(retValue));
+						}
+						else retAsBoolean = Boolean.valueOf(retAsBoolean.booleanValue() && Utils.getAsBoolean(retValue));
 					}
 					else
 					{
@@ -162,7 +174,7 @@ public class EventsManager implements IEventsManager, Scriptable
 			}
 			if (returnValueAggregationType == EVENTS_AGGREGATION_TYPE.RETURN_VALUE_BOOLEAN)
 			{
-				return Boolean.valueOf(retAsBoolean);
+				return retAsBoolean;
 			}
 			else
 			{

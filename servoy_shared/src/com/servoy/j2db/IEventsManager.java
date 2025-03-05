@@ -17,9 +17,9 @@
 
 package com.servoy.j2db;
 
-import java.util.List;
-
 import org.mozilla.javascript.Function;
+
+import com.servoy.j2db.scripting.info.EVENTS_AGGREGATION_TYPE;
 
 /**
  * @author lvostinar
@@ -45,12 +45,6 @@ public interface IEventsManager
 	/**
 	 * @param eventType
 	 * @param context
-	 */
-	List<Function> getListeners(String eventType, String context);
-
-	/**
-	 * @param eventType
-	 * @param context
 	 * @return
 	 */
 	boolean hasListeners(String eventType, String context);
@@ -62,6 +56,6 @@ public interface IEventsManager
 	 * @param returnValueAggregationType
 	 * @return
 	 */
-	Object fireListeners(String eventType, String context, Object[] callbackArguments, int returnValueAggregationType);
+	Object fireListeners(String eventType, String context, Object[] callbackArguments, EVENTS_AGGREGATION_TYPE returnValueAggregationType);
 
 }

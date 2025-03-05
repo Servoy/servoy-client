@@ -95,6 +95,7 @@ import com.servoy.j2db.scripting.ScriptEngine;
 import com.servoy.j2db.scripting.ScriptObjectRegistry;
 import com.servoy.j2db.scripting.SelectedRecordScope;
 import com.servoy.j2db.scripting.SolutionScope;
+import com.servoy.j2db.scripting.info.EVENTS_AGGREGATION_TYPE;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.runtime.IRuntimeComponent;
 import com.servoy.j2db.util.Debug;
@@ -873,27 +874,8 @@ public abstract class BasicFormController
 				}
 			}
 		}
-		List<Function> callbacks = application.getEventsManager().getListeners(methodProperty.getPropertyName(),
-			IExecutingEnviroment.TOPLEVEL_FORMS + "." + getName());
-		if (callbacks != null)
-		{
-			for (Function function : callbacks)
-			{
-				try
-				{
-					executeFunction(function,
-						Utils.arrayMerge(args, Utils.parseJSExpressions(form.getFlattenedMethodArguments(methodProperty.getPropertyName()))),
-						function.getParentScope(),
-						function.getParentScope(),
-						saveData, null, testFindMode != null ? testFindMode.booleanValue() : false, false, methodProperty.getPropertyName(), false, true,
-						false);
-				}
-				catch (Exception e)
-				{
-					Debug.error(e);
-				}
-			}
-		}
+		application.getEventsManager().fireListeners(methodProperty.getPropertyName(),
+			IExecutingEnviroment.TOPLEVEL_FORMS + "." + getName(),Utils.arrayMerge(args, Utils.parseJSExpressions(form.getFlattenedMethodArguments(methodProperty.getPropertyName()))) , EVENTS_AGGREGATION_TYPE.RETURN_VALUE_BOOLEAN );
 		return ret;
 	}
 
