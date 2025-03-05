@@ -17,7 +17,7 @@
 package com.servoy.j2db.scripting.info;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
-import com.servoy.j2db.scripting.IPrefixedConstantsObject;
+import com.servoy.j2db.scripting.IConstantsObject;
 
 /**
  * <p>Constants are defined to represent different aggregation types for return value of application.fireEventListeners. The constants include:</p>
@@ -27,7 +27,7 @@ import com.servoy.j2db.scripting.IPrefixedConstantsObject;
  * </ul>
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
-public class EVENTS_AGGREGATION_TYPE implements IPrefixedConstantsObject
+public enum EVENTS_AGGREGATION_TYPE implements IConstantsObject
 {
 	/**
 	 * Constant for application fireEventListeners.
@@ -36,7 +36,8 @@ public class EVENTS_AGGREGATION_TYPE implements IPrefixedConstantsObject
 	 * var myboolean = application.fireEventListeners('customEvent',null,null,EVENTS_AGGREGATION_TYPE.RETURN_VALUE_BOOLEAN);
 	 *
 	 */
-	public static final int RETURN_VALUE_BOOLEAN = 0; //smart, rich
+	RETURN_VALUE_BOOLEAN,
+
 
 	/**
 	 * Constant for application type headless_client.
@@ -44,11 +45,5 @@ public class EVENTS_AGGREGATION_TYPE implements IPrefixedConstantsObject
 	 * @sample
 	 * var myarray = application.fireEventListeners('customEvent',null,null,EVENTS_AGGREGATION_TYPE.RETURN_VALUE_ARRAY);
 	 */
-	public static final int RETURN_VALUE_ARRAY = 1;
-
-	@Override
-	public String toString()
-	{
-		return "Names of the aggregation types for return value of application.fireEventListeners.";
-	}
+	RETURN_VALUE_ARRAY,
 }

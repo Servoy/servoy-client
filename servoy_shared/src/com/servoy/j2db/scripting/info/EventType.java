@@ -21,6 +21,7 @@ import java.util.Arrays;
 
 import org.mozilla.javascript.annotations.JSFunction;
 
+import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.RepositoryHelper;
@@ -30,7 +31,8 @@ import com.servoy.j2db.persistence.StaticContentSpecLoader;
  * @author lvostinar
  *
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME)
+@ServoyClientSupport(ng = true, mc = false, wc = false, sc = false)
+@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "EventType", scriptingName = "EventType")
 public class EventType
 {
 	private final String name;
