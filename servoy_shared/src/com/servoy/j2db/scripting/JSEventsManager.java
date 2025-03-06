@@ -35,7 +35,7 @@ import com.servoy.j2db.scripting.info.EventType;
  * @author jcompagner
  *
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "EventsMananger", scriptingName = "eventsManager")
+@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "Events Manager", scriptingName = "eventsManager")
 public class JSEventsManager implements IReturnedTypesProvider
 {
 
