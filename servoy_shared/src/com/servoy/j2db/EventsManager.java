@@ -28,6 +28,7 @@ import org.mozilla.javascript.Scriptable;
 
 import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.scripting.info.EVENTS_AGGREGATION_TYPE;
+import com.servoy.j2db.scripting.info.EventType;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.Utils;
@@ -195,7 +196,8 @@ public class EventsManager implements IEventsManager, Scriptable
 	@Override
 	public Object get(String name, Scriptable start)
 	{
-		return application.getFlattenedSolution().getEventType(name);
+		EventType eventType = EventType.getDefaultEvents().get(name);
+		return eventType == null ? application.getFlattenedSolution().getEventType(name) : eventType;
 	}
 
 
@@ -209,7 +211,7 @@ public class EventsManager implements IEventsManager, Scriptable
 	@Override
 	public boolean has(String name, Scriptable start)
 	{
-		return application.getFlattenedSolution().getEventType(name) != null;
+		return application.getFlattenedSolution().getEventType(name) != null || EventType.getDefaultEvents().containsKey(name);
 	}
 
 
@@ -278,7 +280,12 @@ public class EventsManager implements IEventsManager, Scriptable
 	@Override
 	public Object[] getIds()
 	{
-		return application.getFlattenedSolution().getEventTypes().stream().map(eventType -> eventType.getName()).toArray();
+		List<String> names = new ArrayList<String>();
+		// take all default
+		EventType.getDefaultEvents().values().stream().map(eventType -> eventType.getName()).forEach(names::add);
+		// take all custom declared in the solution and modules
+		application.getFlattenedSolution().getEventTypes().stream().map(eventType -> eventType.getName()).forEach(names::add);
+		return names.toArray();
 	}
 
 
