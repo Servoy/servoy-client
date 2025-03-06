@@ -28,9 +28,10 @@ import com.servoy.j2db.scripting.info.EVENTS_AGGREGATION_TYPE;
 import com.servoy.j2db.scripting.info.EventType;
 
 /**
- * This is the EventsManager where you can register for events that are fired by the application.
+ * This is the EventsManager where you can register for events that are fired by the servoy for the default events
+ * and custom events can be listened to and fired for in code.
  *
- * The event types can be the build in once or custom once that are set in the solution/module event types.
+ * The EventType can be a build in one or custom one that are set in the solution/module eventTypes property.
  *
  * @author jcompagner
  *
@@ -67,7 +68,7 @@ public class JSEventsManager implements IReturnedTypesProvider
 	 * For custom types the given arguments in the fireEventListeners call are given as parameters after the JSEvent parameter and as Array in the data object of the JSEvent object
 	 *
 	 * @sample
-	 * application.addEventListener(EventType.myCustomEvent,this.callback);
+	 * eventsManager.addEventListener(EventType.myCustomEvent,this.callback);
 	 *
 	 * @param eventType Event type to listen to.
 	 * @param callback callback to be called.
@@ -91,7 +92,7 @@ public class JSEventsManager implements IReturnedTypesProvider
 	 *
 	 *
 	 * @sample
-	 * application.addEventListener(EventType.onShowMethodID,this.callback,forms.myform);
+	 * eventsManager.addEventListener(EventType.onShowMethodID,this.callback,forms.myform);
 	 *
 	 * @param eventType Event type to listen to.
 	 * @param callback callback to be called.
@@ -108,7 +109,7 @@ public class JSEventsManager implements IReturnedTypesProvider
 	 * Removes one or multiple listeners (depending on parameters). Only works for custom event listeners that were added using addEventListener.
 	 *
 	 * @sample
-	 * application.removeEventListener(EventType.myCustomEvent,this.callback,'mycontext');
+	 * eventsManager.removeEventListener(EventType.myCustomEvent,this.callback,'mycontext');
 	 *
 	 * @param eventType Event type for listener to remove. Cannot be null.
 	 * @param callback callback to be removed. Can be null (any listener).
@@ -125,7 +126,7 @@ public class JSEventsManager implements IReturnedTypesProvider
 	 * Checks if listeners were added for a certain event type (and possibly context)
 	 *
 	 * @sample
-	 * application.hasEventListeners(EventType.myCustomEvent,'mycontext');
+	 * eventsManager.hasEventListeners(EventType.myCustomEvent,'mycontext');
 	 *
 	 * @param eventType Event type for listener to check.
 	 * @param context Context for listener to check. Can be null (any context).
@@ -144,7 +145,7 @@ public class JSEventsManager implements IReturnedTypesProvider
 	 * Will return either a Boolean calculated as logical AND between all listeners return value or an Array with all return values.
 	 *
 	 * @sample
-	 * application.fireEventListeners(EventType.myCustomEvent,'mycontext',null,EVENTS_AGGREGATION_TYPE.RETURN_VALUE_BOOLEAN);
+	 * eventsManager.fireEventListeners(EventType.myCustomEvent,'mycontext',null,EVENTS_AGGREGATION_TYPE.RETURN_VALUE_BOOLEAN);
 	 *
 	 * @param eventType Event type for listeners to be called.
 	 * @param context Context for listeners to be called. Can be null (any context).
@@ -166,7 +167,7 @@ public class JSEventsManager implements IReturnedTypesProvider
 	 * Will return a Boolean calculated as logical AND between all listeners return value (default value).
 	 *
 	 * @sample
-	 * application.fireEventListeners(EventType.myCustomEvent,'mycontext');
+	 * eventsManager.fireEventListeners(EventType.myCustomEvent,'mycontext');
 	 *
 	 * @param eventType Event type for listeners to be called.
 	 *
@@ -184,7 +185,7 @@ public class JSEventsManager implements IReturnedTypesProvider
 	 * Will return a Boolean calculated as logical AND between all listeners return value (default value).
 	 *
 	 * @sample
-	 * application.fireEventListeners(EventType.myCustomEvent,'mycontext');
+	 * eventsManager.fireEventListeners(EventType.myCustomEvent,'mycontext');
 	 *
 	 * @param eventType Event type for listeners to be called.
 	 * @param context Context for listeners to be called. Can be null (any context).
@@ -203,7 +204,7 @@ public class JSEventsManager implements IReturnedTypesProvider
 	 * Will return a Boolean calculated as logical AND between all listeners return value (default value).
 	 *
 	 * @sample
-	 * application.fireEventListeners(EventType.myCustomEvent,'mycontext');
+	 * eventsManager.fireEventListeners(EventType.myCustomEvent,'mycontext');
 	 *
 	 * @param eventType Event type for listeners to be called.
 	 * @param callbackArguments Arguments for listener to be called with. Can be null.
@@ -222,7 +223,7 @@ public class JSEventsManager implements IReturnedTypesProvider
 	 * Will return a Boolean calculated as logical AND between all listeners return value (default value).
 	 *
 	 * @sample
-	 * application.fireEventListeners(EventType.myCustomEvent,'mycontext');
+	 * eventsManager.fireEventListeners(EventType.myCustomEvent,'mycontext');
 	 *
 	 * @param eventType Event type for listeners to be called.
 	 * @param context Context for listeners to be called. Can be null (any context).
