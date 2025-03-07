@@ -3033,8 +3033,6 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 	private void buildEventTypesList()
 	{
 		eventTypes = new HashMap<String, EventType>();
-		Arrays.stream(EventType.DEFAULT_EVENTS).map(name -> new EventType(name)).forEach(eventType -> eventTypes.put(eventType.getDisplayName(), eventType));
-
 		if (mainSolution != null && mainSolution.getEventTypes() != null)
 		{
 			mainSolution.getEventTypes().keySet().stream().forEach(name -> eventTypes.put(name, new EventType(name)));

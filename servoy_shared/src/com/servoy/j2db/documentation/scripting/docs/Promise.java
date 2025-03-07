@@ -148,7 +148,6 @@ public class Promise
 	 *
 	 * @param onRejected
 	 */
-	@JSFunction
 	public Promise js_catch(Function onRejected)
 	{
 		return null;
@@ -163,7 +162,6 @@ public class Promise
 	 *
 	 * @param onFinally
 	 */
-	@JSFunction
 	public Promise js_finally(Function onFinally)
 	{
 		return null;

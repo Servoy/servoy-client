@@ -28,6 +28,7 @@ import org.mozilla.javascript.Scriptable;
 
 import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.scripting.info.EVENTS_AGGREGATION_TYPE;
+import com.servoy.j2db.scripting.info.EventType;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.Utils;
@@ -39,7 +40,7 @@ import com.servoy.j2db.util.Utils;
 public class EventsManager implements IEventsManager, Scriptable
 {
 	private final ClientState application;
-	private final Map<String, List<Pair<String, Function>>> callbacks = new HashMap<String, List<Pair<String, Function>>>();
+	private final Map<EventType, List<Pair<String, Function>>> callbacks = new HashMap<>();
 
 	public EventsManager(ClientState clientState)
 	{
@@ -48,7 +49,7 @@ public class EventsManager implements IEventsManager, Scriptable
 
 
 	@Override
-	public void addListener(String eventType, Function callback, String context)
+	public void addListener(EventType eventType, Function callback, String context)
 	{
 		if (eventType != null && callback != null)
 		{
@@ -64,7 +65,7 @@ public class EventsManager implements IEventsManager, Scriptable
 	}
 
 	@Override
-	public void removeListener(String eventType, Function callback, String context)
+	public void removeListener(EventType eventType, Function callback, String context)
 	{
 		if (eventType != null)
 		{
@@ -85,7 +86,7 @@ public class EventsManager implements IEventsManager, Scriptable
 	}
 
 
-	private List<Function> getListeners(String eventType, String context)
+	private List<Function> getListeners(EventType eventType, String context)
 	{
 		if (eventType != null)
 		{
@@ -101,7 +102,7 @@ public class EventsManager implements IEventsManager, Scriptable
 	}
 
 	@Override
-	public boolean hasListeners(String eventType, String context)
+	public boolean hasListeners(EventType eventType, String context)
 	{
 		if (eventType != null)
 		{
@@ -119,7 +120,7 @@ public class EventsManager implements IEventsManager, Scriptable
 	}
 
 	@Override
-	public Object fireListeners(String eventType, String context, Object[] callbackArguments, EVENTS_AGGREGATION_TYPE returnValueAggregationType)
+	public Object fireListeners(EventType eventType, String context, Object[] callbackArguments, EVENTS_AGGREGATION_TYPE returnValueAggregationType)
 	{
 		List<Function> functions = getListeners(eventType, context);
 		if (functions != null)
@@ -129,8 +130,8 @@ public class EventsManager implements IEventsManager, Scriptable
 			for (Function function : functions)
 			{
 				JSEvent event = new JSEvent();
-				event.setType(eventType);
-				event.setName(eventType);
+				event.setType(eventType.getName());
+				event.setName(eventType.getName());
 				event.setSource(context);
 				if (context != null && context.startsWith("forms.")) //$NON-NLS-1$
 				{
@@ -195,7 +196,8 @@ public class EventsManager implements IEventsManager, Scriptable
 	@Override
 	public Object get(String name, Scriptable start)
 	{
-		return application.getFlattenedSolution().getEventType(name);
+		EventType eventType = EventType.getDefaultEvents().get(name);
+		return eventType == null ? application.getFlattenedSolution().getEventType(name) : eventType;
 	}
 
 
@@ -209,7 +211,7 @@ public class EventsManager implements IEventsManager, Scriptable
 	@Override
 	public boolean has(String name, Scriptable start)
 	{
-		return application.getFlattenedSolution().getEventType(name) != null;
+		return application.getFlattenedSolution().getEventType(name) != null || EventType.getDefaultEvents().containsKey(name);
 	}
 
 
@@ -278,7 +280,12 @@ public class EventsManager implements IEventsManager, Scriptable
 	@Override
 	public Object[] getIds()
 	{
-		return application.getFlattenedSolution().getEventTypes().stream().map(eventType -> eventType.getName()).toArray();
+		List<String> names = new ArrayList<String>();
+		// take all default
+		EventType.getDefaultEvents().values().stream().map(eventType -> eventType.getName()).forEach(names::add);
+		// take all custom declared in the solution and modules
+		application.getFlattenedSolution().getEventTypes().stream().map(eventType -> eventType.getName()).forEach(names::add);
+		return names.toArray();
 	}
 
 
