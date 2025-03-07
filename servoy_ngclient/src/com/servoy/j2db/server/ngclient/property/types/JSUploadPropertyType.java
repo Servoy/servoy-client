@@ -36,6 +36,10 @@ public class JSUploadPropertyType extends DefaultPropertyType<JSUpload> implemen
 	public static final JSUploadPropertyType INSTANCE = new JSUploadPropertyType();
 	public static final String TYPE_NAME = "JSUpload"; //$NON-NLS-1$
 
+	private JSUploadPropertyType()
+	{
+	}
+
 	@Override
 	public String getName()
 	{

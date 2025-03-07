@@ -51,6 +51,10 @@ public class ReadonlyPropertyType extends DefaultPropertyType<ReadonlySabloValue
 	public static final ReadonlyPropertyType INSTANCE = new ReadonlyPropertyType();
 	public static final String TYPE_NAME = "readOnly";
 
+	private ReadonlyPropertyType()
+	{
+	}
+
 	@Override
 	public String getName()
 	{

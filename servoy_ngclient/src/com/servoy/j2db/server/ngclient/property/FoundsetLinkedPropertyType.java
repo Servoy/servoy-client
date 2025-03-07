@@ -146,9 +146,9 @@ public class FoundsetLinkedPropertyType<YF, YT> implements IYieldingType<Foundse
 	}
 
 	@Override
-	public boolean isPrimitive()
+	public boolean isBuiltinType()
 	{
-		return wrappedType.isPrimitive();
+		return wrappedType.isBuiltinType();
 	}
 
 	@Override
