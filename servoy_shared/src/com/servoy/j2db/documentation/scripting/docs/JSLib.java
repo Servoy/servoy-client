@@ -34,7 +34,7 @@ public class JSLib implements IReturnedTypesProvider
 
 	public Class< ? >[] getAllReturnedTypes()
 	{
-		return new Class< ? >[] { Boolean.class, String.class, Date.class, Number.class, Array.class, Object.class, Function.class, IterableValue.class, Iterator.class, JSON.class, Map.class, Math.class, Namespace.class, QName.class, RegExp.class, Set.class, SpecialOperators.class, Statements.class, XML.class, XMLList.class, BigInt.class };
+		return new Class< ? >[] { Boolean.class, String.class, Date.class, Number.class, Array.class, Object.class, Function.class, IterableValue.class, Iterator.class, JSON.class, Map.class, Math.class, Namespace.class, QName.class, RegExp.class, Set.class, SpecialOperators.class, Statements.class, XML.class, XMLList.class, BigInt.class, Promise.class };
 	}
 
 	/**
