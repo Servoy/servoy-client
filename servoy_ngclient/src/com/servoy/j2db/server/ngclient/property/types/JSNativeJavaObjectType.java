@@ -41,6 +41,10 @@ public class JSNativeJavaObjectType extends DefaultPropertyType<NativeJavaObject
 	public static final JSNativeJavaObjectType INSTANCE = new JSNativeJavaObjectType();
 	public static final String TYPE_NAME = "jsnativejavaobject"; //$NON-NLS-1$
 
+	private JSNativeJavaObjectType()
+	{
+	}
+
 	@Override
 	public String getName()
 	{

@@ -26,7 +26,7 @@ public class JSONPropertyType extends MapPropertyType
 	public static final JSONPropertyType INSTANCE = new JSONPropertyType();
 	public static final String TYPE_NAME = "json"; //$NON-NLS-1$
 
-	protected JSONPropertyType()
+	private JSONPropertyType()
 	{
 	}
 

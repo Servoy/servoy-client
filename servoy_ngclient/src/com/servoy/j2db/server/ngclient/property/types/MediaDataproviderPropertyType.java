@@ -53,6 +53,10 @@ public class MediaDataproviderPropertyType extends DefaultPropertyType<Object>
 	public static final MediaDataproviderPropertyType INSTANCE = new MediaDataproviderPropertyType();
 	public final static String TYPE_NAME = "mediaDataprovider"; //$NON-NLS-1$
 
+	private MediaDataproviderPropertyType()
+	{
+	}
+
 	@Override
 	public String getName()
 	{
@@ -118,7 +122,7 @@ public class MediaDataproviderPropertyType extends DefaultPropertyType<Object>
 			{
 				if (((String)sabloValue).toLowerCase().startsWith(MediaURLStreamHandler.MEDIA_URL_DEF))
 				{
-					valueForProp = new MediaWrapper(sabloValue, MediaPropertyType.INSTANCE.getMediaUrl(sabloValue,
+					valueForProp = new MediaWrapper(sabloValue, MediaPropertyType.getMediaUrl(sabloValue,
 						((WebFormComponent)dataConverterContext.getWebObject()).getDataConverterContext().getApplication().getFlattenedSolution(), null));
 					detectedPD = NGUtils.MEDIA_CACHED_PD;
 				}

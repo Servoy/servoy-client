@@ -46,7 +46,7 @@ public class TitleStringPropertyType extends TagStringPropertyType implements IF
 	public static final TitleStringPropertyType NG_INSTANCE = new TitleStringPropertyType();
 	public static final String NG_TYPE_NAME = "titlestring";
 
-	protected TitleStringPropertyType()
+	private TitleStringPropertyType()
 	{
 	}
 

@@ -66,7 +66,7 @@ public class CSSPositionPropertyType extends DefaultPropertyType<CSSPosition>
 	public static final CSSPositionPropertyType INSTANCE = new CSSPositionPropertyType();
 	public static final String TYPE_NAME = "CSSPosition";
 
-	protected CSSPositionPropertyType()
+	private CSSPositionPropertyType()
 	{
 	}
 

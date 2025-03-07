@@ -89,7 +89,7 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 	public static final ValueListPropertyType INSTANCE = new ValueListPropertyType();
 	public static final String TYPE_NAME = "valuelist";
 
-	protected ValueListPropertyType()
+	private ValueListPropertyType()
 	{
 	}
 
