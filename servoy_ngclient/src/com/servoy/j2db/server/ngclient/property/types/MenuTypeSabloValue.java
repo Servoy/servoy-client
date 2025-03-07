@@ -45,6 +45,7 @@ import com.servoy.j2db.server.ngclient.INGApplication;
 import com.servoy.j2db.server.ngclient.INGFormElement;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToSabloComponent;
+import com.servoy.j2db.util.Text;
 
 /**
  * @author lvostinar
@@ -56,6 +57,7 @@ public class MenuTypeSabloValue implements ISmartPropertyValue, IChangeListener,
 	private JSMenu jsMenu;
 	private final Map<String, Map<String, PropertyDescription>> extraProperties;
 	private final Map<JSMenuItem, Map<String, ISmartPropertyValue>> extraPropertiesSmartValues = new HashMap<JSMenuItem, Map<String, ISmartPropertyValue>>();
+	private final DataAdapterList dataAdapterList;
 
 	public MenuTypeSabloValue(JSMenu menu, Map<String, Map<String, PropertyDescription>> extraProperties, INGFormElement formElement,
 		WebFormComponent component,
@@ -63,6 +65,7 @@ public class MenuTypeSabloValue implements ISmartPropertyValue, IChangeListener,
 	{
 		this.jsMenu = menu;
 		this.extraProperties = extraProperties;
+		this.dataAdapterList = dataAdapterList;
 		addMenuItemsSabloValues(jsMenu.getMenuItemsWithSecurity(), formElement, component,
 			dataAdapterList);
 	}
@@ -71,6 +74,7 @@ public class MenuTypeSabloValue implements ISmartPropertyValue, IChangeListener,
 	{
 		this.jsMenu = menu;
 		this.extraProperties = extraProperties;
+		this.dataAdapterList = null;
 	}
 
 	public void toJSON(JSONWriter writer, String key, IBrowserConverterContext dataConverterContext) throws IllegalArgumentException, JSONException
@@ -99,10 +103,12 @@ public class MenuTypeSabloValue implements ISmartPropertyValue, IChangeListener,
 				Map<String, Object> itemMap = new HashMap<String, Object>();
 				itemsList.add(itemMap);
 				itemMap.put("itemID", item.getName());
-				itemMap.put("menuText", application != null ? application.getI18NMessageIfPrefixed(item.getMenuText()) : item.getMenuText());
+				itemMap.put("menuText",
+					application != null ? application.getI18NMessageIfPrefixed(Text.processTags(item.getMenuText(), dataAdapterList)) : item.getMenuText());
 				itemMap.put("styleClass", item.getStyleClass());
 				itemMap.put("iconStyleClass", item.getIconStyleClass());
-				itemMap.put("tooltipText", application != null ? application.getI18NMessageIfPrefixed(item.getTooltipText()) : item.getTooltipText());
+				itemMap.put("tooltipText", application != null ? application.getI18NMessageIfPrefixed(Text.processTags(item.getTooltipText(), dataAdapterList))
+					: item.getTooltipText());
 				itemMap.put("enabled", item.getEnabledWithSecurity());
 				itemMap.put("isSelected", item == selectedItem);
 				itemMap.put("callbackArguments", item.getCallbackArguments());
