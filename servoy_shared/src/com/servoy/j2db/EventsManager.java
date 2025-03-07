@@ -40,7 +40,7 @@ import com.servoy.j2db.util.Utils;
 public class EventsManager implements IEventsManager, Scriptable
 {
 	private final ClientState application;
-	private final Map<String, List<Pair<String, Function>>> callbacks = new HashMap<String, List<Pair<String, Function>>>();
+	private final Map<EventType, List<Pair<String, Function>>> callbacks = new HashMap<>();
 
 	public EventsManager(ClientState clientState)
 	{
@@ -49,7 +49,7 @@ public class EventsManager implements IEventsManager, Scriptable
 
 
 	@Override
-	public void addListener(String eventType, Function callback, String context)
+	public void addListener(EventType eventType, Function callback, String context)
 	{
 		if (eventType != null && callback != null)
 		{
@@ -65,7 +65,7 @@ public class EventsManager implements IEventsManager, Scriptable
 	}
 
 	@Override
-	public void removeListener(String eventType, Function callback, String context)
+	public void removeListener(EventType eventType, Function callback, String context)
 	{
 		if (eventType != null)
 		{
@@ -86,7 +86,7 @@ public class EventsManager implements IEventsManager, Scriptable
 	}
 
 
-	private List<Function> getListeners(String eventType, String context)
+	private List<Function> getListeners(EventType eventType, String context)
 	{
 		if (eventType != null)
 		{
@@ -102,7 +102,7 @@ public class EventsManager implements IEventsManager, Scriptable
 	}
 
 	@Override
-	public boolean hasListeners(String eventType, String context)
+	public boolean hasListeners(EventType eventType, String context)
 	{
 		if (eventType != null)
 		{
@@ -120,7 +120,7 @@ public class EventsManager implements IEventsManager, Scriptable
 	}
 
 	@Override
-	public Object fireListeners(String eventType, String context, Object[] callbackArguments, EVENTS_AGGREGATION_TYPE returnValueAggregationType)
+	public Object fireListeners(EventType eventType, String context, Object[] callbackArguments, EVENTS_AGGREGATION_TYPE returnValueAggregationType)
 	{
 		List<Function> functions = getListeners(eventType, context);
 		if (functions != null)
@@ -130,8 +130,8 @@ public class EventsManager implements IEventsManager, Scriptable
 			for (Function function : functions)
 			{
 				JSEvent event = new JSEvent();
-				event.setType(eventType);
-				event.setName(eventType);
+				event.setType(eventType.getName());
+				event.setName(eventType.getName());
 				event.setSource(context);
 				if (context != null && context.startsWith("forms.")) //$NON-NLS-1$
 				{

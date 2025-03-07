@@ -102,7 +102,7 @@ public class JSEventsManager implements IReturnedTypesProvider
 	@ServoyClientSupport(ng = true, wc = true, sc = true, mc = false)
 	public void addEventListener(EventType eventType, Function callback, Object context)
 	{
-		application.getEventsManager().addListener(getEventTypeAsString(eventType), callback, getContextAsString(context));
+		application.getEventsManager().addListener(eventType, callback, getContextAsString(context));
 	}
 
 	/**
@@ -119,7 +119,7 @@ public class JSEventsManager implements IReturnedTypesProvider
 	@ServoyClientSupport(ng = true, wc = true, sc = true, mc = false)
 	public void removeEventListener(EventType eventType, Function callback, Object context)
 	{
-		application.getEventsManager().removeListener(getEventTypeAsString(eventType), callback, getContextAsString(context));
+		application.getEventsManager().removeListener(eventType, callback, getContextAsString(context));
 	}
 
 	/**
@@ -137,7 +137,7 @@ public class JSEventsManager implements IReturnedTypesProvider
 	@ServoyClientSupport(ng = true, wc = true, sc = true, mc = false)
 	public boolean hasEventListeners(EventType eventType, Object context)
 	{
-		return application.getEventsManager().hasListeners(getEventTypeAsString(eventType), getContextAsString(context));
+		return application.getEventsManager().hasListeners(eventType, getContextAsString(context));
 	}
 
 	/**
@@ -158,8 +158,7 @@ public class JSEventsManager implements IReturnedTypesProvider
 	@ServoyClientSupport(ng = true, wc = true, sc = true, mc = false)
 	public Object fireEventListeners(EventType eventType, Object context, Object[] callbackArguments, EVENTS_AGGREGATION_TYPE returnValueAggregationType)
 	{
-		return application.getEventsManager().fireListeners(getEventTypeAsString(eventType), getContextAsString(context), callbackArguments,
-			returnValueAggregationType);
+		return application.getEventsManager().fireListeners(eventType, getContextAsString(context), callbackArguments, returnValueAggregationType);
 	}
 
 	/**
@@ -266,16 +265,6 @@ public class JSEventsManager implements IReturnedTypesProvider
 		}
 		return contextAsString;
 	}
-
-	private String getEventTypeAsString(EventType eventType)
-	{
-		if (eventType != null)
-		{
-			return eventType.getName();
-		}
-		return null;
-	}
-
 
 	@Override
 	public Class< ? >[] getAllReturnedTypes()

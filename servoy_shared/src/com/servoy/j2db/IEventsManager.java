@@ -20,6 +20,7 @@ package com.servoy.j2db;
 import org.mozilla.javascript.Function;
 
 import com.servoy.j2db.scripting.info.EVENTS_AGGREGATION_TYPE;
+import com.servoy.j2db.scripting.info.EventType;
 
 /**
  * @author lvostinar
@@ -33,21 +34,21 @@ public interface IEventsManager
 	 * @param eventType
 	 * @param context
 	 */
-	void addListener(String eventType, Function callback, String context);
+	void addListener(EventType eventType, Function callback, String context);
 
 	/**
 	 * @param eventType
 	 * @param context
 	 * @param callback
 	 */
-	void removeListener(String eventType, Function callback, String context);
+	void removeListener(EventType eventType, Function callback, String context);
 
 	/**
 	 * @param eventType
 	 * @param context
 	 * @return
 	 */
-	boolean hasListeners(String eventType, String context);
+	boolean hasListeners(EventType eventType, String context);
 
 	/**
 	 * @param eventType
@@ -56,6 +57,6 @@ public interface IEventsManager
 	 * @param returnValueAggregationType
 	 * @return
 	 */
-	Object fireListeners(String eventType, String context, Object[] callbackArguments, EVENTS_AGGREGATION_TYPE returnValueAggregationType);
+	Object fireListeners(EventType eventType, String context, Object[] callbackArguments, EVENTS_AGGREGATION_TYPE returnValueAggregationType);
 
 }
