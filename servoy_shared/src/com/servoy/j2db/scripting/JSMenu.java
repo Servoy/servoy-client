@@ -18,8 +18,10 @@
 package com.servoy.j2db.scripting;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.mozilla.javascript.annotations.JSFunction;
@@ -66,6 +68,7 @@ public class JSMenu
 
 	private final List<IModificationListener> changeListeners = new ArrayList<IModificationListener>();
 	private final String[] allowedPermissions;
+	private final Map<String, Object> customPropertiesDefinitions;
 
 	protected String styleClass;
 	protected final List<JSMenuItem> items = new ArrayList<JSMenuItem>();
@@ -80,6 +83,7 @@ public class JSMenu
 		this.name = menu.getName();
 		this.styleClass = menu.getStyleClass();
 		this.allowedPermissions = allowedPermissions;
+		this.customPropertiesDefinitions = menu.getCustomPropertiesDefinition();
 		Iterator<IPersist> it = menu.getAllObjects();
 		while (it.hasNext())
 		{
@@ -99,6 +103,7 @@ public class JSMenu
 	{
 		this.name = name;
 		this.allowedPermissions = allowedPermissions;
+		this.customPropertiesDefinitions = new HashMap<String, Object>();
 	}
 
 	/**
@@ -319,5 +324,10 @@ public class JSMenu
 	public boolean removeChangeListener(IModificationListener listener)
 	{
 		return changeListeners.remove(listener);
+	}
+
+	public Map<String, Object> getCustomPropertiesDefinition()
+	{
+		return customPropertiesDefinitions;
 	}
 }
