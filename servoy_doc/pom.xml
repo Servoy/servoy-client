@@ -85,7 +85,7 @@
 								</copy>
 								<copy todir="${workspace_dir}/servoy_shared/src">
 									<fileset
-										dir="${project.build.directory}/org.eclipse.dltk.javascript.rhino/src" />
+										dir="${project.build.directory}/org.eclipse.dltk.javascript.rhino/rhino/src/main" />
 								</copy>
 								<mkdir dir="${workspace_dir}/servoy_shared/_doc" />
 							</target>
