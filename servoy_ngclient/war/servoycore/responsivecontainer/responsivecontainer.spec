@@ -8,6 +8,6 @@
 	{
 		"class" : "styleclass",
 		"tagType" : "string",
-		"formIndex": "number",
+		"formIndex": "int",
 	}
 }
