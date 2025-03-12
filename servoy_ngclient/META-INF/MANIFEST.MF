@@ -20,7 +20,7 @@ Require-Bundle: servoy_shared,
  org.eclipse.dltk.javascript.rhino,
  servoy_headless_client,
  org.apache.tomcat
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Bundle-ClassPath: .
 Bundle-Vendor: Servoy
 Import-Package: com.auth0.jwk;version="[0.22.0,1.0.0)",
