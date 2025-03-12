@@ -82,6 +82,7 @@ public class Types
 		TypesRegistry.addType(NGObjectPropertyType.NG_INSTANCE);
 		TypesRegistry.addType(ServoyAttributesPropertyType.NG_INSTANCE);
 		TypesRegistry.addType(NGEnabledPropertyType.NG_INSTANCE);
+		TypesRegistry.addType(NGVisiblePropertyType.NG_INSTANCE);
 		TypesRegistry.addType(NGColorPropertyType.NG_INSTANCE);
 		TypesRegistry.addType(NGDatePropertyType.NG_INSTANCE);
 		TypesRegistry.addType(NGUUIDPropertyType.NG_INSTANCE);

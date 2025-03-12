@@ -353,7 +353,7 @@ public final class FormElement implements INGFormElement
 
 				Object formElementValue = map.get(pd.getName());
 
-				if (inDesigner && pd.getType() == VisiblePropertyType.INSTANCE)
+				if (inDesigner && pd.getType() instanceof VisiblePropertyType)
 				{
 					Object isVisibleObj = map.get(pd.getName());
 					if (isVisibleObj instanceof Boolean)

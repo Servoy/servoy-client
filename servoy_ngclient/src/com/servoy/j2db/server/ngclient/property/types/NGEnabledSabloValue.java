@@ -18,15 +18,20 @@
 package com.servoy.j2db.server.ngclient.property.types;
 
 import org.sablo.BaseWebObject;
+import org.sablo.IChangeListener;
+import org.sablo.IWebObjectContext;
 import org.sablo.WebComponent;
+import org.sablo.specification.property.ISmartPropertyValue;
 import org.sablo.specification.property.IWrappingContext;
 import org.sablo.specification.property.types.EnabledSabloValue;
 
+import com.servoy.j2db.server.ngclient.DefaultComponentPropertiesProvider;
 import com.servoy.j2db.server.ngclient.IWebFormUI;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.WebFormUI;
+import com.servoy.j2db.util.Utils;
 
-public class NGEnabledSabloValue extends EnabledSabloValue
+public class NGEnabledSabloValue extends EnabledSabloValue implements ISmartPropertyValue, IChangeListener
 {
 	private boolean accessible = true;
 
@@ -52,7 +57,16 @@ public class NGEnabledSabloValue extends EnabledSabloValue
 			BaseWebObject webObject = context.getWebObject();
 			if (webObject instanceof IWebFormUI && ((IWebFormUI)webObject).getParentContainer() instanceof WebComponent)
 			{
-				return ((WebComponent)((IWebFormUI)webObject).getParentContainer()).isEnabled();
+				val = ((WebComponent)((IWebFormUI)webObject).getParentContainer()).isEnabled();
+			}
+			if (val)
+			{
+				DataproviderTypeSabloValue dataProviderValue = (DataproviderTypeSabloValue)webObject
+					.getRawPropertyValue(DefaultComponentPropertiesProvider.ENABLED_DATAPROVIDER_NAME);
+				if (dataProviderValue != null)
+				{
+					val = Utils.getAsBoolean(dataProviderValue.getValue());
+				}
 			}
 		}
 		return val;
@@ -80,5 +94,34 @@ public class NGEnabledSabloValue extends EnabledSabloValue
 	public void setAccessible(boolean accessible)
 	{
 		this.accessible = accessible;
+	}
+
+
+	@Override
+	public void attachToBaseObject(IChangeListener changeMonitor, IWebObjectContext webObjectContext)
+	{
+		DataproviderTypeSabloValue dataProviderValue = (DataproviderTypeSabloValue)context.getWebObject()
+			.getRawPropertyValue(DefaultComponentPropertiesProvider.ENABLED_DATAPROVIDER_NAME);
+		if (dataProviderValue != null)
+		{
+			dataProviderValue.addStateChangeListener(this);
+		}
+	}
+
+	@Override
+	public void detach()
+	{
+		DataproviderTypeSabloValue dataProviderValue = (DataproviderTypeSabloValue)context.getWebObject()
+			.getRawPropertyValue(DefaultComponentPropertiesProvider.ENABLED_DATAPROVIDER_NAME);
+		if (dataProviderValue != null)
+		{
+			dataProviderValue.removeStateChangeListener(this);
+		}
+	}
+
+	@Override
+	public void valueChanged()
+	{
+		flagChanged(context.getWebObject(), context.getPropertyName());
 	}
 }

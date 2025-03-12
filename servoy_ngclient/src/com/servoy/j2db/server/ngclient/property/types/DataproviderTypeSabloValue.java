@@ -83,6 +83,7 @@ import com.servoy.j2db.server.ngclient.property.FoundsetLinkedConfig;
 import com.servoy.j2db.server.ngclient.property.FoundsetLinkedTypeSabloValue;
 import com.servoy.j2db.server.ngclient.property.IDataLinkedPropertyValue;
 import com.servoy.j2db.server.ngclient.property.IFindModeAwarePropertyValue;
+import com.servoy.j2db.server.ngclient.property.IHasUnderlyingState;
 import com.servoy.j2db.server.ngclient.property.NGComponentDALContext;
 import com.servoy.j2db.server.ngclient.property.ValueListConfig;
 import com.servoy.j2db.server.ngclient.property.types.IDataLinkedType.TargetDataLinks;
@@ -98,7 +99,7 @@ import com.servoy.j2db.util.Utils;
  *
  * @author acostescu
  */
-public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFindModeAwarePropertyValue
+public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFindModeAwarePropertyValue, IHasUnderlyingState
 {
 
 	private static final String TAG_TYPE_NAME = "typeName";
@@ -133,6 +134,7 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 	private IWebObjectContext webObjectContext;
 	private String shouldResolveFromValuelistWithName;
 	private String formatPdName;
+	protected List<IChangeListener> underlyingValueChangeListeners = new ArrayList<>();
 
 	public DataproviderTypeSabloValue(String dataProviderID, IDataAdapterList dataAdapterList, IServoyDataConverterContext servoyDataConverterContext,
 		PropertyDescription dpPD)
@@ -483,6 +485,10 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 		if (fireChangeEvent && (changed || dataAdapterList instanceof FoundsetDataAdapterList)) // if it is a foundset related DAL then always call valuechanged (the value can be of a previous row)
 		{
 			changeMonitor.valueChanged();
+		}
+		if (changed)
+		{
+			fireUnderlyingPropertyChangeListeners();
 		}
 	}
 
@@ -895,6 +901,7 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 			changeMonitor.valueChanged(); // value changed from client so why do we need this one might ask (client already has the value)?
 			// because for example in a field an INTEGER dataprovider might be shown with format ##0.00 and if the user enters non-int value client side
 			// the server will trunc/round to an INTEGER and then the client shows double value while the server DP has the int value (which are not the same)
+			fireUnderlyingPropertyChangeListeners();
 		}
 	}
 
@@ -916,6 +923,31 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 			changeMonitor.valueChanged(); // value changed from client so why do we need this one might ask (client already has the value)?
 			// because for example in a field an INTEGER dataprovider might be shown with format ##0.00 and if the user enters non-int value client side
 			// the server will trunc/round to an INTEGER and then the client shows double value while the server DP has the int value (which are not the same)
+		}
+	}
+
+	@Override
+	public void addStateChangeListener(IChangeListener valueChangeListener)
+	{
+		if (!underlyingValueChangeListeners.contains(valueChangeListener)) underlyingValueChangeListeners.add(valueChangeListener);
+	}
+
+	@Override
+	public void removeStateChangeListener(IChangeListener valueChangeListener)
+	{
+		underlyingValueChangeListeners.remove(valueChangeListener);
+	}
+
+	protected void fireUnderlyingPropertyChangeListeners()
+	{
+		if (underlyingValueChangeListeners.size() > 0)
+		{
+			// just in case any listeners will end up trying to alter underlyingValueChangeListeners - avoid a ConcurrentModificationException
+			IChangeListener[] copyOfListeners = underlyingValueChangeListeners.toArray(new IChangeListener[underlyingValueChangeListeners.size()]);
+			for (IChangeListener l : copyOfListeners)
+			{
+				l.valueChanged();
+			}
 		}
 	}
 

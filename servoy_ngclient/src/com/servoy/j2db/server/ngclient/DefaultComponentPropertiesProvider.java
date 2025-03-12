@@ -17,19 +17,21 @@
 
 package com.servoy.j2db.server.ngclient;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import org.sablo.specification.IDefaultComponentPropertiesProvider;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.PropertyDescriptionBuilder;
 import org.sablo.specification.property.types.DimensionPropertyType;
+import org.sablo.specification.property.types.EnabledPropertyType;
 import org.sablo.specification.property.types.IntPropertyType;
 import org.sablo.specification.property.types.PointPropertyType;
 import org.sablo.specification.property.types.TypesRegistry;
+import org.sablo.specification.property.types.VisiblePropertyType;
 
 import com.servoy.j2db.persistence.IContentSpecConstants;
 import com.servoy.j2db.server.ngclient.property.types.CSSPositionPropertyType;
+import com.servoy.j2db.server.ngclient.property.types.DataproviderPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.ServoyAttributesPropertyType;
 
 /**
@@ -39,29 +41,57 @@ import com.servoy.j2db.server.ngclient.property.types.ServoyAttributesPropertyTy
 public class DefaultComponentPropertiesProvider implements IDefaultComponentPropertiesProvider
 {
 	public static DefaultComponentPropertiesProvider instance = new DefaultComponentPropertiesProvider();
+	public static final String ENABLED_DATAPROVIDER_NAME = "enabledDataProvider";
+	public static final String VISIBLE_DATAPROVIDER_NAME = "visibleDataProvider";
 
 	private DefaultComponentPropertiesProvider()
 	{
 	}
 
 	@Override
-	public Map<String, PropertyDescription> getDefaultComponentProperties()
+	public void addDefaultComponentProperties(Map<String, PropertyDescription> properties)
 	{
-		Map<String, PropertyDescription> properties = new HashMap<String, PropertyDescription>();
-		properties.put("location",
-			new PropertyDescriptionBuilder().withName("location").withType(TypesRegistry.getType(PointPropertyType.TYPE_NAME)).build());
-		properties.put("size",
-			new PropertyDescriptionBuilder().withName("size").withType(TypesRegistry.getType(DimensionPropertyType.TYPE_NAME)).build());
-		properties.put("anchors",
-			new PropertyDescriptionBuilder().withName("anchors").withType(IntPropertyType.INSTANCE_NULL_DEFAULT).build());
-		properties.put("formIndex",
-			new PropertyDescriptionBuilder().withName("formIndex").withType(IntPropertyType.INSTANCE_NULL_DEFAULT).build());
-		properties.put(IContentSpecConstants.PROPERTY_CSS_POSITION,
-			new PropertyDescriptionBuilder().withName(IContentSpecConstants.PROPERTY_CSS_POSITION).withType(
-				TypesRegistry.getType(CSSPositionPropertyType.TYPE_NAME)).build());
-		properties.put(IContentSpecConstants.PROPERTY_ATTRIBUTES,
-			new PropertyDescriptionBuilder().withName(IContentSpecConstants.PROPERTY_ATTRIBUTES).withType(
-				TypesRegistry.getType(ServoyAttributesPropertyType.TYPE_NAME)).build());
-		return properties;
+		if (!properties.containsKey("location"))
+		{
+			properties.put("location",
+				new PropertyDescriptionBuilder().withName("location").withType(TypesRegistry.getType(PointPropertyType.TYPE_NAME)).build());
+		}
+		if (!properties.containsKey("size"))
+		{
+			properties.put("size",
+				new PropertyDescriptionBuilder().withName("size").withType(TypesRegistry.getType(DimensionPropertyType.TYPE_NAME)).build());
+		}
+		if (!properties.containsKey("anchors"))
+		{
+			properties.put("anchors",
+				new PropertyDescriptionBuilder().withName("anchors").withType(IntPropertyType.INSTANCE_NULL_DEFAULT).build());
+		}
+		if (!properties.containsKey("anchors"))
+		{
+			properties.put("anchors",
+				new PropertyDescriptionBuilder().withName("formIndex").withType(IntPropertyType.INSTANCE_NULL_DEFAULT).build());
+		}
+		if (!properties.containsKey(IContentSpecConstants.PROPERTY_CSS_POSITION))
+		{
+			properties.put(IContentSpecConstants.PROPERTY_CSS_POSITION,
+				new PropertyDescriptionBuilder().withName(IContentSpecConstants.PROPERTY_CSS_POSITION).withType(
+					TypesRegistry.getType(CSSPositionPropertyType.TYPE_NAME)).build());
+		}
+		if (!properties.containsKey(IContentSpecConstants.PROPERTY_ATTRIBUTES))
+		{
+			properties.put(IContentSpecConstants.PROPERTY_ATTRIBUTES,
+				new PropertyDescriptionBuilder().withName(IContentSpecConstants.PROPERTY_ATTRIBUTES).withType(
+					TypesRegistry.getType(ServoyAttributesPropertyType.TYPE_NAME)).build());
+		}
+		if (properties.values().stream().anyMatch(p -> p.getType() instanceof EnabledPropertyType))
+		{
+			properties.put(ENABLED_DATAPROVIDER_NAME, new PropertyDescriptionBuilder().withName(ENABLED_DATAPROVIDER_NAME).withType(
+				TypesRegistry.getType(DataproviderPropertyType.TYPE_NAME)).build());
+		}
+		if (properties.values().stream().anyMatch(p -> p.getType() instanceof VisiblePropertyType))
+		{
+			properties.put(VISIBLE_DATAPROVIDER_NAME, new PropertyDescriptionBuilder().withName(VISIBLE_DATAPROVIDER_NAME).withType(
+				TypesRegistry.getType(DataproviderPropertyType.TYPE_NAME)).build());
+		}
 	}
 }
