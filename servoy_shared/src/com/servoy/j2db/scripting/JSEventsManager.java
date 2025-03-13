@@ -67,6 +67,16 @@ public class JSEventsManager implements IReturnedTypesProvider
 	 * For default types these are the same arguments then what the forms event function also would get (so that could also containe a JSEvent parameter)
 	 * For custom types the given arguments in the fireEventListeners call are given as parameters after the JSEvent parameter and as Array in the data object of the JSEvent object
 	 *
+	 * The callback function can look like this:
+	 * <pre>
+	 * /*&#42;
+	 *  * &#64;param {JSEvent} event the event object that is fired
+	 *  * &#64;param {Object} arg1 the first argument that is given by the system or the fireEventListeners call
+	 *  * &#64;param {Object} arg2 the second argument that is given by the system or the fireEventListeners call
+	 *  *&#47;
+	 * function myCallback(event, arg1, arg2) {}
+	 * </pre>
+	 *
 	 * @sample
 	 * eventsManager.addEventListener(EventType.myCustomEvent,this.callback);
 	 *
@@ -90,6 +100,15 @@ public class JSEventsManager implements IReturnedTypesProvider
 	 * For default types these are the same arguments then what the forms event function also would get (so that could also containe a JSEvent parameter)
 	 * For custom types the given arguments in the fireEventListeners call are given as parameters after the JSEvent parameter and as Array in the data object of the JSEvent object
 	 *
+	 * The callback function can look like this:
+	 * <pre>
+	 * /*&#42;
+	 *  * &#64;param {JSEvent} event the event object that is fired
+	 *  * &#64;param {Object} arg1 the first argument that is given by the system or the fireEventListeners call
+	 *  * &#64;param {Object} arg2 the second argument that is given by the system or the fireEventListeners call
+	 *  *&#47;
+	 * function myCallback(event, arg1, arg2) {}
+	 * </pre>
 	 *
 	 * @sample
 	 * eventsManager.addEventListener(EventType.onShowMethodID,this.callback,forms.myform);
