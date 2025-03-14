@@ -2377,7 +2377,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			FoundSet foundset = (FoundSet)fs;
 			try
 			{
-				//optimize
+				// optimize
 				if (foundset.isInitialized() && !foundset.hadMoreRows())
 				{
 					return foundset.getSize();

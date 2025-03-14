@@ -132,8 +132,12 @@ public class ColumnType extends BaseColumnType implements IWriteReplace
 	}
 
 
-	public static ColumnType getInstance(BaseColumnType columnType)
+	public static ColumnType toColumnType(BaseColumnType baseColumnType)
 	{
-		return getInstance(columnType.getSqlType(), columnType.getLength(), columnType.getScale(), columnType.getSubType());
+		if (baseColumnType instanceof ColumnType columnType)
+		{
+			return columnType;
+		}
+		return getInstance(baseColumnType.getSqlType(), baseColumnType.getLength(), baseColumnType.getScale(), baseColumnType.getSubType());
 	}
 }

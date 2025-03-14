@@ -1404,7 +1404,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	}
 
 	@Override
-	public ISQLSelect getQuerySelectForReading()
+	public QuerySelect getQuerySelectForReading()
 	{
 		return select;
 	}
@@ -1864,7 +1864,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 						if (newCol == null)
 						{
 							// existing database column not found, create column on the fly
-							ColumnType columnType = ColumnType.getInstance(col.getColumnType());
+							ColumnType columnType = ColumnType.toColumnType(col.getColumnType());
 							if (columnType == null)
 							{
 								columnType = ColumnType.getColumnType(IColumnTypes.TEXT);

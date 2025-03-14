@@ -297,12 +297,10 @@ public class I18NUtil
 				sql.addColumn(msgKey);
 				sql.addColumn(msgVal);
 
-				//Filter to only include records with the default (null) value for columns flagged as Tenant column
+				// Filter to only include records with the default (null) value for columns flagged as Tenant column
 				for (Column column : i18NTable.getTenantColumns())
 				{
-					QueryColumn tenantColumn = new QueryColumn(messagesTable, column.getID(), column.getSQLName(), column.getType(), column.getLength(),
-						column.getScale(), null, column.getFlags());
-					CompareCondition cc = new CompareCondition(IBaseSQLCondition.ISNULL_OPERATOR, tenantColumn, null);
+					CompareCondition cc = new CompareCondition(IBaseSQLCondition.ISNULL_OPERATOR, column.queryColumn(messagesTable), null);
 					sql.addCondition("_svy_tenant_id_filter_" + column.getName(), cc);
 				}
 
@@ -311,9 +309,8 @@ public class I18NUtil
 					Column filterColumn = i18NTable.getColumn(filterName);
 					if (filterColumn != null && filterValue != null && filterValue.length > 0)
 					{
-						QueryColumn columnFilter = new QueryColumn(messagesTable, filterColumn.getID(), filterColumn.getSQLName(), filterColumn.getType(),
-							filterColumn.getLength(), filterColumn.getScale(), null, filterColumn.getFlags());
-						CompareCondition cc = new CompareCondition(IBaseSQLCondition.EQUALS_OPERATOR, columnFilter, new QueryColumnValue(filterValue[0], null));
+						CompareCondition cc = new CompareCondition(IBaseSQLCondition.EQUALS_OPERATOR, filterColumn.queryColumn(messagesTable),
+							new QueryColumnValue(filterValue[0], null));
 						sql.addCondition("FILTER", cc); //$NON-NLS-1$
 					}
 				}

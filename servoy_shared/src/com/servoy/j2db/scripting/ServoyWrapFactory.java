@@ -203,7 +203,6 @@ public final class ServoyWrapFactory extends WrapFactory
 				: new NativeArray(array);
 			ScriptRuntime.setBuiltinProtoAndParent(result, scope,
 				TopLevel.Builtins.Array);
-			result.sealObject(); // RAGTEST
 			return result;
 		}
 		return super.wrap(cx, scope, obj, staticType);

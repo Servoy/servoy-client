@@ -968,8 +968,8 @@ public class SQLGenerator
 		for (int p = 0; p < pkQueryColumns.length; p++)
 		{
 			BaseQueryColumn pk = pkQueryColumns[p];
-			innerPkColumns[p] = new QueryColumn(existsSelect.getTable(), pk.getId(), pk.getName(), pk.getColumnType().getSqlType(),
-				pk.getColumnType().getLength(), pk.getColumnType().getScale(), pk.getNativeTypename(), pk.getFlags(), pk.isIdentity());
+			innerPkColumns[p] = new QueryColumn(existsSelect.getTable(), pk.getId(), pk.getName(), pk.getColumnType(), pk.getNativeTypename(), pk.getFlags(),
+				pk.isIdentity());
 
 			// group by on the inner pk, some dbs (hxtt dbf) require that
 			existsSelect.addGroupBy(innerPkColumns[p]);
@@ -1086,8 +1086,7 @@ public class SQLGenerator
 						IQuerySelectValue col = columns.get(i);
 						columnNames[i] = col.getAliasOrName();
 						BaseColumnType columnType = col.getColumnType();
-						columnTypes[i] = columnType == null ? ColumnType.getInstance(Types.OTHER, 0, 0)
-							: ColumnType.getInstance(columnType.getSqlType(), columnType.getLength(), columnType.getScale());
+						columnTypes[i] = columnType == null ? ColumnType.getInstance(Types.OTHER, 0, 0) : ColumnType.toColumnType(columnType);
 					}
 
 					return BufferedDataSetInternal.createBufferedDataSet(columnNames, columnTypes, new SafeArrayList<Object[]>(0), false);

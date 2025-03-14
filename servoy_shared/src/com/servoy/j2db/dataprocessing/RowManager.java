@@ -1432,8 +1432,8 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 
 		String blobColumnName = sheet.getColumnNames()[columnIndex];
 		Column blobColumn = sheet.getTable().getColumn(blobColumnName);
-		blobSelect.addColumn(new QueryColumn(blobSelect.getTable(), blobColumn.getID(), blobColumn.getSQLName(), blobColumn.getType(), blobColumn.getLength(),
-			blobColumn.getScale(), blobColumn.getNativeTypename(), blobColumn.getFlags(), false));
+
+		blobSelect.addColumn(blobColumn.queryColumn(blobSelect.getTable()));
 
 		String[] pkColumnNames = sheet.getPKColumnDataProvidersAsArray();
 		IQuerySelectValue[] pkQuerycolumns = new IQuerySelectValue[pkColumnNames.length];
@@ -1444,8 +1444,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 		for (int k = 0; k < pkValues.length; k++)
 		{
 			Column pkcolumn = sheet.getTable().getColumn(pkColumnNames[k]);
-			pkQuerycolumns[k] = new QueryColumn(blobSelect.getTable(), pkcolumn.getID(), pkcolumn.getSQLName(), pkcolumn.getType(), pkcolumn.getLength(),
-				pkcolumn.getScale(), pkcolumn.getNativeTypename(), pkcolumn.getFlags(), false);
+			pkQuerycolumns[k] = pkcolumn.queryColumn(blobSelect.getTable());
 			pkValues[k] = new Object[] { pk[k] };
 		}
 

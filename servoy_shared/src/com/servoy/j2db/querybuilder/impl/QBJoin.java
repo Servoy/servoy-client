@@ -197,9 +197,7 @@ public class QBJoin extends QBTableClause implements IQueryBuilderJoin, IConstan
 				throw new RepositoryException("Cannot find column '" + name + "' in data source '" + foreignTableReference.getTable().getDataSource() + "'");
 			}
 
-			return new QBColumn(getRoot(), this,
-				new QueryColumn(getQueryTable(), col.getID(), col.getSQLName(), col.getType(), col.getLength(), col.getScale(), col.getNativeTypename(),
-					col.getFlags(), false));
+			return new QBColumn(getRoot(), this, col.queryColumn(getQueryTable()));
 		}
 		else if (foreignTableReference instanceof DerivedTable)
 		{
