@@ -90,6 +90,7 @@ public class MenuTypeSabloValue implements ISmartPropertyValue, IChangeListener,
 	private Map<String, PropertyDescription> getCustomPropertiesDefinitions()
 	{
 		Map<String, Object> definitions = this.jsMenu.getCustomPropertiesDefinition();
+		if (definitions == null) return new HashMap<String, PropertyDescription>();
 		return definitions.keySet().stream()
 			.map(key -> new PropertyDescriptionBuilder().withName(key).withType(TypesRegistry.getType(definitions.get(key).toString(), false)).build())
 			.collect(Collectors.toMap(pd -> pd.getName(), pd -> pd));
