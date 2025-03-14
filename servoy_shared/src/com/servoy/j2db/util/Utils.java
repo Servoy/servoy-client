@@ -120,10 +120,10 @@ import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.FormElementGroup;
 import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.persistence.IFlattenedPersistWrapper;
-import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.ISupportBounds;
+import com.servoy.j2db.persistence.ISupportFormElement;
 import com.servoy.j2db.scripting.IScriptable;
 import com.servoy.j2db.scripting.IScriptableProvider;
 import com.servoy.j2db.ui.runtime.HasRuntimeClientProperty;
@@ -177,7 +177,7 @@ public final class Utils
 		}
 		if (element instanceof FormElementGroup)
 		{
-			Iterator<IFormElement> elements = ((FormElementGroup)element).getElements();
+			Iterator<ISupportFormElement> elements = ((FormElementGroup)element).getElements();
 			while (elements.hasNext())
 			{
 				if (isInheritedFormElement(elements.next(), context))

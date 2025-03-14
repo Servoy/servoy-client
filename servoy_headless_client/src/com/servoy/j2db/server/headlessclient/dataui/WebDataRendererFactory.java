@@ -40,7 +40,7 @@ import com.servoy.j2db.persistence.Field;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.GraphicalComponent;
 import com.servoy.j2db.persistence.IDataProviderLookup;
-import com.servoy.j2db.persistence.IFormElement;
+import com.servoy.j2db.persistence.ISupportFormElement;
 import com.servoy.j2db.persistence.ISupportPrinting;
 import com.servoy.j2db.persistence.ISupportTabSeq;
 import com.servoy.j2db.persistence.Part;
@@ -131,7 +131,7 @@ public class WebDataRendererFactory implements IDataRendererFactory<Component>
 		boolean isAnchoringEnabled = Utils.getAsBoolean(app.getRuntimeProperties().get("enableAnchors")); //$NON-NLS-1$
 
 //		Insets insets = new Insets(0, 0, 0, 0);
-		for (IFormElement obj : Utils.iterate(form.getFormElementsSortedByFormIndex()))
+		for (ISupportFormElement obj : Utils.iterate(form.getFormElementsSortedByFormIndex()))
 		{
 			Point l = null;
 			l = (obj).getLocation();

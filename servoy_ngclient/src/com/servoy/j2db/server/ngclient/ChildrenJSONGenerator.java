@@ -55,6 +55,7 @@ import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IPersistVisitor;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.ISupportBounds;
+import com.servoy.j2db.persistence.ISupportFormElement;
 import com.servoy.j2db.persistence.LayoutContainer;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.PositionComparator;
@@ -83,12 +84,12 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 		@Override
 		public int compare(IPersist o1, IPersist o2)
 		{
-			if (o1 instanceof IFormElement && o2 instanceof IFormElement)
+			if (o1 instanceof ISupportFormElement && o2 instanceof ISupportFormElement)
 			{
-				return FlattenedForm.FORM_INDEX_WITH_HIERARCHY_COMPARATOR.compare((IFormElement)o1, (IFormElement)o2);
+				return FlattenedForm.FORM_INDEX_WITH_HIERARCHY_COMPARATOR.compare((ISupportFormElement)o1, (ISupportFormElement)o2);
 			}
-			if (o1 instanceof IFormElement) return 1;
-			if (o2 instanceof IFormElement) return -1;
+			if (o1 instanceof ISupportFormElement) return 1;
+			if (o2 instanceof ISupportFormElement) return -1;
 			return o1.getID() - o2.getID();
 		}
 	};
@@ -262,8 +263,16 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 
 			writer.key("children");
 			writer.array();
-			o.acceptVisitor(new ChildrenJSONGenerator(writer, context, o, cache, null, this.form, false, designer),
-				PositionComparator.XY_PERSIST_COMPARATOR);
+			if ("csspositioncontainer".equals(layoutContainer.getSpecName()))
+			{
+				o.acceptVisitor(new ChildrenJSONGenerator(writer, context, o, cache, null, this.form, false, designer),
+					ChildrenJSONGenerator.FORM_INDEX_WITH_HIERARCHY_COMPARATOR);
+			}
+			else
+			{
+				o.acceptVisitor(new ChildrenJSONGenerator(writer, context, o, cache, null, this.form, false, designer),
+					PositionComparator.XY_PERSIST_COMPARATOR);
+			}
 			writer.endArray();
 			writer.endObject();
 			return IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER;

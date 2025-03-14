@@ -430,6 +430,22 @@ public class FindState implements Scriptable, IRecordInternal, Serializable, IJS
 		{
 			return true;
 		}
+		int index = 0;
+		if ((index = name.indexOf('.')) != -1)
+		{
+			String partName = name.substring(0, index);
+			String restName = name.substring(index + 1);
+			IFoundSetInternal foundSet = getRelatedFoundSet(partName);
+			if (foundSet != null)
+			{
+				//related data
+				IRecordInternal state = foundSet.getRecord(foundSet.getSelectedIndex());
+				if (state != null)
+				{
+					return ((Scriptable)state).has(restName, start);
+				}
+			}
+		}
 		return false;
 	}
 

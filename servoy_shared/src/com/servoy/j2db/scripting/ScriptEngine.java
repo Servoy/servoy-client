@@ -189,6 +189,7 @@ public class ScriptEngine implements IScriptSupport
 	private final JSI18N i18n;
 	private final HistoryProvider historyProvider;
 	private final JSSolutionModel solutionModifier;
+	private final JSEventsManager jsEventsManager;
 
 
 	@SuppressWarnings("nls")
@@ -197,6 +198,7 @@ public class ScriptEngine implements IScriptSupport
 		application = app;
 
 		jsApplication = new JSApplication(application);
+		jsEventsManager = new JSEventsManager(application);
 		jsUtils = new JSUtils(application);
 		jsClientUtils = new JSClientUtils(application);
 		jssec = new JSSecurity(application);
@@ -277,6 +279,11 @@ public class ScriptEngine implements IScriptSupport
 			tmpSolutionScope.put(IExecutingEnviroment.TOPLEVEL_APPLICATION, tmpSolutionScope,
 				new NativeJavaObject(tmpSolutionScope, jsApplication, new InstanceJavaMembers(tmpSolutionScope, JSApplication.class)));
 			registerScriptObjectReturnTypes(jsApplication);
+
+			tmpSolutionScope.put(IExecutingEnviroment.TOPLEVEL_EVENTS_MANAGER, tmpSolutionScope,
+				new NativeJavaObject(tmpSolutionScope, jsEventsManager, new InstanceJavaMembers(tmpSolutionScope, JSEventsManager.class)));
+			registerScriptObjectReturnTypes(jsEventsManager);
+
 
 			tmpSolutionScope.put(IExecutingEnviroment.TOPLEVEL_UTILS, tmpSolutionScope,
 				new NativeJavaObject(tmpSolutionScope, jsUtils, new InstanceJavaMembers(tmpSolutionScope, JSUtils.class)));

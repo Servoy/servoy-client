@@ -26,10 +26,9 @@ import java.util.stream.Collectors;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
 
-import com.servoy.base.scripting.annotations.ServoyClientSupport;
-import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.scripting.info.EVENTS_AGGREGATION_TYPE;
+import com.servoy.j2db.scripting.info.EventType;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.Utils;
@@ -38,12 +37,10 @@ import com.servoy.j2db.util.Utils;
  * @author lvostinar
  *
  */
-@ServoyClientSupport(ng = true, mc = false, wc = false, sc = false)
-@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "EventTypes", scriptingName = "eventTypes")
 public class EventsManager implements IEventsManager, Scriptable
 {
 	private final ClientState application;
-	private final Map<String, List<Pair<String, Function>>> callbacks = new HashMap<String, List<Pair<String, Function>>>();
+	private final Map<EventType, List<Pair<String, Function>>> callbacks = new HashMap<>();
 
 	public EventsManager(ClientState clientState)
 	{
@@ -52,7 +49,7 @@ public class EventsManager implements IEventsManager, Scriptable
 
 
 	@Override
-	public void addListener(String eventType, Function callback, String context)
+	public void addListener(EventType eventType, Function callback, String context)
 	{
 		if (eventType != null && callback != null)
 		{
@@ -68,29 +65,31 @@ public class EventsManager implements IEventsManager, Scriptable
 	}
 
 	@Override
-	public void removeListener(String eventType, Function callback, String context)
+	public boolean removeListener(EventType eventType, Function callback, String context)
 	{
 		if (eventType != null)
 		{
 			if (callback == null && context == null)
 			{
-				callbacks.remove(eventType);
+				return callbacks.remove(eventType) != null;
 			}
 			else
 			{
 				List<Pair<String, Function>> eventTypeCallbacks = callbacks.get(eventType);
-				eventTypeCallbacks.removeIf(pair -> (callback == null || pair.getRight() == callback) && (context == null || context.equals(pair.getLeft())));
+				boolean retValue = eventTypeCallbacks
+					.removeIf(pair -> (callback == null || pair.getRight() == callback) && (context == null || context.equals(pair.getLeft())));
 				if (eventTypeCallbacks.size() == 0)
 				{
 					callbacks.remove(eventType);
 				}
+				return retValue;
 			}
 		}
+		return false;
 	}
 
 
-	@Override
-	public List<Function> getListeners(String eventType, String context)
+	private List<Function> getListeners(EventType eventType, String context)
 	{
 		if (eventType != null)
 		{
@@ -106,7 +105,7 @@ public class EventsManager implements IEventsManager, Scriptable
 	}
 
 	@Override
-	public boolean hasListeners(String eventType, String context)
+	public boolean hasListeners(EventType eventType, String context)
 	{
 		if (eventType != null)
 		{
@@ -124,26 +123,43 @@ public class EventsManager implements IEventsManager, Scriptable
 	}
 
 	@Override
-	public Object fireListeners(String eventType, String context, Object[] callbackArguments, int returnValueAggregationType)
+	public Object fireListeners(EventType eventType, String context, Object[] callbackArguments, EVENTS_AGGREGATION_TYPE returnValueAggregationType)
 	{
 		List<Function> functions = getListeners(eventType, context);
 		if (functions != null)
 		{
-			boolean retAsBoolean = false;
+			Boolean retAsBoolean = null;
 			List<Object> retAsList = new ArrayList<Object>();
 			for (Function function : functions)
 			{
 				JSEvent event = new JSEvent();
-				event.setType(eventType);
-				event.setName(eventType);
+				event.setType(eventType.getName());
+				event.setName(eventType.getName());
+				event.setSource(context);
+				if (context != null && context.startsWith("forms.")) //$NON-NLS-1$
+				{
+					event.setFormName(context.substring("forms.".length())); //$NON-NLS-1$
+				}
+				event.setData(callbackArguments);
+				Object[] args = null;
+				if (callbackArguments != null && callbackArguments.length > 0)
+				{
+					args = new Object[callbackArguments.length + 1];
+					args[0] = event;
+					System.arraycopy(callbackArguments, 0, args, 1, callbackArguments.length);
+				}
+				else args = new Object[] { event };
 				try
 				{
 					Object retValue = application.getScriptEngine().executeFunction(function, function.getParentScope(), function.getParentScope(),
-						Utils.arrayMerge(new Object[] { event }, callbackArguments), false,
-						false);
+						args, false, false);
 					if (returnValueAggregationType == EVENTS_AGGREGATION_TYPE.RETURN_VALUE_BOOLEAN)
 					{
-						retAsBoolean = retAsBoolean && Utils.getAsBoolean(retValue);
+						if (retAsBoolean == null)
+						{
+							retAsBoolean = Boolean.valueOf(Utils.getAsBoolean(retValue));
+						}
+						else retAsBoolean = Boolean.valueOf(retAsBoolean.booleanValue() && Utils.getAsBoolean(retValue));
 					}
 					else
 					{
@@ -162,7 +178,7 @@ public class EventsManager implements IEventsManager, Scriptable
 			}
 			if (returnValueAggregationType == EVENTS_AGGREGATION_TYPE.RETURN_VALUE_BOOLEAN)
 			{
-				return Boolean.valueOf(retAsBoolean);
+				return retAsBoolean;
 			}
 			else
 			{
@@ -183,7 +199,8 @@ public class EventsManager implements IEventsManager, Scriptable
 	@Override
 	public Object get(String name, Scriptable start)
 	{
-		return application.getFlattenedSolution().getEventType(name);
+		EventType eventType = EventType.getDefaultEvents().get(name);
+		return eventType == null ? application.getFlattenedSolution().getEventType(name) : eventType;
 	}
 
 
@@ -197,7 +214,7 @@ public class EventsManager implements IEventsManager, Scriptable
 	@Override
 	public boolean has(String name, Scriptable start)
 	{
-		return application.getFlattenedSolution().getEventType(name) != null;
+		return application.getFlattenedSolution().getEventType(name) != null || EventType.getDefaultEvents().containsKey(name);
 	}
 
 
@@ -266,7 +283,12 @@ public class EventsManager implements IEventsManager, Scriptable
 	@Override
 	public Object[] getIds()
 	{
-		return application.getFlattenedSolution().getEventTypes().stream().map(eventType -> eventType.getName()).toArray();
+		List<String> names = new ArrayList<String>();
+		// take all default
+		EventType.getDefaultEvents().values().stream().map(eventType -> eventType.getName()).forEach(names::add);
+		// take all custom declared in the solution and modules
+		application.getFlattenedSolution().getEventTypes().stream().map(eventType -> eventType.getName()).forEach(names::add);
+		return names.toArray();
 	}
 
 

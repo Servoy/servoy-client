@@ -296,7 +296,7 @@ public class JSMethod implements IJavaScriptType, ISMMethod
 		try
 		{
 			AstRoot parse = parser.parse(new CharArrayReader(content.toCharArray()), "", 0); //$NON-NLS-1$
-			new IRFactory(cenv, new JSErrorReporter()).transformTree(parse);
+			new IRFactory(cenv, "", content, new JSErrorReporter()).transformTree(parse);
 
 			int functionCount = parse.getFunctionCount();
 			if (functionCount != 1) throw new RuntimeException("Only 1 function is allowed, found: " + functionCount + " when setting code of a method"); //$NON-NLS-1$ //$NON-NLS-2$

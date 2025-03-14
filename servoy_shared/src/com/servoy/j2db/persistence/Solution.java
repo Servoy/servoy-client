@@ -1033,7 +1033,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	}
 	/*------------------------------------------------------------------------------------------------------------------------
 	 * LISTENERS
-
+	
 	public void iPersistChanged(IPersist persist)
 	{
 		getChangeHandler().fireIPersistChanged(persist);
@@ -1676,7 +1676,9 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	}
 
 	/**
-	 * These are the event types of the solution that can be added/fired/removed from application object.These event types are added on top of default form events.
+	 * These are the event types of the solution that can be added/fired/removed from eventsManager object.
+	 * These event types are added on top of default form events.
+	 * They can be access through EventType.name property when used to fire or listen to.
 	 */
 	@ServoyClientSupport(ng = true, mc = true, wc = true, sc = true)
 	public JSONObject getEventTypes()

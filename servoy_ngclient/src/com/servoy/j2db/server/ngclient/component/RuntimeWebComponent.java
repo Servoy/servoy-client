@@ -334,7 +334,7 @@ public class RuntimeWebComponent implements IBaseRuntimeComponent, Scriptable, I
 			if (WebFormComponent.isDesignOnlyProperty(pd)) return Scriptable.NOT_FOUND;
 			Object value = component.getProperty(realName);
 			// special case for visibility should always return true for a null value (value not set)
-			if (value == null && pd.getType() == VisiblePropertyType.INSTANCE) return Boolean.TRUE;
+			if (value == null && pd.getType() instanceof VisiblePropertyType) return Boolean.TRUE;
 			return NGConversions.INSTANCE.convertSabloComponentToRhinoValue(value, pd, component, start);
 		}
 		if ("getFormName".equals(name))

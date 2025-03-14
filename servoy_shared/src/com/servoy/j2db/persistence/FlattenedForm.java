@@ -45,9 +45,9 @@ public class FlattenedForm extends Form implements IFlattenedPersistWrapper<Form
 	private final Map<UUID, IPersist> extendsMap = new HashMap<>();
 	private final Map<String, Object> allProperties = new HashMap<>();
 
-	public static final Comparator<IFormElement> FORM_INDEX_WITH_HIERARCHY_COMPARATOR = new Comparator<IFormElement>()
+	public static final Comparator<ISupportFormElement> FORM_INDEX_WITH_HIERARCHY_COMPARATOR = new Comparator<ISupportFormElement>()
 	{
-		public int compare(IFormElement element1, IFormElement element2)
+		public int compare(ISupportFormElement element1, ISupportFormElement element2)
 		{
 			Form form1 = getFormIndexContext(element1);
 			Form form2 = getFormIndexContext(element2);
@@ -286,7 +286,7 @@ public class FlattenedForm extends Form implements IFlattenedPersistWrapper<Form
 	}
 
 	@Override
-	public Iterator<IFormElement> getFormElementsSortedByFormIndex()
+	public Iterator<ISupportFormElement> getFormElementsSortedByFormIndex()
 	{
 		return new FormTypeIterator(getAllObjectsAsList(), FORM_INDEX_WITH_HIERARCHY_COMPARATOR);
 	}
@@ -313,24 +313,24 @@ public class FlattenedForm extends Form implements IFlattenedPersistWrapper<Form
 		return false;
 	}
 
-	private static Form getFormIndexContext(IFormElement element)
+	private static Form getFormIndexContext(ISupportFormElement element)
 	{
 		if (element instanceof IFlattenedPersistWrapper)
 		{
-			element = (IFormElement)((IFlattenedPersistWrapper)element).getWrappedPersist();
+			element = (ISupportFormElement)((IFlattenedPersistWrapper)element).getWrappedPersist();
 		}
 		if (element.getFormIndex() == 0 || element.getExtendsID() <= 0)
 		{
 			return (Form)element.getAncestor(IRepository.FORMS);
 		}
-		IFormElement currentElement = element;
+		ISupportFormElement currentElement = element;
 		while (currentElement != null)
 		{
 			if (((AbstractBase)currentElement).hasProperty(StaticContentSpecLoader.PROPERTY_FORMINDEX.getPropertyName()))
 			{
 				return (Form)currentElement.getParent();
 			}
-			currentElement = (IFormElement)PersistHelper.getSuperPersist(currentElement);
+			currentElement = (ISupportFormElement)PersistHelper.getSuperPersist(currentElement);
 		}
 		return (Form)element.getAncestor(IRepository.FORMS);
 	}

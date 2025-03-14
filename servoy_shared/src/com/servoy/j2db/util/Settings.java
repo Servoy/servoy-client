@@ -361,6 +361,10 @@ public final class Settings extends SortedProperties
 				{
 					buffer.append(replacement);
 				}
+				else
+				{
+					buffer.append(START_DELIMITER).append(keyToSubstitute).append(STOP_DELIMITER);
+				}
 			}
 			position = endDelimiterIndex + STOP_DELIMITER_LENGTH;
 		}

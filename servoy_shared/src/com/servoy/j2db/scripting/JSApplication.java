@@ -87,8 +87,6 @@ import com.servoy.j2db.scripting.info.APP_NG_PROPERTY;
 import com.servoy.j2db.scripting.info.APP_UI_PROPERTY;
 import com.servoy.j2db.scripting.info.CLIENTDESIGN;
 import com.servoy.j2db.scripting.info.ELEMENT_TYPES;
-import com.servoy.j2db.scripting.info.EVENTS_AGGREGATION_TYPE;
-import com.servoy.j2db.scripting.info.EventType;
 import com.servoy.j2db.scripting.info.LOGGINGLEVEL;
 import com.servoy.j2db.scripting.info.NGCONSTANTS;
 import com.servoy.j2db.scripting.info.UICONSTANTS;
@@ -167,7 +165,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 
 	private static Class< ? >[] getAllReturnedTypesInternal()
 	{
-		return new Class< ? >[] { APPLICATION_TYPES.class, CLIENTDESIGN.class, DRAGNDROP.class, ELEMENT_TYPES.class, ICSSPosition.class, IScriptRenderMethodsWithOptionalProps.class, JSDimension.class, JSPoint.class, JSBounds.class, JSDNDEvent.class, JSEvent.class, JSRenderEvent.class, JSUpload.class, JSWindow.class, JSLogger.class, JSLogBuilder.class, LOGGINGLEVEL.class, UICONSTANTS.class, UUID.class, WEBCONSTANTS.class, NGCONSTANTS.class, APP_UI_PROPERTY.class, APP_NG_PROPERTY.class, EVENTS_AGGREGATION_TYPE.class };
+		return new Class< ? >[] { APPLICATION_TYPES.class, CLIENTDESIGN.class, DRAGNDROP.class, ELEMENT_TYPES.class, ICSSPosition.class, IScriptRenderMethodsWithOptionalProps.class, JSDimension.class, JSPoint.class, JSBounds.class, JSDNDEvent.class, JSEvent.class, JSRenderEvent.class, JSUpload.class, JSWindow.class, JSLogger.class, JSLogBuilder.class, LOGGINGLEVEL.class, UICONSTANTS.class, UUID.class, WEBCONSTANTS.class, NGCONSTANTS.class, APP_UI_PROPERTY.class, APP_NG_PROPERTY.class };
 	}
 
 	@Deprecated
@@ -3843,175 +3841,6 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 			Debug.error(e);
 		}
 		return "";
-	}
-
-	/**
-	 * Adds a listener for a custom EventType or for one of default event types. The custom event is defined on solution eventType property and can be fired using fireEventListeners.
-	 *
-	 * @sample
-	 * application.addEventListener(eventTypes.myCustomEvent,this.callback);
-	 *
-	 * @param eventType Event type to listen to.
-	 * @param callback callback to be called.
-	 *
-	 */
-	@JSFunction
-	@ServoyClientSupport(ng = true, wc = true, sc = true, mc = false)
-	public void addEventListener(EventType eventType, Function callback)
-	{
-		addEventListener(eventType, callback, null);
-	}
-
-	/**
-	 * Adds a listener for a custom EventType or for one of default event types. The custom event is defined on solution eventType property and can be fired using fireEventListeners.
-	 * When context is specified, the callback will only be called on that context: for custom events, when fireEventListeners is called using same context and for default events when context is the specific form that triggers the default form event.
-	 *
-	 * @sample
-	 * application.addEventListener(eventTypes.onShowMethodID,this.callback,forms.myform);
-	 *
-	 * @param eventType Event type to listen to.
-	 * @param callback callback to be called.
-	 * @param context Can be a form, global scope or any string. Will cause callback to only be called on that context.
-	 */
-	@JSFunction
-	@ServoyClientSupport(ng = true, wc = true, sc = true, mc = false)
-	public void addEventListener(EventType eventType, Function callback, Object context)
-	{
-		application.getEventsManager().addListener(getEventTypeAsString(eventType), callback, getContextAsString(context));
-	}
-
-	/**
-	 * Removes one or multiple listeners (depending on parameters). Only works for custom event listeners that were added using addEventListener.
-	 *
-	 * @sample
-	 * application.removeEventListener(eventTypes.myCustomEvent,this.callback,'mycontext');
-	 *
-	 * @param eventType Event type for listener to remove. Cannot be null.
-	 * @param callback callback to be removed. Can be null (any listener).
-	 * @param context Context for listener to remove. Can be null (any context).
-	 */
-	@JSFunction
-	@ServoyClientSupport(ng = true, wc = true, sc = true, mc = false)
-	public void removeEventListener(EventType eventType, Function callback, Object context)
-	{
-		application.getEventsManager().removeListener(getEventTypeAsString(eventType), callback, getContextAsString(context));
-	}
-
-	/**
-	 * Checks if listeners were added for a certain event type (and possibly context)
-	 *
-	 * @sample
-	 * application.hasEventListeners(eventTypes.myCustomEvent,'mycontext');
-	 *
-	 * @param eventType Event type for listener to check.
-	 * @param context Context for listener to check. Can be null (any context).
-	 *
-	 * @return Boolean (true) if listeners were added, (false) otherwise
-	 */
-	@JSFunction
-	@ServoyClientSupport(ng = true, wc = true, sc = true, mc = false)
-	public boolean hasEventListeners(EventType eventType, Object context)
-	{
-		return application.getEventsManager().hasListeners(getEventTypeAsString(eventType), getContextAsString(context));
-	}
-
-	/**
-	 * Calls all listeners for a certain event type (and optionally, for a certain context).
-	 * Will return either a Boolean calculated as logical AND between all listeners return value or an Array with all return values.
-	 *
-	 * @sample
-	 * application.fireEventListeners(eventTypes.myCustomEvent,'mycontext',null,EVENTS_AGGREGATION_TYPE.RETURN_VALUE_BOOLEAN);
-	 *
-	 * @param eventType Event type for listeners to be called.
-	 * @param context Context for listeners to be called. Can be null (any context).
-	 * @param callbackArguments Arguments for listener to be called with. Can be null.
-	 * @param returnValueAggregationType Return value constant. Should be taken from EVENTS_AGGREGATION_TYPE.
-	 *
-	 * @return Boolean or Array depending on returnValueAggregationType. Boolean value is a logical AND between all listeners return value and Array contains all return values of the listeners.
-	 */
-	@JSFunction
-	@ServoyClientSupport(ng = true, wc = true, sc = true, mc = false)
-	public Object fireEventListeners(EventType eventType, Object context, Object[] callbackArguments, int returnValueAggregationType)
-	{
-		return application.getEventsManager().fireListeners(getEventTypeAsString(eventType), getContextAsString(context), callbackArguments,
-			returnValueAggregationType);
-	}
-
-	/**
-	 * Calls all listeners for a certain event type (and optionally, for a certain context).
-	 * Will return a Boolean calculated as logical AND between all listeners return value (default value).
-	 *
-	 * @sample
-	 * application.fireEventListeners(eventTypes.myCustomEvent,'mycontext');
-	 *
-	 * @param eventType Event type for listeners to be called.
-	 * @param context Context for listeners to be called. Can be null (any context).
-	 *
-	 * @return Boolean value that is a logical AND between all listeners return value.
-	 */
-	@JSFunction
-	@ServoyClientSupport(ng = true, wc = true, sc = true, mc = false)
-	public Object fireEventListeners(EventType eventType, Object context)
-	{
-		return fireEventListeners(eventType, getContextAsString(context), null, EVENTS_AGGREGATION_TYPE.RETURN_VALUE_BOOLEAN);
-	}
-
-	/**
-	 * Calls all listeners for a certain event type (and optionally, for a certain context).
-	 * Will return a Boolean calculated as logical AND between all listeners return value (default value).
-	 *
-	 * @sample
-	 * application.fireEventListeners(eventTypes.myCustomEvent,'mycontext');
-	 *
-	 * @param eventType Event type for listeners to be called.
-	 * @param context Context for listeners to be called. Can be null (any context).
-	 * @param callbackArguments Arguments for listener to be called with. Can be null.
-	 *
-	 * @return Boolean value that is a logical AND between all listeners return value.
-	 */
-	@JSFunction
-	@ServoyClientSupport(ng = true, wc = true, sc = true, mc = false)
-	public Object fireEventListeners(EventType eventType, Object context, Object[] callbackArguments)
-	{
-		return fireEventListeners(eventType, getContextAsString(context), callbackArguments, EVENTS_AGGREGATION_TYPE.RETURN_VALUE_BOOLEAN);
-	}
-
-	public String getContextAsString(Object context)
-	{
-		String contextAsString = null;
-		if (context != null)
-		{
-			if (context instanceof BasicFormController form)
-			{
-				contextAsString = IExecutingEnviroment.TOPLEVEL_FORMS + "." + form.getName();
-			}
-			else if (context instanceof FormScope form)
-			{
-				contextAsString = IExecutingEnviroment.TOPLEVEL_FORMS + "." + form.getFormController().getName();
-			}
-			else if (context instanceof BasicFormController.JSForm form)
-			{
-				contextAsString = IExecutingEnviroment.TOPLEVEL_FORMS + "." + form.getFormPanel().getName();
-			}
-			else if (context instanceof GlobalScope scope)
-			{
-				contextAsString = IExecutingEnviroment.TOPLEVEL_SCOPES + "." + scope.getScopeName();
-			}
-			else if (context instanceof String)
-			{
-				contextAsString = (String)context;
-			}
-		}
-		return contextAsString;
-	}
-
-	public String getEventTypeAsString(EventType eventType)
-	{
-		if (eventType != null)
-		{
-			return eventType.getName();
-		}
-		return null;
 	}
 
 	@Override

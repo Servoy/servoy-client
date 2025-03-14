@@ -249,6 +249,7 @@ angular.module('servoydefaultCalendar', [ 'servoy' ]).directive('servoydefaultCa
 									close: 'glyphicon glyphicon-ok'
 								}
 							};
+					opts.locale = numeral.locale();
 					if (showISOWeeks)
 					{
 						opts.isoCalendarWeeks = true;

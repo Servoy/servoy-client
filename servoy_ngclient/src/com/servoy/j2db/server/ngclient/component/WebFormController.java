@@ -49,7 +49,7 @@ import com.servoy.j2db.IView;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.PrototypeState;
 import com.servoy.j2db.persistence.Form;
-import com.servoy.j2db.persistence.IFormElement;
+import com.servoy.j2db.persistence.ISupportFormElement;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.PositionComparator;
 import com.servoy.j2db.persistence.RepositoryHelper;
@@ -636,10 +636,10 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 			if (defaultTabSequence)
 			{
 				ArrayList<String> sequence = new ArrayList<String>();
-				Iterator<IFormElement> it = form.getFormElementsSortedByFormIndex();
+				Iterator<ISupportFormElement> it = form.getFormElementsSortedByFormIndex();
 				while (it.hasNext())
 				{
-					IFormElement element = it.next();
+					ISupportFormElement element = it.next();
 					if (element.getName() != null) sequence.add(element.getName());
 				}
 				tabSequence = sequence.toArray(new String[sequence.size()]);

@@ -1,3 +1,14 @@
+var VIEWPORT_MOBILE_DEFAULT;
+
+var VIEWPORT_MOBILE_DENY_ZOOM;
+
+var VIEWPORT_MOBILE_DENY_ZOOM_OUT;
+
+var VIEWPORT_MOBILE_DENY_ZOOM_IN;
+
+var contributedTags;
+
+
 
 /**
  * This will register a callback that will be triggered on all history/window popstate events (back,forward but also next main form).

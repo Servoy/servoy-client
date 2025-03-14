@@ -83,9 +83,9 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 
 	public static final String DATASOURCE_NONE = "-none-";
 
-	public static Comparator<IFormElement> FORM_INDEX_COMPARATOR = new Comparator<IFormElement>()
+	public static Comparator<ISupportFormElement> FORM_INDEX_COMPARATOR = new Comparator<ISupportFormElement>()
 	{
-		public int compare(IFormElement element1, IFormElement element2)
+		public int compare(ISupportFormElement element1, ISupportFormElement element2)
 		{
 			return element1.getFormIndex() - element2.getFormIndex();
 		}
@@ -910,7 +910,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 *
 	 * @return all the form elements
 	 */
-	public Iterator<IFormElement> getFormElementsSortedByFormIndex()
+	public Iterator<ISupportFormElement> getFormElementsSortedByFormIndex()
 	{
 		return getFormElementsSorted(FORM_INDEX_COMPARATOR);
 	}
@@ -920,7 +920,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 *
 	 * @return all the form elements
 	 */
-	public Iterator<IFormElement> getFormElementsSorted(Comparator<IFormElement> comparator)
+	public Iterator<ISupportFormElement> getFormElementsSorted(Comparator<ISupportFormElement> comparator)
 	{
 		return new FormTypeIterator(getAllObjectsAsList(), comparator);
 	}
@@ -945,28 +945,28 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 
 	}
 
-	public static class FormTypeIterator implements Iterator<IFormElement>
+	public static class FormTypeIterator implements Iterator<ISupportFormElement>
 	{
-		private List<IFormElement> array;
+		private List<ISupportFormElement> array;
 		private int index = 0;
 
-		public FormTypeIterator(List<IPersist> list, final Comparator<IFormElement> comparator)
+		public FormTypeIterator(List<IPersist> list, final Comparator<ISupportFormElement> comparator)
 		{
-			array = new ArrayList<IFormElement>();
+			array = new ArrayList<ISupportFormElement>();
 			if (list != null)
 			{
 				for (IPersist p : list)
 				{
-					if (p instanceof IFormElement)
+					if (p instanceof ISupportFormElement)
 					{
-						array.add((IFormElement)p);
+						array.add((ISupportFormElement)p);
 					}
 				}
 			}
 
-			IFormElement[] a = array.toArray(new IFormElement[array.size()]);
+			ISupportFormElement[] a = array.toArray(new ISupportFormElement[array.size()]);
 			Arrays.sort(a, comparator);
-			array = Arrays.<IFormElement> asList(a);
+			array = Arrays.<ISupportFormElement> asList(a);
 		}
 
 		public boolean hasNext()
@@ -974,7 +974,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 			return (index < array.size());
 		}
 
-		public IFormElement next()
+		public ISupportFormElement next()
 		{
 			return array.get(index++);
 		}
