@@ -17,7 +17,10 @@
 
 package com.servoy.j2db.scripting;
 
+import org.mozilla.javascript.BaseFunction;
+import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
+import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.annotations.JSFunction;
 
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
@@ -61,48 +64,80 @@ public class JSEventsManager implements IReturnedTypesProvider
 
 	/**
 	 * Adds a listener for a custom EventType or for one of default event types. The custom event is defined on solution eventType property and can be fired using fireEventListeners.
-	 *
+	 * <br/>
 	 * The callback first parameter is always a JSEvent object. The source is the context (for default form event types this is 'forms.MyForm') also the formName is set to the form that triggered this for the default events.
 	 * The data object of the JSEven object is the argument array, those are also given as parameters after the first JSEvent parameter.
 	 * For default types these are the same arguments then what the forms event function also would get (so that could also containe a JSEvent parameter)
 	 * For custom types the given arguments in the fireEventListeners call are given as parameters after the JSEvent parameter and as Array in the data object of the JSEvent object
+	 * <br/><br/>
+	 * The callback function can look like this:
+	 * <pre>
+	 * /*&#42;
+	 *  * &#64;param {JSEvent} event the event object that is fired
+	 *  * &#64;param {Object} arg1 the first argument that is given by the system or the fireEventListeners call
+	 *  * &#64;param {Object} arg2 the second argument that is given by the system or the fireEventListeners call
+	 *  *&#47;
+	 * function myCallback(event, arg1, arg2) {}
+	 * </pre>
 	 *
 	 * @sample
-	 * eventsManager.addEventListener(EventType.myCustomEvent,this.callback);
+	 * var deregister = eventsManager.addEventListener(EventType.myCustomEvent,this.callback);
+	 * deregister();
 	 *
 	 * @param eventType Event type to listen to.
 	 * @param callback callback to be called.
 	 *
+	 * @return returns the deregister function that can be used to remove the listener.
 	 */
 	@JSFunction
 	@ServoyClientSupport(ng = true, wc = true, sc = true, mc = false)
-	public void addEventListener(EventType eventType, Function callback)
+	public Function addEventListener(EventType eventType, Function callback)
 	{
-		addEventListener(eventType, callback, null);
+		return addEventListener(eventType, callback, null);
 	}
 
 	/**
 	 * Adds a listener for a custom EventType or for one of default event types. The custom event is defined on solution eventType property and can be fired using fireEventListeners.
 	 * When context is specified, the callback will only be called on that context: for custom events, when fireEventListeners is called using same context and for default events when context is the specific form that triggers the default form event.
-	 *
+	 * <br/>
 	 * The callback first parameter is always a JSEvent object. The source is the context (for default form event types this is 'forms.MyForm') also the formName is set to the form that triggered this for the default events.
 	 * The data object of the JSEven object is the argument array, those are also given as parameters after the first JSEvent parameter.
 	 * For default types these are the same arguments then what the forms event function also would get (so that could also containe a JSEvent parameter)
 	 * For custom types the given arguments in the fireEventListeners call are given as parameters after the JSEvent parameter and as Array in the data object of the JSEvent object
-	 *
+	 * <br/><br/>
+	 * The callback function can look like this:
+	 * <pre>
+	 * /*&#42;
+	 *  * &#64;param {JSEvent} event the event object that is fired
+	 *  * &#64;param {Object} arg1 the first argument that is given by the system or the fireEventListeners call
+	 *  * &#64;param {Object} arg2 the second argument that is given by the system or the fireEventListeners call
+	 *  *&#47;
+	 * function myCallback(event, arg1, arg2) {}
+	 * </pre>
 	 *
 	 * @sample
-	 * eventsManager.addEventListener(EventType.onShowMethodID,this.callback,forms.myform);
+	 * var deregiser = eventsManager.addEventListener(EventType.onShowMethodID,this.callback,forms.myform);
+	 * deregiser();
 	 *
 	 * @param eventType Event type to listen to.
 	 * @param callback callback to be called.
 	 * @param context Can be a form, global scope or any string. Will cause callback to only be called on that context.
+	 *
+	 * @return returns the deregister function that can be used to remove the listener.
 	 */
 	@JSFunction
 	@ServoyClientSupport(ng = true, wc = true, sc = true, mc = false)
-	public void addEventListener(EventType eventType, Function callback, Object context)
+	public Function addEventListener(EventType eventType, Function callback, Object context)
 	{
 		application.getEventsManager().addListener(eventType, callback, getContextAsString(context));
+		return new BaseFunction()
+		{
+			@Override
+			public Object call(Context cx, Scriptable scope, Scriptable thisObj, Object[] args)
+			{
+				return Boolean.valueOf(removeEventListener(eventType, callback, context));
+			}
+		};
 	}
 
 	/**
@@ -114,12 +149,14 @@ public class JSEventsManager implements IReturnedTypesProvider
 	 * @param eventType Event type for listener to remove. Cannot be null.
 	 * @param callback callback to be removed. Can be null (any listener).
 	 * @param context Context for listener to remove. Can be null (any context).
+	 *
+	 * @return true if the deregister was successful
 	 */
 	@JSFunction
 	@ServoyClientSupport(ng = true, wc = true, sc = true, mc = false)
-	public void removeEventListener(EventType eventType, Function callback, Object context)
+	public boolean removeEventListener(EventType eventType, Function callback, Object context)
 	{
-		application.getEventsManager().removeListener(eventType, callback, getContextAsString(context));
+		return application.getEventsManager().removeListener(eventType, callback, getContextAsString(context));
 	}
 
 	/**

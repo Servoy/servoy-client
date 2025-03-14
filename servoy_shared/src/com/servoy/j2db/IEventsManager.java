@@ -41,7 +41,7 @@ public interface IEventsManager
 	 * @param context
 	 * @param callback
 	 */
-	void removeListener(EventType eventType, Function callback, String context);
+	boolean removeListener(EventType eventType, Function callback, String context);
 
 	/**
 	 * @param eventType

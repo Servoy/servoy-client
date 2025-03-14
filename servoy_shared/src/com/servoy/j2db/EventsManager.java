@@ -65,24 +65,27 @@ public class EventsManager implements IEventsManager, Scriptable
 	}
 
 	@Override
-	public void removeListener(EventType eventType, Function callback, String context)
+	public boolean removeListener(EventType eventType, Function callback, String context)
 	{
 		if (eventType != null)
 		{
 			if (callback == null && context == null)
 			{
-				callbacks.remove(eventType);
+				return callbacks.remove(eventType) != null;
 			}
 			else
 			{
 				List<Pair<String, Function>> eventTypeCallbacks = callbacks.get(eventType);
-				eventTypeCallbacks.removeIf(pair -> (callback == null || pair.getRight() == callback) && (context == null || context.equals(pair.getLeft())));
+				boolean retValue = eventTypeCallbacks
+					.removeIf(pair -> (callback == null || pair.getRight() == callback) && (context == null || context.equals(pair.getLeft())));
 				if (eventTypeCallbacks.size() == 0)
 				{
 					callbacks.remove(eventType);
 				}
+				return retValue;
 			}
 		}
+		return false;
 	}
 
 
