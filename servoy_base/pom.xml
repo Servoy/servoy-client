@@ -9,10 +9,10 @@
 	<parent>
 		<groupId>com.servoy</groupId>
 		<artifactId>servoy-client</artifactId>
-		<version>2025.3.0.4040_rc</version>
+		<version>2025.3.0.4041_rc2</version>
 	</parent>
 	<artifactId>servoy_base</artifactId>
-	<version>2025.3.0.4040_rc</version>
+	<version>2025.3.0.4041_rc2</version>
 	<packaging>eclipse-plugin</packaging>
 	<build>
 		<plugins>
