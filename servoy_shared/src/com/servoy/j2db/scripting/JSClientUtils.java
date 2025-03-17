@@ -214,9 +214,9 @@ public class JSClientUtils
 	{
 		if (application instanceof INGClientApplication && webComponent instanceof Scriptable)
 		{
-			JSONObject retVal = ((INGClientApplication)application).getBounds((String)((Scriptable)webComponent).get("svyMarkupId", (Scriptable)webComponent),
+			JSONObject bounds = ((INGClientApplication)application).getBounds((String)((Scriptable)webComponent).get("svyMarkupId", (Scriptable)webComponent),
 				subselector);
-			if (retVal instanceof JSONObject bounds)
+			if (bounds != null)
 			{
 				return new JSBounds(Utils.getAsInteger(bounds.get("x")), Utils.getAsInteger(bounds.get("y")), Utils.getAsInteger(bounds.get("width")),
 					Utils.getAsInteger(bounds.get("height")));
