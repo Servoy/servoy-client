@@ -213,13 +213,19 @@ public interface IFoundSetManagerInternal extends IFoundSetManager, IDatabaseMan
 	 */
 	public boolean registerViewFoundSet(ViewFoundSet foundset, boolean onlyWeak);
 
-	public void registerRelatedMenuFoundSet(MenuFoundSet foundset);
-
 	/**
 	 * @param datasource
 	 * @return
 	 */
 	public boolean unregisterViewFoundSet(String datasource);
+
+	public void registerRelatedMenuFoundSet(MenuFoundSet foundset);
+
+	/**
+	 * @param relatedFoundSet
+	 */
+	public void unregisterRelatedMenuFoundSet(MenuFoundSet relatedFoundSet);
+
 
 	public RowManager getRowManager(String dataSource) throws ServoyException;
 
@@ -248,4 +254,5 @@ public interface IFoundSetManagerInternal extends IFoundSetManager, IDatabaseMan
 	public void setTenantValue(Solution solution, Object value);
 
 	public Object[] getTenantValue();
+
 }
