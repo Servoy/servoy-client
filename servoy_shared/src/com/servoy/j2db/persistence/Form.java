@@ -1273,6 +1273,8 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 * @templateparam Array<JSRecord<${dataSource}>> newSelection new selection
 	 * @templateparam JSEvent event the event that triggered the action
 	 * @templateaddtodo
+	 * @templatecode
+	 * return true
 	 */
 	@ServoyClientSupport(mc = true, wc = true, sc = true)
 	public int getOnBeforeRecordSelectionMethodID()
