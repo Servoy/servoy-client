@@ -86,7 +86,7 @@ public class FormScope extends ScriptVariableScope implements Wrapper, Contextua
 	@Override
 	public String getScopeName()
 	{
-		return _fp.getName();
+		return formName;
 	}
 
 	public void createVars()
@@ -573,6 +573,7 @@ public class FormScope extends ScriptVariableScope implements Wrapper, Contextua
 		}
 
 	}
+
 }
 
 class FormScopeWrapper implements Callable
