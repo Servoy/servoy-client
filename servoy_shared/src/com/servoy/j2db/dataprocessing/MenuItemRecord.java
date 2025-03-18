@@ -524,4 +524,17 @@ public class MenuItemRecord implements IRecordInternal, Scriptable, IJSBaseRecor
 	{
 		return "MenuItemRecord[" + values + ']';
 	}
+
+	/**
+	 *
+	 */
+	public void destroy()
+	{
+		menuItem.removeChangeListener(this);
+		if (relatedFoundSet != null)
+		{
+			relatedFoundSet.destroy();
+			getParentFoundSet().getFoundSetManager().unregisterRelatedMenuFoundSet(relatedFoundSet);
+		}
+	}
 }
