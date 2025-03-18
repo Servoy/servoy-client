@@ -550,15 +550,13 @@ public class DebugNGClient extends NGClient implements IDebugNGClient
 	{
 		if (!errorLevel)
 		{
-			Runnable runable = () -> DebugUtils.stdoutToDebugger(getScriptEngine(), messsage);
-			if (isEventDispatchThread()) runable.run();
-			else invokeLater(runable);
+			// don't call getScriptEngine() just return it if it is created, if not then no logging is not a problem,
+			// ngclient is not fully loaded
+			DebugUtils.stdoutToDebugger(scriptEngine, messsage);
 		}
 		else
 		{
-			Runnable runable = () -> DebugUtils.stderrToDebugger(getScriptEngine(), messsage);
-			if (isEventDispatchThread()) runable.run();
-			else invokeLater(runable);
+			DebugUtils.stderrToDebugger(scriptEngine, messsage);
 		}
 	}
 }
