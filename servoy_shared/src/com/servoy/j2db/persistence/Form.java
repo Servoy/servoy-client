@@ -1257,20 +1257,20 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 * /**
 	 *  * Handle record selected.
 	 *  *
-	 *  * &#x40;param {Array<JSRecord<db:/example_data/orders>>} old selected records
-	 *  * &#x40;param {Array<JSRecord<db:/example_data/orders>>} new selected records
+	 *  * &#x40;param {Array<JSRecord<db:/example_data/orders>>} oldSelection old selected records
+	 *  * &#x40;param {Array<JSRecord<db:/example_data/orders>>} newSelection new selected records
 	 *  * &#x40;param {JSEvent} event the event that triggered the action
 	 *  *
 	 *  * &#x40;properties={typeid:24,uuid:"5D614C43-89B3-41D5-941B-0C83CA4D3039"}
 	 *  *&#x2f;
-	 * function onBeforeRecordSelection(event) {
+	 * function onBeforeRecordSelection(oldSelection, newSelection, event) {
 	 *     return true;
 	 * }
 	 *
 	 * @templatedescription Validate record selection before is completed
 	 * @templatename onBeforeRecordSelection
-	 * @templateparam Array<JSRecord<${dataSource}>> old selection
-	 * @templateparam Array<JSRecord<${dataSource}>> new selection
+	 * @templateparam Array<JSRecord<${dataSource}>> oldSelection old selection
+	 * @templateparam Array<JSRecord<${dataSource}>> newSelection new selection
 	 * @templateparam JSEvent event the event that triggered the action
 	 * @templateaddtodo
 	 */
