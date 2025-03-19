@@ -178,16 +178,20 @@ public class GlobalMethodValueList extends CustomValueList
 										for (int i = 0; i < dataSet.getRowCount(); i++)
 										{
 											Object[] row = dataSet.getRow(i);
+											Object realValue = CustomValueList.handleRowData(valueList, false, 1, row, application);
 											if (row.length == 1)
 											{
-												realValues.add(CustomValueList.handleRowData(valueList, false, 1, row, application));
+												if (realValues.contains(realValue)) continue;
+												realValues.add(realValue);
 											}
 											else
 											{
 												hasRealValue = true;
-												realValues.add(CustomValueList.handleRowData(valueList, false, 2, row, application));
+												Object realValue2 = CustomValueList.handleRowData(valueList, false, 2, row, application);
+												if (realValues.contains(realValue2)) continue;
+												realValues.add(realValue2);
 											}
-											addElement(CustomValueList.handleRowData(valueList, false, 1, row, application));
+											addElement(realValue);
 										}
 									}
 									finally
