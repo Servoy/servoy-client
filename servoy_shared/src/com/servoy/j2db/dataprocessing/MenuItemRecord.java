@@ -74,7 +74,6 @@ public class MenuItemRecord implements IRecordInternal, Scriptable, IJSBaseRecor
 			this.values.put(key.toLowerCase(), value);
 		});
 		this.modificationListeners = synchronizedList(new ArrayList<>(3));
-		//TODO menuitem record is never destroyed, this listener is never removed
 		menuItem.addChangeListener(this);
 	}
 
