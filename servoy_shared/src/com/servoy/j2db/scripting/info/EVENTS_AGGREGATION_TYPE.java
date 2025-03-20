@@ -30,7 +30,7 @@ import com.servoy.j2db.scripting.IConstantsObject;
 public enum EVENTS_AGGREGATION_TYPE implements IConstantsObject
 {
 	/**
-	 * Constant for eventsManager fireEventListeners.
+	 * Constant for eventsManager fireEventListeners, with this ENUM the fireEventListeners will return a boolean which is a logical and between all the listeners return values.
 	 *
 	 * @sample
 	 * var myboolean = eventsManager.fireEventListeners('customEvent',null,null,EVENTS_AGGREGATION_TYPE.RETURN_VALUE_BOOLEAN);
@@ -40,7 +40,7 @@ public enum EVENTS_AGGREGATION_TYPE implements IConstantsObject
 
 
 	/**
-	 * Constant for eventsManager fireEventListeners.
+	 * Constant for eventsManager fireEventListeners. with this ENUM the fireEventListeners will return an array with all the listeners return values.
 	 *
 	 * @sample
 	 * var myarray = eventsManager.fireEventListeners('customEvent',null,null,EVENTS_AGGREGATION_TYPE.RETURN_VALUE_ARRAY);
