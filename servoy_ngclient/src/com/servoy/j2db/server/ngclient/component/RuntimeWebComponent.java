@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.json.JSONObject;
 import org.mozilla.javascript.BaseFunction;
 import org.mozilla.javascript.Callable;
 import org.mozilla.javascript.Context;
@@ -72,6 +73,7 @@ import com.servoy.j2db.server.ngclient.property.types.ValueListTypeSabloValue;
 import com.servoy.j2db.server.ngclient.scripting.WebComponentFunction;
 import com.servoy.j2db.server.ngclient.scripting.WebServiceScriptable;
 import com.servoy.j2db.ui.runtime.IBaseRuntimeComponent;
+import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.Utils;
 
@@ -513,7 +515,36 @@ public class RuntimeWebComponent implements IBaseRuntimeComponent, Scriptable, I
 			else previousVal = component.getProperty(realName);
 			Object val = NGConversions.INSTANCE.convertRhinoToSabloComponentValue(value, previousVal, pd, component);
 
-			if (val != previousVal) component.setProperty(realName, val);
+			if (val != previousVal)
+			{
+				if (pd.getConfig() instanceof JSONObject json && json.has("setter") && !RuntimeLegacyComponent.inServerSideScript())
+				{
+					String setter = json.getString("setter");
+					Function propertySetter = apiFunctions.get(setter);
+					if (propertySetter != null)
+					{
+						Context cx = Context.getCurrentContext();
+						cx.putThreadLocal(SERVER_SIDE_SCRIPT_EXECUTE, Boolean.TRUE);
+						try
+						{
+							propertySetter.call(cx, start, start, new Object[] { val });
+						}
+						finally
+						{
+							cx.removeThreadLocal(SERVER_SIDE_SCRIPT_EXECUTE);
+						}
+					}
+					else
+					{
+						Debug.warn("No setter found for property " + pd.getName() + " in component " + component.getName());
+						component.setProperty(realName, val);
+					}
+				}
+				else
+				{
+					component.setProperty(realName, val);
+				}
+			}
 
 			if (pd != null && pd.getType() instanceof VisiblePropertyType)
 			{
