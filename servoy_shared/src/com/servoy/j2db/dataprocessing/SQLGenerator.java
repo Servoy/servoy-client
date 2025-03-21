@@ -929,7 +929,7 @@ public class SQLGenerator
 		{
 			try
 			{
-				return columnConverter.convertFromObject(columnConverterInfo.props, columnType, obj);
+				return columnConverter.convertFromObject(columnConverterInfo.props, columnType.getSqlType(), obj);
 			}
 			catch (Exception e)
 			{

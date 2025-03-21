@@ -390,7 +390,7 @@ public class SQLSheet
 				}
 				try
 				{
-					convertedValue = conv.convertFromObject(converterInfo.props, variableInfo.type, convertedValue);
+					convertedValue = conv.convertFromObject(converterInfo.props, variableInfo.type.getSqlType(), convertedValue);
 				}
 				catch (Exception e)
 				{
@@ -530,7 +530,7 @@ public class SQLSheet
 				{
 					try
 					{
-						value = conv.convertToObject(converterInfo.props, variableInfo.type, value);
+						value = conv.convertToObject(converterInfo.props, variableInfo.type.getSqlType(), value);
 					}
 					catch (Exception e)
 					{
