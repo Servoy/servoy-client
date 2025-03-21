@@ -110,9 +110,9 @@ public class XMLUtils
 	/**
 	 * Convert a string so that it can be put as PCDATA in an XML tag. This basically escapes &amp;, &lt;, and &gt; so that they are replaced by their XML
 	 * entities.
-	 * 
+	 *
 	 * @param string the string to be escaped
-	 * 
+	 *
 	 * @return the escaped string
 	 */
 	public static String toPCDATA(String string)
@@ -144,7 +144,8 @@ public class XMLUtils
 			else
 			{
 				// we could in the future map these as well to a separate custom tag that puts the code as string and we can decode that afterwards (or use BASE64 instead)
-				Debug.error("Invalid XML 1.0 / UTF-8 character '" + new StringBuilder().appendCodePoint(point).toString() + "' found in string '" + string + "', deleting..."); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				Debug.error("Invalid XML 1.0 / UTF-8 character '" + new StringBuilder().appendCodePoint(point).toString() + "' found in string '" + string + //$NON-NLS-1$//$NON-NLS-2$
+					"', deleting..."); //$NON-NLS-1$
 			}
 			index += count;
 		}
@@ -180,10 +181,10 @@ public class XMLUtils
 
 	/**
 	 * Checks that the two provided arguments are equal, and throws an exception complaining that the element was not expected if they are not.
-	 * 
+	 *
 	 * @param element the element being checked
 	 * @param against the string that it should be equal to
-	 * 
+	 *
 	 * @throws SAXException if the two are not equal
 	 */
 	public static void checkElement(String element, String against) throws SAXException
@@ -196,11 +197,11 @@ public class XMLUtils
 
 	/**
 	 * Checks that the two provided attributed is not null, throwing an exception if it is.
-	 * 
+	 *
 	 * @param attribute the attribute being checked
 	 * @param name the name of the attribute being checked
 	 * @param element the name of the element to which the attribute belongs
-	 * 
+	 *
 	 * @throws SAXException if the two are not equal
 	 */
 	public static void checkAttributeNotNull(String attribute, String name, String element) throws SAXException
@@ -213,11 +214,11 @@ public class XMLUtils
 
 	/**
 	 * Checks that the xml_version attribute matches the expected version, and throws an exception if this is not the case.
-	 * 
+	 *
 	 * @param version the value of the xml_version attribute
 	 * @param against the version number it should equal
 	 * @param element the name of the element which has the xml_version attribute
-	 * 
+	 *
 	 * @throws SAXException if the versions do not match
 	 */
 	public static void checkXMLVersion(String version, int against, String element) throws SAXException
@@ -231,11 +232,11 @@ public class XMLUtils
 
 	/**
 	 * Checks that the repository_version attribute matches the expected version, and throws an exception if this is not the case.
-	 * 
+	 *
 	 * @param version the value of the repository_version attribute
 	 * @param against the version number it should equal
 	 * @param element the name of the element which has the repository_version attribute
-	 * 
+	 *
 	 * @throws SAXException if the versions do not match
 	 */
 	public static void checkRepositoryVersion(String version, int against, String element) throws SAXException
@@ -249,11 +250,11 @@ public class XMLUtils
 
 	/**
 	 * Tries to parse the specified string to an integer and throws an exception if there is a parser error.
-	 * 
+	 *
 	 * @param string the string to parse to an integer
-	 * 
+	 *
 	 * @return the value of the string as an <code>int</code>
-	 * 
+	 *
 	 * @throws SAXException if the string cannot be parsed
 	 */
 	public static int parseInt(String string) throws SAXException
@@ -271,7 +272,7 @@ public class XMLUtils
 	/**
 	 * Format the contents of a <code>SAXParseException</code> to the trace stream of the <code>Debug</code> class. This method is called by the SAX parsers
 	 * whenever a warning or error occurs which should be sent to the tracing output.
-	 * 
+	 *
 	 * @param type the type of error as a string, i.e. "warning"
 	 * @param e the <code>SAXParseException</code> of which to output the info
 	 */
@@ -283,7 +284,7 @@ public class XMLUtils
 	/**
 	 * Format the contents of a <code>SAXParseException</code> to the error stream of the <code>Debug</code> class. This method is called by the SAX parsers
 	 * whenever a warning or error occurs which should be sent to the error output.
-	 * 
+	 *
 	 * @param type the type of error as a string, i.e. "warning"
 	 * @param e the <code>SAXParseException</code> of which to output the info
 	 */
@@ -306,7 +307,7 @@ public class XMLUtils
 
 	/**
 	 * Remove xml comments from the xml string.
-	 * 
+	 *
 	 * @param xml
 	 * @return
 	 */
@@ -387,11 +388,11 @@ public class XMLUtils
 			return null;
 		}
 
-		return new StringBuilder() //
-		.append('[') //
-		/*        */.append(String.valueOf(columnType.getSqlType())) //
-		.append(',').append(String.valueOf(columnType.getLength())) //
-		.append(',').append(String.valueOf(columnType.getScale())) //
-		.append(']').toString();
+		return new StringBuilder()
+			.append('[').append(String.valueOf(columnType.getSqlType()))
+			.append(',').append(String.valueOf(columnType.getLength()))
+			.append(',').append(String.valueOf(columnType.getScale()))
+			.append(',').append(String.valueOf(columnType.getSubType()))
+			.append(']').toString();
 	}
 }
