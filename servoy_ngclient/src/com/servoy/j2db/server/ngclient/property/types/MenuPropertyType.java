@@ -27,6 +27,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONWriter;
+import org.mozilla.javascript.NativeJavaObject;
 import org.mozilla.javascript.Scriptable;
 import org.sablo.IWebObjectContext;
 import org.sablo.specification.PropertyDescription;
@@ -187,7 +188,12 @@ public class MenuPropertyType extends DefaultPropertyType<MenuTypeSabloValue>
 	public MenuTypeSabloValue toSabloComponentValue(Object rhinoValue, MenuTypeSabloValue previousComponentValue, PropertyDescription pd,
 		IWebObjectContext webObjectContext)
 	{
-		if (rhinoValue instanceof JSMenu menu)
+		Object value = rhinoValue;
+		if (value instanceof NativeJavaObject)
+		{
+			value = ((NativeJavaObject)value).unwrap();
+		}
+		if (value instanceof JSMenu menu)
 		{
 			return new MenuTypeSabloValue(menu, this.extraProperties);
 		}
