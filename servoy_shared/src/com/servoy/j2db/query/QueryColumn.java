@@ -42,11 +42,6 @@ public final class QueryColumn extends BaseQueryColumn implements IWriteReplaceE
 		super(table, id, name, alias, columnType, nativeTypename, flags, identity);
 	}
 
-	public QueryColumn(BaseQueryTable table, int id, String name, int sqlType, int length, int scale, String nativeTypename, int flags, boolean identity)
-	{
-		this(table, id, name, ColumnType.getInstance(sqlType, length, scale), nativeTypename, flags, identity);
-	}
-
 	public QueryColumn(BaseQueryTable table, int id, String name, BaseColumnType columnType, String nativeTypename, int flags)
 	{
 		this(table, id, name, columnType, nativeTypename, flags, false);
@@ -153,10 +148,10 @@ public final class QueryColumn extends BaseQueryColumn implements IWriteReplaceE
 	 * @param scale
 	 * @param identity
 	 */
-	public void update(String name, int sqlType, int length, int scale, String nativeTypename, int flags, boolean identity)
+	public void update(String name, ColumnType columnType, String nativeTypename, int flags, boolean identity)
 	{
 		this.name = name;
-		this.columnType = ColumnType.getInstance(sqlType, length, scale);
+		this.columnType = columnType;
 		this.nativeTypename = nativeTypename;
 		this.flags = flags;
 		this.identity = identity;

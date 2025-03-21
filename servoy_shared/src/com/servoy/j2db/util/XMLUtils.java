@@ -346,10 +346,15 @@ public class XMLUtils
 			Integer[][] array = (Integer[][])serializer.fromJSON(s);
 			if (array != null && array.length > 0)
 			{
-				list = new ArrayList<ColumnType>(array.length);
+				list = new ArrayList<>(array.length);
 				for (Integer[] elem : array)
 				{
-					list.add(ColumnType.getInstance(elem[0].intValue(), elem[1].intValue(), elem[2].intValue()));
+					int i = 0;
+					int sqlType = elem[i++].intValue();
+					int length = elem[i++].intValue();
+					int scale = elem[i++].intValue();
+					int subType = (i < elem.length) ? elem[i++].intValue() : 0;
+					list.add(ColumnType.getInstance(sqlType, length, scale, subType));
 				}
 			}
 		}
@@ -361,7 +366,7 @@ public class XMLUtils
 	}
 
 	/**
-	 * Serialize a ColumnType list as an array string '[[tp,len,scale], [tp,len,scale], ...]'
+	 * Serialize a ColumnType list as an array string '[[tp,len,scale,subtype], [tp,len,scale,subtype], ...]'
 	 */
 	public static String serializeColumnTypeArray(List<ColumnType> columnTypes)
 	{
@@ -388,11 +393,15 @@ public class XMLUtils
 			return null;
 		}
 
-		return new StringBuilder()
+		StringBuilder sb = new StringBuilder()
 			.append('[').append(String.valueOf(columnType.getSqlType()))
 			.append(',').append(String.valueOf(columnType.getLength()))
-			.append(',').append(String.valueOf(columnType.getScale()))
-			.append(',').append(String.valueOf(columnType.getSubType()))
-			.append(']').toString();
+			.append(',').append(String.valueOf(columnType.getScale()));
+		if (columnType.getSubType() != 0)
+		{
+			sb.append(',').append(String.valueOf(columnType.getSubType()));
+		}
+
+		return sb.append(']').toString();
 	}
 }
