@@ -3730,6 +3730,12 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	}
 
 	@Override
+	public void unregisterRelatedMenuFoundSet(MenuFoundSet foundset)
+	{
+		relatedMenuFoundSets.remove(foundset);
+	}
+
+	@Override
 	public boolean registerViewFoundSet(ViewFoundSet foundset, boolean onlyWeak)
 	{
 		if (foundset == null) return false;

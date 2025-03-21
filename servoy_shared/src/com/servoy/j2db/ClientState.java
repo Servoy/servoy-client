@@ -105,7 +105,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 	private transient IClientHost clientHost;
 
 	//the script engine
-	private volatile IExecutingEnviroment scriptEngine;
+	protected volatile IExecutingEnviroment scriptEngine;
 
 	//holding the application setting
 	protected Properties settings;

@@ -556,6 +556,12 @@ public final class CSSPositionUtils
 	{
 		if (persist instanceof CSSPositionLayoutContainer && ((CSSPositionLayoutContainer)persist).getCssPosition() != null) return true;
 
+		if (persist instanceof BaseComponent)
+		{
+			ISupportChilds realParent = PersistHelper.getRealParent((BaseComponent)persist);
+			if (realParent instanceof LayoutContainer)
+				return CSSPositionUtils.isCSSPositionContainer((LayoutContainer)realParent);
+		}
 		if (persist instanceof BaseComponent && ((BaseComponent)persist).getParent() instanceof Form &&
 			((Form)((BaseComponent)persist).getParent()).getUseCssPosition().booleanValue())
 		{
@@ -564,12 +570,6 @@ public final class CSSPositionUtils
 		if (persist instanceof BaseComponent && CSSPositionUtils.isInAbsoluteLayoutMode((BaseComponent)persist))
 		{
 			return true;
-		}
-		if (persist instanceof BaseComponent)
-		{
-			ISupportChilds realParent = PersistHelper.getRealParent((BaseComponent)persist);
-			if (realParent instanceof LayoutContainer)
-				return CSSPositionUtils.isCSSPositionContainer((LayoutContainer)realParent);
 		}
 		return false;
 	}
@@ -636,12 +636,24 @@ public final class CSSPositionUtils
 
 	public static boolean isInAbsoluteLayoutMode(IPersist persist)
 	{
-		IPersist parent = persist.getParent();
+		IPersist parent = PersistHelper.getRealParent(persist);
 		while (parent != null)
 		{
 			if (parent instanceof LayoutContainer) return isCSSPositionContainer((LayoutContainer)parent);
 			if (parent instanceof Form) break;
-			parent = parent.getParent();
+			parent = PersistHelper.getRealParent(parent);
+		}
+		return false;
+	}
+
+	public static boolean isInResponsiveLayoutMode(IPersist persist)
+	{
+		IPersist parent = PersistHelper.getRealParent(persist);
+		while (parent != null)
+		{
+			if (parent instanceof LayoutContainer) return !isCSSPositionContainer((LayoutContainer)parent);
+			if (parent instanceof Form) return ((Form)parent).isResponsiveLayout();
+			parent = PersistHelper.getRealParent(parent);
 		}
 		return false;
 	}

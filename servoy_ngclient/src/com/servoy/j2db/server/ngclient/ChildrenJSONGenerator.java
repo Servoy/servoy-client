@@ -400,7 +400,7 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 					attributes.put("svy-types-properties", String.join(",", typeAndPropertyNames[1]));
 				}
 				attributes.put("svy-priority",
-					form.isResponsiveLayout() || o.getAncestor(IRepository.CSSPOS_LAYOUTCONTAINERS) != null
+					CSSPositionUtils.isInResponsiveLayoutMode(o)
 						? String.valueOf(((ISupportBounds)o).getLocation().x) : String.valueOf(((BaseComponent)o).getFormIndex()));
 				String directEditPropertyName = getDirectEditProperty(fe);
 				if (directEditPropertyName != null)

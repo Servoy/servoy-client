@@ -76,6 +76,7 @@ import com.servoy.j2db.util.model.AlwaysRowSelectedSelectionModel;
  * @author lvostinar
  *
  */
+@SuppressWarnings("nls")
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "MenuFoundSet", scriptingName = "MenuFoundSet", extendsComponent = "JSBaseFoundSet")
 public class MenuFoundSet extends AbstractTableModel implements ISwingFoundSet, IJSBaseFoundSet, SymbolScriptable
 {
@@ -88,12 +89,15 @@ public class MenuFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	private final IFoundSetManagerInternal manager;
 	private final String datasource;
 	private final List<MenuItemRecord> records = new ArrayList<>();
-	private String relationName;
+	private final String relationName;
+	private final IModificationListener listener;
+	private final JSMenu menu;
 
 	private int foundsetID = 0;
-	private final List<IFoundSetEventListener> foundSetEventListeners = new ArrayList<>(3);
 	private transient AlwaysRowSelectedSelectionModel selectionModel;
 	private transient TableAndListEventDelegate tableAndListEventDelegate;
+
+	private final List<IFoundSetEventListener> foundSetEventListeners = new ArrayList<>(3);
 	private final List<ISelectionChangeListener> selectionChangeListeners = new ArrayList<ISelectionChangeListener>();
 	// forms might force their foundset to remain at a certain multiselect value
 	// if a form 'pinned' multiselect, multiSelect should not be changeable by foundset JS access
@@ -101,61 +105,25 @@ public class MenuFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	private String multiSelectPinnedForm = null;
 	private int multiSelectPinLevel;
 
+
 	public MenuFoundSet(JSMenu menu, IFoundSetManagerInternal manager)
 	{
-		this.datasource = DataSourceUtils.createMenuDataSource(menu.getName());
-		this.manager = manager;
-		createSelectionModel();
-		for (JSMenuItem menuItem : menu.getMenuItemsWithSecurity())
-		{
-			records.add(new MenuItemRecord(menuItem, getMenuItemData(menuItem), this));
-		}
-		setSelectedIndex(0);
-		//TODO menufoundset is never destroyed, when should we remove this listener?
-		menu.addChangeListener(new IModificationListener()
-		{
-
-			@Override
-			public void valueChanged(ModificationEvent e)
-			{
-				int changeType = Utils.getAsInteger(e.getName());
-				if (changeType == FoundSetEvent.CHANGE_DELETE || changeType == FoundSetEvent.CHANGE_INSERT)
-				{
-					int row = Utils.getAsInteger(e.getValue());
-					if (changeType == FoundSetEvent.CHANGE_DELETE)
-					{
-						if (row >= 0 && row < records.size())
-						{
-							records.remove(row);
-						}
-					}
-					else
-					{
-						if (row >= 0 && row <= records.size())
-						{
-							JSMenuItem menuItem = menu.getMenuItemAt(row);
-							records.add(row, new MenuItemRecord(menuItem, getMenuItemData(menuItem), MenuFoundSet.this));
-						}
-					}
-					fireFoundSetEvent(row, row, changeType);
-				}
-			}
-		});
+		this(menu, null, manager, DataSourceUtils.createMenuDataSource(menu.getName()));
 	}
 
-	public MenuFoundSet(JSMenuItem menuItem, String relationName, IFoundSetManagerInternal manager, String datasource)
+	public MenuFoundSet(JSMenu menu, String relationName, IFoundSetManagerInternal manager, String datasource)
 	{
+		this.menu = menu;
 		this.datasource = datasource;
 		this.relationName = relationName;
 		this.manager = manager;
 		createSelectionModel();
-		for (JSMenuItem childMenuItem : menuItem.getMenuItemsWithSecurity())
+		for (JSMenuItem childMenuItem : menu.getMenuItemsWithSecurity())
 		{
 			records.add(new MenuItemRecord(childMenuItem, getMenuItemData(childMenuItem), this));
 		}
 		setSelectedIndex(0);
-		//TODO menufoundset is never destroyed, when should we remove this listener?
-		menuItem.addChangeListener(new IModificationListener()
+		listener = new IModificationListener()
 		{
 
 			@Override
@@ -169,21 +137,23 @@ public class MenuFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 					{
 						if (row >= 0 && row < records.size())
 						{
-							records.remove(row);
+							MenuItemRecord remove = records.remove(row);
+							remove.destroy();
 						}
 					}
 					else
 					{
 						if (row >= 0 && row <= records.size())
 						{
-							JSMenuItem childMenuItem = menuItem.getMenuItemAt(row);
+							JSMenuItem childMenuItem = menu.getMenuItemAt(row);
 							records.add(row, new MenuItemRecord(childMenuItem, getMenuItemData(childMenuItem), MenuFoundSet.this));
 						}
 					}
 					fireFoundSetEvent(row, row, changeType);
 				}
 			}
-		});
+		};
+		menu.addChangeListener(listener);
 	}
 
 	@Override
@@ -218,7 +188,7 @@ public class MenuFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	}
 
 	@Override
-	public IFoundSetInternal getRelatedFoundSet(IRecordInternal record, String relationName, List<SortColumn> defaultSortColumns) throws ServoyException
+	public IFoundSetInternal getRelatedFoundSet(IRecordInternal record, String relName, List<SortColumn> defaultSortColumns) throws ServoyException
 	{
 		// TODO?
 		return null;
@@ -294,13 +264,13 @@ public class MenuFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	}
 
 	@Override
-	public void addAggregateModificationListener(IModificationListener listener)
+	public void addAggregateModificationListener(IModificationListener l)
 	{
 
 	}
 
 	@Override
-	public void removeAggregateModificationListener(IModificationListener listener)
+	public void removeAggregateModificationListener(IModificationListener l)
 	{
 
 	}
@@ -587,9 +557,9 @@ public class MenuFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 
 	private boolean executeSelectionListeners(IRecordInternal[] oldSelection, IRecordInternal[] newSelection)
 	{
-		for (ISelectionChangeListener listener : selectionChangeListeners)
+		for (ISelectionChangeListener l : selectionChangeListeners)
 		{
-			if (!listener.selectionChange(oldSelection, newSelection))
+			if (!l.selectionChange(oldSelection, newSelection))
 			{
 				return false;
 			}
@@ -1053,7 +1023,7 @@ public class MenuFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 		itemMap.put("styleClass", item.getStyleClass());
 		itemMap.put("iconStyleClass", item.getIconStyleClass());
 		itemMap.put("tooltipText", item.getTooltipText());
-		itemMap.put("enabled", item.getEnabledWithSecurity());
+		itemMap.put("enabled", Boolean.valueOf(item.getEnabledWithSecurity()));
 		itemMap.put("callbackArguments", item.getCallbackArguments());
 		Map<String, Map<String, Object>> extraProperties = item.getExtraProperties();
 		if (extraProperties != null)
@@ -1269,5 +1239,15 @@ public class MenuFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 			}
 			return false;
 		}
+	}
+
+	/**
+	 *
+	 */
+	public void destroy()
+	{
+		menu.removeChangeListener(listener);
+		records.forEach(record -> record.destroy());
+		records.clear();
 	}
 }

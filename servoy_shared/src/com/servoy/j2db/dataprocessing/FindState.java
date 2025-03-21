@@ -36,6 +36,7 @@ import com.servoy.base.scripting.api.IJSDataSet;
 import com.servoy.base.scripting.api.IJSRecord;
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.Messages;
+import com.servoy.j2db.dataprocessing.SQLSheet.SQLDescription;
 import com.servoy.j2db.persistence.IRelation;
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.Relation;
@@ -68,7 +69,7 @@ public class FindState implements Scriptable, IRecordInternal, Serializable, IJS
 
 	private List<String> relatedFoundsetErrorReported;
 
-	private String pk = null;
+	private Object[] pks = null;
 	private String pkHashKey = null;
 
 	/**
@@ -665,28 +666,27 @@ public class FindState implements Scriptable, IRecordInternal, Serializable, IJS
 	public Object[] getPK()
 	{
 		createPkAndHashIfNeeded();
-		return new Object[] { pk };
+		return pks;
 	}
 
 	private void createPkAndHashIfNeeded()
 	{
-		if (pk == null)
+		if (pks == null)
 		{
-			pk = UUID.randomUUID().toString();
+			// create the correct number of pks in the array as PksAndRecordsHolder.validatePksForFoundset(...) will generate log error messages otherwise
+			SQLDescription selectDescription = getParentFoundSet().getSQLSheet().getSQLDescription(SQLSheet.SELECT);
+			if (selectDescription != null) pks = new Object[selectDescription.getRequiredDataProviderIDs().size()];
+			else pks = new Object[1];
+
+			pks[0] = UUID.randomUUID().toString();
 			pkHashKey = RowManager.createPKHashKey(getPK());
 		}
 	}
 
-	/**
-	 * @see com.servoy.j2db.dataprocessing.IState#flagExistInDB()
-	 */
 	public void flagExistInDB()
 	{
 	}
 
-	/**
-	 * @return nothing
-	 */
 	public Row getRawData()
 	{
 		return null;
@@ -697,9 +697,6 @@ public class FindState implements Scriptable, IRecordInternal, Serializable, IJS
 		return columndata;
 	}
 
-	/**
-	 * @see com.servoy.j2db.dataprocessing.IRowChangeListener#notifyChange(com.servoy.j2db.scripting.ModificationEvent)
-	 */
 	public void notifyChange(ModificationEvent e, FireCollector col)
 	{
 		// not needed here
@@ -707,12 +704,7 @@ public class FindState implements Scriptable, IRecordInternal, Serializable, IJS
 
 	/**
 	 * Find all processable related find states and create joins. A find state is processable when it has changed or when a related find state has changed.
-	 * @param sqlSelect
 	 * @param relations path to this state
-	 * @param selectTable
-	 * @param provider
-	 * @return
-	 * @throws RepositoryException
 	 */
 	public List<RelatedFindState> createFindStateJoins(QuerySelect sqlSelect, List<IRelation> relations, BaseQueryTable selectTable, IGlobalValueEntry provider)
 		throws RepositoryException
@@ -779,11 +771,6 @@ public class FindState implements Scriptable, IRecordInternal, Serializable, IJS
 		return relatedFindStates;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see java.awt.Component#toString()
-	 */
 	@Override
 	public String toString()
 	{
@@ -811,9 +798,6 @@ public class FindState implements Scriptable, IRecordInternal, Serializable, IJS
 		return true; // return true to prevent async loading.
 	}
 
-	/**
-	 * @param relationName
-	 */
 	@JSFunction
 	public boolean isRelatedFoundSetLoaded(String relationName)
 	{
@@ -884,7 +868,6 @@ public class FindState implements Scriptable, IRecordInternal, Serializable, IJS
 
 	/**
 	 * @author rgansevles
-	 *
 	 */
 	public static class RelatedFindState
 	{
@@ -892,10 +875,6 @@ public class FindState implements Scriptable, IRecordInternal, Serializable, IJS
 		private final BaseQueryTable primaryTable;
 		private final List<IRelation> relations;
 
-		/**
-		 * @param findState
-		 * @param relation
-		 */
 		public RelatedFindState(FindState findState, List<IRelation> relations, BaseQueryTable primaryTable)
 		{
 			this.findState = findState;

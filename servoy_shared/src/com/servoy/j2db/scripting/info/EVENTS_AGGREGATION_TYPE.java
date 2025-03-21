@@ -20,7 +20,7 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.IConstantsObject;
 
 /**
- * <p>Constants are defined to represent different aggregation types for return value of application.fireEventListeners. The constants include:</p>
+ * <p>Constants are defined to represent different aggregation types for return value of eventsManager.fireEventListeners. The constants include:</p>
  * <ul>
  *   <li><b>RETURN_VALUE_BOOLEAN</b>: fireEventListeners returns a logical and between all the listeners return values.</li>
  *   <li><b>RETURN_VALUE_ARRAY</b>: fireEventListeners returns an array with all the listeners return values.</li>
@@ -30,20 +30,20 @@ import com.servoy.j2db.scripting.IConstantsObject;
 public enum EVENTS_AGGREGATION_TYPE implements IConstantsObject
 {
 	/**
-	 * Constant for application fireEventListeners.
+	 * Constant for eventsManager fireEventListeners, with this ENUM the fireEventListeners will return a boolean which is a logical and between all the listeners return values.
 	 *
 	 * @sample
-	 * var myboolean = application.fireEventListeners('customEvent',null,null,EVENTS_AGGREGATION_TYPE.RETURN_VALUE_BOOLEAN);
+	 * var myboolean = eventsManager.fireEventListeners('customEvent',null,null,EVENTS_AGGREGATION_TYPE.RETURN_VALUE_BOOLEAN);
 	 *
 	 */
 	RETURN_VALUE_BOOLEAN,
 
 
 	/**
-	 * Constant for application type headless_client.
+	 * Constant for eventsManager fireEventListeners. with this ENUM the fireEventListeners will return an array with all the listeners return values.
 	 *
 	 * @sample
-	 * var myarray = application.fireEventListeners('customEvent',null,null,EVENTS_AGGREGATION_TYPE.RETURN_VALUE_ARRAY);
+	 * var myarray = eventsManager.fireEventListeners('customEvent',null,null,EVENTS_AGGREGATION_TYPE.RETURN_VALUE_ARRAY);
 	 */
 	RETURN_VALUE_ARRAY,
 }

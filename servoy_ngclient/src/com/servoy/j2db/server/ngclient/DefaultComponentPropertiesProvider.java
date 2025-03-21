@@ -66,9 +66,9 @@ public class DefaultComponentPropertiesProvider implements IDefaultComponentProp
 			properties.put("anchors",
 				new PropertyDescriptionBuilder().withName("anchors").withType(IntPropertyType.INSTANCE_NULL_DEFAULT).build());
 		}
-		if (!properties.containsKey("anchors"))
+		if (!properties.containsKey("formIndex"))
 		{
-			properties.put("anchors",
+			properties.put("formIndex",
 				new PropertyDescriptionBuilder().withName("formIndex").withType(IntPropertyType.INSTANCE_NULL_DEFAULT).build());
 		}
 		if (!properties.containsKey(IContentSpecConstants.PROPERTY_CSS_POSITION))
