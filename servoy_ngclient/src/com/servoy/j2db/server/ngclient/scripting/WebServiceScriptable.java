@@ -171,6 +171,7 @@ public class WebServiceScriptable implements Scriptable
 
 			scopeObject.put("api", scopeObject, apiObject);
 			scopeObject.put("model", scopeObject, model);
+			scopeObject.put("setters", scopeObject, context.newObject(execScope));
 			execScope.put("$scope", execScope, scopeObject);
 
 			execScope.put("console", execScope,
