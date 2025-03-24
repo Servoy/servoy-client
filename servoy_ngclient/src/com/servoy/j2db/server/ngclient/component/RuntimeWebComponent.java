@@ -516,8 +516,8 @@ public class RuntimeWebComponent implements IBaseRuntimeComponent, Scriptable, I
 			if (val != previousVal)
 			{
 				String uName = new StringBuffer(name.substring(0, 1).toUpperCase()).append(name.substring(1)).toString();
-				Scriptable setters = (Scriptable)scopeObject.get("setters", scopeObject);
-				if (setters != null && setters.get("set" + uName, setters) instanceof Function propertySetter && !RuntimeLegacyComponent.inServerSideScript())
+				if (scopeObject != null && scopeObject.get("setters", scopeObject) instanceof Scriptable setters &&
+					setters.get("set" + uName, setters) instanceof Function propertySetter && !RuntimeLegacyComponent.inServerSideScript())
 				{
 					Context cx = Context.getCurrentContext();
 					cx.putThreadLocal(SERVER_SIDE_SCRIPT_EXECUTE, Boolean.TRUE);
