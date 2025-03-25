@@ -1439,6 +1439,15 @@ public abstract class FoundSet
 		refreshFromDBInternal(
 			fsm.getSQLGenerator().getPKSelectSqlSelect(this, sheet.getTable(), pksAndRecords.getTempQuery(), null, true, null, lastSortColumns, false),
 			false, fsm.config.pkChunkSize(), false, false);
+		int newSize = getSize();
+		if (fsm.getApplication().isEventDispatchThread())
+		{
+			setSelectedIndex(newSize > 0 ? 0 : -1);
+		}
+		else
+		{
+			fsm.getApplication().invokeLater(() -> setSelectedIndex(newSize > 0 ? 0 : -1));
+		}
 	}
 
 	/**
@@ -5946,7 +5955,7 @@ public abstract class FoundSet
 		int newSize = getRawSize();
 		fireDifference(oldSize, newSize, changes);
 
-		trySelectingPks(selectedPKs, newSize, false);
+		trySelectingPks(selectedPKs, newSize, true);
 
 		return true;
 	}
