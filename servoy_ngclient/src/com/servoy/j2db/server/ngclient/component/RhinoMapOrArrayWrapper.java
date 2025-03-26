@@ -229,7 +229,6 @@ public final class RhinoMapOrArrayWrapper implements Scriptable, SymbolScriptabl
 			PropertyDescription pd = propertyDescription.getProperty(name);
 			if (pd != null)
 			{
-				Object convertedValue = NGConversions.INSTANCE.convertRhinoToSabloComponentValue(value, getAsSabloValue(name), pd, webObjectContext);
 				boolean usedSetter = false;
 				if (webObjectContext.getUnderlyingWebObject() instanceof WebFormComponent webFormComponent)
 				{
@@ -239,13 +238,13 @@ public final class RhinoMapOrArrayWrapper implements Scriptable, SymbolScriptabl
 						RuntimeWebComponent webComponent = formUI.getRuntimeWebComponent(webFormComponent.getName());
 						if (webComponent != null)
 						{
-							usedSetter = webComponent.setComponentPropertyUsingSetter(this, name, convertedValue);
+							usedSetter = webComponent.setComponentPropertyUsingSetter(this, name, value);
 						}
 					}
 				}
 				if (!usedSetter)
 				{
-					((Map)wrappedValue).put(name, convertedValue);
+					((Map)wrappedValue).put(name, NGConversions.INSTANCE.convertRhinoToSabloComponentValue(value, getAsSabloValue(name), pd, webObjectContext));
 				}
 			}
 			else
