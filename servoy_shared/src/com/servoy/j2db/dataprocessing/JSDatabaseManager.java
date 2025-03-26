@@ -1904,7 +1904,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 *
 	 * @return the foundset count
 	 */
-	@JSSignature(arguments = { FoundSet.class })
+	@JSSignature(arguments = { IJSBaseFoundSet.class })
 	public int js_getFoundSetCount(Object foundset) throws ServoyException
 	{
 		application.checkAuthorized();
