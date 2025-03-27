@@ -487,14 +487,33 @@ public class ServoyApiObject
 	@JSFunction
 	public JSEvent createJSEvent()
 	{
+		return createJSEvent(null);
+	}
+
+	/**
+	 * This will create a JSEvent filled with component information and set the type of the event (for example onClick).
+	 *
+	 * @param eventType type of the event
+	 *
+	 * @sample
+	 * var event = servoyApi.createJSEvent('onClick');
+	 *
+	 * @return the jsevent
+	 */
+	@JSFunction
+	public JSEvent createJSEvent(String eventType)
+	{
 		JSEvent event = new JSEvent();
 		event.setTimestamp(new Date());
 		event.setSource(new RuntimeWebComponent(this.component, this.component.getSpecification()));
 		event.setFormName(this.component.findParent(IWebFormUI.class).getController().getName());
 		event.setElementName(this.component.getFormElement().getRawName());
+		if (eventType != null)
+		{
+			event.setType(eventType);
+		}
 		return event;
 	}
-
 
 	/**
 	 * This can be called by server side code of components or services to suspend the api call that is done from Servoy Scripting.
