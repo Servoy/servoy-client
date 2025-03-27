@@ -45,6 +45,7 @@ import com.github.scribejava.core.revoke.TokenTypeHint;
 import com.servoy.j2db.ClientLogin;
 import com.servoy.j2db.Credentials;
 import com.servoy.j2db.FlattenedSolution;
+import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.server.ngclient.AngularIndexPageWriter;
 import com.servoy.j2db.server.ngclient.StatelessLoginHandler;
@@ -52,6 +53,7 @@ import com.servoy.j2db.server.ngclient.auth.OAuthUtils.OAuthParameters;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.server.shared.IApplicationServer;
 import com.servoy.j2db.util.Pair;
+import com.servoy.j2db.util.ScopesUtils;
 import com.servoy.j2db.util.ServoyJSONObject;
 import com.servoy.j2db.util.Utils;
 
@@ -408,7 +410,7 @@ public class OAuthHandler
 			JSONArray args = new JSONArray();
 			args.put(oauthconfigrequest);
 			args.put(json);
-			JSONObject config = getConfig(authenticatorModule, args);
+			JSONObject config = getConfig(solution, authenticatorModule, args);
 			if (config != null)
 			{
 				generateOauthCall(request, response, config);
@@ -416,9 +418,27 @@ public class OAuthHandler
 		}
 	}
 
-	private static JSONObject getConfig(Solution authenticatorModule, JSONArray args)
+	private static JSONObject getConfig(Solution solution, Solution authenticatorModule, JSONArray args)
 	{
-		Credentials credentials = new Credentials(null, authenticatorModule.getName(), GET_OAUTH_CONFIG, args.toString());
+		String method = GET_OAUTH_CONFIG;
+		JSONObject properties = new ServoyJSONObject(solution.getCustomProperties(), true);
+		ScriptMethod sm = null;
+		if (properties.has(GET_OAUTH_CONFIG))
+		{
+			sm = authenticatorModule.getScriptMethod(properties.getInt(GET_OAUTH_CONFIG));
+		}
+		else
+		{
+			sm = authenticatorModule.getScriptMethod("globals", GET_OAUTH_CONFIG);
+		}
+		if (sm == null)
+		{
+			log.error("The authenticator does not have a method for getting the oauth config " + GET_OAUTH_CONFIG +
+				". Please select it from the properties view for the authenticator OAUTH_AUTHENTICATOR property.");
+			return null;
+		}
+
+		Credentials credentials = new Credentials(null, authenticatorModule.getName(), ScopesUtils.getScopeString(sm), args.toString());
 		IApplicationServer applicationServer = ApplicationServerRegistry.getService(IApplicationServer.class);
 		try
 		{
