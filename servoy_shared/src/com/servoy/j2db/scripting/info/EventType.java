@@ -122,16 +122,23 @@ public final class EventType implements IConstantsObject
 		return Collections.unmodifiableMap(DEFAULT_EVENTS);
 	}
 
-	private final String name;
+	private String name;
+	private String description;
 
-	public EventType(String name)
+	public EventType(String name, String description)
 	{
-		this(name, false);
+		this(name, description, false);
 	}
 
-	private EventType(String name, boolean defaultEvent)
+	public EventType(String name, boolean defaultEvent)
+	{
+		this(name, null, defaultEvent);
+	}
+
+	private EventType(String name, String description, boolean defaultEvent)
 	{
 		this.name = name;
+		this.description = description;
 		if (defaultEvent) DEFAULT_EVENTS.put(name, this);
 	}
 
@@ -142,6 +149,15 @@ public final class EventType implements IConstantsObject
 	public String getName()
 	{
 		return name;
+	}
+
+	/**
+	 * @return the event description
+	 */
+	@JSFunction
+	public String getDescription()
+	{
+		return description;
 	}
 
 	/**
@@ -173,5 +189,23 @@ public final class EventType implements IConstantsObject
 	public int hashCode()
 	{
 		return name.hashCode();
+	}
+
+	/**
+	 * @param string
+	 */
+	public void setDescription(String description)
+	{
+		this.description = description;
+
+	}
+
+	/**
+	 * @param string
+	 */
+	public void updateName(String name)
+	{
+		this.name = name;
+
 	}
 }

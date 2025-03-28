@@ -3035,7 +3035,8 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		eventTypes = new HashMap<String, EventType>();
 		if (mainSolution != null && mainSolution.getEventTypes() != null)
 		{
-			mainSolution.getEventTypes().keySet().stream().forEach(name -> eventTypes.put(name, new EventType(name)));
+			mainSolution.getEventTypes().keySet().stream()
+				.forEach(name -> eventTypes.put(name, new EventType(name, mainSolution.getEventTypes().getJSONObject(name).optString("description", null))));
 		}
 		if (modules != null)
 		{
@@ -3043,7 +3044,8 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 			{
 				if (solution.getEventTypes() != null)
 				{
-					solution.getEventTypes().keySet().stream().forEach(name -> eventTypes.put(name, new EventType(name)));
+					solution.getEventTypes().keySet().stream().forEach(
+						name -> eventTypes.put(name, new EventType(name, solution.getEventTypes().getJSONObject(name).optString("description", null))));
 				}
 			}
 		}
