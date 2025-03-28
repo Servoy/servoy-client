@@ -55,6 +55,7 @@ import com.servoy.j2db.server.shared.IApplicationServer;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.ScopesUtils;
 import com.servoy.j2db.util.ServoyJSONObject;
+import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -425,7 +426,9 @@ public class OAuthHandler
 		ScriptMethod sm = null;
 		if (properties.has(GET_OAUTH_CONFIG))
 		{
-			sm = authenticatorModule.getScriptMethod(properties.getInt(GET_OAUTH_CONFIG));
+			UUID uuid = Utils.getAsUUID(properties.get(GET_OAUTH_CONFIG), false);
+			sm = (ScriptMethod)authenticatorModule.getAllObjectsAsList().stream().filter(persist -> persist.getUUID().equals(uuid))
+				.findFirst().orElse(null);
 		}
 		else
 		{
