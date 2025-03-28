@@ -353,7 +353,7 @@ public class RuntimeLegacyComponent implements Scriptable, IInstanceOf
 		return value;
 	}
 
-	private boolean inServerSideScript()
+	public static boolean inServerSideScript()
 	{
 		return Context.getCurrentContext() != null && Context.getCurrentContext().getThreadLocal(RuntimeWebComponent.SERVER_SIDE_SCRIPT_EXECUTE) != null;
 	}

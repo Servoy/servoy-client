@@ -2370,11 +2370,14 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		return null;
 	}
 
-	public int getFoundSetCount(IFoundSetInternal fs)
+	public int getFoundSetCount(IFoundSetInternal foundset)
 	{
-		if (fs instanceof FoundSet && fs.getTable() != null)
+		if (foundset instanceof MenuFoundSet menuFoundSet)
 		{
-			FoundSet foundset = (FoundSet)fs;
+			return menuFoundSet.getSize();
+		}
+		if (foundset.getTable() != null)
+		{
 			try
 			{
 				// optimize
@@ -2384,25 +2387,26 @@ public class FoundSetManager implements IFoundSetManagerInternal
 				}
 				long time = System.currentTimeMillis();
 				IDataServer ds = application.getDataServer();
-				Table t = (Table)foundset.getTable();
-				String transaction_id = getTransactionID(t.getServerName());
-				QuerySelect sqlString = foundset.getQuerySelectForReading();
-
-				QuerySelect selectCountSQLString = sqlString.getSelectCount("n", true); //$NON-NLS-1$
-				IDataSet set = ds.performQuery(application.getClientID(), t.getServerName(), transaction_id, selectCountSQLString, null,
-					getTableFilterParams(t.getServerName(), selectCountSQLString), false, 0, 10, IDataServer.FOUNDSET_LOAD_QUERY);
-				if (Debug.tracing())
+				if (foundset.getQuerySelectForReading() instanceof QuerySelect sqlString)
 				{
-					Debug.trace("Foundset count time: " + (System.currentTimeMillis() - time) + " thread: " + Thread.currentThread().getName() + ", SQL: " + //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
-						selectCountSQLString.toString());
-				}
-
-				if (set.getRowCount() > 0)
-				{
-					Object[] row = set.getRow(0);
-					if (row.length > 0)
+					String serverName = DataSourceUtils.getDataSourceServerName(sqlString.getTable().getDataSource());
+					String transaction_id = getTransactionID(serverName);
+					QuerySelect selectCountSQLString = sqlString.getSelectCount("n", true); //$NON-NLS-1$
+					IDataSet set = ds.performQuery(application.getClientID(), serverName, transaction_id, selectCountSQLString, null,
+						getTableFilterParams(serverName, selectCountSQLString), false, 0, 10, IDataServer.FOUNDSET_LOAD_QUERY);
+					if (Debug.tracing())
 					{
-						return Utils.getAsInteger(row[0]);
+						Debug.trace("Foundset count time: " + (System.currentTimeMillis() - time) + " thread: " + Thread.currentThread().getName() + ", SQL: " + //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+							selectCountSQLString.toString());
+					}
+
+					if (set.getRowCount() > 0)
+					{
+						Object[] row = set.getRow(0);
+						if (row.length > 0)
+						{
+							return Utils.getAsInteger(row[0]);
+						}
 					}
 				}
 			}

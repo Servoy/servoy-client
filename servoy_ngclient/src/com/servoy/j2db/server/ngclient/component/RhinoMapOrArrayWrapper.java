@@ -36,6 +36,8 @@ import org.sablo.specification.property.CustomJSONArrayType;
 import org.sablo.specification.property.IPropertyType;
 
 import com.servoy.j2db.scripting.DefaultScope;
+import com.servoy.j2db.server.ngclient.IWebFormUI;
+import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.property.ComponentTypeSabloValue;
 import com.servoy.j2db.server.ngclient.property.types.IRhinoPrototypeProvider;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions;
@@ -227,8 +229,23 @@ public final class RhinoMapOrArrayWrapper implements Scriptable, SymbolScriptabl
 			PropertyDescription pd = propertyDescription.getProperty(name);
 			if (pd != null)
 			{
-				Object convertedValue = NGConversions.INSTANCE.convertRhinoToSabloComponentValue(value, getAsSabloValue(name), pd, webObjectContext);
-				((Map)wrappedValue).put(name, convertedValue);
+				boolean usedSetter = false;
+				if (webObjectContext.getUnderlyingWebObject() instanceof WebFormComponent webFormComponent)
+				{
+					IWebFormUI formUI = webFormComponent.findParent(IWebFormUI.class);
+					if (formUI != null)
+					{
+						RuntimeWebComponent webComponent = formUI.getRuntimeWebComponent(webFormComponent.getName());
+						if (webComponent != null)
+						{
+							usedSetter = webComponent.setComponentPropertyUsingSetter(this, name, value);
+						}
+					}
+				}
+				if (!usedSetter)
+				{
+					((Map)wrappedValue).put(name, NGConversions.INSTANCE.convertRhinoToSabloComponentValue(value, getAsSabloValue(name), pd, webObjectContext));
+				}
 			}
 			else
 			{
