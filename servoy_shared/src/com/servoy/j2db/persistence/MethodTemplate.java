@@ -116,7 +116,13 @@ public class MethodTemplate implements IMethodTemplate
 			new MethodArgument[] { new MethodArgument("column", ArgumentType.valueOf("JSColumn"), //$NON-NLS-1$
 				"the column for which a lookup value must be generated") },
 			"return 1;", false));
-
+		COMMON_TEMPLATES.put("getOAuthConfig", new MethodTemplate(
+			"Return the OAuth configuration for the given provider\n",
+			new MethodArgument("getOAuthConfig", ArgumentType.Object, //$NON-NLS-1$
+				"Return the OAuth configuration for the given value"),
+			new MethodArgument[] { new MethodArgument("arg", ArgumentType.String,
+				"The value of the oauthconfigrequest parameter."), new MethodArgument("queryParams", ArgumentType.Object, "All the query parameters.") },
+			"return {api: 'api', clientId: 'clientId', clientSecret: 'clientSecret', jwks_uri: 'jwks_uri', defaultScope: 'defaultScope' };", false));
 	}
 
 	private final MethodArgument signature;
