@@ -26,6 +26,7 @@ import static com.servoy.j2db.persistence.IColumnTypes.MEDIA;
 import static com.servoy.j2db.query.AbstractBaseQuery.acceptVisitor;
 import static com.servoy.j2db.query.AbstractBaseQuery.deepClone;
 import static com.servoy.j2db.query.AndCondition.and;
+import static com.servoy.j2db.query.ColumnType.getColumnType;
 import static com.servoy.j2db.query.OrCondition.or;
 import static com.servoy.j2db.query.QueryFunction.QueryFunctionType.cast;
 import static com.servoy.j2db.query.QueryFunction.QueryFunctionType.castfrom;
@@ -210,8 +211,8 @@ public class SQLGenerator
 
 		// Example:-select pk1,pk2 from tablename1 where ((fieldname1 like '%abcd%') or ((fieldname2 like '%xyz%')) (retrieve max 200 rows)
 
-		ArrayList<IQuerySelectValue> pkQueryColumns = new ArrayList<IQuerySelectValue>(3);
-		ArrayList<Column> pkColumns = new ArrayList<Column>(3);
+		ArrayList<IQuerySelectValue> pkQueryColumns = new ArrayList<>(3);
+		ArrayList<Column> pkColumns = new ArrayList<>(3);
 		// getPrimaryKeys from table
 		Iterator<Column> pks = table.getRowIdentColumns().iterator();
 
@@ -750,12 +751,14 @@ public class SQLGenerator
 		return "<html><body>" + ds.js_getAsHTML(Boolean.FALSE, Boolean.TRUE, Boolean.TRUE, Boolean.TRUE, Boolean.TRUE) + "</body></html>"; //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
-	private ISQLCondition createConditionFromFindState(FindState s, QuerySelect sqlSelect, IGlobalValueEntry provider, List<IQuerySelectValue> pkQueryColumns)
+	private ISQLCondition createConditionFromFindState(FindState findState, QuerySelect sqlSelect, IGlobalValueEntry provider,
+		List<IQuerySelectValue> pkQueryColumns)
 		throws RepositoryException
 	{
 		ISQLCondition and = null;
 
-		List<RelatedFindState> relatedFindStates = s.createFindStateJoins(sqlSelect, Collections.<IRelation> emptyList(), sqlSelect.getTable(), provider);
+		List<RelatedFindState> relatedFindStates = findState.createFindStateJoins(sqlSelect, Collections.<IRelation> emptyList(), sqlSelect.getTable(),
+			provider);
 		for (int i = 0; relatedFindStates != null && i < relatedFindStates.size(); i++)
 		{
 			RelatedFindState rfs = relatedFindStates.get(i);
@@ -775,10 +778,11 @@ public class SQLGenerator
 				ConverterInfo columnConverterInfo = null;
 				IColumnConverter columnConverter = null;
 				IQuerySelectValue qCol = null;
-				IColumn c = table.getColumn(dataProviderID);
-				if (c != null)
+				Column column = table.getColumn(dataProviderID);
+				IColumn columnOrAggregate = column;
+				if (column != null)
 				{
-					dataProviderType = c.getDataProviderType();
+					dataProviderType = columnOrAggregate.getDataProviderType();
 					columnConverterInfo = sheet.getColumnConverterInfo(dataProviderID);
 					if (columnConverterInfo != null)
 					{
@@ -794,25 +798,25 @@ public class SQLGenerator
 					}
 
 					// a column
-					qCol = ((Column)c).queryColumn(columnTable);
+					qCol = column.queryColumn(columnTable);
 				}
 				else
 				{
 					// not a column, check for aggregates
 					Iterator<AggregateVariable> aggregateVariables = application.getFlattenedSolution().getAggregateVariables(sheet.getTable(), false);
-					while (c == null && aggregateVariables.hasNext())
+					while (columnOrAggregate == null && aggregateVariables.hasNext())
 					{
 						AggregateVariable agg = aggregateVariables.next();
 						if (dataProviderID.equals(agg.getDataProviderID()))
 						{
 							// found aggregate
-							c = agg;
+							columnOrAggregate = agg;
 						}
 					}
 
-					if (c != null)
+					if (columnOrAggregate != null)
 					{
-						dataProviderType = c.getDataProviderType();
+						dataProviderType = columnOrAggregate.getDataProviderType();
 						Map<String, QuerySelect> aggregates = sheet.getAggregates();
 						if (aggregates != null)
 						{
@@ -848,11 +852,12 @@ public class SQLGenerator
 					formatString = TagResolver.getDefaultFormatForType(application, dataProviderType);
 				}
 
-				ISQLCondition or = null;
+				ISQLCondition or;
 				if (raw.getClass().isArray())
 				{
 					int length = Array.getLength(raw);
 					Object[] elements = new Object[length];
+
 					for (int e = 0; e < length; e++)
 					{
 						Object obj = Array.get(raw, e);
@@ -863,19 +868,35 @@ public class SQLGenerator
 						// Have to use getAsRightType twice here, once to parse using format (getAsType(dataProviderType, formatString))
 						// and once to convert for query (getAsType(c.getDataProviderType(), null))
 						Object converted = convertFromObject(application, columnConverter, columnConverterInfo, dataProviderID,
-							ColumnType.getColumnType(c.getDataProviderType()),
-							Column.getAsRightType(dataProviderType, c.getFlags(), obj, formatString, c.getLength(), null, false, false), false);
-						elements[e] = Column.getAsRightType(c.getDataProviderType(), c.getFlags(), converted, null, c.getLength(), null, false, false);
+							getColumnType(columnOrAggregate.getDataProviderType()),
+							Column.getAsRightType(dataProviderType, columnOrAggregate.getFlags(), obj, formatString, columnOrAggregate.getLength(), null, false,
+								false),
+							false);
+						if (columnOrAggregate == column)
+						{
+							elements[e] = column.getAsRightType(obj);
+						}
+						else
+						{
+							elements[e] = Column.getAsRightType(columnOrAggregate.getDataProviderType(), columnOrAggregate.getFlags(), converted, null,
+								columnOrAggregate.getLength(), null, false, false);
+						}
+					}
+					if (column.getColumnType().getSqlType() == Types.ARRAY)
+					{
+						// Use the array as a single value
+						elements = new Object[] { elements };
 					}
 					// where qCol in (e1, e2, ..., en)
 					or = new SetCondition(IBaseSQLCondition.EQUALS_OPERATOR, new IQuerySelectValue[] { qCol }, new Object[][] { elements }, true);
 				}
 				else
 				{
-					final IColumnConverter fColumnConverter = columnConverter;
-					final ConverterInfo fColumnConverterInfo = columnConverterInfo;
-					final ColumnType fDataProviderType = ColumnType.getColumnType(c.getDataProviderType());
-					or = (ISQLCondition)BaseSQLGenerator.parseFindExpression(QueryFactory.INSTANCE, raw, qCol, columnTable, dataProviderType, formatString, c,
+					IColumnConverter fColumnConverter = columnConverter;
+					ConverterInfo fColumnConverterInfo = columnConverterInfo;
+					ColumnType fDataProviderType = getColumnType(columnOrAggregate.getDataProviderType());
+					or = (ISQLCondition)BaseSQLGenerator.parseFindExpression(QueryFactory.INSTANCE, raw, qCol, columnTable, dataProviderType, formatString,
+						columnOrAggregate,
 						rfs.getRelations().size() > 0 && relatedNullSearchAddPkCondition(), new IValueConverter()
 						{
 							@Override
@@ -904,7 +925,7 @@ public class SQLGenerator
 				if (or != null)
 				{
 					ISQLCondition condition;
-					if (c instanceof AggregateVariable)
+					if (columnOrAggregate instanceof AggregateVariable)
 					{
 						condition = createExistsCondition(application.getFlattenedSolution(), sqlSelect, or, rfs.getRelations(), columnTable, provider,
 							pkQueryColumns.toArray(new QueryColumn[pkQueryColumns.size()]), setRelationNameComment);

@@ -306,6 +306,9 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 						}
 						return null;
 
+					case Types.ARRAY :
+						System.err.println("RAGTEST 1");
+
 					default :
 						return obj.toString();
 				}
@@ -362,6 +365,9 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 						}
 						return null;
 
+					case Types.ARRAY :
+						System.err.println("RAGTEST 2");
+
 					default :
 						return obj.toString();
 				}
@@ -380,27 +386,28 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 		return getAsRightType(new BaseColumnType(type, length, 1/* 0 would make numeric integer, do we want that? */), flags, obj, throwOnFail, truncate);
 	}
 
-	public static Object getAsRightType(BaseColumnType type, int flags, Object obj, boolean throwOnFail, boolean truncate)
+	public static Object getAsRightType(BaseColumnType columnType, int flags, Object obj, boolean throwOnFail, boolean truncate)
 	{
 		if (obj == null) return null;
 		if (obj instanceof DbIdentValue || obj instanceof NullValue) return obj;
 
-		if (obj instanceof Object[])
+		BaseColumnType type;
+		if (columnType.getSqlType() == Types.ARRAY)
 		{
-			BaseColumnType elementType;
-			if (type.getSqlType() == Types.ARRAY)
+			if (columnType.getSubType() == 0)
 			{
-				if (type.getSubType() == 0)
-				{
-					return obj;
-				}
-				elementType = ColumnType.getColumnType(type.getSubType());
+				return obj;
 			}
-			else
-			{
-				elementType = type;
-			}
-			return stream((Object[])obj).map(el -> getAsRightType(elementType, flags, el, throwOnFail, truncate)).toArray();
+			type = ColumnType.getColumnType(columnType.getSubType());
+		}
+		else
+		{
+			type = columnType;
+		}
+
+		if (obj instanceof Object[] array)
+		{
+			return stream(array).map(el -> getAsRightType(type, flags, el, throwOnFail, truncate)).toArray();
 		}
 
 		if ((flags & UUID_COLUMN) != 0 || obj instanceof UUID)
