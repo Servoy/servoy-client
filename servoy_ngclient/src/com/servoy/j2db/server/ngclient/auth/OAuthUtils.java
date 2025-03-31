@@ -188,7 +188,7 @@ public class OAuthUtils
 						break;
 				}
 			}
-			else
+			else if (!"customParameters".equals(key))
 			{
 				additionalParameters.put(key, auth.getString(key));
 			}
