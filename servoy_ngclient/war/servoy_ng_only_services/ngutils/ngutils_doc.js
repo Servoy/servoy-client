@@ -1,11 +1,31 @@
+/**
+ * Constant representing the default viewport settings for mobile devices.
+ * This setting allows zooming in and out while displaying content correctly on mobile.
+ */
 var VIEWPORT_MOBILE_DEFAULT;
 
+/**
+ * Constant representing the viewport settings that deny zoom functionality.
+ * This setting prevents users from zooming in or out on mobile devices.
+ */
 var VIEWPORT_MOBILE_DENY_ZOOM;
 
+/**
+ * Constant representing the viewport settings that deny zooming out.
+ * This setting allows zooming in but prevents zooming out on mobile devices.
+ */
 var VIEWPORT_MOBILE_DENY_ZOOM_OUT;
 
+/**
+ * Constant representing the viewport settings that deny zooming in.
+ * This setting allows zooming out but prevents zooming in on mobile devices.
+ */
 var VIEWPORT_MOBILE_DENY_ZOOM_IN;
 
+/**
+ * Array of contributed tags used for dynamic HTML header replacements.
+ * These tags are added to the DOM for customizing meta and other header tags at runtime.
+ */
 var contributedTags;
 
 
@@ -252,3 +272,37 @@ function scrollToTop(selector) {
 function removeArguments()
 {
 }
+
+
+var svy_types = {
+
+    /**
+   * Represents a tag element used for dynamic HTML header replacement.
+   */
+  tag: {
+    /**
+     * The tag name (e.g., "meta", "link").
+     */
+    tagName: null,
+
+    /**
+     * An array of attribute objects for the tag.
+     */
+    attrs: null
+  },
+  
+  /**
+   * Represents an attribute for an HTML element.
+   */
+  attribute: {
+    /**
+     * The name of the attribute.
+     */
+    name: null,
+
+    /**
+     * The value of the attribute.
+     */
+    value: null
+  }
+};
