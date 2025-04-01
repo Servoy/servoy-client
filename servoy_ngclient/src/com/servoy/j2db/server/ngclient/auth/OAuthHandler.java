@@ -172,12 +172,18 @@ public class OAuthHandler
 			String pathInfo = path.getName(i).toString();
 			url.append("/" + pathInfo);
 		}
+		if (queryString != null && queryString.contains("svy_remove_id_token"))
+		{
+			//do not redirect again and again to extract the id_token, most likely it's not there
+			throw new IOException("The id_token could not be retrieved." + req.getParameter("error_description"));
+		}
+
 		url.append("?");
 		url.append("svy_remove_id_token=true&");
+
 		if (queryString != null)
 		{
-			url.append(queryString);
-			url.append('&');
+			url.append(queryString).append('&');
 		}
 
 		resp.setContentType("text/html");
