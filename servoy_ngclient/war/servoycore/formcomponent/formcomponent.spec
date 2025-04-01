@@ -5,6 +5,7 @@
 	"version": 1,
 	"icon": "servoycore/formcomponent/formcomponent.png",
 	"definition": "servoycore/formcomponent/formcomponent.js", 
+	"doc": "servoycore/formcomponent/formcomponent_doc.js", 
 	"libraries": [{"name":"servoycore-formcomponent-css", "version":"1.0", "url":"servoycore/formcomponent/formcomponent.css", "mimetype":"text/css"}],
 	"keywords": [],
 	"model":

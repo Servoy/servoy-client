@@ -5,6 +5,7 @@
 	"version": 1,
 	"icon": "servoycore/listformcomponent/listformcomponent.png",
 	"definition": "servoycore/listformcomponent/listformcomponent.js", 
+	"doc": "servoycore/listformcomponent/listformcomponent_doc.js", 
 	"libraries": [{ "name": "svy-listformcomponent-css", "version": "1.0", "url": "servoycore/listformcomponent/listformcomponent.css", "mimetype": "text/css" }],
 	"keywords": [],	
 	"model":
