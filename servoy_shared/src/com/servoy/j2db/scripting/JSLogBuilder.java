@@ -24,6 +24,7 @@ import org.mozilla.javascript.UniqueTag;
 import org.mozilla.javascript.annotations.JSFunction;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
+import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -103,6 +104,10 @@ public class JSLogBuilder
 			if (errorMsg == null || errorMsg instanceof UniqueTag) errorMsg = "";
 			else errorMsg = "\t" + errorMsg + "\n";
 			msg += "\n" + name + errorMsg + nativeError.getStackDelegated();
+		}
+		else if (logLevel.isMoreSpecificThan(Level.WARN))
+		{
+			msg += Debug.getScriptStackTrace(msg, null);
 		}
 		this.builder.log(msg, params);
 		nativeError = null;
