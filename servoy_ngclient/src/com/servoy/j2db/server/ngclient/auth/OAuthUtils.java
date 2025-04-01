@@ -196,7 +196,7 @@ public class OAuthUtils
 
 		String responseType = getResponseType(Provider.valueOf(api), auth, additionalParameters);
 		builder.responseType(responseType);
-		if (responseType.contains("code"))
+		if (responseType.contains("code") || Provider.Okta.equals(Provider.valueOf(api)))
 		{
 			additionalParameters.put(OAuthParameters.state.name(), additionalParameters.get(OAuthParameters.nonce.name()));
 		}
