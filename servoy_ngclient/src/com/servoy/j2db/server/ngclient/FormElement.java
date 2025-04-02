@@ -683,13 +683,8 @@ public final class FormElement implements INGFormElement
 			{
 				handlers.add(eventName);
 			}
-			else if (Utils.equalObjects(eventName, StaticContentSpecLoader.PROPERTY_ONFOCUSGAINEDMETHODID.getPropertyName()) &&
-				(mainForm.getOnElementFocusGainedMethodID() > 0))
-			{
-				handlers.add(eventName);
-			}
-			else if (Utils.equalObjects(eventName, StaticContentSpecLoader.PROPERTY_ONFOCUSLOSTMETHODID.getPropertyName()) &&
-				(mainForm.getOnElementFocusLostMethodID() > 0))
+			else if (Utils.equalObjects(eventName, StaticContentSpecLoader.PROPERTY_ONFOCUSGAINEDMETHODID.getPropertyName()) ||
+				Utils.equalObjects(eventName, StaticContentSpecLoader.PROPERTY_ONFOCUSLOSTMETHODID.getPropertyName()))
 			{
 				handlers.add(eventName);
 			}

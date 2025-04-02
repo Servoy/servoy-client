@@ -26,7 +26,11 @@ import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IRepository;
+import com.servoy.j2db.persistence.RepositoryHelper;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
+import com.servoy.j2db.scripting.IExecutingEnviroment;
+import com.servoy.j2db.scripting.info.EVENTS_AGGREGATION_TYPE;
+import com.servoy.j2db.scripting.info.EventType;
 import com.servoy.j2db.server.ngclient.component.EventExecutor;
 import com.servoy.j2db.server.ngclient.property.DataproviderConfig;
 import com.servoy.j2db.server.ngclient.property.FoundsetLinkedConfig;
@@ -264,8 +268,18 @@ public class WebFormComponent extends Container implements IContextProvider, ING
 				dataAdapterList.executeEvent(WebFormComponent.this, eventType, formElementForm.getOnElementFocusLostMethodID(), args);
 			}
 
-			Object executeEventReturn = dataAdapterList.executeEvent(WebFormComponent.this, eventType, functionID, args);
-
+			Object executeEventReturn = null;
+			if (functionID > 0)
+			{
+				executeEventReturn = dataAdapterList.executeEvent(WebFormComponent.this, eventType, functionID, args);
+			}
+			if (Utils.equalObjects(eventType, StaticContentSpecLoader.PROPERTY_ONFOCUSGAINEDMETHODID.getPropertyName()) ||
+				Utils.equalObjects(eventType, StaticContentSpecLoader.PROPERTY_ONFOCUSLOSTMETHODID.getPropertyName()))
+			{
+				fireEventTypeListener(Utils.equalObjects(eventType, StaticContentSpecLoader.PROPERTY_ONFOCUSGAINEDMETHODID.getPropertyName())
+					? StaticContentSpecLoader.PROPERTY_ONELEMENTFOCUSGAINEDMETHODID.getPropertyName()
+					: StaticContentSpecLoader.PROPERTY_ONELEMENTFOCUSLOSTMETHODID.getPropertyName(), args, formElementForm);
+			}
 			WebObjectSpecification componentSpec = formElement.getWebComponentSpec(false);
 
 			Collection<PropertyDescription> propertyDescriptionList = componentSpec.getProperties(DataproviderPropertyType.INSTANCE,
@@ -281,20 +295,39 @@ public class WebFormComponent extends Container implements IContextProvider, ING
 					dpConfig = (DataproviderConfig)((FoundsetLinkedConfig)configOfDPOrFoundsetLinkedDP).getWrappedConfig();
 				else dpConfig = (DataproviderConfig)configOfDPOrFoundsetLinkedDP;
 
-				if (dpConfig.getOnDataChange() != null && Utils.equalObjects(eventType, dpConfig.getOnDataChange()) &&
-					formElementForm.getOnElementDataChangeMethodID() > 0 &&
-					formElementForm.getOnElementDataChangeMethodID() != functionID)
+				if (dpConfig.getOnDataChange() != null && Utils.equalObjects(eventType, dpConfig.getOnDataChange()))
 				{
 					boolean isValueValid = !Boolean.FALSE.equals(executeEventReturn) &&
 						!(executeEventReturn instanceof String && ((String)executeEventReturn).length() > 0);
 					if (isValueValid)
 					{
-						executeEventReturn = dataAdapterList.executeEvent(WebFormComponent.this, eventType, formElementForm.getOnElementDataChangeMethodID(),
-							args);
+						if (formElementForm.getOnElementDataChangeMethodID() > 0 &&
+							formElementForm.getOnElementDataChangeMethodID() != functionID)
+						{
+							executeEventReturn = dataAdapterList.executeEvent(WebFormComponent.this, eventType,
+								formElementForm.getOnElementDataChangeMethodID(),
+								args);
+						}
+						fireEventTypeListener(StaticContentSpecLoader.PROPERTY_ONELEMENTDATACHANGEMETHODID.getPropertyName(), args, formElementForm);
 					}
 				}
 			}
 			return executeEventReturn;
+		}
+	}
+
+	private void fireEventTypeListener(String propertyName, Object[] args, Form formElementForm)
+	{
+		EventType defaultEventType = EventType.getDefaultEvents()
+			.get(RepositoryHelper.getDisplayName(propertyName, Form.class));
+		if (defaultEventType != null)
+		{
+			dataAdapterList.getApplication().getEventsManager().fireListeners(defaultEventType,
+				IExecutingEnviroment.TOPLEVEL_FORMS + '.' + formElementForm.getName(),
+				Utils.arrayMerge(args,
+					Utils.parseJSExpressions(
+						formElementForm.getFlattenedMethodArguments(propertyName))),
+				EVENTS_AGGREGATION_TYPE.RETURN_VALUE_BOOLEAN);
 		}
 	}
 
