@@ -45,28 +45,41 @@ public class OAuthUtils
 		Google(
 			"https://www.googleapis.com/oauth2/v3/certs",
 			"openid email",
-			"https://developers.google.com/identity/protocols/oauth2/javascript-implicit-flow#oauth-2.0-endpoints"),
+			"https://developers.google.com/identity/protocols/oauth2/javascript-implicit-flow#oauth-2.0-endpoints",
+			false),
 		Microsoft(
 			"https://login.microsoftonline.com/{tenant}/discovery/v2.0/keys",
 			"openid email",
-			"https://learn.microsoft.com/en-us/entra/identity-platform/v2-oauth2-implicit-grant-flow#send-the-sign-in-request"),
-		Apple("https://appleid.apple.com/auth/keys", "name email", "https://developer.apple.com/documentation/sign_in_with_apple/sign_in_with_apple_rest_api"),
-		Okta("https://{domain}/oauth2/default/v1/keys", "openid profile email", "https://developer.okta.com/docs/api/openapi/okta-oauth/guides/overview"),
+			"https://learn.microsoft.com/en-us/entra/identity-platform/v2-oauth2-implicit-grant-flow#send-the-sign-in-request",
+			false),
+		Apple(
+			"https://appleid.apple.com/auth/keys",
+			"name email",
+			"https://developer.apple.com/documentation/sign_in_with_apple/sign_in_with_apple_rest_api",
+			true),
+		Okta(
+			"https://{domain}/oauth2/default/v1/keys",
+			"openid profile email",
+			"https://developer.okta.com/docs/api/openapi/okta-oauth/guides/overview",
+			true),
 		LinkedIn(
 			"https://www.linkedin.com/oauth/v2/certs",
 			"openid email",
-			"https://learn.microsoft.com/en-us/linkedin/shared/authentication/authorization-code-flow?tabs=HTTPS1"),
-		Custom(null, null, null);
+			"https://learn.microsoft.com/en-us/linkedin/shared/authentication/authorization-code-flow?tabs=HTTPS1",
+			false),
+		Custom(null, null, null, false);
 
 		private final String jwksUri;
 		private final String defaultScope;
 		private final String docs;
+		private final boolean addState;
 
-		Provider(String jwksUri, String defaultScope, String docs)
+		Provider(String jwksUri, String defaultScope, String docs, boolean addState)
 		{
 			this.jwksUri = jwksUri;
 			this.defaultScope = defaultScope;
 			this.docs = docs;
+			this.addState = addState;
 		}
 
 		public String getJwksUri()
@@ -82,6 +95,11 @@ public class OAuthUtils
 		public String getDocs()
 		{
 			return docs;
+		}
+
+		public boolean shouldSendStateParam(String responseType)
+		{
+			return addState || responseType != null && responseType.contains("code");
 		}
 	}
 
@@ -194,9 +212,10 @@ public class OAuthUtils
 			}
 		}
 
-		String responseType = getResponseType(Provider.valueOf(api), auth, additionalParameters);
+		Provider provider = Provider.valueOf(api);
+		String responseType = getResponseType(provider, auth, additionalParameters);
 		builder.responseType(responseType);
-		if (responseType.contains("code") || Provider.Okta.equals(Provider.valueOf(api)))
+		if (provider.shouldSendStateParam(responseType))
 		{
 			additionalParameters.put(OAuthParameters.state.name(), additionalParameters.get(OAuthParameters.nonce.name()));
 		}
@@ -208,7 +227,7 @@ public class OAuthUtils
 
 		try
 		{
-			DefaultApi20 apiInstance = getApiInstance(Provider.valueOf(api), auth);
+			DefaultApi20 apiInstance = getApiInstance(provider, auth);
 			return builder.build(apiInstance);
 		}
 		catch (Exception e)
