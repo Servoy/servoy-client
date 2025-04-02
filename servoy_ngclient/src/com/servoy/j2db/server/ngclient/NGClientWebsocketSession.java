@@ -68,7 +68,6 @@ import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.scripting.RuntimeWindow;
 import com.servoy.j2db.scripting.StartupArguments;
 import com.servoy.j2db.server.ngclient.INGClientWindow.IFormHTMLAndJSGenerator;
-import com.servoy.j2db.server.ngclient.auth.StatelessLoginUtils;
 import com.servoy.j2db.server.ngclient.auth.SvyID;
 import com.servoy.j2db.server.ngclient.eventthread.NGClientWebsocketSessionWindows;
 import com.servoy.j2db.server.ngclient.eventthread.NGEventDispatcher;
@@ -369,8 +368,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 							new Object[] { obj });
 					}
 					//remove the id token of the oauth provider from the url
-					getClientService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("replaceUrlState",
-						new Object[] { "/" + StatelessLoginUtils.SVYLOGIN_PATH });
+					getClientService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("replaceUrlState", null);
 				}
 			});
 		}
