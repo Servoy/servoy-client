@@ -44,8 +44,12 @@ module.exports = function(config) {
             'test/**/*.js'
 		],
 		exclude: [
+            '../war/servoy_ng_only_services/**/*_server.js',
+            '../war/servoy_ng_only_services/**/*_doc.js',
 			'../war/servoycore/**/*_server.js',
+            '../war/servoycore/**/*_doc.js',
 			'../war/servoydefault/**/*_server.js',
+            '../war/servoydefault/**/*_doc.js',
 			'../war/js/**/*.min.js',
 			'../war/js/debug.js'
 		],
