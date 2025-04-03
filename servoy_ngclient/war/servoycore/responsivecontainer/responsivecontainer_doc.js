@@ -5,7 +5,7 @@
 /**
  * Specifies the custom style class applied to the responsive container.
  */
-var class;
+var _class;
 
 /**
  * Defines the HTML tag type used to render the container (for example, div or section).

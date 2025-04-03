@@ -565,7 +565,6 @@ function MenuItem() {
      */
     this.setMethod = function(method, arguments) {}
 
-
     /**
       * Set the accelerator key of the menu item/checkbox/radiobutton.
       *
@@ -1462,4 +1461,54 @@ function Popup() {
 	 * @param {JSEvent} event event related to Popup 
 	 */
 	this.show_event = function(event) { }
+}
+
+var svy_types = {
+
+  /**
+ * Represents a Menu component.
+ * Extends BaseMenu to provide a popup menu with display text and basic actions.
+ */
+  Menu: {
+    /**
+     * The text label displayed for the menu.
+     */
+    text: null,
+  },
+    
+  /**
+   * MenuItem type defines public properties and server-side API for menu items.
+   */
+  MenuItem: {
+      /**
+      * The unique name for the menu item.
+      */
+      name: null,
+      /**
+      * An array of arguments to pass to the callback when the menu item is activated.
+      */
+      methodArguments: null,
+      /**
+       * The display text shown for the menu item.
+       */
+      text: null,
+      /**
+       * Indicates whether the menu item is selected.
+       */
+      selected: null,
+      /**
+       * Indicates whether the menu item is enabled.
+       */
+      enabled: null
+  },
+
+  /**
+   * Popup type defines public properties and server-side API for popup menus.
+   */
+  Popup: {
+    /**
+     * CSS class for custom styling of the popup.
+     */
+    cssClass: null
+  }
 }
