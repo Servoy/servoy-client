@@ -452,7 +452,7 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 			}
 		}
 
-		Collection<String> handlers = fe.getHandlers();
+		Collection<String> handlers = fe.getHandlers(true, context.getApplication());
 		if (handlers.size() > 0)
 		{
 			writer.key("handlers");

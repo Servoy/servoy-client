@@ -61,6 +61,7 @@ import com.servoy.j2db.persistence.ISupportExtendsID;
 import com.servoy.j2db.persistence.ISupportSize;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
+import com.servoy.j2db.scripting.info.EventType;
 import com.servoy.j2db.server.ngclient.property.ComponentPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.FormComponentPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions;
@@ -651,10 +652,10 @@ public final class FormElement implements INGFormElement
 	 */
 	public Collection<String> getHandlers()
 	{
-		return getHandlers(true);
+		return getHandlers(true, null);
 	}
 
-	public Collection<String> getHandlers(boolean skipPrivate)
+	public Collection<String> getHandlers(boolean skipPrivate, INGApplication application)
 	{
 		List<String> handlers = new ArrayList<>();
 		Form mainForm = getForm();
@@ -683,8 +684,15 @@ public final class FormElement implements INGFormElement
 			{
 				handlers.add(eventName);
 			}
-			else if (Utils.equalObjects(eventName, StaticContentSpecLoader.PROPERTY_ONFOCUSGAINEDMETHODID.getPropertyName()) ||
-				Utils.equalObjects(eventName, StaticContentSpecLoader.PROPERTY_ONFOCUSLOSTMETHODID.getPropertyName()))
+			else if (Utils.equalObjects(eventName, StaticContentSpecLoader.PROPERTY_ONFOCUSGAINEDMETHODID.getPropertyName()) &&
+				(mainForm.getOnElementFocusGainedMethodID() > 0 ||
+					(application != null && application.getEventsManager().hasListeners(EventType.onElementFocusGained, null))))
+			{
+				handlers.add(eventName);
+			}
+			else if (Utils.equalObjects(eventName, StaticContentSpecLoader.PROPERTY_ONFOCUSLOSTMETHODID.getPropertyName()) &&
+				(mainForm.getOnElementFocusLostMethodID() > 0 ||
+					(application != null && application.getEventsManager().hasListeners(EventType.onElementFocusLost, null))))
 			{
 				handlers.add(eventName);
 			}
