@@ -17,6 +17,8 @@
 
 package com.servoy.j2db.server.ngclient.auth;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.Map;
 import java.util.UUID;
 
@@ -40,6 +42,8 @@ import com.servoy.j2db.util.Debug;
  */
 public class OAuthUtils
 {
+	private static final String OAUTHCONFIGREQUEST = "oauthconfigrequest";
+
 	public enum Provider
 	{
 		Google(
@@ -169,6 +173,40 @@ public class OAuthUtils
 			session.removeAttribute("logout");
 			additionalParameters.put("prompt", "consent");
 		}
+
+		if (!request.getParameterMap().isEmpty())
+		{
+			StringBuilder state = new StringBuilder();
+			request.getParameterMap().forEach((key, values) -> {
+				String value = String.join(",", values);
+				try
+				{
+					String encodedKey = URLEncoder.encode(key, "UTF-8");
+					if (OAUTHCONFIGREQUEST.equals(encodedKey))
+					{
+						return; // skip oauthconfigrequest
+					}
+					String encodedValue = URLEncoder.encode(value, "UTF-8");
+					state.append(encodedKey).append("=").append(encodedValue).append("&");
+				}
+				catch (UnsupportedEncodingException e)
+				{
+					Debug.error("Error encoding key or value", e);
+				}
+			});
+
+			if (state.length() > 0 && state.charAt(state.length() - 1) == '&')
+			{
+				state.append("svyuuid=").append(nonce);
+			}
+
+			if (state.length() > 0)
+			{
+				additionalParameters.put("state", state.toString());
+				Map<String, JSONObject> cache = (Map<String, JSONObject>)request.getServletContext().getAttribute(OAuthParameters.nonce.name());
+				cache.put(additionalParameters.get("state"), auth);
+			}
+		}
 		return createOauthService(auth, additionalParameters, StatelessLoginUtils.getServerURL(request));
 	}
 
@@ -215,9 +253,10 @@ public class OAuthUtils
 		Provider provider = Provider.valueOf(api);
 		String responseType = getResponseType(provider, auth, additionalParameters);
 		builder.responseType(responseType);
-		if (provider.shouldSendStateParam(responseType))
+		if (additionalParameters.containsKey(OAuthParameters.state.name()) || provider.shouldSendStateParam(responseType))
 		{
-			additionalParameters.put(OAuthParameters.state.name(), additionalParameters.get(OAuthParameters.nonce.name()));
+			additionalParameters.put(OAuthParameters.state.name(),
+				additionalParameters.getOrDefault(OAuthParameters.state.name(), OAuthParameters.nonce.name()));
 		}
 		if (serverURL != null)
 		{
