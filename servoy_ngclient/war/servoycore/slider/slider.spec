@@ -11,7 +11,7 @@
 	"model":
 	{
 		"animate": "string",
-	    "dataProviderID": { "type":"dataprovider", "tags": { "wizard": true }, "pushToServer": "allow","ondatachange": { "onchange":"onDataChangeMethodID"}}, 
+	    "dataProviderID": { "type":"dataprovider", "tags": { "wizard": true }, "pushToServer": "allow"}, 
 	   "enabled" : { "type": "enabled", "blockingOn": false, "default": true },
 	    "max": {"type":"long", "default":100},
 	    "min": {"type":"long", "default":0},
