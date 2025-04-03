@@ -679,7 +679,12 @@ public abstract class AbstractBase implements IPersist
 
 	public void addChild(IPersist obj)
 	{
-		internalAddChild(obj);
+		addChild(obj, -1); // add to the end
+	}
+
+	public void addChild(IPersist obj, int index)
+	{
+		internalAddChild(obj, index);
 		afterChildWasAdded(obj);
 	}
 
@@ -696,7 +701,7 @@ public abstract class AbstractBase implements IPersist
 		childAdded(obj);
 	}
 
-	public void internalAddChild(IPersist obj)
+	public void internalAddChild(IPersist obj, int index)
 	{
 		if (allobjects == null)
 		{
@@ -706,7 +711,8 @@ public abstract class AbstractBase implements IPersist
 		{
 			internalRemoveChild(obj);
 		}
-		allobjects.add(obj);
+		if (index < 0 || index > allobjects.size()) allobjects.add(obj);
+		else allobjects.add(index, obj);
 		if (allobjectsMap != null && obj != null)
 		{
 			allobjectsMap.put(obj.getUUID(), obj);
