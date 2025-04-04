@@ -42,6 +42,7 @@ import org.sablo.websocket.WebsocketSessionManager;
 
 import com.servoy.j2db.server.ngclient.auth.CloudStatelessAccessManager;
 import com.servoy.j2db.server.ngclient.auth.OAuthHandler;
+import com.servoy.j2db.server.ngclient.auth.StatelessLoginUtils;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
 
@@ -100,6 +101,7 @@ public class AngularIndexPageFilter implements Filter
 				{
 					return;
 				}
+				HttpServletRequest req = request;
 				try
 				{
 					Pair<Boolean, String> showLogin = null;
@@ -122,6 +124,9 @@ public class AngularIndexPageFilter implements Filter
 					{
 						HttpSession session = request.getSession(); // we know we are logged in so we can make a session now
 						session.setAttribute(StatelessLoginHandler.ID_TOKEN, showLogin.getRight());
+
+						//could be oauth + deeplink (need to wrap the request to add the parameters)
+						req = StatelessLoginUtils.checkForPossibleSavedDeeplink(request);
 					}
 				}
 				catch (Exception e)
@@ -135,7 +140,7 @@ public class AngularIndexPageFilter implements Filter
 				if (this.indexPage != null)
 				{
 					request.getSession(); // now really make a session, we know we are going to render the index page to start a client.
-					AngularIndexPageWriter.writeIndexPage(this.indexPage, request, response, solutionName,
+					AngularIndexPageWriter.writeIndexPage(this.indexPage, req, response, solutionName,
 						contentSecurityPolicyConfig == null ? null : contentSecurityPolicyConfig.getNonce());
 				}
 				else

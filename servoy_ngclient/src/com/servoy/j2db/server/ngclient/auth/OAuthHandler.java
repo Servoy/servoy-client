@@ -55,6 +55,7 @@ import com.servoy.j2db.server.shared.IApplicationServer;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.ScopesUtils;
 import com.servoy.j2db.util.ServoyJSONObject;
+import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -171,12 +172,18 @@ public class OAuthHandler
 			String pathInfo = path.getName(i).toString();
 			url.append("/" + pathInfo);
 		}
+		if (queryString != null && queryString.contains("svy_remove_id_token"))
+		{
+			//do not redirect again and again to extract the id_token, most likely it's not there
+			throw new IOException("The id_token could not be retrieved." + req.getParameter("error_description"));
+		}
+
 		url.append("?");
 		url.append("svy_remove_id_token=true&");
+
 		if (queryString != null)
 		{
-			url.append(queryString);
-			url.append('&');
+			url.append(queryString).append('&');
 		}
 
 		resp.setContentType("text/html");
@@ -425,7 +432,9 @@ public class OAuthHandler
 		ScriptMethod sm = null;
 		if (properties.has(GET_OAUTH_CONFIG))
 		{
-			sm = authenticatorModule.getScriptMethod(properties.getInt(GET_OAUTH_CONFIG));
+			UUID uuid = Utils.getAsUUID(properties.get(GET_OAUTH_CONFIG), false);
+			sm = (ScriptMethod)authenticatorModule.getAllObjectsAsList().stream().filter(persist -> persist.getUUID().equals(uuid))
+				.findFirst().orElse(null);
 		}
 		else
 		{

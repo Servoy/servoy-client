@@ -299,7 +299,7 @@ public class Debug
 	 * @param s
 	 * @return
 	 */
-	private static String getScriptStackTrace(String message, Throwable s)
+	public static String getScriptStackTrace(String message, Throwable s)
 	{
 		String scriptStackTrace = "";
 		if (s == null)

@@ -1,80 +1,174 @@
+/**
+ * A Servoy Extra Component that displays a portal for viewing and editing related foundset records.
+ */
+
+/**
+ * A Servoy Extra Component that displays a portal for viewing and editing related foundset records.
+ */
+
+/**
+ * The background color for the portal component.
+ */
 var background;
 
+/**
+ * The type of border applied to the portal.
+ */
 var borderType;
 
+/**
+ * Flag indicating whether the portal is enabled for user interaction.
+ */
 var enabled;
 
+/**
+ * Flag indicating whether the portal is editable.
+ */
 var editable;
 
+/**
+ * The foreground color for the portal component.
+ */
 var foreground;
 
+/**
+ * The height of the portal header in pixels.
+ */
 var headerHeight;
 
+/**
+ * The initial sort order for the portal, specified as a string.
+ */
 var initialSort;
 
+/**
+ * The spacing between cells in the portal.
+ */
 var intercellSpacing;
 
+/**
+ * The location of the portal on the form.
+ */
 var location;
 
+/**
+ * Flag indicating whether the portal supports multiple lines.
+ */
 var multiLine;
 
+/**
+ * The read-only mode setting for the portal.
+ */
 var readOnlyMode;
 
+/**
+ * The foundset related to the portal.
+ */
 var relatedFoundset;
 
+/**
+ * Flag indicating whether the portal supports reordering of records.
+ */
 var reorderable;
 
+/**
+ * Flag indicating whether the portal is resizable.
+ */
 var resizable;
 
+/**
+ * (Deprecated) Duplicate property for resizable.
+ */
 var resizeble;
 
+/**
+ * Calculation used to determine the row background color.
+ */
 var rowBGColorCalculation;
 
+/**
+ * The height of each row in the portal.
+ */
 var rowHeight;
 
+/**
+ * Configuration for scrollbars in the portal.
+ */
 var scrollbars;
 
+/**
+ * Flag indicating whether horizontal grid lines are shown.
+ */
 var showHorizontalLines;
 
+/**
+ * Flag indicating whether vertical grid lines are shown.
+ */
 var showVerticalLines;
 
+/**
+ * The dimensions (width and height) of the portal.
+ */
 var size;
 
+/**
+ * Flag indicating whether the portal is sortable.
+ */
 var sortable;
 
+/**
+ * CSS style classes applied to the portal.
+ */
 var styleClass;
 
+/**
+ * The tab sequence order for keyboard navigation.
+ */
 var tabSeq;
 
+/**
+ * Flag indicating whether the portal background is transparent.
+ */
 var transparent;
 
+/**
+ * Flag indicating whether the portal is visible.
+ */
 var visible;
 
 
 var handlers = {
     /**
-     * @param {JSDNDEvent} event
+     * Called when a drag operation ends on the portal.
+     *
+     * @param {JSDNDEvent} event The event object associated with the drag end.
      */
     onDragEndMethodID: function() {},
 
     /**
-     * @param {JSDNDEvent} event
+     * Called during a drag operation over the portal.
      *
-     * @returns {Number}
+     * @param {JSDNDEvent} event The event object associated with the drag.
+     *
+     * @return {Number} The numeric value indicating the drag effect.
      */
     onDragMethodID: function() {},
 
     /**
-     * @param {JSDNDEvent} event
+     * Called when an element is dragged over the portal.
      *
-     * @returns {Boolean}
+     * @param {JSDNDEvent} event The event object associated with the drag over.
+     *
+     * @return {Boolean} True if the drag over action is accepted, false otherwise.
      */
     onDragOverMethodID: function() {},
 
     /**
-     * @param {JSDNDEvent} event
+     * Called when an element is dropped onto the portal.
      *
-     * @returns {Boolean}
+     * @param {JSDNDEvent} event The event object associated with the drop.
+     *
+     * @return {Boolean} True if the drop action is accepted, false otherwise.
      */
     onDropMethodID: function() {}
 };
@@ -198,3 +292,6 @@ function deleteRecord() {
  */
 function getLocationY() {
 }
+
+
+

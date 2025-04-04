@@ -5,6 +5,7 @@
 	"version": 1,
 	"icon": "servoycore/formcontainer/tab.png",
 	"definition": "servoycore/formcontainer/formcontainer.js",
+	"doc": "servoycore/formcontainer/formcontainer_doc.js",
 	"serverscript": "servoycore/formcontainer/formcontainer_server.js",
 	"libraries": [{"name":"servoycore-formcontainer-css", "version":"1.0", "url":"servoycore/formcontainer/formcontainer.css", "mimetype":"text/css"}],
 	"keywords": ["container"],

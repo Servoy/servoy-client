@@ -17,6 +17,8 @@
 
 package com.servoy.j2db.server.ngclient.auth;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.Map;
 import java.util.UUID;
 
@@ -40,33 +42,48 @@ import com.servoy.j2db.util.Debug;
  */
 public class OAuthUtils
 {
+	private static final String OAUTHCONFIGREQUEST = "oauthconfigrequest";
+
 	public enum Provider
 	{
 		Google(
 			"https://www.googleapis.com/oauth2/v3/certs",
 			"openid email",
-			"https://developers.google.com/identity/protocols/oauth2/javascript-implicit-flow#oauth-2.0-endpoints"),
+			"https://developers.google.com/identity/protocols/oauth2/javascript-implicit-flow#oauth-2.0-endpoints",
+			false),
 		Microsoft(
 			"https://login.microsoftonline.com/{tenant}/discovery/v2.0/keys",
 			"openid email",
-			"https://learn.microsoft.com/en-us/entra/identity-platform/v2-oauth2-implicit-grant-flow#send-the-sign-in-request"),
-		Apple("https://appleid.apple.com/auth/keys", "name email", "https://developer.apple.com/documentation/sign_in_with_apple/sign_in_with_apple_rest_api"),
-		Okta("https://{domain}/oauth2/default/v1/keys", "openid profile email", "https://developer.okta.com/docs/api/openapi/okta-oauth/guides/overview"),
+			"https://learn.microsoft.com/en-us/entra/identity-platform/v2-oauth2-implicit-grant-flow#send-the-sign-in-request",
+			false),
+		Apple(
+			"https://appleid.apple.com/auth/keys",
+			"name email",
+			"https://developer.apple.com/documentation/sign_in_with_apple/sign_in_with_apple_rest_api",
+			true),
+		Okta(
+			"https://{domain}/oauth2/default/v1/keys",
+			"openid profile email",
+			"https://developer.okta.com/docs/api/openapi/okta-oauth/guides/overview",
+			true),
 		LinkedIn(
 			"https://www.linkedin.com/oauth/v2/certs",
 			"openid email",
-			"https://learn.microsoft.com/en-us/linkedin/shared/authentication/authorization-code-flow?tabs=HTTPS1"),
-		Custom(null, null, null);
+			"https://learn.microsoft.com/en-us/linkedin/shared/authentication/authorization-code-flow?tabs=HTTPS1",
+			false),
+		Custom(null, null, null, false);
 
 		private final String jwksUri;
 		private final String defaultScope;
 		private final String docs;
+		private final boolean addState;
 
-		Provider(String jwksUri, String defaultScope, String docs)
+		Provider(String jwksUri, String defaultScope, String docs, boolean addState)
 		{
 			this.jwksUri = jwksUri;
 			this.defaultScope = defaultScope;
 			this.docs = docs;
+			this.addState = addState;
 		}
 
 		public String getJwksUri()
@@ -82,6 +99,11 @@ public class OAuthUtils
 		public String getDocs()
 		{
 			return docs;
+		}
+
+		public boolean shouldSendStateParam(String responseType)
+		{
+			return addState || responseType != null && responseType.contains("code");
 		}
 	}
 
@@ -151,6 +173,40 @@ public class OAuthUtils
 			session.removeAttribute("logout");
 			additionalParameters.put("prompt", "consent");
 		}
+
+		if (!request.getParameterMap().isEmpty())
+		{
+			StringBuilder state = new StringBuilder();
+			request.getParameterMap().forEach((key, values) -> {
+				String value = String.join(",", values);
+				try
+				{
+					String encodedKey = URLEncoder.encode(key, "UTF-8");
+					if (OAUTHCONFIGREQUEST.equals(encodedKey))
+					{
+						return; // skip oauthconfigrequest
+					}
+					String encodedValue = URLEncoder.encode(value, "UTF-8");
+					state.append(encodedKey).append("=").append(encodedValue).append("&");
+				}
+				catch (UnsupportedEncodingException e)
+				{
+					Debug.error("Error encoding key or value", e);
+				}
+			});
+
+			if (state.length() > 0 && state.charAt(state.length() - 1) == '&')
+			{
+				state.append("svyuuid=").append(nonce);
+			}
+
+			if (state.length() > 0)
+			{
+				additionalParameters.put("state", state.toString());
+				Map<String, JSONObject> cache = (Map<String, JSONObject>)request.getServletContext().getAttribute(OAuthParameters.nonce.name());
+				cache.put(additionalParameters.get("state"), auth);
+			}
+		}
 		return createOauthService(auth, additionalParameters, StatelessLoginUtils.getServerURL(request));
 	}
 
@@ -188,17 +244,19 @@ public class OAuthUtils
 						break;
 				}
 			}
-			else
+			else if (!"customParameters".equals(key))
 			{
 				additionalParameters.put(key, auth.getString(key));
 			}
 		}
 
-		String responseType = getResponseType(Provider.valueOf(api), auth, additionalParameters);
+		Provider provider = Provider.valueOf(api);
+		String responseType = getResponseType(provider, auth, additionalParameters);
 		builder.responseType(responseType);
-		if (responseType.contains("code"))
+		if (additionalParameters.containsKey(OAuthParameters.state.name()) || provider.shouldSendStateParam(responseType))
 		{
-			additionalParameters.put(OAuthParameters.state.name(), additionalParameters.get(OAuthParameters.nonce.name()));
+			additionalParameters.put(OAuthParameters.state.name(),
+				additionalParameters.getOrDefault(OAuthParameters.state.name(), OAuthParameters.nonce.name()));
 		}
 		if (serverURL != null)
 		{
@@ -208,7 +266,7 @@ public class OAuthUtils
 
 		try
 		{
-			DefaultApi20 apiInstance = getApiInstance(Provider.valueOf(api), auth);
+			DefaultApi20 apiInstance = getApiInstance(provider, auth);
 			return builder.build(apiInstance);
 		}
 		catch (Exception e)
