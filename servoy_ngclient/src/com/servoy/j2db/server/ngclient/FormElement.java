@@ -61,6 +61,7 @@ import com.servoy.j2db.persistence.ISupportExtendsID;
 import com.servoy.j2db.persistence.ISupportSize;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
+import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.scripting.info.EventType;
 import com.servoy.j2db.server.ngclient.property.ComponentPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.FormComponentPropertyType;
@@ -686,13 +687,15 @@ public final class FormElement implements INGFormElement
 			}
 			else if (Utils.equalObjects(eventName, StaticContentSpecLoader.PROPERTY_ONFOCUSGAINEDMETHODID.getPropertyName()) &&
 				(mainForm.getOnElementFocusGainedMethodID() > 0 ||
-					(application != null && application.getEventsManager().hasListeners(EventType.onElementFocusGained, null))))
+					(application != null && application.getEventsManager().hasListeners(EventType.onElementFocusGained,
+						IExecutingEnviroment.TOPLEVEL_FORMS + '.' + mainForm.getName()))))
 			{
 				handlers.add(eventName);
 			}
 			else if (Utils.equalObjects(eventName, StaticContentSpecLoader.PROPERTY_ONFOCUSLOSTMETHODID.getPropertyName()) &&
 				(mainForm.getOnElementFocusLostMethodID() > 0 ||
-					(application != null && application.getEventsManager().hasListeners(EventType.onElementFocusLost, null))))
+					(application != null && application.getEventsManager().hasListeners(EventType.onElementFocusLost,
+						IExecutingEnviroment.TOPLEVEL_FORMS + '.' + mainForm.getName()))))
 			{
 				handlers.add(eventName);
 			}

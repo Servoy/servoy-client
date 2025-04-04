@@ -107,19 +107,8 @@ public class EventsManager implements IEventsManager, Scriptable
 	@Override
 	public boolean hasListeners(EventType eventType, String context)
 	{
-		if (eventType != null)
-		{
-			List<Pair<String, Function>> eventTypeCallbacks = callbacks.get(eventType);
-			if (eventTypeCallbacks != null)
-			{
-				if (context == null)
-				{
-					return eventTypeCallbacks.size() > 0;
-				}
-				return eventTypeCallbacks.stream().anyMatch(pair -> context.equals(pair.getLeft()));
-			}
-		}
-		return false;
+		List<Function> listeners = getListeners(eventType, context);
+		return listeners != null && !listeners.isEmpty();
 	}
 
 	@Override
