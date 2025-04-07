@@ -175,7 +175,7 @@ public class ServoyApiObject
 				if (parent instanceof IWebFormUI parentUI)
 					parentUI.getDataAdapterList().removeVisibleChildForm(formController, true);
 			}
-			Utils.invokeAndWait(app, invokeLaterRunnables);
+			Utils.invokeLater(app, invokeLaterRunnables);
 			return ret;
 		}
 		return false;
@@ -280,7 +280,7 @@ public class ServoyApiObject
 				}
 
 			}
-			Utils.invokeAndWait(app, invokeLaterRunnables);
+			Utils.invokeLater(app, invokeLaterRunnables);
 
 			if (ret)
 			{

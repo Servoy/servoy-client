@@ -754,22 +754,29 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 		}
 		if (notifyVisibleSuccess)
 		{
-			for (WebComponent comp : getFormUI().getComponents())
+			Runnable run = new Runnable()
 			{
-				RuntimeWebComponent runtimeComponent = getFormUI().getRuntimeWebComponent(comp.getName());
-				if (runtimeComponent != null)
+				public void run()
 				{
-					WebObjectFunctionDefinition function = null;
-					if (visible)
-						function = comp.getSpecification().getInternalApiFunction("onShow");
-					else
-						function = comp.getSpecification().getInternalApiFunction("onHide");
-					if (function != null)
+					for (WebComponent comp : getFormUI().getComponents())
 					{
-						runtimeComponent.executeScopeFunction(function, new Object[0]);
+						RuntimeWebComponent runtimeComponent = getFormUI().getRuntimeWebComponent(comp.getName());
+						if (runtimeComponent != null)
+						{
+							WebObjectFunctionDefinition function = null;
+							if (visible)
+								function = comp.getSpecification().getInternalApiFunction("onShow");
+							else
+								function = comp.getSpecification().getInternalApiFunction("onHide");
+							if (function != null)
+							{
+								runtimeComponent.executeScopeFunction(function, new Object[0]);
+							}
+						}
 					}
 				}
-			}
+			};
+			invokeLaterRunnables.add(run);
 		}
 
 		if (notifyVisibleSuccess) notifyVisibleOnChildren(visible, invokeLaterRunnables); // TODO should notifyVisibleSuccess be altered here? See WebFormUI/WebFormComponent notifyVisible calls.
