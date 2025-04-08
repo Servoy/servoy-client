@@ -701,6 +701,11 @@ public abstract class AbstractBase implements IPersist
 		childAdded(obj);
 	}
 
+	public void internalAddChild(IPersist obj)
+	{
+		internalAddChild(obj, -1);
+	}
+
 	public void internalAddChild(IPersist obj, int index)
 	{
 		if (allobjects == null)
