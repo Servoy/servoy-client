@@ -176,6 +176,11 @@ public abstract class AbstractContainer extends AbstractBase
 		return getObjects(IRepository.LAYOUTCONTAINERS);
 	}
 
+	public Iterator<CSSPositionLayoutContainer> getResponsiveLayoutContainers()
+	{
+		return getObjects(IRepository.CSSPOS_LAYOUTCONTAINERS);
+	}
+
 	/**
 	 * Create a new layout container.
 	 *
@@ -184,6 +189,15 @@ public abstract class AbstractContainer extends AbstractBase
 	public LayoutContainer createNewLayoutContainer() throws RepositoryException
 	{
 		LayoutContainer obj = (LayoutContainer)getSolution().getChangeHandler().createNewObject(this, IRepository.LAYOUTCONTAINERS);
+
+		addChild(obj);
+		return obj;
+	}
+
+	public CSSPositionLayoutContainer createNewCSSPositionLayoutContainer() throws RepositoryException
+	{
+		CSSPositionLayoutContainer obj = (CSSPositionLayoutContainer)getSolution().getChangeHandler().createNewObject(this,
+			IRepository.CSSPOS_LAYOUTCONTAINERS);
 
 		addChild(obj);
 		return obj;
