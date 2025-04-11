@@ -47,6 +47,7 @@ import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.AbstractContainer;
 import com.servoy.j2db.persistence.Bean;
+import com.servoy.j2db.persistence.CSSPositionLayoutContainer;
 import com.servoy.j2db.persistence.Field;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.GraphicalComponent;
@@ -120,7 +121,7 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 					JSList.class, JSInsetList.class, //
 					JSComponent.class, JSLabel.class, JSMethod.class, JSPortal.class, JSPartWithConstants.class, JSRelation.class, JSRelationItem.class, //
 					JSStyle.class, JSTabPanel.class, JSTab.class, JSMedia.class, JSValueList.class, JSVariable.class, //
-					JSHeader.class, JSFooter.class, JSTitle.class, JSWebComponent.class//
+					JSHeader.class, JSFooter.class, JSTitle.class, JSWebComponent.class, JSResponsiveLayoutContainer.class//
 				};
 			}
 		});
@@ -2234,6 +2235,10 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 			{
 				return JSPart.createPart((JSForm)getParentContainer(persist), (Part)persist, false);
 			}
+			if (persist instanceof CSSPositionLayoutContainer cssPositionLayoutContainer)
+			{
+				return new JSResponsiveLayoutContainer(getParentContainer(persist), application, cssPositionLayoutContainer, false);
+			}
 			if (persist instanceof LayoutContainer)
 			{
 				return new JSLayoutContainer(getParentContainer(persist), application, (LayoutContainer)persist);
@@ -2289,7 +2294,11 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 		}
 		for (AbstractContainer container : parentHierarchy)
 		{
-			if (container instanceof LayoutContainer)
+			if (container instanceof CSSPositionLayoutContainer cssPositionLayoutContainer)
+			{
+				parent = new JSResponsiveLayoutContainer(parent, application, cssPositionLayoutContainer, false);
+			}
+			else if (container instanceof LayoutContainer)
 			{
 				parent = new JSLayoutContainer(parent, application, (LayoutContainer)persist);
 			}
@@ -2299,5 +2308,16 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 			}
 		}
 		return parent;
+	}
+
+	/**
+	 * @param jsResponsiveLayoutContainer
+	 * @param layoutContainer
+	 * @return
+	 */
+	public JSResponsiveLayoutContainer createResponsiveLayoutContainer(IJSParent< ? > parent,
+		CSSPositionLayoutContainer layoutContainer, boolean isNew)
+	{
+		return new JSResponsiveLayoutContainer(parent, application, layoutContainer, isNew);
 	}
 }

@@ -21,8 +21,8 @@ import org.mozilla.javascript.annotations.JSFunction;
 import org.mozilla.javascript.annotations.JSGetter;
 import org.mozilla.javascript.annotations.JSSetter;
 
-import com.servoy.j2db.persistence.BaseComponent;
 import com.servoy.j2db.persistence.CSSPosition;
+import com.servoy.j2db.persistence.ISupportCSSPosition;
 
 /**
  * @author lvostinar
@@ -30,9 +30,9 @@ import com.servoy.j2db.persistence.CSSPosition;
  */
 public class JSCSSPosition extends AbstractCSSPosition
 {
-	private final JSComponent< ? extends BaseComponent> component;
+	private final JSBase< ? extends ISupportCSSPosition> component;
 
-	public JSCSSPosition(JSComponent< ? extends BaseComponent> component)
+	public JSCSSPosition(JSBase< ? extends ISupportCSSPosition> component)
 	{
 		super();
 		this.component = component;

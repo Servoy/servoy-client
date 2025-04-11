@@ -20,7 +20,6 @@ package com.servoy.j2db.scripting.solutionmodel;
 import java.awt.Dimension;
 import java.awt.Point;
 
-import org.mozilla.javascript.annotations.JSFunction;
 import org.mozilla.javascript.annotations.JSGetter;
 import org.mozilla.javascript.annotations.JSSetter;
 
@@ -62,7 +61,7 @@ import com.servoy.j2db.util.PersistHelper;
 @SuppressWarnings("nls")
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "JSLayoutContainer")
 @ServoyClientSupport(mc = false, wc = false, sc = false, ng = true)
-public class JSLayoutContainer extends JSBaseContainer<LayoutContainer> implements IJavaScriptType
+public class JSLayoutContainer extends JSBaseContainer<LayoutContainer> implements IJavaScriptType, IBaseLayoutContainer
 {
 	private LayoutContainer layoutContainer;
 	private final IJSParent< ? > parent;
@@ -77,7 +76,7 @@ public class JSLayoutContainer extends JSBaseContainer<LayoutContainer> implemen
 		this.application = application;
 	}
 
-	private LayoutContainer getLayoutContainer()
+	public LayoutContainer getLayoutContainer()
 	{
 		if (!isCopy)
 		{
@@ -102,6 +101,11 @@ public class JSLayoutContainer extends JSBaseContainer<LayoutContainer> implemen
 	public IJSParent< ? > getJSParent()
 	{
 		return parent;
+	}
+
+	public IApplication getApplication()
+	{
+		return application;
 	}
 
 	@Override
@@ -211,59 +215,6 @@ public class JSLayoutContainer extends JSBaseContainer<LayoutContainer> implemen
 	{
 		checkModification();
 		getLayoutContainer().setElementId(elementId);
-	}
-
-	/**
-	 * @clonedesc com.servoy.j2db.persistence.LayoutContainer#getCssClasses()
-	 *
-	 * @sample
-	 * layoutContainer.cssClasses = 'myContainer';
-	 *
-	 * @return A space-separated string of CSS classes applied to the layout container.
-	 */
-	@JSGetter
-	public String getCssClasses()
-	{
-		return getLayoutContainer().getCssClasses();
-	}
-
-	@JSSetter
-	public void setCssClasses(String cssClasses)
-	{
-		checkModification();
-		getLayoutContainer().setCssClasses(cssClasses);
-	}
-
-	/**
-	 * @clonedesc com.servoy.j2db.persistence.LayoutContainer#getAttribute()
-	 *
-	 * @param name the attributes name
-	 *
-	 * @sample
-	 * layoutContainer.getAttribute('class');
-	 *
-	 * @return The value of the specified attribute, or null if the attribute is not set.
-	 */
-	@JSFunction
-	public String getAttribute(String name)
-	{
-		return getLayoutContainer().getAttribute(name);
-	}
-
-	/**
-	 * @clonedesc com.servoy.j2db.persistence.LayoutContainer#putAttribute()
-	 *
-	 * @sample
-	 * layoutContainer.putAttribute('class','container fluid');
-	 *
-	 * @param key
-	 * @param value
-	 */
-	@JSFunction
-	public void putAttribute(String name, String value)
-	{
-		checkModification();
-		getLayoutContainer().putAttribute(name, value);
 	}
 
 	/**
@@ -390,19 +341,6 @@ public class JSLayoutContainer extends JSBaseContainer<LayoutContainer> implemen
 	{
 		checkModification();
 		getLayoutContainer().setSize(new Dimension(width, getLayoutContainer().getSize().height));
-	}
-
-	/**
-	 * Remove a layout container (with all its children) from hierarchy.
-	 *
-	 * @sample
-	 * layoutContainer.remove();
-	 */
-	@JSFunction
-	public void remove()
-	{
-		checkModification();
-		parent.getSupportChild().removeChild(getLayoutContainer());
 	}
 
 	@Override

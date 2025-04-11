@@ -102,11 +102,15 @@ public final class EventType implements IConstantsObject
 		RepositoryHelper.getDisplayName(StaticContentSpecLoader.PROPERTY_ONUNLOADMETHODID.getPropertyName(), Form.class), true);
 	/**
 	 * The form onElementFocusGained event, fired when the form element gets focus.
+	 * If you start listener to these events then these will only fire for new created forms,
+	 * Existing forms will not start firing the focus gained events, because the handlers are not set (recreateUI will fix this)
 	 */
 	public static final EventType onElementFocusGained = new EventType(RepositoryHelper.getDisplayName(
 		StaticContentSpecLoader.PROPERTY_ONELEMENTFOCUSGAINEDMETHODID.getPropertyName(), Form.class), true);
 	/**
 	 * The form onElementFocusLost event, fired when the form element loses its focus.
+	 * If you start listener to these events then these will only fire for new created forms,
+	 * Existing forms will not start firing the focus list events, because the handlers are not set (recreateUI will fix this)
 	 */
 	public static final EventType onElementFocusLost = new EventType(
 		RepositoryHelper.getDisplayName(StaticContentSpecLoader.PROPERTY_ONELEMENTFOCUSLOSTMETHODID.getPropertyName(), Form.class), true);

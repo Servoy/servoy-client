@@ -132,8 +132,7 @@ public class IdentDocumentValidator implements ValidatingDocument.IDocumentValid
 			}
 			else if (i > 0)
 			{
-				// ensure the '/' character remains unchanged
-				if (!Character.isJavaIdentifierPart(source[i]) && source[i] != '/')
+				if (!Character.isJavaIdentifierPart(source[i]))
 				{
 					source[i] = '_';
 				}

@@ -81,7 +81,7 @@ public class JSMenuItem extends JSMenu implements IConstantsObject
 	private Object[] callbackArguments;
 	private final JSMenu parentMenu;
 	private Map<String, Map<String, Object>> extraProperties;
-	private Map<String, Object> customPropertiesValues;
+	private final Map<String, Object> customPropertiesValues;
 	private final String[] allowedPermissions;
 	private JSONObject permissionsData;
 	private int overridenPermissionData = -1;
@@ -124,6 +124,7 @@ public class JSMenuItem extends JSMenu implements IConstantsObject
 		super(name, allowedPermissions);
 		this.parentMenu = parentMenu;
 		this.allowedPermissions = allowedPermissions;
+		this.customPropertiesValues = new HashMap<String, Object>();
 	}
 
 	@JSSetter

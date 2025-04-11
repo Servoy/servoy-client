@@ -175,7 +175,7 @@ public class ServoyApiObject
 				if (parent instanceof IWebFormUI parentUI)
 					parentUI.getDataAdapterList().removeVisibleChildForm(formController, true);
 			}
-			Utils.invokeAndWait(app, invokeLaterRunnables);
+			Utils.invokeLater(app, invokeLaterRunnables);
 			return ret;
 		}
 		return false;
@@ -239,37 +239,39 @@ public class ServoyApiObject
 			{
 				if (parentFormController != null)
 				{
-					IFoundSetInternal parentFs = parentFormController.getFormModel();
-					IRecordInternal selectedRecord = parentFs.getRecord(parentFs.getSelectedIndex());
-					if (selectedRecord != null)
+					if (relationName != null)
 					{
-						try
+						IFoundSetInternal parentFs = parentFormController.getFormModel();
+						IRecordInternal selectedRecord = parentFs.getRecord(parentFs.getSelectedIndex());
+						if (selectedRecord != null)
 						{
-							formController.loadRecords(selectedRecord.getRelatedFoundSet(relationName));
+							try
+							{
+								formController.loadRecords(selectedRecord.getRelatedFoundSet(relationName));
+							}
+							catch (RuntimeException re)
+							{
+								throw new RuntimeException("Can't load records on form " + formController.getName() + ", of parent record: " +
+									selectedRecord + " with relation " + relationName + " for parent form  " + parentFormController + " and bean " +
+									component, re);
+							}
 						}
-						catch (RuntimeException re)
+						else
 						{
-							throw new RuntimeException("Can't load records on form " + formController.getName() + ", of parent record: " +
-								selectedRecord + " with relation " + relationName + " for parent form  " + parentFormController + " and bean " +
-								component, re);
+							// no selected record, then use prototype so we can get global relations
+							try
+							{
+								formController.loadRecords(parentFs.getPrototypeState().getRelatedFoundSet(relationName));
+							}
+							catch (RuntimeException re)
+							{
+								throw new RuntimeException("Can't load records on form " + formController.getName() + ", of parent record: " +
+									selectedRecord + " with relation " + relationName + " for parent form  " + parentFormController + " and bean " +
+									component, re);
+							}
+
 						}
 					}
-					else
-					{
-						// no selected record, then use prototype so we can get global relations
-						try
-						{
-							formController.loadRecords(parentFs.getPrototypeState().getRelatedFoundSet(relationName));
-						}
-						catch (RuntimeException re)
-						{
-							throw new RuntimeException("Can't load records on form " + formController.getName() + ", of parent record: " +
-								selectedRecord + " with relation " + relationName + " for parent form  " + parentFormController + " and bean " +
-								component, re);
-						}
-
-					}
-
 					parentFormController.getFormUI().getDataAdapterList().addVisibleChildForm(formController, relationName, true);
 					if (component != null)
 					{
@@ -278,7 +280,7 @@ public class ServoyApiObject
 				}
 
 			}
-			Utils.invokeAndWait(app, invokeLaterRunnables);
+			Utils.invokeLater(app, invokeLaterRunnables);
 
 			if (ret)
 			{
