@@ -2028,11 +2028,6 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * @sample
 	 * application.showURL('http://www.example.com');
 	 *
-	 * //NGClient and webclient specific additional parameters...
-	 * //2nd parameter: target frame or named dialog/window, so its possible to control in which (internal) frame or dialog the url is loaded, '_self' is current window,'_blank' is new dialog, '_top' is main window; default is '_blank'
-	 * //3rd parameter: dialog options used when a dialog is specified, example: 'height=200,width=400,status=yes,toolbar=no,menubar=no,location=no'
-	 * //3rd or 4th parameter: a timeout in seconds when the url should be shown, immediately/0 is default'
-	 *
 	 * @param url URL to show
 	 *
 	 * @return Boolean (true) if URL was shown
@@ -2064,7 +2059,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 *
 	 * @param url URL to show
 	 * @param browserTarget Target frame or named dialog/window
-	 * @param browserTargetOptions Dialog options used when a dialog is specified / a timeout in seconds when the url should be shown
+	 * @param browserTargetOptions Dialog options used when a dialog is specified, example: 'height=200,width=400,status=yes,toolbar=no,menubar=no,location=no'
 	 *
 	 * @return Boolean (true) if URL was shown
 	 */
@@ -2301,8 +2296,6 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 
 	/**
 	 * Returns a date object initialized in client with current date and time.
-	 * This should be used instead of new Date() for webclients when the clients are in different times zones then the server.
-	 * Then this call will really return a time that is the locals webclients time.
 	 * For NG clients this is only useful when displaying on the client using format property (Use local time), and then
 	 * this is equivalent to new Date() on the client side, so basically this can be used to pre-fill with 'now' such a display.
 	 *

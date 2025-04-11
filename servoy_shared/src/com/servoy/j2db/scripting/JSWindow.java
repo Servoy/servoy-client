@@ -360,7 +360,8 @@ public class JSWindow implements IConstantsObject
 	}
 
 	/**
-	 * Sets whether or not this window should have a text tool bar. Has no effect on web client or smart client main application frame.
+	 * Legacy smart client API, do not use anymore.
+	 * Sets whether or not this window should have a text tool bar.
 	 *
 	 * @param showTextToolbar true if you want a text tool bar to be added to this window, false otherwise.
 	 *

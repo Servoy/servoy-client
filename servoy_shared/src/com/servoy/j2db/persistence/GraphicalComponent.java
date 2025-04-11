@@ -430,7 +430,7 @@ public class GraphicalComponent extends BaseComponent
 
 	/**
 	 * The cursor that is shown as the mouse is rolled over the component.
-	 * Possible options are DEFAULT and HAND. Note that roll over cursor is not supported in Smart client for list view and tableview forms.
+	 * Possible options are DEFAULT and HAND.
 	 */
 	public int getRolloverCursor()
 	{

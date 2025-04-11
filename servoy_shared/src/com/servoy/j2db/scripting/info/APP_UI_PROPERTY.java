@@ -100,7 +100,8 @@ public class APP_UI_PROPERTY implements IPrefixedConstantsObject
 	public static final String COMBOBOX_ENABLE_FILTER = IApplication.COMBOBOX_ENABLE_FILTER;
 
 	/**
-	 * Property that can be set using application.putClientProperty() or element.putClientProperty(). It is used only in Smart Client.
+	 * Legacy Smart Client property, do not use anymore.
+	 * Property that can be set using application.putClientProperty() or element.putClientProperty().
 	 *
 	 * If set on application it will affect all date formatted fields. If set on an element it will affect only that date formatted element/field (with priority over the application property).
 	 * Value can be true/false/null.
@@ -295,6 +296,7 @@ public class APP_UI_PROPERTY implements IPrefixedConstantsObject
 	public static final String NG_BLOCK_DUPLICATE_EVENTS = IApplication.BLOCK_DUPLICATE_EVENTS;
 
 	/**
+	 * Legacy Web Client property, do not use anymore.
 	 * Property that can be set using application.putClientProperty().
 	 *
 	 * If set to true, you can change selection in webclient tableview using up/down keys
@@ -306,6 +308,7 @@ public class APP_UI_PROPERTY implements IPrefixedConstantsObject
 	 * @sample
 	 * application.putClientProperty(APP_UI_PROPERTY.TABLEVIEW_WC_USE_KEY_NAVIGATION, false)
 	 */
+	@Deprecated
 	@ServoyClientSupport(ng = false, wc = true, sc = false)
 	public static final String TABLEVIEW_WC_USE_KEY_NAVIGATION = IApplication.TABLEVIEW_WC_USE_KEY_NAVIGATION;
 
