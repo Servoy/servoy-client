@@ -3906,7 +3906,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * Enable/disable the automatic prefetching of related foundsets for sibling records.
 	 * <p>
 	 * For example, when orders from a record in a customer foundset are retrieved, already the orders of a few sibling records are also prefetched.
-	 * By default this prefetch is enabled for SmartClient but is disabled for all serverbased clients like NGClient and HeadlessClient.
+	 * By default this prefetch is disabled.
 	 * Because server based client are close enough to the database that they can fetch the siblings themselfs
 	 * <p>
 	 *

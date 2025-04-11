@@ -29,10 +29,9 @@ public interface IJSController
 {
 	/**
 	 * Gets or sets the enabled state of a form; also known as "grayed-out".
-	 * 
+	 *
 	 * Notes:
 	 * -A disabled element(s) cannot be selected by clicking the form.
-	 * -The disabled "grayed" color is dependent on the LAF set in the Servoy Smart Client Application Preferences.
 	 *
 	 * @sample
 	 * //gets the enabled state of the form
@@ -64,8 +63,8 @@ public interface IJSController
 	 * var current = %%prefix%%controller.getSelectedIndex();
 	 * //sets the next record in the foundset, will be reflected in UI
 	 * %%prefix%%controller.setSelectedIndex(current+1);
-	 * 
-	 * @param index the index to select 
+	 *
+	 * @param index the index to select
 	 */
 	public void setSelectedIndex(int index);
 
@@ -81,11 +80,11 @@ public interface IJSController
 	 * var w = application.getWindow("mydialog"); // use null name for main app. window
 	 * %%prefix%%controller.showRecords(foundset, w);
 	 * //%%prefix%%controller.showRecords(foundset, "mydialog");
-	 * 
+	 *
 	 * @param foundset the foundset to load before showing the form.
 	 */
 	// Deprecated implementation:
-	// //show the form in the named modal dialog 
+	// //show the form in the named modal dialog
 	// //%%prefix%%controller.show(foundset, 'mydialog', true);
 	// @param data the foundset/pkdataset/singleNumber_pk/UUIDpk to load before showing the form
 	// @param dialogName optional the dialog name
@@ -105,7 +104,7 @@ public interface IJSController
 	/**
 	 * Shows the form (makes the form visible)
 	 * This function does not affect the form foundset in any way.
-	 * 
+	 *
 	 * @sample
 	 * // show the form in the current window/dialog
 	 * %%prefix%%controller.show();
@@ -118,7 +117,7 @@ public interface IJSController
 	 * // or %%prefix%%controller.show("mydialog");
 	 * //show the form in the main window
 	 * //%%prefix%%controller.show(null);
-	 * 
+	 *
 	 * @see com.servoy.j2db.scripting.JSApplication#js_createWindow(String, int)
 	 * @see com.servoy.j2db.scripting.JSApplication#js_getWindow(String)
 	 *
@@ -128,7 +127,7 @@ public interface IJSController
 	// @sample
 	// //show the form in the current window/dialog
 	// %%prefix%%controller.show();
-	// //show the form in the named modal dialog 
+	// //show the form in the named modal dialog
 	// //%%prefix%%controller.show('mydialog',true);
 	//
 	// @param dialogName optional the dialog/window name

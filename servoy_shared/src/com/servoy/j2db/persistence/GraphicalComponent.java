@@ -212,7 +212,7 @@ public class GraphicalComponent extends BaseComponent
 	 * The roll over image Media object used. It will only work if a property image is also used.
 	 * When the mouse is moved over the component, this image Media will be displayed.
 	 * When the mouse is moved out of the component, whatever text or image was being initially
-	 * displayed will be restored. Note that roll over image is not supported in Smart client for list view and tableview forms.
+	 * displayed will be restored.
 	 */
 	public int getRolloverImageMediaID()
 	{

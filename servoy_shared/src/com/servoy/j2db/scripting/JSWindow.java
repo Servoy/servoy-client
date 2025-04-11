@@ -68,7 +68,7 @@ public class JSWindow implements IConstantsObject
 	/**
 	 * Window type constant that identifies a modal dialog type. Modal dialogs will not allow the user to interact with the parent window(s) until closed.
 	 * Dialogs will stay on top of parent windows and are less accessible through the OS window manager. In web-client dialogs will not
-	 * open in a separate browser window. NOTE: no code is executed in Smart Client after a modal dialog is shown (the show operation blocks) until this dialog closes.
+	 * open in a separate browser window.
 	 * @sample
 	 * // create a modal dialog on top of current active form's window and show a form inside it
 	 * var myWindow = application.createWindow("myName", JSWindow.MODAL_DIALOG);
@@ -308,8 +308,6 @@ public class JSWindow implements IConstantsObject
 
 	/**
 	 * Gets/Sets the transparency property.
-	 * NOTE: For smart clients, the window must be undecorated or the
-	 * servoy.smartclient.allowLAFWindowDecoration property set to true
 	 *
 	 * @sampleas js_getName()
 	 *
@@ -368,6 +366,7 @@ public class JSWindow implements IConstantsObject
 	 *
 	 * @sampleas js_toFront()
 	 */
+	@Deprecated
 	public void js_showTextToolbar(boolean showTextToolbar)
 	{
 		impl.showTextToolbar(showTextToolbar);

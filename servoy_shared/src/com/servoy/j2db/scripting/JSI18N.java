@@ -254,7 +254,7 @@ public class JSI18N implements IJSI18N
 	}
 
 	/**
-	 * Gets the current time zone of the client; based on the current locale settings in the Servoy Client Locale preferences. For Servoy Web Clients the time zone is given by the browser (if it is possible to obtain it).
+	 * Gets the current time zone given by the browser (if it is possible to obtain it).
 	 *
 	 * @sample
 	 * var currTimeZone = i18n.getCurrentTimeZone();
@@ -687,8 +687,7 @@ public class JSI18N implements IJSI18N
 
 	/**
 	 * Sets the current time zone of the client.
-	 * The parameter should be a string having the format which can be retrieved via i18n.getAvailableTimeZones or
-	 * can be seen in the SmartClient Edit -> Preferences -> Locale at the "Default Timezone" combobox.
+	 * The parameter should be a string having the format which can be retrieved via i18n.getAvailableTimeZones.
 	 * For instance the time zone for Netherlands is set using the ID "Europe/Amsterdam".
 	 *
 	 * @sample

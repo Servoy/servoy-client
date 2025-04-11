@@ -962,7 +962,6 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 
 	/**
 	 * Flag that tells if authentication is needed in order to access the solution.
-	 * If unchecked, the Smart Client will always require authentication, regardless of this setting.
 	 * If checked, authentication is required, and either a provided loginSolution or otherwise the default Servoy login mechanism will be used.
 	 * If default Servoy login mechanism is used, the "servoy.webclient.basic.authentication" setting on the Admin Page can be used to enable the use of the standard browser basic authentication.
 	 */
@@ -1448,7 +1447,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	 * 	}
 	 * }
 	 * //if returns false or no return, error is not reported to client; if returns true error is reported
-	 * //by default error report means logging the error, in smart client an error dialog will also show up
+	 * //by default error report means logging the error
 	 * return true
 	 */
 	public int getOnErrorMethodID()

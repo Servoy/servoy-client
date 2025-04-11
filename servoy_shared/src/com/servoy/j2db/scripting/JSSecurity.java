@@ -1221,12 +1221,12 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 
 	/**
 	 * Logout the current user and close the solution, if the solution requires authentication and user is logged in.
-	 * You can redirect to another solution if needed; if you want to go to a different url, you need to call application.showURL(url) before calling security.logout() (this is only applicable for Web Client).
+	 * You can redirect to another solution if needed; if you want to go to a different url, you need to call application.showURL(url) before calling security.logout().
 	 * An alternative option to close a solution and to open another solution, while keeping the user logged in, is application.closeSolution().
 	 *
 	 * @sample
 	 * //Set the url to go to after logout.
-	 * //application.showURL('http://www.servoy.com', '_self');  //Web Client only
+	 * //application.showURL('http://www.servoy.com', '_self');
 	 * security.logout();
 	 * //security.logout('solution_name');//log out and close current solution and open solution 'solution_name'
 	 * //security.logout('solution_name','global_method_name');//log out, close current solution, open solution 'solution_name' and call global method 'global_method_name' of the newly opened solution
@@ -1234,7 +1234,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	 * //security.logout('solution_name','global_second_method_name',2);
 	 * //security.logout('solution_name', {a: 'my_string_argument', p1: 'param1', p2: 'param2'});//log out, close current solution, open solution 'solution_name', call (login) solution's onOpen with argument 'my_argument' and queryParams p1,p2
 	 * //Note: specifying a solution will not work in the Developer due to debugger dependencies
-	 * //specified solution should be of compatible type with client (normal type or client specific(Smart client only/Web client only) type )
+	 * //specified solution should be of compatible type with client (normal type or client specific type )
 	 *
 	 * @description-mc
 	 * Clears the current credentials that the user specified when doing a sync. When the next sync happens the login form will be shown.

@@ -88,13 +88,13 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 	public static final String TYPE_AHEAD_SHOW_POPUP_ON_FOCUS_GAIN = IApplication.TYPE_AHEAD_SHOW_POPUP_ON_FOCUS_GAIN;
 
 	/**
-	 * Property that can be set using application.putClientProperty() or element.putClientProperty(). It is used only in Smart Client and Titanium Client.
+	 * Property that can be set using application.putClientProperty() or element.putClientProperty(). It is used only in Titanium Client.
 	 *
 	 * If set on application it will affect all COMBOBOX fields. If set on an element it will affect only that COMBOBOX element/field (with priority over the application property).
 	 * Value can be true/false/null.
 	 *
 	 * If set to true, the affected COMBOBOX will show the pop-up when gaining focus (either from user input or API).
-	 * DEFAULT: true for Smart Client and false for Titanium Client (to be more compatible with NGClient).
+	 * DEFAULT:  false for Titanium Client (to be more compatible with NGClient).
 	 *
 	 * @sample
 	 * // make all COMBOBOX fields not show the pop-up when gaining focus
@@ -136,6 +136,7 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 	 * // make one date formatted field use add instead of roll - overrides the application property set
 	 * forms.someForm.elements.typeAheadElement.putClientProperty(UICONSTANTS.DATE_FORMATTERS_ROLL_INSTEAD_OF_ADD, false);
 	 */
+	@Deprecated
 	@ServoyClientSupport(ng = false, wc = false, sc = true)
 	public static final String DATE_FORMATTERS_ROLL_INSTEAD_OF_ADD = IApplication.DATE_FORMATTERS_ROLL_INSTEAD_OF_ADD;
 
@@ -246,6 +247,7 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 	 * @sample
 	 * application.putClientProperty(UICONSTANTS.TABLEVIEW_WC_DEFAULT_SCROLLABLE, true)
 	 */
+	@Deprecated
 	@ServoyClientSupport(ng = false, wc = true, sc = false)
 	public static final String TABLEVIEW_WC_DEFAULT_SCROLLABLE = IApplication.TABLEVIEW_WC_DEFAULT_SCROLLABLE;
 
@@ -261,6 +263,7 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 	 * @sample
 	 * application.putClientProperty(UICONSTANTS.TABLEVIEW_WC_SCROLLABLE_KEEP_LOADED_ROWS, true)
 	 */
+	@Deprecated
 	@ServoyClientSupport(ng = false, wc = true, sc = false)
 	public static final String TABLEVIEW_WC_SCROLLABLE_KEEP_LOADED_ROWS = IApplication.TABLEVIEW_WC_SCROLLABLE_KEEP_LOADED_ROWS;
 
