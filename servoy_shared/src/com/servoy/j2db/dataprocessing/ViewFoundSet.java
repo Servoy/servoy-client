@@ -2687,23 +2687,6 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	}
 
 	/**
-	 * Get the record index. Will return -1 if the record can't be found.
-	 *
-	 * @sample var index = %%prefix%%foundset.getRecordIndex(record);
-	 *
-	 * @param record Record
-	 *
-	 * @return int index.
-	 */
-	@JSFunction
-	public int getRecordIndex(ViewRecord record)
-	{
-		int recordIndex = getRecordIndex((IRecord)record);
-		if (recordIndex == -1) return -1;
-		return recordIndex + 1;
-	}
-
-	/**
 	 * Check whether the foundset has record changes.
 	 * @return true if the foundset has any edited records, false otherwise
 	 */

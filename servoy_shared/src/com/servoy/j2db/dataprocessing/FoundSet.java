@@ -3930,11 +3930,9 @@ public abstract class FoundSet
 	 *
 	 * @return int index.
 	 */
-	public int js_getRecordIndex(IJSRecord record)
+	public int jsFunction_getRecordIndex(IJSRecord record)
 	{
-		int recordIndex = getRecordIndex((IRecord)record);
-		if (recordIndex == -1) return -1;
-		return recordIndex + 1;
+		return jsFunction_getRecordIndex((IRecord)record);
 	}
 
 	/**
