@@ -497,23 +497,6 @@ public class MenuFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 		return getRecord(row - 1);
 	}
 
-	/**
-	 * Get the record index. Will return -1 if the record can't be found.
-	 *
-	 * @sample var index = %%prefix%%foundset.getRecordIndex(record);
-	 *
-	 * @param record MenuItemRecord
-	 *
-	 * @return int index.
-	 */
-	@JSFunction
-	public int getRecordIndex(MenuItemRecord record)
-	{
-		int recordIndex = getRecordIndex((IRecord)record);
-		if (recordIndex == -1) return -1;
-		return recordIndex + 1;
-	}
-
 	@Override
 	public void addFoundSetEventListener(IFoundSetEventListener l)
 	{

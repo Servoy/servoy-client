@@ -82,10 +82,21 @@ public interface IJSBaseFoundSet extends IFoundSetInternal
 	String getName();
 
 	/**
-	 * @return the 0-based index of the given record in the foundset.
+	 * Get the record index. Will return -1 if the record can't be found.
+	 *
+	 * @sample var index = %%prefix%%foundset.getRecordIndex(record);
+	 *
+	 * @param record Record
+	 *
+	 * @return int index.
 	 */
-	@JSFunction
-	int getRecordIndex(IRecord record);
+	default public int jsFunction_getRecordIndex(IRecord record)
+	{
+		int recordIndex = getRecordIndex(record);
+		if (recordIndex == -1) return -1;
+		return recordIndex + 1;
+	}
+
 
 	/**
 	 * @return an array of currently selected records in the foundset.

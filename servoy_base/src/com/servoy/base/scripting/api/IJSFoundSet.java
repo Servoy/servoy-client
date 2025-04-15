@@ -342,7 +342,7 @@ public interface IJSFoundSet
 	 *
 	 * @return int index.
 	 */
-	int js_getRecordIndex(IJSRecord record);
+	int jsFunction_getRecordIndex(IJSRecord record);
 
 	/**
 	 * Get all dataproviders of the foundset.
