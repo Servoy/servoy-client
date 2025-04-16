@@ -140,7 +140,7 @@
 									<type>eclipse-feature</type>
 								</dependency>
 							</dependencies>
-							<executionEnvironment>JavaSE-17</executionEnvironment>
+							<executionEnvironment>JavaSE-21</executionEnvironment>
 						</configuration>
 						<executions>
 							<execution>
