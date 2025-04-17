@@ -17,18 +17,27 @@
 
 package com.servoy.j2db.scripting.info;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.mozilla.javascript.annotations.JSFunction;
 
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
+import com.servoy.j2db.persistence.ArgumentType;
 import com.servoy.j2db.persistence.Form;
+import com.servoy.j2db.persistence.IPersist;
+import com.servoy.j2db.persistence.MethodArgument;
+import com.servoy.j2db.persistence.MethodTemplate;
 import com.servoy.j2db.persistence.RepositoryHelper;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.scripting.IConstantsObject;
+import com.servoy.j2db.util.Pair;
 
 /**
  * This is a class that represents the events in the solution.
@@ -128,10 +137,14 @@ public final class EventType implements IConstantsObject
 
 	private String name;
 	private String description;
+	private String persistLink;
+	private String returnType;
+	private String returnTypeDescription;
+	private List<Pair<String, String>> arguments;
 
-	public EventType(String name, String description)
+	public EventType(String name, JSONObject jsonModel)
 	{
-		this(name, description, false);
+		this(name, jsonModel, false);
 	}
 
 	public EventType(String name, boolean defaultEvent)
@@ -139,10 +152,28 @@ public final class EventType implements IConstantsObject
 		this(name, null, defaultEvent);
 	}
 
-	private EventType(String name, String description, boolean defaultEvent)
+	private EventType(String name, JSONObject jsonModel, boolean defaultEvent)
 	{
 		this.name = name;
-		this.description = description;
+		this.description = jsonModel != null ? jsonModel.optString("description", null) : null;
+		this.persistLink = jsonModel != null ? jsonModel.optString("persistLink", null) : null;
+		this.returnType = jsonModel != null ? jsonModel.optString("returnType", null) : null;
+		this.returnTypeDescription = jsonModel != null ? jsonModel.optString("returnTypeDescription", null) : null;
+		this.arguments = new ArrayList<Pair<String, String>>(0);
+		if (jsonModel != null)
+		{
+			JSONArray argumentsArray = jsonModel.optJSONArray("arguments");
+			if (argumentsArray != null)
+			{
+				argumentsArray.forEach(argument -> {
+					if (argument instanceof JSONObject argumentObject)
+					{
+						this.arguments.add(new Pair<>(argumentObject.optString("name", null), argumentObject.optString("type", null)));
+					}
+				});
+			}
+		}
+
 		if (defaultEvent) DEFAULT_EVENTS.put(name, this);
 	}
 
@@ -210,6 +241,158 @@ public final class EventType implements IConstantsObject
 	public void updateName(String name)
 	{
 		this.name = name;
+	}
 
+	public JSONObject toJSONObject()
+	{
+		JSONObject value = new JSONObject();
+		value.put("name", getName());
+		value.put("description", getDescription());
+		if (persistLink != null)
+		{
+			value.put("persistLink", persistLink);
+		}
+		if (returnType != null)
+		{
+			value.put("returnType", returnType);
+		}
+		if (returnTypeDescription != null)
+		{
+			value.put("returnTypeDescription", returnTypeDescription);
+		}
+		if (arguments != null && arguments.size() > 0)
+		{
+			JSONArray args = new JSONArray();
+			for (Pair<String, String> argument : arguments)
+			{
+				JSONObject arg = new JSONObject();
+				arg.put("name", argument.getLeft());
+				arg.put("type", argument.getRight());
+				args.put(arg);
+			}
+			value.put("arguments", args);
+		}
+		return value;
+	}
+
+	public String getPersistLink()
+	{
+		return persistLink;
+	}
+
+	public String getReturnType()
+	{
+		return returnType;
+	}
+
+	public String getReturnTypeDescription()
+	{
+		return returnTypeDescription;
+	}
+
+	public void setPersistLink(String persistLink)
+	{
+		this.persistLink = persistLink;
+	}
+
+	public void setReturnType(String returnType)
+	{
+		this.returnType = returnType;
+	}
+
+	public void setReturnTypeDescription(String returnTypeDescription)
+	{
+		this.returnTypeDescription = returnTypeDescription;
+	}
+
+	public String getArgumentType(int index)
+	{
+		if (arguments == null || index < 0 || index >= arguments.size() || arguments.get(index) == null) return null;
+		return arguments.get(index).getRight();
+	}
+
+	public String getArgumentName(int index)
+	{
+		if (arguments == null || index < 0 || index >= arguments.size() || arguments.get(index) == null) return null;
+		return arguments.get(index).getLeft();
+	}
+
+	public void setArgumentName(int index, String name)
+	{
+		if (arguments == null)
+		{
+			arguments = new ArrayList<Pair<String, String>>(0);
+		}
+		if (arguments.size() <= index)
+		{
+			for (int i = arguments.size(); i <= index; i++)
+			{
+				arguments.add(new Pair<>(null, null));
+			}
+		}
+		arguments.get(index).setLeft(name);
+		cleanArguments();
+	}
+
+	public void setArgumentType(int index, String type)
+	{
+		if (arguments == null)
+		{
+			arguments = new ArrayList<Pair<String, String>>(0);
+		}
+		if (arguments.size() <= index)
+		{
+			for (int i = arguments.size(); i <= index; i++)
+			{
+				arguments.add(new Pair<>(null, null));
+			}
+		}
+		arguments.get(index).setRight(type);
+		cleanArguments();
+	}
+
+	private void cleanArguments()
+	{
+		if (arguments != null && arguments.size() > 0)
+		{
+			for (int i = arguments.size() - 1; i >= 0; i--)
+			{
+				if (arguments.get(i) == null || (("".equals(arguments.get(i).getLeft()) || arguments.get(i).getLeft() == null) &&
+					("".equals(arguments.get(i).getRight()) || arguments.get(i).getRight() == null)))
+				{
+					arguments.remove(i);
+				}
+			}
+		}
+	}
+
+	/**
+	 * @param persist
+	 * @return
+	 */
+	public boolean isUIEvent(IPersist persist)
+	{
+		if (persist != null && persistLink != null)
+		{
+			return persistLink.equals(persist.getClass().getSimpleName());
+		}
+		return false;
+	}
+
+	public MethodTemplate getMethodTemplate()
+	{
+		MethodArgument[] args = null;
+		if (arguments != null)
+		{
+			args = new MethodArgument[arguments.size()];
+			for (int i = 0; i < arguments.size(); i++)
+			{
+				Pair<String, String> argument = arguments.get(i);
+				args[i] = new MethodArgument(argument.getLeft(), ArgumentType.valueOf(argument.getRight()), null);
+			}
+		}
+		return new MethodTemplate(description,
+			new MethodArgument(name, returnType != null ? ArgumentType.valueOf(returnType) : null, returnTypeDescription), args,
+			null, true);
 	}
 }
