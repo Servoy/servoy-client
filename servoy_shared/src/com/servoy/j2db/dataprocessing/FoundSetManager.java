@@ -17,6 +17,7 @@
 package com.servoy.j2db.dataprocessing;
 
 
+import static com.servoy.base.query.IBaseSQLCondition.ORNULL_MODIFIER;
 import static com.servoy.base.util.DataSourceUtilsBase.getDBServernameTablename;
 import static com.servoy.j2db.Messages.isI18NTable;
 import static com.servoy.j2db.dataprocessing.FoundSetManager.TriggerExecutionMode.BreakOnFalse;
@@ -813,8 +814,9 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	 */
 	public Object[] getRelationWhereArgs(IRecordInternal state, Relation relation, boolean testForCalcs) throws RepositoryException
 	{
-		boolean isNull = true;
+		boolean allNull = true;
 		IDataProvider[] args = relation.getPrimaryDataProviders(application.getFlattenedSolution());
+		int[] operators = relation.getOperators();
 		Column[] columns = relation.getForeignColumns(application.getFlattenedSolution());
 		Object[] array = new Object[args.length];
 		for (int i = 0; i < args.length; i++)
@@ -843,9 +845,9 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			{
 				array[i] = columns[i].getAsRightType(value);
 			}
-			if (array[i] != null)
+			if (array[i] != null || (operators[i] & ORNULL_MODIFIER) != 0) // in cases of or-null modifier, the value null is not used in the query
 			{
-				isNull = false;
+				allNull = false;
 			}
 			else
 			{
@@ -855,14 +857,14 @@ public class FoundSetManager implements IFoundSetManagerInternal
 				{
 					return null;
 				}
-				if (isNull)
+				if (allNull)
 				{
-					isNull = !(args[i] instanceof ScriptVariable);
+					allNull = !(args[i] instanceof ScriptVariable);
 				}
 			}
 		}
 
-		if (isNull) return null; //optimize for null keys (multiple all null!) but not empty pk (db ident)
+		if (allNull) return null; // optimize for null keys (multiple all null!) but not empty pk (db ident)
 
 		return array;
 	}
