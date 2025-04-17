@@ -541,6 +541,12 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf, IRefreshVal
 						}
 					}
 				}
+				if (val != previousVal && val instanceof Boolean isVisible)
+				{
+					List<Runnable> invokeLaterRunnables = new ArrayList<Runnable>();
+					component.notifyVisible(isVisible.booleanValue(), invokeLaterRunnables, new HashSet<>());
+					Utils.invokeLater(component.getDataConverterContext().getApplication(), invokeLaterRunnables);
+				}
 			}
 		}
 		else if (prototypeScope != null)
