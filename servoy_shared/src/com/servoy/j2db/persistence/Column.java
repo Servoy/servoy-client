@@ -196,7 +196,6 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 			case Types.BLOB :
 			case Types.SQLXML :
 			case Types.NULL :
-				//	case Types.ARRAY : // RAGTEST
 				return MEDIA;
 
 			case Types.OTHER :
@@ -306,9 +305,6 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 						}
 						return null;
 
-					case Types.ARRAY :
-						System.err.println("RAGTEST 1");
-
 					default :
 						return obj.toString();
 				}
@@ -364,9 +360,6 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 							throw new RuntimeException(Messages.getString("servoy.conversion.error.media", new Object[] { obj })); //$NON-NLS-1$
 						}
 						return null;
-
-					case Types.ARRAY :
-						System.err.println("RAGTEST 2");
 
 					default :
 						return obj.toString();

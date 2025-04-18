@@ -395,9 +395,6 @@ public class BaseSQLGenerator
 							value = data;
 							break;
 
-						case Types.ARRAY :
-							System.err.println("RAGTEST 3");
-
 						default :
 							operator = IBaseSQLCondition.LIKE_OPERATOR;
 							value = typeConverter.getAsRightType(dataProviderType, column.getFlags(), data, formatString, column.getLength() + 2, false); // +2 for %...%
