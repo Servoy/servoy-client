@@ -315,6 +315,10 @@ public abstract class AbstractRepository extends AbstractPersistFactory implemen
 			((AbstractScriptProvider)destPersist).setRuntimeProperty(IScriptProvider.METHOD_RETURN_TYPE,
 				((AbstractScriptProvider)persist).getRuntimeProperty(IScriptProvider.METHOD_RETURN_TYPE));
 		}
+		else if (persist instanceof Form frm)
+		{
+			((Form)destPersist).setFormCss(frm.getFormCss());
+		}
 
 		Map<String, Object> values = ((AbstractRepository)persist.getRootObject().getRepository()).getPersistAsValueMap(persist);
 		updatePersistWithValueMap(destPersist, values, true);
