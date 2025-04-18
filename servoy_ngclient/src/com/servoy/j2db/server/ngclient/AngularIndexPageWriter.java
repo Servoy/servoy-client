@@ -77,7 +77,7 @@ public class AngularIndexPageWriter
 	{
 		if (request.getCharacterEncoding() == null) request.setCharacterEncoding("UTF8");
 		String uri = request.getRequestURI();
-		String clientnr = getClientNr(uri, request);
+		Integer clientnr = getClientNr(uri, request);
 		Pair<FlattenedSolution, Boolean> pair = getFlattenedSolution(solutionName, clientnr, request, response);
 		StringBuilder sb = new StringBuilder();
 		generateStartupData(request, pair.getLeft(), sb);
@@ -159,7 +159,7 @@ public class AngularIndexPageWriter
 		if (request.getCharacterEncoding() == null) request.setCharacterEncoding("UTF8");
 		HTTPUtils.setNoCacheHeaders(response);
 		String uri = request.getRequestURI();
-		String clientnr = getClientNr(uri, request);
+		Integer clientnr = getClientNr(uri, request);
 		Pair<FlattenedSolution, Boolean> pair = getFlattenedSolution(solutionName, clientnr, request, response);
 		FlattenedSolution fs = pair.getLeft();
 		if (fs != null)
@@ -261,14 +261,14 @@ public class AngularIndexPageWriter
 		return;
 	}
 
-	public static Pair<FlattenedSolution, Boolean> getFlattenedSolution(String solutionName, String clientnr, HttpServletRequest request,
+	public static Pair<FlattenedSolution, Boolean> getFlattenedSolution(String solutionName, Integer clientnr, HttpServletRequest request,
 		HttpServletResponse response)
 	{
 		INGClientWebsocketSession wsSession = null;
 		HttpSession httpSession = request.getSession(false);
 		if (clientnr != null && httpSession != null)
 		{
-			wsSession = (INGClientWebsocketSession)WebsocketSessionManager.getSession(CLIENT_ENDPOINT, httpSession, Integer.parseInt(clientnr));
+			wsSession = (INGClientWebsocketSession)WebsocketSessionManager.getSession(CLIENT_ENDPOINT, httpSession, clientnr.intValue());
 		}
 		FlattenedSolution fs = null;
 		boolean closeFS = false;
@@ -352,12 +352,19 @@ public class AngularIndexPageWriter
 	 * Get the clientnr from parameter or an url /solutions/<solutionname>/<clientnr>/
 	 *
 	 */
-	public static String getClientNr(String uri, ServletRequest request)
+	public static Integer getClientNr(String uri, ServletRequest request)
 	{
 		String clientnr = request.getParameter("clientnr");
 		if (clientnr != null)
 		{
-			return clientnr;
+			try
+			{
+				return Integer.valueOf(clientnr);
+			}
+			catch (Exception e)
+			{
+				return null;
+			}
 		}
 
 
@@ -367,7 +374,13 @@ public class AngularIndexPageWriter
 			String[] parts = uri.substring(solutionIndex + SOLUTIONS_PATH.length()).split("/");
 			if (parts.length >= 2 && parts[1].matches("[0-9]+"))
 			{
-				return parts[1];
+				try
+				{
+					return Integer.valueOf(clientnr);
+				}
+				catch (Exception e)
+				{
+				}
 			}
 		}
 		return null;

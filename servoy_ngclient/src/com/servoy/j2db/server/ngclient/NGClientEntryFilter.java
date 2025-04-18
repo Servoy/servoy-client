@@ -308,12 +308,12 @@ public class NGClientEntryFilter extends WebEntry
 							response.sendRedirect(uri.toString());
 							return;
 						}
-						String clientnr = AngularIndexPageWriter.getClientNr(uri, request);
+						Integer clientnr = AngularIndexPageWriter.getClientNr(uri, request);
 						INGClientWebsocketSession wsSession = null;
 						HttpSession httpSession = request.getSession(false);
 						if (clientnr != null && httpSession != null)
 						{
-							wsSession = (INGClientWebsocketSession)WebsocketSessionManager.getSession(CLIENT_ENDPOINT, httpSession, Integer.parseInt(clientnr));
+							wsSession = (INGClientWebsocketSession)WebsocketSessionManager.getSession(CLIENT_ENDPOINT, httpSession, clientnr.intValue());
 						}
 						FlattenedSolution fs = null;
 						boolean closeFS = false;
@@ -518,7 +518,7 @@ public class NGClientEntryFilter extends WebEntry
 			PrintWriter writer = response.getWriter();
 
 			String solutionName = getSolutionNameFromURI(uri);
-			String clientnr = AngularIndexPageWriter.getClientNr(uri, request);
+			Integer clientnr = AngularIndexPageWriter.getClientNr(uri, request);
 
 			Map<String, Object> variableSubstitution = getSubstitutions(request, solutionName, clientnr, fs);
 
@@ -628,7 +628,8 @@ public class NGClientEntryFilter extends WebEntry
 	 * @return
 	 * @throws ServletException
 	 */
-	private Map<String, Object> getSubstitutions(HttpServletRequest request, String solutionName, String clientnr, FlattenedSolution fs) throws ServletException
+	private Map<String, Object> getSubstitutions(HttpServletRequest request, String solutionName, Integer clientnr, FlattenedSolution fs)
+		throws ServletException
 	{
 		Map<String, Object> variableSubstitution = new HashMap<>();
 

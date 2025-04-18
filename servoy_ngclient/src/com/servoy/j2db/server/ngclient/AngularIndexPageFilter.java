@@ -89,12 +89,12 @@ public class AngularIndexPageFilter implements Filter
 			if ((requestURI.endsWith("/") || requestURI.endsWith("/" + solutionName) || requestURI.toLowerCase().endsWith("/index.html")) ||
 				requestURI.contains("/svy_oauth/"))
 			{
-				String clientnr = AngularIndexPageWriter.getClientNr(requestURI, request);
+				Integer clientnr = AngularIndexPageWriter.getClientNr(requestURI, request);
 				INGClientWebsocketSession wsSession = null;
 				HttpSession httpSession = request.getSession(false);
 				if (clientnr != null && httpSession != null)
 				{
-					wsSession = (INGClientWebsocketSession)WebsocketSessionManager.getSession(CLIENT_ENDPOINT, httpSession, Integer.parseInt(clientnr));
+					wsSession = (INGClientWebsocketSession)WebsocketSessionManager.getSession(CLIENT_ENDPOINT, httpSession, clientnr.intValue());
 				}
 				if (AngularIndexPageWriter.handleMaintenanceMode(request, response, wsSession))
 				{

@@ -149,7 +149,7 @@ public class MediaResourcesServlet extends AbstractMediaResourceServlet
 		String path = req.getPathInfo();
 		if (path.startsWith("/")) path = path.substring(1);
 		String[] paths = path.split("/");
-		String clientnr = req.getParameter("clientnr");
+		Integer clientnr = AngularIndexPageWriter.getClientNr(req.getRequestURI(), req);
 
 		if (paths.length > 1)
 		{
@@ -165,12 +165,12 @@ public class MediaResourcesServlet extends AbstractMediaResourceServlet
 						mediaName.append(paths[paths.length - 1]);
 
 						if (clientnr == null) found = sendFlattenedSolutionBasedMedia(req, resp, paths[1], mediaName.toString());
-						else found = sendClientFlattenedSolutionBasedMedia(req, resp, Integer.parseInt(clientnr), mediaName.toString());
+						else found = sendClientFlattenedSolutionBasedMedia(req, resp, clientnr.intValue(), mediaName.toString());
 					}
 					break;
 
 				case DYNAMIC_DATA_ACCESS :
-					if (paths.length == 2) found = sendDynamicData(req, resp, paths[1], Integer.parseInt(clientnr));
+					if (paths.length == 2 && clientnr != null) found = sendDynamicData(req, resp, paths[1], clientnr.intValue());
 					break;
 
 				default :
@@ -183,7 +183,7 @@ public class MediaResourcesServlet extends AbstractMediaResourceServlet
 			try
 			{
 				IApplication client = null;
-				if (clientnr != null && (client = getClient(req, Integer.parseInt(clientnr))) != null)
+				if (clientnr != null && (client = getClient(req, clientnr.intValue())) != null)
 				{
 					String decrypt = client.getFlattenedSolution().getEncryptionHandler().decryptString(encrypted);
 					byte[] data = MediaURLStreamHandler.getBlobLoaderMedia(client, decrypt);
