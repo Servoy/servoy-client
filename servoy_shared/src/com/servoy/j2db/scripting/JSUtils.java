@@ -403,8 +403,7 @@ public class JSUtils implements IJSUtils
 
 	/**
 	 * Format a date object to a text representation.
-	 * This will format with the system timezone for the webclient
-	 * For NGClient it will use the timezone of the client, the same goes for the Smartclient (but that is the system timezone)
+	 * For NGClient/Titanium Client it will use the timezone of the client.
 	 * see {@link #dateFormat(Date, String, String)} for using the actual clients timezone.
 	 *
 	 * Format can be a string like: 'dd-MM-yyyy' , 'dd-MM-yyyy HH:mm' , 'MM/dd/yyyy', 'MM/dd/yyyy hh:mm aa', 'dd.MM.yyyy'.
@@ -445,9 +444,8 @@ public class JSUtils implements IJSUtils
 
 	/**
 	 * Format a date object to a text representation.
-	 * This will format with the system timezone for the webclient
 	 * With language and/or country the locale will be created.
-	 * For NGClient it will use the timezone of the client, the same goes for the Smartclient (but that is the system timezone)
+	 * For NGClient/Titanium Client it will use the timezone of the client.
 	 * see {@link #dateFormat(Date, String, String)} for using the actual clients timezone.
 	 *
 	 * Format can be a string like: 'dd-MM-yyyy' , 'dd-MM-yyyy HH:mm' , 'MM/dd/yyyy', 'MM/dd/yyyy hh:mm aa', 'dd.MM.yyyy'.

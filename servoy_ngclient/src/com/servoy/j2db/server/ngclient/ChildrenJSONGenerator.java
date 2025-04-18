@@ -389,7 +389,11 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 		{
 			if (designer)
 			{
-				attributes.put("svy-id", fe.getDesignId());
+				BaseComponent baseComponent = (BaseComponent)fe.getPersistIfAvailable();
+				if (baseComponent.getRuntimeProperty(FormElementHelper.FORM_COMPONENT_FORM_NAME) == null ||
+					baseComponent.getName().indexOf('$' + FormElement.SVY_NAME_PREFIX) == -1)
+					attributes.put("svy-id", fe.getDesignId());
+
 				attributes.put("svy-formelement-type", fe.getTypeName());
 				attributes.put("svy-name", fe.getName());
 				attributes.put("svy-anchors", Integer.toString(((BaseComponent)o).getAnchors()));

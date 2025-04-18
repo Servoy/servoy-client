@@ -59,4 +59,9 @@ public interface IEventsManager
 	 */
 	Object fireListeners(EventType eventType, String context, Object[] callbackArguments, EVENTS_AGGREGATION_TYPE returnValueAggregationType);
 
+	/**
+	 *
+	 */
+	void removeSolutionListeners();
+
 }

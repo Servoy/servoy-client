@@ -51,7 +51,7 @@ public class DefaultLoginManager
 			}
 
 			String uid = oldToken != null ? oldToken.getUserID()
-				: ApplicationServerRegistry.get().checkDefaultServoyAuthorisation(oldToken.getUsername(), password);
+				: ApplicationServerRegistry.get().checkDefaultServoyAuthorisation(username, password);
 			if (uid != null)
 			{
 				String[] permissions = ApplicationServerRegistry.get().getUserManager().getUserGroups(clientid, uid);

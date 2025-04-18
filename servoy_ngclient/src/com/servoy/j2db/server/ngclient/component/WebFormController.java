@@ -53,10 +53,15 @@ import com.servoy.j2db.persistence.ISupportFormElement;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.PositionComparator;
 import com.servoy.j2db.persistence.RepositoryHelper;
+import com.servoy.j2db.persistence.ScriptMethod;
+import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.scripting.DefaultScope;
+import com.servoy.j2db.scripting.GlobalScope;
+import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.scripting.JSApplication.FormAndComponent;
 import com.servoy.j2db.scripting.JSEvent;
+import com.servoy.j2db.scripting.info.EventType;
 import com.servoy.j2db.server.ngclient.ClientDesignService;
 import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.IDataAdapterList;
@@ -777,6 +782,54 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 				}
 			};
 			invokeLaterRunnables.add(run);
+			Map<String, Object> eventMethods = getForm().getCustomEventsMethods();
+			for (String eventName : eventMethods.keySet())
+			{
+				EventType eventType = application.getFlattenedSolution().getEventType(eventName);
+				if (eventType != null)
+				{
+					Object eventUUID = eventMethods.get(eventName);
+					Function function = null;
+					if (eventUUID != null)
+					{
+						ScriptMethod scriptMethod = getApplication().getFlattenedSolution().getScriptMethod(eventUUID.toString());
+						if (scriptMethod != null)
+						{
+							if (scriptMethod.getParent() instanceof Form)
+							{
+								function = getFormScope().getFunctionByName(scriptMethod.getName());
+							}
+							// is it a global method
+							else if (scriptMethod.getParent() instanceof Solution)
+							{
+								if (getApplication().getScriptEngine().getScopesScope()
+									.getGlobalScope(scriptMethod.getScopeName()) instanceof GlobalScope globalScope)
+								{
+									function = globalScope.getFunctionByName(scriptMethod.getName());
+								}
+							}
+							else if (getFormModel() instanceof Scriptable foundsetScope)
+							{
+								Object scopeMethod = foundsetScope.getPrototype().get(scriptMethod.getName(), foundsetScope);
+								if (scopeMethod instanceof Function)
+									function = (Function)scopeMethod;
+							}
+						}
+					}
+					if (function != null)
+					{
+						if (visible)
+						{
+							application.getEventsManager().addListener(eventType, function, IExecutingEnviroment.TOPLEVEL_FORMS + '.' + getName());
+						}
+						else
+						{
+							application.getEventsManager().removeListener(eventType, function, IExecutingEnviroment.TOPLEVEL_FORMS + '.' + getName());
+						}
+					}
+				}
+			}
+
 		}
 
 		if (notifyVisibleSuccess) notifyVisibleOnChildren(visible, invokeLaterRunnables); // TODO should notifyVisibleSuccess be altered here? See WebFormUI/WebFormComponent notifyVisible calls.

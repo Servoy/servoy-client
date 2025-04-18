@@ -3709,7 +3709,6 @@ public abstract class BasicFormController
 		 * Notes:
 		 * <ul>
 		 *   <li>A disabled element(s) cannot be selected by clicking the form.</li>
-		 *   <li>The disabled "grayed" color is dependent on the LAF set in the Servoy Smart Client Application Preferences.</li>
 		 * </ul>
 		 *
 		 * @sample

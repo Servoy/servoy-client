@@ -623,7 +623,7 @@ public class ServoyException extends Exception implements IReturnedTypesProvider
 	 * 	}
 	 * }
 	 * //if returns false or no return, error is not reported to client; if returns true error is reported
-	 * //by default error report means logging the error, in smart client an error dialog will also show up
+	 * //by default error report means logging the error
 	 * return true
 	 *
 	 * @return the error code for this ServoyException. Can be one of the constants declared in ServoyException.

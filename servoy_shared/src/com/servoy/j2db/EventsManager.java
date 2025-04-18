@@ -19,6 +19,7 @@ package com.servoy.j2db;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -88,6 +89,23 @@ public class EventsManager implements IEventsManager, Scriptable
 		return false;
 	}
 
+	@Override
+	public void removeSolutionListeners()
+	{
+		Iterator<EventType> iterator = callbacks.keySet().iterator();
+		while (iterator.hasNext())
+		{
+			EventType eventType = iterator.next();
+			List<Pair<String, Function>> eventTypeCallbacks = callbacks.get(eventType);
+			eventTypeCallbacks
+				.removeIf(pair -> (pair.getLeft() != null && pair.getLeft().startsWith("solutions.")));
+			if (eventTypeCallbacks.size() == 0)
+			{
+				iterator.remove();
+			}
+		}
+
+	}
 
 	private List<Function> getListeners(EventType eventType, String context)
 	{

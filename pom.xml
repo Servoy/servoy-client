@@ -11,7 +11,7 @@
 	<packaging>pom</packaging>
 
 	<properties>
-		<tycho.version>4.0.9</tycho.version>
+		<tycho.version>4.0.12</tycho.version>
 		<rhino.version>1.8.0.s1</rhino.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.source>21</maven.compiler.source>

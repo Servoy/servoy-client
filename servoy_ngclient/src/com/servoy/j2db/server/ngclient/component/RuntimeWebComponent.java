@@ -566,6 +566,12 @@ public class RuntimeWebComponent implements IBaseRuntimeComponent, Scriptable, I
 						}
 					}
 				}
+				if (val != previousVal && val instanceof Boolean isVisible)
+				{
+					List<Runnable> invokeLaterRunnables = new ArrayList<Runnable>();
+					component.notifyVisible(isVisible.booleanValue(), invokeLaterRunnables, new HashSet<>());
+					Utils.invokeLater(component.getDataConverterContext().getApplication(), invokeLaterRunnables);
+				}
 			}
 		}
 		else if (prototypeScope != null)
