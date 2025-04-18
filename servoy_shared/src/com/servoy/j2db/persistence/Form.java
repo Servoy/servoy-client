@@ -42,6 +42,9 @@ import com.servoy.j2db.util.Utils;
  */
 public class Form extends AbstractContainer implements ITableDisplay, ISupportScrollbars, ISupportScriptProviders, ISupportEncapsulation, ISupportDeprecated
 {
+	private static final SerializableRuntimeProperty<String> CSS = new SerializableRuntimeProperty<String>()
+	{
+	};
 
 	private static final long serialVersionUID = 1L;
 
@@ -2704,5 +2707,24 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_COMMENT);
 	}
+
+	/**
+	 * @return
+	 */
+	public String getFormCss()
+	{
+		return getSerializableRuntimeProperty(CSS);
+	}
+
+	public void setFormCss(String formCss)
+	{
+		String prevValue = getFormCss();
+		if (!Utils.equalObjects(formCss, prevValue))
+		{
+			setSerializableRuntimeProperty(CSS, formCss);
+			isChanged = true;
+		}
+	}
+
 
 }
