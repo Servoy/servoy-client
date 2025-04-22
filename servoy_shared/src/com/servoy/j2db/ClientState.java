@@ -967,7 +967,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 			{
 				if (eventsManager == null)
 				{
-					createEventsManager();
+					eventsManager = createEventsManager();
 				}
 			}
 		}
