@@ -303,8 +303,6 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		// create menumanager
 		menuManager = createMenuManager();
 
-		// create eventsmanager
-		eventsManager = createEventsManager();
 		// Runtime.getRuntime().addShutdownHook(new Thread()
 		// {
 		// public void run()
@@ -963,6 +961,16 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 
 	public IEventsManager getEventsManager()
 	{
+		if (eventsManager == null && !isShutDown())
+		{
+			synchronized (this)
+			{
+				if (eventsManager == null)
+				{
+					createEventsManager();
+				}
+			}
+		}
 		return eventsManager;
 	}
 
@@ -1342,6 +1350,9 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 				scriptEngine.destroy();
 				scriptEngine = null;// delete current script engine
 			}
+
+			// clean the events manager, will be recreated when the solution is reloaded
+			eventsManager = null;
 
 			// clear broadcast filters and drop any temp tables for this client
 			IDataServer ds = getDataServer();
