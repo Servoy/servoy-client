@@ -121,8 +121,9 @@ public class AngularIndexPageWriter
 				parameterMap.remove("svy_remove_id_token");
 			}
 		}
-
-		json.put("querystring", StringEscapeUtils.escapeJson(HTTPUtils.generateQueryString(parameterMap, request.getCharacterEncoding())));
+		Boolean outputQueryString = Boolean.valueOf(Settings.getInstance().getProperty("servoy.ngclient.output.querystring.for.url.rewrite", "false"));
+		if (outputQueryString.booleanValue())
+			json.put("querystring", StringEscapeUtils.escapeJson(HTTPUtils.generateQueryString(parameterMap, request.getCharacterEncoding())));
 
 		String ipaddr = request.getHeader("X-Forwarded-For"); // in case there is a forwarding proxy
 		if (ipaddr == null)
