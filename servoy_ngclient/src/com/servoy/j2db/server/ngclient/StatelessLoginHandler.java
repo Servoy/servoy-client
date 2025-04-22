@@ -20,12 +20,16 @@ package com.servoy.j2db.server.ngclient;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
+import java.security.SecureRandom;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -79,6 +83,8 @@ public class StatelessLoginHandler
 	public static final String USERNAME = "username";
 	public static final String PASSWORD = "password";
 	public static final String ID_TOKEN = "id_token";
+
+	private static final SecureRandom secureRandom = new SecureRandom();
 
 	@SuppressWarnings({ "boxing" })
 	public static Pair<Boolean, String> mustAuthenticate(HttpServletRequest request, HttpServletResponse reponse, String solutionName)
@@ -158,7 +164,8 @@ public class StatelessLoginHandler
 		boolean verified = false;
 		if (solution.getAuthenticator() == AUTHENTICATOR_TYPE.SERVOY_CLOUD)
 		{
-			verified = CloudStatelessAccessManager.checkCloudPermissions(username, password, remember, oldToken, needToLogin, solution, request);
+			if (checkCSRFToken(request))
+				verified = CloudStatelessAccessManager.checkCloudPermissions(username, password, remember, oldToken, needToLogin, solution, request);
 		}
 		else if (solution.getAuthenticator() == AUTHENTICATOR_TYPE.OAUTH)
 		{
@@ -166,11 +173,13 @@ public class StatelessLoginHandler
 		}
 		else if (solution.getAuthenticator() == AUTHENTICATOR_TYPE.AUTHENTICATOR)
 		{
-			verified = AuthenticatorManager.checkAuthenticatorPermissions(username, password, remember, oldToken, needToLogin, solution, request);
+			if (checkCSRFToken(request))
+				verified = AuthenticatorManager.checkAuthenticatorPermissions(username, password, remember, oldToken, needToLogin, solution, request);
 		}
 		else
 		{
-			verified = DefaultLoginManager.checkDefaultLoginPermissions(username, password, remember, oldToken, needToLogin);
+			if (checkCSRFToken(request))
+				verified = DefaultLoginManager.checkDefaultLoginPermissions(username, password, remember, oldToken, needToLogin);
 		}
 		if (!verified)
 		{
@@ -180,6 +189,32 @@ public class StatelessLoginHandler
 				needToLogin.setRight(null);
 			}
 		}
+	}
+
+	/**
+	 * @param request
+	 */
+	private static boolean checkCSRFToken(HttpServletRequest request)
+	{
+		String fieldToken = request.getParameter("csrf_token");
+		Cookie[] cookies = request.getCookies();
+		if (cookies == null || fieldToken == null)
+		{
+			// just return false here don't allow the login
+			log.warn("no CSRF token (cookie or hidden field) in the request");
+			return false;
+		}
+
+		Optional<Cookie> first = Arrays.asList(cookies).stream().filter(cookie -> "csrf_token".equals(cookie.getName())).findFirst();
+		if (!first.isPresent())
+		{
+			log.warn("no CSRF cookie in the request");
+			return false;
+		}
+		Cookie cookie = first.get();
+		boolean match = fieldToken.equals(cookie.getValue());
+		if (!match) log.warn("CSRF token mismatch, cookie: " + cookie.getValue() + " field: " + fieldToken);
+		return match;
 	}
 
 	/**
@@ -371,6 +406,13 @@ public class StatelessLoginHandler
 			loginHtml = loginHtml.replace("<script ", "<script nonce='" + contentSecurityPolicyNonce + '\'');
 			loginHtml = loginHtml.replace("<style", "<style nonce='" + contentSecurityPolicyNonce + '\'');
 		}
+
+		long nextLong = secureRandom.nextLong();
+		Cookie csrfCooke = new Cookie("csrf_token", Long.toString(nextLong));
+		csrfCooke.setHttpOnly(true);
+		response.addCookie(csrfCooke);
+
+		loginHtml = loginHtml.replaceAll("(?i)</form>", "<input type='hidden' name='csrf_token' value='" + nextLong + "'></form>");
 
 		response.setCharacterEncoding("UTF-8");
 		response.setContentType("text/html");
