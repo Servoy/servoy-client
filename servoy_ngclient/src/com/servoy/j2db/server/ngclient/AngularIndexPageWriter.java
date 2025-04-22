@@ -72,21 +72,21 @@ public class AngularIndexPageWriter
 {
 	public static final String SOLUTIONS_PATH = "/solution/";
 
-	public static void writeStartupJs(HttpServletRequest request, HttpServletResponse response, String solutionName)
-		throws IOException, ServletException
-	{
-		if (request.getCharacterEncoding() == null) request.setCharacterEncoding("UTF8");
-		String uri = request.getRequestURI();
-		Integer clientnr = getClientNr(uri, request);
-		Pair<FlattenedSolution, Boolean> pair = getFlattenedSolution(solutionName, clientnr, request, response);
-		StringBuilder sb = new StringBuilder();
-		generateStartupData(request, pair.getLeft(), sb);
-		response.setCharacterEncoding("UTF-8");
-		response.setContentType("application/javascript");
-		response.setContentLengthLong(sb.length());
-		response.getWriter().write(sb.toString());
-		if (pair.getRight().booleanValue()) pair.getLeft().close(null);
-	}
+//	public static void writeStartupJs(HttpServletRequest request, HttpServletResponse response, String solutionName)
+//		throws IOException, ServletException
+//	{
+//		if (request.getCharacterEncoding() == null) request.setCharacterEncoding("UTF8");
+//		String uri = request.getRequestURI();
+//		Integer clientnr = getClientNr(uri, request);
+//		Pair<FlattenedSolution, Boolean> pair = getFlattenedSolution(solutionName, clientnr, request, response);
+//		StringBuilder sb = new StringBuilder();
+//		generateStartupData(request, pair.getLeft(), sb);
+//		response.setCharacterEncoding("UTF-8");
+//		response.setContentType("application/javascript");
+//		response.setContentLengthLong(sb.length());
+//		response.getWriter().write(sb.toString());
+//		if (pair.getRight().booleanValue()) pair.getLeft().close(null);
+//	}
 
 
 	/**
@@ -230,19 +230,6 @@ public class AngularIndexPageWriter
 			sb.append(" type='application/javascript'>");
 			generateStartupData(request, fs, sb);
 			sb.append("</script>");
-//			sb.append("src=\"solution/");
-//			sb.append(solutionName);
-//			sb.append('/');
-//			sb.append(clientnr);
-//			sb.append("/main/startup.js?");
-//			Map<String, String[]> parameterMap = request.getParameterMap();
-//			if (request.getSession().getAttribute("id_token") != null)
-//			{
-//				parameterMap = new HashMap<>(request.getParameterMap());
-//				parameterMap.put("id_token", new String[] { (String)request.getSession().getAttribute("id_token") });
-//			}
-//			sb.append(HTTPUtils.generateQueryString(parameterMap, request.getCharacterEncoding()));
-//			sb.append("\"></script>");
 			indexHtml = indexHtml.replace("<base href=\"/\">", sb.toString());
 
 			String requestLanguage = request.getHeader("accept-language");
