@@ -1,30 +1,52 @@
 
 /**
- * Creates a new popup menu, either empty, or initialized from an existing JSMenu.
+ * Creates a new empty popup menu
  * 
-* @example
-* // create a popup menu
-* // var menu = plugins.window.createPopupMenu(menus.getMenu('contextMenu'), feedback);
-* var menu = plugins.window.createPopupMenu();
-* 
-* // add a menu item
-* menu.addMenuItem("an entry", callback);
-*   
-* if (event.getSource()) {
-*  // display the popup over the component which is the source of the event
-*  menu.show(event.getSource());
-*  // display the popup over the components, at specified coordinates relative to the component
-*  //menu.show(event.getSource(), 10, 10);
-*  // display the popup at specified coordinates relative to the main window
-*  //menu.show(100, 100);
-* }
-* 
+ * @example
+ * // create a popup menu
+ * var menu = plugins.window.createPopupMenu();
+ * 
+ * // add a menu item
+ * menu.addMenuItem("an entry", callback);
+ *   
+ * if (event.getSource()) {
+ *  // display the popup over the component which is the source of the event
+ *  menu.show(event.getSource());
+ *  // display the popup over the components, at specified coordinates relative to the component
+ *  //menu.show(event.getSource(), 10, 10);
+ *  // display the popup at specified coordinates relative to the main window
+ *  //menu.show(100, 100);
+ * }
+ * 
+ * @return {CustomType<window.Popup>} A new popup menu instance, optionally initialized with the provided JSMenu structure and callback function.
+ */
+function createPopupMenu() {}
+
+/**
+ * Creates a new popup menu initialized from an existing JSMenu.
+ * 
+ * @example
+ * // create a popup menu
+ * var menu = plugins.window.createPopupMenu(menus.getMenu('contextMenu'), feedback);
+ * 
+ * // add a menu item
+ * menu.addMenuItem("an entry", callback);
+ *   
+ * if (event.getSource()) {
+ *  // display the popup over the component which is the source of the event
+ *  menu.show(event.getSource());
+ *  // display the popup over the components, at specified coordinates relative to the component
+ *  //menu.show(event.getSource(), 10, 10);
+ *  // display the popup at specified coordinates relative to the main window
+ *  //menu.show(100, 100);
+ * }
+ * 
  * @param {JSMenu} [menu] The JSMenu whose structure will be used to initialize the popup menu.
  * @param {Function} [callback] The menu item click handler that will be set on all popup menu items. The callback signature is: function(itemIndex:number, parentIndex: number, isSelected: boolean, parentMenu: String, menu: String)
  * 
  * @return {CustomType<window.Popup>} A new popup menu instance, optionally initialized with the provided JSMenu structure and callback function.
  */
- function createPopupMenu(jsmenu, callback) {}
+function createPopupMenu_menu_callback(jsmenu, callback) {}
 
 /**
  * Create a shortcut.
