@@ -44,11 +44,11 @@ public class ClientFunctionsServlet extends HttpServlet
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
 	{
-		String clientNr = AngularIndexPageWriter.getClientNr(req.getRequestURI(), req);
+		Integer clientNr = AngularIndexPageWriter.getClientNr(req.getRequestURI(), req);
 		HttpSession httpSession = req.getSession(false);
 		if (clientNr != null && httpSession != null)
 		{
-			IWebsocketSession wsSession = WebsocketSessionManager.getSession(CLIENT_ENDPOINT, httpSession, Integer.parseInt(clientNr));
+			IWebsocketSession wsSession = WebsocketSessionManager.getSession(CLIENT_ENDPOINT, httpSession, clientNr.intValue());
 			if (wsSession instanceof INGClientWebsocketSession)
 			{
 				INGApplication client = ((INGClientWebsocketSession)wsSession).getClient();

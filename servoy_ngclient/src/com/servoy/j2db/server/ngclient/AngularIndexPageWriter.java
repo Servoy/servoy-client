@@ -72,21 +72,21 @@ public class AngularIndexPageWriter
 {
 	public static final String SOLUTIONS_PATH = "/solution/";
 
-	public static void writeStartupJs(HttpServletRequest request, HttpServletResponse response, String solutionName)
-		throws IOException, ServletException
-	{
-		if (request.getCharacterEncoding() == null) request.setCharacterEncoding("UTF8");
-		String uri = request.getRequestURI();
-		String clientnr = getClientNr(uri, request);
-		Pair<FlattenedSolution, Boolean> pair = getFlattenedSolution(solutionName, clientnr, request, response);
-		StringBuilder sb = new StringBuilder();
-		generateStartupData(request, pair.getLeft(), sb);
-		response.setCharacterEncoding("UTF-8");
-		response.setContentType("application/javascript");
-		response.setContentLengthLong(sb.length());
-		response.getWriter().write(sb.toString());
-		if (pair.getRight().booleanValue()) pair.getLeft().close(null);
-	}
+//	public static void writeStartupJs(HttpServletRequest request, HttpServletResponse response, String solutionName)
+//		throws IOException, ServletException
+//	{
+//		if (request.getCharacterEncoding() == null) request.setCharacterEncoding("UTF8");
+//		String uri = request.getRequestURI();
+//		Integer clientnr = getClientNr(uri, request);
+//		Pair<FlattenedSolution, Boolean> pair = getFlattenedSolution(solutionName, clientnr, request, response);
+//		StringBuilder sb = new StringBuilder();
+//		generateStartupData(request, pair.getLeft(), sb);
+//		response.setCharacterEncoding("UTF-8");
+//		response.setContentType("application/javascript");
+//		response.setContentLengthLong(sb.length());
+//		response.getWriter().write(sb.toString());
+//		if (pair.getRight().booleanValue()) pair.getLeft().close(null);
+//	}
 
 
 	/**
@@ -121,8 +121,9 @@ public class AngularIndexPageWriter
 				parameterMap.remove("svy_remove_id_token");
 			}
 		}
-
-		json.put("querystring", StringEscapeUtils.escapeJson(HTTPUtils.generateQueryString(parameterMap, request.getCharacterEncoding())));
+		Boolean outputQueryString = Boolean.valueOf(Settings.getInstance().getProperty("servoy.ngclient.output.querystring.for.url.rewrite", "false"));
+		if (outputQueryString.booleanValue())
+			json.put("querystring", StringEscapeUtils.escapeJson(HTTPUtils.generateQueryString(parameterMap, request.getCharacterEncoding())));
 
 		String ipaddr = request.getHeader("X-Forwarded-For"); // in case there is a forwarding proxy
 		if (ipaddr == null)
@@ -159,7 +160,7 @@ public class AngularIndexPageWriter
 		if (request.getCharacterEncoding() == null) request.setCharacterEncoding("UTF8");
 		HTTPUtils.setNoCacheHeaders(response);
 		String uri = request.getRequestURI();
-		String clientnr = getClientNr(uri, request);
+		Integer clientnr = getClientNr(uri, request);
 		Pair<FlattenedSolution, Boolean> pair = getFlattenedSolution(solutionName, clientnr, request, response);
 		FlattenedSolution fs = pair.getLeft();
 		if (fs != null)
@@ -230,19 +231,6 @@ public class AngularIndexPageWriter
 			sb.append(" type='application/javascript'>");
 			generateStartupData(request, fs, sb);
 			sb.append("</script>");
-//			sb.append("src=\"solution/");
-//			sb.append(solutionName);
-//			sb.append('/');
-//			sb.append(clientnr);
-//			sb.append("/main/startup.js?");
-//			Map<String, String[]> parameterMap = request.getParameterMap();
-//			if (request.getSession().getAttribute("id_token") != null)
-//			{
-//				parameterMap = new HashMap<>(request.getParameterMap());
-//				parameterMap.put("id_token", new String[] { (String)request.getSession().getAttribute("id_token") });
-//			}
-//			sb.append(HTTPUtils.generateQueryString(parameterMap, request.getCharacterEncoding()));
-//			sb.append("\"></script>");
 			indexHtml = indexHtml.replace("<base href=\"/\">", sb.toString());
 
 			String requestLanguage = request.getHeader("accept-language");
@@ -261,14 +249,14 @@ public class AngularIndexPageWriter
 		return;
 	}
 
-	public static Pair<FlattenedSolution, Boolean> getFlattenedSolution(String solutionName, String clientnr, HttpServletRequest request,
+	public static Pair<FlattenedSolution, Boolean> getFlattenedSolution(String solutionName, Integer clientnr, HttpServletRequest request,
 		HttpServletResponse response)
 	{
 		INGClientWebsocketSession wsSession = null;
 		HttpSession httpSession = request.getSession(false);
 		if (clientnr != null && httpSession != null)
 		{
-			wsSession = (INGClientWebsocketSession)WebsocketSessionManager.getSession(CLIENT_ENDPOINT, httpSession, Integer.parseInt(clientnr));
+			wsSession = (INGClientWebsocketSession)WebsocketSessionManager.getSession(CLIENT_ENDPOINT, httpSession, clientnr.intValue());
 		}
 		FlattenedSolution fs = null;
 		boolean closeFS = false;
@@ -352,12 +340,19 @@ public class AngularIndexPageWriter
 	 * Get the clientnr from parameter or an url /solutions/<solutionname>/<clientnr>/
 	 *
 	 */
-	public static String getClientNr(String uri, ServletRequest request)
+	public static Integer getClientNr(String uri, ServletRequest request)
 	{
 		String clientnr = request.getParameter("clientnr");
 		if (clientnr != null)
 		{
-			return clientnr;
+			try
+			{
+				return Integer.valueOf(clientnr);
+			}
+			catch (Exception e)
+			{
+				return null;
+			}
 		}
 
 
@@ -367,7 +362,13 @@ public class AngularIndexPageWriter
 			String[] parts = uri.substring(solutionIndex + SOLUTIONS_PATH.length()).split("/");
 			if (parts.length >= 2 && parts[1].matches("[0-9]+"))
 			{
-				return parts[1];
+				try
+				{
+					return Integer.valueOf(clientnr);
+				}
+				catch (Exception e)
+				{
+				}
 			}
 		}
 		return null;
