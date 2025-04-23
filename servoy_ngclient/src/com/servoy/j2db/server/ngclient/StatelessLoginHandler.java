@@ -403,8 +403,8 @@ public class StatelessLoginHandler
 		String contentSecurityPolicyNonce = contentSecurityPolicyConfig != null ? contentSecurityPolicyConfig.getNonce() : null;
 		if (contentSecurityPolicyNonce != null)
 		{
-			loginHtml = loginHtml.replace("<script ", "<script nonce='" + contentSecurityPolicyNonce + '\'');
-			loginHtml = loginHtml.replace("<style", "<style nonce='" + contentSecurityPolicyNonce + '\'');
+			loginHtml = loginHtml.replaceAll("<script ", "<script nonce='" + contentSecurityPolicyNonce + "\' ");
+			loginHtml = loginHtml.replaceAll("<style", "<style nonce='" + contentSecurityPolicyNonce + "\' ");
 		}
 
 		long nextLong = secureRandom.nextLong();
