@@ -147,57 +147,59 @@ public class MediaResourcesServlet extends AbstractMediaResourceServlet
 		boolean found = false;
 
 		String path = req.getPathInfo();
-		if (path.startsWith("/")) path = path.substring(1);
-		String[] paths = path.split("/");
-		Integer clientnr = AngularIndexPageWriter.getClientNr(req.getRequestURI(), req);
-
-		if (paths.length > 1)
+		if (path != null)
 		{
-			String accessType = paths[0];
-			switch (accessType)
+			if (path.startsWith("/")) path = path.substring(1);
+			String[] paths = path.split("/");
+			Integer clientnr = AngularIndexPageWriter.getClientNr(req.getRequestURI(), req);
+
+			if (paths.length > 1)
 			{
-				case FLATTENED_SOLUTION_ACCESS :
-					if (paths.length >= 3)
-					{
-						StringBuffer mediaName = new StringBuffer();
-						for (int i = 2; i < paths.length - 1; i++)
-							mediaName.append(paths[i]).append('/');
-						mediaName.append(paths[paths.length - 1]);
-
-						if (clientnr == null) found = sendFlattenedSolutionBasedMedia(req, resp, paths[1], mediaName.toString());
-						else found = sendClientFlattenedSolutionBasedMedia(req, resp, clientnr.intValue(), mediaName.toString());
-					}
-					break;
-
-				case DYNAMIC_DATA_ACCESS :
-					if (paths.length == 2 && clientnr != null) found = sendDynamicData(req, resp, paths[1], clientnr.intValue());
-					break;
-
-				default :
-					break;
-			}
-		}
-		else if ("servoy_blobloader".equals(path))
-		{
-			String encrypted = req.getParameter("blob");
-			try
-			{
-				IApplication client = null;
-				if (clientnr != null && (client = getClient(req, clientnr.intValue())) != null)
+				String accessType = paths[0];
+				switch (accessType)
 				{
-					String decrypt = client.getFlattenedSolution().getEncryptionHandler().decryptString(encrypted);
-					byte[] data = MediaURLStreamHandler.getBlobLoaderMedia(client, decrypt);
-					found = sendData(resp, new ByteArrayInputStream(data),
-						MediaURLStreamHandler.getBlobLoaderMimeType(decrypt), MediaURLStreamHandler.getBlobLoaderFileName(decrypt), null, data.length);
-				}
+					case FLATTENED_SOLUTION_ACCESS :
+						if (paths.length >= 3)
+						{
+							StringBuffer mediaName = new StringBuffer();
+							for (int i = 2; i < paths.length - 1; i++)
+								mediaName.append(paths[i]).append('/');
+							mediaName.append(paths[paths.length - 1]);
 
+							if (clientnr == null) found = sendFlattenedSolutionBasedMedia(req, resp, paths[1], mediaName.toString());
+							else found = sendClientFlattenedSolutionBasedMedia(req, resp, clientnr.intValue(), mediaName.toString());
+						}
+						break;
+
+					case DYNAMIC_DATA_ACCESS :
+						if (paths.length == 2 && clientnr != null) found = sendDynamicData(req, resp, paths[1], clientnr.intValue());
+						break;
+
+					default :
+						break;
+				}
 			}
-			catch (Exception e)
+			else if ("servoy_blobloader".equals(path))
 			{
-				Debug.error("could not decrypt blobloader: " + encrypted);
+				String encrypted = req.getParameter("blob");
+				try
+				{
+					IApplication client = null;
+					if (clientnr != null && (client = getClient(req, clientnr.intValue())) != null)
+					{
+						String decrypt = client.getFlattenedSolution().getEncryptionHandler().decryptString(encrypted);
+						byte[] data = MediaURLStreamHandler.getBlobLoaderMedia(client, decrypt);
+						found = sendData(resp, new ByteArrayInputStream(data),
+							MediaURLStreamHandler.getBlobLoaderMimeType(decrypt), MediaURLStreamHandler.getBlobLoaderFileName(decrypt), null, data.length);
+					}
+
+				}
+				catch (Exception e)
+				{
+					Debug.error("could not decrypt blobloader: " + encrypted);
+				}
 			}
 		}
-
 		if (!found) resp.sendError(HttpServletResponse.SC_NOT_FOUND);
 	}
 
