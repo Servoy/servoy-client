@@ -159,11 +159,7 @@ public class BaseQueryColumn implements IBaseQuerySelectValue
 			if (other.alias != null) return false;
 		}
 		else if (!this.alias.equals(other.alias)) return false;
-		if (this.table == null)
-		{
-			if (other.table != null) return false;
-		}
-		else if (!this.table.equals(other.table)) return false;
+		if (this.table != other.table) return false; // do not use equals here for, different table instances are not the same
 		return id != -1 && this.id == other.id;
 	}
 
