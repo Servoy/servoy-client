@@ -162,24 +162,24 @@ public class StatelessLoginHandler
 		HttpServletRequest request)
 	{
 		boolean verified = false;
-		if (solution.getAuthenticator() == AUTHENTICATOR_TYPE.SERVOY_CLOUD)
-		{
-			if (checkCSRFToken(request))
-				verified = CloudStatelessAccessManager.checkCloudPermissions(username, password, remember, oldToken, needToLogin, solution, request);
-		}
-		else if (solution.getAuthenticator() == AUTHENTICATOR_TYPE.OAUTH)
+		if (solution.getAuthenticator() == AUTHENTICATOR_TYPE.OAUTH)
 		{
 			verified = OAuthHandler.refreshOAuthTokenIfPossible(needToLogin, solution, oldToken, request);
 		}
-		else if (solution.getAuthenticator() == AUTHENTICATOR_TYPE.AUTHENTICATOR)
+		else if (checkCSRFToken(request))
 		{
-			if (checkCSRFToken(request))
+			if (solution.getAuthenticator() == AUTHENTICATOR_TYPE.SERVOY_CLOUD)
+			{
+				verified = CloudStatelessAccessManager.checkCloudPermissions(username, password, remember, oldToken, needToLogin, solution, request);
+			}
+			else if (solution.getAuthenticator() == AUTHENTICATOR_TYPE.AUTHENTICATOR)
+			{
 				verified = AuthenticatorManager.checkAuthenticatorPermissions(username, password, remember, oldToken, needToLogin, solution, request);
-		}
-		else
-		{
-			if (checkCSRFToken(request))
+			}
+			else
+			{
 				verified = DefaultLoginManager.checkDefaultLoginPermissions(username, password, remember, oldToken, needToLogin);
+			}
 		}
 		if (!verified)
 		{
@@ -213,7 +213,7 @@ public class StatelessLoginHandler
 		}
 		Cookie cookie = first.get();
 		boolean match = fieldToken.equals(cookie.getValue());
-		if (!match) log.warn("CSRF token mismatch, cookie: " + cookie.getValue() + " field: " + fieldToken);
+		if (!match) log.atWarn().log(() -> "CSRF token mismatch, cookie: " + cookie.getValue() + " field: " + fieldToken);
 		return match;
 	}
 
@@ -225,7 +225,7 @@ public class StatelessLoginHandler
 		Settings settings = Settings.getInstance();
 		if (settings.getProperty(StatelessLoginUtils.JWT_Password) == null)
 		{
-			log.warn("A servoy property '" + StatelessLoginUtils.JWT_Password + //$NON-NLS-1$
+			log.atWarn().log(() -> "A servoy property '" + StatelessLoginUtils.JWT_Password + //$NON-NLS-1$
 				"' is added the the servoy properties file, this needs to be the same over redeploys, so make sure to add this in the servoy.properties that is used to deploy the WAR"); //$NON-NLS-1$
 			settings.put(StatelessLoginUtils.JWT_Password, "pwd" + Math.random());
 			try
