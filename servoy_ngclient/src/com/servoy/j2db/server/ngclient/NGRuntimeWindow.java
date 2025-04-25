@@ -544,10 +544,30 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 		{
 			public void run()
 			{
+				String nameOfDialog = fTitle;
+				if (windowType == JSWindow.MODAL_DIALOG || windowType == JSWindow.DIALOG)
+				{
+					if (fTitle != null && !fTitle.trim().equals("") && !"<empty>".equals(fTitle) && fTitle != null) //$NON-NLS-1$ //$NON-NLS-2$
+					{
+						String nameString = getApplication().getI18NMessageIfPrefixed(fTitle);
+						IWebFormController formController = getController();
+
+						if (formController != null)
+						{
+							nameOfDialog = Text.processTags(nameString, formController.getFormUI().getDataAdapterList());
+							if (nameOfDialog != null) nameString = nameOfDialog;
+						}
+						else
+						{
+							nameOfDialog = Text.processTags(nameString, TagResolver.createResolver(new PrototypeState(null)));
+							if (nameOfDialog != null) nameString = nameOfDialog;
+						}
+					}
+				}
 				getApplication().getWebsocketSession()
 					.getClientService(NGRuntimeWindowManager.WINDOW_SERVICE)
 					.executeAsyncServiceCall("show",
-						new Object[] { getName(), formName, fTitle });
+						new Object[] { getName(), formName, nameOfDialog });
 			}
 
 			public int getEventLevel()
