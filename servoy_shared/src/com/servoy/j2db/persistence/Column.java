@@ -41,6 +41,7 @@ import java.util.stream.Collectors;
 
 import com.servoy.base.persistence.BaseColumn;
 import com.servoy.base.persistence.IBaseColumn;
+import com.servoy.base.persistence.constants.IColumnTypeConstants;
 import com.servoy.base.query.BaseColumnType;
 import com.servoy.base.query.BaseQueryTable;
 import com.servoy.j2db.IServiceProvider;
@@ -91,12 +92,12 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 /*
  * _____________________________________________________________ Declaration and definition of constructors
  */
-	public Column(ITable db, String theSQLName, int type, int length, int scale, boolean existInDB)
+	public Column(ITable db, String theSQLName, ColumnType columnType, boolean existInDB)
 	{
 		table = db;
 		this.plainSQLName = theSQLName;
 		this.existInDB = existInDB;
-		updateColumnType(type, length, scale);
+		updateColumnType(columnType);
 	}
 
 	public String toHTML()
@@ -105,7 +106,7 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 		sb.append("<b>"); //$NON-NLS-1$
 		sb.append(getSQLName());
 		sb.append("</b> "); //$NON-NLS-1$
-		sb.append(getDisplayTypeString(mapToDefaultType(getType())));
+		sb.append(getTypeAsString());
 		if (getLength() > 0)
 		{
 			sb.append(" length: "); //$NON-NLS-1$
@@ -129,28 +130,14 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 		return null;
 	}
 
-	public static String getDisplayTypeString(int atype)
+	public static String getDisplayTypeString(int type)
 	{
-		switch (mapToDefaultType(atype))
-		{
-			case DATETIME :
-				return "DATETIME"; //$NON-NLS-1$
+		return IColumnTypeConstants.getDisplayTypeString(mapToDefaultType(type));
+	}
 
-			case TEXT :
-				return "TEXT"; //$NON-NLS-1$
-
-			case NUMBER :
-				return "NUMBER"; //$NON-NLS-1$
-
-			case INTEGER :
-				return "INTEGER"; //$NON-NLS-1$
-
-			case MEDIA :
-				return "MEDIA"; //$NON-NLS-1$
-
-			default :
-				return "UNKNOWN TYPE#" + atype; //$NON-NLS-1$
-		}
+	public static String getDisplayTypeString(BaseColumnType type)
+	{
+		return IColumnTypeConstants.getDisplayTypeString(mapToDefaultType(type));
 	}
 
 	public static int mapToDefaultType(BaseColumnType type)
@@ -392,14 +379,28 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 		return getAsRightType(new BaseColumnType(type, length, 1/* 0 would make numeric integer, do we want that? */), flags, obj, throwOnFail, truncate);
 	}
 
-	public static Object getAsRightType(BaseColumnType type, int flags, Object obj, boolean throwOnFail, boolean truncate)
+	public static Object getAsRightType(BaseColumnType columnType, int flags, Object obj, boolean throwOnFail, boolean truncate)
 	{
 		if (obj == null) return null;
 		if (obj instanceof DbIdentValue || obj instanceof NullValue) return obj;
 
-		if (obj instanceof Object[])
+		BaseColumnType type;
+		if (columnType.getSqlType() == Types.ARRAY)
 		{
-			return stream((Object[])obj).map(el -> getAsRightType(type, flags, el, throwOnFail, truncate)).toArray();
+			if (columnType.getSubType() == 0)
+			{
+				return obj;
+			}
+			type = ColumnType.getColumnType(columnType.getSubType());
+		}
+		else
+		{
+			type = columnType;
+		}
+
+		if (obj instanceof Object[] array)
+		{
+			return stream(array).map(el -> getAsRightType(type, flags, el, throwOnFail, truncate)).toArray();
 		}
 
 		if ((flags & UUID_COLUMN) != 0 || obj instanceof UUID)
@@ -528,6 +529,9 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 						throw new RuntimeException(Messages.getString("servoy.conversion.error.date", new Object[] { obj })); //$NON-NLS-1$
 					}
 					return null;
+
+				case Types.ARRAY :
+					return obj;
 
 				default :
 					return obj.toString();
@@ -777,7 +781,7 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 
 	public String getTypeAsString()
 	{
-		return getDisplayTypeString(getType());
+		return getDisplayTypeString(getColumnType());
 	}
 
 /*
@@ -900,9 +904,9 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 
 	// Used to update database type and length after table creation to make sure
 	// they hibernate dialect's type choice matches out type.
-	public void updateColumnType(int type, int length, int scale)
+	public void updateColumnType(ColumnType columnType)
 	{
-		this.columnType = checkColumnType(ColumnType.getInstance(type, length, scale));
+		this.columnType = checkColumnType(columnType);
 		table.fireIColumnChanged(this);
 	}
 
@@ -914,7 +918,7 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 		}
 		int defType = Column.mapToDefaultType(columnType.getSqlType());
 		return ColumnType.getInstance(columnType.getSqlType(), (defType == IColumnTypes.INTEGER || defType == IColumnTypes.DATETIME) ? 0 /* length irrelevant */
-			: columnType.getLength(), defType == IColumnTypes.NUMBER ? columnType.getScale() : 0);
+			: columnType.getLength(), defType == IColumnTypes.NUMBER ? columnType.getScale() : 0, columnType.getSubType());
 	}
 
 	public String getName()
@@ -1405,7 +1409,7 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 	 * @param type of the object
 	 * @return 0 if irrelevant, Integer.MAX_VALUE if it does not know
 	 */
-	public static int getObjectSize(Object value, int type)
+	public static int getObjectSize(Object value, ColumnType type)
 	{
 		if (value == null) return 0;//length irrelevant for null values
 
@@ -1437,6 +1441,10 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 					return 16;
 				}
 				break;
+		}
+		if (type.getSqlType() == Types.ARRAY)
+		{
+			return 0;
 		}
 		return Integer.MAX_VALUE;
 	}

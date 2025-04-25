@@ -47,6 +47,7 @@ public final class ColumnInfoDef implements Serializable
 	public static final String ALLOW_NULL = "allowNull"; //$NON-NLS-1$
 	public static final String LENGTH = "length"; //$NON-NLS-1$
 	public static final String SCALE = "scale"; //$NON-NLS-1$
+	public static final String SUB_TYPE = "subType"; //$NON-NLS-1$
 	public static final String DATA_TYPE = "dataType"; //$NON-NLS-1$
 	public static final String COMPATIBLE_COLUMN_TYPES = "compatibleColumnTypes"; //$NON-NLS-1$
 	public static final String CREATION_ORDER_INDEX = "creationOrderIndex"; //$NON-NLS-1$

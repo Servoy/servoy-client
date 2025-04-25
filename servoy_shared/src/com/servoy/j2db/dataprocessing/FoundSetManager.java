@@ -1297,7 +1297,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 					for (int i = 0; i < array.length; i++)
 					{
 						array[i] = SQLGenerator.convertFromObject(application, columnConverter, columnConverterInfo, column.getDataProviderID(),
-							column.getDataProviderType(), array[i], false);
+							ColumnType.getColumnType(column.getDataProviderType()), array[i], false);
 					}
 					return array;
 				}
@@ -1305,7 +1305,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 				if (value == null || !SQLGenerator.isSelectQuery(value.toString()))
 				{
 					return SQLGenerator.convertFromObject(application, columnConverter, columnConverterInfo, column.getDataProviderID(),
-						column.getDataProviderType(), value, false);
+						column.getColumnType(), value, false);
 				}
 				// else add as subquery
 			}
@@ -2382,7 +2382,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		{
 			try
 			{
-				//optimize
+				// optimize
 				if (foundset.isInitialized() && !foundset.hadMoreRows())
 				{
 					return foundset.getSize();
@@ -3513,7 +3513,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			if (!(rawValue instanceof DbIdentValue) && !Utils.equalObjects(rawValue, oldRawValue))
 			{
 				// the length check
-				int valueLen = Column.getObjectSize(rawValue, column.getType());
+				int valueLen = Column.getObjectSize(rawValue, column.getColumnType());
 				if (valueLen > 0 && column.getLength() > 0 && valueLen > column.getLength()) // insufficient space to save value
 				{
 					recordMarkers.report("i18n:servoy.record.error.columnSizeTooSmall", column.getDataProviderID(), ILogLevel.ERROR, state,

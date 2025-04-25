@@ -60,7 +60,6 @@ import org.mozilla.javascript.annotations.JSGetter;
 import org.mozilla.javascript.annotations.JSSetter;
 
 import com.servoy.base.persistence.IBaseColumn;
-import com.servoy.base.query.BaseColumnType;
 import com.servoy.base.query.BaseQueryTable;
 import com.servoy.base.query.IBaseSQLCondition;
 import com.servoy.j2db.IApplication;
@@ -1405,7 +1404,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	}
 
 	@Override
-	public ISQLSelect getQuerySelectForReading()
+	public QuerySelect getQuerySelectForReading()
 	{
 		return select;
 	}
@@ -1851,8 +1850,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 								if (column != null)
 								{
 									String colname = getColunmName(col, qCol);
-									newCol = table.createNewColumn(DummyValidator.INSTANCE, colname, column.getType(), column.getLength(), column.getScale(),
-										column.getAllowNull());
+									newCol = table.createNewColumn(DummyValidator.INSTANCE, colname, column.getColumnType());
 									if (column.getColumnInfo() != null)
 									{
 										DatabaseUtils.createNewColumnInfo(
@@ -1866,7 +1864,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 						if (newCol == null)
 						{
 							// existing database column not found, create column on the fly
-							BaseColumnType columnType = col.getColumnType();
+							ColumnType columnType = ColumnType.toColumnType(col.getColumnType());
 							if (columnType == null)
 							{
 								columnType = ColumnType.getColumnType(IColumnTypes.TEXT);
@@ -1874,8 +1872,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 
 							String colname = getColunmName(col, qCol);
 
-							table.createNewColumn(DummyValidator.INSTANCE, colname, columnType.getSqlType(), columnType.getLength(), columnType.getScale(),
-								true);
+							table.createNewColumn(DummyValidator.INSTANCE, colname, columnType, true);
 						}
 					}
 				}

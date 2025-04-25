@@ -1063,9 +1063,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 			for (int i = 0; i < dpnames.length; i++)
 			{
 				IDataProvider dp = application.getFlattenedSolution().getDataProviderForTable(table, dpnames[i]);
-				dptypes[i] = dp == null ? ColumnType.getInstance(0, 0, 0)
-					: ColumnType.getInstance(dp instanceof Column ? ((Column)dp).getType() : dp.getDataProviderType(), dp.getLength(),
-						dp instanceof Column ? ((Column)dp).getScale() : 0);
+				dptypes[i] = (dp instanceof Column column) ? column.getColumnType() : ColumnType.getInstance(0, 0, 0);
 				if (getInOneQuery)
 				{
 					// only columns and data we can get from the foundset (calculations only when stored)

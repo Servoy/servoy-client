@@ -5700,7 +5700,7 @@ public abstract class FoundSet
 				returnInvalidRangeConditions.addAll(AbstractBaseQuery.getInvalidRangeConditions(sqlCondition));
 			}
 
-			//cache pks
+			// cache pks
 			String transaction_id = fsm.getTransactionID(sheet);
 			long time = System.currentTimeMillis();
 

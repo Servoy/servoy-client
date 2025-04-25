@@ -23,6 +23,7 @@ import com.servoy.j2db.persistence.IServer;
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Table;
+import com.servoy.j2db.query.ColumnType;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Utils;
 
@@ -129,7 +130,8 @@ public class JSTableObject extends JSTable
 		boolean _pkColumn = Utils.getAsBoolean(pkColumn);
 		try
 		{
-			Column c = ((Table)getTable()).createNewColumn(DummyValidator.INSTANCE, columnName, _type, _length, _allowNull, _pkColumn);
+			Column c = ((Table)getTable()).createNewColumn(DummyValidator.INSTANCE, columnName, ColumnType.getInstance(_type, _length, 0), _allowNull,
+				_pkColumn);
 			return new JSColumnObject(c, getServer(), getTable());
 		}
 		catch (RepositoryException e)

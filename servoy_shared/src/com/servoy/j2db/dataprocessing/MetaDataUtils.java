@@ -165,7 +165,8 @@ public class MetaDataUtils
 
 			columnNames[c] = jsonColumn.getString("name");
 			JSONArray typeArray = new JSONArray(jsonColumn.getString("type"));
-			columnTypes[c] = ColumnType.getInstance(typeArray.getInt(0), typeArray.getInt(1), typeArray.getInt(2));
+			columnTypes[c] = ColumnType.getInstance(typeArray.getInt(0), typeArray.getInt(1), typeArray.getInt(2),
+				typeArray.length() >= 4 ? typeArray.getInt(3) : 0);
 		}
 
 		List<Object[]> rows = new ArrayList<Object[]>();

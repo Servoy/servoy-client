@@ -18,6 +18,7 @@
 package com.servoy.j2db.dataprocessing;
 
 import static com.servoy.j2db.dataprocessing.FireCollector.getFireCollector;
+import static com.servoy.j2db.dataprocessing.Record.sealIfNeeded;
 import static java.util.Collections.synchronizedList;
 
 import java.lang.ref.SoftReference;
@@ -601,7 +602,7 @@ public final class ViewRecord implements IRecordInternal, IJSBaseSQLRecord, Scri
 			Context context = Context.getCurrentContext();
 			if (context != null) o = context.getWrapFactory().wrap(context, start, o, o.getClass());
 		}
-		return o;
+		return sealIfNeeded(o);
 	}
 
 	@Override

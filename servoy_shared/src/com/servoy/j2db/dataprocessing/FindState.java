@@ -79,8 +79,8 @@ public class FindState implements Scriptable, IRecordInternal, Serializable, IJS
 	{
 		this.parent = parent;
 
-		columndata = new HashMap<String, Object>();
-		relatedStates = new HashMap<String, IFoundSetInternal>();
+		columndata = new HashMap<>();
+		relatedStates = new HashMap<>();
 	}
 
 	List<Relation> getValidSearchRelations()
