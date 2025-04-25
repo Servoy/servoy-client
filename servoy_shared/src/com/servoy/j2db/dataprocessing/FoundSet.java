@@ -3932,7 +3932,7 @@ public abstract class FoundSet
 	 */
 	public int jsFunction_getRecordIndex(IJSRecord record)
 	{
-		return jsFunction_getRecordIndex((IRecord)record);
+		return jsFunction_getRecordIndex((IJSBaseRecord)record);
 	}
 
 	/**
