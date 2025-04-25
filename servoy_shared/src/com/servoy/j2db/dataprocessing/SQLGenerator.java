@@ -874,7 +874,7 @@ public class SQLGenerator
 							false);
 						if (columnOrAggregate == column)
 						{
-							elements[e] = column.getAsRightType(obj);
+							elements[e] = column.getAsRightType(converted);
 						}
 						else
 						{
