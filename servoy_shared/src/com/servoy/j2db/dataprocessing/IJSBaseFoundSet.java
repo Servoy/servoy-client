@@ -90,9 +90,9 @@ public interface IJSBaseFoundSet extends IFoundSetInternal
 	 *
 	 * @return int index.
 	 */
-	default public int jsFunction_getRecordIndex(IRecord record)
+	default public int jsFunction_getRecordIndex(IJSBaseRecord record)
 	{
-		int recordIndex = getRecordIndex(record);
+		int recordIndex = getRecordIndex((IRecord)record);
 		if (recordIndex == -1) return -1;
 		return recordIndex + 1;
 	}
