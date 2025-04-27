@@ -89,10 +89,15 @@ public final class QuerySort implements IQuerySort
 		if (getClass() != obj.getClass()) return false;
 		QuerySort other = (QuerySort)obj;
 		if (ascending != other.ascending) return false;
-		if (column != other.column) return false; // do not use equals here for column sorting on different column instance is different sorting
+		if (column == null)
+		{
+			if (other.column != null) return false;
+		}
+		else if (!column.equals(other.column)) return false;
 		if (options != other.options) return false;
 		return true;
 	}
+
 
 	@Override
 	public String toString()
