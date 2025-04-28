@@ -27,7 +27,7 @@ import org.sablo.specification.property.types.VisibleSabloValue;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
 
 /**
- * @author vosti
+ * @author lvostinar
  *
  */
 public class NGVisiblePropertyType extends VisiblePropertyType implements ISabloComponentToRhino<Boolean>
