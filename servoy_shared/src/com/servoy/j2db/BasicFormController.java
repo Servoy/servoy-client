@@ -745,7 +745,6 @@ public abstract class BasicFormController
 	{
 		if (form.getTitleText() != null && this == application.getFormManager().getCurrentForm())
 		{
-			int windowType = application.getRuntimeWindowManager().getCurrentWindow().getType();
 
 			String title = form.getTitleText();
 			if (title == null || title.equals("")) title = getName(); //$NON-NLS-1$
@@ -755,9 +754,13 @@ public abstract class BasicFormController
 			{
 				application.setTitle(title);
 			}
-			else if (windowType == JSWindow.MODAL_DIALOG || windowType == JSWindow.DIALOG)
+			else if (application.getRuntimeWindowManager().getCurrentWindow() != null)
 			{
-				application.getRuntimeWindowManager().getCurrentWindow().setTitle(title, adjustingModel);
+				int windowType = application.getRuntimeWindowManager().getCurrentWindow().getType();
+				if (windowType == JSWindow.MODAL_DIALOG || windowType == JSWindow.DIALOG)
+				{
+					application.getRuntimeWindowManager().getCurrentWindow().setTitle(title, adjustingModel);
+				}
 			}
 		}
 		if (getUndoManager() != null) getUndoManager().discardAllEdits();
