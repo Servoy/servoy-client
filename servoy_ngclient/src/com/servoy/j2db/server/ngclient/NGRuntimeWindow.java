@@ -299,6 +299,7 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 	private void sendTitle(String title)
 	{
 		String titleString = "";
+		IWebFormController formController = getController();
 		if (windowType == JSWindow.WINDOW)
 		{
 			Solution solution = getApplication().getSolution();
@@ -313,7 +314,6 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 			}
 
 			titleString = getApplication().getI18NMessageIfPrefixed(titleString);
-			IWebFormController formController = getController();
 			if (formController != null)
 			{
 				titleString = Text.processTags(titleString, formController.getFormUI().getDataAdapterList());
@@ -373,6 +373,23 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 		else
 		{
 			titleString = getApplication().getI18NMessageIfPrefixed(title);
+			if (windowType == JSWindow.MODAL_DIALOG || windowType == JSWindow.DIALOG)
+			{
+				if (title != null && !title.trim().equals("") && !"<empty>".equals(title) && title != null) //$NON-NLS-1$ //$NON-NLS-2$
+				{
+					String nameString = getApplication().getI18NMessageIfPrefixed(title);
+					if (formController != null)
+					{
+						titleString = Text.processTags(nameString, formController.getFormUI().getDataAdapterList());
+						if (titleString != null) nameString = titleString;
+					}
+					else
+					{
+						titleString = Text.processTags(nameString, TagResolver.createResolver(new PrototypeState(null)));
+						if (titleString != null) nameString = titleString;
+					}
+				}
+			}
 		}
 		getApplication().getWebsocketSession()
 			.getClientService(NGRuntimeWindowManager.WINDOW_SERVICE)
