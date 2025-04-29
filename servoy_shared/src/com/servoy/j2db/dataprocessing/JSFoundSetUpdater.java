@@ -17,6 +17,7 @@
 package com.servoy.j2db.dataprocessing;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.mozilla.javascript.Scriptable;
@@ -187,8 +188,10 @@ public class JSFoundSetUpdater implements IReturnedTypesProvider, IJavaScriptTyp
 			throw new ApplicationException(ServoyException.NO_MODIFY_ACCESS, new Object[] { foundset.getTable().getName() });
 		}
 		// first stop all edits, 'force' stop the edit by saying that it is a javascript stop
-		if (application.getFoundSetManager().getEditRecordList().stopEditing(true) != ISaveConstants.STOPPED) return false;
-
+		IRecordInternal[] editedRecords = application.getFoundSetManager().getEditRecordList().getEditedRecords(foundset.getDataSource(), null, true);
+		if (editedRecords.length > 0 &&
+			application.getFoundSetManager().getEditRecordList().stopEditing(true, foundset, Arrays.asList(editedRecords)) != ISaveConstants.STOPPED)
+			return false;
 		try
 		{
 			QuerySelect sqlParts;
