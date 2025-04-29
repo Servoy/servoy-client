@@ -439,9 +439,40 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 	 *
 	 * @sample
 	 * application.putClientProperty(UICONSTANTS.CALENDAR_NG_SHOW_ISO_WEEK_NUMBER, true)
+	 *
+	 * @deprecated this is replaced for TiNG with i18n.setFirstDayOfTheWeek(1);
 	 */
+	@Deprecated
 	@ServoyClientSupport(ng = true, wc = false, sc = false)
 	public static final String CALENDAR_NG_SHOW_ISO_WEEK_NUMBER = IApplication.CALENDAR_NG_SHOW_ISO_WEEK_NUMBER;
+
+
+	/**
+	 * Property that can be set using application.putClientProperty(), preferably in solution onOpen handler (or before showing the ui components that formats numbers).
+	 *
+	 * If set this will be used as the grouping symbol for all number formatted fields that uses the default servoy formatting services (so 3rd party components that they there own formatting could/will ignore this)
+	 *
+	 * The value can be any kind of character (string)
+	 *
+	 * @sample
+	 * application.putClientProperty(UICONSTANTS.FORMAT_GROUPING_SYMBOL, ' '); // make the grouping symbol a space
+	 */
+	@ServoyClientSupport(ng = true, wc = false, sc = false)
+	public static final String FORMAT_GROUPING_SYMBOL = IApplication.FORMAT_GROUPING_SYMBOL;
+
+	/**
+	 * Property that can be set using application.putClientProperty(), preferably in solution onOpen handler (or before showing the ui components that formats numbers).
+	 *
+	 * If set this will be used as the grouping symbol for all number formatted fields that uses the default servoy formatting services (so 3rd party components that they there own formatting could/will ignore this)
+	 *
+	 * The value can be any kind of character (string)
+	 *
+	 * @sample
+	 * application.putClientProperty(UICONSTANTS.FORMAT_DECIMAL_SYMBOL, ';'); // make the grouping symbol a semicolon
+	 */
+	@ServoyClientSupport(ng = true, wc = false, sc = false)
+	public static final String FORMAT_DECIMAL_SYMBOL = IApplication.FORMAT_DECIMAL_SYMBOL;
+
 
 	/**
 	 * Property that can be set using application.putClientProperty(). This property only works in Titanium.

@@ -119,8 +119,23 @@ public interface IApplication extends IBasicApplication, IServiceProvider, ILogL
 	/**
 	 * When Boolean.TRUE, the NGClient default calendar, bootstrap calendar, bootstrap inline calendar and nggrid calendar will show ISO 8601 week number. Other 3rd party (calendar) components are free to take this value into consideration as they please.
 	 * By default those show the week number according to locale.
+	 *
+	 * @deprecated this is replaced for TiNG with i18n.setFirstDayOfTheWeek(1);
 	 */
+	@Deprecated
 	public static final String CALENDAR_NG_SHOW_ISO_WEEK_NUMBER = "ngCalendarShowISOWeeks"; //$NON-NLS-1$
+
+	/**
+	 * This is a constant for the grouping chararcter that is set when formatting numbers in the NGClient.
+	 * This then overrides the default grouping character for the locale.
+	 */
+	public static final String FORMAT_GROUPING_SYMBOL = "ngFormatGroupingSymbol"; //$NON-NLS-1$
+
+	/**
+	 * This is a constant for the decimal chararcter that is set when formatting numbers in the NGClient.
+	 * This then overrides the default decimal character for the locale.
+	 */
+	public static final String FORMAT_DECIMAL_SYMBOL = "ngFormatDecimalSymbol"; //$NON-NLS-1$
 
 	/**
 	 * When Boolean.TRUE, any subsequent events on same element and having same type will be blocked (cancelled).
