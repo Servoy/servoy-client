@@ -56,7 +56,10 @@ public interface IApplication extends IBasicApplication, IServiceProvider, ILogL
 	// UI properties defined/used by Servoy
 	/**
 	 * If Boolean.TRUE type-ahead fields will show the popup even when the value is empty.
+	 *
+	 * @deprecated not used in TiNG
 	 */
+	@Deprecated
 	public static final String TYPE_AHEAD_SHOW_POPUP_WHEN_EMPTY = "TypeAhead.showPopupWhenEmpty"; //$NON-NLS-1$
 	/**
 	 * If Boolean.TRUE type-ahead fields will show the popup when they gain focus.
@@ -68,23 +71,38 @@ public interface IApplication extends IBasicApplication, IServiceProvider, ILogL
 	public static final String COMBOBOX_SHOW_POPUP_ON_FOCUS_GAIN = "Combobox.showPopupOnFocusGain"; //$NON-NLS-1$
 	/**
 	 * If Boolean.FALSE, the combobox search box is hidden. NGClient only.
+	 *
+	 * @deprecated not used in TiNG
 	 */
+	@Deprecated
 	public static final String COMBOBOX_ENABLE_FILTER = "Combobox.enableFilter"; //$NON-NLS-1$
 	/**
 	 * When Boolean.TRUE, only selected part of the date formatted field will be affected when using up/down keys to cycle through values. (for example, pressing up when cursor is on minutes and minutes shows 59 will not result in hour change)
+	 *
+	 * @deprecated not used in ngclient
 	 */
+	@Deprecated
 	public static final String DATE_FORMATTERS_ROLL_INSTEAD_OF_ADD = "DateLNF.rollInsteadOfAdd"; //$NON-NLS-1$
 	/**
 	 * When Boolean.FALSE, date formatted fields will not allow input of out-of-bounds values (like 62 minutes means 2 minutes and +1 hour).
+	 *
+	 * @deprecated not used in ngclient
 	 */
+	@Deprecated
 	public static final String DATE_FORMATTERS_LENIENT = "DateLNF.lenient"; //$NON-NLS-1$
 	/**
 	 * Value that indicates that a dialog/window should completely fill the screen.
+	 *
+	 * @deprecated
 	 */
+	@Deprecated
 	public static final int FULL_SCREEN = -42;
 	/**
 	 * When Boolean.TRUE, the system standard Print dialog is used when printing; if Boolean.FALSE, the Servoy Print dialog will be used.
+	 *
+	 * @deprecated not used in ngclient
 	 */
+	@Deprecated
 	public static final String USE_SYSTEM_PRINT_DIALOG = "useSystemPrintDialog"; //$NON-NLS-1$
 	/**
 	 * Value that indicates the delay in milliseconds before the tooltip is shown.
@@ -100,20 +118,31 @@ public interface IApplication extends IBasicApplication, IServiceProvider, ILogL
 	public static final String LEAVE_FIELDS_READONLY_IN_FIND_MODE = "leaveFieldsReadOnlyInFindMode"; //$NON-NLS-1$
 	/**
 	 * When Boolean.TRUE, table views in web client are by default scrollables
+	 * @deprecated
 	 */
+	@Deprecated
 	public static final String TABLEVIEW_WC_DEFAULT_SCROLLABLE = "webClientTableViewScrollable"; //$NON-NLS-1$
 	/**
 	 * When Boolean.TRUE, scrollable table views in web client will keep not visible but loaded rows in the view
+	 *
+	 * @deprecated
 	 */
+	@Deprecated
 	public static final String TABLEVIEW_WC_SCROLLABLE_KEEP_LOADED_ROWS = "webClientTableViewScrollableKeepLoadedRows"; //$NON-NLS-1$
 	/**
 	 * When Boolean.TRUE, you can use arrow up and down keys to change selection in tableview
+	 *
+	 * @deprecated not used in ngclient
 	 */
+	@Deprecated
 	public static final String TABLEVIEW_WC_USE_KEY_NAVIGATION = "webClientTableViewUseKeyNavigation"; //$NON-NLS-1$
 
 	/**
 	 * When Boolean.TRUE, the tableview will be seen as fully readonly and will generate for the ngclient an optimized version.
+	 *
+	 * @deprecated not used in TiNG
 	 */
+	@Deprecated
 	public static final String TABLEVIEW_NG_OPTIMIZED_READONLY_MODE = "ngClientOptimizedReadonlyMode"; //$NON-NLS-1$
 
 	/**
@@ -148,12 +177,18 @@ public interface IApplication extends IBasicApplication, IServiceProvider, ILogL
 	 * So a value of 2 (default) will load in 20 records if the number of visible rows is 10.
 	 * Then if you scroll down the new set of records will be: (numberOfVisibleRows * thisPageSize) - numerOfVisibleRows
 	 * so that will load for the default value 2, 1 page which is the number of visible rows (10 in this example).
+	 *
+	 *  @deprecated not used in TiNG
 	 */
+	@Deprecated
 	public static final String TABLEVIEW_NG_PAGE_SIZE_FACTOR = "ngClientPageSizeFactor"; //$NON-NLS-1$
 
 	/**
 	 * When Boolean.TRUE, component will accept javascript links in the input
+	 *
+	 * @deprecated not used in ngclient
 	 */
+	@Deprecated
 	public static final String ALLOW_JAVASCRIPT_LINK_INPUT = "allowJavascriptLinkInput"; //$NON-NLS-1$
 
 	/**

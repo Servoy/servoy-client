@@ -65,14 +65,18 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 	 * application.putClientProperty(UICONSTANTS.TYPE_AHEAD_SHOW_POPUP_WHEN_EMPTY, false);
 	 * // make one TYPE-AHEAD field show the pop-up when there is empty content in the field - overrides the application property set
 	 * forms.someForm.elements.typeAheadElement.putClientProperty(UICONSTANTS.TYPE_AHEAD_SHOW_POPUP_WHEN_EMPTY, true);
+	 *
+	 * @deprecated not used in TiNG
 	 */
+	@Deprecated
 	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public static final String TYPE_AHEAD_SHOW_POPUP_WHEN_EMPTY = IApplication.TYPE_AHEAD_SHOW_POPUP_WHEN_EMPTY;
 
 	/**
 	 * Property that can be set using application.putClientProperty() or element.putClientProperty().
 	 *
-	 * If set on application it will affect all TYPE-AHEAD fields. If set on an element it will affect only that TYPE-AHEAD element/field (with priority over the application property).
+	 * If set on application it will affect all default/legacy TYPE-AHEAD fields. If set on an element it will affect only that default/legacy TYPE-AHEAD element/field
+	 * (with priority over the application property).
 	 * Value can be true/false/null.
 	 *
 	 * If set to true, the affected TYPE_AHEAD(s) will show the pop-up when gaining focus.
@@ -117,7 +121,10 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 	 * @sample
 	 * // make all COMBOBOX fields hide the search box when gaining focus
 	 * application.putClientProperty(UICONSTANTS.COMBOBOX_ENABLE_FILTER, false);
+	 *
+	 * @deprecated not used in TiNG
 	 */
+	@Deprecated
 	@ServoyClientSupport(ng = true, wc = false, sc = false)
 	public static final String COMBOBOX_ENABLE_FILTER = IApplication.COMBOBOX_ENABLE_FILTER;
 
@@ -156,7 +163,10 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 	 * application.putClientProperty(UICONSTANTS.DATE_FORMATTERS_LENIENT, false);
 	 * // make one date formatted field use lenient mode - overrides the application property set
 	 * forms.someForm.elements.typeAheadElement.putClientProperty(UICONSTANTS.DATE_FORMATTERS_LENIENT, true);
+	 *
+	 * @deprecated not used in ngclient
 	 */
+	@Deprecated
 	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public static final String DATE_FORMATTERS_LENIENT = IApplication.DATE_FORMATTERS_LENIENT;
 
@@ -193,7 +203,10 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 	 *
 	 * @sample
 	 * application.putClientProperty(UICONSTANTS.USE_SYSTEM_PRINT_DIALOG, true)
+	 *
+	 * @deprecated not used in ngclient
 	 */
+	@Deprecated
 	@ServoyClientSupport(ng = false, wc = false, sc = true)
 	public static final String USE_SYSTEM_PRINT_DIALOG = IApplication.USE_SYSTEM_PRINT_DIALOG;
 
@@ -278,7 +291,10 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 	 *
 	 * @sample
 	 * application.putClientProperty(UICONSTANTS.TABLEVIEW_NG_OPTIMIZED_READONLY_MODE, true)
+	 *
+	 * @deprecated not used in TiNG
 	 */
+	@Deprecated
 	@ServoyClientSupport(ng = true, wc = false, sc = false)
 	public static final String TABLEVIEW_NG_OPTIMIZED_READONLY_MODE = IApplication.TABLEVIEW_NG_OPTIMIZED_READONLY_MODE;
 
@@ -299,7 +315,10 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 	 *
 	 * @sample
 	 * application.putClientProperty(UICONSTANTS.TABLEVIEW_NG_PAGE_SIZE_FACTOR, 3)
+	 *
+	 *  @deprecated not used in TiNG
 	 */
+	@Deprecated
 	@ServoyClientSupport(ng = true, wc = false, sc = false)
 	public static final String TABLEVIEW_NG_PAGE_SIZE_FACTOR = IApplication.TABLEVIEW_NG_PAGE_SIZE_FACTOR;
 
@@ -346,7 +365,10 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 	 *
 	 * @sample
 	 * element.putClientProperty(UICONSTANTS.ALLOW_JAVASCRIPT_LINK_INPUT, true)
+	 *
+	 * @deprecated not used in ngclient
 	 */
+	@Deprecated
 	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public static final String ALLOW_JAVASCRIPT_LINK_INPUT = IApplication.ALLOW_JAVASCRIPT_LINK_INPUT;
 
@@ -390,7 +412,7 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 	public static final String HTML_EDITOR_CONFIGURATION = IApplication.HTML_EDITOR_CONFIGURATION;
 
 	/**
-	 * Property that can be set using element.putClientProperty()
+	 * Property that can be set using application.putClientProperty(), this has no meaning on an component
 	 *
 	 * If set to true, related find/search will only return records that have a related match, also in case of left outer joins.
 	 * Otherwise a related search on a field may return records where the related search does not match.

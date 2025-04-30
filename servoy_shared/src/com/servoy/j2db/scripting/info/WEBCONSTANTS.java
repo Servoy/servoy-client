@@ -26,6 +26,7 @@ import com.servoy.j2db.scripting.IPrefixedConstantsObject;
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
 @ServoyClientSupport(ng = false, wc = true, sc = false)
+@Deprecated
 public class WEBCONSTANTS implements IPrefixedConstantsObject
 {
 
