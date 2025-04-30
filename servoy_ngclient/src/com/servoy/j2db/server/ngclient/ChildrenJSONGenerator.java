@@ -562,12 +562,13 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 		}
 		if (designer)
 		{
-			// only if the parent form of the layout container is this form we will add a svy-id
-			// so that layout containers in form containers will not add it because they should not be selectable.
+			// only if the parent form of the layout container is the actual form being edited form we will add a svy-id
+			// so that layout containers inside form component containers will not add it because they should not be selectable.
 			Form parent = layoutContainer.findParent(Form.class);
 			Form currentForm = form instanceof FlattenedForm ? ((FlattenedForm)form).getWrappedPersist() : form;
-			if (flattenedSolution.getFormHierarchy(currentForm).contains(parent))
-				attributes.put("svy-id", layoutContainer.getUUID().toString());
+			if (flattenedSolution.getFormHierarchy(currentForm).contains(parent)) attributes.put("svy-id", layoutContainer.getUUID().toString());
+			else attributes.put("svy-id-hidden", layoutContainer.getUUID().toString()); // give the id to client anyway, as it needs it in order to nest layout container StructureCache s correctly
+
 			if (spec != null)
 			{
 				attributes.put("svy-layoutname", spec.getPackageName() + "." + spec.getName());
