@@ -606,6 +606,11 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 	{
 		if (webObjectContext == null) return; // it is already detached
 
+		if (parentDAL != null)
+		{
+			parentDAL.removeDataLinkedProperty(this);
+		}
+
 		viewPort.dispose();
 		if (foundset instanceof ISwingFoundSet)
 		{

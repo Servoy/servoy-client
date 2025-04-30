@@ -598,7 +598,7 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 		}
 		else if (tagsDataProviders != null)
 		{
-			//remove links if the dataprovider value doesn't contain tags anymore
+			// remove links if the dataprovider value doesn't contain tags anymore
 			dataAdapterList.removeDataLinkedProperty(this);
 			dataAdapterList.addDataLinkedProperty(this, dataLinks);
 			tagsDataProviders = null;

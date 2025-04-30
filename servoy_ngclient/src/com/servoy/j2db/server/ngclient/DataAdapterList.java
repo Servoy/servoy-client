@@ -1278,7 +1278,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 	{
 		if (record != null)
 		{
-			setRecord(null, false);
+			setRecord(null, false); // null record also indirectly clears maxRecIndexPropertyValueListener's foundset listener
 		}
 		if (formController != null && formController.getFormScope() != null)
 		{
@@ -1292,12 +1292,28 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 				er.getScopesScope().getModificationSubject().removeModificationListener(this);
 			}
 		}
+
+		clearToWatchRelations();
 		clearNestedRelatedFoundsetListeners();
 		dataProviderToLinkedComponentProperty.clear();
 		allComponentPropertiesLinkedToData.clear();
 		findModeAwareProperties.clear();
 		parentRelatedForms.clear();
 		visibleChildForms.clear();
+	}
+
+	private void clearToWatchRelations()
+	{
+		if (toWatchRelations != null)
+		{
+			toWatchRelations.values().forEach(val -> {
+				val.getRight().forEach(rl -> rl.dispose());
+				val.getRight().clear();
+				val.setLeft(null);
+				val.setRight(null);
+			});
+			toWatchRelations.clear();
+		}
 	}
 
 	public void clearNestedRelatedFoundsetListeners()
