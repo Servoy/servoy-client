@@ -474,7 +474,7 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 					return retValue;
 
 				case INTEGER :
-					if (obj instanceof Integer) return obj;
+					if (obj instanceof Integer || obj instanceof BigDecimal) return obj;
 					if ("".equals(obj)) return null;
 
 					long asLong = Utils.getAsLong(obj, throwOnFail);
