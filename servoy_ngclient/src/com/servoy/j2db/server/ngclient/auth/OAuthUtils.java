@@ -157,6 +157,45 @@ public class OAuthUtils
 				return AppleIDApi.instance();
 			case Okta :
 				return OktaApi.custom(customParameters.optString("domain"));
+			case Custom :
+				return new DefaultApi20()
+				{
+					@Override
+					protected String getAuthorizationBaseUrl()
+					{
+						String url = auth.optString(OAuthParameters.authorizationBaseUrl.name());
+						if (url == null || url.isBlank())
+						{
+							throw new IllegalArgumentException("Authorization URL is missing");
+						}
+						return url;
+					}
+
+					@Override
+					public String getAccessTokenEndpoint()
+					{
+						String url = auth.optString(OAuthParameters.accessTokenEndpoint.name());
+						if (url == null || url.isBlank())
+						{
+							throw new IllegalArgumentException("Access token URL is missing");
+						}
+						return url;
+					}
+
+					@Override
+					public String getRefreshTokenEndpoint()
+					{
+						String url = auth.optString(OAuthParameters.refreshTokenEndpoint.name());
+						return url == null || url.isBlank() ? super.getRefreshTokenEndpoint() : url;
+					}
+
+					@Override
+					public String getRevokeTokenEndpoint()
+					{
+						String url = auth.optString(OAuthParameters.revokeTokenEndpoint.name());
+						return url == null || url.isBlank() ? super.getRevokeTokenEndpoint() : url;
+					}
+				};
 			default :
 				throw new Exception("Could not create an OAuth API instance.");
 		}
@@ -250,7 +289,7 @@ public class OAuthUtils
 			}
 		}
 
-		Provider provider = Provider.valueOf(api);
+		Provider provider = Provider.valueOf(api != null ? api : Provider.Custom.name());
 		String responseType = getResponseType(provider, auth, additionalParameters);
 		builder.responseType(responseType);
 		if (additionalParameters.containsKey(OAuthParameters.state.name()) || provider.shouldSendStateParam(responseType))

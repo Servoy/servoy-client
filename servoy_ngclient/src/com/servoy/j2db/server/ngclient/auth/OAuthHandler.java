@@ -358,10 +358,10 @@ public class OAuthHandler
 
 	public static void redirectToOAuthLogin(HttpServletRequest request, HttpServletResponse response, Solution solution)
 	{
-		JSONObject properties = new ServoyJSONObject(solution.getCustomProperties(), true);
-		if (properties.has(StatelessLoginHandler.OAUTH_CUSTOM_PROPERTIES))
+		Object properties = solution.getCustomProperty(new String[] { StatelessLoginHandler.OAUTH_CUSTOM_PROPERTIES });
+		if (properties instanceof String s)
 		{
-			JSONObject auth = properties.getJSONObject(StatelessLoginHandler.OAUTH_CUSTOM_PROPERTIES);
+			JSONObject auth = new JSONObject(s);
 			generateOauthCall(request, response, auth);
 		}
 		else
