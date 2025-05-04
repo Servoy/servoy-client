@@ -17,6 +17,7 @@
 package com.servoy.base.query;
 
 import java.io.Serializable;
+import java.sql.Types;
 
 
 /** Container for column types describing type, length and scale (for numerical columns).
@@ -67,10 +68,19 @@ public class BaseColumnType implements Serializable
 		return subType;
 	}
 
+	public final boolean isArray()
+	{
+		return sqlType == Types.ARRAY && subType != 0;
+	}
+
 	@Override
 	public String toString()
 	{
-		return "<" + sqlType + ',' + length + ',' + scale + ',' + subType + '>'; //$NON-NLS-1$
+		if (isArray())
+		{
+			return "<ARRAY " + subType + ',' + length + ',' + scale + '>';
+		}
+		return "<" + sqlType + ',' + length + ',' + scale + '>';
 	}
 
 	@Override
