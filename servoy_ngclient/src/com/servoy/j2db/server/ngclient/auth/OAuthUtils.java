@@ -31,8 +31,11 @@ import org.json.JSONObject;
 import com.github.scribejava.apis.GoogleApi20;
 import com.github.scribejava.apis.LinkedInApi20;
 import com.github.scribejava.apis.MicrosoftAzureActiveDirectory20Api;
+import com.github.scribejava.apis.openid.OpenIdJsonTokenExtractor;
 import com.github.scribejava.core.builder.ServiceBuilder;
 import com.github.scribejava.core.builder.api.DefaultApi20;
+import com.github.scribejava.core.extractors.TokenExtractor;
+import com.github.scribejava.core.model.OAuth2AccessToken;
 import com.github.scribejava.core.oauth.OAuth20Service;
 import com.servoy.j2db.util.Debug;
 
@@ -195,6 +198,15 @@ public class OAuthUtils
 						String url = auth.optString(OAuthParameters.revokeTokenEndpoint.name());
 						return url == null || url.isBlank() ? super.getRevokeTokenEndpoint() : url;
 					}
+
+					@Override
+					public TokenExtractor<OAuth2AccessToken> getAccessTokenExtractor()
+					{
+						// if it's openid scope, it means that's openid connect and we need the openid token extractor
+						// https://auth0.com/docs/get-started/apis/scopes/openid-connect-scopes
+						return auth.optString(OAuthParameters.defaultScope.name(), "").contains("openid") ? OpenIdJsonTokenExtractor.instance()
+							: super.getAccessTokenExtractor();
+					}
 				};
 			default :
 				throw new Exception("Could not create an OAuth API instance.");
@@ -294,8 +306,12 @@ public class OAuthUtils
 		builder.responseType(responseType);
 		if (additionalParameters.containsKey(OAuthParameters.state.name()) || provider.shouldSendStateParam(responseType))
 		{
-			additionalParameters.put(OAuthParameters.state.name(),
-				additionalParameters.getOrDefault(OAuthParameters.state.name(), OAuthParameters.nonce.name()));
+			//we should have a state or nonce parameter
+			additionalParameters.put(
+				OAuthParameters.state.name(),
+				additionalParameters.containsKey(OAuthParameters.state.name())
+					? additionalParameters.get(OAuthParameters.state.name())
+					: additionalParameters.get(OAuthParameters.nonce.name()));
 		}
 		if (serverURL != null)
 		{

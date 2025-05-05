@@ -105,6 +105,15 @@ public class OAuthHandler
 		{
 			String nonceState = req.getParameter(OAuthParameters.state.name());
 			JSONObject auth = getNonce(req.getServletContext(), nonceState);
+			if (auth == null)
+			{
+				auth = getNonce(req.getServletContext(), req.getParameter(OAuthParameters.nonce.name()));
+				if (auth == null)
+				{
+					log.error("Cannot get the oauth config. The nonce/state is not valid.");
+					return showLogin;
+				}
+			}
 			OAuth20Service service = OAuthUtils.createOauthService(req, auth, new HashMap<>());
 			try
 			{
