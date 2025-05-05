@@ -951,10 +951,14 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 		}
 	}
 
+	public boolean isInitialized()
+	{
+		return webObjectContext != null;
+	}
+
 	@Override
 	public String toString()
 	{
 		return "DP(" + dataProviderID + ")";
 	}
-
 }

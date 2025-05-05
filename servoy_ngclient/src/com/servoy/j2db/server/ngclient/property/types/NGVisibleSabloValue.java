@@ -45,7 +45,7 @@ public class NGVisibleSabloValue extends VisibleSabloValue implements ISmartProp
 		{
 			DataproviderTypeSabloValue dataProviderValue = (DataproviderTypeSabloValue)context.getWebObject()
 				.getRawPropertyValue(DefaultComponentPropertiesProvider.VISIBLE_DATAPROVIDER_NAME);
-			if (dataProviderValue != null)
+			if (dataProviderValue != null && dataProviderValue.isInitialized())
 			{
 				val = Utils.getAsBoolean(dataProviderValue.getValue());
 			}
