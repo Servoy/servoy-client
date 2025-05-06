@@ -408,9 +408,10 @@ public class StatelessLoginHandler
 		}
 
 		long nextLong = secureRandom.nextLong();
-		Cookie csrfCooke = new Cookie("csrf_token", Long.toString(nextLong));
-		csrfCooke.setHttpOnly(true);
-		response.addCookie(csrfCooke);
+		Cookie csrfCookie = new Cookie("csrf_token", Long.toString(nextLong));
+		csrfCookie.setPath("/");
+		csrfCookie.setHttpOnly(true);
+		response.addCookie(csrfCookie);
 
 		loginHtml = loginHtml.replaceAll("(?i)</form>", "<input type='hidden' name='csrf_token' value='" + nextLong + "'></form>");
 
