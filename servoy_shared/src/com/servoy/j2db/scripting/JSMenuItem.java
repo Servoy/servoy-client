@@ -301,8 +301,8 @@ public class JSMenuItem extends JSMenu implements IConstantsObject
 	 *
 	 * @sample menuItem.getExtraProperty('Sidenav','formName');
 	 *
-	 * @param {String} categoryName - The category name of the extra property.
-	 * @param {String} propertyName - The name of the property to retrieve the value for.
+	 * @param categoryName The category name of the extra property.
+	 * @param propertyName The name of the property to retrieve the value for.
 	 *
 	 * @return The value of the specified extra property, or null if not found.
 	 */
@@ -319,9 +319,9 @@ public class JSMenuItem extends JSMenu implements IConstantsObject
 	/**
 	 * Sets an extra property value (property must be present in the component spec).
 	 *
-	 * @param {String} categoryName - The category name of the extra property.
-	 * @param {String} propertyName - The name of the property to set.
-	 * @param {Object} value - The value to assign to the specified property.
+	 * @param categoryName The category name of the extra property.
+	 * @param propertyName The name of the property to set.
+	 * @param value The value to assign to the specified property.
 	 *
 	 * @sample menuItem.setExtraProperty('Sidenav','formName','myform');
 	 */
@@ -346,7 +346,7 @@ public class JSMenuItem extends JSMenu implements IConstantsObject
 	 *
 	 * @sample menuItem.getCustomProperty('myproperty');
 	 *
-	 * @param {String} propertyName - The name of the property to retrieve the value for.
+	 * @param propertyName The name of the property to retrieve the value for.
 	 *
 	 * @return The value of the specified custom property, or null if not found.
 	 */
@@ -359,8 +359,8 @@ public class JSMenuItem extends JSMenu implements IConstantsObject
 	/**
 	 * Sets a custom property value. Custom properties can be defined on each Menu.
 	 *
-	 * @param {String} propertyName - The name of the property to set.
-	 * @param {Object} value - The value to assign to the specified property.
+	 * @param propertyName The name of the property to set.
+	 * @param value The value to assign to the specified property.
 	 *
 	 * @sample menuItem.setCustomProperty('formName','myform');
 	 */
