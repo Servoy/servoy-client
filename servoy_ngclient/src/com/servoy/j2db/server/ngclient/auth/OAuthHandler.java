@@ -18,7 +18,9 @@
 package com.servoy.j2db.server.ngclient.auth;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
+import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
@@ -30,6 +32,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.text.StringEscapeUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -42,6 +45,8 @@ import com.github.scribejava.apis.openid.OpenIdOAuth2AccessToken;
 import com.github.scribejava.core.model.OAuth2AccessToken;
 import com.github.scribejava.core.oauth.OAuth20Service;
 import com.github.scribejava.core.revoke.TokenTypeHint;
+import com.servoy.base.util.ITagResolver;
+import com.servoy.base.util.TagParser;
 import com.servoy.j2db.ClientLogin;
 import com.servoy.j2db.Credentials;
 import com.servoy.j2db.FlattenedSolution;
@@ -101,10 +106,11 @@ public class OAuthHandler
 
 		String id_token = req.getParameter("id_token");
 		String refreshToken = null;
+		JSONObject auth = null;
 		if (req.getParameter("code") != null)
 		{
 			String nonceState = req.getParameter(OAuthParameters.state.name());
-			JSONObject auth = getNonce(req.getServletContext(), nonceState);
+			auth = getNonce(req.getServletContext(), nonceState);
 			if (auth == null)
 			{
 				auth = getNonce(req.getServletContext(), req.getParameter(OAuthParameters.nonce.name()));
@@ -156,8 +162,65 @@ public class OAuthHandler
 			{
 				return showLogin;
 			}
+			else
+			{
+				handleLoginFailed(req, resp, _fs, auth);
+			}
 		}
 		return showLogin;
+	}
+
+	private static void handleLoginFailed(HttpServletRequest req, HttpServletResponse resp, Pair<FlattenedSolution, Boolean> _fs, JSONObject auth)
+	{
+		String loginFailedUrl = auth.optString(OAuthParameters.login_failed_url.name(), null);
+		if (loginFailedUrl != null && !loginFailedUrl.isBlank())
+		{
+			try
+			{
+				resp.sendRedirect(loginFailedUrl);
+			}
+			catch (IOException e)
+			{
+				log.error("Could not redirect to the login failed url.", e);
+			}
+		}
+		else
+		{
+			String html = null;
+			try (InputStream rs = OAuthHandler.class.getResourceAsStream("error.html"))
+			{
+				html = IOUtils.toString(rs, Charset.forName("UTF-8"));
+				if (_fs != null)
+				{
+					Solution sol = _fs.getLeft().getSolution();
+					I18NTagResolver i18nProvider = new I18NTagResolver(req.getLocale(), sol);
+					html = TagParser.processTags(html, new ITagResolver()
+					{
+						@Override
+						public String getStringValue(String name)
+						{
+							if ("solutionTitle".equals(name))
+							{
+								String titleText = sol.getTitleText();
+								if (titleText == null) titleText = sol.getName();
+								return i18nProvider.getI18NMessageIfPrefixed(titleText);
+							}
+							if ("error".equals(name))
+							{
+								return "Your account is not properly setup. Please contact your admin";
+							}
+							return name;
+						}
+					}, null);
+
+				}
+				HTMLWriter.writeHTML(req, resp, html);
+			}
+			catch (IOException e)
+			{
+				log.error("Could not show an error page.", e);
+			}
+		}
 	}
 
 	private static void extractFromFragment(HttpServletRequest req, HttpServletResponse resp, String reqUrl) throws IOException

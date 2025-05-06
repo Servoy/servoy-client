@@ -122,7 +122,8 @@ public class OAuthUtils
 		defaultScope,
 		apiSecret,
 		clientId,
-		state;
+		state,
+		login_failed_url;
 	}
 
 	private static String getResponseType(Provider provider, JSONObject auth, Map<String, String> additionalParameters)
