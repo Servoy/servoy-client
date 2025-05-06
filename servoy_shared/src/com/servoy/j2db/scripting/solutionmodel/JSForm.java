@@ -1528,6 +1528,27 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	}
 
 	/**
+	 * @clonedesc com.servoy.j2db.persistence.Form#getDeprecated()
+	 *
+	 * @sample
+	 * var form = solutionModel.newForm('myForm',myDatasource,null,true,800,600);
+	 * form.deprecated = "not used anymore, replaced with newForm";
+	 *
+	 */
+	@JSGetter
+	public String getDeprecated()
+	{
+		return getForm().getDeprecated();
+	}
+
+	@JSSetter
+	public void setDeprecated(String arg)
+	{
+		checkModification();
+		getForm().setDeprecated(arg);
+	}
+
+	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getName()
 	 *
 	 * @sample
