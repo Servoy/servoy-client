@@ -332,7 +332,7 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 			Form designParent = o.getAncestor(Form.class);
 			if (designParent != null && designParent.getFormCss() != null)
 			{
-				attributes.put(designParent.getName(), "");
+				attributes.put("svy-" + designParent.getName(), "");
 			}
 		}
 		if (designer || webComponent == null)
@@ -553,7 +553,7 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 		Form designParent = layoutContainer.getAncestor(Form.class);
 		if (designParent != null && designParent.getFormCss() != null)
 		{
-			attributes.put(designParent.getName(), "");
+			attributes.put("svy-" + designParent.getName(), "");
 		}
 		// properties in the .spec file for layouts are seen as "attributes to add to html tag"
 		// except for "class" and "size" that are special - treatead separately below

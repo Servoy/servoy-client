@@ -152,8 +152,8 @@ public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 					if (r instanceof Rule rule)
 					{
 						rule.rewriteSelectors(
-							selector -> selector.contains(" ") ? selector.replaceFirst(" ", '[' + frm.getName() + "] ")
-								: selector + '[' + frm.getName() + ']');
+							selector -> selector.contains(" ") ? selector.replaceFirst(" ", "[svy-" + frm.getName() + "] ")
+								: selector + "[svy-" + frm.getName() + ']');
 					}
 				});
 				CssFormatter formatter = new CompressCssFormatter();
