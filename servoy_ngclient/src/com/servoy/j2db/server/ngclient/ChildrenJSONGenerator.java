@@ -327,6 +327,13 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 		if (o instanceof BaseComponent)
 		{
 			attributes = new HashMap<String, String>(((BaseComponent)fe.getPersistIfAvailable()).getMergedAttributes());
+
+			// if the real design form had form specific css then make sure the form name is added as an attribute
+			Form designParent = o.getAncestor(Form.class);
+			if (designParent != null && designParent.getFormCss() != null)
+			{
+				attributes.put(designParent.getName(), "");
+			}
 		}
 		if (designer || webComponent == null)
 		{
@@ -541,6 +548,13 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 			writer.endArray();
 		}
 		Map<String, String> attributes = new HashMap<String, String>(layoutContainer.getMergedAttributes());
+
+		// if the real design form had form specific css then make sure the form name is added as an attribute
+		Form designParent = layoutContainer.getAncestor(Form.class);
+		if (designParent != null && designParent.getFormCss() != null)
+		{
+			attributes.put(designParent.getName(), "");
+		}
 		// properties in the .spec file for layouts are seen as "attributes to add to html tag"
 		// except for "class" and "size" that are special - treatead separately below
 		if (spec != null)
