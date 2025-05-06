@@ -61,9 +61,11 @@ import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.Messages;
 import com.servoy.j2db.dataprocessing.ClientInfo;
 import com.servoy.j2db.persistence.Form;
+import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Solution;
+import com.servoy.j2db.persistence.Solution.AUTHENTICATOR_TYPE;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.scripting.RuntimeWindow;
 import com.servoy.j2db.scripting.StartupArguments;
@@ -333,7 +335,10 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 								: new String[] { args.getSolutionName(), args.getMethodName() },
 							args);
 
-						if (getHttpSession().getAttribute(StatelessLoginHandler.ID_TOKEN) != null)
+						Solution sol = (Solution)ApplicationServerRegistry.get().getLocalRepository().getActiveRootObject(solutionName, IRepository.SOLUTIONS);
+						AUTHENTICATOR_TYPE authenticator = sol.getAuthenticator();
+						if (getHttpSession().getAttribute(StatelessLoginHandler.ID_TOKEN) != null && sol != null &&
+							authenticator != AUTHENTICATOR_TYPE.NONE && sol.getLoginFormID() <= 0 && sol.getLoginSolutionName() == null)
 						{
 							setUserId();
 						}
