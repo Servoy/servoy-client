@@ -16,8 +16,6 @@
 */
 package com.servoy.j2db.persistence;
 
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author jcompagner,jblok
@@ -26,9 +24,6 @@ public class ValidatorSearchContext
 {
 	//search info
 	private Object obj;
-
-	//search info, if multiple objects are needed
-	private final List<Object> objects = new ArrayList<>();
 
 	//search flags
 	private final int type;
@@ -52,13 +47,5 @@ public class ValidatorSearchContext
 	public int getType()
 	{
 		return type;
-	}
-
-	/**
-	 * @return the objects
-	 */
-	public List<Object> getObjects()
-	{
-		return objects;
 	}
 }
