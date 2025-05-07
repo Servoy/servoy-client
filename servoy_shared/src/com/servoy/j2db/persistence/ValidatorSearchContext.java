@@ -39,12 +39,6 @@ public class ValidatorSearchContext
 		this.type = type;
 	}
 
-	public ValidatorSearchContext(List<Object> objs, int type)
-	{
-		this.objects.addAll(objs);
-		this.type = type;
-	}
-
 	public ValidatorSearchContext(int type)
 	{
 		this.type = type;
