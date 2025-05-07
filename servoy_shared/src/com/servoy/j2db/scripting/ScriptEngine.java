@@ -736,6 +736,10 @@ public class ScriptEngine implements IScriptSupport
 						{
 							wrappedArgs[i] = cx.getWrapFactory().wrap(cx, scope, args[i], args[i].getClass());
 						}
+						else
+						{
+							wrappedArgs[i] = Undefined.instance;
+						}
 					}
 				}
 
