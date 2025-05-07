@@ -609,9 +609,9 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 			}
 		}
 
-		if (maxRecIndexPropertyValueListener != null)
+		if (maxRecIndexPropertyValueListener != null && maxRecIndexPropertyValueListener.removePropertyValueFromListAndCheckEmpty(propertyValue))
 		{
-			maxRecIndexPropertyValueListener.dispose();
+			maxRecIndexPropertyValueListener = null;
 		}
 	}
 
@@ -1389,6 +1389,18 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		{
 			propertyValues.add(propertyValue);
 		}
+
+		public boolean removePropertyValueFromListAndCheckEmpty(IDataLinkedPropertyValue propertyValue)
+		{
+			propertyValues.remove(propertyValue);
+			if (propertyValues.isEmpty())
+			{
+				dispose();
+				return true;
+			}
+			return false;
+		}
+
 
 		@Override
 		public void foundSetChanged(FoundSetEvent e)
