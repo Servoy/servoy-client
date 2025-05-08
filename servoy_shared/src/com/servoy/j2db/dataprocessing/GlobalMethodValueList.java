@@ -178,6 +178,7 @@ public class GlobalMethodValueList extends CustomValueList
 										hasRealValue = false;
 										IDataSet dataSet = (IDataSet)retValue;
 										Set<Object> duplicateCheck = new HashSet<Object>(dataSet.getRowCount());
+										duplicateCheck.addAll(realValues);
 										for (int i = 0; i < dataSet.getRowCount(); i++)
 										{
 											Object[] row = dataSet.getRow(i);
