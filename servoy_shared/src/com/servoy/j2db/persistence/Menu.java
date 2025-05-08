@@ -116,12 +116,9 @@ public class Menu extends AbstractBase implements ISupportUpdateableName, ISuppo
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_STYLECLASS, arg);
 	}
 
-	public MenuItem createNewMenuItem(IValidateName validator, String menuItemName) throws RepositoryException
+	public MenuItem createNewMenuItem(String menuItemName) throws RepositoryException
 	{
 		String name = menuItemName == null ? "untitled" : menuItemName; //$NON-NLS-1$
-
-		//check if name is in use
-		validator.checkName(name, 0, new ValidatorSearchContext(IRepository.MENU_ITEMS), false);
 
 		MenuItem obj = (MenuItem)getRootObject().getChangeHandler().createNewObject(this, IRepository.MENU_ITEMS);
 		//set all the required properties
