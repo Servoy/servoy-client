@@ -328,12 +328,7 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 		{
 			attributes = new HashMap<String, String>(((BaseComponent)fe.getPersistIfAvailable()).getMergedAttributes());
 
-			// if the real design form had form specific css then make sure the form name is added as an attribute
-			Form designParent = o.getAncestor(Form.class);
-			if (designParent != null && designParent.getFormCss() != null)
-			{
-				attributes.put("svy-" + designParent.getName(), "");
-			}
+			addFormAttributesForCss(form, attributes);
 		}
 		if (designer || webComponent == null)
 		{
@@ -477,6 +472,31 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 		}
 	}
 
+	/**
+	 * @param form
+	 * @param attributes
+	 */
+	public static void addFormAttributesForCss(Form form, Map<String, String> attributes)
+	{
+		List<Form> allForms;
+		if (form instanceof FlattenedForm ff)
+		{
+			allForms = ff.getAllForms();
+		}
+		else
+		{
+			allForms = List.of(form);
+		}
+		// add the names of the forms that have css in the hierarchy
+		for (Form designParent : allForms)
+		{
+			if (designParent.getFormCss() != null)
+			{
+				attributes.put("svy-" + designParent.getName(), "");
+			}
+		}
+	}
+
 	public static void handleTabpanelSpecNameAndElementName(JSONWriter writer, IPersist o)
 	{
 		// special support for TabPanel so that we have a specific tabpanel, tablesspanel, accordion and splitpane
@@ -549,12 +569,7 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 		}
 		Map<String, String> attributes = new HashMap<String, String>(layoutContainer.getMergedAttributes());
 
-		// if the real design form had form specific css then make sure the form name is added as an attribute
-		Form designParent = layoutContainer.getAncestor(Form.class);
-		if (designParent != null && designParent.getFormCss() != null)
-		{
-			attributes.put("svy-" + designParent.getName(), "");
-		}
+		addFormAttributesForCss(form, attributes);
 		// properties in the .spec file for layouts are seen as "attributes to add to html tag"
 		// except for "class" and "size" that are special - treatead separately below
 		if (spec != null)
