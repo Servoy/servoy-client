@@ -132,6 +132,7 @@ public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 		if (form instanceof FlattenedForm ff)
 		{
 			allForms = ff.getAllForms();
+			Collections.reverse(allForms);
 		}
 		else
 		{
