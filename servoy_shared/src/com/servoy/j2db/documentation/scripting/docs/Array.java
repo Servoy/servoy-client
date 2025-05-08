@@ -929,7 +929,7 @@ public class Array
 	 * const sortedValues = values.toSorted((a, b) => a - b);
 	 * application.output(sortedValues); // [1, 2, 10, 21]
 	 *
-	 * @param callback a comparator function
+	 * @param comparator a comparator function
 	 * @return a new array containing the elements sorted in ascending order
 	 *
 	 * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/toSorted
@@ -1030,6 +1030,192 @@ public class Array
 	 * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/with
 	 */
 	public Array js_with(Object index, Object value)
+	{
+		return null;
+	}
+
+	/**
+	 * Takes an integer value and returns the item at that index, allowing for positive and negative integers. Negative integers count back from the last item in the array.
+	 *
+	 * @sample
+	 * const arr = [1, 2, 3, 4, 5];
+	 * application.output(arr.at(2));
+	 *
+	 * @param index
+	 * @return The element in the array matching the given index.
+	 *
+	 * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/at
+	 */
+	public Array js_at(int index)
+	{
+		return null;
+	}
+
+	/**
+	 * The entries() method of Array instances returns a new array iterator object that contains the key/value pairs for each index in the array.
+	 *
+	 * @sample
+	 * const arr = [1, 2, 3, 4, 5];
+	 * const iterator = arr.entries();
+	 *
+	 * @return the iterator
+	 * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/entries
+	 */
+	public Iterator js_entries()
+	{
+		return null;
+	}
+
+	/**
+	 * The values() method of Array instances returns a new array iterator object that iterates the value of each item in the array.
+	 *
+	 * @sample
+	 * const arr = [1, 2, 3, 4, 5];
+	 * const iterator = arr.values();
+	 *
+	 * @return the iterator
+	 * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/values
+	 */
+	public Iterator js_values()
+	{
+		return null;
+	}
+
+	/**
+	 * The keys() method of Array instances returns a new array iterator object that contains the keys for each index in the array.
+	 *
+	 * @sample
+	 * const arr = [1, 2, 3, 4, 5];
+	 * const iterator = arr.keys();
+	 *
+	 * @return the iterator
+	 * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/keys
+	 */
+	public Iterator js_keys()
+	{
+		return null;
+	}
+
+	/**
+	 * The flat() method of Array instances creates a new array with all sub-array elements concatenated into it recursively up to the specified depth.
+	 * Default depth is 1.
+	 *
+	 * @sample
+	 * const arr1 = [0, 1, 2, [3, 4]];
+	 * const newarr = arr.flat();
+	 *
+	 * @return new flat array
+	 * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/flat
+	 */
+	public Array js_flat()
+	{
+		return null;
+	}
+
+	/**
+	 * The flat() method of Array instances creates a new array with all sub-array elements concatenated into it recursively up to the specified depth.
+	 *
+	 * @sample
+	 * const arr1 = [0, 1, 2, [3, 4, 5, [6, 7]]];
+	 * const newarr = arr.flat(2);
+	 *
+	 * @param depth The depth level specifying how deep a nested array structure should be flattened. Defaults to 1.
+	 *
+	 * @return new flat array
+	 * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/flat
+	 */
+	public Array js_flat(int depth)
+	{
+		return null;
+	}
+
+	/**
+	 * The flatMap() method of Array instances returns a new array formed by applying a given callback function to each element of the array, and then flattening the result by one level.
+	 * It is identical to a map() followed by a flat() of depth 1, but slightly more efficient than calling those two methods separately.
+	 *
+	 * @sample
+	 * const arr1 = [1, 2, 1];
+	 *
+	 * const result = arr1.flatMap((num) => (num === 2 ? [2, 2] : 1));
+	 *
+	 * @param callback A function that produces an element of the new Array, taking three arguments:
+	 * 					- element  The current element being processed in the array.
+	 *                  - index    The index of the current element being processed in the array.
+	 *                  - array    The array flatMap() was called upon.
+	 *
+	 * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/flatMap
+	 */
+	public Boolean js_flatMap(Function callback)
+	{
+		return null;
+	}
+
+	/**
+	 * @clonedesc js_flatMap(Function)
+	 * @sampleas js_flatMap(Function)
+	 *
+	 * @param callback A function that produces an element of the new Array, taking three arguments:
+	 * 					- element  The current element being processed in the array.
+	 *                  - index    The index of the current element being processed in the array.
+	 *                  - array    The array flatMap() was called upon.
+	 * @param thisObject  value to use as this when executing callback
+	 * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/flatMap
+	 */
+	public Boolean js_flatMap(Function callback, Array thisObject)
+	{
+		return null;
+	}
+
+	/**
+	 * The reduceRight() method of Array instances applies a function against an accumulator and each value of the array (from right-to-left) to reduce it to a single value.
+	 * See also reduce() for left-to-right processing.
+	 *
+	 * @sample
+	 * var euros = [29.76, 41.85, 46.5];
+	 * var sum = euros.reduceRight( function(total, amount) {
+	 *   return total + amount
+	 * });
+	 *
+	 * @param f Function to execute on each element in the array, taking four arguments:
+	 *  		-accumulator: accumulates the callback's return values; it is the accumulated value previously returned
+	 * 			              in the last invocation of the callback, or initialValue, if supplied (see below).
+	 * 			-currentValue: the current element being processed in the array.
+	 * 			-currentIndex: the index of the current element being processed in the array (starts at index 0,
+	 * 						  if an initialValue is provided, and at index 1 otherwise)
+	 * 			-array : the array reduce() was called upon.
+	 * @return Object The value that results from the reduction.
+	 *
+	 * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/reduceRight
+	 */
+	public Object js_reduceRight(Function f)
+	{
+		return null;
+	}
+
+	/**
+	 * The reduceRight() method of Array instances applies a function against an accumulator and each value of the array (from right-to-left) to reduce it to a single value.
+	 * See also reduce() for left-to-right processing.
+	 *
+	 * @sample
+	 * var euros = [29.76, 41.85, 46.5];
+	 * var sum = euros.reduceRight( function(total, amount) {
+	 *   return total + amount
+	 * });
+	 *
+	 * @param f Function to execute on each element in the array, taking four arguments:
+	 *  		-accumulator: accumulates the callback's return values; it is the accumulated value previously returned
+	 * 			              in the last invocation of the callback, or initialValue, if supplied (see below).
+	 * 			-currentValue: the current element being processed in the array.
+	 * 			-currentIndex: the index of the current element being processed in the array (starts at index 0,
+	 * 						  if an initialValue is provided, and at index 1 otherwise)
+	 * 			-array : the array reduce() was called upon.
+	 * @param initialValue Value to use as the first argument to the first call of the callback. If no initial value is supplied,
+	 * 					   the first element in the array will be used.
+	 * @return Object The value that results from the reduction.
+	 *
+	 * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/reduceRight
+	 */
+	public Object js_reduceRight(Function f, Object initialValue)
 	{
 		return null;
 	}
