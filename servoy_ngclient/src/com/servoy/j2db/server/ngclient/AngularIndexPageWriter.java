@@ -56,6 +56,7 @@ import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.scripting.StartupArguments;
 import com.servoy.j2db.server.headlessclient.util.HCUtils;
+import com.servoy.j2db.server.ngclient.auth.StatelessLoginUtils.OAuthDeeplinkRequestWrapper;
 import com.servoy.j2db.server.ngclient.auth.SvyID;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.server.shared.IApplicationServer;
@@ -122,7 +123,7 @@ public class AngularIndexPageWriter
 			}
 		}
 		Boolean outputQueryString = Boolean.valueOf(Settings.getInstance().getProperty("servoy.ngclient.output.querystring.for.url.rewrite", "false"));
-		if (outputQueryString.booleanValue())
+		if (outputQueryString.booleanValue() || request instanceof OAuthDeeplinkRequestWrapper)
 			json.put("querystring", StringEscapeUtils.escapeJson(HTTPUtils.generateQueryString(parameterMap, request.getCharacterEncoding())));
 
 		String ipaddr = request.getHeader("X-Forwarded-For"); // in case there is a forwarding proxy
