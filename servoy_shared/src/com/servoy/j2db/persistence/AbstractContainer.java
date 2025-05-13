@@ -176,7 +176,7 @@ public abstract class AbstractContainer extends AbstractBase
 		return getObjects(IRepository.LAYOUTCONTAINERS);
 	}
 
-	public Iterator<CSSPositionLayoutContainer> getResponsiveLayoutContainers()
+	public Iterator<CSSPositionLayoutContainer> getCSSPositionLayoutContainers()
 	{
 		return getObjects(IRepository.CSSPOS_LAYOUTCONTAINERS);
 	}

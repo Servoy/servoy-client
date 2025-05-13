@@ -56,7 +56,7 @@ public interface ISupportResponsiveLayoutContainer
 	{
 		List<JSResponsiveLayoutContainer> containers = new ArrayList<JSResponsiveLayoutContainer>();
 		AbstractContainer container = returnInheritedElements ? getFlattenedContainer() : getContainer();
-		Iterator<CSSPositionLayoutContainer> iterator = container.getResponsiveLayoutContainers();
+		Iterator<CSSPositionLayoutContainer> iterator = container.getCSSPositionLayoutContainers();
 		while (iterator.hasNext())
 		{
 			containers.add(getApplication().getScriptEngine().getSolutionModifier().createResponsiveLayoutContainer((IJSParent)this, iterator.next(), false));
@@ -82,7 +82,7 @@ public interface ISupportResponsiveLayoutContainer
 	{
 		if (name == null) return null;
 
-		Iterator<CSSPositionLayoutContainer> containers = getFlattenedContainer().getResponsiveLayoutContainers();
+		Iterator<CSSPositionLayoutContainer> containers = getFlattenedContainer().getCSSPositionLayoutContainers();
 		while (containers.hasNext())
 		{
 			CSSPositionLayoutContainer container = containers.next();
