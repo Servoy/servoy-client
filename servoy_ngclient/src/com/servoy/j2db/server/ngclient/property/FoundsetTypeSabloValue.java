@@ -300,6 +300,8 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 	public void attachToBaseObject(IChangeListener changeNotifier, IWebObjectContext webObjectCntxt)
 	{
 		this.webObjectContext = webObjectCntxt;
+
+		if (dataAdapterList != null) dataAdapterList.destroy(); // just defensive coding; it should never happen that it's non-null (only if attach is called twice without a detach in between)
 		dataAdapterList = null;
 
 		if (webObjectCntxt != null) lookForInitialPreferredViewportSizePropertyAndApplyIt();

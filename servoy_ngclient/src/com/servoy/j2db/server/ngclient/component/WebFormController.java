@@ -99,6 +99,7 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 		if (formUI != null)
 		{
 			parentContainer = formUI.getParentContainer();
+			formUI.destroy();
 		}
 		if (form.getView() == IFormConstants.VIEW_TYPE_RECORD || form.getView() == IFormConstants.VIEW_TYPE_RECORD_LOCKED)
 		{
