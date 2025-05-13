@@ -17,6 +17,7 @@
 package com.servoy.j2db.scripting;
 
 
+import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormatSymbols;
 import java.text.ParseException;
@@ -1352,6 +1353,23 @@ public class JSUtils implements IJSUtils
 			return Utils.formatNumber(locale == null ? application.getLocale() : locale, number.doubleValue(), digits.intValue());
 		}
 		return ""; //$NON-NLS-1$
+	}
+
+	/**
+	* Creates a large number from a string, use this if you want to create numbers that are larger the a Double floating point number,
+	* So if you want to keep precision exactly correct without any rounding, or you want to hold very large numbers that can't be hold correctly in a double you can use this method.
+	*
+	* @sample
+	* var textalNumber = utils.createLargeNumber("12345678901234567890.1234567890");
+	*
+	* @param value the string literal that represents the number
+	*
+	* @return the resulting number as a java BigDecimal
+	*/
+	@JSFunction
+	public BigDecimal createLargeNumber(String value)
+	{
+		return new BigDecimal(value);
 	}
 
 	/**
