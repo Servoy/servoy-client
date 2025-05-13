@@ -45,6 +45,7 @@ import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.scripting.info.FORMSECURITY;
+import com.servoy.j2db.scripting.info.JSPermission;
 import com.servoy.j2db.scripting.info.TABLESECURITY;
 import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.Debug;
@@ -89,7 +90,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 		{
 			public Class< ? >[] getAllReturnedTypes()
 			{
-				return new Class< ? >[] { TABLESECURITY.class, FORMSECURITY.class };
+				return new Class< ? >[] { TABLESECURITY.class, FORMSECURITY.class, JSPermission.class };
 			}
 		});
 	}

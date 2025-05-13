@@ -133,6 +133,9 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 	//events manager handling the application events
 	protected transient volatile EventsManager eventsManager;
 
+	//permission manager
+	protected transient volatile PermissionManager permissionManager;
+
 	//foundset manager handling the foundsets
 	protected transient volatile IFoundSetManagerInternal foundSetManager;
 
@@ -979,6 +982,25 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		return new EventsManager(this);
 	}
 
+	public PermissionManager getPermissionManager()
+	{
+		if (permissionManager == null && !isShutDown())
+		{
+			synchronized (this)
+			{
+				if (permissionManager == null)
+				{
+					permissionManager = createPermissionManager();
+				}
+			}
+		}
+		return permissionManager;
+	}
+
+	protected PermissionManager createPermissionManager()
+	{
+		return new PermissionManager(this);
+	}
 
 	public String getClientID()
 	{
@@ -1176,6 +1198,8 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 
 		eventsManager = null;
 
+		permissionManager = null;
+
 		saveSettings();
 
 		//de register myself
@@ -1353,6 +1377,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 
 			// clean the events manager, will be recreated when the solution is reloaded
 			eventsManager = null;
+			permissionManager = null;
 
 			// clear broadcast filters and drop any temp tables for this client
 			IDataServer ds = getDataServer();

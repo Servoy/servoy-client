@@ -314,6 +314,13 @@ public interface IApplication extends IBasicApplication, IServiceProvider, ILogL
 	public IEventsManager getEventsManager();
 
 	/**
+	 * Get the permission manager.
+	 *
+	 * @return IEventsManager
+	 */
+	public IPermissionManager getPermissionManager();
+
+	/**
 	 * Get the user manager (used to do authentication and security)
 	 *
 	 * @return
