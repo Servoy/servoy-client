@@ -1056,4 +1056,10 @@ public class ValueListTypeSabloValue
 
 	}
 
+	@Override
+	public String toString()
+	{
+		return "Valuelist('" + valueList.getName() + "' on prop. '" + vlPD.getName() + "')";
+	}
+
 }
