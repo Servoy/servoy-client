@@ -1316,7 +1316,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		{
 			setRecord(null, false); // null record also indirectly clears maxRecIndexPropertyValueListener's foundset listener
 		}
-		if (formController != null && formController.getFormScope() != null)
+		if (formController != null && formController.getFormScope() != null && !formController.isDestroyed()) // the isDestroyed() check is here due tot SVY-20206; where we try to correct an unexpected situation by destroying the DAL (again) if we see that the form controller is destroyed but the DAL listeners still fire
 		{
 			formController.getFormScope().getModificationSubject().removeModificationListener(this);
 		}
@@ -1502,9 +1502,11 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 					new RuntimeException("Destroyed form's name: " + formController.getName()));
 				destroy(); // the DAL
 			}
-
-			propertyValue.dataProviderOrRecordChanged(getRecord(), null, false, false, true);
-			createRelationListeners(propertyValue);
+			else
+			{
+				propertyValue.dataProviderOrRecordChanged(getRecord(), null, false, false, true);
+				createRelationListeners(propertyValue);
+			}
 		}
 
 		@Override
