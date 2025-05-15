@@ -23,8 +23,10 @@ import java.util.stream.Collectors;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.json.JsonParser;
 import org.sablo.WebComponent;
 import org.sablo.specification.IFunctionParameters;
 import org.sablo.specification.PropertyDescription;
@@ -57,6 +59,7 @@ import com.servoy.j2db.server.ngclient.IWebFormController;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.property.types.JSEventType;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions;
+import com.servoy.j2db.server.ngclient.property.types.NGCustomJSONObjectType;
 import com.servoy.j2db.server.ngclient.property.types.RecordPropertyType;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Utils;
@@ -144,9 +147,25 @@ public class EventExecutor
 
 		if (newargs != null)
 		{
+			WebObjectFunctionDefinition propertyDesc = component.getSpecification().getHandler(eventType);
+			IFunctionParameters parameters = propertyDesc.getParameters();
+
 			for (int i = 0; i < newargs.length; i++)
 			{
-				if (newargs[i] instanceof JSONObject && "event".equals(((JSONObject)newargs[i]).optString("type")))
+				boolean isEvent = false, isSubEvent = false;
+
+				if (newargs[i] instanceof JSONObject)
+				{
+					isEvent = "event".equals(((JSONObject)newargs[i]).optString("type"));
+					if (!isEvent && i < parameters.getDefinedArgsCount())
+					{
+						PropertyDescription parameterPropertyDescription = parameters.getParameterDefinition(i);
+						isSubEvent = parameterPropertyDescription.getType() instanceof NGCustomJSONObjectType &&
+							JSEvent.class.getSimpleName().equals(((NGCustomJSONObjectType)parameterPropertyDescription.getType()).getExtends());
+					}
+				}
+
+				if (isEvent || isSubEvent)
 				{
 					// FIXME I think (but we must check how existing things work to not break stuff) that this
 					// whole if branch can be a part of the JSEventType class that could implement IServerRhinoToRhino conversion;
@@ -154,10 +173,35 @@ public class EventExecutor
 
 					JSONObject json = (JSONObject)newargs[i];
 					JSEvent event = new JSEvent();
-					JSEventType.fillJSEvent(event, json, component, formController);
+					JSEventType.fillJSEvent(event, isSubEvent ? json.getJSONObject(NGCustomJSONObjectType.getValueKey()) : json, component, formController);
 					event.setType(getEventType(eventType));
 					event.setName(RepositoryHelper.getDisplayName(eventType, BaseComponent.class));
-					newargs[i] = event;
+
+					if (isSubEvent)
+					{
+						Context cx = Context.enter();
+						try
+						{
+							Object object = new JsonParser(cx, scope).parseValue(json.get(NGCustomJSONObjectType.getValueKey()).toString());
+							if (object instanceof Scriptable s)
+							{
+								s.setPrototype(cx.getWrapFactory().wrapAsJavaObject(cx, scope, event, JSEvent.class));
+							}
+							newargs[i] = object;
+						}
+						catch (Exception ex)
+						{
+							Debug.log(ex);
+						}
+						finally
+						{
+							Context.exit();
+						}
+					}
+					else
+					{
+						newargs[i] = event;
+					}
 				}
 				else if (newargs[i] == JSONObject.NULL)
 				{
@@ -169,13 +213,9 @@ public class EventExecutor
 					// and this conversion has to be done before this method is even called... see SVY-18096
 
 					// try to convert the received arguments
-					WebObjectFunctionDefinition propertyDesc = component.getSpecification().getHandler(eventType);
-					IFunctionParameters parameters = propertyDesc.getParameters();
 					if (i < parameters.getDefinedArgsCount())
 					{
 						PropertyDescription parameterPropertyDescription = parameters.getParameterDefinition(i);
-
-
 						ValueReference<Boolean> returnValueAdjustedIncommingValueForIndex = new ValueReference<Boolean>(Boolean.FALSE);
 						newargs[i] = NGConversions.INSTANCE.convertSabloComponentToRhinoValue(JSONUtils.fromJSON(null, newargs[i], parameterPropertyDescription,
 							new BrowserConverterContext(component, PushToServerEnum.allow), returnValueAdjustedIncommingValueForIndex),
