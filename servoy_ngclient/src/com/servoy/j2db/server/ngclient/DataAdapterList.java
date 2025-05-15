@@ -118,6 +118,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 	private boolean isFormScopeListener;
 	private boolean isGlobalScopeListener;
 
+	private boolean destroyed = false;
 
 	public DataAdapterList(IWebFormController formController)
 	{
@@ -1339,6 +1340,8 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 
 		if (log.isDebugEnabled())
 			log.debug(getClass().getSimpleName() + "(" + hashCode() + ") destroyed for form: '" + formController.getName() + "'");
+
+		destroyed = true;
 	}
 
 	private void clearToWatchRelations()
@@ -1484,10 +1487,19 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		{
 			if (formController.isDestroyed())
 			{
+				// @formatter:off
 				log.error(
-					getClass().getSimpleName() + "(" + hashCode() +
-						") formController is DESTROYED yet DAL still has related listeners registered! Destroying DAL...",
+					getClass().getSimpleName() + "(" + hashCode() + ") formController is DESTROYED yet DAL (destroyed: "
+						+ destroyed + ", "
+						+ (toWatchRelations != null ? Integer.valueOf(toWatchRelations.size()) : "null") + ", "
+						+ dataProviderToLinkedComponentProperty.size() + ", "
+						+ allComponentPropertiesLinkedToData.size() + ", "
+						+ findModeAwareProperties.size() + ", "
+						+ parentRelatedForms.size()
+						+ ", " + visibleChildForms.size() + ", "
+						+ nestedRelatedFoundsetListeners.size() + ") related listeners just fired! Destroying DAL...",
 					new RuntimeException("Destroyed form's name: " + formController.getName()));
+				// @formatter:on
 				destroy(); // the DAL
 			}
 			else
