@@ -1489,15 +1489,19 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 			{
 				// @formatter:off
 				log.error(
-					getClass().getSimpleName() + "(" + hashCode() + ") formController is DESTROYED yet DAL (destroyed: "
-						+ destroyed + ", "
-						+ (toWatchRelations != null ? Integer.valueOf(toWatchRelations.size()) : "null") + ", "
-						+ dataProviderToLinkedComponentProperty.size() + ", "
-						+ allComponentPropertiesLinkedToData.size() + ", "
-						+ findModeAwareProperties.size() + ", "
-						+ parentRelatedForms.size()
-						+ ", " + visibleChildForms.size() + ", "
-						+ nestedRelatedFoundsetListeners.size() + ") related listeners just fired! Destroying DAL...",
+					getClass().getSimpleName() + "(" + hashCode() + ") formController is DESTROYED yet DAL (\n\t\tdestroyed: "
+						+ destroyed
+						+ ",\n\t\thas this RelatedListener: "
+						+ ((toWatchRelations != null && toWatchRelations.values().stream()
+							.<RelatedListener>mapMulti((pair, consumer) -> pair.getRight().forEach(consumer))
+							.anyMatch((rl) -> rl == this)) ? "yes" : "no") + ",\n\t\t"
+						+ (toWatchRelations != null ? Integer.valueOf(toWatchRelations.size()) : "null") + ",\n\t\t"
+						+ dataProviderToLinkedComponentProperty.size() + ",\n\t\t"
+						+ allComponentPropertiesLinkedToData.size() + ",\n\t\t"
+						+ findModeAwareProperties.size() + ",\n\t\t"
+						+ parentRelatedForms.size()	+ ",\n\t\t"
+						+ visibleChildForms.size() + ",\n\t\t"
+						+ nestedRelatedFoundsetListeners.size() + "\n\t) related listeners just fired! Destroying DAL...",
 					new RuntimeException("Destroyed form's name: " + formController.getName()));
 				// @formatter:on
 				destroy(); // the DAL
