@@ -2043,7 +2043,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * @sampleas js_showURL(String)
 	 *
 	 * @param url URL to show
-	 * @param browserTarget Target frame or named dialog/window
+	 * @param browserTarget Target frame or named dialog/window, so its possible to control in which (internal) frame or dialog the url is loaded, '_self' is current window,'_blank' is new dialog, '_top' is main window; default is '_blank'
 	 *
 	 * @return Boolean (true) if URL was shown
 	 */
@@ -2058,7 +2058,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * @sampleas js_showURL(String)
 	 *
 	 * @param url URL to show
-	 * @param browserTarget Target frame or named dialog/window
+	 * @param browserTarget Target frame or named dialog/window, so its possible to control in which (internal) frame or dialog the url is loaded, '_self' is current window,'_blank' is new dialog, '_top' is main window; default is '_blank'
 	 * @param browserTargetOptions Dialog options used when a dialog is specified, example: 'height=200,width=400,status=yes,toolbar=no,menubar=no,location=no'
 	 *
 	 * @return Boolean (true) if URL was shown
@@ -2074,7 +2074,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * @sampleas js_showURL(String)
 	 *
 	 * @param url URL to show
-	 * @param browserTarget Target frame or named dialog/window
+	 * @param browserTarget Target frame or named dialog/window, so its possible to control in which (internal) frame or dialog the url is loaded, '_self' is current window,'_blank' is new dialog, '_top' is main window; default is '_blank'
 	 * @param timeout A timeout in seconds when the url should be shown
 	 *
 	 * @return Boolean (true) if URL was shown
@@ -2090,8 +2090,8 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * @sampleas js_showURL(String)
 	 *
 	 * @param url URL to show
-	 * @param browserTarget Target frame or named dialog/window
-	 * @param browserTargetOptions Dialog options used when a dialog is specified / a timeout in seconds when the url should be shown
+	 * @param browserTarget Target frame or named dialog/window, so its possible to control in which (internal) frame or dialog the url is loaded, '_self' is current window,'_blank' is new dialog, '_top' is main window; default is '_blank'
+	 * @param browserTargetOptions Dialog options used when a dialog is specified, example: 'height=200,width=400,status=yes,toolbar=no,menubar=no,location=no'
 	 * @param timeout A timeout in seconds when the url should be shown
 	 *
 	 * @return Boolean (true) if URL was shown
