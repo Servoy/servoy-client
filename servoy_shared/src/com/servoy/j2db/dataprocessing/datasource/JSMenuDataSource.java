@@ -41,7 +41,7 @@ import com.servoy.j2db.util.ServoyException;
  * relationships. This capability is essential for constructing and navigating nested menu structures
  * effectively.</p>
  *
- * <p>For more details, refer to the <a href="./menufoundset.md">MenuFoundSet</a> documentation.</p>
+ * <p>For more details, refer to the <a href="https://docs.servoy.com/reference/servoycore/dev-api/database-manager/menufoundset">MenuFoundSet</a> documentation.</p>
  *
  * @author lvostinar
  *

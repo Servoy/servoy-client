@@ -54,7 +54,7 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
  * for embedding subqueries, and <code>remove(name)</code> to remove a column by its name.</p>
  *
  * <p>For further details, refer to the
- * <a href="./qbselect.md">QBSelect documentation</a>.</p>
+ * <a href="https://docs.servoy.com/reference/servoycore/dev-api/database-manager/qbselect">QBSelect documentation</a>.</p>
  *
  * @author rgansevles
  *

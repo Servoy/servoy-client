@@ -51,7 +51,7 @@ import com.servoy.j2db.util.Utils;
  * <p>Properties and additional functionality extend to retrieving extra information, such as through the <code>getExtraProperty</code> method, and updating the menu item’s appearance and behavior dynamically.
  * These capabilities make <code>JSMenuItem</code> a versatile tool for creating adaptive and secure menu systems in Servoy applications.</p>
  *
- * <p><a href="../../../servoy-developer/solution-explorer/all-solutions/active-solution/menus/menu-item.md">MenuItem</a> section  of this documentation</p>
+ * <p><a href="https://docs.servoy.com/reference/servoy-developer/solution-explorer/all-solutions/active-solution/menus/menu-item">MenuItem</a> section  of this documentation</p>
  *
  * @author lvostinar
  *

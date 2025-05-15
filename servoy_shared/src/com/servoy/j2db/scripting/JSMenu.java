@@ -54,7 +54,7 @@ import com.servoy.j2db.util.Utils;
  * For enhanced security considerations, the <code>getMenuItemsWithSecurity()</code> method provides items with security metadata, and the <code>getSelectedItem()</code> method retrieves the currently selected item.</p>
  *
  * <p>For further information, refer to the
- * <a href="../../../servoy-developer/menu/README.md">menu</a> section of this documentation.</p>
+ * <a href="https://docs.servoy.com/reference/servoy-developer/menu">menu</a> section of this documentation.</p>
  *
  * @author lvostinar
  *

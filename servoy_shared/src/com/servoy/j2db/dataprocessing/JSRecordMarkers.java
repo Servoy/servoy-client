@@ -46,7 +46,7 @@ import com.servoy.j2db.util.ILogLevel;
  * <p>These features make JSRecordMarkers an essential tool for robust validation workflows in Servoy applications, ensuring fine-grained error handling and reporting.</p>
  *
  * <p>You may also refer to the
- * <a href="./viewrecord.md#recordmarkers">Record Markers - View Record</a> documentation.</p>
+ * <a href="https://docs.servoy.com/reference/servoycore/dev-api/database-manager/viewrecord#recordmarkers">Record Markers - View Record</a> documentation.</p>
  *
  * @since 2020.09
  *

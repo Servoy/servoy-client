@@ -53,7 +53,7 @@ import com.servoy.j2db.util.Debug;
  * <p>JSWebComponent supports both design-time and runtime modifications, allowing components to be customized during development or adjusted dynamically at runtime.</p>
  *
  * <p>For more details, refer to the
- * <a href="../../../servoycore/dev-api/forms/runtimeform/elements/runtimewebcomponent.md">RuntimeWebComponent</a> section of this documentation.</p>
+ * <a href="https://docs.servoy.com/reference/servoycore/dev-api/forms/runtimeform/elements/runtimewebcomponent">RuntimeWebComponent</a> section of this documentation.</p>
  *
  * @author lvostinar
  *

@@ -77,7 +77,7 @@ import com.servoy.j2db.util.Utils;
  * over application access at a granular level.</p>
  *
  * <p>For more information, please refer to the overall
- * <a href="../../../guides/develop/security/README.md">Security</a> documentation.</p>
+ * <a href="https://docs.servoy.com/guides/develop/security">Security</a> documentation.</p>
  *
  * @author jcompagner,seb,jblok
  */

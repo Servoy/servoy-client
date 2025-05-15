@@ -45,7 +45,7 @@ import com.servoy.j2db.util.UUID;
  * Variables can also be modified to change their type or default behavior.</p>
  *
  * <p>Variables can alternatively be created and managed using the
- * <a href="../../../servoy-developer/object-editors/variable-editor.md">Variable Editor</a>.</p>
+ * <a href="https://docs.servoy.com/reference/servoy-developer/object-editors/variable-editor">Variable Editor</a>.</p>
  *
  * @author jcompagner
  */

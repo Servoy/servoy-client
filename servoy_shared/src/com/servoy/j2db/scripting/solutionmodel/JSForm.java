@@ -92,7 +92,7 @@ import com.servoy.j2db.util.docvalidator.IdentDocumentValidator;
  * </p>
  *
  *
- * Please refer to the <a href="../../object-model/solution/form.md">Form</a> section of this documentation for details.
+ * Please refer to the <a href="https://docs.servoy.com/reference/servoycore/object-model/solution/form">Form</a> section of this documentation for details.
  *
  * @author jcompagner
  */

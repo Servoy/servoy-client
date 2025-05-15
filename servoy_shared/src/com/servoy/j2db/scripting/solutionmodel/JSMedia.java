@@ -43,7 +43,7 @@ import com.servoy.j2db.util.UUID;
  *   <li><b><code>setAsString(string)</code></b>: Updates the media’s byte content using a UTF-8 encoded string, enabling quick modifications with string inputs.</li>
  * </ul>
  *
- * <p>For more comprehensive information, refer to the <a href="../../../servoy-developer/solution-explorer/all-solutions/active-solution/media/README.md">media</a> section of this documentation.</p>
+ * <p>For more comprehensive information, refer to the <a href="https://docs.servoy.com/reference/servoy-developer/solution-explorer/all-solutions/active-solution/media">media</a> section of this documentation.</p>
  *
  * @author jcompagner
  */

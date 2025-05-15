@@ -43,7 +43,7 @@ import com.servoy.j2db.util.Debug;
  * and access tables within the server.
  *
  * For further details on configuring connections, refer to the
- * <a href="./jsconnectiondefinition.md">JSConnectionDefinition</a> documentation.
+ * <a href="https://docs.servoy.com/reference/servoycore/dev-api/datasources/jsconnectiondefinition">JSConnectionDefinition</a> documentation.
  *
  * @author rgansevles
  *

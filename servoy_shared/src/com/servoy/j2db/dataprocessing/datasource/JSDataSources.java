@@ -37,7 +37,6 @@ import com.servoy.j2db.util.IDestroyable;
  * <p><code>Datasources</code> in Servoy provide a structured way to interact with various
  * types of data sources, such as database tables, in-memory tables, views, and stored
  * procedures. These <code>datasources</code> are accessible through the <code>datasources</code>
- * object and support dynamic code completion based on the solution’s data model, enabling
  * efficient development.</p>
  *
  * <p><code>Datasources</code> include types like <code>DBDataSource</code>,
@@ -49,10 +48,10 @@ import com.servoy.j2db.util.IDestroyable;
  * <code>menu</code> property handles menu-related datasources.</p>
  *
  * <p>For details related to datasources, refer to the specific sections in the Servoy documentation:</p>
- * <p><a href="./dbdatasourceserver.md">DBDataSourceServer</a></p>
- * <p><a href="../../../../guides/develop/application-design/data-modeling/in-memory-databases.md#create-in-memory-datasource">
+ * <p><a href="https://docs.servoy.com/reference/servoycore/dev-api/datasources/dbdatasourceserver">DBDataSourceServer</a></p>
+ * <p><a href="https://docs.servoy.com/guides/develop/application-design/data-modeling/in-memory-databases#create-in-memory-datasource">
  * Create In Memory DataSource</a></p>
- * <p><a href="../../../../guides/develop/application-design/data-modeling/view-datasource.md">
+ * <p><a href="https://docs.servoy.com/guides/develop/application-design/data-modeling/view-datasource">
  * View Foundset Datasource</a></p>
  *
  * @author rgansevles

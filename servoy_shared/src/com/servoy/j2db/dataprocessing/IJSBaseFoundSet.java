@@ -53,7 +53,7 @@ import com.servoy.j2db.util.Utils;
  * <code>getSelectedIndex</code>. For multi-select scenarios, <code>setSelectedIndexes</code> and
  * <code>getSelectedIndexes</code> enable handling multiple selected records.</p>
  *
- * <p>For more information, refer to the <a href="./jsfoundset.md">FoundSet</a> documentation.</p>
+ * <p>For more information, refer to the <a href="https://docs.servoy.com/reference/servoycore/dev-api/database-manager/jsfoundset">FoundSet</a> documentation.</p>
  *
  * @author rgansevles
  */

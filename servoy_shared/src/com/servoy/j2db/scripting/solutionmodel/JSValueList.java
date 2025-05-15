@@ -59,7 +59,7 @@ import com.servoy.j2db.util.UUID;
  * and dynamically updating their configuration.</p>
  *
  * <p>For more details, please refer to the
- * <a href="../../../servoy-developer/solution-explorer/all-solutions/active-solution/valuelists/valuelist.md">Value list</a> section of these documentation.</p>
+ * <a href="https://docs.servoy.com/reference/servoy-developer/solution-explorer/all-solutions/active-solution/valuelists/valuelist">Value list</a> section of these documentation.</p>
  *
  *
  * @author jcompagner
