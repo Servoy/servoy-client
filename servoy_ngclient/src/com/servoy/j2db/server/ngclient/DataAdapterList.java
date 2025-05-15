@@ -1490,9 +1490,11 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 					new RuntimeException("Destroyed form's name: " + formController.getName()));
 				destroy(); // the DAL
 			}
-
-			propertyValue.dataProviderOrRecordChanged(getRecord(), null, false, false, true);
-			createRelationListeners(propertyValue);
+			else
+			{
+				propertyValue.dataProviderOrRecordChanged(getRecord(), null, false, false, true);
+				createRelationListeners(propertyValue);
+			}
 		}
 
 		@Override
