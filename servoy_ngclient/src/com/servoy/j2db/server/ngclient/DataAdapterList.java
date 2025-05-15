@@ -34,6 +34,8 @@ import org.sablo.specification.property.BrowserConverterContext;
 import org.sablo.specification.property.IPropertyConverterForBrowser;
 import org.sablo.specification.property.IPropertyType;
 import org.sablo.specification.property.types.TypesRegistry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.servoy.base.util.ITagResolver;
 import com.servoy.j2db.ApplicationException;
@@ -89,6 +91,8 @@ import com.servoy.j2db.util.Utils;
 public class DataAdapterList implements IModificationListener, ITagResolver, IDataAdapterList
 {
 
+	protected static final Logger log = LoggerFactory.getLogger(DataAdapterList.class.getCanonicalName());
+
 	// properties that are interested in a specific dataproviderID chaning
 	protected final Map<String, List<IDataLinkedPropertyValue>> dataProviderToLinkedComponentProperty = new HashMap<>(); // dataProviderID -> [(comp, propertyName)]
 
@@ -114,9 +118,13 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 	private boolean isFormScopeListener;
 	private boolean isGlobalScopeListener;
 
+	private boolean destroyed = false;
 
 	public DataAdapterList(IWebFormController formController)
 	{
+		if (log.isDebugEnabled())
+			log.debug(getClass().getSimpleName() + "(" + hashCode() + ") created for form: '" + formController.getName() + "'");
+
 		this.formController = formController;
 		this.executor = new EventExecutor(formController);
 
@@ -579,7 +587,31 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		if (targetDataLinks.relations != null)
 		{
 			if (toWatchRelations == null) toWatchRelations = new HashMap<>(3);
-			toWatchRelations.put(propertyValue, new Pair<Relation[], List<RelatedListener>>(targetDataLinks.relations, Collections.emptyList()));
+
+			Pair<Relation[], List<RelatedListener>> previousRelatedListenersForThisProp = toWatchRelations.get(propertyValue);
+			if (previousRelatedListenersForThisProp != null)
+			{
+				// this should never happen - but maybe addDataLinkedProperty gets called twice with the same propertyValue without calling removeDataLinkedProperty in between
+				if (log.isWarnEnabled())
+					log.warn(getClass().getSimpleName() + "(" + hashCode() +
+						") [internal] A property with targetDataLinks.relations != null was added to the DAL twice, without being removed in between those calls.",
+						new RuntimeException(
+							"Property that was added twice without being removed: '" + propertyValue + "' on DAL of form " + formController.getName()));
+
+				// keep the old value so that createRelationListeners() below clears any old listeners in .getRight()
+				// but update the relations in case they are not the same
+				previousRelatedListenersForThisProp.setLeft(targetDataLinks.relations);
+			}
+			else
+			{
+				if (log.isDebugEnabled())
+					log.debug(getClass().getSimpleName() + "(" + hashCode() +
+						") A property with targetDataLinks.relations != null was added to the DAL.",
+						new RuntimeException("[harmless, just for the stack] Property: '" + propertyValue + "' on DAL of form " + formController.getName()));
+
+				toWatchRelations.put(propertyValue, new Pair<Relation[], List<RelatedListener>>(targetDataLinks.relations, Collections.emptyList()));
+			}
+
 			createRelationListeners(propertyValue);
 		}
 	}
@@ -604,6 +636,11 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 			Pair<Relation[], List<RelatedListener>> toWatchRelationsForPropertyValue = toWatchRelations.remove(propertyValue);
 			if (toWatchRelationsForPropertyValue != null)
 			{
+				if (log.isDebugEnabled())
+					log.debug(getClass().getSimpleName() + "(" + hashCode() +
+						") A property with targetDataLinks.relations != null was removed from the DAL.",
+						new RuntimeException("[harmless, just for the stack] Property: '" + propertyValue + "' on DAL of form " + formController.getName()));
+
 				toWatchRelationsForPropertyValue.getRight().forEach(listener -> listener.dispose());
 				toWatchRelationsForPropertyValue.getRight().clear();
 			}
@@ -1280,7 +1317,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		{
 			setRecord(null, false); // null record also indirectly clears maxRecIndexPropertyValueListener's foundset listener
 		}
-		if (formController != null && formController.getFormScope() != null)
+		if (formController != null && formController.getFormScope() != null && !formController.isDestroyed()) // the isDestroyed() check is here due tot SVY-20206; where we try to correct an unexpected situation by destroying the DAL (again) if we see that the form controller is destroyed but the DAL listeners still fire
 		{
 			formController.getFormScope().getModificationSubject().removeModificationListener(this);
 		}
@@ -1300,6 +1337,11 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		findModeAwareProperties.clear();
 		parentRelatedForms.clear();
 		visibleChildForms.clear();
+
+		if (log.isDebugEnabled())
+			log.debug(getClass().getSimpleName() + "(" + hashCode() + ") destroyed for form: '" + formController.getName() + "'");
+
+		destroyed = true;
 	}
 
 	private void clearToWatchRelations()
@@ -1455,8 +1497,28 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 
 		private void changed()
 		{
-			propertyValue.dataProviderOrRecordChanged(getRecord(), null, false, false, true);
-			createRelationListeners(propertyValue);
+			if (formController.isDestroyed())
+			{
+				// @formatter:off
+				log.error(
+					getClass().getSimpleName() + "(" + hashCode() + ") formController is DESTROYED yet DAL (destroyed: "
+						+ destroyed + ", "
+						+ (toWatchRelations != null ? Integer.valueOf(toWatchRelations.size()) : "null") + ", "
+						+ dataProviderToLinkedComponentProperty.size() + ", "
+						+ allComponentPropertiesLinkedToData.size() + ", "
+						+ findModeAwareProperties.size() + ", "
+						+ parentRelatedForms.size()
+						+ ", " + visibleChildForms.size() + ", "
+						+ nestedRelatedFoundsetListeners.size() + ") related listeners just fired! Destroying DAL...",
+					new RuntimeException("Destroyed form's name: " + formController.getName()));
+				// @formatter:on
+				destroy(); // the DAL
+			}
+			else
+			{
+				propertyValue.dataProviderOrRecordChanged(getRecord(), null, false, false, true);
+				createRelationListeners(propertyValue);
+			}
 		}
 
 		@Override

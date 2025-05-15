@@ -53,7 +53,7 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
  * aiding in query documentation and readability.</p>
  *
  * <p>For further details on constructing and executing queries, refer to the
- * <a href="./qbselect.md">QBSelect documentation</a>.</p>
+ * <a href="https://docs.servoy.com/reference/servoycore/dev-api/database-manager/qbselect">QBSelect documentation</a>.</p>
  *
  * @author rgansevles
  *

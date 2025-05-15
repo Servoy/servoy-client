@@ -76,7 +76,7 @@ import com.servoy.j2db.util.Utils;
  * and validations. The class ensures flexibility by providing utilities for checking the loaded
  * state of related foundsets and handling record edits efficiently.</p>
  *
- * <p>For more details, refer to the <a href="./jsfoundset.md">JSFoundset</a> documentation.</p>
+ * <p>For more details, refer to the <a href="https://docs.servoy.com/reference/servoycore/dev-api/database-manager/jsfoundset">JSFoundset</a> documentation.</p>
  *
  * @author jblok
  */

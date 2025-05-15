@@ -62,7 +62,7 @@ import com.servoy.j2db.util.Utils;
  * its load.</p>
  *
  * <p>For more information on managing records within the context of view foundsets, refer to the
- * <a href="./viewfoundset.md">View foundset</a> section of the documentation.</p>
+ * <a href="https://docs.servoy.com/reference/servoycore/dev-api/database-manager/viewfoundset">View foundset</a> section of the documentation.</p>
  *
  * @author jcompagner
  * @since 8.4

@@ -43,7 +43,7 @@ import com.servoy.j2db.util.UUID;
  * schema.</p>
  *
  * <p>For a broader understanding of database-level features and capabilities, refer to the
- * <a href="../database-server/README.md">Database Server</a> documentation.</p>
+ * <a href="https://docs.servoy.com/reference/servoy-developer/solution-explorer/resources/database-servers/database-server">Database Server</a> documentation.</p>
  *
  * @author jblok
  */

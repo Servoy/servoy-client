@@ -34,7 +34,7 @@ import com.servoy.j2db.querybuilder.IQueryBuilderSearchCaseExpression;
  * column types. These features make it a versatile tool for building expressive and dynamic queries.</p>
  *
  * <p>For further details, refer to the
- * <a href="./qbselect.md">QBSelect documentation</a>.</p>
+ * <a href="https://docs.servoy.com/reference/servoycore/dev-api/database-manager/qbselect">QBSelect documentation</a>.</p>
  *
  * @author rgansevles
  *

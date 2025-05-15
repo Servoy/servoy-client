@@ -57,7 +57,7 @@ import com.servoy.j2db.util.model.AlwaysRowSelectedSelectionModel;
  * <p><code>MenuFoundSet</code> enables a menu structure to function as a datasource, allowing menu items to be treated as records
  * within the Servoy Developer environment. This provides access to menu properties as dataproviders, which are read-only, and
  * supports hierarchical relationships, such as parent-child structures based on <code>parentid</code>.
- * These capabilities allow components like <a href="../../../servoyextensions/ui-components/visualization/dbtreeview.md">DBTreeView</a>
+ * These capabilities allow components like <a href="https://docs.servoy.com/reference/servoyextensions/ui-components/visualization/dbtreeview">DBTreeView</a>
  * to work seamlessly with menu records and enable complex menu representations with FormComponents.</p>
  *
  * <h3>Example Usage</h3>
@@ -71,7 +71,7 @@ import com.servoy.j2db.util.model.AlwaysRowSelectedSelectionModel;
  * </pre>
  *
  * <p>For further details on setting up and working with datasources, see
- * <a href="../datasources/jsdatasource.md">Datasource Setup</a>.</p>
+ * <a href="https://docs.servoy.com/reference/servoycore/dev-api/datasources/jsdatasource">Datasource Setup</a>.</p>
  *
  * @author lvostinar
  *

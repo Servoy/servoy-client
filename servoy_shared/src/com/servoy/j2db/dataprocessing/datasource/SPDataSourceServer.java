@@ -82,7 +82,7 @@ import com.servoy.j2db.util.ServoyException;
  * <p>Stored procedures provide powerful tools for offloading operations to the database server, especially useful for data manipulation that benefits
  * from database processing power rather than client-side execution.</p>
  *
- * <p>For details on how to use Stored Procedures with Servoy, refer to the <a href="../../../guides/develop/application-design/data-modeling/databases/procedures.md">Procedures</a> section of this documentation.</p>
+ * <p>For details on how to use Stored Procedures with Servoy, refer to the <a href="https://docs.servoy.com/guides/develop/application-design/data-modeling/databases/procedures">Procedures</a> section of this documentation.</p>
  *
  * @author rgansevles
  *

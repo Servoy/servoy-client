@@ -43,7 +43,7 @@ import com.servoy.j2db.util.Utils;
  * menu items to behave as records, facilitating component interactions that treat menu items as data entries.
  *
  * For more information on working with menu datasources, refer to
- * <a href="menufoundset.md">MenuFoundSet</a>.
+ * <a href="https://docs.servoy.com/reference/servoycore/dev-api/database-manager/menufoundset">MenuFoundSet</a>.
  *
  * @author lvostinar
  *

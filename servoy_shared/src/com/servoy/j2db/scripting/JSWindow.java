@@ -47,7 +47,7 @@ import com.servoy.j2db.util.ServoyException;
  * These features enhance customization and integration within applications.</p>
  *
  * <p>Refer to the
- * <a href="../../../../guides/develop/programming-guide/scripting-the-ui/windows-dialogs-and-popups.md">Creating window</a> documentation for additional details.</p>
+ * <a href="https://docs.servoy.com/guides/develop/programming-guide/scripting-the-ui/windows-dialogs-and-popups">Creating window</a> documentation for additional details.</p>
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "JSWindow")
 @ServoyClientSupport(ng = true, wc = true, sc = true)

@@ -39,7 +39,7 @@ import com.servoy.j2db.util.TypePredicate;
  * centralized access to query parameters, supporting the creation of dynamic, flexible query structures.
  *
  * For additional information on working with parameters, see
- * <a href="../../../../guides/develop/programming-guide/working-with-data/searching/query-builder.md">Query Builder</a>
+ * <a href="https://docs.servoy.com/guides/develop/programming-guide/working-with-data/searching/query-builder">Query Builder</a>
  * in the Servoy documentation.
  *
  * @author rgansevles

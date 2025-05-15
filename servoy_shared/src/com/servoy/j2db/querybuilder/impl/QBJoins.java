@@ -63,7 +63,7 @@ import com.servoy.j2db.util.Debug;
  * with parent and root query references, allowing for scalable and modular query design.</p>
  *
  * <p>For additional guidance on query construction and execution, see the
- * <a href="./qbselect.md">QBSelect documentation</a>.</p>
+ * <a href="https://docs.servoy.com/reference/servoycore/dev-api/database-manager/qbselect">QBSelect documentation</a>.</p>
  *
  * @author rgansevles
  *

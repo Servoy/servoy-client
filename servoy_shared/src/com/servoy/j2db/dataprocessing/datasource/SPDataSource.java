@@ -71,7 +71,7 @@ import com.servoy.j2db.util.Debug;
  *   <li><b>Error Handling</b>: Procedures may throw database-side exceptions; handling these at the database layer will prevent disruption in the Servoy client.</li>
  * </ul>
  *
- * <p>For details on how to use Stored Procedures with Servoy, refer to the <a href="../../../guides/develop/application-design/data-modeling/databases/procedures.md">Procedures</a> section of this documentation.</p>
+ * <p>For details on how to use Stored Procedures with Servoy, refer to the <a href="https://docs.servoy.com/guides/develop/application-design/data-modeling/databases/procedures">Procedures</a> section of this documentation.</p>
  *
  * @author jcompagner
  *

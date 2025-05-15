@@ -35,7 +35,7 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
  * <p>The <code>level</code> property indicates the logging level assigned to the record marker, classifying the severity of the issue.
  * The <code>record</code> property links the marker to the specific record it references, facilitating direct association with the affected data.</p>
  *
- * <p>This wrapper is closely related to <a href="./jsrecordmarkers.md">JSRecordMarkers</a>, which manages validation states and aggregates multiple <code>JSRecordMarker</code>
+ * <p>This wrapper is closely related to <a href="https://docs.servoy.com/reference/servoycore/dev-api/database-manager/jsrecordmarkers">JSRecordMarkers</a>, which manages validation states and aggregates multiple <code>JSRecordMarker</code>
  * instances for broader reporting and validation workflows.</p>
  *
  * <h2>Reference</h2>

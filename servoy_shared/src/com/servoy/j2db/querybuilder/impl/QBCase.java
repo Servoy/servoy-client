@@ -44,7 +44,7 @@ import com.servoy.j2db.util.Pair;
  * clause or the root query, allowing seamless integration with other query builder components.</p>
  *
  * <p>For more information about constructing and executing queries, refer to
- * <a href="./qbselect.md">QBSelect</a> section of this documentation.</p>
+ * <a href="https://docs.servoy.com/reference/servoycore/dev-api/database-manager/qbselect">QBSelect</a> section of this documentation.</p>
  *
  * @author rgansevles
  *

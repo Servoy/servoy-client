@@ -59,7 +59,7 @@ import com.servoy.j2db.util.UUID;
  *
  * <p>These capabilities make JSMethod a versatile component for customizing and extending script-based behavior in Servoy applications.</p>
  *
- * <p>For details read the<a href="../../object-model/database-server/table/method.md">Method</a> section of this documentation</p>
+ * <p>For details read the<a href="https://docs.servoy.com/reference/servoycore/object-model/database-server/table/method">Method</a> section of this documentation</p>
  *
  * @author jcompagner
  */

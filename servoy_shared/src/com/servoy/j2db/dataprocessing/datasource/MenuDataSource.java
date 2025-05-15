@@ -34,7 +34,7 @@ import com.servoy.j2db.util.DataSourceUtils;
  * for enhanced menu interactions.
  *
  * For more on setting up and using menu datasources, see
- * <a href="../database-manager/menufoundset.md">MenuFoundSet</a>.
+ * <a href="https://docs.servoy.com/reference/servoycore/dev-api/database-manager/menufoundset">MenuFoundSet</a>.
  *
  *
  * @author lvostinar

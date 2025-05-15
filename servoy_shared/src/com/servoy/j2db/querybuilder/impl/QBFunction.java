@@ -36,7 +36,7 @@ import com.servoy.j2db.querybuilder.IQueryBuilderFunction;
  * and <code>lt</code> provide powerful tools for data filtering and comparison.</p>
  *
  * <p>For more information on constructing and executing queries, refer to the
- * <a href="./qbselect.md">QBSelect</a> section of this documentation.</p>
+ * <a href="https://docs.servoy.com/reference/servoycore/dev-api/database-manager/qbselect">QBSelect</a> section of this documentation.</p>
  *
  * @author rgansevles
  *
