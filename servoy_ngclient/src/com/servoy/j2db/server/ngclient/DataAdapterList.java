@@ -543,6 +543,16 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 
 	public void addDataLinkedProperty(IDataLinkedPropertyValue propertyValue, TargetDataLinks targetDataLinks)
 	{
+		if (destroyed)
+		{
+			log.error(getClass().getSimpleName() + "(" + hashCode() +
+				") [internal] An attempt to add a property to an already destroyed DAL was detected! Ignoring...",
+				new RuntimeException(
+					"[harmless] Property: " + propertyValue + " (" + targetDataLinks + ") on DAL of form " + formController.getName()));
+
+			return;
+		}
+
 		if (targetDataLinks == TargetDataLinks.NOT_LINKED_TO_DATA || targetDataLinks == null) return;
 
 		String[] dataproviders = targetDataLinks.dataProviderIDs;
@@ -572,9 +582,10 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 			}
 			if (allLinksOfDP.remove(propertyValue))
 			{
-				Debug.warn("DAL.addDataLinkedProperty - trying to register the same (equal) property value twice (" + propertyValue +
+				log.warn("DAL.addDataLinkedProperty... " + getClass().getSimpleName() + "(" + hashCode() + "); form: " + formController.getName() +
+					" - trying to register the same (equal) property value twice (" + propertyValue +
 					"); this means that some code that uses DAL is not working properly (maybe cleanup/detach malfunction); will use latest value... Links: " +
-					targetDataLinks);
+					targetDataLinks, new RuntimeException("[harmless] just for stack trace"));
 			}
 
 			allLinksOfDP.add(propertyValue);
@@ -596,7 +607,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 					log.warn(getClass().getSimpleName() + "(" + hashCode() +
 						") [internal] A property with targetDataLinks.relations != null was added to the DAL twice, without being removed in between those calls.",
 						new RuntimeException(
-							"Property that was added twice without being removed: '" + propertyValue + "' on DAL of form " + formController.getName()));
+							"Property that was added twice without being removed: " + propertyValue + " on DAL of form " + formController.getName()));
 
 				// keep the old value so that createRelationListeners() below clears any old listeners in .getRight()
 				// but update the relations in case they are not the same
@@ -607,7 +618,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 				if (log.isDebugEnabled())
 					log.debug(getClass().getSimpleName() + "(" + hashCode() +
 						") A property with targetDataLinks.relations != null was added to the DAL.",
-						new RuntimeException("[harmless, just for the stack] Property: '" + propertyValue + "' on DAL of form " + formController.getName()));
+						new RuntimeException("[harmless, just for the stack] Property: " + propertyValue + " on DAL of form " + formController.getName()));
 
 				toWatchRelations.put(propertyValue, new Pair<Relation[], List<RelatedListener>>(targetDataLinks.relations, Collections.emptyList()));
 			}
@@ -1317,7 +1328,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		{
 			setRecord(null, false); // null record also indirectly clears maxRecIndexPropertyValueListener's foundset listener
 		}
-		if (formController != null && formController.getFormScope() != null && !formController.isDestroyed()) // the isDestroyed() check is here due tot SVY-20206; where we try to correct an unexpected situation by destroying the DAL (again) if we see that the form controller is destroyed but the DAL listeners still fire
+		if (formController != null && !formController.isDestroyed() && formController.getFormScope() != null) // the isDestroyed() check is here due tot SVY-20206; where we try to correct an unexpected situation by destroying the DAL (again) if we see that the form controller is destroyed but the DAL listeners still fire
 		{
 			formController.getFormScope().getModificationSubject().removeModificationListener(this);
 		}
@@ -1489,7 +1500,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 			{
 				// @formatter:off
 				log.error(
-					getClass().getSimpleName() + "(" + hashCode() + ") formController is DESTROYED yet DAL (\n\t\tdestroyed: "
+					DataAdapterList.this.getClass().getSimpleName() + "(" + hashCode() + ") formController is DESTROYED yet DAL (\n\t\tdestroyed: "
 						+ destroyed
 						+ ",\n\t\thas this RelatedListener: "
 						+ ((toWatchRelations != null && toWatchRelations.values().stream()
