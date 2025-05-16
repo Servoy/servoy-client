@@ -469,4 +469,9 @@ public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends Custo
 		return javaValue;
 	}
 
+	public static String getValueKey()
+	{
+		return VALUE;
+	}
+
 }
