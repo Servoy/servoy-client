@@ -49,14 +49,19 @@ import com.servoy.j2db.IView;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.PrototypeState;
 import com.servoy.j2db.persistence.Form;
-import com.servoy.j2db.persistence.IFormElement;
+import com.servoy.j2db.persistence.ISupportFormElement;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.PositionComparator;
 import com.servoy.j2db.persistence.RepositoryHelper;
+import com.servoy.j2db.persistence.ScriptMethod;
+import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.scripting.DefaultScope;
+import com.servoy.j2db.scripting.GlobalScope;
+import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.scripting.JSApplication.FormAndComponent;
 import com.servoy.j2db.scripting.JSEvent;
+import com.servoy.j2db.scripting.info.EventType;
 import com.servoy.j2db.server.ngclient.ClientDesignService;
 import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.IDataAdapterList;
@@ -99,6 +104,7 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 		if (formUI != null)
 		{
 			parentContainer = formUI.getParentContainer();
+			formUI.destroy();
 		}
 		if (form.getView() == IFormConstants.VIEW_TYPE_RECORD || form.getView() == IFormConstants.VIEW_TYPE_RECORD_LOCKED)
 		{
@@ -208,7 +214,7 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 	{
 		if (isDestroyed()) return true;
 		if (!getFormUI().getDataAdapterList().stopUIEditing(looseFocus)) return false;
-		if (looseFocus && form.getOnRecordEditStopMethodID() != 0)
+		if (looseFocus)
 		{
 			//allow beans to store there data via method
 			IRecordInternal[] records = getApplication().getFoundSetManager().getEditRecordList().getUnmarkedEditedRecords(formModel, this);
@@ -636,10 +642,10 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 			if (defaultTabSequence)
 			{
 				ArrayList<String> sequence = new ArrayList<String>();
-				Iterator<IFormElement> it = form.getFormElementsSortedByFormIndex();
+				Iterator<ISupportFormElement> it = form.getFormElementsSortedByFormIndex();
 				while (it.hasNext())
 				{
-					IFormElement element = it.next();
+					ISupportFormElement element = it.next();
 					if (element.getName() != null) sequence.add(element.getName());
 				}
 				tabSequence = sequence.toArray(new String[sequence.size()]);
@@ -738,38 +744,93 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 		}
 		boolean notifyVisibleSuccess = super.notifyVisible(visible, invokeLaterRunnables, executePreHideSteps);
 
-		if (EventExecutor.EVENT_TRACING_LOG.isInfoEnabled())
+		if (EventExecutor.EVENT_TRACING_LOG.isTraceEnabled())
 		{
 			Object[] tenantValue = application.getScriptEngine().getJSSecurity().getTenantValue();
 			if (visible)
 			{
-				EventExecutor.EVENT_TRACING_LOG.info(application.getUserName() + '|' + application.getClientID() + '|' + Arrays.toString(tenantValue) + '|' +
+				EventExecutor.EVENT_TRACING_LOG.trace(application.getUserName() + '|' + application.getClientID() + '|' + Arrays.toString(tenantValue) + '|' +
 					application.getSolutionName() + '|' + getName() + "|FORM_SHOWN|" + notifyVisibleSuccess + '|'); //$NON-NLS-1$
 			}
 			else
 			{
-				EventExecutor.EVENT_TRACING_LOG.info(application.getUserName() + '|' + application.getClientID() + '|' + Arrays.toString(tenantValue) + '|' +
+				EventExecutor.EVENT_TRACING_LOG.trace(application.getUserName() + '|' + application.getClientID() + '|' + Arrays.toString(tenantValue) + '|' +
 					application.getSolutionName() + '|' + getName() + "|FORM_HIDDEN|" + notifyVisibleSuccess + '|'); //$NON-NLS-1$
 			}
 		}
 		if (notifyVisibleSuccess)
 		{
-			for (WebComponent comp : getFormUI().getComponents())
+			Runnable run = new Runnable()
 			{
-				RuntimeWebComponent runtimeComponent = getFormUI().getRuntimeWebComponent(comp.getName());
-				if (runtimeComponent != null)
+				public void run()
 				{
-					WebObjectFunctionDefinition function = null;
-					if (visible)
-						function = comp.getSpecification().getInternalApiFunction("onShow");
-					else
-						function = comp.getSpecification().getInternalApiFunction("onHide");
+					for (WebComponent comp : getFormUI().getComponents())
+					{
+						RuntimeWebComponent runtimeComponent = getFormUI().getRuntimeWebComponent(comp.getName());
+						if (runtimeComponent != null)
+						{
+							WebObjectFunctionDefinition function = null;
+							if (visible)
+								function = comp.getSpecification().getInternalApiFunction("onShow");
+							else
+								function = comp.getSpecification().getInternalApiFunction("onHide");
+							if (function != null)
+							{
+								runtimeComponent.executeScopeFunction(function, new Object[0]);
+							}
+						}
+					}
+				}
+			};
+			invokeLaterRunnables.add(run);
+			Map<String, Object> eventMethods = getForm().getCustomEventsMethods();
+			for (String eventName : eventMethods.keySet())
+			{
+				EventType eventType = application.getFlattenedSolution().getEventType(eventName);
+				if (eventType != null)
+				{
+					Object eventUUID = eventMethods.get(eventName);
+					Function function = null;
+					if (eventUUID != null)
+					{
+						ScriptMethod scriptMethod = getApplication().getFlattenedSolution().getScriptMethod(eventUUID.toString());
+						if (scriptMethod != null)
+						{
+							if (scriptMethod.getParent() instanceof Form)
+							{
+								function = getFormScope().getFunctionByName(scriptMethod.getName());
+							}
+							// is it a global method
+							else if (scriptMethod.getParent() instanceof Solution)
+							{
+								if (getApplication().getScriptEngine().getScopesScope()
+									.getGlobalScope(scriptMethod.getScopeName()) instanceof GlobalScope globalScope)
+								{
+									function = globalScope.getFunctionByName(scriptMethod.getName());
+								}
+							}
+							else if (getFormModel() instanceof Scriptable foundsetScope)
+							{
+								Object scopeMethod = foundsetScope.getPrototype().get(scriptMethod.getName(), foundsetScope);
+								if (scopeMethod instanceof Function)
+									function = (Function)scopeMethod;
+							}
+						}
+					}
 					if (function != null)
 					{
-						runtimeComponent.executeScopeFunction(function, new Object[0]);
+						if (visible)
+						{
+							application.getEventsManager().addListener(eventType, function, IExecutingEnviroment.TOPLEVEL_FORMS + '.' + getName());
+						}
+						else
+						{
+							application.getEventsManager().removeListener(eventType, function, IExecutingEnviroment.TOPLEVEL_FORMS + '.' + getName());
+						}
 					}
 				}
 			}
+
 		}
 
 		if (notifyVisibleSuccess) notifyVisibleOnChildren(visible, invokeLaterRunnables); // TODO should notifyVisibleSuccess be altered here? See WebFormUI/WebFormComponent notifyVisible calls.

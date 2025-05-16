@@ -845,4 +845,378 @@ public class Array
 	{
 		return null;
 	}
+
+	/**
+	 *  Iterates the array in reverse order and returns the value of the first element that satisfies the provided testing function.
+	 *  If no elements satisfy the testing function, undefined is returned.
+	 *  The callback function can invoked with three arguments: the element value, the element index (optional), the array being traversed (optional).
+	 *
+	 *  @sample
+	 *  const array1 = [5, 12, 50, 130, 44];
+	 *  const found = array1.findLast((element) => element > 45);
+	 *  application.output(found); // prints 130
+	 *
+	 * @param callback a testing function
+	 * @return the index of the first element which satisfies the function or undefined
+	 */
+	public Object js_findLast(Function callback)
+	{
+		return null;
+	}
+
+	/**
+	 *  Iterates the array in reverse order and returns the index of the first element that satisfies the provided testing function.
+	 *  If no elements satisfy the testing function, -1 is returned.
+	 *  The callback function can invoked with three arguments: the element value, the element index (optional), the array being traversed (optional).
+	 *
+	 *  @sample
+	 *  const array1 = [5, 12, 50, 130, 44];
+	 *  const found = array1.findLast((element) => element > 45);
+	 *  application.output(found); // prints 3
+	 *
+	 * @param callback a testing function
+	 * @return the index of the first element which satisfies the function or undefined
+	 */
+	public Object js_findLastIndex(Function callback)
+	{
+		return null;
+	}
+
+	/**
+	 * The toReversed() method transposes the elements of the calling array object in reverse order and returns a new array.
+	 * When used on sparse arrays, the toReversed() method iterates empty slots as if they have the value undefined.
+	 *
+	 * @sample
+	 * const items = [1, 2, 3];
+	 * application.output(items); // [1, 2, 3]
+	 * const reversedItems = items.toReversed();
+	 * application.output(reversedItems); // [3, 2, 1]
+	 *
+	 * @return a new array containing the elements in reversed order
+	 *
+	 * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/toReversed
+	 */
+	public Array js_toReversed()
+	{
+		return null;
+	}
+
+	/**
+	 * It is the copying version of the sort() method. It returns a new array with the elements sorted in ascending order.
+	 * The array elements are converted to strings, then sorted according to each character's Unicode code point value.
+	 * When used on sparse arrays, the toSorted() method iterates empty slots as if they have the value undefined.
+	 *
+	 * @sample
+	 * const months = ["Mar", "Jan", "Feb", "Dec"];
+	 * const sortedMonths = months.toSorted();
+	 * application.output(sortedMonths); // ['Dec', 'Feb', 'Jan', 'Mar']
+	 *
+	 * @return a new array containing the elements sorted in ascending order
+	 *
+	 * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/toSorted
+	 */
+	public Array js_toSorted()
+	{
+		return null;
+	}
+
+	/**
+	 * It is the copying version of the sort() method. It returns a new array with the elements sorted in ascending order.
+	 * When used on sparse arrays, the toSorted() method iterates empty slots as if they have the value undefined.
+	 *
+	 * @sample
+	 * const values = [1, 10, 21, 2];
+	 * const sortedValues = values.toSorted((a, b) => a - b);
+	 * application.output(sortedValues); // [1, 2, 10, 21]
+	 *
+	 * @param comparator a comparator function
+	 * @return a new array containing the elements sorted in ascending order
+	 *
+	 * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/toSorted
+	 */
+	public Array js_toSorted(Function comparator)
+	{
+		return null;
+	}
+
+	/**
+	 * It is the copying version of the splice() method. It returns a new array with some elements removed and/or replaced at a given index.
+	 *
+	 * @sample
+	 * const months = ["Jan", "Mar", "Apr", "May"];
+	 * const months2 = months.toSpliced(2);
+	 * application.output(months2); // ["Jan", "Mar"]
+	 *
+	 * @param start
+	 * @return a new array that consists of all elements before start
+	 *
+	 * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/toSpliced
+	 */
+	public Array js_toSpliced(Object start)
+	{
+		return null;
+	}
+
+	/**
+	 * It is the copying version of the splice() method. It returns a new array with some elements removed and/or replaced at a given index.
+	 *
+	 * @sample
+	 * const months = ["Jan", "Mar", "Apr", "May"];
+	 * const months2 = months.toSpliced(2, 2);
+	 * application.output(months2); // ["Jan", "Mar", "May"]
+	 *
+	 * @param start
+	 * @param deleteCount
+	 * @return a new array that consists of all elements before start and all elements after start + deleteCount.
+	 *
+	 * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/toSpliced
+	 */
+	public Array js_toSpliced(Object start, Object deleteCount)
+	{
+		return null;
+	}
+
+	/**
+	 * It is the copying version of the splice() method. It returns a new array with some elements removed and/or replaced at a given index.
+	 *
+	 * @sample
+	 * const months = ["Jan", "Mar", "Apr", "May"];
+	 * const months2 = months.toSpliced(1, 0, "Feb");
+	 * application.output(months2); // ["Jan", "Feb", "Mar", "Apr", "May"]
+	 *
+	 * @param start
+	 * @param deleteCount
+	 * @param item1
+	 * @return a new array that consists of all elements before start, adds item1 to the array (beginning from start) and all elements after start + deleteCount.
+	 *
+	 * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/toSpliced
+	 */
+	public Array js_toSpliced(Object start, Object deleteCount, Object item1)
+	{
+		return null;
+	}
+
+	/**
+	 * It is the copying version of the splice() method. It returns a new array with some elements removed and/or replaced at a given index.
+	 *
+	 * @sample
+	 * const months = ["Jan", "Feb", "May"];
+	 * const months2 = months.toSpliced(1, 1, "Feb", "Mar");
+	 * application.output(months2); // ["Jan", "Feb", "Mar", "May"]
+	 *
+	 * @param start
+	 * @param deleteCount
+	 * @param items
+	 * @return a new array that consists of all elements before start, adds items to the array (beginning from start) and all elements after start + deleteCount.
+	 *
+	 * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/toSpliced
+	 */
+	public Array js_toSpliced(Object start, Object deleteCount, Object... items)
+	{
+		return null;
+	}
+
+	/**
+	 * It is the copying version of using the bracket notation to change the value of a given index.
+	 *
+	 * @sample
+	 * const arr = [1, 2, 3, 4, 5];
+	 * application.output(arr.with(2, 6)); // [1, 2, 6, 4, 5]
+	 *
+	 * @param index
+	 * @param value
+	 * @return a new array with the element at the given index replaced with the given value.
+	 *
+	 * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/with
+	 */
+	public Array js_with(Object index, Object value)
+	{
+		return null;
+	}
+
+	/**
+	 * Takes an integer value and returns the item at that index, allowing for positive and negative integers. Negative integers count back from the last item in the array.
+	 *
+	 * @sample
+	 * const arr = [1, 2, 3, 4, 5];
+	 * application.output(arr.at(2));
+	 *
+	 * @param index
+	 * @return The element in the array matching the given index.
+	 *
+	 * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/at
+	 */
+	public Array js_at(int index)
+	{
+		return null;
+	}
+
+	/**
+	 * The entries() method of Array instances returns a new array iterator object that contains the key/value pairs for each index in the array.
+	 *
+	 * @sample
+	 * const arr = [1, 2, 3, 4, 5];
+	 * const iterator = arr.entries();
+	 *
+	 * @return the iterator
+	 * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/entries
+	 */
+	public Iterator js_entries()
+	{
+		return null;
+	}
+
+	/**
+	 * The values() method of Array instances returns a new array iterator object that iterates the value of each item in the array.
+	 *
+	 * @sample
+	 * const arr = [1, 2, 3, 4, 5];
+	 * const iterator = arr.values();
+	 *
+	 * @return the iterator
+	 * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/values
+	 */
+	public Iterator js_values()
+	{
+		return null;
+	}
+
+	/**
+	 * The keys() method of Array instances returns a new array iterator object that contains the keys for each index in the array.
+	 *
+	 * @sample
+	 * const arr = [1, 2, 3, 4, 5];
+	 * const iterator = arr.keys();
+	 *
+	 * @return the iterator
+	 * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/keys
+	 */
+	public Iterator js_keys()
+	{
+		return null;
+	}
+
+	/**
+	 * The flat() method of Array instances creates a new array with all sub-array elements concatenated into it recursively up to the specified depth.
+	 * Default depth is 1.
+	 *
+	 * @sample
+	 * const arr1 = [0, 1, 2, [3, 4]];
+	 * const newarr = arr.flat();
+	 *
+	 * @return new flat array
+	 * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/flat
+	 */
+	public Array js_flat()
+	{
+		return null;
+	}
+
+	/**
+	 * The flat() method of Array instances creates a new array with all sub-array elements concatenated into it recursively up to the specified depth.
+	 *
+	 * @sample
+	 * const arr1 = [0, 1, 2, [3, 4, 5, [6, 7]]];
+	 * const newarr = arr.flat(2);
+	 *
+	 * @param depth The depth level specifying how deep a nested array structure should be flattened. Defaults to 1.
+	 *
+	 * @return new flat array
+	 * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/flat
+	 */
+	public Array js_flat(int depth)
+	{
+		return null;
+	}
+
+	/**
+	 * The flatMap() method of Array instances returns a new array formed by applying a given callback function to each element of the array, and then flattening the result by one level.
+	 * It is identical to a map() followed by a flat() of depth 1, but slightly more efficient than calling those two methods separately.
+	 *
+	 * @sample
+	 * const arr1 = [1, 2, 1];
+	 *
+	 * const result = arr1.flatMap((num) => (num === 2 ? [2, 2] : 1));
+	 *
+	 * @param callback A function that produces an element of the new Array, taking three arguments:
+	 * 					- element  The current element being processed in the array.
+	 *                  - index    The index of the current element being processed in the array.
+	 *                  - array    The array flatMap() was called upon.
+	 *
+	 * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/flatMap
+	 */
+	public Boolean js_flatMap(Function callback)
+	{
+		return null;
+	}
+
+	/**
+	 * @clonedesc js_flatMap(Function)
+	 * @sampleas js_flatMap(Function)
+	 *
+	 * @param callback A function that produces an element of the new Array, taking three arguments:
+	 * 					- element  The current element being processed in the array.
+	 *                  - index    The index of the current element being processed in the array.
+	 *                  - array    The array flatMap() was called upon.
+	 * @param thisObject  value to use as this when executing callback
+	 * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/flatMap
+	 */
+	public Boolean js_flatMap(Function callback, Array thisObject)
+	{
+		return null;
+	}
+
+	/**
+	 * The reduceRight() method of Array instances applies a function against an accumulator and each value of the array (from right-to-left) to reduce it to a single value.
+	 * See also reduce() for left-to-right processing.
+	 *
+	 * @sample
+	 * var euros = [29.76, 41.85, 46.5];
+	 * var sum = euros.reduceRight( function(total, amount) {
+	 *   return total + amount
+	 * });
+	 *
+	 * @param f Function to execute on each element in the array, taking four arguments:
+	 *  		-accumulator: accumulates the callback's return values; it is the accumulated value previously returned
+	 * 			              in the last invocation of the callback, or initialValue, if supplied (see below).
+	 * 			-currentValue: the current element being processed in the array.
+	 * 			-currentIndex: the index of the current element being processed in the array (starts at index 0,
+	 * 						  if an initialValue is provided, and at index 1 otherwise)
+	 * 			-array : the array reduce() was called upon.
+	 * @return Object The value that results from the reduction.
+	 *
+	 * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/reduceRight
+	 */
+	public Object js_reduceRight(Function f)
+	{
+		return null;
+	}
+
+	/**
+	 * The reduceRight() method of Array instances applies a function against an accumulator and each value of the array (from right-to-left) to reduce it to a single value.
+	 * See also reduce() for left-to-right processing.
+	 *
+	 * @sample
+	 * var euros = [29.76, 41.85, 46.5];
+	 * var sum = euros.reduceRight( function(total, amount) {
+	 *   return total + amount
+	 * });
+	 *
+	 * @param f Function to execute on each element in the array, taking four arguments:
+	 *  		-accumulator: accumulates the callback's return values; it is the accumulated value previously returned
+	 * 			              in the last invocation of the callback, or initialValue, if supplied (see below).
+	 * 			-currentValue: the current element being processed in the array.
+	 * 			-currentIndex: the index of the current element being processed in the array (starts at index 0,
+	 * 						  if an initialValue is provided, and at index 1 otherwise)
+	 * 			-array : the array reduce() was called upon.
+	 * @param initialValue Value to use as the first argument to the first call of the callback. If no initial value is supplied,
+	 * 					   the first element in the array will be used.
+	 * @return Object The value that results from the reduction.
+	 *
+	 * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/reduceRight
+	 */
+	public Object js_reduceRight(Function f, Object initialValue)
+	{
+		return null;
+	}
 }

@@ -31,6 +31,8 @@ import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.json.JSONObject;
+
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.base.util.DataSourceUtilsBase;
 import com.servoy.j2db.documentation.ServoyDocumented;
@@ -99,7 +101,8 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 		DEFAULT(1),
 		SERVOY_CLOUD(2),
 		AUTHENTICATOR(3),
-		OAUTH(4);
+		OAUTH(4),
+		OAUTH_AUTHENTICATOR(5);
 
 		private final int value;
 
@@ -130,6 +133,8 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 					return AUTHENTICATOR;
 				case 4 :
 					return OAUTH;
+				case 5 :
+					return OAUTH_AUTHENTICATOR;
 			}
 			return null;
 		}
@@ -957,7 +962,6 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 
 	/**
 	 * Flag that tells if authentication is needed in order to access the solution.
-	 * If unchecked, the Smart Client will always require authentication, regardless of this setting.
 	 * If checked, authentication is required, and either a provided loginSolution or otherwise the default Servoy login mechanism will be used.
 	 * If default Servoy login mechanism is used, the "servoy.webclient.basic.authentication" setting on the Admin Page can be used to enable the use of the standard browser basic authentication.
 	 */
@@ -1443,7 +1447,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	 * 	}
 	 * }
 	 * //if returns false or no return, error is not reported to client; if returns true error is reported
-	 * //by default error report means logging the error, in smart client an error dialog will also show up
+	 * //by default error report means logging the error
 	 * return true
 	 */
 	public int getOnErrorMethodID()
@@ -1664,6 +1668,22 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_VERSION);
 	}
 
+
+	public void setEventTypes(JSONObject eventTypes)
+	{
+		this.setTypedProperty(StaticContentSpecLoader.PROPERTY_EVENTTYPES, eventTypes);
+	}
+
+	/**
+	 * These are the event types of the solution that can be added/fired/removed from eventsManager object.
+	 * These event types are added on top of default form events.
+	 * They can be access through EventType.name property when used to fire or listen to.
+	 */
+	@ServoyClientSupport(ng = true, mc = true, wc = true, sc = true)
+	public JSONObject getEventTypes()
+	{
+		return this.getTypedProperty(StaticContentSpecLoader.PROPERTY_EVENTTYPES);
+	}
 
 	@Override
 	public int compareTo(Solution o)

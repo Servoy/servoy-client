@@ -31,7 +31,10 @@ import com.servoy.j2db.ui.runtime.HasRuntimeImageURL;
  *
  * @author jcompagner
  * @since 6.1
+ *
+ * @deprecated not used in ngclient
  */
+@Deprecated
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "Renderable", publicName = "Renderable")
 @ServoyClientSupport(mc = false, wc = true, sc = true)
 public interface IScriptRenderMethodsWithOptionalProps extends IScriptRenderMethods, HasRuntimeFormat, HasRuntimeImageURL

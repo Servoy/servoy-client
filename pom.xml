@@ -6,16 +6,16 @@
 		<maven>3.9.0</maven>
 	</prerequisites>
 	<artifactId>servoy-client</artifactId>
-	<version>2025.3.0.4040_rc</version>
+	<version>2025.6.0.4080_rc</version>
 	<groupId>com.servoy</groupId>
 	<packaging>pom</packaging>
 
 	<properties>
-		<tycho.version>4.0.9</tycho.version>
-		<rhino.version>1.7.15.s3</rhino.version>
+		<tycho.version>4.0.12</tycho.version>
+		<rhino.version>1.8.0.s2</rhino.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<maven.compiler.source>17</maven.compiler.source>
-		<maven.compiler.target>17</maven.compiler.target>
+		<maven.compiler.source>21</maven.compiler.source>
+		<maven.compiler.target>21</maven.compiler.target>
 	</properties>
 
 	<repositories>
@@ -95,6 +95,7 @@
 				<artifactId>target-platform-configuration</artifactId>
 				<version>${tycho.version}</version>
 				<configuration>
+					<executionEnvironment>JavaSE-21</executionEnvironment>
 					<target>
 						<artifact>
 							<groupId>com.servoy</groupId>

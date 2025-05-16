@@ -42,7 +42,7 @@
                                 },
                                 {
                                     "name":"arguments",
-                                    "type":"object []",
+                                    "type":"object[]",
                                     "optional":true
                                 },
                                 {
@@ -153,21 +153,25 @@
                ],
               "returns": "FormPopup"
           },
-         "createPopupMenu": {
-               "parameters":[
-                {
-                    "name":"menu",
-                    "type":"JSMenu",
-                    "optional":true
-                },
-                {
-                     "name":"callback",
-                     "type":"function",
-                     "optional":true
-                }
-               ],
-               "returns": "Popup"
-            }  
+         "createPopupMenu": {    
+            "parameters":[],
+            "overloads": [
+            	{
+            		"parameters": [
+            			{
+		                    "name":"menu",
+		                    "type":"JSMenu"
+		                },
+		                {
+		                     "name":"callback",
+		                     "type":"function"
+		                }
+            		],
+            		"returns": "Popup"
+            	}
+            ],
+            "returns": "Popup"
+         }  
     },
     "internalApi":
     {

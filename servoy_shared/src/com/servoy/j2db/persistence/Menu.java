@@ -17,23 +17,25 @@
 
 package com.servoy.j2db.persistence;
 
+import java.util.Map;
+
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.util.UUID;
 
 /**
-* <p>The <code>Menu</code> object is a reusable design-time entity that represents 
-* a list of menu items. It can be utilized across various components and services, 
+* <p>The <code>Menu</code> object is a reusable design-time entity that represents
+* a list of menu items. It can be utilized across various components and services,
 * promoting consistency in menu design.</p>
-* 
+*
 * <h2>Functionality</h2>
-* <p>The <code>Menu</code> object includes several key properties. The 
-* <code>comment</code> property allows adding programmer notes or other descriptive 
-* information about the menu's purpose. The <code>encapsulation</code> property 
-* defines the menu's visibility, with options such as "Public" (accessible across 
-* modules) or "Module Scope" (restricted to the same module). The <code>name</code> 
-* property serves as the unique identifier for the menu. Additionally, the 
-* <code>styleClass</code> property allows associating CSS classes for styling 
+* <p>The <code>Menu</code> object includes several key properties. The
+* <code>comment</code> property allows adding programmer notes or other descriptive
+* information about the menu's purpose. The <code>encapsulation</code> property
+* defines the menu's visibility, with options such as "Public" (accessible across
+* modules) or "Module Scope" (restricted to the same module). The <code>name</code>
+* property serves as the unique identifier for the menu. Additionally, the
+* <code>styleClass</code> property allows associating CSS classes for styling
 * purposes.</p>
 *
 * @author lvostinar
@@ -45,6 +47,8 @@ public class Menu extends AbstractBase implements ISupportUpdateableName, ISuppo
 {
 	private static final long serialVersionUID = 1L;
 
+	private static String PROPERTY_DEFINITIONS = "propertyDefinitions";
+	public static String CUSTOM_PROPERTIES_CATEGORY = "Custom Properties";
 
 	/**
 	 * Constructor I
@@ -112,12 +116,9 @@ public class Menu extends AbstractBase implements ISupportUpdateableName, ISuppo
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_STYLECLASS, arg);
 	}
 
-	public MenuItem createNewMenuItem(IValidateName validator, String menuItemName) throws RepositoryException
+	public MenuItem createNewMenuItem(String menuItemName) throws RepositoryException
 	{
 		String name = menuItemName == null ? "untitled" : menuItemName; //$NON-NLS-1$
-
-		//check if name is in use
-		validator.checkName(name, 0, new ValidatorSearchContext(IRepository.MENU_ITEMS), false);
 
 		MenuItem obj = (MenuItem)getRootObject().getChangeHandler().createNewObject(this, IRepository.MENU_ITEMS);
 		//set all the required properties
@@ -126,6 +127,34 @@ public class Menu extends AbstractBase implements ISupportUpdateableName, ISuppo
 
 		addChild(obj);
 		return obj;
+	}
+
+	public Object putCustomPropertyDefinition(String name, Object value)
+	{
+		if (name != null)
+		{
+			return putCustomProperty(new String[] { PROPERTY_DEFINITIONS, name }, value);
+		}
+		return null;
+	}
+
+	public Object clearCustomPropertyDefinition(String name)
+	{
+		if (name != null)
+		{
+			return clearCustomProperty(new String[] { PROPERTY_DEFINITIONS, name });
+		}
+		return null;
+	}
+
+	public Map<String, Object> getCustomPropertiesDefinition()
+	{
+		Map<String, Object> map = (Map<String, Object>)getCustomProperty(new String[] { PROPERTY_DEFINITIONS });
+		if (map == null || map.size() == 0)
+		{
+			return null;
+		}
+		return map;
 	}
 
 	@Override

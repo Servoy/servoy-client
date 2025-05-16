@@ -62,7 +62,7 @@ public class DataproviderPropertyType extends DefaultPropertyType<DataproviderTy
 	public static final DataproviderPropertyType INSTANCE = new DataproviderPropertyType();
 	public static final String TYPE_NAME = "dataprovider"; //$NON-NLS-1$
 
-	protected DataproviderPropertyType()
+	private DataproviderPropertyType()
 	{
 	}
 

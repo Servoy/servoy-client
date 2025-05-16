@@ -35,8 +35,8 @@ import com.servoy.j2db.util.Debug;
  *
  * For further reference, see:
   <ul>
- * 	<li><a href="./dbdatasourceserver.md">DBDataSourceServer</a></li>
- * 	<li><a href="./README.md">Datasources</a></li>
+ * 	<li><a href="https://docs.servoy.com/reference/servoycore/dev-api/datasources/dbdatasourceserver">DBDataSourceServer</a></li>
+ * 	<li><a href="https://docs.servoy.com/reference/servoycore/dev-api/datasources">Datasources</a></li>
  * </ul>
  *
  * @author rgansevles

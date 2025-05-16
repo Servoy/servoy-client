@@ -47,7 +47,7 @@ public class LabelForPropertyType extends DefaultPropertyType<String>
 	public static final LabelForPropertyType INSTANCE = new LabelForPropertyType();
 	public static final String TYPE_NAME = "labelfor";
 
-	protected LabelForPropertyType()
+	private LabelForPropertyType()
 	{
 	}
 

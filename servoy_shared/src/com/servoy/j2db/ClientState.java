@@ -105,7 +105,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 	private transient IClientHost clientHost;
 
 	//the script engine
-	private volatile IExecutingEnviroment scriptEngine;
+	protected volatile IExecutingEnviroment scriptEngine;
 
 	//holding the application setting
 	protected Properties settings;
@@ -129,6 +129,12 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 
 	//menu manager handling the application menus
 	protected transient volatile MenuManager menuManager;
+
+	//events manager handling the application events
+	protected transient volatile EventsManager eventsManager;
+
+	//permission manager
+	protected transient volatile PermissionManager permissionManager;
 
 	//foundset manager handling the foundsets
 	protected transient volatile IFoundSetManagerInternal foundSetManager;
@@ -297,7 +303,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		// create formmanager
 		formManager = createFormManager();
 
-		// create modemanager
+		// create menumanager
 		menuManager = createMenuManager();
 
 		// Runtime.getRuntime().addShutdownHook(new Thread()
@@ -956,6 +962,46 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		return new MenuManager(this);
 	}
 
+	public IEventsManager getEventsManager()
+	{
+		if (eventsManager == null && !isShutDown())
+		{
+			synchronized (this)
+			{
+				if (eventsManager == null)
+				{
+					eventsManager = createEventsManager();
+				}
+			}
+		}
+		return eventsManager;
+	}
+
+	protected EventsManager createEventsManager()
+	{
+		return new EventsManager(this);
+	}
+
+	public PermissionManager getPermissionManager()
+	{
+		if (permissionManager == null && !isShutDown())
+		{
+			synchronized (this)
+			{
+				if (permissionManager == null)
+				{
+					permissionManager = createPermissionManager();
+				}
+			}
+		}
+		return permissionManager;
+	}
+
+	protected PermissionManager createPermissionManager()
+	{
+		return new PermissionManager(this);
+	}
+
 	public String getClientID()
 	{
 		if (clientInfo == null)
@@ -1150,6 +1196,10 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 
 		menuManager = null;
 
+		eventsManager = null;
+
+		permissionManager = null;
+
 		saveSettings();
 
 		//de register myself
@@ -1324,6 +1374,10 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 				scriptEngine.destroy();
 				scriptEngine = null;// delete current script engine
 			}
+
+			// clean the events manager, will be recreated when the solution is reloaded
+			eventsManager = null;
+			permissionManager = null;
 
 			// clear broadcast filters and drop any temp tables for this client
 			IDataServer ds = getDataServer();

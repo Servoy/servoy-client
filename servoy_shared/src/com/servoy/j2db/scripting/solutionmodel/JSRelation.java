@@ -63,7 +63,7 @@ import com.servoy.j2db.util.UUID;
  * <p>JSRelation supports a robust configuration system with detailed examples, showcasing the integration of parent-child relations and control over operations
  * such as cascading deletions, dynamic key assignments, and data source management.</p>
  *
- * For details please refer to the <a href="../../object-model/solution/relation.md">Relation</a> section of this documentation</p>
+ * For details please refer to the <a href="https://docs.servoy.com/reference/servoycore/object-model/solution/relation">Relation</a> section of this documentation</p>
  *
  * @author jcompagner
  */

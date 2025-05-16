@@ -128,7 +128,7 @@ public class JWTValidator
 						Boolean remember = Boolean.valueOf("offline".equals(auth.optString("access_type")));
 						String payload = new String(java.util.Base64.getUrlDecoder().decode(decodedJWT.getPayload()));
 
-						if (authenticator == AUTHENTICATOR_TYPE.OAUTH)
+						if (authenticator == AUTHENTICATOR_TYPE.OAUTH || authenticator == AUTHENTICATOR_TYPE.OAUTH_AUTHENTICATOR)
 						{
 							JSONObject token = new JSONObject();
 							JSONObject jsonObject = new JSONObject(payload);

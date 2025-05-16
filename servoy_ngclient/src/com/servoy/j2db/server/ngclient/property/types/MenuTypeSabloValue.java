@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -29,10 +30,12 @@ import org.json.JSONWriter;
 import org.sablo.IChangeListener;
 import org.sablo.IWebObjectContext;
 import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.PropertyDescriptionBuilder;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IPropertyConverterForBrowser;
 import org.sablo.specification.property.IPropertyWithClientSideConversions;
 import org.sablo.specification.property.ISmartPropertyValue;
+import org.sablo.specification.property.types.TypesRegistry;
 import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.j2db.dataprocessing.IModificationListener;
@@ -40,9 +43,12 @@ import com.servoy.j2db.dataprocessing.ModificationEvent;
 import com.servoy.j2db.scripting.JSMenu;
 import com.servoy.j2db.scripting.JSMenuItem;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
+import com.servoy.j2db.server.ngclient.IContextProvider;
+import com.servoy.j2db.server.ngclient.INGApplication;
 import com.servoy.j2db.server.ngclient.INGFormElement;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToSabloComponent;
+import com.servoy.j2db.util.Text;
 
 /**
  * @author lvostinar
@@ -54,6 +60,9 @@ public class MenuTypeSabloValue implements ISmartPropertyValue, IChangeListener,
 	private JSMenu jsMenu;
 	private final Map<String, Map<String, PropertyDescription>> extraProperties;
 	private final Map<JSMenuItem, Map<String, ISmartPropertyValue>> extraPropertiesSmartValues = new HashMap<JSMenuItem, Map<String, ISmartPropertyValue>>();
+	private final Map<String, PropertyDescription> customPropertiesDefinitions;
+	private final Map<JSMenuItem, Map<String, ISmartPropertyValue>> customPropertiesSmartValues = new HashMap<JSMenuItem, Map<String, ISmartPropertyValue>>();
+	private final DataAdapterList dataAdapterList;
 
 	public MenuTypeSabloValue(JSMenu menu, Map<String, Map<String, PropertyDescription>> extraProperties, INGFormElement formElement,
 		WebFormComponent component,
@@ -61,6 +70,8 @@ public class MenuTypeSabloValue implements ISmartPropertyValue, IChangeListener,
 	{
 		this.jsMenu = menu;
 		this.extraProperties = extraProperties;
+		this.dataAdapterList = dataAdapterList;
+		this.customPropertiesDefinitions = getCustomPropertiesDefinitions();
 		addMenuItemsSabloValues(jsMenu.getMenuItemsWithSecurity(), formElement, component,
 			dataAdapterList);
 	}
@@ -69,6 +80,20 @@ public class MenuTypeSabloValue implements ISmartPropertyValue, IChangeListener,
 	{
 		this.jsMenu = menu;
 		this.extraProperties = extraProperties;
+		this.dataAdapterList = null;
+		this.customPropertiesDefinitions = getCustomPropertiesDefinitions();
+	}
+
+	/**
+	 * @return
+	 */
+	private Map<String, PropertyDescription> getCustomPropertiesDefinitions()
+	{
+		Map<String, Object> definitions = this.jsMenu.getCustomPropertiesDefinition();
+		if (definitions == null) return new HashMap<String, PropertyDescription>();
+		return definitions.keySet().stream()
+			.map(key -> new PropertyDescriptionBuilder().withName(key).withType(TypesRegistry.getType(definitions.get(key).toString(), false)).build())
+			.collect(Collectors.toMap(pd -> pd.getName(), pd -> pd));
 	}
 
 	public void toJSON(JSONWriter writer, String key, IBrowserConverterContext dataConverterContext) throws IllegalArgumentException, JSONException
@@ -87,21 +112,29 @@ public class MenuTypeSabloValue implements ISmartPropertyValue, IChangeListener,
 		{
 			List<Map<String, Object>> itemsList = new ArrayList<Map<String, Object>>();
 			menuMap.put("items", itemsList);
+			INGApplication application = null;
+			if (dataConverterContext != null && dataConverterContext.getWebObject() instanceof IContextProvider contextProvider)
+			{
+				application = contextProvider.getDataConverterContext().getApplication();
+			}
 			for (JSMenuItem item : items)
 			{
 				Map<String, Object> itemMap = new HashMap<String, Object>();
 				itemsList.add(itemMap);
 				itemMap.put("itemID", item.getName());
-				itemMap.put("menuText", item.getMenuText());
+				itemMap.put("menuText",
+					Text.processTags(application != null ? application.getI18NMessageIfPrefixed(item.getMenuText()) : item.getMenuText(), dataAdapterList));
 				itemMap.put("styleClass", item.getStyleClass());
 				itemMap.put("iconStyleClass", item.getIconStyleClass());
-				itemMap.put("tooltipText", item.getTooltipText());
+				itemMap.put("tooltipText", Text
+					.processTags(application != null ? application.getI18NMessageIfPrefixed(item.getTooltipText()) : item.getTooltipText(), dataAdapterList));
 				itemMap.put("enabled", item.getEnabledWithSecurity());
 				itemMap.put("isSelected", item == selectedItem);
 				itemMap.put("callbackArguments", item.getCallbackArguments());
 				itemMap.put("extraProperties",
 					getExtraPropertiesWithDefaultValues(item.getExtraProperties(), this.extraProperties, this.extraPropertiesSmartValues.get(item),
 						dataConverterContext));
+				addMenuItemsCustomProperties(item, itemMap, dataConverterContext);
 				addMenuItemsForJSON(itemMap, item.getMenuItemsWithSecurity(), selectedItem, dataConverterContext);
 			}
 		}
@@ -143,6 +176,27 @@ public class MenuTypeSabloValue implements ISmartPropertyValue, IChangeListener,
 
 						}
 					}
+				}
+				Map<String, Object> customPropertiesValues = item.getCustomProperties();
+				for (String propertyName : customPropertiesDefinitions.keySet())
+				{
+					PropertyDescription definition = customPropertiesDefinitions.get(propertyName);
+					if (customPropertiesValues.containsKey(propertyName) && definition.getType() instanceof IFormElementToSabloComponent type)
+					{
+						Object sabloValue = type.toSabloComponentValue(customPropertiesValues.get(propertyName), definition, formElement, component,
+							dataAdapterList);
+						if (sabloValue instanceof ISmartPropertyValue smartValue)
+						{
+							Map<String, ISmartPropertyValue> smartValues = this.customPropertiesSmartValues.get(item);
+							if (smartValues == null)
+							{
+								smartValues = new HashMap<String, ISmartPropertyValue>();
+								this.customPropertiesSmartValues.put(item, smartValues);
+							}
+							smartValues.put(propertyName, smartValue);
+						}
+					}
+
 				}
 				addMenuItemsSabloValues(item.getMenuItemsWithSecurity(), formElement, component,
 					dataAdapterList);
@@ -221,12 +275,63 @@ public class MenuTypeSabloValue implements ISmartPropertyValue, IChangeListener,
 		return extraPropertiesValues;
 	}
 
+	private void addMenuItemsCustomProperties(JSMenuItem item, Map<String, Object> itemMap, IBrowserConverterContext dataConverterContext)
+	{
+		Map<String, Object> customProperties = item.getCustomProperties();
+		itemMap.putAll(customProperties);
+		Map<String, ISmartPropertyValue> smartValues = this.customPropertiesSmartValues.get(item);
+		if (smartValues != null)
+		{
+			for (String propertyName : customProperties.keySet())
+			{
+				ISmartPropertyValue sabloValue = smartValues.get(propertyName);
+				if (sabloValue != null)
+				{
+					PropertyDescription propertyDescription = customPropertiesDefinitions.get(propertyName);
+					if (propertyDescription != null && propertyDescription.getType() instanceof IPropertyConverterForBrowser convertingTypeToUse)
+					{
+						StringWriter stringWriter = new StringWriter();
+						final JSONWriter writer = new JSONWriter(stringWriter);
+						if (convertingTypeToUse instanceof IPropertyWithClientSideConversions)
+						{
+							JSONUtils.writeConvertedValueWithClientType(writer, null,
+								JSONUtils.getClientSideTypeJSONString((IPropertyWithClientSideConversions< ? >)convertingTypeToUse, propertyDescription),
+								() -> {
+									convertingTypeToUse.toJSON(writer, null, sabloValue, propertyDescription, dataConverterContext);
+									return null;
+								});
+						}
+						else
+						{
+							writer.object();
+							convertingTypeToUse.toJSON(writer, propertyName, sabloValue, propertyDescription, dataConverterContext);
+							writer.endObject();
+						}
+						Object newValue = new JSONObject(stringWriter.getBuffer().toString());
+						if (!(convertingTypeToUse instanceof IPropertyWithClientSideConversions))
+						{
+							newValue = ((JSONObject)newValue).get(propertyName);
+						}
+						itemMap.put(propertyName, newValue);
+					}
+				}
+			}
+		}
+	}
+
 	@Override
 	public void attachToBaseObject(IChangeListener changeMonitor, IWebObjectContext webObjectContext)
 	{
 		this.changeMonitor = changeMonitor;
 		this.jsMenu.addChangeListener(this);
 		for (Map<String, ISmartPropertyValue> propertyValues : this.extraPropertiesSmartValues.values())
+		{
+			for (ISmartPropertyValue smartValue : propertyValues.values())
+			{
+				smartValue.attachToBaseObject(changeMonitor, webObjectContext);
+			}
+		}
+		for (Map<String, ISmartPropertyValue> propertyValues : this.customPropertiesSmartValues.values())
 		{
 			for (ISmartPropertyValue smartValue : propertyValues.values())
 			{
@@ -241,10 +346,10 @@ public class MenuTypeSabloValue implements ISmartPropertyValue, IChangeListener,
 	{
 		this.jsMenu.removeChangeListener(this);
 		this.jsMenu = null;
-		this.detachExtraProperties();
+		this.detachSmartProperties();
 	}
 
-	private void detachExtraProperties()
+	private void detachSmartProperties()
 	{
 		for (Map<String, ISmartPropertyValue> propertyValues : this.extraPropertiesSmartValues.values())
 		{
@@ -254,6 +359,14 @@ public class MenuTypeSabloValue implements ISmartPropertyValue, IChangeListener,
 			}
 		}
 		this.extraPropertiesSmartValues.clear();
+		for (Map<String, ISmartPropertyValue> propertyValues : this.customPropertiesSmartValues.values())
+		{
+			for (ISmartPropertyValue propertyValue : propertyValues.values())
+			{
+				propertyValue.detach();
+			}
+		}
+		this.customPropertiesSmartValues.clear();
 	}
 
 	@Override

@@ -182,6 +182,7 @@ public abstract class FoundSet
 	protected boolean findMode = false;
 	protected List<IFoundSetEventListener> foundSetEventListeners = new ArrayList<IFoundSetEventListener>();
 	private List<IModificationListener> aggregateModificationListeners = new ArrayList<IModificationListener>();
+	private final List<ISelectionChangeListener> selectionChangeListeners = new ArrayList<ISelectionChangeListener>();
 
 	private String serializedQuery;
 
@@ -1438,6 +1439,15 @@ public abstract class FoundSet
 		refreshFromDBInternal(
 			fsm.getSQLGenerator().getPKSelectSqlSelect(this, sheet.getTable(), pksAndRecords.getTempQuery(), null, true, null, lastSortColumns, false),
 			false, fsm.config.pkChunkSize(), false, false);
+		int newSize = getSize();
+		if (fsm.getApplication().isEventDispatchThread())
+		{
+			setSelectedIndex(newSize > 0 ? 0 : -1);
+		}
+		else
+		{
+			fsm.getApplication().invokeLater(() -> setSelectedIndex(newSize > 0 ? 0 : -1));
+		}
 	}
 
 	/**
@@ -3358,7 +3368,7 @@ public abstract class FoundSet
 	 *
 	 * @see com.servoy.j2db.dataprocessing.FoundSet#js_loadOmittedRecords()
 	 *
-	 * @param {IJSRecord} record - The record to be omitted from the foundset.
+	 * @param record Record - The record to be omitted from the foundset.
 	 *
 	 * @return boolean true if record could be omitted.
 	 */
@@ -3748,7 +3758,7 @@ public abstract class FoundSet
 	 *
 	 * @param index the new record is added at specified index (1-based).
 	 *
-	 * @return IJSRecord of new record.
+	 * @return the new record.
 	 */
 	@JSFunction
 	public IJSRecord createRecord(Number index) throws Exception
@@ -3765,7 +3775,7 @@ public abstract class FoundSet
 	 * @param index the new record is added at specified index (1-based).
 	 * @param changeSelection boolean when true the selection is changed to the new record.
 	 *
-	 * @return  IJSRecord of new record.
+	 * @return the new record.
 	 */
 	@JSFunction
 	public IJSRecord createRecord(Number index, Boolean changeSelection) throws Exception
@@ -3787,7 +3797,7 @@ public abstract class FoundSet
 	 *
 	 * @param onTop when true the new record is added as the topmost record.
 	 *
-	 * @return IJSRecord of new record.
+	 * @return the new record.
 	 */
 	@JSFunction
 	public IJSRecord createRecord(Boolean onTop) throws ServoyException
@@ -3805,7 +3815,7 @@ public abstract class FoundSet
 	 * the record is added to the end, if all records are loaded, otherwise it will be added to the top
 	 * @param changeSelection boolean when true the selection is changed to the new record.
 	 *
-	 * @return  IJSRecord of new record.
+	 * @return the new record.
 	 */
 	@JSFunction
 	public IJSRecord createRecord(Boolean onTop, Boolean changeSelection) throws ServoyException
@@ -3821,7 +3831,7 @@ public abstract class FoundSet
 	 * @sample
 	 * var rec = %%prefix%%foundset.createRecord(); // add as first record
 	 *
-	 * @return IJSRecord the new record
+	 * @return the new record
 	 */
 	@JSFunction
 	public IJSRecord createRecord() throws Exception
@@ -3929,11 +3939,9 @@ public abstract class FoundSet
 	 *
 	 * @return int index.
 	 */
-	public int js_getRecordIndex(IJSRecord record)
+	public int jsFunction_getRecordIndex(IJSRecord record)
 	{
-		int recordIndex = getRecordIndex((IRecord)record);
-		if (recordIndex == -1) return -1;
-		return recordIndex + 1;
+		return jsFunction_getRecordIndex((IJSBaseRecord)record);
 	}
 
 	/**
@@ -5692,7 +5700,7 @@ public abstract class FoundSet
 				returnInvalidRangeConditions.addAll(AbstractBaseQuery.getInvalidRangeConditions(sqlCondition));
 			}
 
-			//cache pks
+			// cache pks
 			String transaction_id = fsm.getTransactionID(sheet);
 			long time = System.currentTimeMillis();
 
@@ -5945,7 +5953,7 @@ public abstract class FoundSet
 		int newSize = getRawSize();
 		fireDifference(oldSize, newSize, changes);
 
-		trySelectingPks(selectedPKs, newSize, false);
+		trySelectingPks(selectedPKs, newSize, true);
 
 		return true;
 	}
@@ -6184,11 +6192,15 @@ public abstract class FoundSet
 	{
 		try
 		{
-			if (getSelectedIndex() >= 0 && i >= 0 &&
-				fsm.hasFoundsetTrigger(getDataSource(), StaticContentSpecLoader.PROPERTY_ONFOUNDSETBEFORESELECTIONCHANGEMETHODID))
+			if (getSelectedIndex() >= 0 && i >= 0)
 			{
-				return executeFoundsetTriggerBreakOnFalse(new Object[] { getSelectedRecord(), getRecord(i) },
-					StaticContentSpecLoader.PROPERTY_ONFOUNDSETBEFORESELECTIONCHANGEMETHODID, false);
+				if (fsm.hasFoundsetTrigger(getDataSource(), StaticContentSpecLoader.PROPERTY_ONFOUNDSETBEFORESELECTIONCHANGEMETHODID) &&
+					!executeFoundsetTriggerBreakOnFalse(new Object[] { getSelectedRecord(), getRecord(i) },
+						StaticContentSpecLoader.PROPERTY_ONFOUNDSETBEFORESELECTIONCHANGEMETHODID, false))
+				{
+					return false;
+				}
+				return executeSelectionListeners(new IRecordInternal[] { getRecord(getSelectedIndex()) }, new IRecordInternal[] { getRecord(i) });
 			}
 		}
 		catch (ServoyException e)
@@ -6203,17 +6215,36 @@ public abstract class FoundSet
 	{
 		try
 		{
-			if (getSelectedIndex() >= 0 && fsm.hasFoundsetTrigger(getDataSource(), StaticContentSpecLoader.PROPERTY_ONFOUNDSETBEFORESELECTIONCHANGEMETHODID))
+			if (getSelectedIndex() >= 0)
 			{
-				return executeFoundsetTriggerBreakOnFalse(
-					new Object[] { getSelectedRecords(), indexes != null ? Arrays.stream(indexes).mapToObj(index -> getRecord(index)).toArray() : null },
-					StaticContentSpecLoader.PROPERTY_ONFOUNDSETBEFORESELECTIONCHANGEMETHODID, false);
+				if (fsm.hasFoundsetTrigger(getDataSource(), StaticContentSpecLoader.PROPERTY_ONFOUNDSETBEFORESELECTIONCHANGEMETHODID) &&
+					!executeFoundsetTriggerBreakOnFalse(
+						new Object[] { getSelectedRecords(), indexes != null ? Arrays.stream(indexes).mapToObj(index -> getRecord(index)).toArray() : null },
+						StaticContentSpecLoader.PROPERTY_ONFOUNDSETBEFORESELECTIONCHANGEMETHODID, false))
+				{
+					return false;
+				}
+				return executeSelectionListeners(
+					Arrays.stream(getSelectedIndexes()).mapToObj(index -> getRecord(index)).toArray(size -> new IRecordInternal[size]),
+					indexes != null ? Arrays.stream(indexes).mapToObj(index -> getRecord(index)).toArray(size -> new IRecordInternal[size]) : null);
 			}
 		}
 		catch (ServoyException e)
 		{
 			Debug.error(e);
 			return false;
+		}
+		return true;
+	}
+
+	private boolean executeSelectionListeners(IRecordInternal[] oldSelection, IRecordInternal[] newSelection)
+	{
+		for (ISelectionChangeListener listener : selectionChangeListeners)
+		{
+			if (!listener.selectionChange(oldSelection, newSelection))
+			{
+				return false;
+			}
 		}
 		return true;
 	}
@@ -7676,6 +7707,25 @@ public abstract class FoundSet
 		synchronized (aggregateModificationListeners)
 		{
 			aggregateModificationListeners.remove(l);
+		}
+	}
+
+	public void addSelectionChangeListener(ISelectionChangeListener l)
+	{
+		synchronized (selectionChangeListeners)
+		{
+			if (!selectionChangeListeners.contains(l))
+			{
+				selectionChangeListeners.add(l);
+			}
+		}
+	}
+
+	public void removeSelectionChangeListener(ISelectionChangeListener l)
+	{
+		synchronized (selectionChangeListeners)
+		{
+			selectionChangeListeners.remove(l);
 		}
 	}
 

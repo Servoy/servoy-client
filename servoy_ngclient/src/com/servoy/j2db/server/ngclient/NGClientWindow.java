@@ -160,6 +160,15 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 		if (callContributions != null) newCallContributions.putAll(callContributions); // probably always null
 
 		IWebFormUI formUI = receiver.findParent(IWebFormUI.class);
+		if (formUI == null)
+		{
+			// for example if an "onDataChange" shows another main form and removes previous from history, then it will be already destroyed here; we can't call "onDataChangeCallback" anymore;
+			// this is not an usual scenario, as "receiver" is part of the UI of a destroyed form; if code would get a destroyed form again and call api on it
+			// then "receiver" would be from the new form's instance UI
+			log.warn("Ignoring invokeAPI of '" + apiFunction.getName() + "' on UI component '" + receiver.getName() + "' ('" + //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+				receiver.getSpecification().getDisplayName() + "') of a form that was destroyed."); //$NON-NLS-1$
+			return null;
+		}
 		IWebFormController form = formUI.getController();
 
 		if (!isDelayedApiCall(apiFunction))

@@ -45,7 +45,7 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
  * <code>GROUP BY</code> clause, allowing for dynamic query adjustments.</p>
  *
  * <p>For further details on query construction and execution, refer to the
- * <a href="./qbselect.md">QBSelect</a> section of the documentation.</p>
+ * <a href="https://docs.servoy.com/reference/servoycore/dev-api/database-manager/qbselect">QBSelect</a> section of the documentation.</p>
  *
  * @author rgansevles
  *
@@ -59,7 +59,7 @@ public class QBGroupBy extends QBPart implements IQueryBuilderGroupby
 	}
 
 	@Override
-	@JSReadonlyProperty
+	@JSReadonlyProperty(debuggerRepresentation = "Query parent part")
 	public QBSelect getParent()
 	{
 		return (QBSelect)super.getParent();

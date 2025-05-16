@@ -43,6 +43,10 @@ public class HTMLStringPropertyType extends DefaultPropertyType<String> implemen
 	public final static String TYPE_NAME = "HTMLString"; //$NON-NLS-1$
 	public static final String CONFIG_OPTION_PARSEHTML = "parsehtml";
 
+	private HTMLStringPropertyType()
+	{
+	}
+
 	@Override
 	public String getName()
 	{

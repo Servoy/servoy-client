@@ -17,6 +17,7 @@
 package com.servoy.j2db.dataprocessing;
 
 
+import static com.servoy.base.query.IBaseSQLCondition.ORNULL_MODIFIER;
 import static com.servoy.base.util.DataSourceUtilsBase.getDBServernameTablename;
 import static com.servoy.j2db.Messages.isI18NTable;
 import static com.servoy.j2db.dataprocessing.FoundSetManager.TriggerExecutionMode.BreakOnFalse;
@@ -813,8 +814,9 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	 */
 	public Object[] getRelationWhereArgs(IRecordInternal state, Relation relation, boolean testForCalcs) throws RepositoryException
 	{
-		boolean isNull = true;
+		boolean allNull = true;
 		IDataProvider[] args = relation.getPrimaryDataProviders(application.getFlattenedSolution());
+		int[] operators = relation.getOperators();
 		Column[] columns = relation.getForeignColumns(application.getFlattenedSolution());
 		Object[] array = new Object[args.length];
 		for (int i = 0; i < args.length; i++)
@@ -843,9 +845,9 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			{
 				array[i] = columns[i].getAsRightType(value);
 			}
-			if (array[i] != null)
+			if (array[i] != null || (operators[i] & ORNULL_MODIFIER) != 0) // in cases of or-null modifier, the value null is not used in the query
 			{
-				isNull = false;
+				allNull = false;
 			}
 			else
 			{
@@ -855,14 +857,14 @@ public class FoundSetManager implements IFoundSetManagerInternal
 				{
 					return null;
 				}
-				if (isNull)
+				if (allNull)
 				{
-					isNull = !(args[i] instanceof ScriptVariable);
+					allNull = !(args[i] instanceof ScriptVariable);
 				}
 			}
 		}
 
-		if (isNull) return null; //optimize for null keys (multiple all null!) but not empty pk (db ident)
+		if (allNull) return null; // optimize for null keys (multiple all null!) but not empty pk (db ident)
 
 		return array;
 	}
@@ -1295,7 +1297,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 					for (int i = 0; i < array.length; i++)
 					{
 						array[i] = SQLGenerator.convertFromObject(application, columnConverter, columnConverterInfo, column.getDataProviderID(),
-							column.getDataProviderType(), array[i], false);
+							ColumnType.getColumnType(column.getDataProviderType()), array[i], false);
 					}
 					return array;
 				}
@@ -1303,7 +1305,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 				if (value == null || !SQLGenerator.isSelectQuery(value.toString()))
 				{
 					return SQLGenerator.convertFromObject(application, columnConverter, columnConverterInfo, column.getDataProviderID(),
-						column.getDataProviderType(), value, false);
+						column.getColumnType(), value, false);
 				}
 				// else add as subquery
 			}
@@ -2370,39 +2372,43 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		return null;
 	}
 
-	public int getFoundSetCount(IFoundSetInternal fs)
+	public int getFoundSetCount(IFoundSetInternal foundset)
 	{
-		if (fs instanceof FoundSet && fs.getTable() != null)
+		if (foundset instanceof MenuFoundSet menuFoundSet)
 		{
-			FoundSet foundset = (FoundSet)fs;
+			return menuFoundSet.getSize();
+		}
+		if (foundset.getTable() != null)
+		{
 			try
 			{
-				//optimize
+				// optimize
 				if (foundset.isInitialized() && !foundset.hadMoreRows())
 				{
 					return foundset.getSize();
 				}
 				long time = System.currentTimeMillis();
 				IDataServer ds = application.getDataServer();
-				Table t = (Table)foundset.getTable();
-				String transaction_id = getTransactionID(t.getServerName());
-				QuerySelect sqlString = foundset.getQuerySelectForReading();
-
-				QuerySelect selectCountSQLString = sqlString.getSelectCount("n", true); //$NON-NLS-1$
-				IDataSet set = ds.performQuery(application.getClientID(), t.getServerName(), transaction_id, selectCountSQLString, null,
-					getTableFilterParams(t.getServerName(), selectCountSQLString), false, 0, 10, IDataServer.FOUNDSET_LOAD_QUERY);
-				if (Debug.tracing())
+				if (foundset.getQuerySelectForReading() instanceof QuerySelect sqlString)
 				{
-					Debug.trace("Foundset count time: " + (System.currentTimeMillis() - time) + " thread: " + Thread.currentThread().getName() + ", SQL: " + //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
-						selectCountSQLString.toString());
-				}
-
-				if (set.getRowCount() > 0)
-				{
-					Object[] row = set.getRow(0);
-					if (row.length > 0)
+					String serverName = DataSourceUtils.getDataSourceServerName(sqlString.getTable().getDataSource());
+					String transaction_id = getTransactionID(serverName);
+					QuerySelect selectCountSQLString = sqlString.getSelectCount("n", true); //$NON-NLS-1$
+					IDataSet set = ds.performQuery(application.getClientID(), serverName, transaction_id, selectCountSQLString, null,
+						getTableFilterParams(serverName, selectCountSQLString), false, 0, 10, IDataServer.FOUNDSET_LOAD_QUERY);
+					if (Debug.tracing())
 					{
-						return Utils.getAsInteger(row[0]);
+						Debug.trace("Foundset count time: " + (System.currentTimeMillis() - time) + " thread: " + Thread.currentThread().getName() + ", SQL: " + //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+							selectCountSQLString.toString());
+					}
+
+					if (set.getRowCount() > 0)
+					{
+						Object[] row = set.getRow(0);
+						if (row.length > 0)
+						{
+							return Utils.getAsInteger(row[0]);
+						}
 					}
 				}
 			}
@@ -2609,28 +2615,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		}
 		if (table != null)
 		{
-			// temp table was used before, delete all data in it
-			FoundSet foundSet = (FoundSet)getSharedFoundSet(dataSource);
-			foundSet.removeLastFound();
-			try
-			{
-				QueryDelete delete = new QueryDelete(
-					new QueryTable(table.getSQLName(), table.getDataSource(), table.getCatalog(), table.getSchema(), true));
-				SQLStatement deleteStatement = new SQLStatement(ISQLActionTypes.DELETE_ACTION, table.getServerName(), table.getName(), null, targetTid,
-					delete, null);
-				application.getDataServer().performUpdates(application.getClientID(), new ISQLStatement[] { deleteStatement });
-			}
-			catch (Exception e)
-			{
-				Debug.log(e);
-				table = null;
-			}
-		}
-
-		if (getEditRecordList().removeRecords(dataSource))
-		{
-			Debug.warn("createDataSourceFromQuery was called while there were edited records under datasource with same name: " + name +
-				". All old records were removed.");
+			table = deleteAndCleanupInmemoryDatasource(name, dataSource, table, targetTid);
 		}
 
 		table = application.getDataServer()
@@ -3244,27 +3229,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 		if (create && table != null)
 		{
-			// temp table was used before, delete all data in it
-			FoundSet foundSet = (FoundSet)getSharedFoundSet(dataSource);
-			foundSet.removeLastFound();
-			try
-			{
-				QueryDelete delete = new QueryDelete(
-					new QueryTable(table.getSQLName(), table.getDataSource(), table.getCatalog(), table.getSchema(), true));
-				SQLStatement deleteStatement = new SQLStatement(ISQLActionTypes.DELETE_ACTION, table.getServerName(), table.getName(), null, tid, delete,
-					null);
-				application.getDataServer().performUpdates(application.getClientID(), new ISQLStatement[] { deleteStatement });
-			}
-			catch (Exception e)
-			{
-				Debug.log(e);
-				table = null;
-			}
-			RowManager element = rowManagers.get(dataSource);
-			if (element != null)
-			{
-				element.flushAllCachedRows();
-			}
+			table = deleteAndCleanupInmemoryDatasource(name, dataSource, table, tid);
 		}
 
 		InsertResult insertResult = application.getDataServer()
@@ -3312,6 +3277,47 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			return insertResult.getGeneratedPks();
 		}
 		return null;
+	}
+
+	/**
+	 * @param name
+	 * @param dataSource
+	 * @param table
+	 * @param tid
+	 * @return
+	 * @throws ServoyException
+	 */
+	protected ITable deleteAndCleanupInmemoryDatasource(String name, String dataSource, ITable table, String tid) throws ServoyException
+	{
+		// temp table was used before, delete all data in it
+		// first remove all edits for this datasource.
+		if (getEditRecordList().removeRecords(dataSource))
+		{
+			Debug.warn("createDataSource was called while there were edited records under datasource with same name: " + name +
+				". All old records that where in edit state were removed.");
+		}
+
+		FoundSet foundSet = (FoundSet)getSharedFoundSet(dataSource);
+		foundSet.removeLastFound();
+		try
+		{
+			QueryDelete delete = new QueryDelete(
+				new QueryTable(table.getSQLName(), table.getDataSource(), table.getCatalog(), table.getSchema(), true));
+			SQLStatement deleteStatement = new SQLStatement(ISQLActionTypes.DELETE_ACTION, table.getServerName(), table.getName(), null, tid, delete,
+				null);
+			application.getDataServer().performUpdates(application.getClientID(), new ISQLStatement[] { deleteStatement });
+		}
+		catch (Exception e)
+		{
+			Debug.log(e);
+			table = null;
+		}
+		RowManager element = rowManagers.get(dataSource);
+		if (element != null)
+		{
+			element.flushAllCachedRows();
+		}
+		return table;
 	}
 
 	private static void replaceValuesWithSerializedString(IDataSet dataSet, Set<Integer> columnsThatNeedToStringSerialize)
@@ -3507,7 +3513,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			if (!(rawValue instanceof DbIdentValue) && !Utils.equalObjects(rawValue, oldRawValue))
 			{
 				// the length check
-				int valueLen = Column.getObjectSize(rawValue, column.getType());
+				int valueLen = Column.getObjectSize(rawValue, column.getColumnType());
 				if (valueLen > 0 && column.getLength() > 0 && valueLen > column.getLength()) // insufficient space to save value
 				{
 					recordMarkers.report("i18n:servoy.record.error.columnSizeTooSmall", column.getDataProviderID(), ILogLevel.ERROR, state,
@@ -3727,6 +3733,12 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	public void registerRelatedMenuFoundSet(MenuFoundSet foundset)
 	{
 		relatedMenuFoundSets.add(foundset);
+	}
+
+	@Override
+	public void unregisterRelatedMenuFoundSet(MenuFoundSet foundset)
+	{
+		relatedMenuFoundSets.remove(foundset);
 	}
 
 	@Override

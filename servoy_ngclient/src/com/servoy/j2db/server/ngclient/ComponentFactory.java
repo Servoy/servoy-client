@@ -170,7 +170,7 @@ public class ComponentFactory
 				dpConfig = (DataproviderConfig)((FoundsetLinkedConfig)configOfDPOrFoundsetLinkedDP).getWrappedConfig();
 			else dpConfig = (DataproviderConfig)configOfDPOrFoundsetLinkedDP;
 
-			if (dpConfig.getOnDataChange() != null && form.getOnElementDataChangeMethodID() > 0)
+			if (dpConfig.getOnDataChange() != null)
 			{
 				foundOnDataChangeInDPConfigFromSpec[0] = true;
 				webComponent.add(dpConfig.getOnDataChange(), form.getOnElementDataChangeMethodID());
@@ -217,19 +217,16 @@ public class ComponentFactory
 			{
 				webComponent.add(eventName, ((Number)eventValue).intValue());
 			}
-			else if (Utils.equalObjects(eventName, StaticContentSpecLoader.PROPERTY_ONFOCUSGAINEDMETHODID.getPropertyName()) &&
-				(form.getOnElementFocusGainedMethodID() > 0))
+			else if (Utils.equalObjects(eventName, StaticContentSpecLoader.PROPERTY_ONFOCUSGAINEDMETHODID.getPropertyName()))
 			{
 				webComponent.add(eventName, form.getOnElementFocusGainedMethodID());
 			}
-			else if (Utils.equalObjects(eventName, StaticContentSpecLoader.PROPERTY_ONFOCUSLOSTMETHODID.getPropertyName()) &&
-				(form.getOnElementFocusLostMethodID() > 0))
+			else if (Utils.equalObjects(eventName, StaticContentSpecLoader.PROPERTY_ONFOCUSLOSTMETHODID.getPropertyName()))
 			{
 				webComponent.add(eventName, form.getOnElementFocusLostMethodID());
 			}
 			else if (!foundOnDataChangeInDPConfigFromSpec[0] &&
-				Utils.equalObjects(eventName, StaticContentSpecLoader.PROPERTY_ONDATACHANGEMETHODID.getPropertyName()) &&
-				(form.getOnElementDataChangeMethodID() > 0))
+				Utils.equalObjects(eventName, StaticContentSpecLoader.PROPERTY_ONDATACHANGEMETHODID.getPropertyName()))
 			{
 				// legacy behavior - based on hard-coded handler name (of component)
 				webComponent.add(eventName, form.getOnElementDataChangeMethodID());

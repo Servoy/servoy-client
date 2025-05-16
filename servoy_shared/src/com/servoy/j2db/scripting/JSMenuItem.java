@@ -51,7 +51,7 @@ import com.servoy.j2db.util.Utils;
  * <p>Properties and additional functionality extend to retrieving extra information, such as through the <code>getExtraProperty</code> method, and updating the menu item’s appearance and behavior dynamically.
  * These capabilities make <code>JSMenuItem</code> a versatile tool for creating adaptive and secure menu systems in Servoy applications.</p>
  *
- * <p><a href="../../../servoy-developer/solution-explorer/all-solutions/active-solution/menus/menu-item.md">MenuItem</a> section  of this documentation</p>
+ * <p><a href="https://docs.servoy.com/reference/servoy-developer/solution-explorer/all-solutions/active-solution/menus/menu-item">MenuItem</a> section  of this documentation</p>
  *
  * @author lvostinar
  *
@@ -81,6 +81,7 @@ public class JSMenuItem extends JSMenu implements IConstantsObject
 	private Object[] callbackArguments;
 	private final JSMenu parentMenu;
 	private Map<String, Map<String, Object>> extraProperties;
+	private final Map<String, Object> customPropertiesValues;
 	private final String[] allowedPermissions;
 	private JSONObject permissionsData;
 	private int overridenPermissionData = -1;
@@ -111,6 +112,7 @@ public class JSMenuItem extends JSMenu implements IConstantsObject
 			}
 		}
 		this.extraProperties = menuItem.getExtraProperties();
+		this.customPropertiesValues = new HashMap<String, Object>(menuItem.getCustomPropertiesValues());
 	}
 
 	/**
@@ -122,6 +124,7 @@ public class JSMenuItem extends JSMenu implements IConstantsObject
 		super(name, allowedPermissions);
 		this.parentMenu = parentMenu;
 		this.allowedPermissions = allowedPermissions;
+		this.customPropertiesValues = new HashMap<String, Object>();
 	}
 
 	@JSSetter
@@ -298,8 +301,8 @@ public class JSMenuItem extends JSMenu implements IConstantsObject
 	 *
 	 * @sample menuItem.getExtraProperty('Sidenav','formName');
 	 *
-	 * @param {String} categoryName - The category name of the extra property.
-	 * @param {String} propertyName - The name of the property to retrieve the value for.
+	 * @param categoryName The category name of the extra property.
+	 * @param propertyName The name of the property to retrieve the value for.
 	 *
 	 * @return The value of the specified extra property, or null if not found.
 	 */
@@ -316,9 +319,9 @@ public class JSMenuItem extends JSMenu implements IConstantsObject
 	/**
 	 * Sets an extra property value (property must be present in the component spec).
 	 *
-	 * @param {String} categoryName - The category name of the extra property.
-	 * @param {String} propertyName - The name of the property to set.
-	 * @param {Object} value - The value to assign to the specified property.
+	 * @param categoryName The category name of the extra property.
+	 * @param propertyName The name of the property to set.
+	 * @param value The value to assign to the specified property.
 	 *
 	 * @sample menuItem.setExtraProperty('Sidenav','formName','myform');
 	 */
@@ -339,10 +342,44 @@ public class JSMenuItem extends JSMenu implements IConstantsObject
 	}
 
 	/**
+	 * Returns custom property value. Custom properties can be defined on each Menu.
+	 *
+	 * @sample menuItem.getCustomProperty('myproperty');
+	 *
+	 * @param propertyName The name of the property to retrieve the value for.
+	 *
+	 * @return The value of the specified custom property, or null if not found.
+	 */
+	@JSFunction
+	public Object getCustomProperty(String propertyName)
+	{
+		return customPropertiesValues.get(propertyName);
+	}
+
+	/**
+	 * Sets a custom property value. Custom properties can be defined on each Menu.
+	 *
+	 * @param propertyName The name of the property to set.
+	 * @param value The value to assign to the specified property.
+	 *
+	 * @sample menuItem.setCustomProperty('formName','myform');
+	 */
+	@JSFunction
+	public void setCustomProperty(String propertyName, Object value)
+	{
+		customPropertiesValues.put(propertyName, value);
+	}
+
+	/**
 	 * @return A map containing all extra properties categorized by their names.
 	 */
 	public Map<String, Map<String, Object>> getExtraProperties()
 	{
 		return extraProperties;
+	}
+
+	public Map<String, Object> getCustomProperties()
+	{
+		return this.customPropertiesValues;
 	}
 }

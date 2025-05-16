@@ -29,8 +29,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.mozilla.javascript.BaseFunction;
 import org.mozilla.javascript.Context;
+import org.mozilla.javascript.NativeArray;
 import org.mozilla.javascript.NativeJavaMethod;
 import org.mozilla.javascript.ScriptRuntime;
 import org.mozilla.javascript.Scriptable;
@@ -76,7 +76,7 @@ import com.servoy.j2db.util.Utils;
  * and validations. The class ensures flexibility by providing utilities for checking the loaded
  * state of related foundsets and handling record edits efficiently.</p>
  *
- * <p>For more details, refer to the <a href="./jsfoundset.md">JSFoundset</a> documentation.</p>
+ * <p>For more details, refer to the <a href="https://docs.servoy.com/reference/servoycore/dev-api/database-manager/jsfoundset">JSFoundset</a> documentation.</p>
  *
  * @author jblok
  */
@@ -477,17 +477,31 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord, IJSBaseSQ
 	public Object get(String name, Scriptable start)
 	{
 		if (FoundSet.isToplevelKeyword(name)) return Scriptable.NOT_FOUND;
-		Object mobj = jsFunctions.get(name);
+		Context context = Context.getCurrentContext();
+		NativeJavaMethod mobj = jsFunctions.get(name);
 		if (mobj != null)
 		{
-			ScriptRuntime.setFunctionProtoAndParent((BaseFunction)mobj, start);
+			ScriptRuntime.setFunctionProtoAndParent(mobj, context, start);
 			return mobj;
 		}
 		Object o = getValue(name);
 		if (o != null && o != Scriptable.NOT_FOUND && !(o instanceof Scriptable))
 		{
-			Context context = Context.getCurrentContext();
 			if (context != null) o = context.getWrapFactory().wrap(context, start, o, o.getClass());
+		}
+		return sealIfNeeded(o);
+	}
+
+	/**
+	 * Seal some objects that are returned from a Record.
+	 * <p>
+	 * Arrays that are returned from a Record should not be modified, a change won't be detected, you need to make a copy and set the copy.
+	 */
+	static Object sealIfNeeded(Object o)
+	{
+		if (o instanceof NativeArray nativeArray)
+		{
+			nativeArray.sealObject();
 		}
 		return o;
 	}

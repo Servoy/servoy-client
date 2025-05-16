@@ -20,8 +20,13 @@ package com.servoy.j2db.server.ngclient;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.io.IOException;
+import java.io.StringReader;
 import java.io.StringWriter;
+import java.net.URI;
+import java.net.URL;
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.json.JSONWriter;
@@ -29,11 +34,18 @@ import org.sablo.Container;
 import org.sablo.websocket.TypedData;
 import org.sablo.websocket.utils.JSONUtils.FullValueToJSONConverter;
 
+import com.inet.lib.less.CompressCssFormatter;
+import com.inet.lib.less.CssFormatter;
+import com.inet.lib.less.Formattable;
+import com.inet.lib.less.LessParser;
+import com.inet.lib.less.ReaderFactory;
+import com.inet.lib.less.Rule;
 import com.servoy.base.persistence.constants.IContentSpecConstantsBase;
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.persistence.BaseComponent;
 import com.servoy.j2db.persistence.CSSPosition;
 import com.servoy.j2db.persistence.CSSPositionUtils;
+import com.servoy.j2db.persistence.FlattenedForm;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IAnchorConstants;
 import com.servoy.j2db.persistence.IContentSpecConstants;
@@ -116,6 +128,47 @@ public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 		writer.object();
 		writer.key("responsive");
 		writer.value(form.isResponsiveLayout());
+		List<Form> allForms = null;
+		if (form instanceof FlattenedForm ff)
+		{
+			allForms = ff.getAllForms();
+			Collections.reverse(allForms);
+		}
+		else
+		{
+			allForms = List.of(form);
+		}
+		writer.key("formCss");
+		writer.object();
+		for (Form frm : allForms)
+		{
+			if (frm.getFormCss() != null)
+			{
+				LessParser parser = new LessParser();
+				URL baseUrl = URI.create("http://localhost").toURL();
+				ReaderFactory readerFactory = new ReaderFactory();
+				parser.parse(baseUrl, new StringReader(frm.getFormCss()), readerFactory);
+				List<Formattable> rules = parser.getRules();
+				rules.forEach(r -> {
+					if (r instanceof Rule rule)
+					{
+						rule.rewriteSelectors(
+							selector -> selector.contains(" ") ? selector.replaceFirst(" ", "[svy-" + frm.getName() + "] ")
+								: selector + "[svy-" + frm.getName() + ']');
+					}
+				});
+				CssFormatter formatter = new CompressCssFormatter();
+				parser.parseLazy(formatter);
+				StringBuilder builder = new StringBuilder();
+				formatter.format(parser, baseUrl, readerFactory, builder, Collections.emptyMap());
+
+				writer.key(frm.getName());
+				writer.value(builder.toString());
+			}
+		}
+		writer.endObject();
+
+
 		writer.key("size");
 		writer.object();
 		writer.key("width");

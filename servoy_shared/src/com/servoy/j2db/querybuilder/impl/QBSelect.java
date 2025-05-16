@@ -226,7 +226,7 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	 *
 	 * @return the where-part of the query for adding conditions.
 	 */
-	@JSReadonlyProperty
+	@JSReadonlyProperty(debuggerRepresentation = "Query where clause")
 	public QBWhereCondition where() throws RepositoryException
 	{
 		if (where == null)
@@ -247,7 +247,7 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	 *
 	 * @return the having-part of the query for adding conditions.
 	 */
-	@JSReadonlyProperty
+	@JSReadonlyProperty(debuggerRepresentation = "Query having clause")
 	public QBLogicalCondition having() throws RepositoryException
 	{
 		if (having == null)
@@ -290,7 +290,7 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	 *
 	 * @return the result part of the query for adding result columns or values.
 	 */
-	@JSReadonlyProperty
+	@JSReadonlyProperty(debuggerRepresentation = "Query result clause")
 	public QBResult result()
 	{
 		if (result == null)
@@ -311,7 +311,7 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	 *
 	 * @return the sorting part of the query.
 	 */
-	@JSReadonlyProperty
+	@JSReadonlyProperty(debuggerRepresentation = "Query sort clause")
 	public QBSorts sort()
 	{
 		if (sort == null)
@@ -331,7 +331,7 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	 *
 	 * @return the group-by clause of the query.
 	 */
-	@JSReadonlyProperty
+	@JSReadonlyProperty(debuggerRepresentation = "Query group-by clause")
 	public QBGroupBy groupBy()
 	{
 		if (groupBy == null)
@@ -483,7 +483,7 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	 *
 	 * @return an OR-condition for adding logical conditions.
 	 */
-	@JSReadonlyProperty
+	@JSReadonlyProperty(debuggerRepresentation = "Query or clause")
 	public QBLogicalCondition or()
 	{
 		return new QBLogicalCondition(getRoot(), this, new OrCondition());
@@ -508,7 +508,7 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	 *
 	 * @return an AND-condition for adding logical conditions.
 	 */
-	@JSReadonlyProperty
+	@JSReadonlyProperty(debuggerRepresentation = "Query and clause")
 	public QBLogicalCondition and()
 	{
 		return new QBLogicalCondition(getRoot(), this, new AndCondition());
@@ -579,7 +579,7 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	 *
 	 * @return the functions clause of the query for non-column-bound functions.
 	 */
-	@JSReadonlyProperty
+	@JSReadonlyProperty(debuggerRepresentation = "Query functions part")
 	public QBFunctions functions()
 	{
 		if (functions == null)
@@ -599,7 +599,7 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	 *
 	 * @return the aggregates clause of the query for non-column-bound aggregates.
 	 */
-	@JSReadonlyProperty
+	@JSReadonlyProperty(debuggerRepresentation = "Query aggregates clause")
 	public QBAggregates aggregates()
 	{
 		if (aggregates == null)
@@ -649,7 +649,7 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	 *
 	 * @return a case expression for conditional logic in the query.
 	 */
-	@JSReadonlyProperty(property = "case")
+	@JSReadonlyProperty(property = "case", debuggerRepresentation = "Query case clause")
 	public QBCase js_case()
 	{
 		return qcase();

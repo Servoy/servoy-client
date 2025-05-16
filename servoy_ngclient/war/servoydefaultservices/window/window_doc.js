@@ -1,29 +1,52 @@
+
 /**
- * Creates a new popup menu, either empty, or initialized from an existing JSMenu.
+ * Creates a new empty popup menu
  * 
-* @example
-* // create a popup menu
-* // var menu = plugins.window.createPopupMenu(menus.getMenu('contextMenu'), feedback);
-* var menu = plugins.window.createPopupMenu();
-* 
-* // add a menu item
-* menu.addMenuItem("an entry", callback);
-*   
-* if (event.getSource()) {
-*  // display the popup over the component which is the source of the event
-*  menu.show(event.getSource());
-*  // display the popup over the components, at specified coordinates relative to the component
-*  //menu.show(event.getSource(), 10, 10);
-*  // display the popup at specified coordinates relative to the main window
-*  //menu.show(100, 100);
-* }
-* 
- * @param {JSMenu} [jsmenu] The JSMenu whose structure will be used to initialize the popup menu.
+ * @example
+ * // create a popup menu
+ * var menu = plugins.window.createPopupMenu();
+ * 
+ * // add a menu item
+ * menu.addMenuItem("an entry", callback);
+ *   
+ * if (event.getSource()) {
+ *  // display the popup over the component which is the source of the event
+ *  menu.show(event.getSource());
+ *  // display the popup over the components, at specified coordinates relative to the component
+ *  //menu.show(event.getSource(), 10, 10);
+ *  // display the popup at specified coordinates relative to the main window
+ *  //menu.show(100, 100);
+ * }
+ * 
+ * @return {CustomType<window.Popup>} A new popup menu instance, optionally initialized with the provided JSMenu structure and callback function.
+ */
+function createPopupMenu() {}
+
+/**
+ * Creates a new popup menu initialized from an existing JSMenu.
+ * 
+ * @example
+ * // create a popup menu
+ * var menu = plugins.window.createPopupMenu(menus.getMenu('contextMenu'), feedback);
+ * 
+ * // add a menu item
+ * menu.addMenuItem("an entry", callback);
+ *   
+ * if (event.getSource()) {
+ *  // display the popup over the component which is the source of the event
+ *  menu.show(event.getSource());
+ *  // display the popup over the components, at specified coordinates relative to the component
+ *  //menu.show(event.getSource(), 10, 10);
+ *  // display the popup at specified coordinates relative to the main window
+ *  //menu.show(100, 100);
+ * }
+ * 
+ * @param {JSMenu} [menu] The JSMenu whose structure will be used to initialize the popup menu.
  * @param {Function} [callback] The menu item click handler that will be set on all popup menu items. The callback signature is: function(itemIndex:number, parentIndex: number, isSelected: boolean, parentMenu: String, menu: String)
  * 
- * @return {Popup}
+ * @return {CustomType<window.Popup>} A new popup menu instance, optionally initialized with the provided JSMenu structure and callback function.
  */
- function createPopupMenu(jsmenu, callback) {}
+function createPopupMenu_menu_callback(jsmenu, callback) {}
 
 /**
  * Create a shortcut.
@@ -68,13 +91,15 @@
  * // choose your shortcuts carefully to make sure they work in all clients.
  * // 2) always use lower-case letters for modifiers (shift, control, etc.), otherwise createShortcut will fail.
  *
- * @param {String} shortcut
- * @param {String} methodName scopes.scopename.methodname or formname.methodname String to target the method to execute
- * @param {String} contextFilter form or element name ( ng only - specified by formName.elementName); only triggers the shortcut when on this form/element
- * @param arguments
- * @param {Boolean} consumeEvent if true then the shotcut will consume the event and the default browser behavior will not be executed (default false)
+ * @param {String} shortcut The keyboard shortcut combination (e.g., 'control shift I', 'F4', 'NUMPAD8') to trigger the action.
+ * @param {Function} callback scopes.scopename.methodname or formname.methodname String to target the method to execute
+ * @param {String} [contextFilter] Form or element name ( ng only - specified by formName.elementName); only triggers the shortcut when on this form/element
+ * @param {Array<Object>} [arguments] An optional array of arguments to pass to the method when the shortcut is executed.
+ * @param {Boolean} [consumeEvent] If true then the shotcut will consume the event and the default browser behavior will not be executed (default false)
+ * 
+ * @return {Boolean} True if the shortcut was successfully created; otherwise, false.
  */
-function createShortcut(shortcut, methodName, contextFilter, arguments, consumeEvent) {}
+function createShortcut(shortcut, callback, contextFilter, arguments, consumeEvent) {}
 
 
 
@@ -83,15 +108,17 @@ function createShortcut(shortcut, methodName, contextFilter, arguments, consumeE
  *
  * @exampleas js_createShortcut(String, String, String, Object[],boolean)
  *
- * @param {String} shortcut
+ * @param {String} shortcut The keyboard shortcut combination to be removed.
  */
 function removeShortcut(shortcut) {}
 
 /**
  * @clonedesc js_removeShortcut(String)
  * @exampleas js_removeShortcut(String)
- * @param {String} shortcut
- * @param {String} contextFilter form or element name ( ng only - specified by formName.elementName); only triggers the shortcut when on this form/element
+ * @param {String} shortcut The keyboard shortcut combination to be removed.
+ * @param {String} [contextFilter] form or element name ( ng only - specified by formName.elementName); only triggers the shortcut when on this form/element
+ * 
+ * @return {Boolean} True if the shortcut was successfully removed; otherwise, false.
  */
 function removeShortcut(shortcut, contextFilter) {}
 
@@ -107,19 +134,19 @@ function removeShortcut(shortcut, contextFilter) {}
  * //
  * // function onClose(event) {application.output("Popup closed");}
  *
- * @param {RuntimeComponent} elementToShowRelatedTo element to show related to or null to center in screen
- * @param {RuntimeForm} form the form to show
+ * @param {Runtimecomponent} component Element to show related to or null to center in screen
+ * @param {Form} form the form to show
  * @param {Object} scope the scope to put retval into
- * @param {String} dataproviderID the dataprovider of scope to fill
- * @param {Number} width popup width
- * @param {Number} height popup height
- * @param {Number} x popup x location
- * @param {Number} y popup y location
- * @param {Boolean} showBackdrop whatever to show a dimmed backdrop under the popup
- * @param {Boolean} doNotCloseOnClickOutside whether to close on not close the popup on clicking outside
- * @param {Function} onClose a callback function that is being triggered once the formpopup window is being closed
+ * @param {String} dataProviderID the dataprovider of scope to fill
+ * @param {Number} [width] popup width
+ * @param {Number} [height] popup height
+ * @param {Number} [x] popup x location
+ * @param {Number} [y] popup y location
+ * @param {Boolean} [showBackdrop] whatever to show a dimmed backdrop under the popup
+ * @param {Boolean} [doNotCloseOnClickOutside] whether to close on not close the popup on clicking outside
+ * @param {Function} [onClose] a callback function that is being triggered once the formpopup window is being closed
  */
-function showFormPopup(elementToShowRelatedTo, form, scope, dataproviderID, width, height, x, y,
+function showFormPopup(component, form, scope, dataproviderID, width, height, x, y,
     showBackdrop, doNotCloseOnClickOutside, onClose) {}
 
 /**
@@ -128,9 +155,9 @@ function showFormPopup(elementToShowRelatedTo, form, scope, dataproviderID, widt
  * @example
  * plugins.window.createFormPopup(forms.orderPicker).show();
  *
- * @param {form} form the form to show
+ * @param {Form} form The form to show
  *
- * @return {FormPopup} FormPopup
+ * @return {CustomType<window.FormPopup>} A FormPopup instance that can be populated with data and displayed.
  */
 function createFormPopup(form) {}
 
@@ -141,9 +168,9 @@ function createFormPopup(form) {}
  * @example
  * plugins.window.getFormPopup(forms.orderPicker)
  *
- * @param {RuntimeForm} form
+ * @param {Form} form The form instance to be used in the popup.
  * 
- * @return {FormPopup}
+ * @return {CustomType<window.FormPopup>} A FormPopup instance containing the specified form, or null if the popup could not be created.
  */
 function getFormPopup(form) {}
 
@@ -157,7 +184,7 @@ function getFormPopup(form) {}
  * //
  * // function onClose(event) {application.output("Popup closed");}
  *
- * @param {Object} [retval] return value for data provider
+ *  @param {Object} retval Return value for data provider
  */
 function closeFormPopup(retval) {}
 
@@ -195,9 +222,9 @@ function FormPopup() {
 	  * @example
 	  * plugins.window.createFormPopup(forms.orderPicker).component(elements.myelement).show();
 	  *
-	  * @param {RuntimeComponent} [component] the form to show
+	  * @param {RuntimeComponent} component the form to show
 	  *
-	  * @return {FormPopup} The FormPopup itself if it's used as a setter or the component if no argument is given
+	  * @return {CustomType<window.FormPopup>} The FormPopup itself if it's used as a setter or the component if no argument is given
 	  */
 	  this.component_component = function(component) {}
 
@@ -207,7 +234,7 @@ function FormPopup() {
      * @example
      * plugins.window.createFormPopup(forms.orderPicker).width(100).show();
      *
-     * @return {FormPopup} The FormPopup itself if it's used as a setter or the width if no argument is given
+     * @return {Number} The FormPopup itself if it's used as a setter or the width if no argument is given
      *
      */
     this.width = function() {}
@@ -218,9 +245,9 @@ function FormPopup() {
 	  * @example
 	  * plugins.window.createFormPopup(forms.orderPicker).width(100).show();
 	  *
-	  * @param {number} [width] form popup width
+	  * @param {Number} width form popup width
 	  *
-	  * @return {width} The FormPopup itself if it's used as a setter or the width if no argument is given
+	  * @return {CustomType<window.FormPopup>} The FormPopup itself if it's used as a setter or the width if no argument is given
 	  *
 	  */
 	 this.width_width = function(width) {}
@@ -231,7 +258,7 @@ function FormPopup() {
      * @example
      * plugins.window.createFormPopup(forms.orderPicker).height(100).show();
      *
-     * @return {number} The FormPopup itself if it's used as a setter or the height if no argument is given
+     * @return {Number} The FormPopup itself if it's used as a setter or the height if no argument is given
      */
     this.height = function() {}
 
@@ -241,9 +268,9 @@ function FormPopup() {
 	  * @example
 	  * plugins.window.createFormPopup(forms.orderPicker).height(100).show();
 	  *
-	  * @param {number} [height] form popup height
+	  * @param {Number} height form popup height
 	  *
-	  * @return {FormPopup} The FormPopup itself if it's used as a setter or the height if no argument is given
+	  * @return {CustomType<window.FormPopup>} The FormPopup itself if it's used as a setter or the height if no argument is given
 	  */
 	 this.height_height = function(height) {}
 
@@ -253,7 +280,7 @@ function FormPopup() {
      * @example
      * plugins.window.createFormPopup(forms.orderPicker).x(100).show();
      *
-     * @return {number} The FormPopup itself if it's used as a setter or the x if no argument is given
+     * @return {Number} The FormPopup itself if it's used as a setter or the x if no argument is given
      *
      */
     this.x = function() {}
@@ -264,9 +291,9 @@ function FormPopup() {
 	  * @example
 	  * plugins.window.createFormPopup(forms.orderPicker).x(100).show();
 	  *
-	  * @param {number} [x] form popup x location
+	  * @param {Number} x form popup x location
 	  *
-	  * @return {FormPopup} The FormPopup itself if it's used as a setter or the x if no argument is given
+	  * @return {CustomType<window.FormPopup>} The FormPopup itself if it's used as a setter or the x if no argument is given
 	  *
 	  */
 	 this.x_x = function(x) {}	
@@ -277,7 +304,7 @@ function FormPopup() {
      * @example
      * plugins.window.createFormPopup(forms.orderPicker).y(100).show();
      *
-     * @return The FormPopup itself if it's used as a setter or the y value if no argument is given
+     * @return {Number} The FormPopup itself if it's used as a setter or the y value if no argument is given
      *
      */
     this.y = function() {}
@@ -288,9 +315,9 @@ function FormPopup() {
 	  * @example
 	  * plugins.window.createFormPopup(forms.orderPicker).y(100).show();
 	  *
-	  * @param {number} [y] form popup y location
+	  * @param {Number} y form popup y location
 	  *
-	  * @return {number} The FormPopup itself if it's used as a setter or the y value if no argument is given
+	  * @return {CustomType<window.FormPopup>} The FormPopup itself if it's used as a setter or the y value if no argument is given
 	  *
 	  */
 	 this.y_y = function(y) {}	
@@ -301,7 +328,7 @@ function FormPopup() {
      * @example
      * plugins.window.createFormPopup(forms.orderPicker).showBackdrop(true).show();
      *
-     * @return {boolean} The FormPopup itself if it's used as a setter or the showBackdrop value if no argument is given
+     * @return {Boolean} The FormPopup itself if it's used as a setter or the showBackdrop value if no argument is given
      *
      */
     this.showBackdrop = function(showBackdrop) {}
@@ -312,9 +339,9 @@ function FormPopup() {
 	  * @example
 	  * plugins.window.createFormPopup(forms.orderPicker).showBackdrop(true).show();
 	  *
-	  * @param {boolean} [showBackdrop] form popup showBackdrop
+	  * @param {Boolean} showBackdrop form popup showBackdrop
 	  *
-	  * @return {FormPopup} The FormPopup itself if it's used as a setter or the showBackdrop value if no argument is given
+	  * @return {CustomType<window.FormPopup>} The FormPopup itself if it's used as a setter or the showBackdrop value if no argument is given
 	  *
 	  */
 	 this.showBackdrop_showBackdrop = function(showBackdrop) {}
@@ -325,7 +352,7 @@ function FormPopup() {
      * @example
      * plugins.window.createFormPopup(forms.orderPicker).dataprovider('myid').scope(foundset.getSelectedRecord()).show();
      *
-     * @return {string} The FormPopup itself if it's used as a setter or the dataprovider value if no argument is given
+     * @return {String} The FormPopup itself if it's used as a setter or the dataprovider value if no argument is given
      *
      */
     this.dataprovider = function() {}
@@ -336,9 +363,9 @@ function FormPopup() {
 	  * @example
 	  * plugins.window.createFormPopup(forms.orderPicker).dataprovider('myid').scope(foundset.getSelectedRecord()).show();
 	  *
-	  * @param {string} [dataprovider] form popup dataprovider
+	  * @param {String} dataprovider form popup dataprovider
 	  *
-	  * @return {FormPopup} The FormPopup itself if it's used as a setter or the dataprovider value if no argument is given
+	  * @return {CustomType<window.FormPopup>} The FormPopup itself if it's used as a setter or the dataprovider value if no argument is given
 	  *
 	  */
 	 this.dataprovider_dataprovider = function(dataprovider) {}
@@ -349,7 +376,7 @@ function FormPopup() {
      * @example
      * plugins.window.createFormPopup(forms.orderPicker).dataprovider('myid').onClose(closePopupFunction).show();
      *
-     * @return {function} The FormPopup itself if it's used as a setter or the dataprovider value if no argument is given
+     * @return {Function} The FormPopup itself if it's used as a setter or the function value if no argument is given
      *
      */
     this.onClose = function() {}
@@ -361,9 +388,9 @@ function FormPopup() {
 	  * @example
 	  * plugins.window.createFormPopup(forms.orderPicker).dataprovider('myid').onClose(closePopupFunction).show();
 	  *
-	  * @param {function} [func] function that needs to be called when closed
+	  * @param {Function} onClose Function that needs to be called when closed
 	  *
-	  * @return {string} The dataprovider value if no argument is given
+	  * @return {CustomType<window.FormPopup>} The FormPopup itself if it's used as a setter or the function value if no argument is given
 	  *
 	  */
 	 this.onClose_onClose = function(func) {}
@@ -374,7 +401,7 @@ function FormPopup() {
      * @example
      * plugins.window.createFormPopup(forms.orderPicker).dataprovider('myid').scope(foundset.getSelectedRecord()).show();
      *
-     * @return {FormPopup} The FormPopup itself if it's used as a setter or the dataprovider value if no argument is given
+     * @return {Object} The FormPopup itself if it's used as a setter or the scope object if no argument is given
      *
      */
     this.scope = function() {}
@@ -385,9 +412,9 @@ function FormPopup() {
 	  * @example
 	  * plugins.window.createFormPopup(forms.orderPicker).dataprovider('myid').scope(foundset.getSelectedRecord()).show();
 	  *
-	  * @param {object} scope form popup scope to modify
+	  * @param {Object} scope Form popup scope to modify
 	  *
-	  * @return {FormPopup} The FormPopup itself if it's used as a setter or the dataprovider value if no argument is given
+	  * @return {CustomType<window.FormPopup>} The FormPopup itself if it's used as a setter or the scope object if no argument is given
 	  *
 	  */
 	 this.scope_scope = function(scope) {}
@@ -418,7 +445,7 @@ function FormPopup() {
      *
      * @param {form} form the form to show
      *
-     * @return FormPopup
+     * @return {CustomType<window.FormPopup>} FormPopup
      */
 	this.createFormPopup = function(form) {}
 }
@@ -451,7 +478,7 @@ function Menu() {
      * // add an icon to the menu
      * menu.setIcon("media:///yourimage.gif");
      * 
-     * @param {Boolean} enabled
+     * @param {Boolean} enabled The enabled state; true to enable the menu, false to disable.
      */
     this.setEnabled = function(enabled) {}
 
@@ -470,7 +497,7 @@ function Menu() {
     * // add an icon to the menu
     * menu.setIcon("media:///yourimage.gif");
     * 
-    * @param {Object} icon
+    * @param {Object} icon The icon to be used, which can be a media URL or an object representing the icon.
     */
     this.setIcon = function(icon) {}
 
@@ -489,7 +516,7 @@ function Menu() {
     * // add an icon to the menu
     * menu.setIcon("media:///yourimage.gif");
     * 
-    * @param {String} mnemonic
+    * @param {String} mnemonic The mnemonic key used for keyboard shortcuts.
     */
     this.setMnemonic = function(mnemonic) {}
 }
@@ -555,13 +582,10 @@ function MenuItem() {
      * //   [4] menu text
      * entry.methodArguments = [17, "data"];
      * 
-     * @param {Function} method
-     * @param {Array} arguments
-     * 
-     * @returns {MenuItem}
+     * @param {Function} method The callback function to be executed when the menu item is activated.
+     * @param {Array<Object>} [arguments] An array of additional arguments to be passed to the callback function. The first five arguments are fixed: [0] item index, [1] parent item index, [2] isSelected boolean, [3] parent menu text, [4] menu text.
      */
     this.setMethod = function(method, arguments) {}
-
 
     /**
       * Set the accelerator key of the menu item/checkbox/radiobutton.
@@ -592,9 +616,7 @@ function MenuItem() {
       * // set an icon
       * entry.setIcon("media:///yourimage.gif");
       * 
-      * @param {String} accelerator
-      * 
-      * @returns {MenuItem}
+      * @param {String} accelerator The accelerator key string, e.g. "ctrl alt Y".
       */
      this.setAccelerator = function(accelerator) {}
      
@@ -627,9 +649,7 @@ function MenuItem() {
        * // set an icon
        * entry.setIcon("media:///yourimage.gif");
        * 
-       * @param {Object} icon
-       * 
-       * @returns {MenuItem}
+       * @param {Object} icon The icon to set
        */
       this.setIcon = function(icon) {}
       
@@ -662,9 +682,7 @@ function MenuItem() {
          * // set an icon
          * entry.setIcon("media:///yourimage.gif");
          * 
-         * @param {String} icon
-         * 
-         * @returns {MenuItem}
+         * @param {String} mnemonic The mnemonic key to be used as a shortcut indicator for the menu item.
          */
         this.setMnemonic = function(mnemonic) {}
         
@@ -693,61 +711,59 @@ function MenuItem() {
           * // hide the radiobutton
           * entry_three.setVisible(false);
           * 
-          * @param {Boolean} visible
-          * 
-          * @returns {MenuItem}
+          * @param {Boolean} visible The visibility state of the menu item.
           */
          this.setVisible = function(visible) {}
          
          /**
           * Set the background color of the menu item/checkbox/radiobutton.
           * 
-         * @param {String} bgColor
-         * 
+          * @param {String} bgColor The background color as a string (e.g., "#111111").
+          * 
           */
          this.setBackgroundColor = function(bgColor) {}
 
          /**
           * Set the foreground color of the menu item/checkbox/radiobutton.
           * 
-         * @param {String} fgColor
-         * 
+          * @param {String} fgColor The foreground color as a string (e.g., "#EE5555").
+          * 
           */
          this.setForegroundColor = function(fgColor) {}
 
          /**
           * Sets the value for the specified client property key of the menu item/checkbox/radiobutton.
           *
-         * @example
-         * // add a new menu to the menubar
-         * var menubar = plugins.window.getMenuBar();
-         * var menu = menubar.addMenu();
-         * menu.text = "New Menu";
-         * // alternatively create a popup menu
-         * //var menu = plugins.window.createPopupMenu();
-         * 
-         * // add a menu item
-         * var entry = menu.addMenuItem("menu entry", feedback);
-         * // alternatively add a checkbox
-         * //var entry = menu.addCheckBox("menu entry", feedback);
-         * // or alternatively add a radiobutton
-         * //var entry = menu.addRadioButton("menu entry", feedback);
-         * 
-         * // NOTE: Depending on the operating system, a user interface property name may be available.
-         * // set the tooltip of the menu item/checkbox/radiobutton via client properties
-         * // keep the original tooltip in a form or global variable
-         * originalTooltip = entry.getClientProperty("ToolTipText");
-         * entry.putClientProperty("ToolTipText", "changed tooltip");
-         * 
-         * // later restore the original tooltip from the variable
-         * //var menubar = plugins.window.getMenuBar();
-         * //var menuIndex = menubar.getMenuIndexByText("New Menu");
-         * //var menu = menubar.getMenu(menuIndex);
-         * //var entry = menu.getItem(0);
-         * //entry.putClientProperty("ToolTipText", originalTooltip);
+          * @example
+          * // add a new menu to the menubar
+          * var menubar = plugins.window.getMenuBar();
+          * var menu = menubar.addMenu();
+          * menu.text = "New Menu";
+          * // alternatively create a popup menu
+          * //var menu = plugins.window.createPopupMenu();
           * 
-          * @param {Object} key
-          * @param {Object} value
+          * // add a menu item
+          * var entry = menu.addMenuItem("menu entry", feedback);
+          * // alternatively add a checkbox
+          * //var entry = menu.addCheckBox("menu entry", feedback);
+          * // or alternatively add a radiobutton
+          * //var entry = menu.addRadioButton("menu entry", feedback);
+          * 
+          * // NOTE: Depending on the operating system, a user interface property name may be available.
+          * // set the tooltip of the menu item/checkbox/radiobutton via client properties
+          * // keep the original tooltip in a form or global variable
+          * originalTooltip = entry.getClientProperty("ToolTipText");
+          * entry.putClientProperty("ToolTipText", "changed tooltip");
+          * 
+          * // later restore the original tooltip from the variable
+          * //var menubar = plugins.window.getMenuBar();
+          * //var menuIndex = menubar.getMenuIndexByText("New Menu");
+          * //var menu = menubar.getMenu(menuIndex);
+          * //var entry = menu.getItem(0);
+          * //entry.putClientProperty("ToolTipText", originalTooltip);
+          * 
+          * @param {Object} key The key for the client property.
+          * @param {Object} value The value to set for the client property.
           */
          this.putClientProperty = function(key, value) {}
 
@@ -782,7 +798,7 @@ function MenuItem() {
           * //var entry = menu.getItem(0);
           * //entry.putClientProperty("ToolTipText", originalTooltip);
           * 
-          * @param {Object} key
+          * @param {Object} key The key for the client property.
           */
          this.getClientProperty = function(key){}
 }
@@ -1400,14 +1416,14 @@ function Popup() {
      * menu.addMenuItem("an entry", feedback);
      *
      * if (event.getSource()) {
-     *  // display the popup over the component which is the source of the event
-     *  // display the popup over the components, at specified coordinates relative to the component
-     *  //menu.show(event.getSource(), 10, 10, true);
+     *  // display the popup over the component which is the source of the event, 
+     *  // at specified coordinates relative to the component
+     *  menu.show(event.getSource(), 10, 10, true);
      * }
      *
-     * @param {Object} [component] The component where this popup is linked in
-     * @param {Object} [x] The x of the popup 
-     * @param {Number} [y] The y coordinate of the popup
+     * @param {Runtimecomponent} component The component where this popup is linked in
+     * @param {Number} x The x of the popup 
+     * @param {Number} y The y coordinate of the popup
      * @param {Boolean} [positionTop] The positionTop where to show the popup (default false)
      */
     this.show = function(component, x, y, positionTop) { }
@@ -1426,7 +1442,7 @@ function Popup() {
      *  menu.show(event.getSource(), true);
 	 * }
 	 * 
-	 * @param {Object} [component] The component where this popup is linked in
+	 * @param {Runtimecomponent} component The component where this popup is linked in
 	 * @param {Boolean} [positionTop] The positionTop where to show the popup (default false)
      */
 	this.show_component_positionTop = function(component, positionTop) { }
@@ -1441,13 +1457,12 @@ function Popup() {
 	 * menu.addMenuItem("an entry", feedback);
 	 *
 	 * if (event.getSource()) {
-	 *  // display the popup over the component which is the source of the event
-	 *  // display the popup over the components, at specified coordinates relative to the component
-	 *  //menu.show(event.getSource(), 10, 10, true);
+	 *  // display the popup at specified coordinates
+	 *  menu.show(10, 10);
 	 * }
 	 *
-	 * @param {Object} [x] The x of the popup 
-	 * @param {Number} [y] The y coordinate of the popup
+	 * @param {Number} x The x of the popup 
+	 * @param {Number} y The y coordinate of the popup
 	 */
 	this.show_x_y = function(x, y) { }
 	
@@ -1462,11 +1477,60 @@ function Popup() {
 	 *
 	 * if (event.getSource()) {
 	 *  // display the popup over the component which is the source of the event
-	 *  // display the popup over the components, at specified coordinates relative to the component
-	 *  //menu.show(event.getSource());
+	 *  menu.show(event.getSource());
 	 * }
 	 *
-	 * @param {Object} [Event] event related to Popup 
+	 * @param {JSEvent} event event related to Popup 
 	 */
 	this.show_event = function(event) { }
+}
+
+var svy_types = {
+
+  /**
+ * Represents a Menu component.
+ * Extends BaseMenu to provide a popup menu with display text and basic actions.
+ */
+  Menu: {
+    /**
+     * The text label displayed for the menu.
+     */
+    text: null,
+  },
+    
+  /**
+   * MenuItem type defines public properties and server-side API for menu items.
+   */
+  MenuItem: {
+      /**
+      * The unique name for the menu item.
+      */
+      name: null,
+      /**
+      * An array of arguments to pass to the callback when the menu item is activated.
+      */
+      methodArguments: null,
+      /**
+       * The display text shown for the menu item.
+       */
+      text: null,
+      /**
+       * Indicates whether the menu item is selected.
+       */
+      selected: null,
+      /**
+       * Indicates whether the menu item is enabled.
+       */
+      enabled: null
+  },
+
+  /**
+   * Popup type defines public properties and server-side API for popup menus.
+   */
+  Popup: {
+    /**
+     * CSS class for custom styling of the popup.
+     */
+    cssClass: null
+  }
 }

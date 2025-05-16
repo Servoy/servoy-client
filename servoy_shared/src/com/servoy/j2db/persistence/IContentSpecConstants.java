@@ -233,4 +233,5 @@ public interface IContentSpecConstants extends IContentSpecConstantsBase
 	public static final String PROPERTY_USE_MIN_HEIGHT = "useMinHeight";
 	public static final String PROPERTY_USE_MIN_WIDTH = "useMinWidth";
 	public static final String PROPERTY_PERMISSIONS = "permissions";
+	public static final String PROPERTY_EVENTTYPES = "eventTypes";
 }

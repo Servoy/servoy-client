@@ -161,4 +161,11 @@ public class TagStringTypeSabloValue extends BasicTagStringTypeSabloValue implem
 		return changed;
 	}
 
+	@SuppressWarnings("nls")
+	@Override
+	public String toString()
+	{
+		return "TagString(" + getDesignValueBeforeInitialI18NConversion() + ")";
+	}
+
 }

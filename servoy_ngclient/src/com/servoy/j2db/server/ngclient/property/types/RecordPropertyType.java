@@ -37,7 +37,6 @@ import com.servoy.j2db.server.ngclient.IContextProvider;
 import com.servoy.j2db.server.ngclient.property.FoundsetPropertyType;
 import com.servoy.j2db.server.ngclient.property.FoundsetTypeSabloValue;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON;
-import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -75,7 +74,6 @@ public class RecordPropertyType extends UUIDReferencePropertyType<IRecordInterna
 			if (webObject != null && jsonRecord.has(FoundsetTypeSabloValue.ROW_ID_COL_KEY))
 			{
 				String rowIDValue = jsonRecord.optString(FoundsetTypeSabloValue.ROW_ID_COL_KEY);
-				Pair<String, Integer> splitHashAndIndex = FoundsetTypeSabloValue.splitPKHashAndIndex(rowIDValue);
 				if (jsonRecord.has(FoundsetTypeSabloValue.FOUNDSET_ID))
 				{
 					int foundsetID = Utils.getAsInteger(jsonRecord.get(FoundsetTypeSabloValue.FOUNDSET_ID));
@@ -85,7 +83,7 @@ public class RecordPropertyType extends UUIDReferencePropertyType<IRecordInterna
 							foundsetID);
 						if (foundset != null)
 						{
-							int recordIndex = foundset.getRecordIndex(splitHashAndIndex.getLeft(), splitHashAndIndex.getRight().intValue());
+							int recordIndex = foundset.getRecordIndex(rowIDValue, 0);
 							if (recordIndex != -1)
 							{
 								return foundset.getRecord(recordIndex);
@@ -104,7 +102,7 @@ public class RecordPropertyType extends UUIDReferencePropertyType<IRecordInterna
 					FoundsetTypeSabloValue fsSablo = (FoundsetTypeSabloValue)webObject.getProperty(foundsetPd.getName());
 					if (fsSablo != null && fsSablo.getFoundset() != null)
 					{
-						int recordIndex = fsSablo.getFoundset().getRecordIndex(splitHashAndIndex.getLeft(), splitHashAndIndex.getRight().intValue());
+						int recordIndex = fsSablo.getFoundset().getRecordIndex(rowIDValue, 0);
 						if (recordIndex != -1)
 						{
 							record = fsSablo.getFoundset().getRecord(recordIndex);
@@ -119,6 +117,10 @@ public class RecordPropertyType extends UUIDReferencePropertyType<IRecordInterna
 			}
 
 		}
+		else if (newJSONValue instanceof IRecordInternal)
+		{
+			record = (IRecordInternal)newJSONValue;
+		}
 		return record;
 	}
 
@@ -132,9 +134,9 @@ public class RecordPropertyType extends UUIDReferencePropertyType<IRecordInterna
 			writer.object();
 			writer.key("recordhash").value(addReference(sabloValue, converterContext));
 			writer.key(FoundsetTypeSabloValue.FOUNDSET_ID).value(sabloValue.getParentFoundSet().getID());
-			writer.key(FoundsetTypeSabloValue.ROW_ID_COL_KEY).value(
-				sabloValue.getPKHashKey() + "_" + sabloValue.getParentFoundSet().getRecordIndex(sabloValue));
-//			writer.key("svyType").value(getName()); // I don't think this is used anywhere
+			IFoundSetInternal foundset = sabloValue.getParentFoundSet();
+			writer.key(FoundsetTypeSabloValue.ROW_ID_COL_KEY)
+				.value(sabloValue.getPKHashKey());
 			writer.endObject();
 		}
 		else writer.value(null);

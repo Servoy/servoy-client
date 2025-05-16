@@ -61,14 +61,15 @@ import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.Messages;
 import com.servoy.j2db.dataprocessing.ClientInfo;
 import com.servoy.j2db.persistence.Form;
+import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Solution;
+import com.servoy.j2db.persistence.Solution.AUTHENTICATOR_TYPE;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.scripting.RuntimeWindow;
 import com.servoy.j2db.scripting.StartupArguments;
 import com.servoy.j2db.server.ngclient.INGClientWindow.IFormHTMLAndJSGenerator;
-import com.servoy.j2db.server.ngclient.auth.StatelessLoginUtils;
 import com.servoy.j2db.server.ngclient.auth.SvyID;
 import com.servoy.j2db.server.ngclient.eventthread.NGClientWebsocketSessionWindows;
 import com.servoy.j2db.server.ngclient.eventthread.NGEventDispatcher;
@@ -308,6 +309,11 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 								}
 							}
 							sendSolutionCSSURL(solution.getSolution());
+							if (currentForm.isFormVisible())
+							{
+								client.getFormManager().getCachedFormControllers().stream().filter(f -> f != currentForm && f.isFormVisible())
+									.forEach(f -> NGClientWindow.getCurrentWindow().touchForm(f.getForm(), f.getName(), true, true));
+							}
 						}
 						finally
 						{
@@ -334,7 +340,10 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 								: new String[] { args.getSolutionName(), args.getMethodName() },
 							args);
 
-						if (getHttpSession().getAttribute(StatelessLoginHandler.ID_TOKEN) != null)
+						Solution sol = (Solution)ApplicationServerRegistry.get().getLocalRepository().getActiveRootObject(solutionName, IRepository.SOLUTIONS);
+						AUTHENTICATOR_TYPE authenticator = sol.getAuthenticator();
+						if (getHttpSession().getAttribute(StatelessLoginHandler.ID_TOKEN) != null && sol != null &&
+							authenticator != AUTHENTICATOR_TYPE.NONE && sol.getLoginFormID() <= 0 && sol.getLoginSolutionName() == null)
 						{
 							setUserId();
 						}
@@ -369,8 +378,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 							new Object[] { obj });
 					}
 					//remove the id token of the oauth provider from the url
-					getClientService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("replaceUrlState",
-						new Object[] { "/" + StatelessLoginUtils.SVYLOGIN_PATH });
+					getClientService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("replaceUrlState", null);
 				}
 			});
 		}

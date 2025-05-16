@@ -33,7 +33,7 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
  * <p>The <code>getDataSource()</code> method retrieves the datasource linked to the record,
  * offering insights into the origin of the data.</p>
  *
- * <p>For more details, refer to the <a href="./jsrecord.md">JSRecord</a> documentation.</p>
+ * <p>For more details, refer to the <a href="https://docs.servoy.com/reference/servoycore/dev-api/database-manager/jsrecord">JSRecord</a> documentation.</p>
  *
  * @author lvostinar
  *

@@ -168,7 +168,7 @@ public class FormPropertyType extends DefaultPropertyType<Object>
 		}
 		else if (sabloValue instanceof FormScope)
 		{
-			formName = ((FormScope)sabloValue).getFormController().getName();
+			formName = ((FormScope)sabloValue).getScopeName();
 		}
 		else
 		{

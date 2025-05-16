@@ -1,9 +1,10 @@
+<!DOCTYPE html>
 <html>
 <head>
   <meta charset="utf-8">
   <!-- this base href is mandatory -->
   <base href="/">
-    <title>%%solutionTitle%%</title>
+  <title>%%solutionTitle%%</title>
   <style>
     /* Style the form */
     .login-form {
@@ -36,14 +37,14 @@
     .login-form input[type=checkbox] {
       margin-top: 16px;
     }
-    
+
     /* Style the error label */
     .errorlabel {
         display:none;
         color:red;
         margin-bottom: 10px;
     }
-    
+
     .center {
       position: absolute;
       top: 30%;
@@ -52,18 +53,18 @@
       padding: 10px;
     }
   </style>
-</head>
+  </head>
 <body>
   <div class="login-form center">
     <div id="errorlabel" class="errorlabel">%%i18n:servoy.logindialog.error%%</div>
     <form accept-charset="UTF-8" role="form" name="login_form" method="post">
       <label for="username">%%i18n:servoy.logindialog.label.name%%</label>
       <!-- input name 'username' is mandatory -->
-      <input type="text" id="username" name="username" placeholder="%%i18n:servoy.logindialog.label.name%%" required oninvalid="this.setCustomValidity('%%i18n:servoy.logindialog.specify.username%%')" oninput="this.setCustomValidity('')">
+      <input type="text" id="username" name="username" placeholder="%%i18n:servoy.logindialog.label.name%%" required>
 
       <label for="password">%%i18n:servoy.logindialog.password%%</label>
       <!-- input name 'password' is mandatory -->
-      <input type="password" id="password" name="password" placeholder="%%i18n:servoy.logindialog.password%%" required oninvalid="this.setCustomValidity('%%i18n:servoy.logindialog.specify.password%%')" oninput="this.setCustomValidity('')">
+      <input type="password" id="password" name="password" placeholder="%%i18n:servoy.logindialog.password%%" required>
 
       <button type="submit">%%i18n:servoy.logindialog.title%%</button>
       <!-- input name 'remember' is mandatory if you want rememberMe functionality-->
@@ -73,5 +74,40 @@
       <input name="id_token" type="hidden"/>
     </form>
   </div>
+
+  <script type="text/javascript">
+    // Wait until the DOM is fully loaded before trying to attach listeners
+    document.addEventListener('DOMContentLoaded', function() {
+      const usernameInput = document.getElementById('username');
+      const passwordInput = document.getElementById('password');
+
+      // --- Username Input Listeners ---
+      if (usernameInput) {
+        // Listener for the 'invalid' event (when HTML5 validation fails)
+        usernameInput.addEventListener('invalid', function(event) {
+          event.target.setCustomValidity('%%i18n:servoy.logindialog.specify.username%%');
+        });
+
+        // Listener for the 'input' event (when the user types)
+        usernameInput.addEventListener('input', function(event) {
+          // Clear the custom validation message as soon as the user starts correcting the input
+          event.target.setCustomValidity('');
+        });
+      }
+
+      // --- Password Input Listeners ---
+      if (passwordInput) {
+        // Listener for the 'invalid' event
+        passwordInput.addEventListener('invalid', function(event) {
+          event.target.setCustomValidity('%%i18n:servoy.logindialog.specify.password%%');
+        });
+
+        // Listener for the 'input' event
+        passwordInput.addEventListener('input', function(event) {
+          event.target.setCustomValidity('');
+        });
+      }
+    });
+  </script>
 </body>
 </html>

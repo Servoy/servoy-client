@@ -89,14 +89,12 @@ public class RootObjectCache
 	RootObjectCache(AbstractRepository repository, Collection<RootObjectMetaData> metaDatas)
 	{
 		this.repository = repository;
-		rootObjectsById = new HashMap<Integer, CacheRecord>();
-		rootObjectsByName = new HashMap<>();
+		rootObjectsById = new HashMap<Integer, CacheRecord>(metaDatas.size(), 0.9f);
+		rootObjectsByName = new HashMap<>(metaDatas.size(), 0.9f);
 
-		// Initialize the cache.
-		Iterator<RootObjectMetaData> iterator = metaDatas.iterator();
-		while (iterator.hasNext())
+		for (RootObjectMetaData element : metaDatas)
 		{
-			add(iterator.next(), false);
+			add(element, false);
 		}
 	}
 
@@ -112,7 +110,7 @@ public class RootObjectCache
 			if (cacheRecord == null)
 			{
 				cacheRecord = new CacheRecord();
-				cacheRecord.rootObjects = new HashMap<Integer, IRootObject>();
+				cacheRecord.rootObjects = new HashMap<Integer, IRootObject>(4, 0.9f);
 				rootObjectsById.put(intId, cacheRecord);
 				rootObjectsByName.put(new RootObjectKey(metaData.getName(), metaData.getObjectTypeId()), cacheRecord);
 			}
@@ -439,11 +437,10 @@ public class RootObjectCache
 		try
 		{
 			RootObjectMetaData[] metaDatas = new RootObjectMetaData[rootObjectsById.size()];
-			Iterator<CacheRecord> iterator = rootObjectsById.values().iterator();
 			int i = 0;
-			while (iterator.hasNext())
+			for (CacheRecord element : rootObjectsById.values())
 			{
-				metaDatas[i++] = iterator.next().rootObjectMetaData;
+				metaDatas[i++] = element.rootObjectMetaData;
 			}
 			return metaDatas;
 		}
@@ -555,10 +552,8 @@ public class RootObjectCache
 		PersistIndexCache.flush();
 		try
 		{
-			Iterator<CacheRecord> iterator = rootObjectsById.values().iterator();
-			while (iterator.hasNext())
+			for (CacheRecord cacheRecord : rootObjectsById.values())
 			{
-				CacheRecord cacheRecord = iterator.next();
 				flushRootObjectMap(cacheRecord.rootObjects);
 			}
 		}

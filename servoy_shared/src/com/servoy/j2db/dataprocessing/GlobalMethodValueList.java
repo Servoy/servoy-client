@@ -17,6 +17,8 @@
 package com.servoy.j2db.dataprocessing;
 
 import java.sql.Types;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.mozilla.javascript.Function;
 
@@ -175,19 +177,27 @@ public class GlobalMethodValueList extends CustomValueList
 									{
 										hasRealValue = false;
 										IDataSet dataSet = (IDataSet)retValue;
+										Set<Object> duplicateCheck = new HashSet<Object>(dataSet.getRowCount());
+										duplicateCheck.addAll(realValues);
 										for (int i = 0; i < dataSet.getRowCount(); i++)
 										{
 											Object[] row = dataSet.getRow(i);
+											Object realValue = CustomValueList.handleRowData(valueList, false, 1, row, application);
 											if (row.length == 1)
 											{
-												realValues.add(CustomValueList.handleRowData(valueList, false, 1, row, application));
+												if (duplicateCheck.contains(realValue)) continue;
+												realValues.add(realValue);
+												duplicateCheck.add(realValue);
 											}
 											else
 											{
 												hasRealValue = true;
-												realValues.add(CustomValueList.handleRowData(valueList, false, 2, row, application));
+												Object realValue2 = CustomValueList.handleRowData(valueList, false, 2, row, application);
+												if (duplicateCheck.contains(realValue2)) continue;
+												realValues.add(realValue2);
+												duplicateCheck.add(realValue2);
 											}
-											addElement(CustomValueList.handleRowData(valueList, false, 1, row, application));
+											addElement(realValue);
 										}
 									}
 									finally

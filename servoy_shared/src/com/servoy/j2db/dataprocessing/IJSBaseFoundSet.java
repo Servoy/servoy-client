@@ -53,7 +53,7 @@ import com.servoy.j2db.util.Utils;
  * <code>getSelectedIndex</code>. For multi-select scenarios, <code>setSelectedIndexes</code> and
  * <code>getSelectedIndexes</code> enable handling multiple selected records.</p>
  *
- * <p>For more information, refer to the <a href="./jsfoundset.md">FoundSet</a> documentation.</p>
+ * <p>For more information, refer to the <a href="https://docs.servoy.com/reference/servoycore/dev-api/database-manager/jsfoundset">FoundSet</a> documentation.</p>
  *
  * @author rgansevles
  */
@@ -82,10 +82,21 @@ public interface IJSBaseFoundSet extends IFoundSetInternal
 	String getName();
 
 	/**
-	 * @return the 0-based index of the given record in the foundset.
+	 * Get the record index. Will return -1 if the record can't be found.
+	 *
+	 * @sample var index = %%prefix%%foundset.getRecordIndex(record);
+	 *
+	 * @param record Record
+	 *
+	 * @return int index.
 	 */
-	@JSFunction
-	int getRecordIndex(IRecord record);
+	default public int jsFunction_getRecordIndex(IJSBaseRecord record)
+	{
+		int recordIndex = getRecordIndex((IRecord)record);
+		if (recordIndex == -1) return -1;
+		return recordIndex + 1;
+	}
+
 
 	/**
 	 * @return an array of currently selected records in the foundset.

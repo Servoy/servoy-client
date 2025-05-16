@@ -18,6 +18,7 @@
 package com.servoy.j2db.dataprocessing;
 
 import static com.servoy.j2db.dataprocessing.FireCollector.getFireCollector;
+import static com.servoy.j2db.dataprocessing.Record.sealIfNeeded;
 import static java.util.Collections.synchronizedList;
 
 import java.lang.ref.SoftReference;
@@ -61,7 +62,7 @@ import com.servoy.j2db.util.Utils;
  * its load.</p>
  *
  * <p>For more information on managing records within the context of view foundsets, refer to the
- * <a href="./viewfoundset.md">View foundset</a> section of the documentation.</p>
+ * <a href="https://docs.servoy.com/reference/servoycore/dev-api/database-manager/viewfoundset">View foundset</a> section of the documentation.</p>
  *
  * @author jcompagner
  * @since 8.4
@@ -601,7 +602,7 @@ public final class ViewRecord implements IRecordInternal, IJSBaseSQLRecord, Scri
 			Context context = Context.getCurrentContext();
 			if (context != null) o = context.getWrapFactory().wrap(context, start, o, o.getClass());
 		}
-		return o;
+		return sealIfNeeded(o);
 	}
 
 	@Override

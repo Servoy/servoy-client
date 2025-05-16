@@ -26,7 +26,9 @@ import java.util.Stack;
 import org.eclipse.dltk.rhino.dbgp.DBGPDebugFrame;
 import org.eclipse.dltk.rhino.dbgp.DBGPDebugger;
 import org.mozilla.javascript.Context;
+import org.mozilla.javascript.JavaMembers;
 import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.Wrapper;
 import org.mozilla.javascript.debug.DebugFrame;
 import org.mozilla.javascript.debug.DebuggableScript;
 import org.sablo.websocket.CurrentWindow;
@@ -35,6 +37,8 @@ import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.dataprocessing.IDataServer;
 import com.servoy.j2db.scripting.ScriptEngine;
+import com.servoy.j2db.scripting.ScriptObjectRegistry;
+import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 import com.servoy.j2db.server.ngclient.NGClient;
 import com.servoy.j2db.server.ngclient.eventthread.NGClientWebsocketSessionWindows;
 import com.servoy.j2db.server.shared.PerformanceData;
@@ -229,6 +233,37 @@ public class ServoyDebugger extends DBGPDebugger
 			}
 			profileInfo.remove();
 		}
+	}
+
+
+	/**
+	 * Prevent calls to read-only properties from the debugger, these properties are actually functions that should not be called in the debugger.
+	 */
+	@Override
+	protected Object getDebuggerPropertyValue(Scriptable prototype, String id, Scriptable start)
+	{
+		if (prototype instanceof Wrapper wrapper)
+		{
+			JavaMembers javaMembers = ScriptObjectRegistry.getJavaMembers(wrapper.unwrap().getClass(), null);
+			if (javaMembers != null)
+			{
+				Object field = javaMembers.getField(id, false);
+				if (field instanceof JavaMembers.BeanProperty beanProperty)
+				{
+					JSReadonlyProperty annotation = beanProperty.getGetter().getAnnotation(JSReadonlyProperty.class);
+					if (annotation != null)
+					{
+						String debuggerRepresentation = annotation.debuggerRepresentation();
+						if (debuggerRepresentation != null && debuggerRepresentation.length() > 0)
+						{
+							return debuggerRepresentation;
+						}
+					}
+				}
+			}
+		}
+
+		return super.getDebuggerPropertyValue(prototype, id, start);
 	}
 
 }

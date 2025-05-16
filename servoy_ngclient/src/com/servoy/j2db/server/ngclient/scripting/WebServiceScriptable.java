@@ -171,6 +171,7 @@ public class WebServiceScriptable implements Scriptable
 
 			scopeObject.put("api", scopeObject, apiObject);
 			scopeObject.put("model", scopeObject, model);
+			scopeObject.put("setters", scopeObject, context.newObject(execScope));
 			execScope.put("$scope", execScope, scopeObject);
 
 			execScope.put("console", execScope,
@@ -284,14 +285,22 @@ public class WebServiceScriptable implements Scriptable
 	@Override
 	public Object get(String name, Scriptable start)
 	{
+		Scriptable scope = apiObject;
 		WebObjectApiFunctionDefinition apiFunction = serviceSpecification.getApiFunction(name);
 		if (apiFunction == null)
 		{
+			// test internal api
 			apiFunction = serviceSpecification.getInternalApiFunction(name);
+			if (apiFunction != null)
+			{
+				// internal functions should be on the pure scope object.
+				// just like executeScopeFunction
+				scope = scopeObject;
+			}
 		}
-		if (apiFunction != null && apiObject != null)
+		if (apiFunction != null && scope != null)
 		{
-			final Object serverSideFunction = apiObject.get(apiFunction.getName(), apiObject);
+			Object serverSideFunction = scope.get(apiFunction.getName(), scope);
 			final WebObjectFunctionDefinition apiFunctionFinal = apiFunction;
 			if (serverSideFunction instanceof Function)
 			{
@@ -308,6 +317,7 @@ public class WebServiceScriptable implements Scriptable
 				};
 			}
 		}
+
 		if (apiFunction != null)
 		{
 			return new WebServiceFunction(application.getWebsocketSession(), apiFunction, serviceSpecification.getName());

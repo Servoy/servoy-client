@@ -334,7 +334,7 @@ public class RuntimeWebComponent implements IBaseRuntimeComponent, Scriptable, I
 			if (WebFormComponent.isDesignOnlyProperty(pd)) return Scriptable.NOT_FOUND;
 			Object value = component.getProperty(realName);
 			// special case for visibility should always return true for a null value (value not set)
-			if (value == null && pd.getType() == VisiblePropertyType.INSTANCE) return Boolean.TRUE;
+			if (value == null && pd.getType() instanceof VisiblePropertyType) return Boolean.TRUE;
 			return NGConversions.INSTANCE.convertSabloComponentToRhinoValue(value, pd, component, start);
 		}
 		if ("getFormName".equals(name))
@@ -513,7 +513,28 @@ public class RuntimeWebComponent implements IBaseRuntimeComponent, Scriptable, I
 			else previousVal = component.getProperty(realName);
 			Object val = NGConversions.INSTANCE.convertRhinoToSabloComponentValue(value, previousVal, pd, component);
 
-			if (val != previousVal) component.setProperty(realName, val);
+			if (val != previousVal)
+			{
+				String uName = new StringBuffer(name.substring(0, 1).toUpperCase()).append(name.substring(1)).toString();
+				if (scopeObject != null && scopeObject.get("setters", scopeObject) instanceof Scriptable setters &&
+					setters.get("set" + uName, setters) instanceof Function propertySetter && !RuntimeLegacyComponent.inServerSideScript())
+				{
+					Context cx = Context.getCurrentContext();
+					cx.putThreadLocal(SERVER_SIDE_SCRIPT_EXECUTE, Boolean.TRUE);
+					try
+					{
+						propertySetter.call(cx, start, start, new Object[] { val });
+					}
+					finally
+					{
+						cx.removeThreadLocal(SERVER_SIDE_SCRIPT_EXECUTE);
+					}
+				}
+				else
+				{
+					component.setProperty(realName, val);
+				}
+			}
 
 			if (pd != null && pd.getType() instanceof VisiblePropertyType)
 			{
@@ -544,6 +565,12 @@ public class RuntimeWebComponent implements IBaseRuntimeComponent, Scriptable, I
 							}
 						}
 					}
+				}
+				if (val != previousVal && val instanceof Boolean isVisible)
+				{
+					List<Runnable> invokeLaterRunnables = new ArrayList<Runnable>();
+					component.notifyVisible(isVisible.booleanValue(), invokeLaterRunnables, new HashSet<>());
+					Utils.invokeLater(component.getDataConverterContext().getApplication(), invokeLaterRunnables);
 				}
 			}
 		}
@@ -785,4 +812,25 @@ public class RuntimeWebComponent implements IBaseRuntimeComponent, Scriptable, I
 		return "Component: " + component;
 	}
 
+
+	public boolean setComponentPropertyUsingSetter(Scriptable scriptable, String name, Object value)
+	{
+		String uName = new StringBuffer(name.substring(0, 1).toUpperCase()).append(name.substring(1)).toString();
+		if (scopeObject != null && scopeObject.get("setters", scopeObject) instanceof Scriptable setters &&
+			setters.get("set" + uName, setters) instanceof Function propertySetter && !RuntimeLegacyComponent.inServerSideScript())
+		{
+			Context cx = Context.getCurrentContext();
+			cx.putThreadLocal(SERVER_SIDE_SCRIPT_EXECUTE, Boolean.TRUE);
+			try
+			{
+				propertySetter.call(cx, scriptable, scriptable, new Object[] { scriptable, value });
+				return true;
+			}
+			finally
+			{
+				cx.removeThreadLocal(SERVER_SIDE_SCRIPT_EXECUTE);
+			}
+		}
+		return false;
+	}
 }

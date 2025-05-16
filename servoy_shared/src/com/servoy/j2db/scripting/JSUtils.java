@@ -17,6 +17,7 @@
 package com.servoy.j2db.scripting;
 
 
+import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormatSymbols;
 import java.text.ParseException;
@@ -403,8 +404,7 @@ public class JSUtils implements IJSUtils
 
 	/**
 	 * Format a date object to a text representation.
-	 * This will format with the system timezone for the webclient
-	 * For NGClient it will use the timezone of the client, the same goes for the Smartclient (but that is the system timezone)
+	 * For NGClient/Titanium Client it will use the timezone of the client.
 	 * see {@link #dateFormat(Date, String, String)} for using the actual clients timezone.
 	 *
 	 * Format can be a string like: 'dd-MM-yyyy' , 'dd-MM-yyyy HH:mm' , 'MM/dd/yyyy', 'MM/dd/yyyy hh:mm aa', 'dd.MM.yyyy'.
@@ -445,9 +445,8 @@ public class JSUtils implements IJSUtils
 
 	/**
 	 * Format a date object to a text representation.
-	 * This will format with the system timezone for the webclient
 	 * With language and/or country the locale will be created.
-	 * For NGClient it will use the timezone of the client, the same goes for the Smartclient (but that is the system timezone)
+	 * For NGClient/Titanium Client it will use the timezone of the client.
 	 * see {@link #dateFormat(Date, String, String)} for using the actual clients timezone.
 	 *
 	 * Format can be a string like: 'dd-MM-yyyy' , 'dd-MM-yyyy HH:mm' , 'MM/dd/yyyy', 'MM/dd/yyyy hh:mm aa', 'dd.MM.yyyy'.
@@ -1354,6 +1353,23 @@ public class JSUtils implements IJSUtils
 			return Utils.formatNumber(locale == null ? application.getLocale() : locale, number.doubleValue(), digits.intValue());
 		}
 		return ""; //$NON-NLS-1$
+	}
+
+	/**
+	* Creates a large number from a string, use this if you want to create numbers that are larger the a Double floating point number,
+	* So if you want to keep precision exactly correct without any rounding, or you want to hold very large numbers that can't be hold correctly in a double you can use this method.
+	*
+	* @sample
+	* var textalNumber = utils.createLargeNumber("12345678901234567890.1234567890");
+	*
+	* @param value the string literal that represents the number
+	*
+	* @return the resulting number as a java BigDecimal
+	*/
+	@JSFunction
+	public BigDecimal createLargeNumber(String value)
+	{
+		return new BigDecimal(value);
 	}
 
 	/**

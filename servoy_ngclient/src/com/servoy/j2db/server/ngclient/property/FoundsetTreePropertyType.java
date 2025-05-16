@@ -58,9 +58,8 @@ public class FoundsetTreePropertyType extends DefaultPropertyType<FoundsetTreeTy
 
 	public static final String TYPE_NAME = "foundsettree";
 
-	public FoundsetTreePropertyType()
+	private FoundsetTreePropertyType()
 	{
-		super();
 	}
 
 	@Override

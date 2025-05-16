@@ -18,7 +18,9 @@
 package com.servoy.j2db.server.ngclient.auth;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
+import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
@@ -26,10 +28,13 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.text.StringEscapeUtils;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,13 +45,22 @@ import com.github.scribejava.apis.openid.OpenIdOAuth2AccessToken;
 import com.github.scribejava.core.model.OAuth2AccessToken;
 import com.github.scribejava.core.oauth.OAuth20Service;
 import com.github.scribejava.core.revoke.TokenTypeHint;
+import com.servoy.base.util.ITagResolver;
+import com.servoy.base.util.TagParser;
+import com.servoy.j2db.ClientLogin;
+import com.servoy.j2db.Credentials;
 import com.servoy.j2db.FlattenedSolution;
+import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.server.ngclient.AngularIndexPageWriter;
 import com.servoy.j2db.server.ngclient.StatelessLoginHandler;
 import com.servoy.j2db.server.ngclient.auth.OAuthUtils.OAuthParameters;
+import com.servoy.j2db.server.shared.ApplicationServerRegistry;
+import com.servoy.j2db.server.shared.IApplicationServer;
 import com.servoy.j2db.util.Pair;
+import com.servoy.j2db.util.ScopesUtils;
 import com.servoy.j2db.util.ServoyJSONObject;
+import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -54,6 +68,9 @@ import com.servoy.j2db.util.Utils;
  */
 public class OAuthHandler
 {
+	private static final String GET_OAUTH_CONFIG = "getOAuthConfig";
+	private static final String OAUTHCONFIGREQUEST_PARAM = "oauthconfigrequest";
+
 	static final Logger log = LoggerFactory.getLogger("stateless.login");
 
 	public static Pair<Boolean, String> handleOauth(HttpServletRequest req, HttpServletResponse resp) throws IOException
@@ -89,10 +106,20 @@ public class OAuthHandler
 
 		String id_token = req.getParameter("id_token");
 		String refreshToken = null;
+		JSONObject auth = null;
 		if (req.getParameter("code") != null)
 		{
 			String nonceState = req.getParameter(OAuthParameters.state.name());
-			JSONObject auth = getNonce(req.getServletContext(), nonceState);
+			auth = getNonce(req.getServletContext(), nonceState);
+			if (auth == null)
+			{
+				auth = getNonce(req.getServletContext(), req.getParameter(OAuthParameters.nonce.name()));
+				if (auth == null)
+				{
+					log.error("Cannot get the oauth config. The nonce/state is not valid.");
+					return showLogin;
+				}
+			}
 			OAuth20Service service = OAuthUtils.createOauthService(req, auth, new HashMap<>());
 			try
 			{
@@ -135,8 +162,65 @@ public class OAuthHandler
 			{
 				return showLogin;
 			}
+			else
+			{
+				handleLoginFailed(req, resp, _fs, auth);
+			}
 		}
 		return showLogin;
+	}
+
+	private static void handleLoginFailed(HttpServletRequest req, HttpServletResponse resp, Pair<FlattenedSolution, Boolean> _fs, JSONObject auth)
+	{
+		String loginFailedUrl = auth.optString(OAuthParameters.login_failed_url.name(), null);
+		if (loginFailedUrl != null && !loginFailedUrl.isBlank())
+		{
+			try
+			{
+				resp.sendRedirect(loginFailedUrl);
+			}
+			catch (IOException e)
+			{
+				log.error("Could not redirect to the login failed url.", e);
+			}
+		}
+		else
+		{
+			String html = null;
+			try (InputStream rs = OAuthHandler.class.getResourceAsStream("error.html"))
+			{
+				html = IOUtils.toString(rs, Charset.forName("UTF-8"));
+				if (_fs != null)
+				{
+					Solution sol = _fs.getLeft().getSolution();
+					I18NTagResolver i18nProvider = new I18NTagResolver(req.getLocale(), sol);
+					html = TagParser.processTags(html, new ITagResolver()
+					{
+						@Override
+						public String getStringValue(String name)
+						{
+							if ("solutionTitle".equals(name))
+							{
+								String titleText = sol.getTitleText();
+								if (titleText == null) titleText = sol.getName();
+								return i18nProvider.getI18NMessageIfPrefixed(titleText);
+							}
+							if ("error".equals(name))
+							{
+								return "Your account is not properly setup. Please contact your admin";
+							}
+							return name;
+						}
+					}, null);
+
+				}
+				HTMLWriter.writeHTML(req, resp, html);
+			}
+			catch (IOException e)
+			{
+				log.error("Could not show an error page.", e);
+			}
+		}
 	}
 
 	private static void extractFromFragment(HttpServletRequest req, HttpServletResponse resp, String reqUrl) throws IOException
@@ -160,12 +244,18 @@ public class OAuthHandler
 			String pathInfo = path.getName(i).toString();
 			url.append("/" + pathInfo);
 		}
+		if (queryString != null && queryString.contains("svy_remove_id_token"))
+		{
+			//do not redirect again and again to extract the id_token, most likely it's not there
+			throw new IOException("The id_token could not be retrieved." + req.getParameter("error_description"));
+		}
+
 		url.append("?");
 		url.append("svy_remove_id_token=true&");
+
 		if (queryString != null)
 		{
-			url.append(queryString);
-			url.append('&');
+			url.append(queryString).append('&');
 		}
 
 		resp.setContentType("text/html");
@@ -340,10 +430,10 @@ public class OAuthHandler
 
 	public static void redirectToOAuthLogin(HttpServletRequest request, HttpServletResponse response, Solution solution)
 	{
-		JSONObject properties = new ServoyJSONObject(solution.getCustomProperties(), true);
-		if (properties.has(StatelessLoginHandler.OAUTH_CUSTOM_PROPERTIES))
+		Object properties = solution.getCustomProperty(new String[] { StatelessLoginHandler.OAUTH_CUSTOM_PROPERTIES });
+		if (properties instanceof String s)
 		{
-			JSONObject auth = properties.getJSONObject(StatelessLoginHandler.OAUTH_CUSTOM_PROPERTIES);
+			JSONObject auth = new JSONObject(s);
 			generateOauthCall(request, response, auth);
 		}
 		else
@@ -372,5 +462,82 @@ public class OAuthHandler
 				log.error("Could not revoke the refresh token.", e);
 			}
 		}
+	}
+
+	public static void redirectToAuthenticator(HttpServletRequest request, HttpServletResponse response, Solution solution) throws ServletException
+	{
+		String oauthconfigrequest = StringEscapeUtils.escapeHtml4(request.getParameter(OAUTHCONFIGREQUEST_PARAM));
+		if (oauthconfigrequest == null)
+		{
+			log.error("Oauth config request parameter was not provided");
+			throw new ServletException("Oauth config request parameter was not provided");
+		}
+		Solution authenticatorModule = AuthenticatorManager.findAuthenticator(solution);
+		if (authenticatorModule != null)
+		{
+			JSONObject json = new JSONObject();
+			Map<String, String[]> parameters = request.getParameterMap();
+			for (Map.Entry<String, String[]> entry : parameters.entrySet())
+			{
+				String[] values = entry.getValue();
+				for (String value : values)
+				{
+					json.put(entry.getKey(), StringEscapeUtils.escapeHtml4(value));
+				}
+			}
+
+			JSONArray args = new JSONArray();
+			args.put(oauthconfigrequest);
+			args.put(json);
+			JSONObject config = getConfig(solution, authenticatorModule, args);
+			if (config != null)
+			{
+				generateOauthCall(request, response, config);
+			}
+		}
+	}
+
+	private static JSONObject getConfig(Solution solution, Solution authenticatorModule, JSONArray args)
+	{
+		String method = GET_OAUTH_CONFIG;
+		JSONObject properties = new ServoyJSONObject(solution.getCustomProperties(), true);
+		ScriptMethod sm = null;
+		if (properties.has(GET_OAUTH_CONFIG))
+		{
+			UUID uuid = Utils.getAsUUID(properties.get(GET_OAUTH_CONFIG), false);
+			sm = (ScriptMethod)authenticatorModule.getAllObjectsAsList().stream().filter(persist -> persist.getUUID().equals(uuid))
+				.findFirst().orElse(null);
+		}
+		else
+		{
+			sm = authenticatorModule.getScriptMethod("globals", GET_OAUTH_CONFIG);
+		}
+		if (sm == null)
+		{
+			log.error("The authenticator does not have a method for getting the oauth config " + GET_OAUTH_CONFIG +
+				". Please select it from the properties view for the authenticator OAUTH_AUTHENTICATOR property.");
+			return null;
+		}
+
+		Credentials credentials = new Credentials(null, authenticatorModule.getName(), ScopesUtils.getScopeString(sm), args.toString());
+		IApplicationServer applicationServer = ApplicationServerRegistry.getService(IApplicationServer.class);
+		try
+		{
+			ClientLogin login = applicationServer.login(credentials);
+			if (login != null && login.getJsReturn() != null)
+			{
+				JSONObject config = new JSONObject(login.getJsReturn());
+				return config;
+			}
+			else
+			{
+				log.error("The authenticator did not return an oauth config.");
+			}
+		}
+		catch (Exception e)
+		{
+			log.error("Could not call the authenticator.", e);
+		}
+		return null;
 	}
 }

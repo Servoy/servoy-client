@@ -485,7 +485,8 @@ public class RepositoryHelper
 		{
 			return true;
 		}
-		if (name.equals("formIndex") && WebComponent.class.isAssignableFrom(persistClass) && persist.getParent() instanceof LayoutContainer) //$NON-NLS-1$
+		if (name.equals("formIndex") && WebComponent.class.isAssignableFrom(persistClass) && persist.getParent() instanceof LayoutContainer lc && //$NON-NLS-1$
+			!"csspositioncontainer".equals(lc.getSpecName())) //$NON-NLS-1$
 		{
 			return true;
 		}

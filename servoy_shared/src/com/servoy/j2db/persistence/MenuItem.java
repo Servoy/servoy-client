@@ -57,6 +57,8 @@ public class MenuItem extends AbstractBase implements ISupportUpdateableName, IC
 	public static final int VIEWABLE = 1;
 	public static final int ENABLED = 2;
 
+	private static String PROPERTY_VALUES = "propertyValues";
+
 	/**
 	 * Constructor I
 	 */
@@ -65,10 +67,19 @@ public class MenuItem extends AbstractBase implements ISupportUpdateableName, IC
 		super(IRepository.MENU_ITEMS, parent, element_id, uuid);
 	}
 
+	@Override
 	public void updateName(IValidateName validator, String arg) throws RepositoryException
 	{
 		// do we care about duplicates here ?
 		validator.checkName(arg, getID(), new ValidatorSearchContext(IRepository.MENU_ITEMS), false);
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_NAME, arg);
+		getRootObject().getChangeHandler().fireIPersistChanged(this);
+	}
+
+
+	public void updateName(IValidateName validator, String arg, ValidatorSearchContext validatorSearchContext) throws RepositoryException
+	{
+		validator.checkName(arg, getID(), validatorSearchContext, false);
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_NAME, arg);
 		getRootObject().getChangeHandler().fireIPersistChanged(this);
 	}
@@ -206,12 +217,9 @@ public class MenuItem extends AbstractBase implements ISupportUpdateableName, IC
 		return null;
 	}
 
-	public MenuItem createNewMenuItem(IValidateName validator, String menuItemName) throws RepositoryException
+	public MenuItem createNewMenuItem(String menuItemName) throws RepositoryException
 	{
 		String name = menuItemName == null ? "untitled" : menuItemName; //$NON-NLS-1$
-
-		//check if name is in use
-		validator.checkName(name, 0, new ValidatorSearchContext(IRepository.MENU_ITEMS), false);
 
 		MenuItem obj = (MenuItem)getRootObject().getChangeHandler().createNewObject(this, IRepository.MENU_ITEMS);
 		//set all the required properties
@@ -220,6 +228,34 @@ public class MenuItem extends AbstractBase implements ISupportUpdateableName, IC
 
 		addChild(obj);
 		return obj;
+	}
+
+	public Object putCustomPropertyValue(String name, Object value)
+	{
+		if (name != null)
+		{
+			return putCustomProperty(new String[] { PROPERTY_VALUES, name }, value);
+		}
+		return null;
+	}
+
+	public Object getCustomPropertyValue(String name)
+	{
+		if (name != null)
+		{
+			return getCustomProperty(new String[] { PROPERTY_VALUES, name });
+		}
+		return null;
+	}
+
+	public Map<String, Object> getCustomPropertiesValues()
+	{
+		Map<String, Object> map = (Map<String, Object>)getCustomProperty(new String[] { PROPERTY_VALUES });
+		if (map == null || map.size() == 0)
+		{
+			return new HashMap<String, Object>();
+		}
+		return map;
 	}
 
 	@Override

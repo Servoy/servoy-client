@@ -42,6 +42,9 @@ import com.servoy.j2db.util.Utils;
  */
 public class Form extends AbstractContainer implements ITableDisplay, ISupportScrollbars, ISupportScriptProviders, ISupportEncapsulation, ISupportDeprecated
 {
+	private static final SerializableRuntimeProperty<String> CSS = new SerializableRuntimeProperty<String>()
+	{
+	};
 
 	private static final long serialVersionUID = 1L;
 
@@ -83,9 +86,9 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 
 	public static final String DATASOURCE_NONE = "-none-";
 
-	public static Comparator<IFormElement> FORM_INDEX_COMPARATOR = new Comparator<IFormElement>()
+	public static Comparator<ISupportFormElement> FORM_INDEX_COMPARATOR = new Comparator<ISupportFormElement>()
 	{
-		public int compare(IFormElement element1, IFormElement element2)
+		public int compare(ISupportFormElement element1, ISupportFormElement element2)
 		{
 			return element1.getFormIndex() - element2.getFormIndex();
 		}
@@ -910,7 +913,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 *
 	 * @return all the form elements
 	 */
-	public Iterator<IFormElement> getFormElementsSortedByFormIndex()
+	public Iterator<ISupportFormElement> getFormElementsSortedByFormIndex()
 	{
 		return getFormElementsSorted(FORM_INDEX_COMPARATOR);
 	}
@@ -920,7 +923,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 *
 	 * @return all the form elements
 	 */
-	public Iterator<IFormElement> getFormElementsSorted(Comparator<IFormElement> comparator)
+	public Iterator<ISupportFormElement> getFormElementsSorted(Comparator<ISupportFormElement> comparator)
 	{
 		return new FormTypeIterator(getAllObjectsAsList(), comparator);
 	}
@@ -945,28 +948,28 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 
 	}
 
-	public static class FormTypeIterator implements Iterator<IFormElement>
+	public static class FormTypeIterator implements Iterator<ISupportFormElement>
 	{
-		private List<IFormElement> array;
+		private List<ISupportFormElement> array;
 		private int index = 0;
 
-		public FormTypeIterator(List<IPersist> list, final Comparator<IFormElement> comparator)
+		public FormTypeIterator(List<IPersist> list, final Comparator<ISupportFormElement> comparator)
 		{
-			array = new ArrayList<IFormElement>();
+			array = new ArrayList<ISupportFormElement>();
 			if (list != null)
 			{
 				for (IPersist p : list)
 				{
-					if (p instanceof IFormElement)
+					if (p instanceof ISupportFormElement)
 					{
-						array.add((IFormElement)p);
+						array.add((ISupportFormElement)p);
 					}
 				}
 			}
 
-			IFormElement[] a = array.toArray(new IFormElement[array.size()]);
+			ISupportFormElement[] a = array.toArray(new ISupportFormElement[array.size()]);
 			Arrays.sort(a, comparator);
-			array = Arrays.<IFormElement> asList(a);
+			array = Arrays.<ISupportFormElement> asList(a);
 		}
 
 		public boolean hasNext()
@@ -974,7 +977,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 			return (index < array.size());
 		}
 
-		public IFormElement next()
+		public ISupportFormElement next()
 		{
 			return array.get(index++);
 		}
@@ -1251,6 +1254,38 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	}
 
 	/**
+	 * The method that is triggered each time before a record is selected. Should return true or false to validate the selection change.
+	 *
+	 * @sample
+	 * /**
+	 *  * Handle record selected.
+	 *  *
+	 *  * &#x40;param {Array<JSRecord<db:/example_data/orders>>} oldSelection old selected records
+	 *  * &#x40;param {Array<JSRecord<db:/example_data/orders>>} newSelection new selected records
+	 *  * &#x40;param {JSEvent} event the event that triggered the action
+	 *  *
+	 *  * &#x40;properties={typeid:24,uuid:"5D614C43-89B3-41D5-941B-0C83CA4D3039"}
+	 *  *&#x2f;
+	 * function onBeforeRecordSelection(oldSelection, newSelection, event) {
+	 *     return true;
+	 * }
+	 *
+	 * @templatedescription Validate record selection before is completed
+	 * @templatename onBeforeRecordSelection
+	 * @templateparam Array<JSRecord<${dataSource}>> oldSelection old selection
+	 * @templateparam Array<JSRecord<${dataSource}>> newSelection new selection
+	 * @templateparam JSEvent event the event that triggered the action
+	 * @templateaddtodo
+	 * @templatecode
+	 * return true
+	 */
+	@ServoyClientSupport(mc = true, wc = true, sc = true)
+	public int getOnBeforeRecordSelectionMethodID()
+	{
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONBEFORERECORDSELECTIONMETHODID).intValue();
+	}
+
+	/**
 	 * The method that is triggered EVERY TIME the form is displayed; an true argument will be passed to the method if this is the first time the form is displayed.<br/><br/>
 	 *
 	 * NOTE 1: onShow can be used to access current foundset dataproviders; onLoad cannot be used because the foundset data is not loaded until after the form is loaded.<br/>
@@ -1349,6 +1384,16 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	public void setOnRecordSelectionMethodID(int arg)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONRECORDSELECTIONMETHODID, arg);
+	}
+
+	/**
+	 * Set the onBeforeRecordSelectionMethodID.
+	 *
+	 * @param arg The onBeforeRecordSelectionMethodID to set
+	 */
+	public void setOnBeforeRecordSelectionMethodID(int arg)
+	{
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONBEFORERECORDSELECTIONMETHODID, arg);
 	}
 
 	/**
@@ -2662,5 +2707,24 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_COMMENT);
 	}
+
+	/**
+	 * @return
+	 */
+	public String getFormCss()
+	{
+		return getSerializableRuntimeProperty(CSS);
+	}
+
+	public void setFormCss(String formCss)
+	{
+		String prevValue = getFormCss();
+		if (!Utils.equalObjects(formCss, prevValue))
+		{
+			setSerializableRuntimeProperty(CSS, formCss);
+			isChanged = true;
+		}
+	}
+
 
 }

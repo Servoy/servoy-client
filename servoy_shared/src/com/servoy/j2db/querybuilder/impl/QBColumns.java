@@ -33,8 +33,8 @@ import com.servoy.j2db.scripting.DefaultJavaScope;
  * conditions, and aggregations.
  *
  * For further details on accessing all columns, see
- * <a href="qbtableclause.md#columns">QBTableClause.columns</a>. For working with specific columns, refer to
- * <a href="qbcolumn.md">QBColumn</a>.
+ * <a href="https://docs.servoy.com/reference/servoycore/dev-api/database-manager/qbtableclause#columns">QBTableClause.columns</a>. For working with specific columns, refer to
+ * <a href="https://docs.servoy.com/reference/servoycore/dev-api/database-manager/qbcolumn">QBColumn</a>.
  *
  * @author rgansevles
  *

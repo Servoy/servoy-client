@@ -214,12 +214,36 @@ public class JSClientUtils
 	{
 		if (application instanceof INGClientApplication && webComponent instanceof Scriptable)
 		{
-			JSONObject retVal = ((INGClientApplication)application).getBounds((String)((Scriptable)webComponent).get("svyMarkupId", (Scriptable)webComponent),
+			JSONObject bounds = ((INGClientApplication)application).getBounds((String)((Scriptable)webComponent).get("svyMarkupId", (Scriptable)webComponent),
 				subselector);
-			if (retVal instanceof JSONObject bounds)
+			if (bounds != null)
 			{
 				return new JSBounds(Utils.getAsInteger(bounds.get("x")), Utils.getAsInteger(bounds.get("y")), Utils.getAsInteger(bounds.get("width")),
 					Utils.getAsInteger(bounds.get("height")));
+			}
+		}
+		return null;
+	}
+
+	/**
+	* Will return the user agent string of the browser.
+	*
+	* @sample
+	*  var useragent = clientutils.getUserAgent();
+	*  var mobile = /iPhone|iPad|iPod|Android/.test(userAgent);
+	*
+	*  @return A String object representing the useragent of the browser.
+	*/
+	@ServoyClientSupport(ng = true, mc = false, wc = false, sc = false)
+	@JSFunction
+	public String getUserAgent()
+	{
+		if (application instanceof INGClientApplication ng)
+		{
+			JSONObject userAgentAndPlatform = ng.getUserAgentAndPlatform();
+			if (userAgentAndPlatform != null)
+			{
+				return userAgentAndPlatform.optString("userAgent"); //$NON-NLS-1$
 			}
 		}
 		return null;

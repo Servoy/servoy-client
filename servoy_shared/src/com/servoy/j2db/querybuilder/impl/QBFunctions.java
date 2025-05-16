@@ -73,7 +73,7 @@ import com.servoy.j2db.util.Utils;
  * SQL requirements.</p>
  *
  * <p>For additional guidance on query construction and execution, refer to the
- * <a href="./qbselect.md">QBSelect</a> section of the documentation.</p>
+ * <a href="https://docs.servoy.com/reference/servoycore/dev-api/database-manager/qbselect">QBSelect</a> section of the documentation.</p>
  *
  * @author rgansevles
  *
@@ -87,7 +87,7 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	}
 
 	@Override
-	@JSReadonlyProperty
+	@JSReadonlyProperty(debuggerRepresentation = "Query parent part")
 	public QBSelect getParent()
 	{
 		return (QBSelect)super.getParent();

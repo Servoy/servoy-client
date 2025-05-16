@@ -42,6 +42,7 @@ import org.sablo.websocket.WebsocketSessionManager;
 
 import com.servoy.j2db.server.ngclient.auth.CloudStatelessAccessManager;
 import com.servoy.j2db.server.ngclient.auth.OAuthHandler;
+import com.servoy.j2db.server.ngclient.auth.StatelessLoginUtils;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
 
@@ -89,17 +90,18 @@ public class AngularIndexPageFilter implements Filter
 			if ((requestURI.endsWith("/") || requestURI.endsWith("/" + solutionName) || requestURI.toLowerCase().endsWith("/index.html")) ||
 				requestURI.contains("/svy_oauth/"))
 			{
-				String clientnr = AngularIndexPageWriter.getClientNr(requestURI, request);
+				Integer clientnr = AngularIndexPageWriter.getClientNr(requestURI, request);
 				INGClientWebsocketSession wsSession = null;
 				HttpSession httpSession = request.getSession(false);
 				if (clientnr != null && httpSession != null)
 				{
-					wsSession = (INGClientWebsocketSession)WebsocketSessionManager.getSession(CLIENT_ENDPOINT, httpSession, Integer.parseInt(clientnr));
+					wsSession = (INGClientWebsocketSession)WebsocketSessionManager.getSession(CLIENT_ENDPOINT, httpSession, clientnr.intValue());
 				}
 				if (AngularIndexPageWriter.handleMaintenanceMode(request, response, wsSession))
 				{
 					return;
 				}
+				HttpServletRequest req = request;
 				try
 				{
 					Pair<Boolean, String> showLogin = null;
@@ -122,6 +124,9 @@ public class AngularIndexPageFilter implements Filter
 					{
 						HttpSession session = request.getSession(); // we know we are logged in so we can make a session now
 						session.setAttribute(StatelessLoginHandler.ID_TOKEN, showLogin.getRight());
+
+						//could be oauth + deeplink (need to wrap the request to add the parameters)
+						req = StatelessLoginUtils.checkForPossibleSavedDeeplink(request);
 					}
 				}
 				catch (Exception e)
@@ -135,7 +140,7 @@ public class AngularIndexPageFilter implements Filter
 				if (this.indexPage != null)
 				{
 					request.getSession(); // now really make a session, we know we are going to render the index page to start a client.
-					AngularIndexPageWriter.writeIndexPage(this.indexPage, request, response, solutionName,
+					AngularIndexPageWriter.writeIndexPage(this.indexPage, req, response, solutionName,
 						contentSecurityPolicyConfig == null ? null : contentSecurityPolicyConfig.getNonce());
 				}
 				else
@@ -155,11 +160,11 @@ public class AngularIndexPageFilter implements Filter
 			{
 				return;
 			}
-			else if (requestURI.toLowerCase().endsWith("/startup.js"))
-			{
-				AngularIndexPageWriter.writeStartupJs(request, (HttpServletResponse)servletResponse, solutionName);
-				return;
-			}
+//			else if (requestURI.toLowerCase().endsWith("/startup.js"))
+//			{
+//				AngularIndexPageWriter.writeStartupJs(request, (HttpServletResponse)servletResponse, solutionName);
+//				return;
+//			}
 			else if (AngularIndexPageWriter.handleDeeplink(request, (HttpServletResponse)servletResponse))
 			{
 				return;

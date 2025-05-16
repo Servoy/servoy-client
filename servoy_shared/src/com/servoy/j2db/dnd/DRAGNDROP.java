@@ -34,7 +34,9 @@ import com.servoy.j2db.scripting.IReturnedTypesProvider;
  * enhancing integration and compatibility within the Servoy runtime environment.
  *
  * @author gboros
+ * @deprecated not used in ngclient
  */
+@Deprecated
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
 @ServoyClientSupport(ng = true, wc = true, sc = true)
 public class DRAGNDROP implements IPrefixedConstantsObject, IReturnedTypesProvider

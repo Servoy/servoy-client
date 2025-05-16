@@ -240,7 +240,7 @@ public class XMLScriptObjectAdapter implements ITypedScriptObject
 		{
 			if (!moreDetailsWereAdded) extendedTooltip += "<br/>";
 			moreDetailsWereAdded = true;
-			extendedTooltip += "<br/><pre><i>" + Text.processTags(HtmlUtils.escapeMarkup(sample).toString(), resolver).toString() + "</i></pre>";
+			extendedTooltip += "<br/><b>@sample</b><pre><i>" + Text.processTags(HtmlUtils.escapeMarkup(sample).toString(), resolver).toString() + "</i></pre>";
 		}
 		if (parameters != null)
 		{

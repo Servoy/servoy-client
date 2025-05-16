@@ -86,7 +86,7 @@ public class FormScope extends ScriptVariableScope implements Wrapper, Contextua
 	@Override
 	public String getScopeName()
 	{
-		return _fp.getName();
+		return formName;
 	}
 
 	public void createVars()
@@ -195,7 +195,8 @@ public class FormScope extends ScriptVariableScope implements Wrapper, Contextua
 		if (_fp == null)
 		{
 			Debug.warn("Error accessing a form " + formName + "  that is already destroyed for getting: " + name);
-			throw new ExitScriptException("Form scope already destroyed, throwing ExitScriptException to kill the execution on this scope");
+			throw new ExitScriptException("Form scope already destroyed of form " + formName + " for getting: " + name +
+				", throwing ExitScriptException to kill the execution on this scope");
 		}
 
 		_fp.touch();
@@ -573,6 +574,7 @@ public class FormScope extends ScriptVariableScope implements Wrapper, Contextua
 		}
 
 	}
+
 }
 
 class FormScopeWrapper implements Callable

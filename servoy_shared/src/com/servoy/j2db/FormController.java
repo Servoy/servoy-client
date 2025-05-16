@@ -912,6 +912,7 @@ public class FormController extends BasicFormController
 				containerImpl.setReadOnly(false);
 			}
 			view.stop();
+			view.destroy();
 			view = null;
 
 			deleteRenderers();

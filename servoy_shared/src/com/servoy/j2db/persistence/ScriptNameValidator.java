@@ -170,6 +170,10 @@ public class ScriptNameValidator implements IValidateName
 		{
 			warnings.add("The layout container '" + nameToCheck + "' already exists on the form"); //$NON-NLS-1$ //$NON-NLS-2$
 		}
+		if (obj instanceof MenuItem)
+		{
+			warnings.add("The menu item '" + nameToCheck + "' already exists"); //$NON-NLS-1$ //$NON-NLS-2$
+		}
 
 		if (!warnings.isEmpty())
 		{
@@ -376,6 +380,26 @@ public class ScriptNameValidator implements IValidateName
 			}
 		}
 
+		if (searchContext.getType() == IRepository.MENU_ITEMS)
+		{
+			if (searchContext.getObject() instanceof List list && list.size() > 0)
+			{
+				if (list.get(1) != null)
+				{ // this is a menu or a menu item
+					if (list.get(1) instanceof MenuItem menuItem)
+					{
+						if (nameToCheck.equalsIgnoreCase(menuItem.getName()) && menuItem.getID() != skip_element_id)
+						{
+							return menuItem;
+						}
+
+						return findMenuItemByName(getAncestorMenu(list.get(1)), nameToCheck, skip_element_id);
+					}
+					return findMenuItemByName(list.get(1), nameToCheck, skip_element_id);
+				}
+			}
+		}
+
 		if (searchContext.getType() == IRepository.MEDIA)
 		{
 			Media media = solutionRoot.getMedia(nameToCheck);
@@ -417,6 +441,51 @@ public class ScriptNameValidator implements IValidateName
 					return persist;
 				}
 			}
+		}
+
+		return null;
+	}
+
+	private MenuItem findMenuItemByName(Object object, String nameToCheck, int skip_element_id)
+	{
+		if (object instanceof MenuItem menuItem)
+		{
+			// Check current item
+			if (nameToCheck.equalsIgnoreCase(menuItem.getName()) && menuItem.getID() != skip_element_id)
+			{
+				return menuItem;
+			}
+		}
+		if (object instanceof Menu menu)
+		{
+			Iterator<IPersist> children = menu.getAllObjects();
+			while (children.hasNext())
+			{
+				IPersist child = children.next();
+				if (child instanceof MenuItem)
+				{
+					MenuItem result = findMenuItemByName(child, nameToCheck, skip_element_id);
+					if (result != null)
+					{
+						return result;
+					}
+				}
+			}
+		}
+		return null;
+	}
+
+	private Menu getAncestorMenu(Object object)
+	{
+		if (object == null) return null;
+
+		if (object instanceof Menu menu)
+		{
+			return menu;
+		}
+		else if (object instanceof MenuItem menuItem)
+		{
+			return getAncestorMenu(menuItem.getParent());
 		}
 
 		return null;

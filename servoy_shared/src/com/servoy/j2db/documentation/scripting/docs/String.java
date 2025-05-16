@@ -897,4 +897,22 @@ public class String
 	{
 		return null;
 	}
+
+	/**
+	 * Returns an iterator of all results matching this string against a regular expression, including capturing groups.
+	 *
+	 * @sample
+	 * const regexp = /t(e)(st(\d?))/g;
+	 * const str = "test1test2";
+	 * const array = [...str.matchAll(regexp)];
+	 * application.output(array[0]);
+	 *
+	 * @param regexp
+	 *
+	 * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/matchAll
+	 */
+	public Array js_matchAll(RegExp regexp)
+	{
+		return null;
+	}
 }

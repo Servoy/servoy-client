@@ -47,7 +47,7 @@ import com.servoy.j2db.util.Utils;
  * </ul>
  *
  * <p>For more details, please refer to the
- * <a href="../../object-model/solution/relation/relationitem.md">Relation item</a> section of this documentation.</p>
+ * <a href="https://docs.servoy.com/reference/servoycore/object-model/solution/relation/relationitem">Relation item</a> section of this documentation.</p>
  *
  * @author jcompagner
  */

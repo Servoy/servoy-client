@@ -16,6 +16,7 @@
  */
 package com.servoy.j2db.query;
 
+import com.servoy.base.query.BaseColumnType;
 import com.servoy.base.query.BaseQueryColumn;
 import com.servoy.base.query.BaseQueryTable;
 import com.servoy.j2db.util.serialize.IWriteReplaceExtended;
@@ -31,19 +32,19 @@ import com.servoy.j2db.util.visitor.IVisitor;
  */
 public final class QueryColumn extends BaseQueryColumn implements IWriteReplaceExtended, IQuerySelectValue
 {
-	public QueryColumn(BaseQueryTable table, int id, String name, ColumnType columnType, String nativeTypename, int flags, boolean identity)
+	public QueryColumn(BaseQueryTable table, int id, String name, BaseColumnType columnType, String nativeTypename, int flags, boolean identity)
 	{
 		super(table, id, name, columnType, nativeTypename, flags, identity);
 	}
 
-	public QueryColumn(BaseQueryTable table, int id, String name, String alias, ColumnType columnType, String nativeTypename, int flags, boolean identity)
+	public QueryColumn(BaseQueryTable table, int id, String name, String alias, BaseColumnType columnType, String nativeTypename, int flags, boolean identity)
 	{
 		super(table, id, name, alias, columnType, nativeTypename, flags, identity);
 	}
 
-	public QueryColumn(BaseQueryTable table, int id, String name, int sqlType, int length, int scale, String nativeTypename, int flags, boolean identity)
+	public QueryColumn(BaseQueryTable table, int id, String name, BaseColumnType columnType, String nativeTypename, int flags)
 	{
-		this(table, id, name, ColumnType.getInstance(sqlType, length, scale), nativeTypename, flags, identity);
+		this(table, id, name, columnType, nativeTypename, flags, false);
 	}
 
 	public QueryColumn(BaseQueryTable table, int id, String name, int sqlType, int length, int scale, String nativeTypename, int flags)
@@ -53,14 +54,13 @@ public final class QueryColumn extends BaseQueryColumn implements IWriteReplaceE
 
 	public QueryColumn(BaseQueryTable table, String name)
 	{
-		this(table, -1, name, ColumnType.DUMMY, null, 0, false);
+		this(table, -1, name, ColumnType.UNKNOWN, null, 0, false);
 	}
 
 	@Override
 	public QueryColumn asAlias(String newAlias)
 	{
-		return new QueryColumn(table, id, name, newAlias, ColumnType.getInstance(columnType.getSqlType(), columnType.getLength(), columnType.getScale()),
-			nativeTypename, getFlags(), identity);
+		return new QueryColumn(table, id, name, newAlias, columnType, nativeTypename, getFlags(), identity);
 	}
 
 	@Override
@@ -96,7 +96,7 @@ public final class QueryColumn extends BaseQueryColumn implements IWriteReplaceE
 				AbstractBaseQuery.QUERY_SERIALIZE_DOMAIN,
 				getClass(),
 				new Object[] { table, name, new int[] { columnType.getSqlType(), columnType.getLength(), columnType.getScale(), identity ? 1
-					: 0, flags }, alias, nativeTypename });
+					: 0, flags, columnType.getSubType() }, alias, nativeTypename });
 		}
 		else
 		{
@@ -128,11 +128,13 @@ public final class QueryColumn extends BaseQueryColumn implements IWriteReplaceE
 			table = (QueryTable)members[i++];
 			name = (String)members[i++];
 			int[] numbers = (int[])members[i++];
-			columnType = ColumnType.getInstance(numbers[0], numbers[1], numbers[2]);
 			identity = numbers[3] == 1;
 			flags = numbers.length < 5 ? 0 : numbers[4]; // was added later, some old stored QueryColumns may not have this
+			int subType = numbers.length < 6 ? 0 : numbers[5]; // was added later, some old stored QueryColumns may not have this
 			alias = i < members.length ? (String)members[i++] : null;
 			nativeTypename = i < members.length ? (String)members[i++] : null;
+
+			columnType = ColumnType.getInstance(numbers[0], numbers[1], numbers[2], subType);
 			id = -1;
 		}
 	}
@@ -146,10 +148,10 @@ public final class QueryColumn extends BaseQueryColumn implements IWriteReplaceE
 	 * @param scale
 	 * @param identity
 	 */
-	public void update(String name, int sqlType, int length, int scale, String nativeTypename, int flags, boolean identity)
+	public void update(String name, ColumnType columnType, String nativeTypename, int flags, boolean identity)
 	{
 		this.name = name;
-		this.columnType = ColumnType.getInstance(sqlType, length, scale);
+		this.columnType = columnType;
 		this.nativeTypename = nativeTypename;
 		this.flags = flags;
 		this.identity = identity;

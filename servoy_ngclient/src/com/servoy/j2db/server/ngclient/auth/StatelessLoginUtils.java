@@ -17,15 +17,101 @@
 
 package com.servoy.j2db.server.ngclient.auth;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletRequestWrapper;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author emera
  */
 public class StatelessLoginUtils
 {
+	/**
+	 * @author emera
+	 */
+	public static class OAuthDeeplinkRequestWrapper extends HttpServletRequestWrapper
+	{
+		/**
+		 * 
+		 */
+		private final Map<String, String[]> stateParams;
+		private final Map<String, String[]> params;
+
+		/**
+		 * @param request
+		 * @param stateParams
+		 */
+		public OAuthDeeplinkRequestWrapper(HttpServletRequest request, Map<String, String[]> stateParams)
+		{
+			super(request);
+			this.stateParams = stateParams;
+			params = stateParams;
+		}
+
+		@Override
+		public String getParameter(String name)
+		{
+			String[] values = params.get(name);
+			if (values != null && values.length > 0)
+			{
+				return values[0];
+			}
+			return super.getParameter(name);
+		}
+
+		@Override
+		public String[] getParameterValues(String name)
+		{
+			return params.getOrDefault(name, super.getParameterValues(name));
+		}
+
+		@Override
+		public Map<String, String[]> getParameterMap()
+		{
+			Map<String, String[]> combinedParams = new HashMap<>(super.getParameterMap());
+			combinedParams.putAll(params);
+			return combinedParams;
+		}
+
+		@Override
+		public String getQueryString()
+		{
+			StringBuilder queryString = new StringBuilder(super.getQueryString() != null ? super.getQueryString() + "&" : "");
+			params.forEach((key, values) -> {
+				for (String value : values)
+				{
+					try
+					{
+						String encodedKey = URLEncoder.encode(key, "UTF-8");
+						String encodedValue = URLEncoder.encode(value, "UTF-8");
+						queryString.append(encodedKey).append("=").append(encodedValue).append("&");
+					}
+					catch (UnsupportedEncodingException e)
+					{
+						log.error("Error encoding key or value", e);
+					}
+				}
+			});
+			if (queryString.length() > 0 && queryString.charAt(queryString.length() - 1) == '&')
+			{
+				queryString.setLength(queryString.length() - 1);
+			}
+
+			return queryString.toString();
+		}
+	}
+
 	public static final String JWT_Password = "servoy.jwt.logintoken.password";
 	public static final String SVYLOGIN_PATH = "svylogin";
+	static final Logger log = LoggerFactory.getLogger("stateless.login");
 
 	public static String getServerURL(HttpServletRequest req)
 	{
@@ -40,5 +126,37 @@ public class StatelessLoginUtils
 		}
 		url.append(HTMLWriter.getPath(req));
 		return url.toString();
+	}
+
+	public static HttpServletRequest checkForPossibleSavedDeeplink(HttpServletRequest request)
+	{
+		String state = request.getParameter("state");
+
+		if (state != null && state.contains("="))
+		{
+			Map<String, String[]> stateParams = new HashMap<>();
+			String[] pairs = state.split("&");
+			for (String pair : pairs)
+			{
+				String[] keyValue = pair.split("=", 2);
+				try
+				{
+					String key = URLDecoder.decode(keyValue[0], "UTF-8");
+					if ("svyuuid".equals(key))
+					{
+						continue; // skip svyuuid
+					}
+					String value = keyValue.length > 1 ? URLDecoder.decode(keyValue[1], "UTF-8") : "";
+					stateParams.put(key, new String[] { value });
+				}
+				catch (UnsupportedEncodingException e)
+				{
+					log.error("Error decoding state parameter", e);
+				}
+			}
+
+			return new OAuthDeeplinkRequestWrapper(request, stateParams);
+		}
+		return request;
 	}
 }

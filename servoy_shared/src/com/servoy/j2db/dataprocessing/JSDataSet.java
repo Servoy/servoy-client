@@ -1452,7 +1452,7 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Symb
 			{
 				if (set == null || set.getRowIndex() <= 0 || set.getRowIndex() > set.getRowCount())
 				{
-					return null;
+					return Scriptable.NOT_FOUND;
 				}
 				Object[] array = set.getRow(set.getRowIndex() - 1);
 				int index = iindex.intValue();
@@ -1514,7 +1514,7 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Symb
 					return array[index - 1];
 				}
 			}
-			else
+			else if (index >= 0 && index < set.getRowCount())
 			{
 				Object[] array = set.getRow(index);
 				if (array != null)
@@ -1540,7 +1540,7 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Symb
 				}
 			}
 		}
-		return null;
+		return Scriptable.NOT_FOUND;
 	}
 
 	private void makeColumnMap()

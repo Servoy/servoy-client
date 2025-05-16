@@ -7,9 +7,9 @@
  *
  * @param {String} dialogTitle Dialog title.
  * @param {String} dialogMessage Dialog message.
- * @param {String...} buttonsText variable arguments of button texts..
+ * @param {String...} [buttonsText] variable arguments of button texts..
  * 
- * @return {string} pressed button or null if closed by escape key
+ * @return {String} pressed button or null if closed by escape key
  */
 function showErrorDialog(dialogTitle,dialogMessage,buttonsText) {}
 
@@ -21,8 +21,10 @@ function showErrorDialog(dialogTitle,dialogMessage,buttonsText) {}
  * var thePressedButton = plugins.dialogs.showInfoDialog('Title', 'Value not allowed','OK', 'Cancel');
  *
  * @param {String} dialogTitle Dialog title.
- * @param {String} dialogMessage Dialog message.
- * @param {String...} buttonsText variable arguments of button texts..
+ * @param {String} [dialogMessage] Dialog message.
+ * @param {String...} [buttonsText] variable arguments of button texts..
+ * 
+ * @return {String} The text of the button that was pressed by the user, or null if the dialog was closed without selection.
  */
 function showInfoDialog(dialogTitle,dialogMessage,buttonsText) {}
 
@@ -35,9 +37,9 @@ function showInfoDialog(dialogTitle,dialogMessage,buttonsText) {}
  *
  * @param {String} dialogTitle Dialog title.
  * @param {String} dialogMessage Dialog message.
- * @param {String...} buttonsText variable arguments of button texts..
+ * @param {String...} [buttonsText] variable arguments of button texts..
  * 
- * @return {String}
+ * @return {String} The text of the button that was pressed by the user.
  */
 function showQuestionDialog(dialogTitle,dialogMessage,buttonsText) {}
 
@@ -48,12 +50,12 @@ function showQuestionDialog(dialogTitle,dialogMessage,buttonsText) {}
  * //show input dialog ,returns nothing when canceled
  * var typedInput = plugins.dialogs.showInputDialog('Specify','Your name');
  * 
- * @param {String} dialogTitle Dialog title.
- * @param {String} dialogMessage Dialog message.
- * @param {String} initialValue 
- * @param {String} inputType the type of the input field, one of: color, date, datetime-local, email, month, number, password, tel, text, time, url, week
+ * @param {String} [dialogTitle] Dialog title.
+ * @param {String} [dialogMessage] Dialog message.
+ * @param {String} [initialValue] The default value pre-filled in the input field when the dialog opens.
+ * @param {String} [inputType] the type of the input field, one of: color, date, datetime-local, email, month, number, password, tel, text, time, url, week
  * 
- * @return {String}
+ * @return {String} The user-entered value if confirmed, or null if the dialog was canceled.
  */
 function showInputDialog(dialogTitle,dialogMessage,initialValue,inputType) {}
 
@@ -66,9 +68,11 @@ function showInputDialog(dialogTitle,dialogMessage,initialValue,inputType) {}
  * //also possible to pass array with options
  * //var selectedValue = plugins.dialogs.showSelectDialog('Select','please select a name', new Array('jan','johan','sebastiaan'));
  *
- * @param {String} dialog_title
- * @param {String} msg
- * @param {String...|Array<String>} options
+ * @param {String} dialogTitle The title of the selection dialog.
+ * @param {String} dialogMessage The message or prompt displayed in the dialog.
+ * @param {String...} options A list of selectable options, either as individual strings or an array of strings.
+ * 
+ * @return {String} The selected option from the list, or null if the dialog was canceled.
  */
 function showSelectDialog(dialogTitle,dialogMessage,options) { }
 
@@ -82,8 +86,8 @@ function showSelectDialog(dialogTitle,dialogMessage,options) { }
 *
 * @param {String} dialogTitle Dialog title.
 * @param {String} dialogMessage Dialog message.
-* @param {String...} buttonsText variable arguments of button texts.
+* @param {String...} [buttonsText] variable arguments of button texts.
 *
-* @return pressed button text
+* @return {String} pressed button text
 */
 function showWarningDialog(dialogTitle,dialogMessage,buttonsText) {}

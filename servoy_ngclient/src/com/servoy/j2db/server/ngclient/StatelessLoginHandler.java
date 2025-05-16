@@ -20,12 +20,16 @@ package com.servoy.j2db.server.ngclient;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
+import java.security.SecureRandom;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -33,6 +37,7 @@ import javax.servlet.http.HttpSession;
 import org.apache.commons.collections4.map.PassiveExpiringMap;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.text.StringEscapeUtils;
+import org.sablo.security.ContentSecurityPolicyConfig;
 import org.sablo.util.HTTPUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -78,6 +83,8 @@ public class StatelessLoginHandler
 	public static final String USERNAME = "username";
 	public static final String PASSWORD = "password";
 	public static final String ID_TOKEN = "id_token";
+
+	private static final SecureRandom secureRandom = new SecureRandom();
 
 	@SuppressWarnings({ "boxing" })
 	public static Pair<Boolean, String> mustAuthenticate(HttpServletRequest request, HttpServletResponse reponse, String solutionName)
@@ -155,21 +162,24 @@ public class StatelessLoginHandler
 		HttpServletRequest request)
 	{
 		boolean verified = false;
-		if (solution.getAuthenticator() == AUTHENTICATOR_TYPE.SERVOY_CLOUD)
-		{
-			verified = CloudStatelessAccessManager.checkCloudPermissions(username, password, remember, oldToken, needToLogin, solution, request);
-		}
-		else if (solution.getAuthenticator() == AUTHENTICATOR_TYPE.OAUTH)
+		if (solution.getAuthenticator() == AUTHENTICATOR_TYPE.OAUTH)
 		{
 			verified = OAuthHandler.refreshOAuthTokenIfPossible(needToLogin, solution, oldToken, request);
 		}
-		else if (solution.getAuthenticator() == AUTHENTICATOR_TYPE.AUTHENTICATOR)
+		else if (checkCSRFToken(request))
 		{
-			verified = AuthenticatorManager.checkAuthenticatorPermissions(username, password, remember, oldToken, needToLogin, solution, request);
-		}
-		else
-		{
-			verified = DefaultLoginManager.checkDefaultLoginPermissions(username, password, remember, oldToken, needToLogin);
+			if (solution.getAuthenticator() == AUTHENTICATOR_TYPE.SERVOY_CLOUD)
+			{
+				verified = CloudStatelessAccessManager.checkCloudPermissions(username, password, remember, oldToken, needToLogin, solution, request);
+			}
+			else if (solution.getAuthenticator() == AUTHENTICATOR_TYPE.AUTHENTICATOR)
+			{
+				verified = AuthenticatorManager.checkAuthenticatorPermissions(username, password, remember, oldToken, needToLogin, solution, request);
+			}
+			else
+			{
+				verified = DefaultLoginManager.checkDefaultLoginPermissions(username, password, remember, oldToken, needToLogin);
+			}
 		}
 		if (!verified)
 		{
@@ -182,6 +192,32 @@ public class StatelessLoginHandler
 	}
 
 	/**
+	 * @param request
+	 */
+	private static boolean checkCSRFToken(HttpServletRequest request)
+	{
+		String fieldToken = request.getParameter("csrf_token");
+		Cookie[] cookies = request.getCookies();
+		if (cookies == null || fieldToken == null)
+		{
+			// just return false here don't allow the login
+			log.warn("no CSRF token (cookie or hidden field) in the request");
+			return false;
+		}
+
+		Optional<Cookie> first = Arrays.asList(cookies).stream().filter(cookie -> "csrf_token".equals(cookie.getName())).findFirst();
+		if (!first.isPresent())
+		{
+			log.warn("no CSRF cookie in the request");
+			return false;
+		}
+		Cookie cookie = first.get();
+		boolean match = fieldToken.equals(cookie.getValue());
+		if (!match) log.atWarn().log(() -> "CSRF token mismatch, cookie: " + cookie.getValue() + " field: " + fieldToken);
+		return match;
+	}
+
+	/**
 	 *
 	 */
 	public static void init(ServletContext context)
@@ -189,7 +225,7 @@ public class StatelessLoginHandler
 		Settings settings = Settings.getInstance();
 		if (settings.getProperty(StatelessLoginUtils.JWT_Password) == null)
 		{
-			log.warn("A servoy property '" + StatelessLoginUtils.JWT_Password + //$NON-NLS-1$
+			log.atWarn().log(() -> "A servoy property '" + StatelessLoginUtils.JWT_Password + //$NON-NLS-1$
 				"' is added the the servoy properties file, this needs to be the same over redeploys, so make sure to add this in the servoy.properties that is used to deploy the WAR"); //$NON-NLS-1$
 			settings.put(StatelessLoginUtils.JWT_Password, "pwd" + Math.random());
 			try
@@ -216,7 +252,7 @@ public class StatelessLoginHandler
 			if (jwt.getClaim(REFRESH_TOKEN).asString() != null)
 			{
 				AUTHENTICATOR_TYPE authenticator = solution.getAuthenticator();
-				if (authenticator == AUTHENTICATOR_TYPE.OAUTH)
+				if (authenticator == AUTHENTICATOR_TYPE.OAUTH || authenticator == AUTHENTICATOR_TYPE.OAUTH_AUTHENTICATOR)
 				{
 					OAuthHandler.revokeToken(solution, jwt);
 				}
@@ -229,7 +265,7 @@ public class StatelessLoginHandler
 	}
 
 	public static void writeLoginPage(HttpServletRequest request, HttpServletResponse response, String solutionName, String customHTML)
-		throws IOException
+		throws IOException, ServletException
 	{
 		if (request.getCharacterEncoding() == null) request.setCharacterEncoding("UTF8");
 		HTTPUtils.setNoCacheHeaders(response);
@@ -243,15 +279,29 @@ public class StatelessLoginHandler
 		catch (RepositoryException e)
 		{
 			log.error("Can't load solution " + solutionName, e);
+			return;
 		}
-		if (solution != null && solution.getAuthenticator() == AUTHENTICATOR_TYPE.OAUTH)
+
+		if (solution == null)
+		{
+			log.error("The solution is null " + solutionName);
+			return;
+		}
+		if (solution.getAuthenticator() == AUTHENTICATOR_TYPE.OAUTH)
 		{
 			OAuthHandler.redirectToOAuthLogin(request, response, solution);
 			return;
 		}
 
+		if (solution.getAuthenticator() == AUTHENTICATOR_TYPE.OAUTH_AUTHENTICATOR)
+		{
+			OAuthHandler.redirectToAuthenticator(request, response, solution);
+			return;
+		}
+
+		ContentSecurityPolicyConfig contentSecurityPolicyConfig = null;
 		String loginHtml = null;
-		if (solution != null && solution.getAuthenticator() == AUTHENTICATOR_TYPE.SERVOY_CLOUD)
+		if (solution.getAuthenticator() == AUTHENTICATOR_TYPE.SERVOY_CLOUD)
 		{
 			if (customHTML != null && customHTML.startsWith("<"))
 			{
@@ -261,7 +311,12 @@ public class StatelessLoginHandler
 			else
 			{
 				loginHtml = CloudStatelessAccessManager.getCloudLoginPage(request, solution, loginHtml);
+				contentSecurityPolicyConfig = CloudStatelessAccessManager.addcontentSecurityPolicyHeader(request, response);
 			}
+		}
+		else
+		{
+			contentSecurityPolicyConfig = AngularIndexPageWriter.addcontentSecurityPolicyHeader(request, response, false);
 		}
 		if (solution != null && loginHtml == null)
 		{
@@ -344,6 +399,21 @@ public class StatelessLoginHandler
 		{
 			loginHtml = loginHtml.replace("lang=\"en\"", "lang=\"" + request.getLocale().getLanguage() + "\"");
 		}
+
+		String contentSecurityPolicyNonce = contentSecurityPolicyConfig != null ? contentSecurityPolicyConfig.getNonce() : null;
+		if (contentSecurityPolicyNonce != null)
+		{
+			loginHtml = loginHtml.replaceAll("<script ", "<script nonce='" + contentSecurityPolicyNonce + "\' ");
+			loginHtml = loginHtml.replaceAll("<style", "<style nonce='" + contentSecurityPolicyNonce + "\' ");
+		}
+
+		long nextLong = secureRandom.nextLong();
+		Cookie csrfCookie = new Cookie("csrf_token", Long.toString(nextLong));
+		csrfCookie.setPath("/");
+		csrfCookie.setHttpOnly(true);
+		response.addCookie(csrfCookie);
+
+		loginHtml = loginHtml.replaceAll("(?i)</form>", "<input type='hidden' name='csrf_token' value='" + nextLong + "'></form>");
 
 		response.setCharacterEncoding("UTF-8");
 		response.setContentType("text/html");

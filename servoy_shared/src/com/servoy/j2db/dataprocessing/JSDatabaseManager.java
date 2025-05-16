@@ -45,6 +45,7 @@ import java.util.StringTokenizer;
 import java.util.concurrent.ConcurrentMap;
 
 import org.mozilla.javascript.NativeObject;
+import org.mozilla.javascript.NativePromise;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Wrapper;
 import org.mozilla.javascript.annotations.JSFunction;
@@ -112,6 +113,7 @@ import com.servoy.j2db.querybuilder.impl.QBTableClause;
 import com.servoy.j2db.querybuilder.impl.QBTextColumn;
 import com.servoy.j2db.querybuilder.impl.QBWhereCondition;
 import com.servoy.j2db.querybuilder.impl.QUERY_COLUMN_TYPES;
+import com.servoy.j2db.scripting.Deferred;
 import com.servoy.j2db.scripting.IReturnedTypesProvider;
 import com.servoy.j2db.scripting.IScriptable;
 import com.servoy.j2db.scripting.ScriptObjectRegistry;
@@ -1071,9 +1073,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 			for (int i = 0; i < dpnames.length; i++)
 			{
 				IDataProvider dp = application.getFlattenedSolution().getDataProviderForTable(table, dpnames[i]);
-				dptypes[i] = dp == null ? ColumnType.getInstance(0, 0, 0)
-					: ColumnType.getInstance(dp instanceof Column ? ((Column)dp).getType() : dp.getDataProviderType(), dp.getLength(),
-						dp instanceof Column ? ((Column)dp).getScale() : 0);
+				dptypes[i] = (dp instanceof Column column) ? column.getColumnType() : ColumnType.getInstance(0, 0, 0);
 				if (getInOneQuery)
 				{
 					// only columns and data we can get from the foundset (calculations only when stored)
@@ -1860,6 +1860,46 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	}
 
 	/**
+	 * Performs an async sql query with a query builder object.
+	 * Will resolve the promise if query is executed without exception or will reject the promise with the exception.
+	 *
+	 * @sample
+	 * // use the query from a foundset and add a condition
+	 * /** @type {QBSelect<db:/example_data/orders>} *&#47;
+	 * var q = foundset.getQuery()
+	 * q.where.add(q.joins.orders_to_order_details.columns.discount.eq(2))
+	 * var maxReturnedRows = 10;//useful to limit number of rows
+	 * databaseManager.getDataSetAsyncByQuery(q, true, maxReturnedRows).then(function(jsDataset) {
+	 * 		// do something with the dataset
+	 *  }, function(error) {
+	 *      // handle error
+	 *  });
+	 *
+	 * @param query QBSelect query.
+	 * @param useTableFilters use table filters.
+	 * @param max_returned_rows The maximum number of rows returned by the query.
+	 *
+	 * @return The promise that will receive the result.
+	 */
+	@JSFunction
+	public NativePromise getDataSetAsyncByQuery(QBSelect query, Boolean useTableFilters, Number max_returned_rows)
+	{
+		Deferred deferred = new Deferred(application);
+		application.getScheduledExecutor().execute(() -> {
+			try
+			{
+				JSDataSet dataSet = js_getDataSetByQuery(query, useTableFilters, max_returned_rows);
+				deferred.resolve(dataSet);
+			}
+			catch (ServoyException e)
+			{
+				deferred.reject(e);
+			}
+		});
+		return deferred.getPromise();
+	}
+
+	/**
 	 * @deprecated As of release 3.5, replaced by {@link plugins.rawSQL#executeStoredProcedure(String, String, Object[], int[], int)}.
 	 */
 	@Deprecated
@@ -1912,7 +1952,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 *
 	 * @return the foundset count
 	 */
-	@JSSignature(arguments = { FoundSet.class })
+	@JSSignature(arguments = { IJSBaseFoundSet.class })
 	public int js_getFoundSetCount(Object foundset) throws ServoyException
 	{
 		application.checkAuthorized();
@@ -3914,7 +3954,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * Enable/disable the automatic prefetching of related foundsets for sibling records.
 	 * <p>
 	 * For example, when orders from a record in a customer foundset are retrieved, already the orders of a few sibling records are also prefetched.
-	 * By default this prefetch is enabled for SmartClient but is disabled for all serverbased clients like NGClient and HeadlessClient.
+	 * By default this prefetch is disabled.
 	 * Because server based client are close enough to the database that they can fetch the siblings themselfs
 	 * <p>
 	 *

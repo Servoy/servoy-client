@@ -43,7 +43,7 @@ import com.servoy.j2db.util.Utils;
  * menu items to behave as records, facilitating component interactions that treat menu items as data entries.
  *
  * For more information on working with menu datasources, refer to
- * <a href="menufoundset.md">MenuFoundSet</a>.
+ * <a href="https://docs.servoy.com/reference/servoycore/dev-api/database-manager/menufoundset">MenuFoundSet</a>.
  *
  * @author lvostinar
  *
@@ -74,7 +74,6 @@ public class MenuItemRecord implements IRecordInternal, Scriptable, IJSBaseRecor
 			this.values.put(key.toLowerCase(), value);
 		});
 		this.modificationListeners = synchronizedList(new ArrayList<>(3));
-		//TODO menuitem record is never destroyed, this listener is never removed
 		menuItem.addChangeListener(this);
 	}
 
@@ -523,5 +522,18 @@ public class MenuItemRecord implements IRecordInternal, Scriptable, IJSBaseRecor
 	public String toString()
 	{
 		return "MenuItemRecord[" + values + ']';
+	}
+
+	/**
+	 *
+	 */
+	public void destroy()
+	{
+		menuItem.removeChangeListener(this);
+		if (relatedFoundSet != null)
+		{
+			relatedFoundSet.destroy();
+			getParentFoundSet().getFoundSetManager().unregisterRelatedMenuFoundSet(relatedFoundSet);
+		}
 	}
 }

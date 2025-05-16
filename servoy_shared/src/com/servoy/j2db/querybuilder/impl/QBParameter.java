@@ -33,7 +33,7 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
  * dynamic query building.
  *
  * For more on parameterized queries, see
- * <a href="../../../../guides/develop/programming-guide/working-with-data/searching/query-builder.md">Query Builder</a>
+ * <a href="https://docs.servoy.com/guides/develop/programming-guide/working-with-data/searching/query-builder">Query Builder</a>
  * in the Servoy documentation.
  *
  * @author rgansevles
@@ -60,7 +60,7 @@ public class QBParameter extends QBPart implements IQueryBuilderParameter
 	}
 
 	@Override
-	@JSReadonlyProperty
+	@JSReadonlyProperty(debuggerRepresentation = "Query parent part")
 	public QBSelect getParent()
 	{
 		return (QBSelect)super.getParent();

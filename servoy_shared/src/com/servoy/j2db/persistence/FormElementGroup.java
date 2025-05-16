@@ -30,9 +30,9 @@ import com.servoy.j2db.util.Utils;
 /**
  * Wrapper element for group of IFormElements with the same groupID property. Note that a FormElementGroup is not an entity by itself and has no properties of
  * itself.
- * 
+ *
  * @author rgansevles
- * 
+ *
  */
 public class FormElementGroup implements ISupportBounds, ISupportName
 {
@@ -47,13 +47,13 @@ public class FormElementGroup implements ISupportBounds, ISupportName
 		this.form = form;
 	}
 
-	public Iterator<IFormElement> getElements()
+	public Iterator<ISupportFormElement> getElements()
 	{
-		return new FilteredIterator<IFormElement>(flattenedSolution.getFlattenedForm(form).getAllObjects(), new IFilter<IFormElement>()
+		return new FilteredIterator<ISupportFormElement>(flattenedSolution.getFlattenedForm(form).getAllObjects(), new IFilter<ISupportFormElement>()
 		{
 			public boolean match(Object o)
 			{
-				return (o instanceof IFormElement) && groupID.equals(((IFormElement)o).getGroupID());
+				return (o instanceof ISupportFormElement) && groupID.equals(((ISupportFormElement)o).getGroupID());
 			}
 		});
 	}
@@ -83,7 +83,7 @@ public class FormElementGroup implements ISupportBounds, ISupportName
 
 	/**
 	 * the groupID can be either a name or a UUID (in which case the group is anonymous).
-	 * 
+	 *
 	 * @param groupID
 	 * @return name or null when anonymous
 	 */
@@ -138,7 +138,7 @@ public class FormElementGroup implements ISupportBounds, ISupportName
 	 */
 	public boolean getVisible()
 	{
-		Iterator<IFormElement> elements = getElements();
+		Iterator<ISupportFormElement> elements = getElements();
 		while (elements.hasNext())
 		{
 			if (elements.next().getVisible())
@@ -159,7 +159,7 @@ public class FormElementGroup implements ISupportBounds, ISupportName
 	 */
 	public boolean getEnabled()
 	{
-		Iterator<IFormElement> elements = getElements();
+		Iterator<ISupportFormElement> elements = getElements();
 		while (elements.hasNext())
 		{
 			if (elements.next().getEnabled())
@@ -176,12 +176,12 @@ public class FormElementGroup implements ISupportBounds, ISupportName
 	}
 
 
-	public IFormElement getElement(int n)
+	public ISupportFormElement getElement(int n)
 	{
-		Iterator<IFormElement> elements = getElements();
+		Iterator<ISupportFormElement> elements = getElements();
 		for (int i = 0; elements.hasNext(); i++)
 		{
-			IFormElement next = elements.next();
+			ISupportFormElement next = elements.next();
 			if (i == n)
 			{
 				return next;

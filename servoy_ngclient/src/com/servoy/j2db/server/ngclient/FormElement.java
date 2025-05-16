@@ -61,6 +61,8 @@ import com.servoy.j2db.persistence.ISupportExtendsID;
 import com.servoy.j2db.persistence.ISupportSize;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
+import com.servoy.j2db.scripting.IExecutingEnviroment;
+import com.servoy.j2db.scripting.info.EventType;
 import com.servoy.j2db.server.ngclient.property.ComponentPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.FormComponentPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions;
@@ -353,12 +355,20 @@ public final class FormElement implements INGFormElement
 
 				Object formElementValue = map.get(pd.getName());
 
-				if (inDesigner && pd.getType() == VisiblePropertyType.INSTANCE)
+				if (pd.getType() instanceof VisiblePropertyType)
 				{
-					Object isVisibleObj = map.get(pd.getName());
-					if (isVisibleObj instanceof Boolean)
+					if (inDesigner)
 					{
-						isVisible = isVisible && ((Boolean)isVisibleObj).booleanValue();
+						Object isVisibleObj = map.get(pd.getName());
+						if (isVisibleObj instanceof Boolean)
+						{
+							isVisible = isVisible && ((Boolean)isVisibleObj).booleanValue();
+							map.put(pd.getName(), Boolean.TRUE);
+						}
+					}
+					else if (!map.containsKey(pd.getName()) && map.containsKey(DefaultComponentPropertiesProvider.VISIBLE_DATAPROVIDER_NAME))
+					{
+						// if we have a dataprovider for visible, we need to set a default value
 						map.put(pd.getName(), Boolean.TRUE);
 					}
 				}
@@ -651,10 +661,10 @@ public final class FormElement implements INGFormElement
 	 */
 	public Collection<String> getHandlers()
 	{
-		return getHandlers(true);
+		return getHandlers(true, null);
 	}
 
-	public Collection<String> getHandlers(boolean skipPrivate)
+	public Collection<String> getHandlers(boolean skipPrivate, INGApplication application)
 	{
 		List<String> handlers = new ArrayList<>();
 		Form mainForm = getForm();
@@ -684,12 +694,16 @@ public final class FormElement implements INGFormElement
 				handlers.add(eventName);
 			}
 			else if (Utils.equalObjects(eventName, StaticContentSpecLoader.PROPERTY_ONFOCUSGAINEDMETHODID.getPropertyName()) &&
-				(mainForm.getOnElementFocusGainedMethodID() > 0))
+				(mainForm.getOnElementFocusGainedMethodID() > 0 ||
+					(application != null && application.getEventsManager().hasListeners(EventType.onElementFocusGained,
+						IExecutingEnviroment.TOPLEVEL_FORMS + '.' + mainForm.getName()))))
 			{
 				handlers.add(eventName);
 			}
 			else if (Utils.equalObjects(eventName, StaticContentSpecLoader.PROPERTY_ONFOCUSLOSTMETHODID.getPropertyName()) &&
-				(mainForm.getOnElementFocusLostMethodID() > 0))
+				(mainForm.getOnElementFocusLostMethodID() > 0 ||
+					(application != null && application.getEventsManager().hasListeners(EventType.onElementFocusLost,
+						IExecutingEnviroment.TOPLEVEL_FORMS + '.' + mainForm.getName()))))
 			{
 				handlers.add(eventName);
 			}

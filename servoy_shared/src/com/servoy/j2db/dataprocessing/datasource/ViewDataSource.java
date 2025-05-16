@@ -35,8 +35,8 @@ import com.servoy.j2db.util.Debug;
  * and transformation without creating physical tables.
  *
  * For detailed instructions on defining and managing view foundsets, see
- * <a href="../database-manager/viewfoundset.md">ViewFoundSet</a> and
- * <a href="../../../../guides/develop/application-design/data-modeling/view-datasource.md">View Foundset Datasource</a> documentation.
+ * <a href="https://docs.servoy.com/reference/servoycore/dev-api/database-manager/viewfoundset"</a> and
+ * <a href="https://docs.servoy.com/guides/develop/application-design/data-modeling/view-datasource">View Foundset Datasource</a> documentation.
  *
  * @author emera
  */

@@ -45,7 +45,7 @@ import com.servoy.j2db.util.ServoyException;
  * facilitates removing view foundsets associated with the datasource, optimizing memory management.</p>
  *
  * <p>For more details, refer to
- * <a href="./dev-api/datasources/viewdatasource.md">ViewDataSource Documentation</a>.</p>
+ * <a href="https://docs.servoy.com/reference/servoycore/dev-api/datasources/viewdatasource">ViewDataSource Documentation</a>.</p>
  *
  * @author emera
  */

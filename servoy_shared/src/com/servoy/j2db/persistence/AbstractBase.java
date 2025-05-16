@@ -71,6 +71,7 @@ public abstract class AbstractBase implements IPersist
 		}
 	};
 
+	private static String CUSTOM_EVENT_TYPES = "customEventTypes"; //$NON-NLS-1$";
 
 	/*
 	 * Attributes for IPersist
@@ -679,7 +680,12 @@ public abstract class AbstractBase implements IPersist
 
 	public void addChild(IPersist obj)
 	{
-		internalAddChild(obj);
+		addChild(obj, -1); // add to the end
+	}
+
+	public void addChild(IPersist obj, int index)
+	{
+		internalAddChild(obj, index);
 		afterChildWasAdded(obj);
 	}
 
@@ -698,6 +704,11 @@ public abstract class AbstractBase implements IPersist
 
 	public void internalAddChild(IPersist obj)
 	{
+		internalAddChild(obj, -1);
+	}
+
+	public void internalAddChild(IPersist obj, int index)
+	{
 		if (allobjects == null)
 		{
 			allobjects = new CopyOnWriteArrayList<IPersist>();
@@ -706,7 +717,8 @@ public abstract class AbstractBase implements IPersist
 		{
 			internalRemoveChild(obj);
 		}
-		allobjects.add(obj);
+		if (index < 0 || index > allobjects.size()) allobjects.add(obj);
+		else allobjects.add(index, obj);
 		if (allobjectsMap != null && obj != null)
 		{
 			allobjectsMap.put(obj.getUUID(), obj);
@@ -1511,4 +1523,33 @@ public abstract class AbstractBase implements IPersist
 		ISupportChilds p = getParent();
 		if (p != null) p.childRemoved(obj);
 	}
+
+	public Map<String, Object> getCustomEventsMethods()
+	{
+		Map<String, Object> map = (Map<String, Object>)getCustomProperty(new String[] { CUSTOM_EVENT_TYPES });
+		if (map == null || map.size() == 0)
+		{
+			return new HashMap<String, Object>();
+		}
+		return map;
+	}
+
+	public Object putCustomEventValue(String name, Object value)
+	{
+		if (name != null)
+		{
+			return putCustomProperty(new String[] { CUSTOM_EVENT_TYPES, name }, value);
+		}
+		return null;
+	}
+
+	public Object getCustomEventValue(String name)
+	{
+		if (name != null)
+		{
+			return getCustomProperty(new String[] { CUSTOM_EVENT_TYPES, name });
+		}
+		return null;
+	}
+
 }

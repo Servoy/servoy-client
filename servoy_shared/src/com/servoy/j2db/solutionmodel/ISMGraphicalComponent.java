@@ -22,7 +22,7 @@ import com.servoy.base.solutionmodel.IBaseSMGraphicalComponent;
 
 /**
  * Solution model base interface for graphical components.
- * 
+ *
  * @author rgansevles
  *
  * @since 6.1
@@ -33,8 +33,8 @@ public interface ISMGraphicalComponent extends IBaseSMGraphicalComponent, ISMCom
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.GraphicalComponent#getHorizontalAlignment()
 	 * @see com.servoy.j2db.solutionmodel.ISMField#getHorizontalAlignment()
-	 * 
-	 * @sample 
+	 *
+	 * @sample
 	 * var leftAlignedLabel = form.newLabel('LEFT', 10, 10, 300, 20);
 	 * leftAlignedLabel.horizontalAlignment = SM_ALIGNMENT.LEFT;
 	 * var hCenteredLabel = form.newLabel('CENTER', 10, 40, 300, 20);
@@ -46,7 +46,7 @@ public interface ISMGraphicalComponent extends IBaseSMGraphicalComponent, ISMCom
 
 	/**
 	 * The image Media object that should be displayed inside the component.
-	 * 
+	 *
 	 * @sample
 	 * var ballBytes = plugins.file.readFile('d:/ball.jpg');
 	 * var ballImage = solutionModel.newMedia('ball.jpg', ballBytes);
@@ -57,7 +57,7 @@ public interface ISMGraphicalComponent extends IBaseSMGraphicalComponent, ISMCom
 
 	/**
 	 * @see com.servoy.j2db.solutionmodel.ISMField#getMargin()
-	 * 
+	 *
 	 * @sample
 	 * var label = form.newLabel('Label', 10, 10, 150, 150);
 	 * label.background = 'yellow';
@@ -68,14 +68,14 @@ public interface ISMGraphicalComponent extends IBaseSMGraphicalComponent, ISMCom
 	/**
 	 * Options to scale the image Media object that is displayed inside the component.
 	 * Can be set to one or a combination of CROP, REDUCE, ENLARGE and KEEPASPECT.
-	 * 
+	 *
 	 * REDUCE will scale down the image if the component is smaller than the image.
-	 * REDUCE combined with KEEPASPECT will reduce the image, but keep its aspect ratio. 
+	 * REDUCE combined with KEEPASPECT will reduce the image, but keep its aspect ratio.
 	 * This is useful when the component has other proportions than the image.
-	 * 
+	 *
 	 * ENLARGE will scale up the image if the component is larger than the image.
 	 * ENLARGE combined with KEEPASPECT will scale up the image while keeping its aspect ratio.
-	 * 
+	 *
 	 * CROP will leave the image at its original size. If the component is smaller than
 	 * the image this will result in only a part of the image showing up.
 	 *
@@ -88,15 +88,15 @@ public interface ISMGraphicalComponent extends IBaseSMGraphicalComponent, ISMCom
 	 * // Put the big image in several small labels, with different media options.
 	 * var smallLabelWithBigImageReduceKeepAspect = form.newLabel('', 10, 10, 50, 50);
 	 * smallLabelWithBigImageReduceKeepAspect.imageMedia = bigImage;
-	 * smallLabelWithBigImageReduceKeepAspect.background = 'yellow';	
+	 * smallLabelWithBigImageReduceKeepAspect.background = 'yellow';
 	 * smallLabelWithBigImageReduceKeepAspect.mediaOptions = SM_MEDIAOPTION.REDUCE | SM_MEDIAOPTION.KEEPASPECT;
 	 * var smallLabelWithBigImageReduceNoAspect = form.newLabel('', 70, 10, 50, 50);
 	 * smallLabelWithBigImageReduceNoAspect.imageMedia = bigImage;
-	 * smallLabelWithBigImageReduceNoAspect.background = 'yellow';	
+	 * smallLabelWithBigImageReduceNoAspect.background = 'yellow';
 	 * smallLabelWithBigImageReduceNoAspect.mediaOptions = SM_MEDIAOPTION.REDUCE;
 	 * var smallLabelWithBigImageCrop = form.newLabel('', 130, 10, 50, 50);
 	 * smallLabelWithBigImageCrop.imageMedia = bigImage;
-	 * smallLabelWithBigImageCrop.background = 'yellow';	
+	 * smallLabelWithBigImageCrop.background = 'yellow';
 	 * smallLabelWithBigImageCrop.mediaOptions = SM_MEDIAOPTION.CROP;
 	 * // Put the small image in several big labels, with different media options.
 	 * var bigLabelWithSmallImageEnlargeKeepAspect = form.newLabel('', 10, 70, 200, 100);
@@ -115,14 +115,14 @@ public interface ISMGraphicalComponent extends IBaseSMGraphicalComponent, ISMCom
 	public int getMediaOptions();
 
 	/**
-	 * The keyboard shortcut that activates this component. A letter must be specified, 
+	 * The keyboard shortcut that activates this component. A letter must be specified,
 	 * and the actual shortcut will be combination of ALT + the specified letter.
-	 * 
-	 * This property can be used in two ways. Normally the keyboard shortcut activates 
+	 *
+	 * This property can be used in two ways. Normally the keyboard shortcut activates
 	 * the onClick event of the component. But if the "labelFor" property is set for the
 	 * component, then the keyboard shortcut will move the focus to the component whose
 	 * label this component is.
-	 * 
+	 *
 	 * @sample
 	 * var m = form.newMethod('function onClick() { application.output("I was clicked."); }');
 	 * var btn = form.newButton('I am a button', 10, 40, 200, 20, m);
@@ -137,9 +137,9 @@ public interface ISMGraphicalComponent extends IBaseSMGraphicalComponent, ISMCom
 
 	/**
 	 * The cursor that is shown as the mouse is rolled over the component.
-	 * Possible options are DEFAULT and HAND. Note that roll over cursor is not supported in Smart client for list view and tableview forms.
+	 * Possible options are DEFAULT and HAND.
 	 *
-	 * @sample 
+	 * @sample
 	 * var label = form.newLabel('Move the mouse over me', 10, 10, 200, 200);
 	 * label.rolloverCursor = SM_CURSOR.HAND_CURSOR;
 	 */
@@ -147,10 +147,10 @@ public interface ISMGraphicalComponent extends IBaseSMGraphicalComponent, ISMCom
 
 	/**
 	 * The roll over image Media object used. It will only work if a property image is also used.
-	 * When the mouse is moved over the component, this image Media will be displayed. 
-	 * When the mouse is moved out of the component, whatever text or image was being initially 
-	 * displayed will be restored. Note that roll over image is not supported in Smart client for list view and tableview forms.
-	 * 
+	 * When the mouse is moved over the component, this image Media will be displayed.
+	 * When the mouse is moved out of the component, whatever text or image was being initially
+	 * displayed will be restored.
+	 *
 	 * @sample
 	 * var ballBytes = plugins.file.readFile('d:/ball.jpg');
 	 * var ballImage = solutionModel.newMedia('ball.jpg', ballBytes);
@@ -163,9 +163,9 @@ public interface ISMGraphicalComponent extends IBaseSMGraphicalComponent, ISMCom
 	public ISMMedia getRolloverImageMedia();
 
 	/**
-	 * The rotation of the element. You can choose 0, 90, 180, or 270 and the label is rotated accordingly.  
+	 * The rotation of the element. You can choose 0, 90, 180, or 270 and the label is rotated accordingly.
 	 * This property also applies to buttons and images.
-	 * 
+	 *
 	 * @sample
 	 * var m = form.newMethod('function onClick() { application.output("I was clicked."); }');
 	 * var label = form.newLabel('I am a label', 10, 10, 200, 200, m);
@@ -176,9 +176,9 @@ public interface ISMGraphicalComponent extends IBaseSMGraphicalComponent, ISMCom
 	public int getRotation();
 
 	/**
-	 * When set, the element will show the clicked state when selected. 
+	 * When set, the element will show the clicked state when selected.
 	 * Applies to labels and buttons and images only.
-	 * 
+	 *
 	 * @sample
 	 * // Create a form method.
 	 * var m = form.newMethod('function onClick() { application.output("I was clicked."); }');
@@ -197,12 +197,12 @@ public interface ISMGraphicalComponent extends IBaseSMGraphicalComponent, ISMCom
 
 	/**
 	 * When set the text of an element will showfocus when selected.
-	 * Applies to labels and buttons only. 
-	 * The text property for the element MUST be filled in first. 
+	 * Applies to labels and buttons only.
+	 * The text property for the element MUST be filled in first.
 	 *
-	 * NOTE: The TAB key may also be used to select the element, depending 
-	 * on the operating system being used and the selected LAF. 
-	 * 
+	 * NOTE: The TAB key may also be used to select the element, depending
+	 * on the operating system being used and the selected LAF.
+	 *
 	 * @sample
 	 * var m = form.newMethod('function onClick() { application.output("I was clicked."); }');
 	 * var label = form.newLabel('I am a label', 10, 10, 200, 20, m);
@@ -222,7 +222,7 @@ public interface ISMGraphicalComponent extends IBaseSMGraphicalComponent, ISMCom
 	 * var fieldOne = form.newField('parent_table_id', JSField.TEXT_FIELD, 10, 10, 100, 20);
 	 * var fieldTwo = form.newField('parent_table_text', JSField.TEXT_FIELD, 10, 40, 100, 20);
 	 * var fieldThree = form.newField('parent_table_id', JSField.TEXT_FIELD, 10, 70, 100, 20);
-	 * // Set the third field come before the first in the tab sequence, and remove the 
+	 * // Set the third field come before the first in the tab sequence, and remove the
 	 * // second field from the tab sequence.
 	 * fieldOne.tabSeq = 2;
 	 * fieldTwo.tabSeq = SM_DEFAULTS.IGNORE;
@@ -233,7 +233,7 @@ public interface ISMGraphicalComponent extends IBaseSMGraphicalComponent, ISMCom
 	/**
 	 * @clonedesc com.servoy.base.solutionmodel.IBaseSMGraphicalComponent#getText()
 	 * @see com.servoy.base.solutionmodel.IBaseSMGraphicalComponent#getText()
-	 * 
+	 *
 	 * @sample
 	 * // In general the text is specified when creating the component.
 	 * var label = form.newLabel('Initial text', 10, 10, 100, 20);
@@ -245,7 +245,7 @@ public interface ISMGraphicalComponent extends IBaseSMGraphicalComponent, ISMCom
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.GraphicalComponent#getToolTipText()
 	 * @see com.servoy.j2db.solutionmodel.ISMField#getToolTipText()
-	 * 
+	 *
 	 * @sample
 	 * var label = form.newLabel('Stop the mouse over me!', 10, 10, 200, 20);
 	 * label.toolTipText = 'I\'m the tooltip. Do you see me?';
@@ -255,11 +255,11 @@ public interface ISMGraphicalComponent extends IBaseSMGraphicalComponent, ISMCom
 	/**
 	 * The vertical alignment of the text inside the component. Can be one of
 	 * TOP, CENTER or BOTTOM.
-	 * 
+	 *
 	 * Note that this property does not refer to the vertical alignment of the
 	 * component inside the form.
 	 *
-	 * @sample 
+	 * @sample
 	 * var topAlignedLabel = form.newLabel('TOP', 400, 10, 50, 300);
 	 * topAlignedLabel.verticalAlignment = SM_ALIGNMENT.TOP;
 	 * var vCenterAlignedLabel = form.newLabel('CENTER', 460, 10, 50, 300);
@@ -298,7 +298,7 @@ public interface ISMGraphicalComponent extends IBaseSMGraphicalComponent, ISMCom
 	/**
 	 * @clonedesc com.servoy.base.persistence.IBaseGraphicalComponent#getOnActionMethodID()
 	 * @see com.servoy.base.solutionmodel.IBaseSMField#getOnAction()
-	 * 
+	 *
 	 * @sample
 	 * var doNothingMethod = form.newMethod('function doNothing() { application.output("Doing nothing."); }');
 	 * var onClickMethod = form.newMethod('function onClick(event) { application.output("I was clicked at " + event.getTimestamp()); }');
@@ -316,7 +316,7 @@ public interface ISMGraphicalComponent extends IBaseSMGraphicalComponent, ISMCom
 
 	/**
 	 * The method that is executed when the component is double clicked.
-	 * 
+	 *
 	 * @sampleas getOnAction()
 	 * @see #getOnAction()
 	 */
@@ -326,7 +326,7 @@ public interface ISMGraphicalComponent extends IBaseSMGraphicalComponent, ISMCom
 
 	/**
 	 * The method that is executed when the component is rendered.
-	 * 
+	 *
 	 * @sample
 	 * label.onRender = form.newMethod('function onRender(event) { event.getElement().bgcolor = \'#00ff00\' }');
 	 */
@@ -337,7 +337,7 @@ public interface ISMGraphicalComponent extends IBaseSMGraphicalComponent, ISMCom
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.GraphicalComponent#getOnRightClickMethodID()
 	 * @see com.servoy.j2db.solutionmodel.ISMField#getOnRightClick()
-	 * 
+	 *
 	 * @sampleas getOnAction()
 	 * @see #getOnAction()
 	 */

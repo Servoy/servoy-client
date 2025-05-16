@@ -35,7 +35,10 @@ public interface IBaseApplicationTypes
 	 * {
 	 * 	//we are in smart_client
 	 * }
+	 *
+	 * @deprecated smart client is removed
 	 */
+	@Deprecated
 	public static final int SMART_CLIENT = 2; //smart, rich
 
 	/**
@@ -57,7 +60,9 @@ public interface IBaseApplicationTypes
 	 * {
 	 * 	//we are in web_client
 	 * }
+	 * @deprecated web client is removed
 	 */
+	@Deprecated
 	public static final int WEB_CLIENT = 5;
 
 	/**
@@ -68,7 +73,10 @@ public interface IBaseApplicationTypes
 	 * {
 	 * 	//we are in runtime_client
 	 * }
+	 *
+	 * @deprecated runtime client is removed
 	 */
+	@Deprecated
 	public static final int RUNTIME_CLIENT = 6;
 
 	/**

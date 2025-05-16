@@ -41,4 +41,9 @@ public interface INGClientApplication extends IApplication
 	 * @param weekday
 	 */
 	void setFirstDayOfTheWeek(int weekday);
+
+	/**
+	 * @return
+	 */
+	public JSONObject getUserAgentAndPlatform();
 }

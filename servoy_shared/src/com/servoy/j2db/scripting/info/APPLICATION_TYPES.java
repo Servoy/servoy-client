@@ -26,9 +26,6 @@ import com.servoy.j2db.scripting.IPrefixedConstantsObject;
  *   <li><b>HEADLESS_CLIENT</b>: Represents a headless client.</li>
  *   <li><b>MOBILE_CLIENT</b>: Represents a mobile client.</li>
  *   <li><b>NG_CLIENT</b>: Represents an NG client.</li>
- *   <li><b>RUNTIME_CLIENT</b>: Represents a runtime client.</li>
- *   <li><b>SMART_CLIENT</b>: Represents a smart client.</li>
- *   <li><b>WEB_CLIENT</b>: Represents a web client.</li>
  * </ul>
  *
  * <h2>Key Points</h2>

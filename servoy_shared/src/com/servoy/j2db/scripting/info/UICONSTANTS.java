@@ -65,14 +65,18 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 	 * application.putClientProperty(UICONSTANTS.TYPE_AHEAD_SHOW_POPUP_WHEN_EMPTY, false);
 	 * // make one TYPE-AHEAD field show the pop-up when there is empty content in the field - overrides the application property set
 	 * forms.someForm.elements.typeAheadElement.putClientProperty(UICONSTANTS.TYPE_AHEAD_SHOW_POPUP_WHEN_EMPTY, true);
+	 *
+	 * @deprecated not used in TiNG
 	 */
+	@Deprecated
 	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public static final String TYPE_AHEAD_SHOW_POPUP_WHEN_EMPTY = IApplication.TYPE_AHEAD_SHOW_POPUP_WHEN_EMPTY;
 
 	/**
 	 * Property that can be set using application.putClientProperty() or element.putClientProperty().
 	 *
-	 * If set on application it will affect all TYPE-AHEAD fields. If set on an element it will affect only that TYPE-AHEAD element/field (with priority over the application property).
+	 * If set on application it will affect all default/legacy TYPE-AHEAD fields. If set on an element it will affect only that default/legacy TYPE-AHEAD element/field
+	 * (with priority over the application property).
 	 * Value can be true/false/null.
 	 *
 	 * If set to true, the affected TYPE_AHEAD(s) will show the pop-up when gaining focus.
@@ -88,13 +92,13 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 	public static final String TYPE_AHEAD_SHOW_POPUP_ON_FOCUS_GAIN = IApplication.TYPE_AHEAD_SHOW_POPUP_ON_FOCUS_GAIN;
 
 	/**
-	 * Property that can be set using application.putClientProperty() or element.putClientProperty(). It is used only in Smart Client and Titanium Client.
+	 * Property that can be set using application.putClientProperty() or element.putClientProperty(). It is used only in Titanium Client.
 	 *
 	 * If set on application it will affect all COMBOBOX fields. If set on an element it will affect only that COMBOBOX element/field (with priority over the application property).
 	 * Value can be true/false/null.
 	 *
 	 * If set to true, the affected COMBOBOX will show the pop-up when gaining focus (either from user input or API).
-	 * DEFAULT: true for Smart Client and false for Titanium Client (to be more compatible with NGClient).
+	 * DEFAULT:  false for Titanium Client (to be more compatible with NGClient).
 	 *
 	 * @sample
 	 * // make all COMBOBOX fields not show the pop-up when gaining focus
@@ -117,12 +121,16 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 	 * @sample
 	 * // make all COMBOBOX fields hide the search box when gaining focus
 	 * application.putClientProperty(UICONSTANTS.COMBOBOX_ENABLE_FILTER, false);
+	 *
+	 * @deprecated not used in TiNG
 	 */
+	@Deprecated
 	@ServoyClientSupport(ng = true, wc = false, sc = false)
 	public static final String COMBOBOX_ENABLE_FILTER = IApplication.COMBOBOX_ENABLE_FILTER;
 
 	/**
-	 * Property that can be set using application.putClientProperty() or element.putClientProperty(). It is used only in Smart Client.
+	 * Legacy Smart Client property, do not use anymore.
+	 * Property that can be set using application.putClientProperty() or element.putClientProperty().
 	 *
 	 * If set on application it will affect all date formatted fields. If set on an element it will affect only that date formatted element/field (with priority over the application property).
 	 * Value can be true/false/null.
@@ -136,6 +144,7 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 	 * // make one date formatted field use add instead of roll - overrides the application property set
 	 * forms.someForm.elements.typeAheadElement.putClientProperty(UICONSTANTS.DATE_FORMATTERS_ROLL_INSTEAD_OF_ADD, false);
 	 */
+	@Deprecated
 	@ServoyClientSupport(ng = false, wc = false, sc = true)
 	public static final String DATE_FORMATTERS_ROLL_INSTEAD_OF_ADD = IApplication.DATE_FORMATTERS_ROLL_INSTEAD_OF_ADD;
 
@@ -154,7 +163,10 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 	 * application.putClientProperty(UICONSTANTS.DATE_FORMATTERS_LENIENT, false);
 	 * // make one date formatted field use lenient mode - overrides the application property set
 	 * forms.someForm.elements.typeAheadElement.putClientProperty(UICONSTANTS.DATE_FORMATTERS_LENIENT, true);
+	 *
+	 * @deprecated not used in ngclient
 	 */
+	@Deprecated
 	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public static final String DATE_FORMATTERS_LENIENT = IApplication.DATE_FORMATTERS_LENIENT;
 
@@ -191,7 +203,10 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 	 *
 	 * @sample
 	 * application.putClientProperty(UICONSTANTS.USE_SYSTEM_PRINT_DIALOG, true)
+	 *
+	 * @deprecated not used in ngclient
 	 */
+	@Deprecated
 	@ServoyClientSupport(ng = false, wc = false, sc = true)
 	public static final String USE_SYSTEM_PRINT_DIALOG = IApplication.USE_SYSTEM_PRINT_DIALOG;
 
@@ -246,6 +261,7 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 	 * @sample
 	 * application.putClientProperty(UICONSTANTS.TABLEVIEW_WC_DEFAULT_SCROLLABLE, true)
 	 */
+	@Deprecated
 	@ServoyClientSupport(ng = false, wc = true, sc = false)
 	public static final String TABLEVIEW_WC_DEFAULT_SCROLLABLE = IApplication.TABLEVIEW_WC_DEFAULT_SCROLLABLE;
 
@@ -261,6 +277,7 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 	 * @sample
 	 * application.putClientProperty(UICONSTANTS.TABLEVIEW_WC_SCROLLABLE_KEEP_LOADED_ROWS, true)
 	 */
+	@Deprecated
 	@ServoyClientSupport(ng = false, wc = true, sc = false)
 	public static final String TABLEVIEW_WC_SCROLLABLE_KEEP_LOADED_ROWS = IApplication.TABLEVIEW_WC_SCROLLABLE_KEEP_LOADED_ROWS;
 
@@ -274,7 +291,10 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 	 *
 	 * @sample
 	 * application.putClientProperty(UICONSTANTS.TABLEVIEW_NG_OPTIMIZED_READONLY_MODE, true)
+	 *
+	 * @deprecated not used in TiNG
 	 */
+	@Deprecated
 	@ServoyClientSupport(ng = true, wc = false, sc = false)
 	public static final String TABLEVIEW_NG_OPTIMIZED_READONLY_MODE = IApplication.TABLEVIEW_NG_OPTIMIZED_READONLY_MODE;
 
@@ -295,7 +315,10 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 	 *
 	 * @sample
 	 * application.putClientProperty(UICONSTANTS.TABLEVIEW_NG_PAGE_SIZE_FACTOR, 3)
+	 *
+	 *  @deprecated not used in TiNG
 	 */
+	@Deprecated
 	@ServoyClientSupport(ng = true, wc = false, sc = false)
 	public static final String TABLEVIEW_NG_PAGE_SIZE_FACTOR = IApplication.TABLEVIEW_NG_PAGE_SIZE_FACTOR;
 
@@ -314,6 +337,8 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 	public static final String NG_BLOCK_DUPLICATE_EVENTS = IApplication.BLOCK_DUPLICATE_EVENTS;
 
 	/**
+	 * Legacy Web Client property, do not use anymore.
+	 *
 	 * Property that can be set using application.putClientProperty().
 	 *
 	 * If set to true, you can change selection in webclient tableview using up/down keys
@@ -325,6 +350,7 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 	 * @sample
 	 * application.putClientProperty(UICONSTANTS.TABLEVIEW_WC_USE_KEY_NAVIGATION, false)
 	 */
+	@Deprecated
 	@ServoyClientSupport(ng = false, wc = true, sc = false)
 	public static final String TABLEVIEW_WC_USE_KEY_NAVIGATION = IApplication.TABLEVIEW_WC_USE_KEY_NAVIGATION;
 
@@ -339,7 +365,10 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 	 *
 	 * @sample
 	 * element.putClientProperty(UICONSTANTS.ALLOW_JAVASCRIPT_LINK_INPUT, true)
+	 *
+	 * @deprecated not used in ngclient
 	 */
+	@Deprecated
 	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public static final String ALLOW_JAVASCRIPT_LINK_INPUT = IApplication.ALLOW_JAVASCRIPT_LINK_INPUT;
 
@@ -383,7 +412,7 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 	public static final String HTML_EDITOR_CONFIGURATION = IApplication.HTML_EDITOR_CONFIGURATION;
 
 	/**
-	 * Property that can be set using element.putClientProperty()
+	 * Property that can be set using application.putClientProperty(), this has no meaning on an component
 	 *
 	 * If set to true, related find/search will only return records that have a related match, also in case of left outer joins.
 	 * Otherwise a related search on a field may return records where the related search does not match.
@@ -432,9 +461,40 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 	 *
 	 * @sample
 	 * application.putClientProperty(UICONSTANTS.CALENDAR_NG_SHOW_ISO_WEEK_NUMBER, true)
+	 *
+	 * @deprecated this is replaced for TiNG with i18n.setFirstDayOfTheWeek(1);
 	 */
+	@Deprecated
 	@ServoyClientSupport(ng = true, wc = false, sc = false)
 	public static final String CALENDAR_NG_SHOW_ISO_WEEK_NUMBER = IApplication.CALENDAR_NG_SHOW_ISO_WEEK_NUMBER;
+
+
+	/**
+	 * Property that can be set using application.putClientProperty(), preferably in solution onOpen handler (or before showing the ui components that formats numbers).
+	 *
+	 * If set this will be used as the grouping symbol for all number formatted fields that uses the default servoy formatting services (so 3rd party components that they there own formatting could/will ignore this)
+	 *
+	 * The value can be any kind of character (string)
+	 *
+	 * @sample
+	 * application.putClientProperty(UICONSTANTS.FORMAT_GROUPING_SYMBOL, ' '); // make the grouping symbol a space
+	 */
+	@ServoyClientSupport(ng = true, wc = false, sc = false)
+	public static final String FORMAT_GROUPING_SYMBOL = IApplication.FORMAT_GROUPING_SYMBOL;
+
+	/**
+	 * Property that can be set using application.putClientProperty(), preferably in solution onOpen handler (or before showing the ui components that formats numbers).
+	 *
+	 * If set this will be used as the grouping symbol for all number formatted fields that uses the default servoy formatting services (so 3rd party components that they there own formatting could/will ignore this)
+	 *
+	 * The value can be any kind of character (string)
+	 *
+	 * @sample
+	 * application.putClientProperty(UICONSTANTS.FORMAT_DECIMAL_SYMBOL, ';'); // make the grouping symbol a semicolon
+	 */
+	@ServoyClientSupport(ng = true, wc = false, sc = false)
+	public static final String FORMAT_DECIMAL_SYMBOL = IApplication.FORMAT_DECIMAL_SYMBOL;
+
 
 	/**
 	 * Property that can be set using application.putClientProperty(). This property only works in Titanium.

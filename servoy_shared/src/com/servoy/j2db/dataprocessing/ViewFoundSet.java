@@ -60,7 +60,6 @@ import org.mozilla.javascript.annotations.JSGetter;
 import org.mozilla.javascript.annotations.JSSetter;
 
 import com.servoy.base.persistence.IBaseColumn;
-import com.servoy.base.query.BaseColumnType;
 import com.servoy.base.query.BaseQueryTable;
 import com.servoy.base.query.IBaseSQLCondition;
 import com.servoy.j2db.IApplication;
@@ -109,7 +108,7 @@ import com.servoy.j2db.util.visitor.SearchVisitor;
  * <p>View Foundset Datasources can be created in two ways:</p>
  * <ol>
  *   <li><b>Solution Explorer</b>: Accessed via <i>Datasources -> View foundsets -> Create view foundset</i> in the Solution Explorer context menu.
- *       This opens the <a href="../../../../reference/servoy-developer/object-editors/table-editor/README.md">Table Editor</a> for defining the datasource structure.</li>
+ *       This opens the <a href="https://docs.servoy.com/reference/servoy-developer/object-editors/table-editor">Table Editor</a> for defining the datasource structure.</li>
  *   <li><b>Runtime Creation</b>: Created via <code>databaseManager.getViewFoundSet(String name, QBSelect query)</code>. This returns a <code>ViewFoundSet</code>
  *       object with essential operations like <code>getSize()</code>, <code>getRecord()</code>, and <code>loadAllRecords()</code>, but it doesn’t support <code>find()</code> or <code>search()</code>.</li>
  * </ol>
@@ -118,13 +117,13 @@ import com.servoy.j2db.util.visitor.SearchVisitor;
  * <p>View Foundsets do not listen for databroadcast changes by default but can be enabled using
  *    <code>viewfoundset.enableDatabroadcastFor(QBTableClause queryTable, int flags)</code>. Available flags include:</p>
  * <ul>
- *   <li><a href="viewfoundset.md#monitor_columns"><b>MONITOR_COLUMNS</b></a>: Tracks changes in specific columns.</li>
- *   <li><a href="viewfoundset.md#monitor_join_conditions"><b>MONITOR_JOIN_CONDITIONS</b></a>: Listens for changes in join conditions.</li>
- *   <li><a href="viewfoundset.md#monitor_where_conditions"><b>MONITOR_WHERE_CONDITIONS</b></a>: Tracks updates to WHERE clause columns.</li>
- *   <li><a href="viewfoundset.md#monitor_insert"><b>MONITOR_INSERT</b></a>: Monitors inserts, triggering a full query update.</li>
- *   <li><a href="viewfoundset.md#monitor_deletes"><b>MONITOR_DELETES</b></a>: Tracks deletions, updating records as needed.</li>
- *   <li><a href="viewfoundset.md#monitor_deletes_for_primary_table"><b>MONITOR_DELETES_FOR_PRIMARY_TABLE</b></a>: Monitors primary table deletions more efficiently.</li>
- *   <li><a href="viewfoundset.md#monitor_aggregates"><b>MONITOR_AGGREGATES</b></a>: Observes changes impacting aggregates in the query.</li>
+ *   <li><a href="https://docs.servoy.com/reference/servoycore/dev-api/database-manager/viewfoundset#monitor_columns"><b>MONITOR_COLUMNS</b></a>: Tracks changes in specific columns.</li>
+ *   <li><a href="https://docs.servoy.com/reference/servoycore/dev-api/database-manager/viewfoundset#monitor_join_conditions"><b>MONITOR_JOIN_CONDITIONS</b></a>: Listens for changes in join conditions.</li>
+ *   <li><a href="https://docs.servoy.com/reference/servoycore/dev-api/database-manager/viewfoundset#monitor_where_conditions"><b>MONITOR_WHERE_CONDITIONS</b></a>: Tracks updates to WHERE clause columns.</li>
+ *   <li><a href="https://docs.servoy.com/reference/servoycore/dev-api/database-manager/viewfoundset#monitor_insert"><b>MONITOR_INSERT</b></a>: Monitors inserts, triggering a full query update.</li>
+ *   <li><a href="https://docs.servoy.com/reference/servoycore/dev-api/database-manager/viewfoundset#monitor_deletes"><b>MONITOR_DELETES</b></a>: Tracks deletions, updating records as needed.</li>
+ *   <li><a href="https://docs.servoy.com/reference/servoycore/dev-api/database-manager/viewfoundset#monitor_deletes_for_primary_table"><b>MONITOR_DELETES_FOR_PRIMARY_TABLE</b></a>: Monitors primary table deletions more efficiently.</li>
+ *   <li><a href="https://docs.servoy.com/reference/servoycore/dev-api/database-manager/viewfoundset#monitor_aggregates"><b>MONITOR_AGGREGATES</b></a>: Observes changes impacting aggregates in the query.</li>
  * </ul>
  *
  * <h2>Editable View Foundsets</h2>
@@ -133,13 +132,13 @@ import com.servoy.j2db.util.visitor.SearchVisitor;
  *
  * <h2>Commands Summary</h2>
  * <ul>
- *   <li><i>Create view foundset datasource</i>: Opens the <a href="../../../../reference/servoy-developer/object-editors/table-editor/README.md">Table Editor</a>.</li>
- *   <li><i>Edit table/view</i>: Edits the View Foundset structure via the <a href="../../../../reference/servoy-developer/object-editors/table-editor/README.md">Table Editor</a>.</li>
+ *   <li><i>Create view foundset datasource</i>: Opens the <a href="https://docs.servoy.com/reference/servoy-developer/object-editors/table-editor">Table Editor</a>.</li>
+ *   <li><i>Edit table/view</i>: Edits the View Foundset structure via the <a href="https://docs.servoy.com/reference/servoy-developer/object-editors/table-editor">Table Editor</a>.</li>
  *   <li><i>Delete View Foundset</i>: Deletes the View Foundset.</li>
  *   <li><i>Rename View Foundset</i>: Renames the View Foundset.</li>
  * </ul>
  *
- * <p>For more details, refer to the <a href="../../../../guides/develop/application-design/data-modeling/view-datasource.md">View Foundset Datasource</a> documentation in the <b>Data modeling</b> section.</p>
+ * <p>For more details, refer to the <a href="https://docs.servoy.com/guides/develop/application-design/data-modeling/view-datasource">View Foundset Datasource</a> documentation in the <b>Data modeling</b> section.</p>
  *
  * @author jcompagner
  * @since 8.4
@@ -242,6 +241,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	private final IFoundSetManagerInternal manager;
 
 	private final List<IFoundSetEventListener> foundSetEventListeners = new ArrayList<>(3);
+	private final List<ISelectionChangeListener> selectionChangeListeners = new ArrayList<ISelectionChangeListener>();
 	// this is just a list to keep hard references to the RowListeners we give the RowManager (that is kept weak in there)
 	private final List<IRowListener> rowListeners = new ArrayList<>(3);
 
@@ -519,6 +519,37 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 		{
 			foundSetEventListeners.remove(l);
 		}
+	}
+
+	public void addSelectionChangeListener(ISelectionChangeListener l)
+	{
+		synchronized (selectionChangeListeners)
+		{
+			if (!selectionChangeListeners.contains(l))
+			{
+				selectionChangeListeners.add(l);
+			}
+		}
+	}
+
+	public void removeSelectionChangeListener(ISelectionChangeListener l)
+	{
+		synchronized (selectionChangeListeners)
+		{
+			selectionChangeListeners.remove(l);
+		}
+	}
+
+	private boolean executeSelectionListeners(IRecordInternal[] oldSelection, IRecordInternal[] newSelection)
+	{
+		for (ISelectionChangeListener listener : selectionChangeListeners)
+		{
+			if (!listener.selectionChange(oldSelection, newSelection))
+			{
+				return false;
+			}
+		}
+		return true;
 	}
 
 	@Override
@@ -1186,6 +1217,13 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	public boolean setSelectedIndex(int selectedRow)
 	{
 		if (selectionModel == null) createSelectionModel();
+		if (getSelectedIndex() >= 0 && selectedRow >= 0)
+		{
+			if (!executeSelectionListeners(getSelectedRecords(), new IRecordInternal[] { getRecord(selectedRow) }))
+			{
+				return false;
+			}
+		}
 		selectionModel.setSelectedRow(selectedRow);
 		return true;
 	}
@@ -1271,6 +1309,13 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	public boolean setSelectedIndexes(int[] indexes)
 	{
 		if (selectionModel == null) createSelectionModel();
+		if (getSelectedIndex() >= 0)
+		{
+			if (!executeSelectionListeners(getSelectedRecords(), getRecords(indexes)))
+			{
+				return false;
+			}
+		}
 		selectionModel.setSelectedRows(indexes);
 		return true;
 	}
@@ -1303,9 +1348,14 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	@JSFunction
 	public ViewRecord[] getSelectedRecords()
 	{
-		int[] selectedIndexes = getSelectedIndexes();
-		List<ViewRecord> selectedRecords = new ArrayList<ViewRecord>(selectedIndexes.length);
-		for (int index : selectedIndexes)
+		return getRecords(getSelectedIndexes());
+	}
+
+	private ViewRecord[] getRecords(int[] indexes)
+	{
+		if (indexes == null) return new ViewRecord[0];
+		List<ViewRecord> selectedRecords = new ArrayList<ViewRecord>(indexes.length);
+		for (int index : indexes)
 		{
 			ViewRecord record = getRecord(index);
 			if (record != null)
@@ -1316,7 +1366,6 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 
 		return selectedRecords.toArray(new ViewRecord[selectedRecords.size()]);
 	}
-
 
 	@Override
 	public String getSort()
@@ -1355,7 +1404,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	}
 
 	@Override
-	public ISQLSelect getQuerySelectForReading()
+	public QuerySelect getQuerySelectForReading()
 	{
 		return select;
 	}
@@ -1801,8 +1850,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 								if (column != null)
 								{
 									String colname = getColunmName(col, qCol);
-									newCol = table.createNewColumn(DummyValidator.INSTANCE, colname, column.getType(), column.getLength(), column.getScale(),
-										column.getAllowNull());
+									newCol = table.createNewColumn(DummyValidator.INSTANCE, colname, column.getColumnType());
 									if (column.getColumnInfo() != null)
 									{
 										DatabaseUtils.createNewColumnInfo(
@@ -1816,7 +1864,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 						if (newCol == null)
 						{
 							// existing database column not found, create column on the fly
-							BaseColumnType columnType = col.getColumnType();
+							ColumnType columnType = ColumnType.toColumnType(col.getColumnType());
 							if (columnType == null)
 							{
 								columnType = ColumnType.getColumnType(IColumnTypes.TEXT);
@@ -1824,8 +1872,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 
 							String colname = getColunmName(col, qCol);
 
-							table.createNewColumn(DummyValidator.INSTANCE, colname, columnType.getSqlType(), columnType.getLength(), columnType.getScale(),
-								true);
+							table.createNewColumn(DummyValidator.INSTANCE, colname, columnType, true);
 						}
 					}
 				}
@@ -2634,23 +2681,6 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 			name = DataSourceUtils.getViewDataSourceName(datasource);
 		}
 		return name;
-	}
-
-	/**
-	 * Get the record index. Will return -1 if the record can't be found.
-	 *
-	 * @sample var index = %%prefix%%foundset.getRecordIndex(record);
-	 *
-	 * @param record Record
-	 *
-	 * @return int index.
-	 */
-	@JSFunction
-	public int getRecordIndex(ViewRecord record)
-	{
-		int recordIndex = getRecordIndex((IRecord)record);
-		if (recordIndex == -1) return -1;
-		return recordIndex + 1;
 	}
 
 	/**

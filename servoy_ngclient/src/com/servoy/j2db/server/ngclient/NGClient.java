@@ -80,13 +80,16 @@ import com.servoy.j2db.dataprocessing.IFoundSetManagerInternal;
 import com.servoy.j2db.dataprocessing.SwingFoundSetFactory;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.RepositoryException;
+import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.plugins.IClientPluginAccess;
 import com.servoy.j2db.plugins.IMediaUploadCallback;
+import com.servoy.j2db.scripting.GlobalScope;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.scripting.JSBlobLoaderBuilder;
 import com.servoy.j2db.scripting.PluginScope;
+import com.servoy.j2db.scripting.info.EventType;
 import com.servoy.j2db.scripting.info.NGCONSTANTS;
 import com.servoy.j2db.server.headlessclient.AbstractApplication;
 import com.servoy.j2db.server.headlessclient.util.HCUtils;
@@ -160,6 +163,8 @@ public class NGClient extends AbstractApplication
 	private volatile long lastAccessed;
 
 	private URL serverURL;
+
+	private JSONObject userAgentAndPlatform;
 
 	private final IDesignerCallback designerCallback;
 
@@ -659,6 +664,52 @@ public class NGClient extends AbstractApplication
 	{
 		super.solutionLoaded(s);
 		getWebsocketSession().solutionLoaded(s);
+		getEventsManager().removeSolutionListeners();
+		addCustomEventsListeners(getFlattenedSolution().getSolution());
+		Solution[] mods = getFlattenedSolution().getModules();
+		if (mods != null)
+		{
+			for (Solution mod : mods)
+			{
+				addCustomEventsListeners(mod);
+			}
+		}
+	}
+
+	private void addCustomEventsListeners(Solution solution)
+	{
+		if (solution != null)
+		{
+			Map<String, Object> eventMethods = solution.getCustomEventsMethods();
+			if (eventMethods != null)
+			{
+				for (String eventName : eventMethods.keySet())
+				{
+					EventType eventType = getFlattenedSolution().getEventType(eventName);
+					if (eventType != null)
+					{
+						Object eventUUID = eventMethods.get(eventName);
+						Function function = null;
+						if (eventUUID != null)
+						{
+							ScriptMethod scriptMethod = getFlattenedSolution().getScriptMethod(eventUUID.toString());
+							if (scriptMethod != null && scriptMethod.getParent() instanceof Solution)
+							{
+								if (getScriptEngine().getScopesScope()
+									.getGlobalScope(scriptMethod.getScopeName()) instanceof GlobalScope globalScope)
+								{
+									function = globalScope.getFunctionByName(scriptMethod.getName());
+								}
+							}
+						}
+						if (function != null)
+						{
+							getEventsManager().addListener(eventType, function, "solutions." + solution.getName());
+						}
+					}
+				}
+			}
+		}
 	}
 
 	@Override
@@ -1031,27 +1082,20 @@ public class NGClient extends AbstractApplication
 		return IApplication.NG_CLIENT;
 	}
 
+
 	@Override
 	public String getClientOSName()
 	{
-		try
+		JSONObject retValue = getUserAgentAndPlatform();
+		if (retValue != null)
 		{
-			Object retValue = this.getWebsocketSession().getClientService(NGClient.APPLICATION_SERVICE).executeServiceCall("getUserAgentAndPlatform", null);
-			if (retValue instanceof JSONObject)
+			String userAgent = retValue.optString("userAgent");
+			if (userAgent != null)
 			{
-				String userAgent = ((JSONObject)retValue).optString("userAgent");
-				if (userAgent != null)
-				{
-					return HCUtils
-						.getOSName(userAgent);
-				}
-				String platform = ((JSONObject)retValue).optString("platform");
-				if (platform != null) return platform;
+				return HCUtils.getOSName(userAgent);
 			}
-		}
-		catch (IOException e)
-		{
-			Debug.error(e);
+			String platform = retValue.optString("platform");
+			if (platform != null) return platform;
 		}
 		return super.getClientOSName();
 	}
@@ -1059,23 +1103,43 @@ public class NGClient extends AbstractApplication
 	@Override
 	public int getClientPlatform()
 	{
+		JSONObject retValue = getUserAgentAndPlatform();
+		if (retValue != null)
+		{
+			String platform = retValue.optString("platform");
+			if (platform != null)
+			{
+				return Utils.getPlatform(platform);
+			}
+		}
+		return super.getClientPlatform();
+	}
+
+	/**
+	 * @return
+	 * @throws IOException
+	 */
+	public JSONObject getUserAgentAndPlatform()
+	{
+		if (userAgentAndPlatform != null)
+		{
+			return userAgentAndPlatform;
+		}
+		Object retValue = null;
 		try
 		{
-			Object retValue = this.getWebsocketSession().getClientService(NGClient.APPLICATION_SERVICE).executeServiceCall("getUserAgentAndPlatform", null);
-			if (retValue instanceof JSONObject)
-			{
-				String platform = ((JSONObject)retValue).optString("platform");
-				if (platform != null)
-				{
-					return Utils.getPlatform(platform);
-				}
-			}
+			retValue = this.getWebsocketSession().getClientService(NGClient.APPLICATION_SERVICE).executeServiceCall("getUserAgentAndPlatform", null);
 		}
 		catch (IOException e)
 		{
 			Debug.error(e);
 		}
-		return super.getClientPlatform();
+		if (retValue instanceof JSONObject json)
+		{
+			userAgentAndPlatform = json;
+			return userAgentAndPlatform;
+		}
+		return null;
 	}
 
 	@Override

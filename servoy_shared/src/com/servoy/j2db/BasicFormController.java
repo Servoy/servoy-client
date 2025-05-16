@@ -58,6 +58,7 @@ import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.dataprocessing.IFoundSetListener;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.ISaveConstants;
+import com.servoy.j2db.dataprocessing.ISelectionChangeListener;
 import com.servoy.j2db.dataprocessing.ISwingFoundSet;
 import com.servoy.j2db.dataprocessing.JSDataSet;
 import com.servoy.j2db.dataprocessing.RelatedFoundSet;
@@ -94,6 +95,8 @@ import com.servoy.j2db.scripting.ScriptEngine;
 import com.servoy.j2db.scripting.ScriptObjectRegistry;
 import com.servoy.j2db.scripting.SelectedRecordScope;
 import com.servoy.j2db.scripting.SolutionScope;
+import com.servoy.j2db.scripting.info.EVENTS_AGGREGATION_TYPE;
+import com.servoy.j2db.scripting.info.EventType;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.runtime.IRuntimeComponent;
 import com.servoy.j2db.util.Debug;
@@ -124,7 +127,7 @@ import com.servoy.j2db.util.Utils;
  *
  */
 public abstract class BasicFormController
-	implements IFoundSetListener, IFoundSetEventListener, IFormController, ListSelectionListener, TableModelListener, IPrepareForSave
+	implements IFoundSetListener, IFoundSetEventListener, IFormController, ListSelectionListener, TableModelListener, IPrepareForSave, ISelectionChangeListener
 {
 	private static final int PIN_VISIBLE = 1; // 1 is higher prio then 2
 	private static final int PIN_HIDDEN = 2;
@@ -206,6 +209,7 @@ public abstract class BasicFormController
 					((ISwingFoundSet)formModel).getSelectionModel().removeListSelectionListener(this);
 					((ISwingFoundSet)formModel).getSelectionModel().removeFormController(this);
 					((ISwingFoundSet)formModel).removeTableModelListener(this);
+					((ISwingFoundSet)formModel).removeSelectionChangeListener(this);
 					if (formModel instanceof FoundSet) ((FoundSet)formModel).flushAllCachedItems();//to make sure all data is gc'ed
 				}
 				catch (Exception ex)
@@ -229,6 +233,7 @@ public abstract class BasicFormController
 				((ISwingFoundSet)formModel).getSelectionModel().addListSelectionListener(this);
 				((ISwingFoundSet)formModel).getSelectionModel().addFormController(this);
 				((ISwingFoundSet)formModel).addTableModelListener(this);
+				((ISwingFoundSet)formModel).addSelectionChangeListener(this);
 				if (view != null) //it may not yet exist
 				{
 					view.setModel(formModel);
@@ -358,6 +363,7 @@ public abstract class BasicFormController
 			((ISwingFoundSet)formModel).getSelectionModel().addListSelectionListener(this);
 			((ISwingFoundSet)formModel).getSelectionModel().addFormController(this);
 			((ISwingFoundSet)formModel).addTableModelListener(this);
+			((ISwingFoundSet)formModel).addSelectionChangeListener(this);
 			if (view != null)
 			{
 				view.setModel(formModel);
@@ -452,6 +458,7 @@ public abstract class BasicFormController
 				((ISwingFoundSet)formModel).getSelectionModel().removeListSelectionListener(this);
 				((ISwingFoundSet)formModel).getSelectionModel().removeFormController(this);
 				((ISwingFoundSet)formModel).removeTableModelListener(this);
+				((ISwingFoundSet)formModel).removeSelectionChangeListener(this);
 			}
 
 			if (view != null)
@@ -479,6 +486,15 @@ public abstract class BasicFormController
 		//		{
 		valueChanged(null);//fire value chance because selection does not fire
 		//		}
+	}
+
+	@Override
+	public boolean selectionChange(IRecordInternal[] oldSelection, IRecordInternal[] newSelection)
+	{
+		return !Boolean.FALSE.equals(executeFormMethod(StaticContentSpecLoader.PROPERTY_ONBEFORERECORDSELECTIONMETHODID,
+			new Object[] { oldSelection, newSelection, getJSEvent(formScope,
+				RepositoryHelper.getDisplayName(StaticContentSpecLoader.PROPERTY_ONBEFORERECORDSELECTIONMETHODID.getPropertyName(), Form.class)) },
+			Boolean.TRUE, false, true));
 	}
 
 	public void valueChanged(ListSelectionEvent e)
@@ -650,28 +666,25 @@ public abstract class BasicFormController
 		if (!didOnload)
 		{
 			didOnload = true;
-			if (form.getOnLoadMethodID() > 0)
+			// Set this boolean on true while executing the onload so that
+			// an onload method won't trigger the notify visible before it is finished itself.
+			executingOnLoad = true;
+			try
 			{
-				// Set this boolean on true while executing the onload so that
-				// an onload method won't trigger the notify visible before it is finished itself.
-				executingOnLoad = true;
-				try
-				{
-					Object[] args = new Object[] { getJSEvent(formScope,
-						RepositoryHelper.getDisplayName(StaticContentSpecLoader.PROPERTY_ONLOADMETHODID.getPropertyName(), Form.class)) };
-					executeFormMethod(StaticContentSpecLoader.PROPERTY_ONLOADMETHODID, args, Boolean.FALSE, true, false /* foundset is not yet initialized */);
-				}
-				finally
-				{
-					executingOnLoad = false;
-				}
+				Object[] args = new Object[] { getJSEvent(formScope,
+					RepositoryHelper.getDisplayName(StaticContentSpecLoader.PROPERTY_ONLOADMETHODID.getPropertyName(), Form.class)) };
+				executeFormMethod(StaticContentSpecLoader.PROPERTY_ONLOADMETHODID, args, Boolean.FALSE, true, false /* foundset is not yet initialized */);
+			}
+			finally
+			{
+				executingOnLoad = false;
 			}
 		}
 	}
 
 	private void executeOnShowMethod()
 	{
-		if (!executingOnLoad && form.getOnShowMethodID() > 0)
+		if (!executingOnLoad)
 		{
 			Object[] args = new Object[] { Boolean.valueOf(!didOnShowOnce), getJSEvent(formScope,
 				RepositoryHelper.getDisplayName(StaticContentSpecLoader.PROPERTY_ONSHOWMETHODID.getPropertyName(), Form.class)) };//isFirstTime
@@ -701,12 +714,11 @@ public abstract class BasicFormController
 			if (canHide)
 			{
 				// if we can still hide, call the solution onBeforeHide (if present) to check if the solution allows hide for the form
-				return form.getOnBeforeHideMethodID() == 0 ||
-					!Boolean.FALSE.equals(executeFormMethod(StaticContentSpecLoader.PROPERTY_ONBEFOREHIDEMETHODID,
-						new Object[] { getJSEvent(formScope,
-							RepositoryHelper.getDisplayName(StaticContentSpecLoader.PROPERTY_ONBEFOREHIDEMETHODID.getPropertyName(),
-								Form.class))
-						}, null, true, true));
+				return !Boolean.FALSE.equals(executeFormMethod(StaticContentSpecLoader.PROPERTY_ONBEFOREHIDEMETHODID,
+					new Object[] { getJSEvent(formScope,
+						RepositoryHelper.getDisplayName(StaticContentSpecLoader.PROPERTY_ONBEFOREHIDEMETHODID.getPropertyName(),
+							Form.class))
+					}, null, true, true));
 			}
 			else
 			{
@@ -733,12 +745,22 @@ public abstract class BasicFormController
 	{
 		if (form.getTitleText() != null && this == application.getFormManager().getCurrentForm())
 		{
+
+			String title = form.getTitleText();
+			if (title == null || title.equals("")) title = getName(); //$NON-NLS-1$
+
 			// If a dialog is active over the main window, then don't update the application title.
 			if (application.getFormManager().isCurrentTheMainContainer())
 			{
-				String title = form.getTitleText();
-				if (title == null || title.equals("")) title = getName(); //$NON-NLS-1$
 				application.setTitle(title);
+			}
+			else if (application.getRuntimeWindowManager().getCurrentWindow() != null)
+			{
+				int windowType = application.getRuntimeWindowManager().getCurrentWindow().getType();
+				if (windowType == JSWindow.MODAL_DIALOG || windowType == JSWindow.DIALOG)
+				{
+					application.getRuntimeWindowManager().getCurrentWindow().setTitle(title, adjustingModel);
+				}
 			}
 		}
 		if (getUndoManager() != null) getUndoManager().discardAllEdits();
@@ -794,7 +816,7 @@ public abstract class BasicFormController
 	{
 		Object ret = null;
 		Integer id = ((Integer)form.getProperty(methodProperty.getPropertyName()));
-		if (id.intValue() > 0 && formScope != null)
+		if (id != null && id.intValue() > 0 && formScope != null)
 		{
 			FormExecutionState formExecutionState = null;
 			if (getFormUI() instanceof ISupportFormExecutionState)
@@ -862,6 +884,13 @@ public abstract class BasicFormController
 					((ISupportFormExecutionState)getFormUI()).formMethodExecuted(formExecutionState);
 				}
 			}
+		}
+		EventType eventType = EventType.getDefaultEvents().get(RepositoryHelper.getDisplayName(methodProperty.getPropertyName(), Form.class));
+		if (eventType != null)
+		{
+			application.getEventsManager().fireListeners(eventType, IExecutingEnviroment.TOPLEVEL_FORMS + '.' + getName(),
+				Utils.arrayMerge(args, Utils.parseJSExpressions(form.getFlattenedMethodArguments(methodProperty.getPropertyName()))),
+				EVENTS_AGGREGATION_TYPE.RETURN_VALUE_BOOLEAN);
 		}
 		return ret;
 	}
@@ -1185,13 +1214,11 @@ public abstract class BasicFormController
 
 	public void unload()
 	{
-		if (form.getOnUnLoadMethodID() > 0)
-		{
-			executeFormMethod(StaticContentSpecLoader.PROPERTY_ONUNLOADMETHODID,
-				new Object[] { getJSEvent(formScope,
-					RepositoryHelper.getDisplayName(StaticContentSpecLoader.PROPERTY_ONUNLOADMETHODID.getPropertyName(), Form.class)) },
-				Boolean.TRUE, true, true);
-		}
+		executeFormMethod(StaticContentSpecLoader.PROPERTY_ONUNLOADMETHODID,
+			new Object[] { getJSEvent(formScope,
+				RepositoryHelper.getDisplayName(StaticContentSpecLoader.PROPERTY_ONUNLOADMETHODID.getPropertyName(), Form.class)) },
+			Boolean.TRUE, true, true);
+
 		application.getFoundSetManager().getEditRecordList().removePrepareForSave(this);
 		((FoundSetManager)application.getFoundSetManager()).removeFoundSetListener(this);
 
@@ -1201,6 +1228,7 @@ public abstract class BasicFormController
 			((ISwingFoundSet)formModel).getSelectionModel().removeFormController(this);
 			//			formModel.removeEditListener(this);
 			((ISwingFoundSet)formModel).removeTableModelListener(this);
+			((ISwingFoundSet)formModel).removeSelectionChangeListener(this);
 			if (formModel instanceof FoundSet) ((FoundSet)formModel).flushAllCachedItems();//to make sure all data is gc'ed
 		}
 		setFormModelInternal(null);
@@ -3691,7 +3719,6 @@ public abstract class BasicFormController
 		 * Notes:
 		 * <ul>
 		 *   <li>A disabled element(s) cannot be selected by clicking the form.</li>
-		 *   <li>The disabled "grayed" color is dependent on the LAF set in the Servoy Smart Client Application Preferences.</li>
 		 * </ul>
 		 *
 		 * @sample

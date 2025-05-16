@@ -17,6 +17,8 @@
 
 package com.servoy.base.dataprocessing;
 
+import static java.util.Arrays.stream;
+
 import java.sql.Types;
 import java.util.Date;
 
@@ -43,22 +45,23 @@ public class BaseSQLGenerator
 	private static final int NULLCHECK_NULL_EMPTY = 2;
 
 	public static IBaseSQLCondition parseFindExpression(IQueryFactory queryFactory, Object raw, IBaseQuerySelectValue qCol, BaseQueryTable columnTable,
-		int dataProviderType, String formatString, IBaseColumn c, boolean addNullPkNotNullCondition, IValueConverter valueConverter,
+		int dataProviderType, String formatString, IBaseColumn column, boolean addNullPkNotNullCondition, IValueConverter valueConverter,
 		ITypeConverter typeConverter, BaseColumn firstForeignPKColumn, ILogger logger)
 	{
 		IBaseSQLCondition or = null;
 
-		//filter on the || (=or)
-		String[] rawElements = raw instanceof String[] ? (String[])raw : raw.toString().split("\\|\\|"); //$NON-NLS-1$
+		// filter on the || (=or)
+		String[] rawElements = raw instanceof Object[] array ? stream(array).map(Object::toString).toArray(String[]::new)
+			: raw.toString().split("\\|\\|"); //$NON-NLS-1$
 		for (String element : rawElements)
 		{
 			String data = element;
-			if (!(c instanceof BaseColumn) || ((BaseColumn)c).getType() != Types.CHAR)
+			if (!(column instanceof BaseColumn baseColumn) || baseColumn.getType() != Types.CHAR)
 			{
 				// if char, it fills up with spaces, so don't trim
 				data = data.trim();
 			}
-			if (data.length() == 0) //filter out the zero length strings
+			if (data.length() == 0) // filter out the zero length strings
 			{
 				continue;
 			}
@@ -69,7 +72,7 @@ public class BaseSQLGenerator
 				if (dataProviderType == IColumnTypeConstants.DATETIME)
 				{
 					int pipe_index = data.indexOf('|');
-					if (pipe_index != -1)//the format is speced from within javascript '1-1-2003...30-1-2003|dd-MM-yyyy'
+					if (pipe_index != -1) // the format is speced from within javascript '1-1-2003...30-1-2003|dd-MM-yyyy'
 					{
 						formatString = data.substring(pipe_index + 1);
 						data = data.substring(0, pipe_index);
@@ -219,7 +222,8 @@ public class BaseSQLGenerator
 						case IColumnTypeConstants.INTEGER :
 						case IColumnTypeConstants.NUMBER :
 							Object initialObj = (raw instanceof String || raw instanceof String[]) ? data : raw;
-							Object objRightType = typeConverter.getAsRightType(dataProviderType, c.getFlags(), initialObj, formatString, c.getLength(), false);
+							Object objRightType = typeConverter.getAsRightType(dataProviderType, column.getFlags(), initialObj, formatString,
+								column.getLength(), false);
 							// Now get asRightType with RAW and not with the string.
 							// Because if it is already a Number then it shouldn't be converted to String and then back
 							if (initialObj != null && objRightType == null)
@@ -235,7 +239,7 @@ public class BaseSQLGenerator
 							// parse data2 (between)
 							if (data2 != null)
 							{
-								value2 = typeConverter.getAsRightType(dataProviderType, c.getFlags(), data2, formatString, c.getLength(), false);
+								value2 = typeConverter.getAsRightType(dataProviderType, column.getFlags(), data2, formatString, column.getLength(), false);
 								if (value2 == null)
 								{
 									logger.log("Cannot convert (" + data2.getClass() + ") " + data2 + " to a number/int."); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -250,11 +254,11 @@ public class BaseSQLGenerator
 							Date tmp = null;
 							if (data.equalsIgnoreCase("now")) //$NON-NLS-1$
 							{
-								date = (Date)typeConverter.getAsRightType(dataProviderType, c.getFlags(), tmp = new Date(), c.getLength(), false);
+								date = (Date)typeConverter.getAsRightType(dataProviderType, column.getFlags(), tmp = new Date(), column.getLength(), false);
 							}
 							else if (data.startsWith("//") || data.equalsIgnoreCase("today")) //$NON-NLS-1$ //$NON-NLS-2$
 							{
-								date = (Date)typeConverter.getAsRightType(dataProviderType, c.getFlags(), tmp = new Date(), c.getLength(), false);
+								date = (Date)typeConverter.getAsRightType(dataProviderType, column.getFlags(), tmp = new Date(), column.getLength(), false);
 								dateSearch = true;
 							}
 							else
@@ -262,7 +266,8 @@ public class BaseSQLGenerator
 								// Now get asRightType with RAW and not with the string.
 								// Because if it is already a Date then it shouldn't be converted to String and then back
 								Object initialObj1 = ((raw instanceof String || raw instanceof String[]) ? data : raw);
-								Object tst = typeConverter.getAsRightType(dataProviderType, c.getFlags(), initialObj1, formatString, c.getLength(), false);
+								Object tst = typeConverter.getAsRightType(dataProviderType, column.getFlags(), initialObj1, formatString, column.getLength(),
+									false);
 								if (tst == null && initialObj1 != null)
 								{
 									// Format failed.. Reporting that to the user
@@ -279,18 +284,18 @@ public class BaseSQLGenerator
 							{
 								if (operator == IBaseSQLCondition.EQUALS_OPERATOR)
 								{
-									value = getStartOfDay(date, c, typeConverter);
-									value2 = getEndOfDay(date, c, typeConverter);
+									value = getStartOfDay(date, column, typeConverter);
+									value2 = getEndOfDay(date, column, typeConverter);
 									operator = IBaseSQLCondition.BETWEEN_OPERATOR;
 								}
 								else if (operator == IBaseSQLCondition.BETWEEN_OPERATOR || operator == IBaseSQLCondition.LT_OPERATOR ||
 									operator == IBaseSQLCondition.GTE_OPERATOR)
 								{
-									value = getStartOfDay(date, c, typeConverter);
+									value = getStartOfDay(date, column, typeConverter);
 								}
 								else
 								{
-									value = getEndOfDay(date, c, typeConverter);
+									value = getEndOfDay(date, column, typeConverter);
 								}
 							}
 							else
@@ -304,18 +309,21 @@ public class BaseSQLGenerator
 								dateSearch = hash;
 								if (data2.equalsIgnoreCase("now")) //$NON-NLS-1$
 								{
-									date = (Date)typeConverter.getAsRightType(dataProviderType, c.getFlags(), (tmp != null ? tmp : new Date()), c.getLength(),
+									date = (Date)typeConverter.getAsRightType(dataProviderType, column.getFlags(), (tmp != null ? tmp : new Date()),
+										column.getLength(),
 										false);
 								}
 								else if (data2.startsWith("//") || data2.equalsIgnoreCase("today")) //$NON-NLS-1$ //$NON-NLS-2$
 								{
-									date = (Date)typeConverter.getAsRightType(dataProviderType, c.getFlags(), (tmp != null ? tmp : new Date()), c.getLength(),
+									date = (Date)typeConverter.getAsRightType(dataProviderType, column.getFlags(), (tmp != null ? tmp : new Date()),
+										column.getLength(),
 										false);
 									dateSearch = true;
 								}
 								else
 								{
-									Object dt = typeConverter.getAsRightType(dataProviderType, c.getFlags(), data2, formatString, c.getLength(), false);
+									Object dt = typeConverter.getAsRightType(dataProviderType, column.getFlags(), data2, formatString, column.getLength(),
+										false);
 									if (dt instanceof Date)
 									{
 										date = (Date)dt;
@@ -329,7 +337,7 @@ public class BaseSQLGenerator
 
 								if (dateSearch && date != null)
 								{
-									value2 = getEndOfDay(date, c, typeConverter);
+									value2 = getEndOfDay(date, column, typeConverter);
 								}
 								else
 								{
@@ -347,7 +355,7 @@ public class BaseSQLGenerator
 
 							if (operator == IBaseSQLCondition.EQUALS_OPERATOR)
 							{
-								//count the amount of percents based upon the amount we decide what to do
+								// count the amount of percents based upon the amount we decide what to do
 								char[] chars = data.toCharArray();
 								StringBuilder dataBuf = new StringBuilder();
 								boolean escapeNext = false;
@@ -389,7 +397,7 @@ public class BaseSQLGenerator
 
 						default :
 							operator = IBaseSQLCondition.LIKE_OPERATOR;
-							value = typeConverter.getAsRightType(dataProviderType, c.getFlags(), data, formatString, c.getLength() + 2, false);//+2 for %...%
+							value = typeConverter.getAsRightType(dataProviderType, column.getFlags(), data, formatString, column.getLength() + 2, false); // +2 for %...%
 					}
 
 					// create the condition
@@ -399,10 +407,10 @@ public class BaseSQLGenerator
 						// for like, value2 may be the escape character
 						if (value2 != null && operator == IBaseSQLCondition.BETWEEN_OPERATOR)
 						{
-							operand = new Object[] { typeConverter.getAsRightType(c.getDataProviderType(), c.getFlags(),
-								valueConverter == null ? value : valueConverter.convertFromObject(value), null, c.getLength(),
-								false), typeConverter.getAsRightType(c.getDataProviderType(), c.getFlags(),
-									valueConverter == null ? value2 : valueConverter.convertFromObject(value2), null, c.getLength(), false) };
+							operand = new Object[] { typeConverter.getAsRightType(column.getDataProviderType(), column.getFlags(),
+								valueConverter == null ? value : valueConverter.convertFromObject(value), null, column.getLength(),
+								false), typeConverter.getAsRightType(column.getDataProviderType(), column.getFlags(),
+									valueConverter == null ? value2 : valueConverter.convertFromObject(value2), null, column.getLength(), false) };
 						}
 						else if (operator == IBaseSQLCondition.LIKE_OPERATOR)
 						{
@@ -410,8 +418,8 @@ public class BaseSQLGenerator
 						}
 						else
 						{
-							operand = typeConverter.getAsRightType(c.getDataProviderType(), c.getFlags(),
-								valueConverter == null ? value : valueConverter.convertFromObject(value), null, c.getLength(), false);
+							operand = typeConverter.getAsRightType(column.getDataProviderType(), column.getFlags(),
+								valueConverter == null ? value : valueConverter.convertFromObject(value), null, column.getLength(), false);
 						}
 						condition = queryFactory.createCompareCondition(operator | modifier, qCol, operand);
 					}
@@ -428,7 +436,7 @@ public class BaseSQLGenerator
 						// When a search on a related null-value is performed, we have to add a not-null check to the related pk to make sure
 						// the left outer join does not cause a match with the null value.
 						// Skip this if the search is on the related pk column, the user explicitly wants to find records that have no related record (left outer join)
-						if (addNullPkNotNullCondition && nullCheck != NULLCHECK_NONE && (c.getFlags() & IBaseColumn.IDENT_COLUMNS) == 0)
+						if (addNullPkNotNullCondition && nullCheck != NULLCHECK_NONE && (column.getFlags() & IBaseColumn.IDENT_COLUMNS) == 0)
 						{
 							// in case of composite pk, checking only the first pk column is enough
 							condition = queryFactory.and(condition,

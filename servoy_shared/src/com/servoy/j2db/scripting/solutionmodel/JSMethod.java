@@ -59,7 +59,7 @@ import com.servoy.j2db.util.UUID;
  *
  * <p>These capabilities make JSMethod a versatile component for customizing and extending script-based behavior in Servoy applications.</p>
  *
- * <p>For details read the<a href="../../object-model/database-server/table/method.md">Method</a> section of this documentation</p>
+ * <p>For details read the<a href="https://docs.servoy.com/reference/servoycore/object-model/database-server/table/method">Method</a> section of this documentation</p>
  *
  * @author jcompagner
  */
@@ -296,7 +296,7 @@ public class JSMethod implements IJavaScriptType, ISMMethod
 		try
 		{
 			AstRoot parse = parser.parse(new CharArrayReader(content.toCharArray()), "", 0); //$NON-NLS-1$
-			new IRFactory(cenv, new JSErrorReporter()).transformTree(parse);
+			new IRFactory(cenv, "", content, new JSErrorReporter()).transformTree(parse);
 
 			int functionCount = parse.getFunctionCount();
 			if (functionCount != 1) throw new RuntimeException("Only 1 function is allowed, found: " + functionCount + " when setting code of a method"); //$NON-NLS-1$ //$NON-NLS-2$

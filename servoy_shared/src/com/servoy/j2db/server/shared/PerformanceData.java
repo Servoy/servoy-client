@@ -160,9 +160,9 @@ public class PerformanceData
 		}
 		if (timingThatEnded != null)
 		{
-			if (log != null && log.isInfoEnabled())
+			if (log != null && log.isTraceEnabled())
 			{
-				log.info(
+				log.trace(
 					timingThatEnded.getID() + "|" + timingThatEnded.getParentID() + '|' + timingThatEnded.getClientUUID() + '|' + timingThatEnded.getAction() +
 						'|' +
 						timingThatEnded.getRunningTimeMS() + '|' + timingThatEnded.getIntervalTimeMS() + '|' + timingThatEnded.getTypeString() + '|' +

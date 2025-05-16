@@ -35,11 +35,11 @@ import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.FormElementGroup;
 import com.servoy.j2db.persistence.GraphicalComponent;
 import com.servoy.j2db.persistence.IFlattenedPersistWrapper;
-import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.ISupportBounds;
 import com.servoy.j2db.persistence.ISupportExtendsID;
+import com.servoy.j2db.persistence.ISupportFormElement;
 import com.servoy.j2db.persistence.Portal;
 import com.servoy.j2db.persistence.PositionComparator;
 import com.servoy.j2db.scripting.solutionmodel.JSButton;
@@ -54,7 +54,7 @@ import com.servoy.j2db.util.Utils;
 /**
  * Static methods for layouting elements in mobile form editor.
  * Can be called from DebugWebclient for layouting forms created using solution model.
- * 
+ *
  * @author rgansevles
  *
  */
@@ -188,9 +188,9 @@ public class MobileFormLayout
 				continue;
 			}
 
-			if (persist instanceof IFormElement && persist instanceof AbstractBase)
+			if (persist instanceof ISupportFormElement && persist instanceof AbstractBase)
 			{
-				String groupID = ((IFormElement)persist).getGroupID();
+				String groupID = ((ISupportFormElement)persist).getGroupID();
 				if (groupID == null)
 				{
 					if (persist instanceof Portal && ((Portal)persist).isMobileInsetList())
@@ -222,13 +222,13 @@ public class MobileFormLayout
 	}
 
 	@SuppressWarnings("unchecked")
-	public static List<IFormElement> getGroupElements(FormElementGroup group)
+	public static List<ISupportFormElement> getGroupElements(FormElementGroup group)
 	{
-		List<IFormElement> returnList = Utils.asList(group.getElements());
-		Collections.sort(returnList, new CompositeComparator<IFormElement>(new Comparator<IFormElement>()
+		List<ISupportFormElement> returnList = Utils.asList(group.getElements());
+		Collections.sort(returnList, new CompositeComparator<ISupportFormElement>(new Comparator<ISupportFormElement>()
 		{
-			// sort so that label comes first	
-			public int compare(IFormElement element1, IFormElement element2)
+			// sort so that label comes first
+			public int compare(ISupportFormElement element1, ISupportFormElement element2)
 			{
 				if (element1.getTypeID() == IRepository.GRAPHICALCOMPONENTS)
 				{

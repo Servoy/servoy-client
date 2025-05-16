@@ -41,7 +41,7 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
  * include <code>add(columnSortAsc)</code> for adding sort orders, <code>addPk()</code> for incorporating
  * primary key columns, and <code>clear()</code> for resetting the sort configuration.</p>
  *
- * <p>For more details, see the <a href="./qbselect.md">QBSelect documentation</a>.</p>
+ * <p>For more details, see the <a href="https://docs.servoy.com/reference/servoycore/dev-api/database-manager/qbselect">QBSelect documentation</a>.</p>
  *
  * @author rgansevles
  *
@@ -61,7 +61,7 @@ public class QBSorts extends QBPart implements IQueryBuilderSorts
 	 *  @return the parent QBSelect query associated with these sorts.
 	 */
 	@Override
-	@JSReadonlyProperty
+	@JSReadonlyProperty(debuggerRepresentation = "Query parent part")
 	public final QBSelect getParent()
 	{
 		return (QBSelect)super.getParent();

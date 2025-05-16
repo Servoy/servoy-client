@@ -17,6 +17,7 @@
 package com.servoy.base.query;
 
 import java.io.Serializable;
+import java.sql.Types;
 
 
 /** Container for column types describing type, length and scale (for numerical columns).
@@ -28,12 +29,19 @@ public class BaseColumnType implements Serializable
 	protected int sqlType;
 	protected int length;
 	protected int scale;
+	protected int subType;
 
 	public BaseColumnType(int sqlType, int length, int scale)
+	{
+		this(sqlType, length, scale, 0);
+	}
+
+	public BaseColumnType(int sqlType, int length, int scale, int subType)
 	{
 		this.sqlType = sqlType;
 		this.length = length;
 		this.scale = scale;
+		this.subType = subType;
 	}
 
 	protected BaseColumnType()
@@ -55,10 +63,29 @@ public class BaseColumnType implements Serializable
 		return sqlType;
 	}
 
+	public int getSubType()
+	{
+		return subType;
+	}
+
+	public static boolean isArray(BaseColumnType columnType)
+	{
+		return columnType != null && columnType.isArray();
+	}
+
+	public final boolean isArray()
+	{
+		return sqlType == Types.ARRAY && subType != 0;
+	}
+
 	@Override
 	public String toString()
 	{
-		return "<" + sqlType + ',' + length + ',' + scale + '>'; //$NON-NLS-1$
+		if (isArray())
+		{
+			return "<ARRAY " + subType + ',' + length + ',' + scale + '>';
+		}
+		return "<" + sqlType + ',' + length + ',' + scale + '>';
 	}
 
 	@Override
@@ -69,6 +96,7 @@ public class BaseColumnType implements Serializable
 		result = prime * result + this.length;
 		result = prime * result + this.scale;
 		result = prime * result + this.sqlType;
+		result = prime * result + this.subType;
 		return result;
 	}
 
@@ -82,6 +110,7 @@ public class BaseColumnType implements Serializable
 		if (this.length != other.length) return false;
 		if (this.scale != other.scale) return false;
 		if (this.sqlType != other.sqlType) return false;
+		if (this.subType != other.subType) return false;
 		return true;
 	}
 }

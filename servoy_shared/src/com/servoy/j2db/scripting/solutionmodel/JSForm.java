@@ -47,6 +47,8 @@ import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.AbstractContainer;
 import com.servoy.j2db.persistence.BaseComponent;
 import com.servoy.j2db.persistence.Bean;
+import com.servoy.j2db.persistence.CSSPosition;
+import com.servoy.j2db.persistence.CSSPositionLayoutContainer;
 import com.servoy.j2db.persistence.CSSPositionUtils;
 import com.servoy.j2db.persistence.Field;
 import com.servoy.j2db.persistence.Form;
@@ -90,13 +92,13 @@ import com.servoy.j2db.util.docvalidator.IdentDocumentValidator;
  * </p>
  *
  *
- * Please refer to the <a href="../../object-model/solution/form.md">Form</a> section of this documentation for details.
+ * Please refer to the <a href="https://docs.servoy.com/reference/servoycore/object-model/solution/form">Form</a> section of this documentation for details.
  *
  * @author jcompagner
  */
 @SuppressWarnings("nls")
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "JSForm")
-public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<Form>, IConstantsObject, ISMForm, IMobileSMForm
+public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<Form>, IConstantsObject, ISMForm, IMobileSMForm, ISupportResponsiveLayoutContainer
 {
 	private Form form;
 	private final IApplication application;
@@ -1523,6 +1525,27 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	{
 		checkModification();
 		getForm().setInitialSort(arg);
+	}
+
+	/**
+	 * @clonedesc com.servoy.j2db.persistence.Form#getDeprecated()
+	 *
+	 * @sample
+	 * var form = solutionModel.newForm('myForm',myDatasource,null,true,800,600);
+	 * form.deprecated = "not used anymore, replaced with newForm";
+	 *
+	 */
+	@JSGetter
+	public String getDeprecated()
+	{
+		return getForm().getDeprecated();
+	}
+
+	@JSSetter
+	public void setDeprecated(String arg)
+	{
+		checkModification();
+		getForm().setDeprecated(arg);
 	}
 
 	/**
@@ -5701,6 +5724,37 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	public JSLabel[] getLabels()
 	{
 		return getLabels(false);
+	}
+
+	/**
+	 * Create a new responsive layout container at a certain position and size.
+	 * @sample
+	 * var container = form.newResponsiveLayoutContainer(100, 100, 400, 300);
+	 * @param x the horizontal "x" position of the JSBean object in pixels
+	 * @param y the vertical "y" position of the JSBean object in pixels
+	 * @param width the width of the JSBean object in pixels
+	 * @param height the height of the JSBean object in pixels
+	 *
+	 * @return the new responsive layout container
+	 */
+	@ServoyClientSupport(mc = false, ng = true, wc = false, sc = false)
+	@JSFunction
+	public JSResponsiveLayoutContainer newResponsiveLayoutContainer(int x, int y, int width, int height)
+	{
+		try
+		{
+			checkModification();
+			CSSPositionLayoutContainer layoutContainer = getContainer().createNewCSSPositionLayoutContainer();
+			layoutContainer.setPackageName("servoycore");
+			layoutContainer.setSpecName("servoycore-responsivecontainer");
+			layoutContainer
+				.setCssPosition(new CSSPosition(Integer.toString(y), "-1", "-1", Integer.toString(x), Integer.toString(width), Integer.toString(height)));
+			return application.getScriptEngine().getSolutionModifier().createResponsiveLayoutContainer(this, layoutContainer, true);
+		}
+		catch (Exception e)
+		{
+			throw new RuntimeException(e);
+		}
 	}
 
 	public IApplication getApplication()

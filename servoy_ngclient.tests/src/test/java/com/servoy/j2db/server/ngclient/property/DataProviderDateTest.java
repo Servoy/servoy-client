@@ -54,8 +54,10 @@ import org.sablo.websocket.utils.JSONUtils.IJSONStringWithClientSideType;
 
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.IDataRendererFactory;
+import com.servoy.j2db.IEventsManager;
 import com.servoy.j2db.IMenuManager;
 import com.servoy.j2db.IModeManager;
+import com.servoy.j2db.IPermissionManager;
 import com.servoy.j2db.cmd.ICmdManager;
 import com.servoy.j2db.component.ComponentFormat;
 import com.servoy.j2db.dataprocessing.ClientInfo;
@@ -2078,6 +2080,42 @@ public class DataProviderDateTest
 		 */
 		@Override
 		public JSONObject getBounds(String webComponentID, String subselector)
+		{
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		/*
+		 * (non-Javadoc)
+		 *
+		 * @see com.servoy.j2db.IApplication#getEventsManager()
+		 */
+		@Override
+		public IEventsManager getEventsManager()
+		{
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		/*
+		 * (non-Javadoc)
+		 *
+		 * @see com.servoy.j2db.IApplication#getPermissionManager()
+		 */
+		@Override
+		public IPermissionManager getPermissionManager()
+		{
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		/*
+		 * (non-Javadoc)
+		 *
+		 * @see com.servoy.j2db.INGClientApplication#getUserAgentAndPlatform()
+		 */
+		@Override
+		public JSONObject getUserAgentAndPlatform()
 		{
 			// TODO Auto-generated method stub
 			return null;

@@ -39,7 +39,7 @@ import com.servoy.j2db.util.UUID;
  */
 public abstract class AbstractRepository extends AbstractPersistFactory implements IDeveloperRepository
 {
-	public static final int repository_version = 59;
+	public static final int repository_version = 61;
 
 	/**
 	 * subclass to check for the owner for debugging.
@@ -314,6 +314,10 @@ public abstract class AbstractRepository extends AbstractPersistFactory implemen
 				((AbstractScriptProvider)persist).getSerializableRuntimeProperty(IScriptProvider.TYPE));
 			((AbstractScriptProvider)destPersist).setRuntimeProperty(IScriptProvider.METHOD_RETURN_TYPE,
 				((AbstractScriptProvider)persist).getRuntimeProperty(IScriptProvider.METHOD_RETURN_TYPE));
+		}
+		else if (persist instanceof Form frm)
+		{
+			((Form)destPersist).setFormCss(frm.getFormCss());
 		}
 
 		Map<String, Object> values = ((AbstractRepository)persist.getRootObject().getRepository()).getPersistAsValueMap(persist);

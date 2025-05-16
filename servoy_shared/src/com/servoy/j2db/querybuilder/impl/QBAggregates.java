@@ -42,7 +42,7 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
  * to the parent query or table clause, facilitating complex query structures and subqueries.</p>
  *
  * <p>For more information about constructing and executing queries, refer to
- * <a href="./qbselect.md">QBSelect</a> section of the documentation.</p>
+ * <a href="https://docs.servoy.com/reference/servoycore/dev-api/database-manager/qbselect">QBSelect</a> section of the documentation.</p>
  *
  * @author rgansevles
  *
@@ -56,7 +56,7 @@ public class QBAggregates extends QBPart implements IQueryBuilderAggregates
 	}
 
 	@Override
-	@JSReadonlyProperty
+	@JSReadonlyProperty(debuggerRepresentation = "Query parent part")
 	public QBSelect getParent()
 	{
 		return (QBSelect)super.getParent();

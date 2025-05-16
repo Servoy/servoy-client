@@ -51,9 +51,9 @@ import com.servoy.j2db.persistence.Field;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.GraphicalComponent;
 import com.servoy.j2db.persistence.IDataProviderLookup;
-import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.ISupportAnchors;
+import com.servoy.j2db.persistence.ISupportFormElement;
 import com.servoy.j2db.persistence.ISupportPrintSliding;
 import com.servoy.j2db.persistence.ISupportPrinting;
 import com.servoy.j2db.persistence.ISupportTabSeq;
@@ -119,17 +119,17 @@ public class DataRendererFactory implements IDataRendererFactory<Component>
 		ControllerUndoManager undoManager) throws Exception
 	{
 		List<IPersist> allObjectsAsList = objToRender.getAllObjectsAsList();
-		List<IFormElement> formElements = new ArrayList<IFormElement>(allObjectsAsList.size());
+		List<ISupportFormElement> formElements = new ArrayList<ISupportFormElement>(allObjectsAsList.size());
 		for (IPersist persist : allObjectsAsList)
 		{
-			if (persist instanceof IFormElement)
+			if (persist instanceof ISupportFormElement)
 			{
-				formElements.add((IFormElement)persist);
+				formElements.add((ISupportFormElement)persist);
 			}
 		}
-		List<IFormElement> children = new SortedList<IFormElement>(new Comparator<IFormElement>()
+		List<ISupportFormElement> children = new SortedList<ISupportFormElement>(new Comparator<ISupportFormElement>()
 		{
-			public int compare(IFormElement o1, IFormElement o2)
+			public int compare(ISupportFormElement o1, ISupportFormElement o2)
 			{
 				// reverse order, right order for tab sequence
 				int result = -PositionComparator.XY_PERSIST_COMPARATOR.compare(o1, o2);
@@ -140,7 +140,7 @@ public class DataRendererFactory implements IDataRendererFactory<Component>
 				return result;
 			}
 		}, formElements);
-		Iterator<IFormElement> e1 = children.iterator();
+		Iterator<ISupportFormElement> e1 = children.iterator();
 		Map emptyDataRenderers = new LinkedHashMap();
 		DataRenderer dr = null;
 		int height = objToRender.getRowHeight();
@@ -262,12 +262,12 @@ public class DataRendererFactory implements IDataRendererFactory<Component>
 		}
 
 		//place all the elements
-		Iterator<IFormElement> e1 = form.getFormElementsSortedByFormIndex();
+		Iterator<ISupportFormElement> e1 = form.getFormElementsSortedByFormIndex();
 		return placeElements(e1, app, form, listner, emptyDataRenderers, width, 0, 0, printing, false, undoManager, false, tabSequence);
 	}
 
 	//returns usesSliding
-	private Map placeElements(Iterator<IFormElement> e1, IApplication app, Form form, IScriptExecuter listner, Map emptyDataRenderers, int width,
+	private Map placeElements(Iterator<ISupportFormElement> e1, IApplication app, Form form, IScriptExecuter listner, Map emptyDataRenderers, int width,
 		int XCorrection, int YCorrection, boolean printing, boolean cutDataProviderNames, ControllerUndoManager undoManager, boolean isPortal,
 		TabSequenceHelper<Component> tabSequence) throws Exception
 	{
@@ -281,7 +281,7 @@ public class DataRendererFactory implements IDataRendererFactory<Component>
 		{
 			Point l = null;
 			IPersist obj = e1.next();
-			l = ((IFormElement)obj).getLocation();
+			l = ((ISupportFormElement)obj).getLocation();
 
 			if (l == null) continue;//unkown where to add
 			if (printing && obj instanceof ISupportPrinting)

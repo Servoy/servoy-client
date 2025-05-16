@@ -18,17 +18,21 @@ package com.servoy.j2db.persistence;
 
 
 import java.beans.IntrospectionException;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.sablo.specification.PropertyDescription;
 
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
+import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.ServoyJSONObject;
 import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
@@ -37,7 +41,7 @@ import com.servoy.j2db.util.Utils;
  *
  * @author gboros
  */
-public class WebCustomType extends AbstractBase implements IChildWebObject, ISupportsIndexedChildren
+public class WebCustomType extends AbstractBase implements IChildWebObject, ISupportsIndexedChildren, ISupportExtendsID
 {
 
 //	private static final long serialVersionUID = 1L; // this shouldn't get serialized anyway for now; parent WebComponent just serializes it's json
@@ -387,5 +391,64 @@ public class WebCustomType extends AbstractBase implements IChildWebObject, ISup
 	{
 		super.applyPropertiesBuffer();
 		if (parent instanceof IBasicWebObject) ((IBasicWebObject)parent).updateJSON();
+	}
+
+	@Override
+	public int getExtendsID()
+	{
+		return getFullJsonInFrmFile().optInt(StaticContentSpecLoader.PROPERTY_EXTENDSID.getPropertyName(), -1);
+	}
+
+	@Override
+	public void setExtendsID(int arg)
+	{
+		webObjectImpl.setJsonInternal(getFullJsonInFrmFile().put(StaticContentSpecLoader.PROPERTY_EXTENDSID.getPropertyName(), arg));
+		webObjectImpl.reload(true);
+	}
+
+	@Override
+	public Map<String, Object> getFlattenedPropertiesMap()
+	{
+		Map<String, Object> flattenedMap = new HashMap<>();
+		IPersist superPersist = PersistHelper.getSuperPersist(this);
+		if (superPersist instanceof WebCustomType)
+		{
+			JSONObject parentJson = ((WebCustomType)superPersist).getFlattenedJson();
+			if (parentJson != null)
+			{
+				addJsonToMap(parentJson, flattenedMap);
+			}
+		}
+		JSONObject childJson = getJson();
+		if (childJson != null)
+		{
+			// merge child JSON properties into the flattened map (can override parent properties)
+			addJsonToMap(childJson, flattenedMap);
+		}
+
+		return flattenedMap;
+	}
+
+	private void addJsonToMap(JSONObject json, Map<String, Object> map)
+	{
+		Iterator<String> keys = json.keys();
+		while (keys.hasNext())
+		{
+			String key = keys.next();
+			try
+			{
+				map.put(key, json.get(key));
+			}
+			catch (JSONException e)
+			{
+				Debug.error(e);
+			}
+		}
+	}
+
+	@Override
+	public ISupportChilds getRealParent()
+	{
+		return PersistHelper.getRealParent(this);
 	}
 }

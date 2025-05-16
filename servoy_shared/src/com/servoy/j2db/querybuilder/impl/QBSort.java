@@ -31,7 +31,7 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
  * query components.</p>
  *
  * <p>For additional details on query construction and execution, refer to the
- * <a href="./qbselect.md">QBSelect documentation</a>.</p>
+ * <a href="https://docs.servoy.com/reference/servoycore/dev-api/database-manager/qbselect">QBSelect documentation</a>.</p>
  *
  * @author rgansevles
  *
@@ -50,7 +50,7 @@ public class QBSort extends QBPart implements IQueryBuilderSort
 	}
 
 	@Override
-	@JSReadonlyProperty
+	@JSReadonlyProperty(debuggerRepresentation = "Query parent part")
 	public QBSelect getParent()
 	{
 		return (QBSelect)super.getParent();

@@ -545,7 +545,7 @@ $scope.api.removeShortcut = function(shortcut, contextFilter) {
     return true;
 }
 
-$scope.api.cleanup = function() {
+$scope.cleanup = function() {
     $scope.model.popupMenus = null;
     $scope.model.popupMenuShowCommand = null;
     $scope.model.shortcuts = null;

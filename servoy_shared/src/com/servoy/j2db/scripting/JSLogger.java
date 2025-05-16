@@ -26,6 +26,7 @@ import org.mozilla.javascript.annotations.JSFunction;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.LogUtils;
 
 /**
  * The <code>JSLogger</code> class provides a comprehensive API for managing logging operations. It supports constructing log events
@@ -262,6 +263,33 @@ public class JSLogger
 	public void setLevel(JSLogBuilder level)
 	{
 		Level logLevel = Level.toLevel(level.getLevel().name(), this.logger.getLevel());
+		if (logLevel != this.logger.getLevel())
+		{
+			Configurator.setAllLevels(logger.getName(), logLevel);
+		}
+	}
+
+	/**
+	 * Set the level for this logger by using the LOGGINGLEVEL constant.
+	 * Be aware that this will override the logging level as configured in log4j.xml,
+	 * meaning it affects all JSLogger instances based on that configuration.
+	 * This changes the global configuration,
+	 * meaning that restarting the client will not reset the logging level to it's default state.
+	 * Only restarting the application server will reset the logging level to it's default state.
+	 *
+	 * @sample
+	 * var log = application.getLogger("myLogger");
+	 * log.setLevel(LOGGINGLEVEL.DEBUG);
+	 *
+	 * @param level the desired logging level for this logger
+	 */
+	@SuppressWarnings("nls")
+	@JSFunction
+	public void setLevel(int level)
+	{
+		String levelName = LogUtils.getLogLevelString(level);
+		if ("*UNKNOWN*".equals(levelName)) throw new IllegalArgumentException("Invalid log level: " + level);
+		Level logLevel = Level.toLevel(levelName, this.logger.getLevel());
 		if (logLevel != this.logger.getLevel())
 		{
 			Configurator.setAllLevels(logger.getName(), logLevel);

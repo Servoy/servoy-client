@@ -47,6 +47,10 @@ public class ClientFunctionPropertyType extends TagStringPropertyType
 	public static final ClientFunctionPropertyType CLIENT_FUNCTION_INSTANCE = new ClientFunctionPropertyType();
 	public static final String CLIENT_FUNCTION_TYPE_NAME = "clientfunction";
 
+	private ClientFunctionPropertyType()
+	{
+	}
+
 	@Override
 	public String getName()
 	{

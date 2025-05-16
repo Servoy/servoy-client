@@ -134,7 +134,8 @@ public class DatabaseUtils
 				// Note, since 6.1 dataType and length are interpreted as configured type/length
 				cid.columnType = ColumnType.getInstance(cobj.getInt(ColumnInfoDef.DATA_TYPE),
 					cobj.has(ColumnInfoDef.LENGTH) ? cobj.optInt(ColumnInfoDef.LENGTH) : 0,
-					cobj.has(ColumnInfoDef.SCALE) ? cobj.optInt(ColumnInfoDef.SCALE) : 0);
+					cobj.has(ColumnInfoDef.SCALE) ? cobj.optInt(ColumnInfoDef.SCALE) : 0,
+					cobj.has(ColumnInfoDef.SUB_TYPE) ? cobj.optInt(ColumnInfoDef.SUB_TYPE) : 0);
 				cid.compatibleColumnTypes = cobj.has(ColumnInfoDef.COMPATIBLE_COLUMN_TYPES)
 					? XMLUtils.parseColumnTypeArray(cobj.optString(ColumnInfoDef.COMPATIBLE_COLUMN_TYPES)) : null;
 				cid.allowNull = cobj.getBoolean(ColumnInfoDef.ALLOW_NULL);
@@ -208,8 +209,7 @@ public class DatabaseUtils
 
 				if (c == null)
 				{
-					c = t.createNewColumn(DummyValidator.INSTANCE, cid.name, cid.columnType.getSqlType(), cid.columnType.getLength(), cid.columnType.getScale(),
-						cid.allowNull);
+					c = t.createNewColumn(DummyValidator.INSTANCE, cid.name, cid.columnType, cid.allowNull);
 					existingColumnInfo++;
 					updateColumnInfo(persistFactory.getNewElementID(null), c, cid);
 					changedColumns.add(c);

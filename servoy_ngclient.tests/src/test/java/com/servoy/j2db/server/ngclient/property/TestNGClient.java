@@ -375,7 +375,7 @@ public class TestNGClient extends NGClient
 				table.setDataSource(dataSource);
 				for (int i = 0; i < set.getColumnCount(); i++)
 				{
-					Column col = new Column(table, set.getColumnNames()[i], set.getColumnTypes()[i], 50, 50, true);
+					Column col = new Column(table, set.getColumnNames()[i], ColumnType.getInstance(set.getColumnTypes()[i], 50, 50), true);
 					table.addColumn(col);
 					if (Arrays.binarySearch(pkNames, col.getName()) >= 0)
 					{
