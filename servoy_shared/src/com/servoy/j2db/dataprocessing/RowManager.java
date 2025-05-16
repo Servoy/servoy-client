@@ -889,7 +889,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 							{
 								robj = ValueFactory.createNullValue(c.getType());
 							}
-							else if (c.getType() == Types.ARRAY && robj instanceof Object[] array)
+							else if (c.getColumnType().isArray() && robj instanceof Object[] array)
 							{
 								robj = ValueFactory.createArrayValue(array, c.getColumnType());
 							}

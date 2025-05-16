@@ -68,6 +68,11 @@ public class BaseColumnType implements Serializable
 		return subType;
 	}
 
+	public static boolean isArray(BaseColumnType columnType)
+	{
+		return columnType != null && columnType.isArray();
+	}
+
 	public final boolean isArray()
 	{
 		return sqlType == Types.ARRAY && subType != 0;

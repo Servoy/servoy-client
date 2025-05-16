@@ -18,6 +18,7 @@ package com.servoy.j2db.dataprocessing;
 
 
 import static com.servoy.j2db.query.AbstractBaseQuery.deepClone;
+import static java.util.Arrays.stream;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -519,7 +520,14 @@ public class SQLSheet
 					}
 				}
 				// this is a UUID column, first convert to UUID (could be string or byte array (media)) - so we can get/use it as a valid uuid string
-				else value = Utils.getAsUUID(value, false);
+				else if (variableInfo.type.isArray() && value instanceof Object[] array)
+				{
+					value = stream(array).map((v) -> Utils.getAsUUID(v, false)).toArray();
+				}
+				else
+				{
+					value = Utils.getAsUUID(value, false);
+				}
 			}
 
 			ConverterInfo converterInfo = getColumnConverterInfo(columnIndex);

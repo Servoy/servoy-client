@@ -45,7 +45,6 @@ import static java.util.stream.Collectors.toList;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.rmi.RemoteException;
-import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -3098,7 +3097,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 				for (int i = 0; i < fixedColumnTypes.size(); i++)
 				{
 					ColumnType columnType = fixedColumnTypes.get(i);
-					if (columnType.getSqlType() == Types.ARRAY)
+					if (columnType.isArray())
 					{
 						fixedColumnTypes.set(i, ColumnType.getColumnType(IColumnTypes.TEXT));
 						columnsThatNeedToStringSerialize.add(Integer.valueOf(i));
@@ -3351,17 +3350,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 	private static boolean containsArrayType(List<ColumnType> columnTypes)
 	{
-		if (columnTypes != null)
-		{
-			for (ColumnType columnType : columnTypes)
-			{
-				if (columnType.getSqlType() == Types.ARRAY)
-				{
-					return true;
-				}
-			}
-		}
-		return false;
+		return stream(columnTypes).anyMatch(columnType -> columnType.isArray());
 	}
 
 	public boolean removeDataSource(String uri) throws RepositoryException

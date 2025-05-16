@@ -882,7 +882,7 @@ public class SQLGenerator
 								columnOrAggregate.getLength(), null, false, false);
 						}
 					}
-					if (column.getColumnType().getSqlType() == Types.ARRAY)
+					if (column.getColumnType().isArray())
 					{
 						// Use the array as a single value
 						elements = new Object[] { elements };

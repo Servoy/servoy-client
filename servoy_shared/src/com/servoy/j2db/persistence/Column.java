@@ -385,12 +385,8 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 		if (obj instanceof DbIdentValue || obj instanceof NullValue) return obj;
 
 		BaseColumnType type;
-		if (columnType.getSqlType() == Types.ARRAY)
+		if (columnType.isArray())
 		{
-			if (columnType.getSubType() == 0)
-			{
-				return obj;
-			}
 			type = ColumnType.getColumnType(columnType.getSubType());
 		}
 		else
