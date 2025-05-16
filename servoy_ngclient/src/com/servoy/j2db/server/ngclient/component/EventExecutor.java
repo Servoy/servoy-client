@@ -18,14 +18,18 @@
 package com.servoy.j2db.server.ngclient.component;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.mozilla.javascript.BaseFunction;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.ScriptableObject;
 import org.mozilla.javascript.json.JsonParser;
 import org.sablo.WebComponent;
 import org.sablo.specification.IFunctionParameters;
@@ -152,7 +156,8 @@ public class EventExecutor
 
 			for (int i = 0; i < newargs.length; i++)
 			{
-				boolean isEvent = false, isSubEvent = false;
+				boolean isEvent = false;
+				final NGCustomJSONObjectType< ? , ? , ? > subEventType[] = { null };
 
 				if (newargs[i] instanceof JSONObject)
 				{
@@ -160,24 +165,28 @@ public class EventExecutor
 					if (!isEvent && i < parameters.getDefinedArgsCount())
 					{
 						PropertyDescription parameterPropertyDescription = parameters.getParameterDefinition(i);
-						isSubEvent = parameterPropertyDescription.getType() instanceof NGCustomJSONObjectType &&
-							JSEvent.class.getSimpleName().equals(((NGCustomJSONObjectType)parameterPropertyDescription.getType()).getExtends());
+						if (parameterPropertyDescription.getType() instanceof NGCustomJSONObjectType &&
+							JSEvent.class.getSimpleName().equals(((NGCustomJSONObjectType< ? , ? , ? >)parameterPropertyDescription.getType()).getExtends()))
+						{
+							subEventType[0] = (NGCustomJSONObjectType< ? , ? , ? >)parameterPropertyDescription.getType();
+						}
 					}
 				}
 
-				if (isEvent || isSubEvent)
+				if (isEvent || subEventType[0] != null)
 				{
 					// FIXME I think (but we must check how existing things work to not break stuff) that this
 					// whole if branch can be a part of the JSEventType class that could implement IServerRhinoToRhino conversion;
 					// and this conversion has to be done before this method is even called... see SVY-18096
 
-					JSONObject json = (JSONObject)newargs[i];
-					JSEvent event = new JSEvent();
-					JSEventType.fillJSEvent(event, isSubEvent ? json.getJSONObject(NGCustomJSONObjectType.getValueKey()) : json, component, formController);
+					final JSONObject json = (JSONObject)newargs[i];
+					final JSEvent event = new JSEvent();
+					JSEventType.fillJSEvent(event, subEventType[0] != null ? json.getJSONObject(NGCustomJSONObjectType.getValueKey()) : json, component,
+						formController);
 					event.setType(getEventType(eventType));
 					event.setName(RepositoryHelper.getDisplayName(eventType, BaseComponent.class));
 
-					if (isSubEvent)
+					if (subEventType[0] != null)
 					{
 						Context cx = Context.enter();
 						try
@@ -186,6 +195,26 @@ public class EventExecutor
 							if (object instanceof Scriptable s)
 							{
 								s.setPrototype(cx.getWrapFactory().wrapAsJavaObject(cx, scope, event, JSEvent.class));
+								// Define a toString function on the Scriptable object
+								ScriptableObject.putProperty(s, "toString", new BaseFunction() //$NON-NLS-1$
+								{
+									@Override
+									public Object call(Context _cx, Scriptable _scope, Scriptable thisObj, Object[] args)
+									{
+										HashMap<String, Object> customProperties = new HashMap<String, Object>();
+
+										Object values = json.get(NGCustomJSONObjectType.getValueKey());
+										if (values instanceof JSONObject)
+										{
+											for (Map.Entry<String, PropertyDescription> prop : subEventType[0].getCustomJSONTypeDefinition().getProperties()
+												.entrySet())
+											{
+												customProperties.put(prop.getKey(), ((JSONObject)values).opt(prop.getKey()));
+											}
+										}
+										return event.toString(subEventType[0].getName(), customProperties);
+									}
+								});
 							}
 							newargs[i] = object;
 						}

@@ -17,6 +17,7 @@
 package com.servoy.j2db.scripting;
 
 import java.util.Arrays;
+import java.util.Map;
 
 import org.mozilla.javascript.Wrapper;
 import org.mozilla.javascript.annotations.JSFunction;
@@ -50,6 +51,11 @@ public class JSEvent extends JSBaseEvent
 	@Override
 	public String toString()
 	{
+		return toString("JSEvent", null); //$NON-NLS-1$
+	}
+
+	public String toString(String className, Map< ? , ? > extraProperties)
+	{
 		Object dataToString = data;
 		if (dataToString == this) dataToString = "this"; //$NON-NLS-1$
 		if (data != null && data.getClass().isArray() && !data.getClass().getComponentType().isPrimitive())
@@ -61,9 +67,23 @@ public class JSEvent extends JSBaseEvent
 		{
 			eName = "<no name>"; //$NON-NLS-1$
 		}
-		return "JSEvent(type = " + type + ", source = " + ((source instanceof Wrapper) ? ((Wrapper)source).unwrap() : source) + ", formName = " + formName + //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+		StringBuilder extraPropsString = new StringBuilder();
+		if (extraProperties != null && !extraProperties.isEmpty())
+		{
+			extraPropsString.append(", "); //$NON-NLS-1$
+			boolean first = true;
+			for (Map.Entry< ? , ? > entry : extraProperties.entrySet())
+			{
+				if (!first) extraPropsString.append(", "); //$NON-NLS-1$
+				extraPropsString.append(entry.getKey()).append("=").append(entry.getValue()); //$NON-NLS-1$
+				first = false;
+			}
+		}
+
+		return className + "(type = " + type + ", source = " + ((source instanceof Wrapper) ? ((Wrapper)source).unwrap() : source) + ", formName = " + //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+			formName +
 			", elementName = " + eName + ", timestamp = " + //$NON-NLS-1$ //$NON-NLS-2$
-			timestamp + ",modifiers = " + modifiers + ",x =" + x + ",y = " + y + ",data = " + dataToString + ')'; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+			timestamp + ",modifiers = " + modifiers + ",x =" + x + ",y = " + y + ",data = " + dataToString + extraPropsString.toString() + ')'; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 	}
 
 	/**
