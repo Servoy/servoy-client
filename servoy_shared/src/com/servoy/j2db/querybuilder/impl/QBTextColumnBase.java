@@ -36,7 +36,7 @@ public interface QBTextColumnBase
 	 * @sample
 	 * query.result.add(query.columns.custname.upper)
 	 */
-	@JSReadonlyProperty
+	@JSReadonlyProperty(debuggerRepresentation = "Query upper clause")
 	QBTextColumnBase upper();
 
 	/**
@@ -44,7 +44,7 @@ public interface QBTextColumnBase
 	 * @sample
 	 * query.result.add(query.columns.custname.lower)
 	 */
-	@JSReadonlyProperty
+	@JSReadonlyProperty(debuggerRepresentation = "Query lower clause")
 	QBTextColumnBase lower();
 
 	/**
@@ -52,7 +52,7 @@ public interface QBTextColumnBase
 	 * @sample
 	 * query.result.add(query.columns.custname.trim)
 	 */
-	@JSReadonlyProperty
+	@JSReadonlyProperty(debuggerRepresentation = "Query trim function")
 	QBTextColumnBase trim();
 
 	/**
@@ -60,7 +60,7 @@ public interface QBTextColumnBase
 	 * @sample
 	 * query.result.add(query.columns.custname.len)
 	 */
-	@JSReadonlyProperty
+	@JSReadonlyProperty(debuggerRepresentation = "Query length clause")
 	QBIntegerColumnBase len();
 
 	/**
@@ -87,7 +87,7 @@ public interface QBTextColumnBase
 	 * @sample
 	 * query.result.add(query.columns.custname.bit_length)
 	 */
-	@JSReadonlyProperty
+	@JSReadonlyProperty(debuggerRepresentation = "Query bit_length clause")
 	public QBIntegerColumnBase bit_length();
 
 

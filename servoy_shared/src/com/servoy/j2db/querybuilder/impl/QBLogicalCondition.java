@@ -136,7 +136,7 @@ public class QBLogicalCondition extends QBCondition implements IQueryBuilderLogi
 	 *
 	 * @return an array of strings representing the names of the conditions in the logical condition.
 	 */
-	@JSReadonlyProperty
+	@JSReadonlyProperty(debuggerRepresentation = "Query condition names property")
 	public String[] conditionnames()
 	{
 		AndOrCondition condition = getQueryCondition(false);

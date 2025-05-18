@@ -37,7 +37,7 @@ public interface QBDatetimeColumnBase
 	 *
 	 *  @return a QBIntegerColumn representing the extraction of the hour from a date.
 	 */
-	@JSReadonlyProperty
+	@JSReadonlyProperty(debuggerRepresentation = "Query timestamp hour function")
 	QBIntegerColumnBase hour();
 
 	/**
@@ -47,7 +47,7 @@ public interface QBDatetimeColumnBase
 	 *
 	 *  @return a QBIntegerColumn representing the extraction of the second from a date.
 	 */
-	@JSReadonlyProperty
+	@JSReadonlyProperty(debuggerRepresentation = "Query timestamp second function")
 	public QBIntegerColumnBase second();
 
 	/**
@@ -57,7 +57,7 @@ public interface QBDatetimeColumnBase
 	 *
 	 *  @return a QBIntegerColumn representing the extraction of the minute from a date.
 	 */
-	@JSReadonlyProperty
+	@JSReadonlyProperty(debuggerRepresentation = "Query timestamp minute function")
 	public QBIntegerColumnBase minute();
 
 	/**
@@ -67,7 +67,7 @@ public interface QBDatetimeColumnBase
 	 *
 	 *  @return a QBIntegerColumn representing the extraction of the day from a date.
 	 */
-	@JSReadonlyProperty
+	@JSReadonlyProperty(debuggerRepresentation = "Query timestamp day function")
 	public QBIntegerColumnBase day();
 
 	/**
@@ -77,7 +77,7 @@ public interface QBDatetimeColumnBase
 	 *
 	 *  @return a QBIntegerColumn representing the extraction of the month from a date.
 	 */
-	@JSReadonlyProperty
+	@JSReadonlyProperty(debuggerRepresentation = "Query timestamp month function")
 	public QBIntegerColumnBase month();
 
 	/**
@@ -87,6 +87,6 @@ public interface QBDatetimeColumnBase
 	 *
 	 *  @return a QBIntegerColumn representing the extraction of the year from a date.
 	 */
-	@JSReadonlyProperty
+	@JSReadonlyProperty(debuggerRepresentation = "Query timestamp year function")
 	public QBIntegerColumnBase year();
 }

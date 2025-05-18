@@ -39,7 +39,7 @@ public interface QBColumnBaseFunctions<T> extends QBColumnComparable
 	 *
 	 *  @return a QBColumn representing the minimum aggregate function.
 	 */
-	@JSReadonlyProperty
+	@JSReadonlyProperty(debuggerRepresentation = "Query min clause")
 	T min();
 
 	/**
@@ -52,7 +52,7 @@ public interface QBColumnBaseFunctions<T> extends QBColumnComparable
 	 *
 	 *  @return a QBColumn representing the sum aggregate function.
 	 */
-	@JSReadonlyProperty
+	@JSReadonlyProperty(debuggerRepresentation = "Query max clause")
 	T max();
 
 	/**

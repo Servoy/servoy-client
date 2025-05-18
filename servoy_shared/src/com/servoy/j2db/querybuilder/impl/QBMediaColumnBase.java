@@ -36,6 +36,6 @@ public interface QBMediaColumnBase
 	 *
 	 *  @return a QBIntegerColumn representing the bit length function.
 	 */
-	@JSReadonlyProperty
+	@JSReadonlyProperty(debuggerRepresentation = "Query bit_length clause")
 	public QBIntegerColumnBase bit_length();
 }

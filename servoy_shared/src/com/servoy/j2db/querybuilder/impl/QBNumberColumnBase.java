@@ -36,7 +36,7 @@ public interface QBNumberColumnBase
 	 *
 	 *  @return a QBIntegerColumn representing the floor expression for the column.
 	 */
-	@JSReadonlyProperty
+	@JSReadonlyProperty(debuggerRepresentation = "Query floor function")
 	public QBIntegerColumnBase floor();
 
 
@@ -47,7 +47,7 @@ public interface QBNumberColumnBase
 	 *
 	 *  @return a QBIntegerColumn representing the round expression for the column.
 	 */
-	@JSReadonlyProperty
+	@JSReadonlyProperty(debuggerRepresentation = "Query round function")
 	public QBIntegerColumnBase round();
 
 
@@ -58,6 +58,6 @@ public interface QBNumberColumnBase
 	 *
 	 *  @return a QBIntegerColumn representing the ceil expression for the column.
 	 */
-	@JSReadonlyProperty
+	@JSReadonlyProperty(debuggerRepresentation = "Query ceil function")
 	public QBIntegerColumnBase ceil();
 }

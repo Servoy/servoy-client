@@ -36,7 +36,7 @@ public interface QBNumberColumnFunctions<T>
 	 *
 	 *  @return a QBColumn representing the absolute value of the column.
 	 */
-	@JSReadonlyProperty
+	@JSReadonlyProperty(debuggerRepresentation = "Query abs clause")
 	public T abs();
 
 
@@ -47,7 +47,7 @@ public interface QBNumberColumnFunctions<T>
 	 *
 	 *  @return a QBNumberColumn representing the square root of the column.
 	 */
-	@JSReadonlyProperty
+	@JSReadonlyProperty(debuggerRepresentation = "Query sqrt function clause")
 	public QBNumberColumnBase sqrt();
 
 
@@ -116,7 +116,7 @@ public interface QBNumberColumnFunctions<T>
 	 *
 	 *  @return a QBColumn representing the sum aggregate of the column.
 	 */
-	@JSReadonlyProperty
+	@JSReadonlyProperty(debuggerRepresentation = "Query sum clause")
 	T sum();
 
 	/**
@@ -129,7 +129,7 @@ public interface QBNumberColumnFunctions<T>
 	 *
 	 *  @return a QBColumn representing the average aggregate of the column.
 	 */
-	@JSReadonlyProperty
+	@JSReadonlyProperty(debuggerRepresentation = "Query avg clause")
 	T avg();
 
 }

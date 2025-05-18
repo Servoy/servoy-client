@@ -29,7 +29,7 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
  * expressions, sorting, and conditional comparisons.</p>
  *
  * <p>Columns are typed based on their definition in the database, in situations where the type is unknown a
- * <a href="./qbgenericcolumn.md">QBGenericColumn</a> is returned by the methods.
+ * <a href="https://docs.servoy.com/reference/servoycore/dev-api/database-manager/qbgenericcolumn">QBGenericColumn</a> is returned by the methods.
  * That class contains all methods and properties that are defined in any of the type-specific column classes.</p>
  *
  * <p>Key properties include <code>abs</code>, <code>ceil</code>, and <code>floor</code> for mathematical
@@ -44,7 +44,7 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
  * and integration.</p>
  *
  * <p>For more information about constructing and executing queries, refer to the
- * <a href="./qbselect.md">QBSelect</a> section of this documentation.</p>
+ * <a href="https://docs.servoy.com/reference/servoycore/dev-api/database-manager/qbselect">QBSelect</a> section of this documentation.</p>
  *
  * @author rgansevles
  *
@@ -59,7 +59,7 @@ public interface QBColumn extends QBColumnBaseFunctions<QBColumn>
 	 *
 	 *  @return a QBCondition representing the "is null" comparison.
 	 */
-	@JSReadonlyProperty
+	@JSReadonlyProperty(debuggerRepresentation = "Query isNull clause")
 	default QBCondition isNull()
 	{
 		return eq(null);
@@ -73,7 +73,7 @@ public interface QBColumn extends QBColumnBaseFunctions<QBColumn>
 	 *  @return a QBColumn representing the negated condition.
 	 *
 	 */
-	@JSReadonlyProperty
+	@JSReadonlyProperty(debuggerRepresentation = "Query not clause")
 	QBColumnComparable not();
 
 
@@ -88,7 +88,7 @@ public interface QBColumn extends QBColumnBaseFunctions<QBColumn>
 	 *
 	 *  @return a QBSort representing an ascending sort order.
 	 */
-	@JSReadonlyProperty
+	@JSReadonlyProperty(debuggerRepresentation = "Query sort clause")
 	QBSort asc();
 
 	/**
@@ -102,7 +102,7 @@ public interface QBColumn extends QBColumnBaseFunctions<QBColumn>
 	 *
 	 *  @return a QBSort representing a descending sort order.
 	 */
-	@JSReadonlyProperty
+	@JSReadonlyProperty(debuggerRepresentation = "Query sort clause")
 	QBSort desc();
 
 	/**
@@ -115,7 +115,7 @@ public interface QBColumn extends QBColumnBaseFunctions<QBColumn>
 	 *
 	 *  @return a QBAggregate representing the count aggregate function.
 	 */
-	@JSReadonlyProperty
+	@JSReadonlyProperty(debuggerRepresentation = "Query count clause")
 	QBCountAggregate count();
 
 	/**

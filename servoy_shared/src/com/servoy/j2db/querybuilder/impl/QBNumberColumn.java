@@ -23,7 +23,7 @@ import com.servoy.j2db.documentation.ServoyDocumented;
  * <p>The <code>QBNumberColumn</code> class represents a number column in a <code>QBSelect</code> query.
  *
  * <p>For more information about constructing and executing queries and columns, refer to the
- * <a href="./qbcolumn.md">QBSelect</a> section of this documentation.</p>
+ * <a href="https://docs.servoy.com/reference/servoycore/dev-api/database-manager/qbcolumn">QBSelect</a> section of this documentation.</p>
  *
  * @author rgansevles
  *

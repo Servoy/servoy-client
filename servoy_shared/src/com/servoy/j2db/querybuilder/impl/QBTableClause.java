@@ -27,7 +27,6 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.RepositoryException;
-import com.servoy.j2db.query.QueryColumn;
 import com.servoy.j2db.querybuilder.IQueryBuilderTableClause;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 import com.servoy.j2db.util.ServoyException;
@@ -185,9 +184,7 @@ public abstract class QBTableClause extends QBPart implements IQueryBuilderTable
 		{
 			throw new RepositoryException("Cannot find column '" + name + "' in data source '" + dataSource + "'");
 		}
-		return new QBColumnImpl(getRoot(), this,
-			new QueryColumn(getQueryTable(), col.getID(), col.getSQLName(), col.getType(), col.getLength(), col.getScale(), col.getNativeTypename(),
-				col.getFlags(), false));
+		return new QBColumnImpl(getRoot(), this, col.queryColumn(getQueryTable()));
 	}
 
 	/**

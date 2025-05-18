@@ -39,8 +39,8 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
  * is computed and retrieved.</p>
  *
  * <p>The <code>QBCountAggregate</code> class integrates with query builder constructs like
- * <a href="./qbcolumn.md">QBColumn</a>, <a href="./qbcondition.md">QBCondition</a>, and
- * <a href="./qbsort.md">QBSort</a>, enabling complex query logic and data transformations.</p>
+ * <a href="https://docs.servoy.com/reference/servoycore/dev-api/database-manager/qbcolumn">QBColumn</a>, <a href="https://docs.servoy.com/reference/servoycore/dev-api/database-manager/qbcondition">QBCondition</a>, and
+ * <a href="https://docs.servoy.com/reference/servoycore/dev-api/database-manager/qbsort">QBSort</a>, enabling complex query logic and data transformations.</p>
  *
  * @author rgansevles
  *
@@ -55,7 +55,7 @@ public interface QBCountAggregate
 	 * var query = datasources.db.example_data.orders.createSelect();
 	 * query.result.add(query.columns.shipcountry.count.distinct);
 	 */
-	@JSReadonlyProperty
+	@JSReadonlyProperty(debuggerRepresentation = "Query distinct clause")
 	default QBIntegerColumnBase distinct()
 	{
 		return ((QBAggregateImpl)this).countDistinct();
