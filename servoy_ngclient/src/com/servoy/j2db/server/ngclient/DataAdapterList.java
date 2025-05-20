@@ -42,6 +42,7 @@ import com.servoy.base.util.ITagResolver;
 import com.servoy.j2db.ApplicationException;
 import com.servoy.j2db.BasicFormController;
 import com.servoy.j2db.FormAndTableDataProviderLookup;
+import com.servoy.j2db.IDebugClient;
 import com.servoy.j2db.dataprocessing.FireCollector;
 import com.servoy.j2db.dataprocessing.FoundSetEvent;
 import com.servoy.j2db.dataprocessing.IDataAdapter;
@@ -631,6 +632,8 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 	private void checkThatThisIsTheEventThread()
 	{
 		INGApplication app = formController.getApplication();
+		if (app instanceof IDebugClient) return; // debug client launch can call app.shutDown(true) outside of the event thread...
+
 		INGClientWebsocketSession wss;
 		if ((wss = app.getWebsocketSession()) != null)
 		{
