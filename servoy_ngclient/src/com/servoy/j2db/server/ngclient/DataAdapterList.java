@@ -26,6 +26,7 @@ import org.sablo.Container;
 import org.sablo.IWebObjectContext;
 import org.sablo.IllegalChangeFromClientException;
 import org.sablo.WebComponent;
+import org.sablo.eventthread.IEventDispatcher;
 import org.sablo.specification.PropertyDescriptionBuilder;
 import org.sablo.specification.WebObjectApiFunctionDefinition;
 import org.sablo.specification.WebObjectFunctionDefinition;
@@ -627,6 +628,29 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		}
 	}
 
+	private void checkThatThisIsTheEventThread()
+	{
+		INGApplication app = formController.getApplication();
+		INGClientWebsocketSession wss;
+		if ((wss = app.getWebsocketSession()) != null)
+		{
+			IEventDispatcher ed;
+			if ((ed = wss.getEventDispatcher(false)) != null)
+			{
+				if (!ed.isEventDispatchThread())
+					log.error(getClass().getSimpleName() + "(" + hashCode() +
+						") [internal] Unexpected execution outside of the event dispatch thread in DAL code...",
+						new RuntimeException("DAL of form " + formController.getName()));
+			}
+			else log.error(getClass().getSimpleName() + "(" + hashCode() +
+				") [internal] Unexpected: no event dispatcher in DAL debug code...",
+				new RuntimeException("DAL of form " + formController.getName()));
+		}
+		else log.error(getClass().getSimpleName() + "(" + hashCode() +
+			") [internal] Unexpected: no web socket session in DAL debug code...",
+			new RuntimeException("DAL of form " + formController.getName()));
+	}
+
 	public void removeDataLinkedProperty(IDataLinkedPropertyValue propertyValue)
 	{
 		Iterator<List<IDataLinkedPropertyValue>> it = dataProviderToLinkedComponentProperty.values().iterator();
@@ -644,6 +668,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		// remove any relation listeners that may be set for this property value
 		if (toWatchRelations != null)
 		{
+			checkThatThisIsTheEventThread();
 			Pair<Relation[], List<RelatedListener>> toWatchRelationsForPropertyValue = toWatchRelations.remove(propertyValue);
 			if (toWatchRelationsForPropertyValue != null)
 			{
@@ -732,6 +757,8 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 
 	private void createRelationListeners(IDataLinkedPropertyValue propertyValue)
 	{
+		checkThatThisIsTheEventThread();
+
 		// first remove the previous ones
 		Pair<Relation[], List<RelatedListener>> pair = toWatchRelations.get(propertyValue);
 		pair.getRight().forEach(listener -> listener.dispose());
@@ -1357,11 +1384,12 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 
 	private void clearToWatchRelations()
 	{
+		checkThatThisIsTheEventThread();
 		if (toWatchRelations != null)
 		{
 			toWatchRelations.values().forEach(val -> {
 				val.getRight().forEach(rl -> rl.dispose());
-				val.getRight().clear();
+				if (val.getRight().size() > 0) val.getRight().clear();
 				val.setLeft(null);
 				val.setRight(null);
 			});
@@ -1477,6 +1505,8 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		private final IRecordInternal selectedRecord;
 		private final IDataLinkedPropertyValue propertyValue;
 
+		private boolean disposed = false;
+
 		public RelatedListener(IDataLinkedPropertyValue propertyValue, IFoundSetInternal related)
 		{
 			this.propertyValue = propertyValue;
@@ -1495,6 +1525,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 
 		public void dispose()
 		{
+			disposed = true;
 			if (this.related instanceof ISwingFoundSet)
 			{
 				((ISwingFoundSet)this.related).getSelectionModel().removeListSelectionListener(this);
@@ -1510,6 +1541,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		{
 			if (formController.isDestroyed())
 			{
+				// see SVY-20206
 				// @formatter:off
 				log.error(
 					DataAdapterList.this.getClass().getSimpleName() + "(" + hashCode() + ") formController is DESTROYED yet DAL (\n\t\tdestroyed: "
@@ -1524,9 +1556,12 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 						+ findModeAwareProperties.size() + ",\n\t\t"
 						+ parentRelatedForms.size()	+ ",\n\t\t"
 						+ visibleChildForms.size() + ",\n\t\t"
-						+ nestedRelatedFoundsetListeners.size() + "\n\t) related listeners just fired! Destroying DAL...",
+						+ nestedRelatedFoundsetListeners.size() + "\n\t) related listeners just fired! Destroying RelatedListener(previously disposed:"
+						+ disposed + ") & DAL...",
 					new RuntimeException("Destroyed form's name: " + formController.getName()));
 				// @formatter:on
+
+				dispose(); // it sometimes happened - as seen in log files - that the RelatedListener was removed from the DAL already, yet these listeners still fire (as if the RelatedListener was not yet destroyed)
 				destroy(); // the DAL
 			}
 			else
