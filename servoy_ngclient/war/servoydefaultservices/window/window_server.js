@@ -453,10 +453,12 @@ function addJSMenuItems(popupmenu, jsmenuitems, callback, selectedItem) {
             if (jsmenuitem.getMenuItemsWithSecurity().length > 0) {
                 var newmenu = popupmenu.addMenu(jsmenuitem.getMenuText());
                 newmenu.cssClass = jsmenuitem.getStyleClass();
+				newmenu.tooltipText = jsmenuitem.getTooltipText();
                 addJSMenuItems(newmenu, jsmenuitem.getMenuItemsWithSecurity(), callback)
             } else {
                 var newmenuitem = popupmenu.addMenuItem(jsmenuitem.getMenuText(), callback, jsmenuitem.getIconStyleClass(), null, jsmenuitem.getEnabledWithSecurity(), null);
                 newmenuitem.cssClass = jsmenuitem.getStyleClass();
+				newmenuitem.tooltipText = jsmenuitem.getTooltipText();
                 newmenuitem.methodArguments = jsmenuitem.getCallbackArguments();
                 if (selectedItem && jsmenuitem == selectedItem) {
                     newmenuitem.setSelected(true);
