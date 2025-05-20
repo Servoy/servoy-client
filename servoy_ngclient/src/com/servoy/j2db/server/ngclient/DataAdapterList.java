@@ -1361,7 +1361,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		{
 			toWatchRelations.values().forEach(val -> {
 				val.getRight().forEach(rl -> rl.dispose());
-				val.getRight().clear();
+				if (val.getRight().size() > 0) val.getRight().clear();
 				val.setLeft(null);
 				val.setRight(null);
 			});
@@ -1465,6 +1465,8 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		private final IRecordInternal selectedRecord;
 		private final IDataLinkedPropertyValue propertyValue;
 
+		private boolean disposed = false;
+
 		public RelatedListener(IDataLinkedPropertyValue propertyValue, IFoundSetInternal related)
 		{
 			this.propertyValue = propertyValue;
@@ -1483,6 +1485,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 
 		public void dispose()
 		{
+			disposed = true;
 			if (this.related instanceof ISwingFoundSet)
 			{
 				((ISwingFoundSet)this.related).getSelectionModel().removeListSelectionListener(this);
@@ -1498,6 +1501,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		{
 			if (formController.isDestroyed())
 			{
+				// see SVY-20206
 				// @formatter:off
 				log.error(
 					DataAdapterList.this.getClass().getSimpleName() + "(" + hashCode() + ") formController is DESTROYED yet DAL (\n\t\tdestroyed: "
@@ -1512,9 +1516,12 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 						+ findModeAwareProperties.size() + ",\n\t\t"
 						+ parentRelatedForms.size()	+ ",\n\t\t"
 						+ visibleChildForms.size() + ",\n\t\t"
-						+ nestedRelatedFoundsetListeners.size() + "\n\t) related listeners just fired! Destroying DAL...",
+						+ nestedRelatedFoundsetListeners.size() + "\n\t) related listeners just fired! Destroying RelatedListener(previously disposed:"
+						+ disposed + ") & DAL...",
 					new RuntimeException("Destroyed form's name: " + formController.getName()));
 				// @formatter:on
+
+				dispose(); // it sometimes happened - as seen in log files - that the RelatedListener was removed from the DAL already, yet these listeners still fire (as if the RelatedListener was not yet destroyed)
 				destroy(); // the DAL
 			}
 			else
