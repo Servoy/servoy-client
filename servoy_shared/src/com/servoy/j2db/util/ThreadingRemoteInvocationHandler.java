@@ -98,6 +98,11 @@ public class ThreadingRemoteInvocationHandler<T> extends AbstractRemoteInvocatio
 			threadPool.execute(methodRunner);
 			try
 			{
+				if (Thread.currentThread().isInterrupted())
+				{
+					Debug.error("Thread is already interrupted so the ThreadingRemoteInvocationHandler, clearing this interrupted status");
+					Thread.interrupted();
+				}
 				methodRunner.wait();
 			}
 			catch (InterruptedException e)
