@@ -26,6 +26,7 @@ import org.sablo.Container;
 import org.sablo.IWebObjectContext;
 import org.sablo.IllegalChangeFromClientException;
 import org.sablo.WebComponent;
+import org.sablo.eventthread.IEventDispatcher;
 import org.sablo.specification.PropertyDescriptionBuilder;
 import org.sablo.specification.WebObjectApiFunctionDefinition;
 import org.sablo.specification.WebObjectFunctionDefinition;
@@ -627,6 +628,29 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		}
 	}
 
+	private void checkThatThisIsTheEventThread()
+	{
+		INGApplication app = formController.getApplication();
+		INGClientWebsocketSession wss;
+		if ((wss = app.getWebsocketSession()) != null)
+		{
+			IEventDispatcher ed;
+			if ((ed = wss.getEventDispatcher(false)) != null)
+			{
+				if (!ed.isEventDispatchThread())
+					log.error(getClass().getSimpleName() + "(" + hashCode() +
+						") [internal] Unexpected execution outside of the event dispatch thread in DAL code...",
+						new RuntimeException("DAL of form " + formController.getName()));
+			}
+			else log.error(getClass().getSimpleName() + "(" + hashCode() +
+				") [internal] Unexpected: no event dispatcher in DAL debug code...",
+				new RuntimeException("DAL of form " + formController.getName()));
+		}
+		else log.error(getClass().getSimpleName() + "(" + hashCode() +
+			") [internal] Unexpected: no web socket session in DAL debug code...",
+			new RuntimeException("DAL of form " + formController.getName()));
+	}
+
 	public void removeDataLinkedProperty(IDataLinkedPropertyValue propertyValue)
 	{
 		Iterator<List<IDataLinkedPropertyValue>> it = dataProviderToLinkedComponentProperty.values().iterator();
@@ -644,6 +668,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		// remove any relation listeners that may be set for this property value
 		if (toWatchRelations != null)
 		{
+			checkThatThisIsTheEventThread();
 			Pair<Relation[], List<RelatedListener>> toWatchRelationsForPropertyValue = toWatchRelations.remove(propertyValue);
 			if (toWatchRelationsForPropertyValue != null)
 			{
@@ -732,6 +757,8 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 
 	private void createRelationListeners(IDataLinkedPropertyValue propertyValue)
 	{
+		checkThatThisIsTheEventThread();
+
 		// first remove the previous ones
 		Pair<Relation[], List<RelatedListener>> pair = toWatchRelations.get(propertyValue);
 		pair.getRight().forEach(listener -> listener.dispose());
@@ -1357,6 +1384,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 
 	private void clearToWatchRelations()
 	{
+		checkThatThisIsTheEventThread();
 		if (toWatchRelations != null)
 		{
 			toWatchRelations.values().forEach(val -> {
