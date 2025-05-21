@@ -760,6 +760,15 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 
 	private void createRelationListeners(IDataLinkedPropertyValue propertyValue)
 	{
+		if (formController.isDestroyed() || destroyed)
+		{
+			log.error(getClass().getSimpleName() + "(" + hashCode() +
+				") [internal] An attempt to create relation listeners on an already destroyed DAL: " + destroyed + " or form: " + formController.isDestroyed() +
+				" was detected! Ignoring...",
+				new RuntimeException(
+					"[harmless] Property: " + propertyValue + " on DAL of form " + formController.getName()));
+			return;
+		}
 		checkThatThisIsTheEventThread();
 
 		// first remove the previous ones
@@ -1549,6 +1558,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 				log.error(
 					DataAdapterList.this.getClass().getSimpleName() + "(" + hashCode() + ") formController is DESTROYED yet DAL (\n\t\tdestroyed: "
 						+ destroyed
+						+ ",\n\t\ton relation: " + related.getRelationName()
 						+ ",\n\t\thas this RelatedListener: "
 						+ ((toWatchRelations != null && toWatchRelations.values().stream()
 							.<RelatedListener>mapMulti((pair, consumer) -> pair.getRight().forEach(consumer))
