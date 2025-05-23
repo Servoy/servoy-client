@@ -54,27 +54,27 @@ public class DefaultComponentPropertiesProvider implements IDefaultComponentProp
 		if (!properties.containsKey("location"))
 		{
 			properties.put("location",
-				new PropertyDescriptionBuilder().withName("location").withType(TypesRegistry.getType(PointPropertyType.TYPE_NAME)).build());
+				new PropertyDescriptionBuilder().internal(true).withName("location").withType(TypesRegistry.getType(PointPropertyType.TYPE_NAME)).build());
 		}
 		if (!properties.containsKey("size"))
 		{
 			properties.put("size",
-				new PropertyDescriptionBuilder().withName("size").withType(TypesRegistry.getType(DimensionPropertyType.TYPE_NAME)).build());
+				new PropertyDescriptionBuilder().internal(true).withName("size").withType(TypesRegistry.getType(DimensionPropertyType.TYPE_NAME)).build());
 		}
 		if (!properties.containsKey("anchors"))
 		{
 			properties.put("anchors",
-				new PropertyDescriptionBuilder().withName("anchors").withType(IntPropertyType.INSTANCE_NULL_DEFAULT).build());
+				new PropertyDescriptionBuilder().internal(true).withName("anchors").withType(IntPropertyType.INSTANCE_NULL_DEFAULT).build());
 		}
 		if (!properties.containsKey("formIndex"))
 		{
 			properties.put("formIndex",
-				new PropertyDescriptionBuilder().withName("formIndex").withType(IntPropertyType.INSTANCE_NULL_DEFAULT).build());
+				new PropertyDescriptionBuilder().internal(true).withName("formIndex").withType(IntPropertyType.INSTANCE_NULL_DEFAULT).build());
 		}
 		if (!properties.containsKey(IContentSpecConstants.PROPERTY_CSS_POSITION))
 		{
 			properties.put(IContentSpecConstants.PROPERTY_CSS_POSITION,
-				new PropertyDescriptionBuilder().withName(IContentSpecConstants.PROPERTY_CSS_POSITION).withType(
+				new PropertyDescriptionBuilder().internal(true).withName(IContentSpecConstants.PROPERTY_CSS_POSITION).withType(
 					TypesRegistry.getType(CSSPositionPropertyType.TYPE_NAME)).build());
 		}
 		if (!properties.containsKey(IContentSpecConstants.PROPERTY_ATTRIBUTES))
@@ -85,12 +85,12 @@ public class DefaultComponentPropertiesProvider implements IDefaultComponentProp
 		}
 		if (properties.values().stream().anyMatch(p -> p.getType() instanceof EnabledPropertyType))
 		{
-			properties.put(ENABLED_DATAPROVIDER_NAME, new PropertyDescriptionBuilder().withName(ENABLED_DATAPROVIDER_NAME).withType(
+			properties.put(ENABLED_DATAPROVIDER_NAME, new PropertyDescriptionBuilder().internal(true).withName(ENABLED_DATAPROVIDER_NAME).withType(
 				TypesRegistry.getType(DataproviderPropertyType.TYPE_NAME)).build());
 		}
 		if (properties.values().stream().anyMatch(p -> p.getType() instanceof VisiblePropertyType))
 		{
-			properties.put(VISIBLE_DATAPROVIDER_NAME, new PropertyDescriptionBuilder().withName(VISIBLE_DATAPROVIDER_NAME).withType(
+			properties.put(VISIBLE_DATAPROVIDER_NAME, new PropertyDescriptionBuilder().internal(true).withName(VISIBLE_DATAPROVIDER_NAME).withType(
 				TypesRegistry.getType(DataproviderPropertyType.TYPE_NAME)).build());
 		}
 	}
