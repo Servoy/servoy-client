@@ -85,7 +85,7 @@ public class ArgumentType
 	 */
 	public static ArgumentType valueOf(String type)
 	{
-		if (type == null || Object.getName().equalsIgnoreCase(type)) return Object;
+		if (type == null || type.length() == 0 || Object.getName().equalsIgnoreCase(type)) return Object;
 		if (String.getName().equalsIgnoreCase(type)) return String;
 		if (Number.getName().equalsIgnoreCase(type)) return Number;
 		if ("int".equals(type)) return Number;

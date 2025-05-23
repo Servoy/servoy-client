@@ -444,7 +444,8 @@
             "foregroundColor": {"type" : "string", "tags": { "scope" :"private" }},
             "accelarator": {"type" : "string", "tags": { "scope" :"private" }},
             "cssClass": {"type" : "string", "tags": { "scope" :"private" }},
-            "items":  {"type" : "MenuItem[]", "tags": { "scope" :"private" }}
+            "items":  {"type" : "MenuItem[]", "tags": { "scope" :"private" }},
+            "tooltipText": "string"
         },
         "serversideapi": {
            "doClick": {
