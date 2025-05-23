@@ -140,7 +140,7 @@ public final class EventType implements IConstantsObject
 	private String persistLink;
 	private String returnType;
 	private String returnTypeDescription;
-	private List<Pair<String, String>> arguments;
+	private final List<Pair<String, String>> arguments;
 
 	public EventType(String name, JSONObject jsonModel)
 	{
@@ -175,6 +175,11 @@ public final class EventType implements IConstantsObject
 		}
 
 		if (defaultEvent) DEFAULT_EVENTS.put(name, this);
+		else if (arguments.isEmpty() || !"JSEvent".equals(arguments.get(0).getRight()))
+		{
+			// JSEvent is always the first argument for non default events
+			arguments.add(0, new Pair<String, String>("event", "JSEvent"));
+		}
 	}
 
 	/**
@@ -305,67 +310,6 @@ public final class EventType implements IConstantsObject
 		this.returnTypeDescription = returnTypeDescription;
 	}
 
-	public String getArgumentType(int index)
-	{
-		if (arguments == null || index < 0 || index >= arguments.size() || arguments.get(index) == null) return null;
-		return arguments.get(index).getRight();
-	}
-
-	public String getArgumentName(int index)
-	{
-		if (arguments == null || index < 0 || index >= arguments.size() || arguments.get(index) == null) return null;
-		return arguments.get(index).getLeft();
-	}
-
-	public void setArgumentName(int index, String name)
-	{
-		if (arguments == null)
-		{
-			arguments = new ArrayList<Pair<String, String>>(0);
-		}
-		if (arguments.size() <= index)
-		{
-			for (int i = arguments.size(); i <= index; i++)
-			{
-				arguments.add(new Pair<>(null, null));
-			}
-		}
-		arguments.get(index).setLeft(name);
-		cleanArguments();
-	}
-
-	public void setArgumentType(int index, String type)
-	{
-		if (arguments == null)
-		{
-			arguments = new ArrayList<Pair<String, String>>(0);
-		}
-		if (arguments.size() <= index)
-		{
-			for (int i = arguments.size(); i <= index; i++)
-			{
-				arguments.add(new Pair<>(null, null));
-			}
-		}
-		arguments.get(index).setRight(type);
-		cleanArguments();
-	}
-
-	private void cleanArguments()
-	{
-		if (arguments != null && arguments.size() > 0)
-		{
-			for (int i = arguments.size() - 1; i >= 0; i--)
-			{
-				if (arguments.get(i) == null || (("".equals(arguments.get(i).getLeft()) || arguments.get(i).getLeft() == null) &&
-					("".equals(arguments.get(i).getRight()) || arguments.get(i).getRight() == null)))
-				{
-					arguments.remove(i);
-				}
-			}
-		}
-	}
-
 	/**
 	 * @param persist
 	 * @return
@@ -394,5 +338,13 @@ public final class EventType implements IConstantsObject
 		return new MethodTemplate(description,
 			new MethodArgument(name, returnType != null ? ArgumentType.valueOf(returnType) : null, returnTypeDescription), args,
 			null, true);
+	}
+
+	/**
+	 * @return the arguments
+	 */
+	public List<Pair<String, String>> getArguments()
+	{
+		return arguments;
 	}
 }
