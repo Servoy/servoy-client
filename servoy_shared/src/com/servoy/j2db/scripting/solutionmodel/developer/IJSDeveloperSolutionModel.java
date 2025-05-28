@@ -17,7 +17,6 @@
 
 package com.servoy.j2db.scripting.solutionmodel.developer;
 
-import org.mozilla.javascript.Function;
 import org.mozilla.javascript.annotations.JSFunction;
 
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
@@ -40,8 +39,6 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 @ServoyClientSupport(ng = true, mc = true, wc = true, sc = true)
 public interface IJSDeveloperSolutionModel
 {
-	public Location LOCATION = new Location();
-
 	/**
 	 * Saves all changes made through the solution model into the workspace.
 	 * Please note that this method only saves the new in memory datasources,
@@ -99,60 +96,6 @@ public interface IJSDeveloperSolutionModel
 	 */
 	@JSFunction
 	void updateInMemDataSource(Object dataSource, JSDataSet dataSet, Object types);
-
-	/**
-	 * Opens the form FormEditor in the developer.
-	 *
-	 * @param form The form name or JSForm object to open in an editor.
-	 */
-	@JSFunction
-	void openForm(Object form);
-
-	/**
-	 * Shows the form in in the the ui of the devloper (so in a dialog) where a developer can interact with.
-	 *
-	 * @param formName
-	 */
-	@JSFunction
-	void showForm(String formName);
-
-	/**
-	 * Creates an instanceof a JSDeveloperMenu that can be used in the register function to add a menu item to the context menu or in the form editor.
-	 *
-	 * @param text
-	 * @return
-	 */
-	@JSFunction
-	JSDeveloperMenu createMenu(String text);
-
-
-	/**
-	 * Registers a menu item to show in the developer, the location is one of the servoyDeveloper.LOCATIOM properties
-	 *
-	 * The callback is called when this menu item is clicked on.
-	 *
-	 * @param menu
-	 * @parm location
-	 * @param callback
-	 */
-	@JSFunction
-	void registerMenuItem(JSDeveloperMenu menu, int location, Function callback);
-
-
-	/**
-	 * Registers a menu item to show in the developer, the location is one of the servoyDeveloper.LOCATIOM properties
-	 *
-	 * The callback is called when this menu item is clicked on.
-	 *
-	 * The enabler function is called when this menu wants to show and the enable function can return true of false depending on which it wants to show
-	 *
-	 * @param menu
-	 * @parm location
-	 * @param callback
-	 * @parma enabler
-	 */
-	@JSFunction
-	void registerMenuItem(JSDeveloperMenu menu, int location, Function callback, Function enabler);
 
 //	JSONArray js_getExistingVariants(String variantCategoryName);
 //
