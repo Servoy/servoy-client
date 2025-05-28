@@ -20,10 +20,7 @@ package com.servoy.j2db.debug;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import org.eclipse.dltk.rhino.dbgp.DBGPDebugFrame;
@@ -36,7 +33,6 @@ import org.sablo.specification.WebServiceSpecProvider;
 import org.sablo.websocket.CurrentWindow;
 import org.sablo.websocket.IWindow;
 
-import com.servoy.j2db.BasicFormController;
 import com.servoy.j2db.IBasicFormManager;
 import com.servoy.j2db.IDebugNGClient;
 import com.servoy.j2db.IDesignerCallback;
@@ -44,7 +40,6 @@ import com.servoy.j2db.IFormController;
 import com.servoy.j2db.dataprocessing.IDataServer;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.dataprocessing.ValidatingDelegateDataServer;
-import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.FlattenedForm;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IPersist;
@@ -58,7 +53,6 @@ import com.servoy.j2db.server.ngclient.FormElementHelper;
 import com.servoy.j2db.server.ngclient.INGClientWebsocketSession;
 import com.servoy.j2db.server.ngclient.INGFormManager;
 import com.servoy.j2db.server.ngclient.NGClient;
-import com.servoy.j2db.server.ngclient.NGFormManager;
 import com.servoy.j2db.server.ngclient.NGRuntimeWindowManager;
 import com.servoy.j2db.server.ngclient.WebFormUI;
 import com.servoy.j2db.server.ngclient.component.WebFormController;
@@ -80,67 +74,6 @@ public class DebugNGClient extends NGClient implements IDebugNGClient
 {
 	private final IDesignerCallback designerCallback;
 	private Solution current;
-
-	final class DebugNGFormMananger extends NGFormManager implements DebugUtils.DebugUpdateFormSupport
-	{
-		private DebugNGFormMananger(DebugNGClient app)
-		{
-			super(app);
-		}
-
-		public void updateForm(Form form)
-		{
-			boolean isNew = !possibleForms.containsValue(form);
-			boolean isDeleted = false;
-			if (!isNew)
-			{
-				isDeleted = !((AbstractBase)form.getParent()).getAllObjectsAsList().contains(form);
-			}
-			updateForm(form, isNew, isDeleted);
-		}
-
-		/**
-		 * @param form
-		 * @param isNew
-		 * @param isDeleted
-		 */
-		private void updateForm(Form form, boolean isNew, boolean isDeleted)
-		{
-			if (isNew)
-			{
-				addForm(form, false);
-			}
-			else if (isDeleted)
-			{
-				Iterator<Entry<String, Form>> iterator = possibleForms.entrySet().iterator();
-				while (iterator.hasNext())
-				{
-					Map.Entry<String, Form> entry = iterator.next();
-					if (entry.getValue().equals(form))
-					{
-						iterator.remove();
-						IFormController tmp = getCachedFormController(entry.getKey());
-						if (tmp != null)
-						{
-							tmp.destroy();
-							removeFormController((BasicFormController)tmp); // form was deleted in designer; remove it's controller from cached/already used forms
-						}
-					}
-				}
-			}
-			else
-			{
-				// just changed
-				if (possibleForms.get(form.getName()) == null)
-				{
-					// name change, first remove the form
-					updateForm(form, false, true);
-					// then add it back in
-					updateForm(form, true, false);
-				}
-			}
-		}
-	}
 
 	/**
 	 * @param webSocketClientEndpoint

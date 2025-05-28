@@ -611,7 +611,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 		return null;
 	}
 
-	private void wrapInShowLoadingIndicator(List<Runnable> invokeLaterRunnables)
+	protected void wrapInShowLoadingIndicator(List<Runnable> invokeLaterRunnables)
 	{
 		invokeLaterRunnables.add(0, () -> {
 			getApplication().getWebsocketSession().getClientService("$sabloLoadingIndicator").executeAsyncNowServiceCall("showLoading", null); //$NON-NLS-1$ //$NON-NLS-2$
