@@ -15,7 +15,10 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
 */
 
-package com.servoy.j2db.scripting.solutionmodel;
+package com.servoy.j2db.scripting.solutionmodel.developer;
+
+import org.mozilla.javascript.Function;
+import org.mozilla.javascript.annotations.JSFunction;
 
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.dataprocessing.JSDataSet;
@@ -37,20 +40,23 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 @ServoyClientSupport(ng = true, mc = true, wc = true, sc = true)
 public interface IJSDeveloperSolutionModel
 {
+	public Location LOCATION = new Location();
 
 	/**
 	 * Saves all changes made through the solution model into the workspace.
 	 * Please note that this method only saves the new in memory datasources,
 	 * if you would like to override the existing ones use servoyDeveloper.save(true).
 	 */
-	void js_save();
+	@JSFunction
+	void save();
 
 	/**
 	 * Saves all changes made through the solution model into the workspace.
 	 *
 	 * @param override Override existing in memory tables.
 	 */
-	void js_save(boolean override);
+	@JSFunction
+	void save(boolean override);
 
 	/**
 	 * Saves just the given form, valuelist, relation or in memory datasource into the developers workspace.
@@ -58,7 +64,8 @@ public interface IJSDeveloperSolutionModel
 	 *
 	 * @param obj The formname, JSForm, JSValueList, JSRelation, datasource name or JSDataSource object to save.
 	 */
-	void js_save(Object obj);
+	@JSFunction
+	void save(Object obj);
 
 	/**
 	 * Saves just the given form, valuelist, relation or in memory datasource into the developers workspace.
@@ -67,7 +74,8 @@ public interface IJSDeveloperSolutionModel
 	 * @param obj The formname, JSForm, JSValueList, JSRelation, datasource name or JSDataSource object to save.
 	 * @param override Override an existing in memory table.
 	 */
-	void js_save(Object obj, boolean override);
+	@JSFunction
+	void save(Object obj, boolean override);
 
 	/**
 	 * Saves just the given form, valuelist, relation or in memory datasource into the developers workspace.
@@ -79,7 +87,8 @@ public interface IJSDeveloperSolutionModel
 	 * @param obj The formname, JSForm, JSValueList, JSRelation, datasource name or JSDataSource object to save.
 	 * @param solutionName The destination solution, a module of the active solution.
 	 */
-	void js_save(Object obj, String solutionName);
+	@JSFunction
+	void save(Object obj, String solutionName);
 
 	/**
 	 * Updates the given in memory datasource and saves it into the developers workspace.
@@ -88,14 +97,62 @@ public interface IJSDeveloperSolutionModel
 	 * @param dataset the dataset with the update columns
 	 * @param types array of the update columns types
 	 */
-	void js_updateInMemDataSource(Object dataSource, JSDataSet dataSet, Object types);
+	@JSFunction
+	void updateInMemDataSource(Object dataSource, JSDataSet dataSet, Object types);
 
 	/**
 	 * Opens the form FormEditor in the developer.
 	 *
 	 * @param form The form name or JSForm object to open in an editor.
 	 */
-	void js_openForm(Object form);
+	@JSFunction
+	void openForm(Object form);
+
+	/**
+	 * Shows the form in in the the ui of the devloper (so in a dialog) where a developer can interact with.
+	 *
+	 * @param formName
+	 */
+	@JSFunction
+	void showForm(String formName);
+
+	/**
+	 * Creates an instanceof a JSDeveloperMenu that can be used in the register function to add a menu item to the context menu or in the form editor.
+	 *
+	 * @param text
+	 * @return
+	 */
+	@JSFunction
+	JSDeveloperMenu createMenu(String text);
+
+
+	/**
+	 * Registers a menu item to show in the developer, the location is one of the servoyDeveloper.LOCATIOM properties
+	 *
+	 * The callback is called when this menu item is clicked on.
+	 *
+	 * @param menu
+	 * @parm location
+	 * @param callback
+	 */
+	@JSFunction
+	void registerMenuItem(JSDeveloperMenu menu, int location, Function callback);
+
+
+	/**
+	 * Registers a menu item to show in the developer, the location is one of the servoyDeveloper.LOCATIOM properties
+	 *
+	 * The callback is called when this menu item is clicked on.
+	 *
+	 * The enabler function is called when this menu wants to show and the enable function can return true of false depending on which it wants to show
+	 *
+	 * @param menu
+	 * @parm location
+	 * @param callback
+	 * @parma enabler
+	 */
+	@JSFunction
+	void registerMenuItem(JSDeveloperMenu menu, int location, Function callback, Function enabler);
 
 //	JSONArray js_getExistingVariants(String variantCategoryName);
 //
