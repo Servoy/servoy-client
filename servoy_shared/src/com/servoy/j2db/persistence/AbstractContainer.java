@@ -468,7 +468,6 @@ public abstract class AbstractContainer extends AbstractBase
 	 * @param searchFor
 	 * @return
 	 */
-
 	public IPersist findChild(UUID searchFor)
 	{
 		List<IPersist> children = getHierarchyChildren();
@@ -478,6 +477,26 @@ public abstract class AbstractContainer extends AbstractBase
 			if (iPersist instanceof AbstractContainer)
 			{
 				IPersist result = ((AbstractContainer)iPersist).findChild(searchFor);
+				if (result != null) return result;
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Search this containers containment hierarchy recursively for the given ISupportName instance with the given type.
+	 */
+	public IPersist findChild(String name, int tp)
+	{
+		// TODO findChild(UUID) uses getHierarchyChildren() that redirects to get objects; check if we need to do something similar here (maybe some other class overrides getHierarchyChildren()
+		Iterator<IPersist> children = getAllObjects();
+		while (children.hasNext())
+		{
+			IPersist iPersist = children.next();
+			if ((iPersist instanceof ISupportName isn) && name.equals(isn.getName()) && iPersist.getTypeID() == tp) return iPersist;
+			if (iPersist instanceof AbstractContainer)
+			{
+				IPersist result = ((AbstractContainer)iPersist).findChild(name, tp);
 				if (result != null) return result;
 			}
 		}
