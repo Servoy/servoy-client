@@ -30,13 +30,23 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 public class JSDeveloperMenu
 {
 	private final String text;
+	private final int location;
 
 	private String id;
 
-
-	public JSDeveloperMenu(String text)
+	public JSDeveloperMenu(String text, int location)
 	{
 		this.text = text;
+		this.location = location;
+	}
+
+	/**
+	 * @return the location
+	 */
+	@JSReadonlyProperty
+	public int getLocation()
+	{
+		return location;
 	}
 
 	@JSReadonlyProperty

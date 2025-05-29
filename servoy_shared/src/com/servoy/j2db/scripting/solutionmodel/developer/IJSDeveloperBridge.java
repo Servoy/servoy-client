@@ -33,7 +33,7 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 @ServoyClientSupport(ng = true, mc = true, wc = true, sc = true)
 public interface IJSDeveloperBridge
 {
-	public Location LOCATION = new Location();
+	public static final Location LOCATION = new Location();
 
 	/**
 	 * Shows the form in in the the ui of the devloper (so in a dialog) where a developer can interact with.
@@ -45,39 +45,40 @@ public interface IJSDeveloperBridge
 
 	/**
 	 * Creates an instanceof a JSDeveloperMenu that can be used in the register function to add a menu item to the context menu or in the form editor.
+	 * The location is one of the servoyDeveloper.LOCATIOM properties
 	 *
 	 * @param text
+	 * @parm location
+	 *
 	 * @return
 	 */
 	@JSFunction
-	JSDeveloperMenu createMenu(String text);
+	JSDeveloperMenu createMenu(String text, int location);
 
 
 	/**
-	 * Registers a menu item to show in the developer, the location is one of the servoyDeveloper.LOCATIOM properties
+	 * Registers a menu item to show in the developer
 	 *
 	 * The callback is called when this menu item is clicked on.
 	 *
 	 * @param menu
-	 * @parm location
 	 * @param callback
 	 */
 	@JSFunction
-	void registerMenuItem(JSDeveloperMenu menu, int location, Function callback);
+	void registerMenuItem(JSDeveloperMenu menu, Function callback);
 
 
 	/**
-	 * Registers a menu item to show in the developer, the location is one of the servoyDeveloper.LOCATIOM properties
+	 * Registers a menu item to show in the developer
 	 *
 	 * The callback is called when this menu item is clicked on.
 	 *
 	 * The enabler function is called when this menu wants to show and the enable function can return true of false depending on which it wants to show
 	 *
 	 * @param menu
-	 * @parm location
 	 * @param callback
 	 * @parma enabler
 	 */
 	@JSFunction
-	void registerMenuItem(JSDeveloperMenu menu, int location, Function callback, Function enabler);
+	void registerMenuItem(JSDeveloperMenu menu, Function callback, Function enabler);
 }
