@@ -22,6 +22,7 @@ import org.mozilla.javascript.annotations.JSFunction;
 
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
+import com.servoy.j2db.scripting.IConstantsObject;
 
 /**
  * @author jcompagner
@@ -31,7 +32,7 @@ import com.servoy.j2db.documentation.ServoyDocumented;
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "developerBridge", scriptingName = "developerBridge")
 @ServoyClientSupport(ng = true, mc = true, wc = true, sc = true)
-public interface IJSDeveloperBridge
+public interface IJSDeveloperBridge extends IConstantsObject
 {
 	public static final Location LOCATION = new Location();
 
