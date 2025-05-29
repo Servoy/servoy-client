@@ -22,7 +22,7 @@ import org.mozilla.javascript.annotations.JSFunction;
 
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
-import com.servoy.j2db.scripting.IConstantsObject;
+import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 
 /**
  * @author jcompagner
@@ -32,9 +32,12 @@ import com.servoy.j2db.scripting.IConstantsObject;
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "developerBridge", scriptingName = "developerBridge")
 @ServoyClientSupport(ng = true, mc = true, wc = true, sc = true)
-public interface IJSDeveloperBridge extends IConstantsObject
+public interface IJSDeveloperBridge
 {
 	public static final Location LOCATION = new Location();
+
+	@JSReadonlyProperty
+	public Location getLOCATION();
 
 	/**
 	 * Shows the form in in the the ui of the devloper (so in a dialog) where a developer can interact with.

@@ -17,17 +17,34 @@
 
 package com.servoy.j2db.scripting.solutionmodel.developer;
 
+import com.servoy.j2db.documentation.ServoyDocumented;
+import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
+
 /**
  * @author jcompagner
  *
  * @since 2025.09
  *
  */
+@ServoyDocumented(category = ServoyDocumented.RUNTIME)
 public class Location
 {
-	public static final int SOLUTION = 1;
+	@JSReadonlyProperty
+	public int getSOLUTION()
+	{
+		return 1;
+	}
 
-	public static final int FORM = 2;
+	@JSReadonlyProperty
+	public int getFORM()
+	{
+		return 2;
+	}
 
-	public static final int COMPONENT = 4;
+	@JSReadonlyProperty
+	public int getCOMPONENT()
+	{
+		return 3;
+	}
+
 }
