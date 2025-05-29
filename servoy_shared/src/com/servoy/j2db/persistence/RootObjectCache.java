@@ -460,7 +460,7 @@ public class RootObjectCache
 			while (iterator.hasNext())
 			{
 				RootObjectMetaData metaData = iterator.next().rootObjectMetaData;
-				if (metaData.getObjectTypeId() == objectTypeId)
+				if (metaData != null && metaData.getObjectTypeId() == objectTypeId)
 				{
 					list.add(metaData);
 				}
