@@ -61,6 +61,11 @@ public class NGClientEndpoint extends WebsocketEndpoint
 		super(WebsocketSessionFactory.CLIENT_ENDPOINT);
 	}
 
+	protected NGClientEndpoint(String endpointType)
+	{
+		super(endpointType);
+	}
+
 	@Override
 	@OnOpen
 	public void start(Session newSession, @PathParam("clientnr") String clientnr, @PathParam("windowname") String windowname,

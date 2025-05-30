@@ -15,7 +15,9 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
 */
 
-package com.servoy.j2db.scripting.solutionmodel;
+package com.servoy.j2db.scripting.solutionmodel.developer;
+
+import org.mozilla.javascript.annotations.JSFunction;
 
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.dataprocessing.JSDataSet;
@@ -37,20 +39,21 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 @ServoyClientSupport(ng = true, mc = true, wc = true, sc = true)
 public interface IJSDeveloperSolutionModel
 {
-
 	/**
 	 * Saves all changes made through the solution model into the workspace.
 	 * Please note that this method only saves the new in memory datasources,
 	 * if you would like to override the existing ones use servoyDeveloper.save(true).
 	 */
-	void js_save();
+	@JSFunction
+	void save();
 
 	/**
 	 * Saves all changes made through the solution model into the workspace.
 	 *
 	 * @param override Override existing in memory tables.
 	 */
-	void js_save(boolean override);
+	@JSFunction
+	void save(boolean override);
 
 	/**
 	 * Saves just the given form, valuelist, relation or in memory datasource into the developers workspace.
@@ -58,7 +61,8 @@ public interface IJSDeveloperSolutionModel
 	 *
 	 * @param obj The formname, JSForm, JSValueList, JSRelation, datasource name or JSDataSource object to save.
 	 */
-	void js_save(Object obj);
+	@JSFunction
+	void save(Object obj);
 
 	/**
 	 * Saves just the given form, valuelist, relation or in memory datasource into the developers workspace.
@@ -67,7 +71,8 @@ public interface IJSDeveloperSolutionModel
 	 * @param obj The formname, JSForm, JSValueList, JSRelation, datasource name or JSDataSource object to save.
 	 * @param override Override an existing in memory table.
 	 */
-	void js_save(Object obj, boolean override);
+	@JSFunction
+	void save(Object obj, boolean override);
 
 	/**
 	 * Saves just the given form, valuelist, relation or in memory datasource into the developers workspace.
@@ -79,7 +84,8 @@ public interface IJSDeveloperSolutionModel
 	 * @param obj The formname, JSForm, JSValueList, JSRelation, datasource name or JSDataSource object to save.
 	 * @param solutionName The destination solution, a module of the active solution.
 	 */
-	void js_save(Object obj, String solutionName);
+	@JSFunction
+	void save(Object obj, String solutionName);
 
 	/**
 	 * Updates the given in memory datasource and saves it into the developers workspace.
@@ -88,14 +94,8 @@ public interface IJSDeveloperSolutionModel
 	 * @param dataset the dataset with the update columns
 	 * @param types array of the update columns types
 	 */
-	void js_updateInMemDataSource(Object dataSource, JSDataSet dataSet, Object types);
-
-	/**
-	 * Opens the form FormEditor in the developer.
-	 *
-	 * @param form The form name or JSForm object to open in an editor.
-	 */
-	void js_openForm(Object form);
+	@JSFunction
+	void updateInMemDataSource(Object dataSource, JSDataSet dataSet, Object types);
 
 //	JSONArray js_getExistingVariants(String variantCategoryName);
 //
