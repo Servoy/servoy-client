@@ -35,6 +35,7 @@ import com.servoy.j2db.query.QueryCustomSelect;
 import com.servoy.j2db.query.QueryFunction;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.querybuilder.IQueryBuilder;
+import com.servoy.j2db.querybuilder.IQueryBuilderColumn;
 import com.servoy.j2db.querybuilder.IQueryBuilderResult;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 
@@ -171,18 +172,18 @@ public class QBResult extends QBPart implements IQueryBuilderResult
 	public QBResult js_add(QBColumns columns)
 	{
 		stream(columns.getValues())
-			.filter(QBColumn.class::isInstance)
-			.map(QBColumn.class::cast)
+			.filter(IQueryBuilderColumn.class::isInstance)
+			.map(IQueryBuilderColumn.class::cast)
 			.forEach(this::add);
 		return this;
 	}
 
-	public QBResult add(QBColumn column)
+	public QBResult add(IQueryBuilderColumn column)
 	{
 		return add(column, null);
 	}
 
-	public QBResult add(QBColumn column, String alias)
+	public QBResult add(IQueryBuilderColumn column, String alias)
 	{
 		if (column == null)
 		{
@@ -364,7 +365,7 @@ public class QBResult extends QBPart implements IQueryBuilderResult
 	 *
 	 * @return The query result object with the specified column removed.
 	 */
-	public QBResult remove(QBColumn column)
+	public QBResult remove(IQueryBuilderColumn column)
 	{
 		if (column != null)
 		{

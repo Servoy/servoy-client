@@ -20,6 +20,7 @@ package com.servoy.j2db.querybuilder.impl;
 import org.mozilla.javascript.annotations.JSFunction;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
+import com.servoy.j2db.querybuilder.IQueryBuilderColumn;
 
 /**
  * This interface lists all methods that are for comparing columns with values or other columns.
@@ -32,7 +33,7 @@ import com.servoy.j2db.documentation.ServoyDocumented;
  *
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
-public interface QBColumnComparable
+public interface QBColumnComparable extends IQueryBuilderColumn
 {
 
 	/**

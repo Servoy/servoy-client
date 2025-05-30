@@ -18,6 +18,7 @@
 package com.servoy.j2db.querybuilder.impl;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
+import com.servoy.j2db.querybuilder.IQueryBuilderColumn;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 
 /**
@@ -46,7 +47,7 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
  *
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, extendsComponent = "QBIntegerColumn")
-public interface QBCountAggregate
+public interface QBCountAggregate extends IQueryBuilderColumn
 {
 
 	/** Add a distinct qualifier to the aggregate

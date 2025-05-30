@@ -19,6 +19,7 @@ package com.servoy.j2db.querybuilder.impl;
 
 import org.mozilla.javascript.annotations.JSFunction;
 
+import com.servoy.j2db.querybuilder.IQueryBuilderColumn;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 
 /**
@@ -27,7 +28,7 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
  * @author rgansevles
  *
  */
-public interface QBColumnBaseFunctions<T> extends QBColumnComparable
+public interface QBColumnBaseFunctions<T extends IQueryBuilderColumn> extends QBColumnComparable
 {
 	/**
 	 * Create an aggregate min expression.

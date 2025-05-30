@@ -98,7 +98,7 @@ public class QBCase extends QBPart implements IQueryBuilderCase
 		return qelse(value);
 	}
 
-	private QBGenericColumnBase qelse(Object value)
+	public QBGenericColumnBase qelse(Object value)
 	{
 		return new QBColumnImpl(getRoot(), getParent(), buildSearchedCaseExpression(getRoot(), whenThen, value));
 	}

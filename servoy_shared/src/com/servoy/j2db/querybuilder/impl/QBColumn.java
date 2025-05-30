@@ -20,6 +20,7 @@ package com.servoy.j2db.querybuilder.impl;
 import org.mozilla.javascript.annotations.JSFunction;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
+import com.servoy.j2db.querybuilder.IQueryBuilderColumn;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 
 /**
@@ -50,7 +51,7 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
  *
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
-public interface QBColumn extends QBColumnBaseFunctions<QBColumn>
+public interface QBColumn extends QBColumnBaseFunctions<QBColumn>, IQueryBuilderColumn
 {
 	/**
 	 * Compare column with null.
@@ -75,7 +76,6 @@ public interface QBColumn extends QBColumnBaseFunctions<QBColumn>
 	 */
 	@JSReadonlyProperty(debuggerRepresentation = "Query not clause")
 	QBColumnComparable not();
-
 
 	/**
 	 * Create an ascending sort expression
@@ -159,5 +159,4 @@ public interface QBColumn extends QBColumnBaseFunctions<QBColumn>
 	 */
 	@JSFunction
 	public String getTypeAsString();
-
 }

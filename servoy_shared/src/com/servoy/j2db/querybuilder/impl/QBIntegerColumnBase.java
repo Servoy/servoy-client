@@ -18,6 +18,7 @@
 package com.servoy.j2db.querybuilder.impl;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
+import com.servoy.j2db.querybuilder.IQueryBuilderColumn;
 
 /**
  * This interface lists functions on integer columns.
@@ -26,6 +27,6 @@ import com.servoy.j2db.documentation.ServoyDocumented;
  *
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, realClass = QBIntegerColumn.class)
-public interface QBIntegerColumnBase
+public interface QBIntegerColumnBase extends IQueryBuilderColumn
 {
 }

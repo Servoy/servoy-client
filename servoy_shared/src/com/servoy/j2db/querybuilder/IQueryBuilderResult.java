@@ -18,7 +18,6 @@
 package com.servoy.j2db.querybuilder;
 
 import com.servoy.j2db.persistence.RepositoryException;
-import com.servoy.j2db.querybuilder.impl.QBColumn;
 
 /**
  * Results section in Servoy Query Objects.
@@ -56,7 +55,7 @@ public interface IQueryBuilderResult extends IQueryBuilderPart
 	 * query.result().add(query.getColumn("value1")).add(query.getColumn("value2"));
 	 * </pre>
 	 */
-	IQueryBuilderResult add(QBColumn column) throws RepositoryException;
+	IQueryBuilderResult add(IQueryBuilderColumn column) throws RepositoryException;
 
 	/**
 	 * Add a column with an to the query result.
@@ -64,7 +63,7 @@ public interface IQueryBuilderResult extends IQueryBuilderPart
 	 * query.result().add(query.getColumn("value1", "myalias1")).add(query.getColumn("value2", "myalias1"));
 	 * </pre>
 	 */
-	IQueryBuilderResult add(QBColumn column, String alias) throws RepositoryException;
+	IQueryBuilderResult add(IQueryBuilderColumn column, String alias) throws RepositoryException;
 
 	/**
 	 * Add a fixed value to the query result.
@@ -148,6 +147,6 @@ public interface IQueryBuilderResult extends IQueryBuilderPart
 	 * query.result().remove(query.getColumn("value1"));
 	 * </pre>
 	 */
-	IQueryBuilderResult remove(QBColumn column) throws RepositoryException;
+	IQueryBuilderResult remove(IQueryBuilderColumn column) throws RepositoryException;
 
 }

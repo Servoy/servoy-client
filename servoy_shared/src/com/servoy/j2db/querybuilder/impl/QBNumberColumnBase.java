@@ -18,6 +18,7 @@
 package com.servoy.j2db.querybuilder.impl;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
+import com.servoy.j2db.querybuilder.IQueryBuilderColumn;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 
 /**
@@ -27,7 +28,7 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
  *
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, realClass = QBNumberColumn.class)
-public interface QBNumberColumnBase
+public interface QBNumberColumnBase extends IQueryBuilderColumn
 {
 	/**
 	 * Create floor(column) expression
