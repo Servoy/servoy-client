@@ -297,6 +297,22 @@ public class JSMenu
 		this.notifyChanged(null, null);
 	}
 
+	/**
+	 * Selects a menu item in user interface (by menu id). Returns whether the item was found and selected.
+	 *
+	 * @sample menu.selectMenuItemId('item1');
+	 * @param menuItemId the menu item id to be selected
+	 *
+	 * @return True if the specified menu item was selected; false otherwise.
+	 */
+	@JSFunction
+	public boolean selectMenuItemById(String menuItemId)
+	{
+		this.selectedItem = findMenuItem(menuItemId);
+		this.notifyChanged(null, null);
+		return this.selectedItem != null;
+	}
+
 	public void updateSelectedMenuItem(JSMenuItem menuItem)
 	{
 		this.selectedItem = menuItem;
