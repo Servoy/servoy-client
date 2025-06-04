@@ -98,6 +98,8 @@ public class RuntimeWebComponent implements IBaseRuntimeComponent, Scriptable, I
 	private Scriptable parentScope;
 	private Scriptable scopeObject;
 
+	private final Map<String, Function> setterFunctions;
+
 	public RuntimeWebComponent(WebFormComponent component, WebObjectSpecification webComponentSpec)
 	{
 		this.component = component;
@@ -131,6 +133,26 @@ public class RuntimeWebComponent implements IBaseRuntimeComponent, Scriptable, I
 		{
 			scopeObject = WebServiceScriptable.compileServerScript(serverScript, this, component.getDataConverterContext().getApplication(), component);
 			apiObject = (Scriptable)scopeObject.get("api", scopeObject);
+
+			Object setters = scopeObject.get("setters", scopeObject);
+			if (setters instanceof Scriptable scriptable)
+			{
+				setterFunctions = new HashMap<>();
+
+				Object[] ids = scriptable.getIds();
+				for (Object id : ids)
+				{
+					if (id instanceof String propName && propName.startsWith("set") && scriptable.get(propName, scriptable) instanceof Function getterFunction)
+					{
+						propName = Character.toLowerCase(propName.charAt(3)) + propName.substring(4);
+						setterFunctions.put(propName, getterFunction);
+					}
+				}
+			}
+			else
+			{
+				setterFunctions = null;
+			}
 			// add also the handlers object
 			Context context = Context.enter();
 			try
@@ -179,6 +201,10 @@ public class RuntimeWebComponent implements IBaseRuntimeComponent, Scriptable, I
 			{
 				Context.exit();
 			}
+		}
+		else
+		{
+			setterFunctions = null;
 		}
 
 		if (webComponentSpec != null)
@@ -515,19 +541,16 @@ public class RuntimeWebComponent implements IBaseRuntimeComponent, Scriptable, I
 
 			if (val != previousVal)
 			{
-				String uName = new StringBuffer(name.substring(0, 1).toUpperCase()).append(name.substring(1)).toString();
-				if (scopeObject != null && scopeObject.get("setters", scopeObject) instanceof Scriptable setters &&
-					setters.get("set" + uName, setters) instanceof Function propertySetter && !RuntimeLegacyComponent.inServerSideScript())
+				if (setterFunctions != null && setterFunctions.remove(name) instanceof Function propertySetter)
 				{
-					Context cx = Context.getCurrentContext();
-					cx.putThreadLocal(SERVER_SIDE_SCRIPT_EXECUTE, Boolean.TRUE);
 					try
 					{
+						Context cx = Context.getCurrentContext();
 						propertySetter.call(cx, start, start, new Object[] { val });
 					}
 					finally
 					{
-						cx.removeThreadLocal(SERVER_SIDE_SCRIPT_EXECUTE);
+						setterFunctions.put(name, propertySetter);
 					}
 				}
 				else
@@ -815,12 +838,10 @@ public class RuntimeWebComponent implements IBaseRuntimeComponent, Scriptable, I
 
 	public boolean setCustomTypePropertyUsingSetter(Scriptable scriptable, String name, Object value)
 	{
-		String uName = new StringBuffer(name.substring(0, 1).toUpperCase()).append(name.substring(1)).toString();
-		if (scopeObject != null && scopeObject.get("setters", scopeObject) instanceof Scriptable setters &&
-			setters.get("set" + uName, setters) instanceof Function propertySetter && !RuntimeLegacyComponent.inServerSideScript())
+
+		if (setterFunctions != null && setterFunctions.remove(name) instanceof Function propertySetter)
 		{
 			Context cx = Context.getCurrentContext();
-			cx.putThreadLocal(SERVER_SIDE_SCRIPT_EXECUTE, Boolean.TRUE);
 			try
 			{
 				propertySetter.call(cx, scriptable, scriptable, new Object[] { scriptable, value });
@@ -828,7 +849,7 @@ public class RuntimeWebComponent implements IBaseRuntimeComponent, Scriptable, I
 			}
 			finally
 			{
-				cx.removeThreadLocal(SERVER_SIDE_SCRIPT_EXECUTE);
+				setterFunctions.put(name, propertySetter);
 			}
 		}
 		return false;
