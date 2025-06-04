@@ -215,6 +215,10 @@ public class ServoyApiObject
 	@JSFunction
 	public boolean showForm(String nameOrUUID, String relationName)
 	{
+		if (nameOrUUID == null || nameOrUUID.isEmpty())
+		{
+			return false;
+		}
 		String formName = nameOrUUID;
 		Form form = app.getFlattenedSolution().getForm(nameOrUUID);
 		if (form == null)
