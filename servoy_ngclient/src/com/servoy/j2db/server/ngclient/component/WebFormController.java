@@ -764,9 +764,15 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 			{
 				public void run()
 				{
-					for (WebComponent comp : getFormUI().getComponents())
+
+					IWebFormUI formUI2 = getFormUI();
+					if (formUI2 == null)
 					{
-						RuntimeWebComponent runtimeComponent = getFormUI().getRuntimeWebComponent(comp.getName());
+						return;
+					}
+					for (WebComponent comp : formUI2.getComponents())
+					{
+						RuntimeWebComponent runtimeComponent = formUI2.getRuntimeWebComponent(comp.getName());
 						if (runtimeComponent != null)
 						{
 							WebObjectFunctionDefinition function = null;
