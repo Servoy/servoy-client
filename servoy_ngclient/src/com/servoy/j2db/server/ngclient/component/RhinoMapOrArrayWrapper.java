@@ -238,7 +238,7 @@ public final class RhinoMapOrArrayWrapper implements Scriptable, SymbolScriptabl
 						RuntimeWebComponent webComponent = formUI.getRuntimeWebComponent(webFormComponent.getName());
 						if (webComponent != null)
 						{
-							usedSetter = webComponent.setComponentPropertyUsingSetter(this, name, value);
+							usedSetter = webComponent.setCustomTypePropertyUsingSetter(this, name, value);
 						}
 					}
 				}
