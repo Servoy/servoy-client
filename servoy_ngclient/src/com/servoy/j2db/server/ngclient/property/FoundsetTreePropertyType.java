@@ -152,7 +152,8 @@ public class FoundsetTreePropertyType extends DefaultPropertyType<FoundsetTreeTy
 							@Override
 							public Object call(Context cx, Scriptable scope, Scriptable thisObj, Object[] args)
 							{
-								return webComponentValue.getNodeIDArray(((List)args[0]).toArray());
+								Object[] arguments = args[0] instanceof List ? ((List)args[0]).toArray() : args instanceof Object[] ? (Object[])args[0] : null;
+								return webComponentValue.getNodeIDArray(arguments);
 							}
 						};
 					}
