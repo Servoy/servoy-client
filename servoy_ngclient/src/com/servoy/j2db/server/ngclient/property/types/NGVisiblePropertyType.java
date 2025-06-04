@@ -20,7 +20,9 @@ package com.servoy.j2db.server.ngclient.property.types;
 import org.mozilla.javascript.Scriptable;
 import org.sablo.IWebObjectContext;
 import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.property.IWrappingContext;
 import org.sablo.specification.property.types.VisiblePropertyType;
+import org.sablo.specification.property.types.VisibleSabloValue;
 
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
 
@@ -31,6 +33,21 @@ import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloCompon
 public class NGVisiblePropertyType extends VisiblePropertyType implements ISabloComponentToRhino<Boolean>
 {
 	public final static NGVisiblePropertyType NG_INSTANCE = new NGVisiblePropertyType();
+
+	@Override
+	public VisibleSabloValue wrap(Boolean newValue, VisibleSabloValue oldValue, PropertyDescription propertyDescription, IWrappingContext dataConverterContext)
+	{
+		Boolean newVal = newValue != null ? newValue : Boolean.FALSE;
+		if (oldValue != null)
+		{
+			oldValue.setValue(newVal.booleanValue());
+		}
+		else
+		{
+			return new NGVisibleSabloValue(newVal.booleanValue(), dataConverterContext);
+		}
+		return oldValue;
+	}
 
 	@Override
 	public boolean isValueAvailableInRhino(Boolean webComponentValue, PropertyDescription pd, IWebObjectContext webObjectContext)
