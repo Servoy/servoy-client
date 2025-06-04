@@ -813,7 +813,7 @@ public class RuntimeWebComponent implements IBaseRuntimeComponent, Scriptable, I
 	}
 
 
-	public boolean setComponentPropertyUsingSetter(Scriptable scriptable, String name, Object value)
+	public boolean setCustomTypePropertyUsingSetter(Scriptable scriptable, String name, Object value)
 	{
 		String uName = new StringBuffer(name.substring(0, 1).toUpperCase()).append(name.substring(1)).toString();
 		if (scopeObject != null && scopeObject.get("setters", scopeObject) instanceof Scriptable setters &&
