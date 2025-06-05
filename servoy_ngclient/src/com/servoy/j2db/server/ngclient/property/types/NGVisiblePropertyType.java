@@ -30,33 +30,33 @@ import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloCompon
  * @author lvostinar
  *
  */
-public class NGVisiblePropertyType extends VisiblePropertyType implements ISabloComponentToRhino<Boolean>
+public class NGVisiblePropertyType extends VisiblePropertyType implements ISabloComponentToRhino<Object>
 {
 	public final static NGVisiblePropertyType NG_INSTANCE = new NGVisiblePropertyType();
 
 	@Override
-	public VisibleSabloValue wrap(Boolean newValue, VisibleSabloValue oldValue, PropertyDescription propertyDescription, IWrappingContext dataConverterContext)
+	public VisibleSabloValue wrap(Object newValue, VisibleSabloValue oldValue, PropertyDescription propertyDescription, IWrappingContext dataConverterContext)
 	{
-		Boolean newVal = newValue != null ? newValue : Boolean.FALSE;
+		boolean newVal = convertToBoolean(newValue);
 		if (oldValue != null)
 		{
-			oldValue.setValue(newVal.booleanValue());
+			oldValue.setValue(newVal);
 		}
 		else
 		{
-			return new NGVisibleSabloValue(newVal.booleanValue(), dataConverterContext);
+			return new NGVisibleSabloValue(newVal, dataConverterContext);
 		}
 		return oldValue;
 	}
 
 	@Override
-	public boolean isValueAvailableInRhino(Boolean webComponentValue, PropertyDescription pd, IWebObjectContext webObjectContext)
+	public boolean isValueAvailableInRhino(Object webComponentValue, PropertyDescription pd, IWebObjectContext webObjectContext)
 	{
 		return true;
 	}
 
 	@Override
-	public Object toRhinoValue(Boolean webComponentValue, PropertyDescription pd, IWebObjectContext componentOrService, Scriptable startScriptable)
+	public Object toRhinoValue(Object webComponentValue, PropertyDescription pd, IWebObjectContext componentOrService, Scriptable startScriptable)
 	{
 		Object v = componentOrService.getRawPropertyValue(pd.getName());
 		if (v != null)
