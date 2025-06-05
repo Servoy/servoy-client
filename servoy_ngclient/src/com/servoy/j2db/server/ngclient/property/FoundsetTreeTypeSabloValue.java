@@ -19,6 +19,7 @@ package com.servoy.j2db.server.ngclient.property;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -610,7 +611,7 @@ public class FoundsetTreeTypeSabloValue implements ISmartPropertyValue, TableMod
 		FoundsetTreeBinding binding = bindings.get(datasource);
 		if (binding != null)
 		{
-			List<Object> values = new ArrayList(Arrays.asList(binding.checkboxValues));
+			List<Object> values = new ArrayList(binding.checkboxValues != null ? Arrays.asList(binding.checkboxValues) : Collections.emptyList());
 			if (checked)
 			{
 				for (Object pk : pks)
