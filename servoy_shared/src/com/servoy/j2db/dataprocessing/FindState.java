@@ -28,6 +28,8 @@ import org.mozilla.javascript.BaseFunction;
 import org.mozilla.javascript.NativeJavaMethod;
 import org.mozilla.javascript.ScriptRuntime;
 import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.Symbol;
+import org.mozilla.javascript.SymbolScriptable;
 import org.mozilla.javascript.Wrapper;
 import org.mozilla.javascript.annotations.JSFunction;
 
@@ -59,7 +61,7 @@ import com.servoy.j2db.util.Utils;
  *
  * @author jblok
  */
-public class FindState implements Scriptable, IRecordInternal, Serializable, IJSRecord, IJSBaseSQLRecord
+public class FindState implements Scriptable, SymbolScriptable, IRecordInternal, Serializable, IJSRecord, IJSBaseSQLRecord
 {
 	public static final Map<String, NativeJavaMethod> jsFunctions = DefaultJavaScope.getJsFunctions(FindState.class);
 
@@ -913,5 +915,27 @@ public class FindState implements Scriptable, IRecordInternal, Serializable, IJS
 	public ObjectKey getKey()
 	{
 		return new ObjectKey(this);
+	}
+
+	@Override
+	public Object get(Symbol key, Scriptable start)
+	{
+		return Scriptable.NOT_FOUND;
+	}
+
+	@Override
+	public boolean has(Symbol key, Scriptable start)
+	{
+		return false;
+	}
+
+	@Override
+	public void put(Symbol key, Scriptable start, Object value)
+	{
+	}
+
+	@Override
+	public void delete(Symbol key)
+	{
 	}
 }
