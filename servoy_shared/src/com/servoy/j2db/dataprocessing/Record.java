@@ -34,6 +34,8 @@ import org.mozilla.javascript.NativeArray;
 import org.mozilla.javascript.NativeJavaMethod;
 import org.mozilla.javascript.ScriptRuntime;
 import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.Symbol;
+import org.mozilla.javascript.SymbolScriptable;
 import org.mozilla.javascript.Undefined;
 import org.mozilla.javascript.WrappedException;
 import org.mozilla.javascript.Wrapper;
@@ -81,7 +83,7 @@ import com.servoy.j2db.util.Utils;
  * @author jblok
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "JSRecord", scriptingName = "JSRecord", extendsComponent = "JSBaseSQLRecord")
-public class Record implements Scriptable, IRecordInternal, IJSRecord, IJSBaseSQLRecord
+public class Record implements Scriptable, SymbolScriptable, IRecordInternal, IJSRecord, IJSBaseSQLRecord
 {
 	public static final String JS_RECORD = "JSRecord"; //$NON-NLS-1$
 
@@ -1325,5 +1327,26 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord, IJSBaseSQ
 				throw new RuntimeException(e);
 			}
 		}
+	}
+
+	@Override
+	public Object get(Symbol key, Scriptable start)
+	{
+		return Scriptable.NOT_FOUND;
+	}
+
+	@Override
+	public boolean has(Symbol key, Scriptable start)
+	{
+		return false;
+	}
+
+	public void put(Symbol key, Scriptable start, Object value)
+	{
+	}
+
+	@Override
+	public void delete(Symbol key)
+	{
 	}
 }

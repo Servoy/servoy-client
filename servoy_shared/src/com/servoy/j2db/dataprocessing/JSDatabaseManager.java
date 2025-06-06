@@ -1883,9 +1883,9 @@ public class JSDatabaseManager implements IJSDatabaseManager
 				JSDataSet dataSet = js_getDataSetByQuery(query, useTableFilters, max_returned_rows);
 				deferred.resolve(dataSet);
 			}
-			catch (ServoyException e)
+			catch (Exception e)
 			{
-				deferred.reject(e);
+				deferred.reject(getRejectReason(e));
 			}
 		});
 		return deferred.getPromise();
@@ -1948,12 +1948,25 @@ public class JSDatabaseManager implements IJSDatabaseManager
 				JSDataSet dataSet = js_getDataSetByQuery(server_name, sql_query, arguments, max_returned_rows);
 				deferred.resolve(dataSet);
 			}
-			catch (ServoyException e)
+			catch (Exception e)
 			{
-				deferred.reject(e);
+				deferred.reject(getRejectReason(e));
 			}
 		});
 		return deferred.getPromise();
+	}
+
+	private Object getRejectReason(Exception e)
+	{
+		if (e instanceof ServoyException)
+		{
+			return e;
+		}
+		else if (e.getCause() instanceof ServoyException)
+		{
+			return e.getCause();
+		}
+		return e.getMessage();
 	}
 
 	/**
