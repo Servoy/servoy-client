@@ -134,5 +134,6 @@ public class Types
 		TypesRegistry.addType(DynamicClientFunctionPropertyType.INSTANCE);
 		TypesRegistry.addType(ValuelistConfigPropertyType.INSTANCE);
 		TypesRegistry.addType(MenuPropertyType.INSTANCE);
+		TypesRegistry.addType(MenuItemPropertyType.INSTANCE);
 	}
 }

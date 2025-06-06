@@ -2709,7 +2709,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	}
 
 	/**
-	 * @return
+	 * CSS styles that are applied to the form.
 	 */
 	public String getFormCss()
 	{

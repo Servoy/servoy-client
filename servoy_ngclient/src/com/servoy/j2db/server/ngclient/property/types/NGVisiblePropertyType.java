@@ -32,18 +32,19 @@ import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloCompon
  */
 public class NGVisiblePropertyType extends VisiblePropertyType implements ISabloComponentToRhino<Boolean>
 {
-	public static NGVisiblePropertyType NG_INSTANCE = new NGVisiblePropertyType();
+	public final static NGVisiblePropertyType NG_INSTANCE = new NGVisiblePropertyType();
 
 	@Override
 	public VisibleSabloValue wrap(Boolean newValue, VisibleSabloValue oldValue, PropertyDescription propertyDescription, IWrappingContext dataConverterContext)
 	{
+		Boolean newVal = newValue != null ? newValue : Boolean.FALSE;
 		if (oldValue != null)
 		{
-			oldValue.setValue(newValue.booleanValue());
+			oldValue.setValue(newVal.booleanValue());
 		}
 		else
 		{
-			return new NGVisibleSabloValue(newValue.booleanValue(), dataConverterContext);
+			return new NGVisibleSabloValue(newVal.booleanValue(), dataConverterContext);
 		}
 		return oldValue;
 	}

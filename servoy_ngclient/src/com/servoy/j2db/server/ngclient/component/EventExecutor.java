@@ -37,6 +37,9 @@ import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebObjectFunctionDefinition;
 import org.sablo.specification.WebObjectSpecification.PushToServerEnum;
 import org.sablo.specification.property.BrowserConverterContext;
+import org.sablo.specification.property.IPropertyConverterForBrowser;
+import org.sablo.specification.property.IPropertyType;
+import org.sablo.specification.property.types.TypesRegistry;
 import org.sablo.util.ValueReference;
 import org.sablo.websocket.utils.JSONUtils;
 import org.slf4j.Logger;
@@ -63,6 +66,7 @@ import com.servoy.j2db.server.ngclient.IWebFormController;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.property.types.JSEventType;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions;
+import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
 import com.servoy.j2db.server.ngclient.property.types.NGCustomJSONObjectType;
 import com.servoy.j2db.server.ngclient.property.types.RecordPropertyType;
 import com.servoy.j2db.util.Debug;
@@ -246,9 +250,34 @@ public class EventExecutor
 					{
 						PropertyDescription parameterPropertyDescription = parameters.getParameterDefinition(i);
 						ValueReference<Boolean> returnValueAdjustedIncommingValueForIndex = new ValueReference<Boolean>(Boolean.FALSE);
-						newargs[i] = NGConversions.INSTANCE.convertSabloComponentToRhinoValue(JSONUtils.fromJSON(null, newargs[i], parameterPropertyDescription,
-							new BrowserConverterContext(component, PushToServerEnum.allow), returnValueAdjustedIncommingValueForIndex),
-							parameterPropertyDescription, component, scope);
+						if (newargs[i] instanceof JSONObject jsonValue && jsonValue.has("svyType"))
+						{
+							String typeHint = jsonValue.optString("svyType", null); //$NON-NLS-1$
+							if (typeHint != null)
+							{
+								IPropertyType< ? > propertyType = TypesRegistry.getType(typeHint);
+								if (propertyType instanceof IPropertyConverterForBrowser< ? > propertyConverter)
+								{
+									newargs[i] = propertyConverter.fromJSON(newargs[i], null, parameterPropertyDescription,
+										new BrowserConverterContext(component, PushToServerEnum.allow), returnValueAdjustedIncommingValueForIndex);
+									if (propertyType instanceof ISabloComponentToRhino rhinoConverter)
+									{
+										newargs[i] = rhinoConverter.toRhinoValue(newargs[i], parameterPropertyDescription, component, scope);
+									}
+									else
+									{
+										newargs[i] = RhinoConversion.defaultToRhino(newargs[i], parameterPropertyDescription, component, scope);
+									}
+								}
+							}
+						}
+						else
+						{
+							newargs[i] = NGConversions.INSTANCE.convertSabloComponentToRhinoValue(
+								JSONUtils.fromJSON(null, newargs[i], parameterPropertyDescription,
+									new BrowserConverterContext(component, PushToServerEnum.allow), returnValueAdjustedIncommingValueForIndex),
+								parameterPropertyDescription, component, scope);
+						}
 						if (parameterPropertyDescription.getType() == RecordPropertyType.INSTANCE &&
 							parameterPropertyDescription.getTag("skipCallIfNotSelected") instanceof Boolean &&
 							((Boolean)parameterPropertyDescription.getTag("skipCallIfNotSelected")).booleanValue())

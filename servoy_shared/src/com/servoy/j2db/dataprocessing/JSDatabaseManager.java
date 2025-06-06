@@ -1869,7 +1869,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * var q = foundset.getQuery()
 	 * q.where.add(q.joins.orders_to_order_details.columns.discount.eq(2))
 	 * var maxReturnedRows = 10;//useful to limit number of rows
-	 * databaseManager.getDataSetAsyncByQuery(q, true, maxReturnedRows).then(function(jsDataset) {
+	 * databaseManager.getDataSetByQueryAsync(q, true, maxReturnedRows).then(function(jsDataset) {
 	 * 		// do something with the dataset
 	 *  }, function(error) {
 	 *      // handle error
@@ -1882,13 +1882,78 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * @return The promise that will receive the result.
 	 */
 	@JSFunction
-	public NativePromise getDataSetAsyncByQuery(QBSelect query, Boolean useTableFilters, Number max_returned_rows)
+	public NativePromise getDataSetByQueryAsync(QBSelect query, Boolean useTableFilters, Number max_returned_rows)
 	{
 		Deferred deferred = new Deferred(application);
 		application.getScheduledExecutor().execute(() -> {
 			try
 			{
 				JSDataSet dataSet = js_getDataSetByQuery(query, useTableFilters, max_returned_rows);
+				deferred.resolve(dataSet);
+			}
+			catch (ServoyException e)
+			{
+				deferred.reject(e);
+			}
+		});
+		return deferred.getPromise();
+	}
+
+	/**
+	 * Performs an async sql query with a query builder object. Will use existing table filters if available.
+	 * Will resolve the promise if query is executed without exception or will reject the promise with the exception.
+	 *
+	 * @sample
+	 * // use the query from a foundset and add a condition
+	 * /** @type {QBSelect<db:/example_data/orders>} *&#47;
+	 * var q = foundset.getQuery()
+	 * q.where.add(q.joins.orders_to_order_details.columns.discount.eq(2))
+	 * var maxReturnedRows = 10;//useful to limit number of rows
+	 * databaseManager.getDataSetByQueryAsync(q, maxReturnedRows).then(function(jsDataset) {
+	 * 		// do something with the dataset
+	 *  }, function(error) {
+	 *      // handle error
+	 *  });
+	 *
+	 * @param query QBSelect query.
+	 * @param max_returned_rows The maximum number of rows returned by the query.
+	 *
+	 * @return The promise that will receive the result.
+	 */
+	@JSFunction
+	public NativePromise getDataSetByQueryAsync(QBSelect query, Number max_returned_rows)
+	{
+		return getDataSetByQueryAsync(query, Boolean.TRUE, max_returned_rows);
+	}
+
+	/**
+	 * Performs an async sql query with an sql query on a specified server.
+	 * Will resolve the promise with dataset result if query is executed without exception or will reject the promise with the exception.
+	 * Using this variation of getDataSetByQueryAsync will ignore any table filter on the involved tables.
+	 *
+	 * @sample
+	 * var maxReturnedRows = 10;//useful to limit number of rows
+	 * databaseManager.getDataSetByQueryAsync(databaseManager.getDataSourceServerName(controller.getDataSource()), 'select c1,c2,c3 from test_table where start_date = ?', new Array(new Date()), maxReturnedRows).then(function(jsDataset) {
+	 * 		// do something with the dataset
+	 *  }, function(error) {
+	 *      // handle error
+	 *  });
+	 *
+	 * @param server_name The name of the server where the query should be executed.
+	 * @param sql_query The custom sql, must start with 'select', 'call', 'with' or 'declare'.
+	 * @param arguments Specified arguments or null if there are no arguments.
+	 * @param max_returned_rows The maximum number of rows returned by the query.
+	 *
+	 * @return The promise that will receive the result.
+	 */
+	@JSFunction
+	public NativePromise getDataSetByQueryAsync(String server_name, String sql_query, Object[] arguments, Number max_returned_rows)
+	{
+		Deferred deferred = new Deferred(application);
+		application.getScheduledExecutor().execute(() -> {
+			try
+			{
+				JSDataSet dataSet = js_getDataSetByQuery(server_name, sql_query, arguments, max_returned_rows);
 				deferred.resolve(dataSet);
 			}
 			catch (ServoyException e)

@@ -94,6 +94,10 @@ public interface IUserManager extends ISolutionSecurityManager, Remote
 	public void setFormSecurityAccess(String clientId, String groupName, Integer accessMask, UUID elementUUID, String solutionName) throws ServoyException,
 		RemoteException;
 
+	public void setFormSecurityAccess(String clientId, String groupName, Integer accessMask, UUID formUUID, UUID elementUUID, String solutionName)
+		throws ServoyException,
+		RemoteException;
+
 	public void setTableSecurityAccess(String clientId, String groupName, Integer accessMask, String connectionName, String tableName, String columnName)
 		throws ServoyException, RemoteException;
 

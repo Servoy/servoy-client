@@ -235,6 +235,10 @@ public class HCUtils
 		{
 			return true;
 		}
+		if ("Safari".equals(userAgent.family) && parseInt(userAgent.major) >= 15 && parseInt(userAgent.minor) >= 4)
+		{
+			return true;
+		}
 
 		return false;
 	}

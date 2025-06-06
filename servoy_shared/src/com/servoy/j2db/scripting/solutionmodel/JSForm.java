@@ -1528,6 +1528,27 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	}
 
 	/**
+	 * @clonedesc com.servoy.j2db.persistence.Form#getFormCss()
+	 *
+	 * @sample
+	 * var form = solutionModel.newForm('myForm',myDatasource,null,true,800,600);
+	 * form.formCss = mycss; // where mycss is a string with the css content;
+	 *
+	 */
+	@JSGetter
+	public String getFormCss()
+	{
+		return getForm().getFormCss();
+	}
+
+	@JSSetter
+	public void setFormCss(String arg)
+	{
+		checkModification();
+		getForm().setFormCss(arg);
+	}
+
+	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getDeprecated()
 	 *
 	 * @sample
