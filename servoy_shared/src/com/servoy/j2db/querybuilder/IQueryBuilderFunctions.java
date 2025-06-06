@@ -17,6 +17,8 @@
 
 package com.servoy.j2db.querybuilder;
 
+import com.servoy.j2db.querybuilder.impl.QBColumn;
+
 /**
  * Functions to be used in queries.
  *
@@ -33,8 +35,7 @@ public interface IQueryBuilderFunctions extends IQueryBuilderPart
 	IQueryBuilder getParent();
 
 	/** Cast using type name.
-	 * @see IQueryBuilderColumn
-	 * @see IQueryBuilderColumn#cast(String)
+	 * @see QBColumn#cast(String)
 	 * @param object value to case
 	 * @param type type name
 	 */

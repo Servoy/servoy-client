@@ -365,6 +365,11 @@ public class QBResult extends QBPart implements IQueryBuilderResult
 	 *
 	 * @return The query result object with the specified column removed.
 	 */
+	public QBResult js_remove(QBColumn column)
+	{
+		return remove(column);
+	}
+
 	public QBResult remove(IQueryBuilderColumn column)
 	{
 		if (column != null)
