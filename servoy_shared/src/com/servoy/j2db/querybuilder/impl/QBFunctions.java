@@ -20,6 +20,7 @@ package com.servoy.j2db.querybuilder.impl;
 import static com.servoy.j2db.persistence.IColumnTypes.TEXT;
 import static com.servoy.j2db.query.QueryFunction.QueryFunctionType.abs;
 import static com.servoy.j2db.query.QueryFunction.QueryFunctionType.bit_length;
+import static com.servoy.j2db.query.QueryFunction.QueryFunctionType.cardinality;
 import static com.servoy.j2db.query.QueryFunction.QueryFunctionType.cast;
 import static com.servoy.j2db.query.QueryFunction.QueryFunctionType.ceil;
 import static com.servoy.j2db.query.QueryFunction.QueryFunctionType.coalesce;
@@ -635,6 +636,23 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	public QBIntegerColumnBase year(Object arg)
 	{
 		return new QBFunctionImpl(getRoot(), getParent(), year, new IQuerySelectValue[] { createOperand(arg) });
+	}
+
+
+	/**
+	 * @clonedesc com.servoy.j2db.querybuilder.impl.QBArrayColumnBase#cardinality()
+	 * @param arg date object
+	 * @sample
+	 * var query = datasources.db.example_data.orders.createSelect();
+	 * query.where.add(query.columns.mydatecol.year.eq(query.functions.year(mydatevar))
+	 * foundset.loadRecords(query);
+	 *
+	 * @return A query builder column representing the year component of a date/time value.
+	 */
+	@JSFunction
+	public QBIntegerColumnBase cardinality(Object arg)
+	{
+		return new QBFunctionImpl(getRoot(), getParent(), cardinality, new IQuerySelectValue[] { createOperand(arg) });
 	}
 
 	/**

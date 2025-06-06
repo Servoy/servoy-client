@@ -18,6 +18,7 @@
 package com.servoy.j2db.querybuilder.impl;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
+import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 
 /**
  * This interface lists functions on array columns.
@@ -28,4 +29,11 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, realClass = QBArrayColumn.class)
 public interface QBArrayColumnBase
 {
+	/**
+	 * Create cardinality(column) expression
+	 * @sample
+	 * query.result.add(query.columns.arraycol.cardinality)
+	 */
+	@JSReadonlyProperty(debuggerRepresentation = "Query cardinality clause")
+	QBIntegerColumnBase cardinality();
 }

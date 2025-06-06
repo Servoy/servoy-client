@@ -67,6 +67,7 @@ public final class QueryFunction implements IQuerySelectValue
 		floor,
 		round,
 		ceil,
+		cardinality,
 
 		distinct, // slightly abused as function
 		plus,
@@ -183,6 +184,7 @@ public final class QueryFunction implements IQuerySelectValue
 			case locate :
 			case length :
 			case bit_length :
+			case cardinality :
 				return ColumnType.getColumnType(IColumnTypes.INTEGER);
 
 			case round :
@@ -250,6 +252,7 @@ public final class QueryFunction implements IQuerySelectValue
 			case locate :
 			case length :
 			case bit_length :
+			case cardinality :
 			case concat :
 				return 0;
 

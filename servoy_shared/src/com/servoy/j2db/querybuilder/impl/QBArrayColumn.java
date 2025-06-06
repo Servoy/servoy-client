@@ -19,8 +19,8 @@ package com.servoy.j2db.querybuilder.impl;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
 
-/**RAGTEST doc
- * <p>The <code>QBMediaColumn</code> class represents a media column in a <code>QBSelect</code> query.
+/**
+ * <p>The <code>QBArrayColumn</code> class represents a array column in a <code>QBSelect</code> query.
  *
  * <p>For more information about constructing and executing queries and columns, refer to the
  * <a href="https://docs.servoy.com/reference/servoycore/dev-api/database-manager/qbcolumn">QBSelect</a> section of this documentation.</p>
