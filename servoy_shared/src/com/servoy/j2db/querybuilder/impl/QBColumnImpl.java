@@ -39,7 +39,7 @@ import com.servoy.j2db.querybuilder.IQueryBuilderColumn;
  */
 public class QBColumnImpl extends QBPart
 	implements IQueryBuilderColumn, QBGenericColumnBase, QBIntegerColumnBase, QBDatetimeColumnBase, QBNumberColumnBase, QBMediaColumnBase,
-	QBTextColumnBase, QBColumnComparable, QBColumn, QBNumberColumnFunctions<QBColumn>
+	QBTextColumnBase, QBColumnComparable, QBArrayColumnBase, QBColumn, QBNumberColumnFunctions<QBColumn>
 {
 	private final IQuerySelectValue queryColumn;
 	protected final boolean negate;
