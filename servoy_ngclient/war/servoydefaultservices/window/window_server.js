@@ -519,6 +519,9 @@ $scope.api.createShortcut = function(shortcut, callback, contextFilter, argument
         arguments = contextFilter;
         contextFilter = null;
     }
+	if (callback == undefined) {
+		throw new Error('The callback function is required for creating a shortcut.');
+	}
     if (contextFilter == undefined) {
         contextFilter = null;
     }
