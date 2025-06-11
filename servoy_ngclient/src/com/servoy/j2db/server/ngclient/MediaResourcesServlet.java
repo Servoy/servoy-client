@@ -402,7 +402,31 @@ public class MediaResourcesServlet extends AbstractMediaResourceServlet
 						ServletFileUpload upload = new ServletFileUpload(diskFileItemFactory);
 						upload.setHeaderEncoding(reqEncoding);
 						long maxUpload = Utils.getAsLong(settings.getProperty("servoy.webclient.maxuploadsize", "0"), false);
-						if (maxUpload > 0) upload.setFileSizeMax(maxUpload * 1000);
+						if (maxUpload > 0) // if there is a limit on the server, make sure to overwrite it with the one from the client side (if that is bigger)
+						{
+							String headerValue = req.getHeader("X-Max-Upload-Size");
+							if (headerValue != null)
+							{
+								try
+								{
+									long maxClientUpload = Long.parseLong(headerValue);
+									if (maxClientUpload == 0) //no limit
+									{
+										maxUpload = maxClientUpload;
+									}
+									else
+									{
+										maxUpload = Math.max(maxUpload, maxClientUpload);
+									}
+								}
+								catch (NumberFormatException e)
+								{
+									Debug.error("Invalid X-Max-Upload-Size header value: " + headerValue, e);
+								}
+							}
+							if (maxUpload > 0) upload.setFileSizeMax(maxUpload * 1024);
+						}
+
 						final List<FileUploadData> aFileUploadData = new ArrayList<FileUploadData>();
 						List<FileItem> formFields = new ArrayList<>();
 						for (FileItem item : upload.parseRequest(req))
@@ -464,7 +488,7 @@ public class MediaResourcesServlet extends AbstractMediaResourceServlet
 				{
 					res.setStatus(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE);
 					if (wsSession != null) res.getWriter().print(
-						wsSession.getClient().getI18NMessage("servoy.filechooser.sizeExceeded", new Object[] { ex.getPermittedSize() / 1000 + "KB" }));
+						wsSession.getClient().getI18NMessage("servoy.filechooser.sizeExceeded", new Object[] { ex.getPermittedSize() / 1024 + "KB" }));
 				}
 				catch (FileUploadException ex)
 				{
