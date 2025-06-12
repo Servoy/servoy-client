@@ -402,7 +402,7 @@ public class MediaResourcesServlet extends AbstractMediaResourceServlet
 						ServletFileUpload upload = new ServletFileUpload(diskFileItemFactory);
 						upload.setHeaderEncoding(reqEncoding);
 
-						Long runtimeMaxSize = (Long)wsSession.getClient().getRuntimeProperties().remove("servoy.runtime.maxuploadfilesize");
+						Long runtimeMaxSize = (Long)wsSession.getClient().getRuntimeProperties().get("servoy.runtime.maxuploadfilesize");
 						long maxUpload = runtimeMaxSize != null ? runtimeMaxSize.longValue() : 0;
 						if (maxUpload == 0) // there is no runtime max set get the property
 						{
