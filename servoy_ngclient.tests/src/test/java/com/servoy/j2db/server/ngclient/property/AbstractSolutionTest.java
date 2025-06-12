@@ -173,6 +173,12 @@ public abstract class AbstractSolutionTest extends Log4JToConsoleTest
 			return Collections.emptySet();
 		}
 
+		@Override
+		public Procedure getProcedure(String name, Object[] args)
+		{
+			return null;
+		}
+
 		public List<ColumnName> getTenantColumns() throws RepositoryException, RemoteException
 		{
 			return Collections.emptyList();

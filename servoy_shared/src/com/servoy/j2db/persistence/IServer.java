@@ -49,6 +49,14 @@ public interface IServer extends Remote
 
 	public Collection<Procedure> getProcedures() throws RepositoryException, RemoteException;
 
+	/**
+	 * @param name
+	 * @param args
+	 * @return
+	 */
+	public Procedure getProcedure(String name, Object[] args) throws RepositoryException, RemoteException;
+
+
 	public Map<String, ITable> getInitializedTables() throws RepositoryException, RemoteException;
 
 	public List<String> getViewNames(boolean hideTempViews) throws RepositoryException, RemoteException;
@@ -89,4 +97,5 @@ public interface IServer extends Remote
 	public void dropClientDatasource(String clientId) throws RemoteException;
 
 	public ServerSettings getSettings() throws RemoteException;
+
 }

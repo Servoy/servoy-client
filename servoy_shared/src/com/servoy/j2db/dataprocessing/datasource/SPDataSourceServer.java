@@ -120,18 +120,20 @@ public class SPDataSourceServer extends DefaultJavaScope implements LazyInitScop
 			if (server != null)
 			{
 				// TODO change to getProcedures()
-				for (final Procedure proc : server.getProcedures())
+				for (Procedure proc : server.getProcedures())
 				{
 					put(proc.getName(), this, new Callable()
 					{
 						@Override
 						public Object call(Context cx, Scriptable scope, Scriptable thisObj, Object[] args)
 						{
+							Procedure pr = null;
 							try
 							{
+								pr = server.getProcedure(proc.getName(), args);
 								IDataSet[] datasets = application.getDataServer().executeProcedure(application.getClientID(), server.getName(),
-									application.getFoundSetManager().getTransactionID(server.getName()), proc,
-									getAsRightType(proc.getParameters(), unwrap(args)));
+									application.getFoundSetManager().getTransactionID(server.getName()), pr,
+									getAsRightType(pr.getParameters(), unwrap(args)));
 
 								if (datasets == null)
 								{
@@ -147,7 +149,7 @@ public class SPDataSourceServer extends DefaultJavaScope implements LazyInitScop
 								// return an object with result keys and array-index
 								Scriptable obj = cx.newObject(scope);
 								// columns sets are sorted
-								List<String> keys = new ArrayList<>(proc.getColumns().keySet());
+								List<String> keys = new ArrayList<>(pr.getColumns().keySet());
 								for (int i = 0; i < datasets.length; i++)
 								{
 									Object wrapped = cx.getWrapFactory().wrap(cx, scope, datasets[i], null);
@@ -163,7 +165,7 @@ public class SPDataSourceServer extends DefaultJavaScope implements LazyInitScop
 							catch (RemoteException | ServoyException e)
 							{
 								Debug.error(e);
-								throw new RuntimeException("error calling procedure '" + proc.getName() + "'", e);
+								throw new RuntimeException("error calling procedure '" + pr != null ? pr.getName() : "null" + "'", e);
 							}
 						}
 					});

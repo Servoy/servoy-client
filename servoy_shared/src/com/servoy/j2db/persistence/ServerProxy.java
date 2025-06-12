@@ -270,6 +270,12 @@ public class ServerProxy implements IServer, Serializable
 	}
 
 	@Override
+	public Procedure getProcedure(String name, Object[] args) throws RepositoryException, RemoteException
+	{
+		return server.getProcedure(name, args);
+	}
+
+	@Override
 	public boolean createClientDatasource(JSConnectionDefinition definition) throws RemoteException
 	{
 		return server.createClientDatasource(definition);
