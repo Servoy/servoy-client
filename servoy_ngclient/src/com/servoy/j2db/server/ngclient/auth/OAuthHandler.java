@@ -316,7 +316,7 @@ public class OAuthHandler
 		String refresh_token = oldToken.getStringClaim(StatelessLoginHandler.REFRESH_TOKEN);
 		if (refresh_token != null)
 		{
-			JSONObject properties = new ServoyJSONObject(solution.getCustomProperties(), true);
+			JSONObject properties = new ServoyJSONObject(solution.getCustomProperties(), false);
 			if (properties.has(StatelessLoginHandler.OAUTH_CUSTOM_PROPERTIES))
 			{
 				JSONObject auth = properties.getJSONObject(StatelessLoginHandler.OAUTH_CUSTOM_PROPERTIES);
@@ -445,7 +445,7 @@ public class OAuthHandler
 
 	public static void revokeToken(Solution solution, DecodedJWT jwt)
 	{
-		JSONObject properties = new ServoyJSONObject(solution.getCustomProperties(), true);
+		JSONObject properties = new ServoyJSONObject(solution.getCustomProperties(), false);
 		if (properties.has(StatelessLoginHandler.OAUTH_CUSTOM_PROPERTIES))
 		{
 			JSONObject auth = properties.getJSONObject(StatelessLoginHandler.OAUTH_CUSTOM_PROPERTIES);
@@ -500,7 +500,7 @@ public class OAuthHandler
 	private static JSONObject getConfig(Solution solution, Solution authenticatorModule, JSONArray args)
 	{
 		String method = GET_OAUTH_CONFIG;
-		JSONObject properties = new ServoyJSONObject(solution.getCustomProperties(), true);
+		JSONObject properties = new ServoyJSONObject(solution.getCustomProperties(), false);
 		ScriptMethod sm = null;
 		if (properties.has(GET_OAUTH_CONFIG))
 		{

@@ -1061,7 +1061,7 @@ public class ComponentFactory
 			// new format: json
 			try
 			{
-				return new JSONWrapperMap<T>(new ServoyJSONObject(properties, false, true, false));
+				return new JSONWrapperMap<T>(new ServoyJSONObject(properties, false, false, false));
 			}
 			catch (JSONException e)
 			{

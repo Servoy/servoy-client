@@ -34,7 +34,7 @@ import org.json.JSONString;
 
 public class ServoyJSONObject extends JSONObject implements Serializable, Cloneable
 {
-	protected boolean noQuotes = true;
+	protected boolean noQuotes = false;
 	protected boolean newLines = true;
 	protected boolean noBrackets = false;
 	private static final SimpleDateFormat ISO_DATE_FORMAT; // from rhino NativeDate
@@ -88,12 +88,15 @@ public class ServoyJSONObject extends JSONObject implements Serializable, Clonea
 
 	public ServoyJSONObject(String data, boolean noBrackets) throws JSONException
 	{
-		this(data, noBrackets, true, true);
+		this(data, noBrackets, false, true);
 	}
 
 	public ServoyJSONObject(String data, boolean noBrackets, boolean noQuotes, boolean newLines) throws JSONException
 	{
-		super((noBrackets ? "{" : "") + (newLines ? replaceEmbeddedStringNewlines(data) : data) + (noBrackets ? "}" : ""));
+		// noBrackets false is just a hint now, for backwards compatibility we have to check the actual data if it has brackets or not
+		super((noBrackets || (data != null && !data.startsWith("{") && !data.startsWith("[")) ? "{" : "") +
+			(newLines ? replaceEmbeddedStringNewlines(data) : data) +
+			(noBrackets || (data != null && !data.startsWith("}") && !data.startsWith("[")) ? "}" : ""));
 		this.noQuotes = noQuotes;
 		this.newLines = newLines;
 		this.noBrackets = noBrackets;

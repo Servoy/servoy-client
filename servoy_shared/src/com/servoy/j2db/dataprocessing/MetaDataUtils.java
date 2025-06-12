@@ -136,7 +136,7 @@ public class MetaDataUtils
 		json.put("rows", jsonRows);
 
 		// toString
-		return json.toString(true);
+		return json.toString(false);
 	}
 
 	/**
@@ -153,7 +153,7 @@ public class MetaDataUtils
 			return null;
 		}
 
-		ServoyJSONObject json = new ServoyJSONObject(data, true);
+		ServoyJSONObject json = new ServoyJSONObject(data, false);
 		JSONArray jsonColumns = (JSONArray)json.get("columns");
 
 		String[] columnNames = new String[jsonColumns.length()];

@@ -60,7 +60,7 @@ public class DatabaseUtils
 	{
 		try
 		{
-			ServoyJSONObject dbiContents = new ServoyJSONObject(stringDBIContent, true);
+			ServoyJSONObject dbiContents = new ServoyJSONObject(stringDBIContent, false);
 			TableDef tableInfo = deserializeTableInfo(dbiContents);
 			tableInfo.dbiFileContents = stringDBIContent;
 			return tableInfo;
@@ -94,7 +94,7 @@ public class DatabaseUtils
 		if (stringDBIContent != null)
 		{
 			serverDef.dbiFileContents = stringDBIContent;
-			ServoyJSONObject json = new ServoyJSONObject(stringDBIContent, true);
+			ServoyJSONObject json = new ServoyJSONObject(stringDBIContent, false);
 			serverDef.serverSettings = new ServerSettings(
 				json.getBoolean("sortIgnorecase"),
 				SortingNullprecedence.valueOf(json.getString("sortingNullprecedence")),
