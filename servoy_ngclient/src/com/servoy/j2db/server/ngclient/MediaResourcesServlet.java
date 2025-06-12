@@ -401,28 +401,14 @@ public class MediaResourcesServlet extends AbstractMediaResourceServlet
 						diskFileItemFactory.setFileCleaningTracker(FILE_CLEANING_TRACKER);
 						ServletFileUpload upload = new ServletFileUpload(diskFileItemFactory);
 						upload.setHeaderEncoding(reqEncoding);
-						long maxUpload = Utils.getAsLong(settings.getProperty("servoy.webclient.maxuploadsize", "0"), false);
-						if (maxUpload > 0) // if there is a limit on the server, make sure to overwrite it with the one from the client side (if that is bigger)
+
+						Long runtimeMaxSize = (Long)wsSession.getClient().getRuntimeProperties().remove("servoy.runtime.maxuploadfilesize");
+						long maxUpload = runtimeMaxSize != null ? runtimeMaxSize.longValue() : 0;
+						if (maxUpload == 0) // there is no runtime max set get the property
 						{
-							String maxSizeStr = (String)wsSession.getClient().getRuntimeProperties().get("servoy.runtime.maxuploadfilesize");
-							try
-							{
-								long maxClientUpload = Long.parseLong(maxSizeStr != null ? maxSizeStr : "0");
-								if (maxClientUpload == 0) //no limit
-								{
-									maxUpload = maxClientUpload;
-								}
-								else
-								{
-									maxUpload = Math.max(maxUpload, maxClientUpload);
-								}
-							}
-							catch (NumberFormatException e)
-							{
-								Debug.error("Invalid upload size: " + maxSizeStr, e);
-							}
-							if (maxUpload > 0) upload.setFileSizeMax(maxUpload * 1024);
-						} // else no limitation on the server; the file(s) we're already filtered in the client side
+							maxUpload = Utils.getAsLong(settings.getProperty("servoy.webclient.maxuploadsize", "0"), false);
+						}
+						if (maxUpload > 0) upload.setFileSizeMax(maxUpload * 1024);
 
 						final List<FileUploadData> aFileUploadData = new ArrayList<FileUploadData>();
 						List<FileItem> formFields = new ArrayList<>();
