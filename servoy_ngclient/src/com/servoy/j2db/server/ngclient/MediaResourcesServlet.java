@@ -401,8 +401,15 @@ public class MediaResourcesServlet extends AbstractMediaResourceServlet
 						diskFileItemFactory.setFileCleaningTracker(FILE_CLEANING_TRACKER);
 						ServletFileUpload upload = new ServletFileUpload(diskFileItemFactory);
 						upload.setHeaderEncoding(reqEncoding);
-						long maxUpload = Utils.getAsLong(settings.getProperty("servoy.webclient.maxuploadsize", "0"), false);
-						if (maxUpload > 0) upload.setFileSizeMax(maxUpload * 1000);
+
+						Long runtimeMaxSize = (Long)wsSession.getClient().getRuntimeProperties().get("servoy.runtime.maxuploadfilesize");
+						long maxUpload = runtimeMaxSize != null ? runtimeMaxSize.longValue() : 0;
+						if (maxUpload == 0) // there is no runtime max set get the property
+						{
+							maxUpload = Utils.getAsLong(settings.getProperty("servoy.webclient.maxuploadsize", "0"), false);
+						}
+						if (maxUpload > 0) upload.setFileSizeMax(maxUpload * 1024);
+
 						final List<FileUploadData> aFileUploadData = new ArrayList<FileUploadData>();
 						List<FileItem> formFields = new ArrayList<>();
 						for (FileItem item : upload.parseRequest(req))
@@ -464,7 +471,7 @@ public class MediaResourcesServlet extends AbstractMediaResourceServlet
 				{
 					res.setStatus(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE);
 					if (wsSession != null) res.getWriter().print(
-						wsSession.getClient().getI18NMessage("servoy.filechooser.sizeExceeded", new Object[] { ex.getPermittedSize() / 1000 + "KB" }));
+						wsSession.getClient().getI18NMessage("servoy.filechooser.sizeExceeded", new Object[] { ex.getPermittedSize() / 1024 + "KB" }));
 				}
 				catch (FileUploadException ex)
 				{
