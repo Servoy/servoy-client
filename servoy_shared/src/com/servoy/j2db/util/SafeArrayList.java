@@ -36,7 +36,7 @@ import java.util.RandomAccess;
 public class SafeArrayList<E> implements Collection<E>, List<E>, RandomAccess, Cloneable, java.io.Serializable
 {
 	// if this class is really changed then up this version if needed
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = -4792011112490329702L;
 
 	private int initialCapacity;
 	private final ArrayList<E> list;
