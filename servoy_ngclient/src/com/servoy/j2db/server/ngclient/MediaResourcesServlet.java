@@ -404,28 +404,25 @@ public class MediaResourcesServlet extends AbstractMediaResourceServlet
 						long maxUpload = Utils.getAsLong(settings.getProperty("servoy.webclient.maxuploadsize", "0"), false);
 						if (maxUpload > 0) // if there is a limit on the server, make sure to overwrite it with the one from the client side (if that is bigger)
 						{
-							String headerValue = req.getHeader("X-Max-Upload-Size");
-							if (headerValue != null)
+							String maxSizeStr = (String)wsSession.getClient().getRuntimeProperties().get("servoy.runtime.maxuploadfilesize");
+							try
 							{
-								try
+								long maxClientUpload = Long.parseLong(maxSizeStr != null ? maxSizeStr : "0");
+								if (maxClientUpload == 0) //no limit
 								{
-									long maxClientUpload = Long.parseLong(headerValue);
-									if (maxClientUpload == 0) //no limit
-									{
-										maxUpload = maxClientUpload;
-									}
-									else
-									{
-										maxUpload = Math.max(maxUpload, maxClientUpload);
-									}
+									maxUpload = maxClientUpload;
 								}
-								catch (NumberFormatException e)
+								else
 								{
-									Debug.error("Invalid X-Max-Upload-Size header value: " + headerValue, e);
+									maxUpload = Math.max(maxUpload, maxClientUpload);
 								}
 							}
+							catch (NumberFormatException e)
+							{
+								Debug.error("Invalid upload size: " + maxSizeStr, e);
+							}
 							if (maxUpload > 0) upload.setFileSizeMax(maxUpload * 1024);
-						}
+						} // else no limitation on the server; the file(s) we're already filtered in the client side
 
 						final List<FileUploadData> aFileUploadData = new ArrayList<FileUploadData>();
 						List<FileItem> formFields = new ArrayList<>();
