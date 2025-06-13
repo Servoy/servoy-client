@@ -18,10 +18,11 @@
 package com.servoy.j2db.querybuilder;
 
 import com.servoy.j2db.persistence.RepositoryException;
+import com.servoy.j2db.querybuilder.impl.QBColumn;
 
 /**
  * The sorts (ordering) section of Servoy Query Objects.
- * 
+ *
  * @author rgansevles
  *
  * @since 6.1
@@ -35,16 +36,16 @@ public interface IQueryBuilderSorts extends IQueryBuilderPart
 	IQueryBuilderSorts addPk() throws RepositoryException;
 
 	/**
-	 * Ad a sorting on a column to the query sort.
-	 * @see IQueryBuilderColumn#asc()
-	 * @see IQueryBuilderColumn#desc()
+	 * Add a sorting on a column to the query sort.
+	 * @see QBColumn#asc()
+	 * @see QBColumn#desc()
 	 */
 	IQueryBuilderSorts add(IQueryBuilderSort columnSort) throws RepositoryException;
 
 	/**
-	 * Ad an ascending sorting on a column to the query sort.
+	 * Add an ascending sorting on a column to the query sort.
 	 */
-	IQueryBuilderSorts add(IQueryBuilderColumn columnSortAsc) throws RepositoryException;
+	IQueryBuilderSorts add(QBColumn columnSortAsc) throws RepositoryException;
 
 	/**
 	 * Clear the sorting clause for the query.

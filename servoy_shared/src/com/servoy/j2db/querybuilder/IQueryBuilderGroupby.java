@@ -18,6 +18,7 @@
 package com.servoy.j2db.querybuilder;
 
 import com.servoy.j2db.persistence.RepositoryException;
+import com.servoy.j2db.querybuilder.impl.QBColumn;
 
 /**
  * Group-by clause in Servoy Query Objects.
@@ -51,7 +52,7 @@ public interface IQueryBuilderGroupby extends IQueryBuilderPart
 	 *
 	 * Same as query.groupBy().add(join.getColumn("value"))
 	 */
-	IQueryBuilderGroupby add(IQueryBuilderColumn column) throws RepositoryException;
+	IQueryBuilderGroupby add(QBColumn column) throws RepositoryException;
 
 	/**
 	 * Clear the to group-by clause.

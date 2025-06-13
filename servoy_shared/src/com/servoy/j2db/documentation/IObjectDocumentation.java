@@ -49,6 +49,8 @@ public interface IObjectDocumentation
 
 	public String getScriptingName();
 
+	public String getRealClass();
+
 	public String getDescription(ClientSupport csp);
 
 	public String getCategory();

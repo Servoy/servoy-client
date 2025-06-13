@@ -63,7 +63,7 @@ public abstract class QBTableClause extends QBPart implements IQueryBuilderTable
 	private QBJoins joins;
 
 	private ITable table;
-	private final Map<String, QBColumn> columns = new HashMap<String, QBColumn>();
+	private final Map<String, QBColumn> columns = new HashMap<>();
 
 	private QBColumns builderColumns;
 
@@ -184,8 +184,7 @@ public abstract class QBTableClause extends QBPart implements IQueryBuilderTable
 		{
 			throw new RepositoryException("Cannot find column '" + name + "' in data source '" + dataSource + "'");
 		}
-
-		return new QBColumn(getRoot(), this, col.queryColumn(getQueryTable()));
+		return new QBColumnImpl(getRoot(), this, col.queryColumn(getQueryTable()));
 	}
 
 	/**

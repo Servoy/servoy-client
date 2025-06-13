@@ -49,7 +49,7 @@ import com.servoy.j2db.util.Pair;
  * @author rgansevles
  *
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "QBCase")
+@ServoyDocumented(category = ServoyDocumented.RUNTIME)
 public class QBCase extends QBPart implements IQueryBuilderCase
 {
 	private final List<Pair<QBCondition, Object>> whenThen = new ArrayList<>();
@@ -81,9 +81,9 @@ public class QBCase extends QBPart implements IQueryBuilderCase
 	 *
 	 * @sampleas com.servoy.j2db.querybuilder.impl.QBSelect#js_case()
 	 *
-	 * @return A QBSearchedCaseExpression that defines the value to return if none of the when clauses are satisfied.
+	 * @return A QBColumn that defines the value to return if none of the when clauses are satisfied.
 	 */
-	public QBSearchedCaseExpression jsFunction_else(Object value)
+	public QBGenericColumnBase jsFunction_else(Object value)
 	{
 		return qelse(value);
 	}
@@ -93,14 +93,14 @@ public class QBCase extends QBPart implements IQueryBuilderCase
 	 */
 	@Deprecated
 	@JSFunction
-	public QBSearchedCaseExpression elseValue(Object value)
+	public QBGenericColumnBase elseValue(Object value)
 	{
 		return qelse(value);
 	}
 
-	public QBSearchedCaseExpression qelse(Object value)
+	public QBGenericColumnBase qelse(Object value)
 	{
-		return new QBSearchedCaseExpression(getRoot(), getParent(), buildSearchedCaseExpression(getRoot(), whenThen, value));
+		return new QBColumnImpl(getRoot(), getParent(), buildSearchedCaseExpression(getRoot(), whenThen, value));
 	}
 
 	QBCase withWhenThen(IQueryBuilderCondition whenCondition, Object thenValue)

@@ -1,5 +1,5 @@
 /*
- This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2011 Servoy BV
+ This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2025 Servoy BV
 
  This program is free software; you can redistribute it and/or modify it under
  the terms of the GNU Affero General Public License as published by the Free
@@ -13,17 +13,20 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
- */
+*/
 
-package com.servoy.j2db.querybuilder;
+package com.servoy.j2db.querybuilder.impl;
+
+import com.servoy.j2db.documentation.ServoyDocumented;
+import com.servoy.j2db.querybuilder.IQueryBuilderColumn;
 
 /**
- * Function column used in Servoy Query Objects.
- * 
+ * This interface lists functions on integer columns.
+ *
  * @author rgansevles
  *
- * @since 6.1
  */
-public interface IQueryBuilderFunction extends IQueryBuilderColumn
+@ServoyDocumented(category = ServoyDocumented.RUNTIME, realClass = QBIntegerColumn.class)
+public interface QBIntegerColumnBase extends IQueryBuilderColumn
 {
 }

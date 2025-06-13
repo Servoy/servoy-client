@@ -17,37 +17,22 @@
 
 package com.servoy.j2db.querybuilder.impl;
 
-import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.query.IQuerySelectValue;
 import com.servoy.j2db.query.QueryFunction;
 import com.servoy.j2db.query.QueryFunction.QueryFunctionType;
-import com.servoy.j2db.querybuilder.IQueryBuilderFunction;
 
 /**
- * <p>The <code>QBFunction</code> class is a wrapper for SQL functions, designed for use within
- * <code>QBSelect</code> to build complex expressions and conditions for queries. It facilitates
- * operations such as mathematical transformations, string manipulations, and date/time calculations,
- * enabling dynamic and flexible data handling.</p>
- *
- * <p>Key features include creating expressions like <code>abs</code>, <code>avg</code>,
- * <code>ceil</code>, <code>lower</code>, and <code>round</code> for mathematical or string operations.
- * Date extraction functions, such as <code>day</code>, <code>month</code>, and <code>year</code>,
- * are also supported. Logical conditions like <code>between</code>, <code>like</code>, <code>eq</code>,
- * and <code>lt</code> provide powerful tools for data filtering and comparison.</p>
- *
- * <p>For more information on constructing and executing queries, refer to the
- * <a href="https://docs.servoy.com/reference/servoycore/dev-api/database-manager/qbselect">QBSelect</a> section of this documentation.</p>
+ * QueryBuilder implementation of functions.
  *
  * @author rgansevles
  *
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "QBFunction")
-public class QBFunction extends QBColumn implements IQueryBuilderFunction
+public class QBFunctionImpl extends QBColumnImpl
 {
 	private final QueryFunctionType functionType;
 	private final IQuerySelectValue[] functionArgs;
 
-	QBFunction(QBSelect root, QBTableClause queryBuilderTableClause, QueryFunctionType functionType, IQuerySelectValue[] functionArgs)
+	QBFunctionImpl(QBSelect root, QBTableClause queryBuilderTableClause, QueryFunctionType functionType, IQuerySelectValue[] functionArgs)
 	{
 		super(root, queryBuilderTableClause, null);
 		this.functionType = functionType;

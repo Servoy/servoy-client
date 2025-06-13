@@ -36,13 +36,13 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
  * @author rgansevles
  *
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "QBSort")
+@ServoyDocumented(category = ServoyDocumented.RUNTIME)
 public class QBSort extends QBPart implements IQueryBuilderSort
 {
 	private final boolean ascending;
-	private final QBColumn queryBuilderColumn;
+	private final QBColumnImpl queryBuilderColumn;
 
-	public QBSort(QBSelect parent, QBColumn queryBuilderColumn, boolean ascending)
+	public QBSort(QBSelect parent, QBColumnImpl queryBuilderColumn, boolean ascending)
 	{
 		super(parent, parent);
 		this.queryBuilderColumn = queryBuilderColumn;

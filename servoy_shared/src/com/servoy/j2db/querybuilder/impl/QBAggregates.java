@@ -70,11 +70,11 @@ public class QBAggregates extends QBPart implements IQueryBuilderAggregates
 	 * 	query.groupBy.add(query.columns.countryCode)
 	 *  var ds = databaseManager.getDataSetByQuery(query, 100);
 	 *
-	 *  @return A QBAggregate object representing the count operation.
+	 *  @return A QBCountAggregate object representing the count operation.
 	 */
 	@JSFunction
 	@Override
-	public QBAggregate count()
+	public QBCountAggregate count()
 	{
 		return count(ASTERIX);
 	}
@@ -87,21 +87,21 @@ public class QBAggregates extends QBPart implements IQueryBuilderAggregates
 	 * 	query.groupBy.add(query.columns.countryCode)
 	 *  var ds = databaseManager.getDataSetByQuery(query, 100);
 	 *
-	 *  @param {Object} aggregee - The column, expression, or value to count. Can also be a special value like "*" for counting all rows.
+	 *  @param aggregee The column, expression, or value to count. Can also be a special value like "*" for counting all rows.
 	 *
-	 *  @return A QBAggregate object representing the count operation with the specified aggregee.
+	 *  @return A QBCountAggregate object representing the count operation with the specified aggregee.
 	 */
 	@JSFunction
 	@Override
-	public QBAggregate count(Object aggregee)
+	public QBCountAggregate count(Object aggregee)
 	{
 		IQuerySelectValue operand = createOperand(aggregee, aggregee instanceof Number ? IColumnTypes.INTEGER : 0);
-		if (operand instanceof QueryColumnValue && (aggregee instanceof Number || ASTERIX.equals(aggregee)))
+		if (operand instanceof QueryColumnValue queryColumnValue && (aggregee instanceof Number || ASTERIX.equals(aggregee)))
 		{
-			operand = ((QueryColumnValue)operand).withFixedvalue(true);
+			operand = queryColumnValue.withFixedvalue(true);
 		}
 
-		return new QBAggregate(getRoot(), getParent(), operand, QueryAggregate.COUNT, QueryAggregate.ALL);
+		return new QBAggregateImpl(getRoot(), getParent(), operand, QueryAggregate.COUNT, QueryAggregate.ALL);
 	}
 
 	/**
@@ -112,13 +112,13 @@ public class QBAggregates extends QBPart implements IQueryBuilderAggregates
 	 * 	query.groupBy.add(query.columns.countryCode)
 	 *  var ds = databaseManager.getDataSetByQuery(query, 100);
 	 *
-	 *  @param {Object} aggregee - The column or expression to calculate the average for.
+	 *  @param aggregee The column or expression to calculate the average for.
 	 *
-	 *  @return A QBAggregate object representing the average operation for the specified aggregee.
+	 *  @return A QBColumn object representing the average operation for the specified aggregee.
 	 */
 	@JSFunction
 	@Override
-	public QBAggregate avg(Object aggregee)
+	public QBGenericColumnBase avg(Object aggregee)
 	{
 		return createAggregate(aggregee, QueryAggregate.AVG);
 	}
@@ -131,13 +131,13 @@ public class QBAggregates extends QBPart implements IQueryBuilderAggregates
 	 * 	query.groupBy.add(query.columns.countryCode)
 	 *  var ds = databaseManager.getDataSetByQuery(query, 100);
 	 *
-	 *  @param {Object} aggregee - The column or expression to calculate the maximum value for. This can be a specific column or a computed expression.
+	 *  @param aggregee The column or expression to calculate the maximum value for. This can be a specific column or a computed expression.
 	 *
 	 *  @return A QBAggregate object representing the maximum value operation for the specified aggregee.
 	 */
 	@JSFunction
 	@Override
-	public QBAggregate max(Object aggregee)
+	public QBGenericColumnBase max(Object aggregee)
 	{
 		return createAggregate(aggregee, QueryAggregate.MAX);
 	}
@@ -150,13 +150,13 @@ public class QBAggregates extends QBPart implements IQueryBuilderAggregates
 	 * 	query.groupBy.add(query.columns.countryCode)
 	 *  var ds = databaseManager.getDataSetByQuery(query, 100);
 	 *
-	 * @param {Object} aggregee - The column or expression to calculate the minimum value for. This can be a specific column or a computed expression.
+	 * @param aggregee The column or expression to calculate the minimum value for. This can be a specific column or a computed expression.
 	 *
-	 * @return A QBAggregate object representing the minimum value operation for the specified aggregee.
+	 * @return A QBColumn object representing the minimum value operation for the specified aggregee.
 	 */
 	@JSFunction
 	@Override
-	public QBAggregate min(Object aggregee)
+	public QBGenericColumnBase min(Object aggregee)
 	{
 		return createAggregate(aggregee, QueryAggregate.MIN);
 	}
@@ -169,20 +169,20 @@ public class QBAggregates extends QBPart implements IQueryBuilderAggregates
 	 * 	query.groupBy.add(query.columns.countryCode)
 	 *  var ds = databaseManager.getDataSetByQuery(query, 100);
 	 *
-	 * @param {Object} aggregee - The column or expression to calculate the sum for. This can be a specific column or a computed expression.
+	 * @param aggregee The column or expression to calculate the sum for. This can be a specific column or a computed expression.
 	 *
-	 * @return A QBAggregate object representing the sum operation for the specified aggregee.
+	 * @return A QBColumn object representing the sum operation for the specified aggregee.
 	 */
 	@JSFunction
 	@Override
-	public QBAggregate sum(Object aggregee)
+	public QBGenericColumnBase sum(Object aggregee)
 	{
 		return createAggregate(aggregee, QueryAggregate.SUM);
 	}
 
-	protected QBAggregate createAggregate(Object aggregee, int aggregateType)
+	protected QBGenericColumnBase createAggregate(Object aggregee, int aggregateType)
 	{
-		return new QBAggregate(getRoot(), getParent(), getRoot().createOperand(aggregee, null, 0), aggregateType, QueryAggregate.ALL);
+		return new QBAggregateImpl(getRoot(), getParent(), getRoot().createOperand(aggregee, null, 0), aggregateType, QueryAggregate.ALL);
 	}
 
 	protected IQuerySelectValue createOperand(Object value, int type)

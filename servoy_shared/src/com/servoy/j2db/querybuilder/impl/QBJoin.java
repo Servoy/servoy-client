@@ -182,31 +182,31 @@ public class QBJoin extends QBTableClause implements IQueryBuilderJoin, IConstan
 	protected QBColumn createColumn(String name) throws RepositoryException
 	{
 		ITableReference foreignTableReference = join.getForeignTableReference();
-		if (foreignTableReference instanceof TableExpression)
+		if (foreignTableReference instanceof TableExpression tableExpression)
 		{
 
-			ITable joinTable = getRoot().getTable(foreignTableReference.getTable().getDataSource());
+			ITable joinTable = getRoot().getTable(tableExpression.getTable().getDataSource());
 			if (joinTable == null)
 			{
-				throw new RepositoryException("Cannot find column '" + name + "' in data source '" + foreignTableReference.getTable().getDataSource() + "'");
+				throw new RepositoryException("Cannot find column '" + name + "' in data source '" + tableExpression.getTable().getDataSource() + "'");
 			}
 
 			Column col = joinTable.getColumn(name);
 			if (col == null)
 			{
-				throw new RepositoryException("Cannot find column '" + name + "' in data source '" + foreignTableReference.getTable().getDataSource() + "'");
+				throw new RepositoryException("Cannot find column '" + name + "' in data source '" + tableExpression.getTable().getDataSource() + "'");
 			}
 
-			return new QBColumn(getRoot(), this, col.queryColumn(getQueryTable()));
+			return new QBColumnImpl(getRoot(), this, col.queryColumn(getQueryTable()));
 		}
-		else if (foreignTableReference instanceof DerivedTable)
+		if (foreignTableReference instanceof DerivedTable derivedTable)
 		{
-			QuerySelect query = ((DerivedTable)foreignTableReference).getQuery();
+			QuerySelect query = derivedTable.getQuery();
 			for (IQuerySelectValue qcol : query.getColumns())
 			{
 				if (name.equals(qcol.getAliasOrName()) || name.equals(generateNormalizedNonReservedOSName(qcol.getColumnName())))
 				{
-					return new QBColumn(getRoot(), this, new QueryColumn(foreignTableReference.getTable(), generateNormalizedNonReservedOSName(name)));
+					return new QBColumnImpl(getRoot(), this, new QueryColumn(derivedTable.getTable(), generateNormalizedNonReservedOSName(name)));
 				}
 			}
 		}

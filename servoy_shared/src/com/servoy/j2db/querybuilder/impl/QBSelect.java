@@ -60,7 +60,6 @@ import com.servoy.j2db.query.QueryColumnValue;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.query.TablePlaceholderKey;
 import com.servoy.j2db.querybuilder.IQueryBuilder;
-import com.servoy.j2db.querybuilder.IQueryBuilderColumn;
 import com.servoy.j2db.querybuilder.IQueryBuilderCondition;
 import com.servoy.j2db.querybuilder.IQueryBuilderLogicalCondition;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
@@ -81,7 +80,7 @@ For detailed query building, see [Query Builder](../../../../guides/develop/prog
  * @author rgansevles
  *
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "QBSelect")
+@ServoyDocumented(category = ServoyDocumented.RUNTIME)
 public class QBSelect extends QBTableClause implements IQueryBuilder
 {
 	private static final char QUOTE = '\'';
@@ -196,7 +195,7 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 		{
 			if (name.equals(qcol.getAliasOrName()) || name.equals(generateNormalizedNonReservedOSName(qcol.getColumnName())))
 			{
-				return new QBColumn(getRoot(), this, qcol);
+				return new QBColumnImpl(getRoot(), this, qcol);
 			}
 		}
 
@@ -434,10 +433,15 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	 * @return an inlined value converted to the type of the specified column.
 	 */
 	@JSFunction
-	public Object inline(Number number, IQueryBuilderColumn columnForType)
+	public Object inline(Number number, QBColumn columnForType)
 	{
-		return number == null ? null : new QueryColumnValue(
-			columnForType == null ? number : getAsRightType(number, columnForType.getColumnType(), columnForType.getFlags()), null, true);
+		if (number == null)
+		{
+			return null;
+		}
+		return new QueryColumnValue(
+			columnForType == null ? number : getAsRightType(number, ((QBColumnImpl)columnForType).getColumnType(), ((QBColumnImpl)columnForType).getFlags()),
+			null, true);
 	}
 
 	/**
@@ -929,9 +933,9 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 
 	IQuerySelectValue createOperand(Object value, BaseColumnType columnType, int flags)
 	{
-		if (value instanceof QBColumn)
+		if (value instanceof QBColumnImpl qbColumn)
 		{
-			return ((QBColumn)value).getQuerySelectValue();
+			return qbColumn.getQuerySelectValue();
 		}
 
 		Object val = value;

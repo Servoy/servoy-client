@@ -371,7 +371,7 @@ public class QBJoins extends DefaultJavaScope implements IQueryBuilderJoins
 
 	/**
 	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderJoins#add(IQueryBuilder, int, String)
-	 * @sampleas add(QBSelect, int, String)
+	 * @sampleas js_add(QBSelect, int, String)
 	 *
 	 * @param subqueryBuilder
 	 * @param joinType

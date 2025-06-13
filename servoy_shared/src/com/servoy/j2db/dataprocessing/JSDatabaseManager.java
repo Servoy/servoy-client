@@ -84,28 +84,33 @@ import com.servoy.j2db.query.QueryDelete;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.query.QueryTable;
 import com.servoy.j2db.query.QueryUpdate;
-import com.servoy.j2db.querybuilder.impl.QBAggregate;
 import com.servoy.j2db.querybuilder.impl.QBAggregates;
 import com.servoy.j2db.querybuilder.impl.QBCase;
 import com.servoy.j2db.querybuilder.impl.QBCaseWhen;
 import com.servoy.j2db.querybuilder.impl.QBColumn;
+import com.servoy.j2db.querybuilder.impl.QBColumnComparable;
 import com.servoy.j2db.querybuilder.impl.QBColumns;
 import com.servoy.j2db.querybuilder.impl.QBCondition;
-import com.servoy.j2db.querybuilder.impl.QBFunction;
+import com.servoy.j2db.querybuilder.impl.QBCountAggregate;
+import com.servoy.j2db.querybuilder.impl.QBDatetimeColumn;
 import com.servoy.j2db.querybuilder.impl.QBFunctions;
+import com.servoy.j2db.querybuilder.impl.QBGenericColumn;
 import com.servoy.j2db.querybuilder.impl.QBGroupBy;
+import com.servoy.j2db.querybuilder.impl.QBIntegerColumn;
 import com.servoy.j2db.querybuilder.impl.QBJoin;
 import com.servoy.j2db.querybuilder.impl.QBJoins;
 import com.servoy.j2db.querybuilder.impl.QBLogicalCondition;
+import com.servoy.j2db.querybuilder.impl.QBMediaColumn;
+import com.servoy.j2db.querybuilder.impl.QBNumberColumn;
 import com.servoy.j2db.querybuilder.impl.QBParameter;
 import com.servoy.j2db.querybuilder.impl.QBParameters;
 import com.servoy.j2db.querybuilder.impl.QBPart;
 import com.servoy.j2db.querybuilder.impl.QBResult;
-import com.servoy.j2db.querybuilder.impl.QBSearchedCaseExpression;
 import com.servoy.j2db.querybuilder.impl.QBSelect;
 import com.servoy.j2db.querybuilder.impl.QBSort;
 import com.servoy.j2db.querybuilder.impl.QBSorts;
 import com.servoy.j2db.querybuilder.impl.QBTableClause;
+import com.servoy.j2db.querybuilder.impl.QBTextColumn;
 import com.servoy.j2db.querybuilder.impl.QBWhereCondition;
 import com.servoy.j2db.querybuilder.impl.QUERY_COLUMN_TYPES;
 import com.servoy.j2db.scripting.Deferred;
@@ -176,11 +181,14 @@ public class JSDatabaseManager implements IJSDatabaseManager
 		{
 			public Class< ? >[] getAllReturnedTypes()
 			{
-				return new Class< ? >[] { COLUMNTYPE.class, SQL_ACTION_TYPES.class, JSColumn.class, JSDataSet.class, JSFoundSetUpdater.class, JSRecordMarker.class, JSRecordMarkers.class, Record.class, FoundSet.class, JSTable.class, //
-					QBSelect.class, QBAggregate.class, QBCase.class, QBCaseWhen.class, QBColumn.class, QBColumns.class, QBCondition.class, //
-					QBFunction.class, QBGroupBy.class, QBJoin.class, QBJoins.class, QBLogicalCondition.class, QBWhereCondition.class, QBResult.class, //
-					QBSearchedCaseExpression.class, QBSort.class, QBSorts.class, QBTableClause.class, QBPart.class, QBParameter.class, QBParameters.class, //
-					QBFunctions.class, QBAggregates.class, QUERY_COLUMN_TYPES.class, ViewFoundSet.class, ViewRecord.class, JSTableFilter.class, MenuFoundSet.class, MenuItemRecord.class, IJSBaseRecord.class, IJSBaseSQLRecord.class, IJSBaseFoundSet.class, IJSBaseSQLFoundSet.class };
+				return new Class< ? >[] { COLUMNTYPE.class, SQL_ACTION_TYPES.class, JSColumn.class, JSDataSet.class, JSFoundSetUpdater.class, //
+					JSRecordMarker.class, JSRecordMarkers.class, Record.class, FoundSet.class, JSTable.class, //
+					QBSelect.class, QBCountAggregate.class, QBCase.class, QBCaseWhen.class, //
+					QBColumn.class, QBGenericColumn.class, QBDatetimeColumn.class, QBIntegerColumn.class, QBMediaColumn.class, QBNumberColumn.class, QBTextColumn.class, QBColumnComparable.class, //
+					QBColumns.class, QBCondition.class, QBGroupBy.class, QBJoin.class, QBJoins.class, QBLogicalCondition.class, QBWhereCondition.class, QBResult.class, //
+					QBSort.class, QBSorts.class, QBTableClause.class, QBPart.class, QBParameter.class, QBParameters.class, //
+					QBFunctions.class, QBAggregates.class, QUERY_COLUMN_TYPES.class, ViewFoundSet.class, ViewRecord.class, JSTableFilter.class, MenuFoundSet.class, MenuItemRecord.class, //
+					IJSBaseRecord.class, IJSBaseSQLRecord.class, IJSBaseFoundSet.class, IJSBaseSQLFoundSet.class };
 			}
 		});
 	}

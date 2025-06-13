@@ -17,6 +17,7 @@
 
 package com.servoy.j2db.querybuilder;
 
+import com.servoy.j2db.querybuilder.impl.QBColumn;
 
 /**
  * Functions to be used in queries.
@@ -34,167 +35,170 @@ public interface IQueryBuilderFunctions extends IQueryBuilderPart
 	IQueryBuilder getParent();
 
 	/** Cast using type name.
-	 * @see IQueryBuilderFunction
-	 * @see IQueryBuilderColumn#cast(String)
+	 * @see QBColumn#cast(String)
 	 * @param object value to case
 	 * @param type type name
 	 */
-	IQueryBuilderFunction cast(Object object, String type);
+	IQueryBuilderColumn cast(Object object, String type);
 
 	/**
 	 * Create floor(column) expression
 	 */
-	IQueryBuilderFunction floor(Object arg);
+	IQueryBuilderColumn floor(Object arg);
 
 	/**
 	 * Create round(column) expression
 	 */
-	IQueryBuilderFunction round(Object arg);
+	IQueryBuilderColumn round(Object arg);
 
 	/**
 	 * Create round(column, decimals) expression
 	 */
-	IQueryBuilderFunction round(Object arg, int decimals);
+	IQueryBuilderColumn round(Object arg, int decimals);
 
 	/**
 	 * Create ceil(column) expression
 	 */
-	IQueryBuilderFunction ceil(Object arg);
+	IQueryBuilderColumn ceil(Object arg);
 
 	/**
 	 * Create upper(column) expression
 	 */
-	IQueryBuilderFunction upper(Object arg);
+	IQueryBuilderColumn upper(Object arg);
 
 	/**
 	 * Create abs(column) expression
 	 */
-	IQueryBuilderFunction abs(Object arg);
+	IQueryBuilderColumn abs(Object arg);
 
 	/**
 	 * Create sqrt(column) expression
 	 */
-	IQueryBuilderFunction sqrt(Object arg);
+	IQueryBuilderColumn sqrt(Object arg);
 
 	/**
 	 * Create lower(column) expression
 	 */
-	IQueryBuilderFunction lower(Object arg);
+	IQueryBuilderColumn lower(Object arg);
 
 	/**
 	 * Create trim(column) expression
 	 */
-	IQueryBuilderFunction trim(Object arg);
+	IQueryBuilderColumn trim(Object arg);
 
 	/**
 	 * Create trim([leading | trailing | both] [characters] from column)
 	 */
-	IQueryBuilderFunction trim(String leading_trailing_both, String characters, String fromKeyword, Object value);
+	IQueryBuilderColumn trim(String leading_trailing_both, String characters, String fromKeyword, Object value);
 
 	/**
 	 * Create length(column) expression
 	 */
-	IQueryBuilderFunction length(Object arg);
+	IQueryBuilderColumn len(Object arg);
+
+	default IQueryBuilderColumn length(Object arg)
+	{
+		return len(arg);
+	}
 
 	/**
 	 * Create bit_length(column) expression
 	 */
-	IQueryBuilderFunction bit_length(Object arg);
+	IQueryBuilderColumn bit_length(Object arg);
 
 	/**
 	 * Create substring(column, pos) expression
 	 */
-	IQueryBuilderFunction substring(Object arg, int pos);
+	IQueryBuilderColumn substring(Object arg, int pos);
 
 	/**
 	 * Create substring(column, pos, len) expression
 	 */
-	IQueryBuilderFunction substring(Object arg, int pos, int len);
+	IQueryBuilderColumn substring(Object arg, int pos, int len);
 
 	/**
 	 * Create locate(str1, str2) expression
 	 */
-	IQueryBuilderFunction locate(Object str1, Object str2);
+	IQueryBuilderColumn locate(Object str1, Object str2);
 
 	/**
 	 * Create locate(str1, str2, start) expression
 	 */
-	IQueryBuilderFunction locate(Object arg1, Object arg2, int start);
+	IQueryBuilderColumn locate(Object arg1, Object arg2, int start);
 
 	/**
 	 * Create nullif(arg1, arg2) expression
 	 */
-	IQueryBuilderFunction nullif(Object arg1, Object arg2);
+	IQueryBuilderColumn nullif(Object arg1, Object arg2);
 
 	/**
 	 * Create mod(dividend, divisor) expression
 	 */
-	IQueryBuilderFunction mod(Object dividend, Object divisor);
+	IQueryBuilderColumn mod(Object dividend, Object divisor);
 
 	/**
 	 * Create plus(args, arg2) expression
 	 */
-	IQueryBuilderFunction plus(Object arg1, Object arg2);
+	IQueryBuilderColumn plus(Object arg1, Object arg2);
 
 	/**
 	 * Create minus(args, arg2) expression
 	 */
-	IQueryBuilderFunction minus(Object arg1, Object arg2);
+	IQueryBuilderColumn minus(Object arg1, Object arg2);
 
 	/**
 	 * Create multiply(args, arg2) expression
 	 */
-	IQueryBuilderFunction multiply(Object arg1, Object arg2);
+	IQueryBuilderColumn multiply(Object arg1, Object arg2);
 
 	/**
 	 * Create divide(args, arg2) expression
 	 */
-	IQueryBuilderFunction divide(Object arg1, Object arg2);
+	IQueryBuilderColumn divide(Object arg1, Object arg2);
 
 	/**
 	 * Create concat(args, arg2) expression
 	 */
-	IQueryBuilderFunction concat(Object arg1, Object arg2);
+	IQueryBuilderColumn concat(Object arg1, Object arg2);
 
 	/**
 	 * Create second(date) expression
 	 */
-	IQueryBuilderFunction second(Object date);
+	IQueryBuilderColumn second(Object date);
 
 	/**
 	 * Create minute(date) expression
 	 */
-	IQueryBuilderFunction minute(Object date);
+	IQueryBuilderColumn minute(Object date);
 
 	/**
 	 * Create hour(date) expression
 	 */
-	IQueryBuilderFunction hour(Object date);
+	IQueryBuilderColumn hour(Object date);
 
 	/**
 	 * Create day(date) expression
 	 */
-	IQueryBuilderFunction day(Object date);
+	IQueryBuilderColumn day(Object date);
 
 	/**
 	 * Create month(date) expression
 	 */
-	IQueryBuilderFunction month(Object date);
+	IQueryBuilderColumn month(Object date);
 
 	/**
 	 * Create year(date) expression
 	 */
-	IQueryBuilderFunction year(Object date);
+	IQueryBuilderColumn year(Object date);
 
 	/**
 	 * Create coalesce(arg1, arg2, ...) expression
 	 */
-	IQueryBuilderFunction coalesce(Object... args);
+	IQueryBuilderColumn coalesce(Object... args);
 
 	/**
 	 * Create a call to a custom-defined function name(arg1, arg2, ...).
 	 * Note that the function has to exist in the actual database, this may not be working cross-database.
 	 */
-	IQueryBuilderFunction custom(String name, Object... args);
-
+	IQueryBuilderColumn custom(String name, Object... args);
 }
