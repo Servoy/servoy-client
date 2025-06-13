@@ -450,10 +450,19 @@ public class ScriptNameValidator implements IValidateName
 	{
 		if (object instanceof MenuItem menuItem)
 		{
-			// Check current item
 			if (nameToCheck.equalsIgnoreCase(menuItem.getName()) && menuItem.getID() != skip_element_id)
 			{
 				return menuItem;
+			}
+			Iterator<IPersist> children = menuItem.getAllObjects();
+			while (children.hasNext())
+			{
+				IPersist child = children.next();
+				MenuItem result = findMenuItemByName(child, nameToCheck, skip_element_id);
+				if (result != null)
+				{
+					return result;
+				}
 			}
 		}
 		if (object instanceof Menu menu)
@@ -462,18 +471,17 @@ public class ScriptNameValidator implements IValidateName
 			while (children.hasNext())
 			{
 				IPersist child = children.next();
-				if (child instanceof MenuItem)
+
+				MenuItem result = findMenuItemByName(child, nameToCheck, skip_element_id);
+				if (result != null)
 				{
-					MenuItem result = findMenuItemByName(child, nameToCheck, skip_element_id);
-					if (result != null)
-					{
-						return result;
-					}
+					return result;
 				}
 			}
 		}
 		return null;
 	}
+
 
 	private Menu getAncestorMenu(Object object)
 	{
