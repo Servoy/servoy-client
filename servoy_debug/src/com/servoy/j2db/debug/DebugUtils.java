@@ -30,6 +30,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import javax.swing.SwingUtilities;
 
 import org.eclipse.dltk.rhino.dbgp.DBGPDebugger;
+import org.mozilla.javascript.Function;
 import org.mozilla.javascript.RhinoException;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.SpecProviderState;
@@ -275,7 +276,7 @@ public class DebugUtils
 		{
 
 			clientState.getFlattenedSolution().updatePersistInSolutionCopy(persist);
-			if (persist instanceof ScriptMethod)
+			if (persist instanceof ScriptMethod scriptMethod)
 			{
 				if (persist.getParent() instanceof Form)
 				{
@@ -289,9 +290,13 @@ public class DebugUtils
 				}
 				else if (persist.getParent() instanceof Solution)
 				{
-					LazyCompilationScope scope = clientState.getScriptEngine().getScopesScope().getGlobalScope(((ScriptMethod)persist).getScopeName());
-					scope.remove((IScriptProvider)persist);
-					scope.put((IScriptProvider)persist, (IScriptProvider)persist);
+					LazyCompilationScope scope = clientState.getScriptEngine().getScopesScope().getGlobalScope(scriptMethod.getScopeName());
+					Object oldValue = scope.remove(scriptMethod);
+					scope.put((IScriptProvider)persist, scriptMethod);
+					if (oldValue instanceof Function oldValueFunction)
+					{
+						clientState.getEventsManager().updateCallbacks(oldValueFunction, scope.getFunctionByName(scriptMethod.getName()));
+					}
 				}
 				else if (persist.getParent() instanceof TableNode)
 				{

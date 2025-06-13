@@ -75,6 +75,7 @@ import com.servoy.j2db.persistence.MethodTemplate;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.RepositoryHelper;
 import com.servoy.j2db.persistence.ScriptMethod;
+import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.persistence.StaticContentSpecLoader.TypedProperty;
 import com.servoy.j2db.querybuilder.IQueryBuilder;
@@ -467,6 +468,53 @@ public abstract class BasicFormController
 			}
 		}
 
+		Map<String, Object> eventMethods = getForm().getCustomEventsMethods();
+		for (String eventName : eventMethods.keySet())
+		{
+			EventType eventType = application.getFlattenedSolution().getEventType(eventName);
+			if (eventType != null)
+			{
+				Object eventUUID = eventMethods.get(eventName);
+				Function function = null;
+				if (eventUUID != null)
+				{
+					ScriptMethod scriptMethod = getApplication().getFlattenedSolution().getScriptMethod(eventUUID.toString());
+					if (scriptMethod != null)
+					{
+						if (scriptMethod.getParent() instanceof Form)
+						{
+							function = getFormScope().getFunctionByName(scriptMethod.getName());
+						}
+						// is it a global method
+						else if (scriptMethod.getParent() instanceof Solution)
+						{
+							if (getApplication().getScriptEngine().getScopesScope()
+								.getGlobalScope(scriptMethod.getScopeName()) instanceof GlobalScope globalScope)
+							{
+								function = globalScope.getFunctionByName(scriptMethod.getName());
+							}
+						}
+						else if (getFormModel() instanceof Scriptable foundsetScope)
+						{
+							Object scopeMethod = foundsetScope.getPrototype().get(scriptMethod.getName(), foundsetScope);
+							if (scopeMethod instanceof Function)
+								function = (Function)scopeMethod;
+						}
+					}
+				}
+				if (function != null)
+				{
+					if (visible)
+					{
+						application.getEventsManager().addListener(eventType, function, IExecutingEnviroment.TOPLEVEL_FORMS + '.' + getName());
+					}
+					else
+					{
+						application.getEventsManager().removeListener(eventType, function, IExecutingEnviroment.TOPLEVEL_FORMS + '.' + getName());
+					}
+				}
+			}
+		}
 		// visibility changed; update selectionMode if necessary
 		pinSelectionModeIfNecessary();
 		return true;

@@ -64,4 +64,10 @@ public interface IEventsManager
 	 */
 	void removeSolutionListeners();
 
+	/**
+	 * @param oldFunction
+	 * @param newFunction
+	 */
+	void updateCallbacks(Function oldFunction, Function newFunction);
+
 }
