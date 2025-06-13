@@ -197,6 +197,19 @@ public class EventsManager implements IEventsManager, Scriptable
 
 
 	@Override
+	public void updateCallbacks(Function oldFunction, Function newFunction)
+	{
+		for (Pair<String, Function> pair : callbacks.values().stream().flatMap(List::stream).collect(Collectors.toList()))
+		{
+			if (pair.getRight() == oldFunction)
+			{
+				pair.setRight(newFunction);
+			}
+		}
+
+	}
+
+	@Override
 	public String getClassName()
 	{
 		return null;

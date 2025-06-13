@@ -18,8 +18,10 @@ package com.servoy.j2db.scripting;
 
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.dltk.rhino.dbgp.ContextualScope;
 import org.mozilla.javascript.Callable;
@@ -32,6 +34,7 @@ import org.mozilla.javascript.Wrapper;
 import com.servoy.base.persistence.IBaseColumn;
 import com.servoy.j2db.ExitScriptException;
 import com.servoy.j2db.FormController.RuntimeSupportScriptProviders;
+import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IFormController;
 import com.servoy.j2db.persistence.AggregateVariable;
 import com.servoy.j2db.persistence.Column;
@@ -45,6 +48,7 @@ import com.servoy.j2db.persistence.ScriptCalculation;
 import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.persistence.Table;
+import com.servoy.j2db.scripting.info.EventType;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IDestroyable;
 import com.servoy.j2db.util.Utils;
@@ -166,11 +170,39 @@ public class FormScope extends ScriptVariableScope implements Wrapper, Contextua
 	@Override
 	public void reload()
 	{
+		IApplication application = _fp.getApplication();
+		Map<String, Object> eventMethods = _fp.getForm().getCustomEventsMethods();
+		Map<String, EventType> toRegister = new HashMap<>();
+		for (String eventName : eventMethods.keySet())
+		{
+			EventType eventType = application.getFlattenedSolution().getEventType(eventName);
+			if (eventType != null)
+			{
+				Object eventUUID = eventMethods.get(eventName);
+				if (eventUUID != null)
+				{
+					ScriptMethod scriptMethod = application.getFlattenedSolution().getScriptMethod(eventUUID.toString());
+					if (scriptMethod != null && scriptMethod.getParent() instanceof Form)
+					{
+						Function function = getFunctionByName(scriptMethod.getName());
+						application.getEventsManager().removeListener(eventType, function, IExecutingEnviroment.TOPLEVEL_FORMS + '.' + _fp.getName());
+						toRegister.put(scriptMethod.getName(), eventType);
+					}
+				}
+			}
+		}
 		super.reload();
 		for (LazyCompilationScope extendScope : extendScopes)
 		{
 			extendScope.reload();
 		}
+		toRegister.forEach((name, eventType) -> {
+			Function function = getFunctionByName(name);
+			if (function != null)
+			{
+				application.getEventsManager().addListener(eventType, function, IExecutingEnviroment.TOPLEVEL_FORMS + '.' + _fp.getName());
+			}
+		});
 	}
 
 	@Override
