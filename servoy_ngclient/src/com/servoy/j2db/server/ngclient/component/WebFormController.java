@@ -31,6 +31,8 @@ import java.util.TreeMap;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Wrapper;
+import org.sablo.IChangeListener;
+import org.sablo.IWebObjectContext;
 import org.sablo.WebComponent;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebObjectApiFunctionDefinition;
@@ -69,8 +71,11 @@ import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.WebFormUI;
 import com.servoy.j2db.server.ngclient.WebListFormUI;
 import com.servoy.j2db.server.ngclient.eventthread.NGClientWebsocketSessionWindows;
+import com.servoy.j2db.server.ngclient.property.IDataLinkedPropertyValue;
+import com.servoy.j2db.server.ngclient.property.types.IDataLinkedType.TargetDataLinks;
 import com.servoy.j2db.server.ngclient.property.types.NGTabSeqPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.ReadonlySabloValue;
+import com.servoy.j2db.server.ngclient.property.types.TagStringPropertyType;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.SortedList;
 import com.servoy.j2db.util.Utils;
@@ -85,6 +90,7 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 	private WebFormUI formUI;
 	private boolean rendering;
 	private String[] tabSequence;
+	private IDataLinkedPropertyValue titleDataChangeListener;
 
 	public WebFormController(INGApplication application, Form form, String name)
 	{
@@ -123,6 +129,40 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 		{
 			formUI.setParentContainer((WebFormComponent)parentContainer);
 		}
+		TargetDataLinks targetDataLinks = TagStringPropertyType.getDataLinksStatic(getForm().getTitleText(), application.getFlattenedSolution(),
+			getForm());
+		this.titleDataChangeListener = new IDataLinkedPropertyValue()
+		{
+
+			@Override
+			public void detach()
+			{
+				// not needed
+			}
+
+			@Override
+			public void attachToBaseObject(IChangeListener changeMonitor, IWebObjectContext webObjectContext)
+			{
+				// not needed
+			}
+
+			@Override
+			public void dataProviderOrRecordChanged(IRecordInternal record, String dataProvider, boolean isFormDP, boolean isGlobalDP, boolean fireChangeEvent)
+			{
+				String newTitle = getForm().getTitleText();
+				String parentWindowName = formUI.getParentWindowName();
+				if (parentWindowName != null)
+				{
+					NGRuntimeWindow window = getApplication().getRuntimeWindowManager().getWindow(parentWindowName);
+					if (window != null)
+					{
+						window.setTitle(newTitle);
+					}
+				}
+
+			}
+		};
+		formUI.getDataAdapterList().addDataLinkedProperty(titleDataChangeListener, targetDataLinks);
 	}
 
 	@Override
@@ -297,6 +337,7 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 				unload();
 				if (formUI != null)
 				{
+					formUI.getDataAdapterList().removeDataLinkedProperty(titleDataChangeListener);
 					formUI.destroy();
 					formUI = null;
 				}
