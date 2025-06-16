@@ -802,12 +802,17 @@ public abstract class BasicFormController
 			{
 				application.setTitle(title);
 			}
-			else if (application.getRuntimeWindowManager().getCurrentWindow() != null)
+			else
 			{
-				int windowType = application.getRuntimeWindowManager().getCurrentWindow().getType();
-				if (windowType == JSWindow.MODAL_DIALOG || windowType == JSWindow.DIALOG)
+				// If this form is a dialog, then update the title of the parent window.
+				Object parentWindowName = getContainerName();
+				if (parentWindowName != null && parentWindowName instanceof String parentName)
 				{
-					application.getRuntimeWindowManager().getCurrentWindow().setTitle(title, adjustingModel);
+					RuntimeWindow window = getApplication().getRuntimeWindowManager().getWindow(parentName);
+					if (window != null)
+					{
+						window.setTitle(title);
+					}
 				}
 			}
 		}
