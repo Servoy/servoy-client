@@ -147,13 +147,14 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 			}
 
 			@Override
-			public void dataProviderOrRecordChanged(IRecordInternal record, String dataProvider, boolean isFormDP, boolean isGlobalDP, boolean fireChangeEvent)
+			public void dataProviderOrRecordChanged(IRecordInternal record, String dataProvider, boolean isFormDP, boolean isGlobalDP,
+				boolean fireChangeEvent)
 			{
 				String newTitle = getForm().getTitleText();
-				String parentWindowName = formUI.getParentWindowName();
-				if (parentWindowName != null)
+				Object parentWindowName = formUI.getParentWindowName();
+				if (parentWindowName != null && parentWindowName instanceof String parentName)
 				{
-					NGRuntimeWindow window = getApplication().getRuntimeWindowManager().getWindow(parentWindowName);
+					NGRuntimeWindow window = getApplication().getRuntimeWindowManager().getWindow(parentName);
 					if (window != null)
 					{
 						window.setTitle(newTitle);
@@ -337,7 +338,6 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 				unload();
 				if (formUI != null)
 				{
-					formUI.getDataAdapterList().removeDataLinkedProperty(titleDataChangeListener);
 					formUI.destroy();
 					formUI = null;
 				}
@@ -773,6 +773,8 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 			{
 				public void run()
 				{
+					formUI.getDataAdapterList().removeDataLinkedProperty(titleDataChangeListener);
+					titleDataChangeListener = null;
 					destroy();
 				}
 			};
