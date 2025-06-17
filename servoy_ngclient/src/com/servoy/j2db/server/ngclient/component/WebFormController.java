@@ -129,41 +129,6 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 		{
 			formUI.setParentContainer((WebFormComponent)parentContainer);
 		}
-		TargetDataLinks targetDataLinks = TagStringPropertyType.getDataLinksStatic(getForm().getTitleText(), application.getFlattenedSolution(),
-			getForm());
-		this.titleDataChangeListener = new IDataLinkedPropertyValue()
-		{
-
-			@Override
-			public void detach()
-			{
-				// not needed
-			}
-
-			@Override
-			public void attachToBaseObject(IChangeListener changeMonitor, IWebObjectContext webObjectContext)
-			{
-				// not needed
-			}
-
-			@Override
-			public void dataProviderOrRecordChanged(IRecordInternal record, String dataProvider, boolean isFormDP, boolean isGlobalDP,
-				boolean fireChangeEvent)
-			{
-				String newTitle = getForm().getTitleText();
-				Object parentWindowName = formUI.getParentWindowName();
-				if (parentWindowName != null && parentWindowName instanceof String parentName)
-				{
-					NGRuntimeWindow window = getApplication().getRuntimeWindowManager().getWindow(parentName);
-					if (window != null)
-					{
-						window.setTitle(newTitle);
-					}
-				}
-
-			}
-		};
-		formUI.getDataAdapterList().addDataLinkedProperty(titleDataChangeListener, targetDataLinks);
 	}
 
 	@Override
@@ -773,8 +738,6 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 			{
 				public void run()
 				{
-					formUI.getDataAdapterList().removeDataLinkedProperty(titleDataChangeListener);
-					titleDataChangeListener = null;
 					destroy();
 				}
 			};
@@ -802,7 +765,47 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 			{
 				public void run()
 				{
+					if (visible)
+					{
+						Object parentWindowName = formUI.getParentContainer();
+						if (parentWindowName != null && parentWindowName instanceof String parentName)
+						{
+							NGRuntimeWindow window = getApplication().getRuntimeWindowManager().getWindow(parentName);
 
+							TargetDataLinks targetDataLinks = TagStringPropertyType.getDataLinksStatic(getForm().getTitleText(),
+								application.getFlattenedSolution(),
+								getForm());
+							WebFormController.this.titleDataChangeListener = new IDataLinkedPropertyValue()
+							{
+								@Override
+								public void detach()
+								{
+									// not needed
+								}
+
+								@Override
+								public void attachToBaseObject(IChangeListener changeMonitor, IWebObjectContext webObjectContext)
+								{
+									// not needed
+								}
+
+								@Override
+								public void dataProviderOrRecordChanged(IRecordInternal record, String dataProvider, boolean isFormDP, boolean isGlobalDP,
+									boolean fireChangeEvent)
+								{
+									if (window != null)
+									{
+										String windowTitle = window.getTitle();
+										if (windowTitle == null)
+										{
+											window.setTitle(getForm().getTitleText());
+										}
+									}
+								}
+							};
+							formUI.getDataAdapterList().addDataLinkedProperty(titleDataChangeListener, targetDataLinks);
+						}
+					}
 					IWebFormUI formUI2 = getFormUI();
 					if (formUI2 == null)
 					{
@@ -827,6 +830,12 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 				}
 			};
 			invokeLaterRunnables.add(run);
+
+			if (!visible && titleDataChangeListener != null) // if we are hiding the form and titleDataChangeListener is not null, then we remove it
+			{
+				formUI.getDataAdapterList().removeDataLinkedProperty(titleDataChangeListener);
+				titleDataChangeListener = null;
+			}
 		}
 
 		if (notifyVisibleSuccess) notifyVisibleOnChildren(visible, invokeLaterRunnables); // TODO should notifyVisibleSuccess be altered here? See WebFormUI/WebFormComponent notifyVisible calls.

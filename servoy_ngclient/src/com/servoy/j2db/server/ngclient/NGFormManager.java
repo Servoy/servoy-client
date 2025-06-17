@@ -653,7 +653,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 		}
 		thisWindow.setInitialBounds(bounds.x, bounds.y, bounds.width, bounds.height);
 		thisWindow.showTextToolbar(showTextToolbar);
-		thisWindow.setTitle(title);
+		thisWindow.setTitle(thisWindow.getTitle() != null ? thisWindow.getTitle() : title);
 		thisWindow.setResizable(resizeble);
 
 		thisWindow.oldShow(formName, closeAll, legacyV3Behavior);
@@ -682,7 +682,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 		}
 		thisWindow.setInitialBounds(bounds.x, bounds.y, bounds.width, bounds.height);
 		thisWindow.showTextToolbar(showTextToolbar);
-		thisWindow.setTitle(windowTitle);
+		thisWindow.setTitle(thisWindow.getTitle() != null ? thisWindow.getTitle() : windowTitle);
 		thisWindow.setResizable(resizeble);
 
 		thisWindow.oldShow(formName, true, false); // last two params are really not relevant for windows

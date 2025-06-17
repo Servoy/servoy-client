@@ -791,31 +791,6 @@ public abstract class BasicFormController
 
 	protected void executeOnRecordSelect()
 	{
-		if (form.getTitleText() != null && this == application.getFormManager().getCurrentForm())
-		{
-
-			String title = form.getTitleText();
-			if (title == null || title.equals("")) title = getName(); //$NON-NLS-1$
-
-			// If a dialog is active over the main window, then don't update the application title.
-			if (application.getFormManager().isCurrentTheMainContainer())
-			{
-				application.setTitle(title);
-			}
-			else
-			{
-				// If this form is a dialog, then update the title of the parent window.
-				Object parentWindowName = getContainerName();
-				if (parentWindowName != null && parentWindowName instanceof String parentName)
-				{
-					RuntimeWindow window = getApplication().getRuntimeWindowManager().getWindow(parentName);
-					if (window != null)
-					{
-						window.setTitle(title);
-					}
-				}
-			}
-		}
 		if (getUndoManager() != null) getUndoManager().discardAllEdits();
 		if (isFormVisible)//this is added because many onrecordSelect actions are display dependent (in that case you only want the visible forms to be set) or data action which are likely on the same table so obsolete any way.
 		{

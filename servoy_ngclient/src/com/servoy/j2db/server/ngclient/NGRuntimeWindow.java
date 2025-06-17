@@ -287,7 +287,8 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 	public void setTitle(String title, boolean delayed)
 	{
 		super.setTitle(title);
-		sendTitle(title);
+		if (title == null && formName != null) sendTitle(getApplication().getFormManager().getForm(formName).getForm().getTitleText());
+		else sendTitle(title);
 	}
 
 	@Override
@@ -381,12 +382,10 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 					if (formController != null)
 					{
 						titleString = Text.processTags(nameString, formController.getFormUI().getDataAdapterList());
-						if (titleString != null) nameString = titleString;
 					}
 					else
 					{
 						titleString = Text.processTags(nameString, TagResolver.createResolver(new PrototypeState(null)));
-						if (titleString != null) nameString = titleString;
 					}
 				}
 			}
