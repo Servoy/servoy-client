@@ -65,7 +65,7 @@ public class JSWebComponent extends JSComponent<WebComponent> implements IJavaSc
 
 	protected final IApplication application;
 
-	protected JSWebComponent(IJSParent< ? > parent, WebComponent baseComponent, IApplication application, boolean isNew)
+	public JSWebComponent(IJSParent< ? > parent, WebComponent baseComponent, IApplication application, boolean isNew)
 	{
 		super(parent, baseComponent, isNew);
 		this.application = application;

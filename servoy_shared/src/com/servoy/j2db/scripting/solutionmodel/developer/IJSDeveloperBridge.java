@@ -52,13 +52,25 @@ public interface IJSDeveloperBridge
 	 * The location is one of the servoyDeveloper.LOCATIOM properties
 	 *
 	 * @param text
-	 * @parm location
+	 * @param location
 	 *
 	 * @return
 	 */
 	@JSFunction
 	JSDeveloperMenu createMenu(String text, int location);
 
+
+	/**
+	 * Creates an instanceof a JSDeveloperMenu that can be used in the register function to add a menu item to the context menu or in the form editor for specific components.
+	 * The componentNames is an array of component names
+	 *
+	 * @param text
+	 * @param componentNames
+	 *
+	 * @return
+	 */
+	@JSFunction
+	JSDeveloperMenu createComponentMenu(String text, String[] componentNames);
 
 	/**
 	 * Registers a menu item to show in the developer

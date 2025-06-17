@@ -44,7 +44,7 @@ public class Location
 	@JSReadonlyProperty
 	public int getCOMPONENT()
 	{
-		return 3;
+		return 4;
 	}
 
 }

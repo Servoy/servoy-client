@@ -31,6 +31,7 @@ public class JSDeveloperMenu
 {
 	private final String text;
 	private final int location;
+	private final String[] componentNames;
 
 	private String id;
 
@@ -38,6 +39,14 @@ public class JSDeveloperMenu
 	{
 		this.text = text;
 		this.location = location;
+		this.componentNames = null;
+	}
+
+	public JSDeveloperMenu(String text, String[] componentNames)
+	{
+		this.text = text;
+		this.location = IJSDeveloperBridge.LOCATION.getCOMPONENT();
+		this.componentNames = componentNames;
 	}
 
 	/**
@@ -53,6 +62,12 @@ public class JSDeveloperMenu
 	public String getText()
 	{
 		return text;
+	}
+
+	@JSReadonlyProperty
+	public String[] getComponentNames()
+	{
+		return componentNames;
 	}
 
 	@JSFunction
