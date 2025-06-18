@@ -22,6 +22,7 @@ import java.awt.Point;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.util.Collections;
@@ -33,6 +34,8 @@ import org.json.JSONWriter;
 import org.sablo.Container;
 import org.sablo.websocket.TypedData;
 import org.sablo.websocket.utils.JSONUtils.FullValueToJSONConverter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.inet.lib.less.CompressCssFormatter;
 import com.inet.lib.less.CssFormatter;
@@ -71,6 +74,7 @@ import com.servoy.j2db.util.Utils;
  */
 public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 {
+	private static final Logger LOG = LoggerFactory.getLogger("FormOutputGenerator"); //$NON-NLS-1$
 
 	private final NGClient client;
 	private final Form form;
@@ -144,26 +148,17 @@ public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 		{
 			if (frm.getFormCss() != null)
 			{
-				LessParser parser = new LessParser();
-				URL baseUrl = URI.create("http://localhost").toURL();
-				ReaderFactory readerFactory = new ReaderFactory();
-				parser.parse(baseUrl, new StringReader(frm.getFormCss()), readerFactory);
-				List<Formattable> rules = parser.getRules();
-				rules.forEach(r -> {
-					if (r instanceof Rule rule)
-					{
-						rule.rewriteSelectors(
-							selector -> selector.contains(" ") ? selector.replaceFirst(" ", "[svy-" + frm.getName() + "] ")
-								: selector + "[svy-" + frm.getName() + ']');
-					}
-				});
-				CssFormatter formatter = new CompressCssFormatter();
-				parser.parseLazy(formatter);
-				StringBuilder builder = new StringBuilder();
-				formatter.format(parser, baseUrl, readerFactory, builder, Collections.emptyMap());
+				try
+				{
+					String parsed = parseLess(frm.getFormCss(), frm.getName());
 
-				writer.key(frm.getName());
-				writer.value(builder.toString());
+					writer.key(frm.getName());
+					writer.value(parsed);
+				}
+				catch (Exception e)
+				{
+					LOG.atError().setCause(e).log("The form {} has less/css which can't be parsed, message: {}", frm.getName(), e.getMessage());
+				}
 			}
 		}
 		writer.endObject();
@@ -361,6 +356,33 @@ public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 
 //		System.err.println(string);
 		return string;
+	}
+
+	/**
+	 * @param frm
+	 * @return
+	 * @throws MalformedURLException
+	 */
+	public static String parseLess(String formCss, String formName) throws Exception
+	{
+		LessParser parser = new LessParser();
+		URL baseUrl = URI.create("http://localhost").toURL();
+		ReaderFactory readerFactory = new ReaderFactory();
+		parser.parse(baseUrl, new StringReader(formCss), readerFactory);
+		List<Formattable> rules = parser.getRules();
+		rules.forEach(r -> {
+			if (r instanceof Rule rule)
+			{
+				rule.rewriteSelectors(
+					selector -> selector.contains(" ") ? selector.replaceFirst(" ", "[svy-" + formName + "] ")
+						: selector + "[svy-" + formName + ']');
+			}
+		});
+		CssFormatter formatter = new CompressCssFormatter();
+		parser.parseLazy(formatter);
+		StringBuilder builder = new StringBuilder();
+		formatter.format(parser, baseUrl, readerFactory, builder, Collections.emptyMap());
+		return builder.toString();
 	}
 
 	@SuppressWarnings("nls")
