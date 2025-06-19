@@ -135,6 +135,14 @@ public class JSColumn implements IReturnedTypesProvider, IConstantsObject, IColu
 	public static final int NATIVE_COLUMN = IBaseColumn.NATIVE_COLUMN;
 
 	/**
+	 * Constant used when setting or getting the flags of columns.
+	 * This flag indicates columns whose data is not stored in the log table.
+	 *
+	 * @sampleas js_hasFlag(int)
+	 */
+	public static final int NO_DATA_LOG_COLUMN = IBaseColumn.NO_DATA_LOG_COLUMN;
+
+	/**
 	 * Constant used when setting or getting the sequence type of columns.
 	 *
 	 * @sampleas js_getSequenceType()

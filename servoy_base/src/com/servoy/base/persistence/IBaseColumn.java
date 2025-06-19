@@ -36,6 +36,7 @@ public interface IBaseColumn
 	static final int SORT_IGNORECASE = 1 << 6;
 	static final int SORT_ASC_NULLS_FIRST = 1 << 7;
 	static final int SORT_ASC_NULLS_LAST = 1 << 8;
+	static final int NO_DATA_LOG_COLUMN = 1 << 9;
 
 	static final int IDENT_COLUMNS = PK_COLUMN + USER_ROWID_COLUMN;
 	static final int NON_IDENT_COLUMNS = ~IDENT_COLUMNS;
