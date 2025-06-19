@@ -389,13 +389,8 @@ public class DebugNGClient extends NGClient implements IDebugNGClient
 		{
 			controller.getFormScope().reload();
 		}
-
-
 	}
 
-	/**
-	 * @param form
-	 */
 	public void show(Form form)
 	{
 		invokeLater(() -> getFormManager().showFormInMainPanel(form.getName()));

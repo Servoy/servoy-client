@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 import javax.servlet.ServletRequest;
 import javax.swing.SwingUtilities;
@@ -132,63 +133,56 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 
 	public void refreshDebugClientsI18N(boolean recreateForms)
 	{
-		if (debugJ2DBClient != null && debugJ2DBClient.getSolution() != null) debugJ2DBClient.refreshForI18NChange(recreateForms);
-		if (debugNGClient != null && debugNGClient.getSolution() != null) debugNGClient.refreshForI18NChange(recreateForms);
-		if (debugHeadlessClient != null && debugHeadlessClient.getSolution() != null) debugHeadlessClient.refreshForI18NChange(recreateForms);
-		if (debugAuthenticator != null && debugAuthenticator.getSolution() != null) debugAuthenticator.refreshForI18NChange(recreateForms);
+		runInClientEventThread(debugJ2DBClient, (cl) -> cl.refreshForI18NChange(recreateForms));
+		runInClientEventThread(debugNGClient, (cl) -> cl.refreshForI18NChange(recreateForms));
+		runInClientEventThread(debugHeadlessClient, (cl) -> cl.refreshForI18NChange(recreateForms));
+		runInClientEventThread(debugAuthenticator, (cl) -> cl.refreshForI18NChange(recreateForms));
 		for (IDebugClient c : customDebugClients.values())
 		{
-			if (c.getSolution() != null) c.refreshForI18NChange(recreateForms);
+			runInClientEventThread(c, (cl) -> cl.refreshForI18NChange(recreateForms));
 		}
 	}
 
-	/**
-	 * @param changes
-	 */
 	public void refreshDebugClients(Collection<IPersist> changes)
 	{
-		if (debugJ2DBClient != null && debugJ2DBClient.getSolution() != null) debugJ2DBClient.refreshPersists(changes);
-		if (debugNGClient != null && debugNGClient.getSolution() != null) debugNGClient.refreshPersists(changes);
-		if (debugHeadlessClient != null && debugHeadlessClient.getSolution() != null) debugHeadlessClient.refreshPersists(changes);
-		if (debugAuthenticator != null && debugAuthenticator.getSolution() != null) debugAuthenticator.refreshPersists(changes);
+		runInClientEventThread(debugJ2DBClient, (cl) -> cl.refreshPersists(changes));
+		runInClientEventThread(debugNGClient, (cl) -> cl.refreshPersists(changes));
+		runInClientEventThread(debugHeadlessClient, (cl) -> cl.refreshPersists(changes));
+		runInClientEventThread(debugAuthenticator, (cl) -> cl.refreshPersists(changes));
 		for (IDebugClient c : customDebugClients.values())
 		{
-			if (c.getSolution() != null) c.refreshPersists(changes);
+			runInClientEventThread(c, (cl) -> cl.refreshPersists(changes));
 		}
+	}
+
+	private <CT extends IDebugClient> void runInClientEventThread(CT debugClient, Consumer<CT> taskToExecute)
+	{
+		if (debugClient != null && debugClient.getSolution() != null)
+			debugClient.invokeLater(() -> { // move to the correct client event thread - we don't want this executing on some developer worker thread or AWT event thread etc.
+				if (debugClient.isShutDown()) return;
+				taskToExecute.accept(debugClient);
+			});
 	}
 
 	public void refreshDebugClients(ITable table)
 	{
-		if (debugJ2DBClient != null && debugJ2DBClient.getSolution() != null)
-		{
-			String dataSource = debugJ2DBClient.getFoundSetManager().getDataSource(table);
-			((FoundSetManager)debugJ2DBClient.getFoundSetManager()).flushSQLSheet(dataSource);
-		}
-
-		if (debugNGClient != null && debugNGClient.getSolution() != null)
-		{
-			String dataSource = debugNGClient.getFoundSetManager().getDataSource(table);
-			((FoundSetManager)debugNGClient.getFoundSetManager()).flushSQLSheet(dataSource);
-		}
-		if (debugHeadlessClient != null && debugHeadlessClient.getSolution() != null)
-		{
-			String dataSource = debugHeadlessClient.getFoundSetManager().getDataSource(table);
-			((FoundSetManager)debugHeadlessClient.getFoundSetManager()).flushSQLSheet(dataSource);
-		}
-		if (debugAuthenticator != null && debugAuthenticator.getSolution() != null)
-		{
-			String dataSource = debugAuthenticator.getFoundSetManager().getDataSource(table);
-			((FoundSetManager)debugAuthenticator.getFoundSetManager()).flushSQLSheet(dataSource);
-		}
+		refreshDebugClientTable(debugJ2DBClient, table);
+		refreshDebugClientTable(debugNGClient, table);
+		refreshDebugClientTable(debugHeadlessClient, table);
+		refreshDebugClientTable(debugAuthenticator, table);
 
 		for (IDebugClient c : customDebugClients.values())
 		{
-			if (c.getSolution() != null)
-			{
-				String dataSource = c.getFoundSetManager().getDataSource(table);
-				((FoundSetManager)c.getFoundSetManager()).flushSQLSheet(dataSource);
-			}
+			refreshDebugClientTable(c, table);
 		}
+	}
+
+	private void refreshDebugClientTable(IDebugClient debugClient, ITable table)
+	{
+		runInClientEventThread(debugClient, (cl) -> {
+			String dataSource = cl.getFoundSetManager().getDataSource(table);
+			((FoundSetManager)cl.getFoundSetManager()).flushSQLSheet(dataSource);
+		});
 	}
 
 	public IApplication getDebugReadyClient()
