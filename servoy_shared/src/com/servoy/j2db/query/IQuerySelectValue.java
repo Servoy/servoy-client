@@ -91,7 +91,12 @@ public interface IQuerySelectValue extends IBaseQuerySelectValue, IQueryElement
 
 	default TypeInfo getTypeInfo()
 	{
-		return new TypeInfo(getColumnType(), getNativeTypename());
+		BaseColumnType columnType = getColumnType();
+		if (columnType != null)
+		{
+			return new TypeInfo(columnType, getNativeTypename());
+		}
+		return null;
 	}
 
 	default int getFlags()
