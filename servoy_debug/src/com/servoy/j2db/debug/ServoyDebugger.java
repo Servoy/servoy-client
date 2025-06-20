@@ -38,6 +38,7 @@ import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.dataprocessing.IDataServer;
 import com.servoy.j2db.scripting.ScriptEngine;
 import com.servoy.j2db.scripting.ScriptObjectRegistry;
+import com.servoy.j2db.scripting.annotations.AnnotationManagerReflection;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 import com.servoy.j2db.server.ngclient.NGClient;
 import com.servoy.j2db.server.ngclient.eventthread.NGClientWebsocketSessionWindows;
@@ -244,13 +245,15 @@ public class ServoyDebugger extends DBGPDebugger
 	{
 		if (prototype instanceof Wrapper wrapper)
 		{
-			JavaMembers javaMembers = ScriptObjectRegistry.getJavaMembers(wrapper.unwrap().getClass(), null);
+			Class< ? > clss = wrapper.unwrap().getClass();
+			JavaMembers javaMembers = ScriptObjectRegistry.getJavaMembers(clss, null);
 			if (javaMembers != null)
 			{
 				Object field = javaMembers.getField(id, false);
 				if (field instanceof JavaMembers.BeanProperty beanProperty)
 				{
-					JSReadonlyProperty annotation = beanProperty.getGetter().getAnnotation(JSReadonlyProperty.class);
+					AnnotationManagerReflection annotationManager = AnnotationManagerReflection.getInstance();
+					JSReadonlyProperty annotation = annotationManager.getAnnotation(beanProperty.getGetter(), clss, JSReadonlyProperty.class);
 					if (annotation != null)
 					{
 						String debuggerRepresentation = annotation.debuggerRepresentation();
