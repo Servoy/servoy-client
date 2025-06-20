@@ -165,24 +165,41 @@ public abstract class QBTableClause extends QBPart implements IQueryBuilderTable
 	 *
 	 *  @return the QBColumn representing the specified column name.
 	 */
-	@JSFunction
+	public QBColumn js_getColumn(String name) throws RepositoryException
+	{
+		return getColumn(name, false);
+	}
+
 	public QBColumn getColumn(String name) throws RepositoryException
+	{
+		return getColumn(name, true);
+	}
+
+	protected QBColumn getColumn(String name, boolean throwOnError) throws RepositoryException
 	{
 		QBColumn builderColumn = columns.get(name);
 		if (builderColumn == null)
 		{
-			columns.put(name, builderColumn = createColumn(name));
+			builderColumn = createColumn(name, throwOnError);
+			if (builderColumn != null)
+			{
+				columns.put(name, builderColumn);
+			}
 		}
 		return builderColumn;
 	}
 
-	protected QBColumn createColumn(String name) throws RepositoryException
+	protected QBColumn createColumn(String name, boolean throwOnError) throws RepositoryException
 	{
 		ITable tbl = getTable();
 		Column col = tbl == null ? null : tbl.getColumn(name);
 		if (col == null)
 		{
-			throw new RepositoryException("Cannot find column '" + name + "' in data source '" + dataSource + "'");
+			if (throwOnError)
+			{
+				throw new RepositoryException("Cannot find column '" + name + "' in data source '" + dataSource + "'");
+			}
+			return null;
 		}
 		return new QBColumnImpl(getRoot(), this, col.queryColumn(getQueryTable()));
 	}
@@ -209,7 +226,7 @@ public abstract class QBTableClause extends QBPart implements IQueryBuilderTable
 		{
 			throw new RepositoryException("Cannot find table(alias) '" + columnTableAlias + "'");
 		}
-		return queryBuilderTableClause.getColumn(name);
+		return queryBuilderTableClause.getColumn(name, false);
 	}
 
 	/*

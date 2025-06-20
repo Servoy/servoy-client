@@ -183,11 +183,11 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	}
 
 	@Override
-	protected QBColumn createColumn(String name) throws RepositoryException
+	protected QBColumn createColumn(String name, boolean throwOnError) throws RepositoryException
 	{
 		if (getTable() != null)
 		{
-			return super.createColumn(name);
+			return super.createColumn(name, throwOnError);
 		}
 
 		// Column names cannot be retrieved from the datasource, fall back to the columns in the query
@@ -199,7 +199,11 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 			}
 		}
 
-		throw new RepositoryException("Cannot find query column '" + name + "' in data source '" + getDataSource() + "'");
+		if (throwOnError)
+		{
+			throw new RepositoryException("Cannot find query column '" + name + "' in data source '" + getDataSource() + "'");
+		}
+		return null;
 	}
 
 	IRelation getRelation(String name)

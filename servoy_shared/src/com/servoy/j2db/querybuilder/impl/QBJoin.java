@@ -179,7 +179,7 @@ public class QBJoin extends QBTableClause implements IQueryBuilderJoin, IConstan
 
 
 	@Override
-	protected QBColumn createColumn(String name) throws RepositoryException
+	protected QBColumn createColumn(String name, boolean throwOnError) throws RepositoryException
 	{
 		ITableReference foreignTableReference = join.getForeignTableReference();
 		if (foreignTableReference instanceof TableExpression tableExpression)
@@ -188,13 +188,21 @@ public class QBJoin extends QBTableClause implements IQueryBuilderJoin, IConstan
 			ITable joinTable = getRoot().getTable(tableExpression.getTable().getDataSource());
 			if (joinTable == null)
 			{
-				throw new RepositoryException("Cannot find column '" + name + "' in data source '" + tableExpression.getTable().getDataSource() + "'");
+				if (throwOnError)
+				{
+					throw new RepositoryException("Cannot find column '" + name + "' in data source '" + tableExpression.getTable().getDataSource() + "'");
+				}
+				return null;
 			}
 
 			Column col = joinTable.getColumn(name);
 			if (col == null)
 			{
-				throw new RepositoryException("Cannot find column '" + name + "' in data source '" + tableExpression.getTable().getDataSource() + "'");
+				if (throwOnError)
+				{
+					throw new RepositoryException("Cannot find column '" + name + "' in data source '" + tableExpression.getTable().getDataSource() + "'");
+				}
+				return null;
 			}
 
 			return new QBColumnImpl(getRoot(), this, col.queryColumn(getQueryTable()));
@@ -211,7 +219,11 @@ public class QBJoin extends QBTableClause implements IQueryBuilderJoin, IConstan
 			}
 		}
 
-		throw new RepositoryException("Cannot find column '" + name + "' in source '" + foreignTableReference + "'");
+		if (throwOnError)
+		{
+			throw new RepositoryException("Cannot find column '" + name + "' in source '" + foreignTableReference + "'");
+		}
+		return null;
 	}
 
 
