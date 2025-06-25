@@ -125,7 +125,7 @@ public class FormTemplateGenerator
 		return componentType != null ? "data-" + componentType : "data-form";
 	}
 
-	private static String getPersistComponentTypeName(IFormElement persist)
+	public static String getPersistComponentTypeName(IFormElement persist)
 	{
 		if (persist instanceof IBasicWebComponent && isWebcomponentBean(persist))
 		{
