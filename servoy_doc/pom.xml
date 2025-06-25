@@ -11,15 +11,13 @@
 		<groupId>com.servoy</groupId>
 	</parent>
 
-	<groupId>com.servoy</groupId>
-	<version>2025.9.0.4100_rc</version>
 	<artifactId>servoy-doc</artifactId>
 	<packaging>jar</packaging>
 
 	<properties>
 		<workspace_dir>${project.build.directory}/ws</workspace_dir>
 		<servoy-local.url>${project.baseUri}/target/repository/</servoy-local.url>
-		<doc.version>1.7.0</doc.version>
+		<doc.version>1.8.0</doc.version>
 	</properties>
 
 	<build>
