@@ -18,8 +18,6 @@ package com.servoy.j2db.server.headlessclient;
 
 import java.rmi.RemoteException;
 
-import javax.servlet.ServletRequest;
-
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.JavaScriptException;
@@ -40,6 +38,8 @@ import com.servoy.j2db.server.shared.IApplicationServerSingleton;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.xmlxport.IXMLImportUserChannel;
+
+import jakarta.servlet.ServletRequest;
 
 /**
  * Factory for headless clients

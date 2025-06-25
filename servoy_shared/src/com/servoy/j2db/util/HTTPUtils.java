@@ -16,8 +16,8 @@
  */
 package com.servoy.j2db.util;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * Class that provides static utility methods related to HTTP.

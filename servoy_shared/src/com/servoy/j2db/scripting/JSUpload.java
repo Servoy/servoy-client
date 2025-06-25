@@ -20,11 +20,11 @@ package com.servoy.j2db.scripting;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
 import java.util.Map;
 
-import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.fileupload.disk.DiskFileItem;
+import org.apache.commons.fileupload2.core.DiskFileItem;
+import org.apache.commons.fileupload2.core.FileItem;
 import org.mozilla.javascript.annotations.JSFunction;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
@@ -53,10 +53,10 @@ import com.servoy.j2db.util.Utils;
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "JSUpload")
 public class JSUpload implements IUploadData, IJavaScriptType, IFile
 {
-	private final Object item;
+	private final FileItem< ? extends FileItem< ? >> item;
 	private final Map<String, String> formFields;
 
-	public JSUpload(Object item, Map<String, String> formFields)
+	public JSUpload(FileItem< ? extends FileItem< ? >> item, Map<String, String> formFields)
 	{
 		// inlining casting is needed because of smart client, that doesn't have a FileItem
 		this.item = item;
@@ -72,7 +72,7 @@ public class JSUpload implements IUploadData, IJavaScriptType, IFile
 	@JSFunction
 	public boolean isInMemory()
 	{
-		return ((FileItem)item).isInMemory();
+		return item.isInMemory();
 	}
 
 	/**
@@ -81,7 +81,7 @@ public class JSUpload implements IUploadData, IJavaScriptType, IFile
 	@JSFunction
 	public long getSize()
 	{
-		return ((FileItem)item).getSize();
+		return item.getSize();
 	}
 
 	/**
@@ -93,12 +93,20 @@ public class JSUpload implements IUploadData, IJavaScriptType, IFile
 	{
 		try
 		{
-			return ((FileItem)item).getString("UTF-8"); //$NON-NLS-1$
+			return item.getString(Charset.forName("UTF-8")); //$NON-NLS-1$
 		}
-		catch (UnsupportedEncodingException e)
+		catch (IOException e)
 		{
 		}
-		return ((FileItem)item).getString();
+		try
+		{
+			return item.getString();
+		}
+		catch (IOException e)
+		{
+			Debug.error(e);
+		}
+		return null;
 	}
 
 	/**
@@ -115,11 +123,11 @@ public class JSUpload implements IUploadData, IJavaScriptType, IFile
 		Object f = file;
 		if (f instanceof IFile) f = ((IFile)f).getFile();
 		if (f instanceof String) f = new File((String)f);
-		if (f instanceof File)
+		if (f instanceof File fi)
 		{
 			try
 			{
-				((FileItem)item).write((File)f);
+				item.write(fi.toPath());
 			}
 			catch (Exception e)
 			{
@@ -142,7 +150,14 @@ public class JSUpload implements IUploadData, IJavaScriptType, IFile
 	@JSFunction
 	public void deleteFile()
 	{
-		((FileItem)item).delete();
+		try
+		{
+			item.delete();
+		}
+		catch (IOException e)
+		{
+			Debug.error("Error deleting upload file: " + e.getMessage(), e);
+		}
 	}
 
 	/**
@@ -175,7 +190,7 @@ public class JSUpload implements IUploadData, IJavaScriptType, IFile
 	{
 		if (item instanceof DiskFileItem)
 		{
-			return ((DiskFileItem)item).getStoreLocation();
+			return ((DiskFileItem)item).getPath().toFile();
 		}
 		else if (item instanceof IFile)
 		{
@@ -192,7 +207,15 @@ public class JSUpload implements IUploadData, IJavaScriptType, IFile
 	@JSFunction
 	public byte[] getBytes()
 	{
-		return ((FileItem)item).get();
+		try
+		{
+			return item.get();
+		}
+		catch (IOException e)
+		{
+			Debug.error("Error getting bytes from upload file: " + e.getMessage(), e);
+		}
+		return null;
 	}
 
 
@@ -202,7 +225,7 @@ public class JSUpload implements IUploadData, IJavaScriptType, IFile
 	@JSFunction
 	public String getName()
 	{
-		String name = ((FileItem)item).getName();
+		String name = item.getName();
 
 		// when uploading from localhost some browsers will specify the entire path, we strip it
 		// down to just the file name
@@ -220,7 +243,7 @@ public class JSUpload implements IUploadData, IJavaScriptType, IFile
 	@JSFunction
 	public String getContentType()
 	{
-		return ((FileItem)item).getContentType();
+		return item.getContentType();
 	}
 
 	/**
@@ -230,7 +253,7 @@ public class JSUpload implements IUploadData, IJavaScriptType, IFile
 	{
 		try
 		{
-			return ((FileItem)item).getInputStream();
+			return item.getInputStream();
 		}
 		catch (IOException e)
 		{

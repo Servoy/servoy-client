@@ -18,29 +18,29 @@ package com.servoy.j2db.server.shared;
 
 import java.util.Locale;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSessionBindingListener;
-
 import com.servoy.j2db.dataprocessing.IDataSet;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSessionBindingListener;
 
 /**
  * Interface to interact with a client from within a HTTP session, like a JSP page.
- * 
+ *
  * <pre>
  * ISessionBean servoy_hc = (ISessionBean)session.getAttribute(&quot;servoy&quot;);
  * if (servoy_hc == null)
  * {
- * 	//args are solution name,username,password 
+ * 	//args are solution name,username,password
  * 	servoy_hc = HeadlessClientFactory.createSessionBean(request, &quot;headless_client_demo&quot;);
  * 	session.setAttribute(&quot;servoy&quot;, servoy_hc);
  * }
  * //servoy_hc is now usable...
  * </pre>
- * 
+ *
  * Sample contextName values:<br>
  * 1) null, main form foundset<br>
  * 2) "forms.&lt;xxxxx&gt;", for tabpanel relationless form foundset<br>
- * 
+ *
  * @author jblok
  * @see HeadlessClientFactory
  */
@@ -48,7 +48,7 @@ public interface ISessionBean extends IHeadlessClient, HttpSessionBindingListene
 {
 	/**
 	 * Sets a form as main form.
-	 * 
+	 *
 	 * @param formName the name of the form to set as main form
 	 * @return true if successful
 	 */
@@ -56,7 +56,7 @@ public interface ISessionBean extends IHeadlessClient, HttpSessionBindingListene
 
 	/**
 	 * Set all request parameters as dataprovider values, if the names match.
-	 * 
+	 *
 	 * @param contextName This is the form name or null if the method is a global method.
 	 * @param request_data the page request object
 	 */
@@ -74,7 +74,7 @@ public interface ISessionBean extends IHeadlessClient, HttpSessionBindingListene
 
 	/**
 	 * Execute a form or global method.
-	 * 
+	 *
 	 * @param visibleFormName the name of the form (must be visible)
 	 * @param methodName the name of the method to call
 	 * @param arguments to pass to the method
@@ -86,7 +86,7 @@ public interface ISessionBean extends IHeadlessClient, HttpSessionBindingListene
 
 	/**
 	 * Get a message for a key and optional arguments
-	 * 
+	 *
 	 * @param key
 	 * @param args
 	 * @return the text
@@ -97,14 +97,14 @@ public interface ISessionBean extends IHeadlessClient, HttpSessionBindingListene
 
 	/**
 	 * Override the default used browser locale
-	 * 
+	 *
 	 * @param l
 	 */
 	public void setLocale(Locale l);
 
 	/**
 	 * Get valuelist items as dataset.
-	 * 
+	 *
 	 * @param contextName the context for this request
 	 * @param valuelistName the name from the valuelist
 	 * @return the dataset with valuelist values

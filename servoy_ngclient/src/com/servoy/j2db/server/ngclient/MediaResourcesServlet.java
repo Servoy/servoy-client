@@ -28,24 +28,17 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletOutputStream;
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.fileupload.FileUploadBase.FileSizeLimitExceededException;
-import org.apache.commons.fileupload.FileUploadException;
-import org.apache.commons.fileupload.disk.DiskFileItem;
-import org.apache.commons.fileupload.disk.DiskFileItemFactory;
-import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.commons.fileupload2.core.DiskFileItem;
+import org.apache.commons.fileupload2.core.DiskFileItemFactory;
+import org.apache.commons.fileupload2.core.FileUploadException;
+import org.apache.commons.fileupload2.core.FileUploadFileCountLimitException;
+import org.apache.commons.fileupload2.jakarta.servlet6.JakartaServletDiskFileUpload;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.sablo.util.HTTPUtils;
 
 import com.servoy.j2db.AbstractActiveSolutionHandler;
@@ -67,6 +60,13 @@ import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ImageLoader;
 import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.Utils;
+
+import jakarta.servlet.ServletConfig;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletOutputStream;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * Supported resources URLs:<br><br>
@@ -105,7 +105,7 @@ public class MediaResourcesServlet extends AbstractMediaResourceServlet
 		super.init(context);
 		try
 		{
-			tempDir = (File)context.getServletContext().getAttribute("javax.servlet.context.tempdir");
+			tempDir = (File)context.getServletContext().getAttribute("jakarta.servlet.context.tempdir");
 			if (tempDir != null)
 			{
 				tempDir = new File(tempDir, DYNAMIC_DATA_ACCESS);
@@ -397,10 +397,11 @@ public class MediaResourcesServlet extends AbstractMediaResourceServlet
 							}
 						}
 						int tempFileThreshold = Utils.getAsInteger(settings.getProperty("servoy.ng_web_client.tempfile.threshold", "50"), false) * 1000;
-						DiskFileItemFactory diskFileItemFactory = new DiskFileItemFactory(tempFileThreshold, fileUploadDir);
-						diskFileItemFactory.setFileCleaningTracker(FILE_CLEANING_TRACKER);
-						ServletFileUpload upload = new ServletFileUpload(diskFileItemFactory);
-						upload.setHeaderEncoding(reqEncoding);
+
+						DiskFileItemFactory diskFileItemFactory = DiskFileItemFactory.builder().setFileCleaningTracker(FILE_CLEANING_TRACKER)
+							.setBufferSize(tempFileThreshold).get();
+						JakartaServletDiskFileUpload upload = new JakartaServletDiskFileUpload(diskFileItemFactory);
+						upload.setHeaderCharset(Charset.forName(reqEncoding, null));
 
 						Long runtimeMaxSize = (Long)wsSession.getClient().getRuntimeProperties().get("servoy.runtime.maxuploadfilesize");
 						long maxUpload = runtimeMaxSize != null ? runtimeMaxSize.longValue() : 0;
@@ -411,8 +412,8 @@ public class MediaResourcesServlet extends AbstractMediaResourceServlet
 						if (maxUpload > 0) upload.setFileSizeMax(maxUpload * 1024);
 
 						final List<FileUploadData> aFileUploadData = new ArrayList<FileUploadData>();
-						List<FileItem> formFields = new ArrayList<>();
-						for (FileItem item : upload.parseRequest(req))
+						List<DiskFileItem> formFields = new ArrayList<>();
+						for (DiskFileItem item : upload.parseRequest(req))
 						{
 							if (item.isFormField())
 							{
@@ -420,14 +421,14 @@ public class MediaResourcesServlet extends AbstractMediaResourceServlet
 							}
 							else
 							{
-								String encoding = StringUtils.defaultString(req.getCharacterEncoding(), "UTF-8");
+								String encoding = Objects.toString(req.getCharacterEncoding(), "UTF-8");
 
 								JSMap<String, String> fieldsMap = new JSMap<>();
-								for (FileItem fileItem : formFields)
+								for (DiskFileItem fileItem : formFields)
 								{
 									try
 									{
-										fieldsMap.put(fileItem.getFieldName(), fileItem.getString(encoding));
+										fieldsMap.put(fileItem.getFieldName(), fileItem.getString(Charset.forName(encoding, null)));
 									}
 									catch (UnsupportedEncodingException e)
 									{
@@ -467,11 +468,11 @@ public class MediaResourcesServlet extends AbstractMediaResourceServlet
 						}
 					}
 				}
-				catch (FileSizeLimitExceededException ex)
+				catch (FileUploadFileCountLimitException ex)
 				{
 					res.setStatus(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE);
 					if (wsSession != null) res.getWriter().print(
-						wsSession.getClient().getI18NMessage("servoy.filechooser.sizeExceeded", new Object[] { ex.getPermittedSize() / 1024 + "KB" }));
+						wsSession.getClient().getI18NMessage("servoy.filechooser.sizeExceeded", new Object[] { ex.getPermitted() / 1024 + "KB" }));
 				}
 				catch (FileUploadException ex)
 				{
@@ -642,9 +643,9 @@ public class MediaResourcesServlet extends AbstractMediaResourceServlet
 
 	private static final class FileUploadData implements IUploadData
 	{
-		private final FileItem item;
+		private final DiskFileItem item;
 
-		private FileUploadData(FileItem item)
+		private FileUploadData(DiskFileItem item)
 		{
 			this.item = item;
 		}
@@ -670,7 +671,15 @@ public class MediaResourcesServlet extends AbstractMediaResourceServlet
 
 		public byte[] getBytes()
 		{
-			return item.get();
+			try
+			{
+				return item.get();
+			}
+			catch (IOException e)
+			{
+				Debug.error(e);
+			}
+			return null;
 		}
 
 		/**
@@ -678,11 +687,7 @@ public class MediaResourcesServlet extends AbstractMediaResourceServlet
 		 */
 		public File getFile()
 		{
-			if (item instanceof DiskFileItem)
-			{
-				return ((DiskFileItem)item).getStoreLocation();
-			}
-			return null;
+			return item.getPath().toFile();
 		}
 
 		/*

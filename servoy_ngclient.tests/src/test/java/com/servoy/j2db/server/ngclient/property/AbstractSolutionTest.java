@@ -47,20 +47,6 @@ import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpSession;
-import javax.servlet.http.HttpSessionContext;
-import javax.websocket.CloseReason;
-import javax.websocket.EncodeException;
-import javax.websocket.Extension;
-import javax.websocket.MessageHandler;
-import javax.websocket.MessageHandler.Partial;
-import javax.websocket.MessageHandler.Whole;
-import javax.websocket.RemoteEndpoint.Async;
-import javax.websocket.RemoteEndpoint.Basic;
-import javax.websocket.Session;
-import javax.websocket.WebSocketContainer;
-
 import org.apache.commons.io.FilenameUtils;
 import org.junit.After;
 import org.junit.Assert;
@@ -113,6 +99,19 @@ import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
+
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.http.HttpSession;
+import jakarta.websocket.CloseReason;
+import jakarta.websocket.EncodeException;
+import jakarta.websocket.Extension;
+import jakarta.websocket.MessageHandler;
+import jakarta.websocket.MessageHandler.Partial;
+import jakarta.websocket.MessageHandler.Whole;
+import jakarta.websocket.RemoteEndpoint.Async;
+import jakarta.websocket.RemoteEndpoint.Basic;
+import jakarta.websocket.Session;
+import jakarta.websocket.WebSocketContainer;
 
 
 /**
@@ -668,11 +667,6 @@ public abstract class AbstractSolutionTest extends Log4JToConsoleTest
 			return 0;
 		}
 
-		@Override
-		public HttpSessionContext getSessionContext()
-		{
-			return null;
-		}
 
 		@Override
 		public Object getAttribute(String name)
@@ -680,22 +674,11 @@ public abstract class AbstractSolutionTest extends Log4JToConsoleTest
 			return attributes.get(name);
 		}
 
-		@Override
-		public Object getValue(String name)
-		{
-			return null;
-		}
 
 		@Override
 		public Enumeration<String> getAttributeNames()
 		{
 			return Collections.enumeration(attributes.keySet());
-		}
-
-		@Override
-		public String[] getValueNames()
-		{
-			return null;
 		}
 
 		@Override
@@ -705,19 +688,9 @@ public abstract class AbstractSolutionTest extends Log4JToConsoleTest
 		}
 
 		@Override
-		public void putValue(String name, Object value)
-		{
-		}
-
-		@Override
 		public void removeAttribute(String name)
 		{
 			attributes.remove(name);
-		}
-
-		@Override
-		public void removeValue(String name)
-		{
 		}
 
 		@Override

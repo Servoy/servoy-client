@@ -23,11 +23,11 @@ import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletRequestWrapper;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequestWrapper;
 
 /**
  * @author emera
@@ -40,7 +40,7 @@ public class StatelessLoginUtils
 	public static class OAuthDeeplinkRequestWrapper extends HttpServletRequestWrapper
 	{
 		/**
-		 * 
+		 *
 		 */
 		private final Map<String, String[]> stateParams;
 		private final Map<String, String[]> params;

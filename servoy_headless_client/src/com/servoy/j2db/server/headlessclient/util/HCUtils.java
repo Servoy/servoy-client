@@ -19,8 +19,6 @@ package com.servoy.j2db.server.headlessclient.util;
 
 import static java.lang.Integer.parseInt;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -29,6 +27,7 @@ import org.jsoup.safety.Safelist;
 
 import com.servoy.j2db.util.HtmlUtils;
 
+import jakarta.servlet.http.HttpServletRequest;
 import ua_parser.OS;
 import ua_parser.Parser;
 import ua_parser.UserAgent;

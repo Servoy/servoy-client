@@ -34,12 +34,6 @@ import java.util.StringTokenizer;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.locks.ReentrantLock;
 
-import javax.servlet.ServletRequest;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-import javax.servlet.http.HttpSessionActivationListener;
-import javax.servlet.http.HttpSessionBindingEvent;
-import javax.servlet.http.HttpSessionEvent;
 import javax.swing.SwingUtilities;
 
 import org.apache.wicket.Component;
@@ -97,6 +91,13 @@ import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.ServoyScheduledExecutor;
 import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.Utils;
+
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpSessionActivationListener;
+import jakarta.servlet.http.HttpSessionBindingEvent;
+import jakarta.servlet.http.HttpSessionEvent;
 
 /**
  * A client which can be used in a jsp page or inside the org.apache.wicket framework as webclient
@@ -1230,7 +1231,7 @@ public class SessionClient extends AbstractApplication implements ISessionClient
 	/*
 	 * (non-Javadoc)
 	 *
-	 * @see javax.servlet.http.HttpSessionActivationListener#sessionDidActivate(javax.servlet.http.HttpSessionEvent)
+	 * @see jakarta.servlet.http.HttpSessionActivationListener#sessionDidActivate(jakarta.servlet.http.HttpSessionEvent)
 	 */
 	@Override
 	public void sessionDidActivate(HttpSessionEvent arg0)
@@ -1240,7 +1241,7 @@ public class SessionClient extends AbstractApplication implements ISessionClient
 	/*
 	 * (non-Javadoc)
 	 *
-	 * @see javax.servlet.http.HttpSessionActivationListener#sessionWillPassivate(javax.servlet.http.HttpSessionEvent)
+	 * @see jakarta.servlet.http.HttpSessionActivationListener#sessionWillPassivate(jakarta.servlet.http.HttpSessionEvent)
 	 */
 	@Override
 	public void sessionWillPassivate(HttpSessionEvent arg0)

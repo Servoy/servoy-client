@@ -22,8 +22,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ScheduledExecutorService;
 
-import javax.servlet.http.HttpServlet;
-
 import com.servoy.j2db.IDebugClientHandler;
 import com.servoy.j2db.dataprocessing.IDataServer;
 import com.servoy.j2db.persistence.AbstractRepository;
@@ -47,6 +45,8 @@ import com.servoy.j2db.util.xmlxport.IXMLImportHandlerVersions11AndHigher;
 import com.servoy.j2db.util.xmlxport.IXMLImportUserChannel;
 import com.servoy.j2db.util.xmlxport.RootObjectImportInfo;
 import com.servoy.j2db.util.xmlxport.VersionInfo;
+
+import jakarta.servlet.http.HttpServlet;
 
 /**
  * @author jcompagner

@@ -20,8 +20,6 @@ package com.servoy.j2db.server.ngclient.auth;
 import java.rmi.RemoteException;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,6 +35,8 @@ import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.server.shared.IApplicationServer;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.Utils;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * @author emera

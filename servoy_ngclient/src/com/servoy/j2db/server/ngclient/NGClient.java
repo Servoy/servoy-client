@@ -28,8 +28,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import javax.servlet.http.HttpSession;
-
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.mozilla.javascript.Context;
@@ -123,6 +121,8 @@ import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.ServoyScheduledExecutor;
 import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
+
+import jakarta.servlet.http.HttpSession;
 
 @SuppressWarnings("nls")
 public class NGClient extends AbstractApplication

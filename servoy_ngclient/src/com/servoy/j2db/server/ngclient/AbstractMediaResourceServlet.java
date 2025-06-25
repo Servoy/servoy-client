@@ -18,16 +18,13 @@
 package com.servoy.j2db.server.ngclient;
 
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-
-import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload2.core.FileItem;
 import org.apache.commons.io.FileCleaningTracker;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
@@ -49,6 +46,10 @@ import com.servoy.j2db.server.ngclient.property.FoundsetTypeSabloValue;
 import com.servoy.j2db.server.ngclient.property.types.FormComponentPropertyType;
 import com.servoy.j2db.ui.IMediaFieldConstants;
 import com.servoy.j2db.util.Debug;
+
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 
 /**
  * @author jcompagner
@@ -105,7 +106,7 @@ public abstract class AbstractMediaResourceServlet extends HttpServlet
 	 * @return
 	 */
 	protected boolean callClient(HttpServletRequest req, String[] paths, final INGClientWebsocketSession wsSession, final JSMap<String, String> fieldsMap,
-		FileItem item)
+		FileItem< ? extends FileItem< ? >> item)
 	{
 		final String formName = paths.length >= 5 ? paths[2] : null;
 		final String elementName = paths.length >= 5 ? paths[3] : null;
@@ -215,7 +216,14 @@ public abstract class AbstractMediaResourceServlet extends HttpServlet
 													}
 												}
 											}
-											fileData.put("", item.get());
+											try
+											{
+												fileData.put("", item.get());
+											}
+											catch (IOException e)
+											{
+												Debug.error("Error reading file data for upload: " + item.getName(), e);
+											}
 											foundsetPropertyValue.getDataAdapterList().pushChanges(webComponent, propertyName, fileData,
 												null);
 											foundsetPropertyValue.setDataAdapterListToSelectedRecord();
@@ -227,7 +235,14 @@ public abstract class AbstractMediaResourceServlet extends HttpServlet
 							}
 							if (!isListFormComponent)
 							{
-								fileData.put("", item.get());
+								try
+								{
+									fileData.put("", item.get());
+								}
+								catch (IOException e)
+								{
+									Debug.error("Error reading file data for upload: " + item.getName(), e);
+								}
 								form.getDataAdapterList().pushChanges(webComponent, propertyName, fileData, null);
 							}
 						}

@@ -25,7 +25,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
-import javax.servlet.ServletRequest;
 import javax.swing.SwingUtilities;
 
 import org.eclipse.core.runtime.CoreException;
@@ -63,6 +62,8 @@ import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IDeveloperURLStreamHandler;
 import com.servoy.j2db.util.Utils;
+
+import jakarta.servlet.ServletRequest;
 
 public class DebugClientHandler implements IDebugClientHandler, IDesignerCallback
 {
