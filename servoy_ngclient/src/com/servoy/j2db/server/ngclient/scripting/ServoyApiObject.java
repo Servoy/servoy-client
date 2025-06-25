@@ -229,6 +229,10 @@ public class ServoyApiObject
 				formName = form.getName();
 			}
 		}
+		else
+		{
+			formName = form.getName();
+		}
 		IWebFormController formController = app.getFormManager().getForm(formName, this.component);
 		IWebFormController parentFormController = null;
 		if (this.component != null)
