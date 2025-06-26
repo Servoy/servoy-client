@@ -510,15 +510,20 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 	 * label.groupID = 'someGroup';
 	 * field.groupID = 'someGroup';
 	 * forms['someForm'].elements.someGroup.enabled = false;
-	 *
+	 * @deprecated not used in TiNG
 	 * @return The group ID of the component.
 	 */
+	@Deprecated
 	@JSGetter
 	public String getGroupID()
 	{
 		return getBaseComponent(false).getGroupID();
 	}
 
+	/**
+	 * @deprecated not used in TiNG
+	 */
+	@Deprecated
 	@JSSetter
 	public void setGroupID(String arg)
 	{
