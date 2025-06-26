@@ -34,8 +34,8 @@ public abstract class ClientVersion
 	private static final int majorVersion = 2025;
 	private static final int middleVersion = 6;
 	private static final int minorVersion = 0;
-	private static final int releaseNumber = 4081;
-	private static final String versionPostfix = "rc2";
+	private static final int releaseNumber = 4082;
+	private static final String versionPostfix = "";
 	private static final boolean lts = false;
 	private static String buildTime = null;
 
