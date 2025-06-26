@@ -17,6 +17,6 @@ Export-Package: com.servoy.j2db.debug,
  com.servoy.j2db.debug.extensions,
  com.servoy.j2db.debug.layout
 Bundle-ActivationPolicy: lazy
-Import-Package: jakarta.servlet;version="[6.1.0,7.0.0)",
- jakarta.servlet.http;version="[6.1.0,7.0.0)"
+Import-Package: jakarta.servlet;version="[6.1.0,8.0.0)",
+ jakarta.servlet.http;version="[6.1.0,8.0.0)"
 Automatic-Module-Name: servoy_debug
