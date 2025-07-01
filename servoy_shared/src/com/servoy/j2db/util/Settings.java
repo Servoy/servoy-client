@@ -357,7 +357,7 @@ public final class Settings extends SortedProperties
 					replacement = System.getenv(keyToSubstitute);
 				}
 
-				if (!Utils.stringIsEmpty(replacement))
+				if (replacement != null)
 				{
 					buffer.append(replacement);
 				}
