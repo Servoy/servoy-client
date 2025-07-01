@@ -1070,7 +1070,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 						webComponent.setInvalidState(false);
 
 					}
-					if (onDataChangeCallback != null)
+					if (webComponent.isVisible() && onDataChangeCallback != null)
 					{
 						WebObjectApiFunctionDefinition call = createWebObjectFunction(onDataChangeCallback);
 						webComponent.invokeApi(call, new Object[] { event, returnValue, exception == null ? null : exception.getMessage() });
