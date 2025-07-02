@@ -17,10 +17,8 @@
 
 package com.servoy.j2db.server.ngclient.property.types;
 
-import org.json.JSONArray;
 import org.json.JSONObject;
 import org.sablo.specification.PropertyDescription;
-import org.sablo.specification.property.IPropertyCanDependsOn;
 import org.sablo.specification.property.IPropertyType;
 
 import com.servoy.j2db.persistence.Column;
@@ -43,13 +41,10 @@ import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElement
  *
  * @author gboros
  */
-public class TitleStringPropertyType extends TagStringPropertyType
-	implements IFormElementDefaultValueToSabloComponent<String, BasicTagStringTypeSabloValue>, IPropertyCanDependsOn
+public class TitleStringPropertyType extends TagStringPropertyType implements IFormElementDefaultValueToSabloComponent<String, BasicTagStringTypeSabloValue>
 {
 	public static final TitleStringPropertyType NG_INSTANCE = new TitleStringPropertyType();
 	public static final String NG_TYPE_NAME = "titlestring";
-
-	private String[] dependencies = null;
 
 	private TitleStringPropertyType()
 	{
@@ -68,24 +63,6 @@ public class TitleStringPropertyType extends TagStringPropertyType
 		String forDataprovider = null;
 		if (json != null)
 		{
-
-			if (json.has("for"))
-			{
-				Object object = json.get("for");
-				if (object instanceof JSONArray)
-				{
-					JSONArray arr = (JSONArray)object;
-					dependencies = new String[arr.length()];
-					for (int i = 0; i < arr.length(); i++)
-					{
-						dependencies[i] = arr.getString(i);
-					}
-				}
-				else if (object instanceof String)
-				{
-					dependencies = new String[] { (String)object };
-				}
-			}
 			forDataprovider = json.optString(TitleStringConfig.FOR_DATAPROVIDER_CONFIG_OPT, null);
 		}
 		return new TitleStringConfig(tagStringConfig.getDisplayTagsPropertyName(), tagStringConfig.shouldDisplayTags(), tagStringConfig.useParsedValueInRhino(),
@@ -139,16 +116,5 @@ public class TitleStringPropertyType extends TagStringPropertyType
 			}
 		}
 		return null;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.sablo.specification.property.IPropertyCanDependsOn#getDependencies()
-	 */
-	@Override
-	public String[] getDependencies()
-	{
-		return dependencies;
 	}
 }

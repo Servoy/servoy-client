@@ -17,7 +17,6 @@
 
 package com.servoy.j2db.server.ngclient.property;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONWriter;
@@ -28,7 +27,6 @@ import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.PropertyDescriptionBuilder;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IConvertedPropertyType;
-import org.sablo.specification.property.IPropertyCanDependsOn;
 import org.sablo.specification.property.IPropertyType;
 import org.sablo.specification.property.IPropertyWithClientSideConversions;
 import org.sablo.specification.property.ISupportsGranularUpdates;
@@ -79,8 +77,7 @@ public class FoundsetLinkedPropertyType<YF, YT> implements IYieldingType<Foundse
 	IWrapperDataLinkedType<YF, FoundsetLinkedTypeSabloValue<YF, YT>>, IFormElementToSabloComponent<YF, FoundsetLinkedTypeSabloValue<YF, YT>>,
 	IConvertedPropertyType<FoundsetLinkedTypeSabloValue<YF, YT>>, IFindModeAwareType<YF, FoundsetLinkedTypeSabloValue<YF, YT>>,
 	ISabloComponentToRhino<FoundsetLinkedTypeSabloValue<YF, YT>>, IRhinoToSabloComponent<FoundsetLinkedTypeSabloValue<YF, YT>>,
-	ISupportsGranularUpdates<FoundsetLinkedTypeSabloValue<YF, YT>>, IPropertyWithClientSideConversions<FoundsetLinkedTypeSabloValue<YF, YT>>,
-	IPropertyCanDependsOn
+	ISupportsGranularUpdates<FoundsetLinkedTypeSabloValue<YF, YT>>, IPropertyWithClientSideConversions<FoundsetLinkedTypeSabloValue<YF, YT>>
 {
 
 	protected static final String SINGLE_VALUE = "sv"; //$NON-NLS-1$
@@ -94,8 +91,6 @@ public class FoundsetLinkedPropertyType<YF, YT> implements IYieldingType<Foundse
 
 	protected final String name;
 	protected ICanBeLinkedToFoundset<YF, YT> wrappedType;
-
-	private String[] dependencies;
 
 	public FoundsetLinkedPropertyType(String name, ICanBeLinkedToFoundset<YF, YT> wrappedType)
 	{
@@ -139,24 +134,6 @@ public class FoundsetLinkedPropertyType<YF, YT> implements IYieldingType<Foundse
 	@Override
 	public FoundsetLinkedConfig parseConfig(JSONObject config)
 	{
-		if (dependencies == null && config != null && config.has("for"))
-		{
-			Object object = config.get("for");
-			if (object instanceof JSONArray)
-			{
-				JSONArray arr = (JSONArray)object;
-				dependencies = new String[arr.length()];
-				for (int i = 0; i < arr.length(); i++)
-				{
-					dependencies[i] = arr.getString(i);
-				}
-			}
-			else if (object instanceof String)
-			{
-				dependencies = new String[] { (String)object };
-			}
-		}
-
 		return config == null ? null : new FoundsetLinkedConfig(config.optString(FOR_FOUNDSET_PROPERTY_NAME, null), wrappedType.parseConfig(config));
 	}
 
@@ -355,17 +332,6 @@ public class FoundsetLinkedPropertyType<YF, YT> implements IYieldingType<Foundse
 		JSONUtils.addKeyIfPresent(w, keyToAddTo);
 		w.value(CONVERSION_NAME);
 		return true;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.sablo.specification.property.IPropertyCanDependsOn#getDependencies()
-	 */
-	@Override
-	public String[] getDependencies()
-	{
-		return dependencies;
 	}
 
 }
