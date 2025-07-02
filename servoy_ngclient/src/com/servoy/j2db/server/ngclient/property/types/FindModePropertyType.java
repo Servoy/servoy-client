@@ -27,6 +27,7 @@ import org.sablo.IWebObjectContext;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IConvertedPropertyType;
+import org.sablo.specification.property.IPropertyCanDependsOn;
 import org.sablo.specification.property.types.DefaultPropertyType;
 import org.sablo.util.ValueReference;
 import org.sablo.websocket.utils.JSONUtils;
@@ -48,11 +49,13 @@ import com.servoy.j2db.util.ServoyJSONObject;
  */
 public class FindModePropertyType extends DefaultPropertyType<FindModeSabloValue>
 	implements IConvertedPropertyType<FindModeSabloValue>, IFormElementDefaultValueToSabloComponent<JSONObject, FindModeSabloValue>,
-	ISabloComponentToRhino<FindModeSabloValue>, IRhinoToSabloComponent<FindModeSabloValue>, IFormElementToTemplateJSON<String, FindModeSabloValue>
+	ISabloComponentToRhino<FindModeSabloValue>, IRhinoToSabloComponent<FindModeSabloValue>, IFormElementToTemplateJSON<String, FindModeSabloValue>,
+	IPropertyCanDependsOn
 {
 
 	public static final FindModePropertyType INSTANCE = new FindModePropertyType();
 	public static final String TYPE_NAME = "findmode";
+	private final String[] dependencies = null;
 
 	@Override
 	public String getName()
@@ -145,5 +148,16 @@ public class FindModePropertyType extends DefaultPropertyType<FindModeSabloValue
 		JSONUtils.addKeyIfPresent(writer, key);
 		writer.value(Boolean.FALSE);
 		return writer;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see org.sablo.specification.property.IPropertyCanDependsOn#getDependencies()
+	 */
+	@Override
+	public String[] getDependencies()
+	{
+		return dependencies;
 	}
 }

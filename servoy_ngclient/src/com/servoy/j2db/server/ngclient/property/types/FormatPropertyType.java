@@ -32,6 +32,7 @@ import org.sablo.specification.IYieldingType;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IConvertedPropertyType;
+import org.sablo.specification.property.IPropertyCanDependsOn;
 import org.sablo.specification.property.IPropertyType;
 import org.sablo.specification.property.types.DefaultPropertyType;
 import org.sablo.specification.property.types.StringPropertyType;
@@ -65,13 +66,14 @@ import com.servoy.j2db.util.RoundHalfUpDecimalFormat;
 @SuppressWarnings("nls")
 public class FormatPropertyType extends DefaultPropertyType<FormatTypeSabloValue> implements IConvertedPropertyType<FormatTypeSabloValue>,
 	ISupportTemplateValue<String>, IFormElementDefaultValueToSabloComponent<String, FormatTypeSabloValue>, ISabloComponentToRhino<FormatTypeSabloValue>,
-	IRhinoToSabloComponent<FormatTypeSabloValue>, II18NPropertyType<FormatTypeSabloValue>
+	IRhinoToSabloComponent<FormatTypeSabloValue>, II18NPropertyType<FormatTypeSabloValue>, IPropertyCanDependsOn
 {
 
 	private static final Logger log = LoggerFactory.getLogger(FormatPropertyType.class.getCanonicalName());
 
 	public static final FormatPropertyType INSTANCE = new FormatPropertyType();
 	public static final String TYPE_NAME = "format";
+	private String[] dependencies = null;
 
 	private FormatPropertyType()
 	{
@@ -99,11 +101,14 @@ public class FormatPropertyType extends DefaultPropertyType<FormatTypeSabloValue
 					{
 						retValue[i] = arr.getString(i);
 					}
+					dependencies = retValue;
 					return retValue;
 				}
 				else if (object instanceof String)
 				{
-					return new String[] { (String)object };
+					String[] retValue = new String[] { (String)object };
+					dependencies = retValue;
+					return retValue;
 				}
 				return null;
 			}
@@ -387,6 +392,19 @@ public class FormatPropertyType extends DefaultPropertyType<FormatTypeSabloValue
 			value.resetI18nValue();
 		}
 		return value;
+	}
+
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see org.sablo.specification.property.IPropertyCanDependsOn#getDependencies()
+	 */
+	@Override
+	public String[] getDependencies()
+	{
+		// TODO Auto-generated method stub
+		return dependencies;
 	}
 
 }
