@@ -21,6 +21,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IBrowserConverterContext;
+import org.sablo.specification.property.IPropertyCanDependsOn;
 import org.sablo.util.ValueReference;
 
 import com.servoy.j2db.util.Debug;
@@ -31,11 +32,13 @@ import com.servoy.j2db.util.Debug;
  *
  */
 @SuppressWarnings("hiding")
-public class ModifiablePropertyType extends ServoyStringPropertyType
+public class ModifiablePropertyType extends ServoyStringPropertyType implements IPropertyCanDependsOn
 {
 	public static final String TYPE_NAME = "modifiable"; //$NON-NLS-1$
 
 	public static final ModifiablePropertyType INSTANCE = new ModifiablePropertyType();
+
+	private String[] dependencies;
 
 	@Override
 	public String fromJSON(Object newJSONValue, String previousSabloValue, PropertyDescription pd, IBrowserConverterContext dataConverterContext,
@@ -58,11 +61,26 @@ public class ModifiablePropertyType extends ServoyStringPropertyType
 		try
 		{
 			dataprovider = config.optString("for");
+			if (dataprovider != null)
+			{
+				dependencies = new String[] { dataprovider };
+			}
 		}
 		catch (JSONException e)
 		{
 			Debug.log(e);
 		}
 		return dataprovider;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see org.sablo.specification.property.IPropertyCanDependsOn#getDependencies()
+	 */
+	@Override
+	public String[] getDependencies()
+	{
+		return dependencies;
 	}
 }
