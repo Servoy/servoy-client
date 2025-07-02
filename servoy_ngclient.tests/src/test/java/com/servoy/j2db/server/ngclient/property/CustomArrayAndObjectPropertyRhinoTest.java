@@ -485,9 +485,11 @@ public class CustomArrayAndObjectPropertyRhinoTest extends Log4JToConsoleTest
 		properties = component.getProperties();
 
 		msg = JSONUtils.writeDataAsFullToJSON(properties.content, properties.contentType, allowDataConverterContext);
-		assertEquals("Simple object type with null toJSON",
-			msg,
+		// Use JSONObject.similar() to compare JSON content regardless of property order
+		JSONObject actual2 = new JSONObject(msg);
+		JSONObject expected2 = new JSONObject(
 			"{\"unknownvaluearray\":{\"vEr\":4,\"v\":[{\"vEr\":2,\"v\":{\"myproperty\":{\"key1\":\"aaa\",\"key2\":null,\"key3\":[\"bbb\",\"ccc\",null]}}}]},\"name\":\"test\"}");
+		assertTrue("Simple object type with null toJSON - JSON content should be equivalent regardless of property order", expected2.similar(actual2));
 
 		TimeZone default1 = TimeZone.getDefault();
 		try
