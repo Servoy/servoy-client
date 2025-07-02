@@ -359,9 +359,11 @@ public class CustomArrayAndObjectPropertyRhinoTest extends Log4JToConsoleTest
 		TypedData<Map<String, Object>> properties = component.getProperties();
 
 		String msg = JSONUtils.writeDataAsFullToJSON(properties.content, properties.contentType, allowDataConverterContext);
-		assertEquals("Simple object toJSON",
-			msg,
+		// Use JSONObject.similar() to compare JSON content regardless of property order
+		JSONObject actual1 = new JSONObject(msg);
+		JSONObject expected1 = new JSONObject(
 			"{\"name\":\"test\",\"unknownvalue\":{\"vEr\":2,\"v\":{\"myproperty\":{\"key1\":\"aaa\",\"key2\":123,\"key3\":true}}}}");
+		assertTrue("Simple object toJSON - JSON content should be equivalent regardless of property order", expected1.similar(actual1));
 
 		customType1 = new HashMap<>();
 		customType1.put("key1", "aaa");
@@ -374,9 +376,11 @@ public class CustomArrayAndObjectPropertyRhinoTest extends Log4JToConsoleTest
 		properties = component.getProperties();
 
 		msg = JSONUtils.writeDataAsFullToJSON(properties.content, properties.contentType, allowDataConverterContext);
-		assertEquals("Simple object type with null toJSON",
-			msg,
+		// Use JSONObject.similar() to compare JSON content regardless of property order
+		JSONObject actual2 = new JSONObject(msg);
+		JSONObject expected2 = new JSONObject(
 			"{\"name\":\"test\",\"unknownvalue\":{\"vEr\":4,\"v\":{\"myproperty\":{\"key1\":\"aaa\",\"key2\":null,\"key3\":[\"bbb\",\"ccc\",null]}}}}");
+		assertTrue("Simple object type with null toJSON - JSON content should be equivalent regardless of property order", expected2.similar(actual2));
 
 		TimeZone default1 = TimeZone.getDefault();
 		try
@@ -399,9 +403,11 @@ public class CustomArrayAndObjectPropertyRhinoTest extends Log4JToConsoleTest
 			TimeZone.setDefault(default1);
 		}
 
-		assertEquals("Simple object type with date toJSON",
-			msg,
-			"{\"name\":\"test\",\"unknownvalue\":{\"vEr\":6,\"v\":{\"myproperty\":{\"_T\":\"object\",\"_V\":{\"key1\":\"aaa\",\"key2\":{\"_T\":\"svy_date\",\"_V\":\"1990-02-01T00:00+02:00\"},\"key3\":{\"_T\":\"object\",\"_V\":[\"bbb\",\"ccc\",{\"_T\":\"svy_date\",\"_V\":\"2000-11-10T00:00+02:00\"}]}}}}}}");
+		// Use JSONObject.similar() to compare JSON content regardless of property order
+		JSONObject actual3 = new JSONObject(msg);
+		JSONObject expected3 = new JSONObject(
+			"{\"name\":\"test\",\"unknownvalue\":{\"vEr\":6,\"v\":{\"myproperty\":{\"_T\":\"object\",\"_V\":{\"key1\":\"aaa\",\"key2\":{\"_T\":\"svy_date\",\"_V\":\"1990-02-01T00:00+02:00\"},\"key3\":{\"_T\":\"object\",\"_V\":[\"bbb\",\"ccc\",{\"_T\":\"svy_date\",\"_V\":\"2000-11-10T00:00+02:00\"}]}}}}}}}");
+		assertTrue("Simple object type with date toJSON - JSON content should be equivalent regardless of property order", expected3.similar(actual3));
 
 		INGApplication application = new ServiceProvider();
 		customType1 = new HashMap();
@@ -417,9 +423,11 @@ public class CustomArrayAndObjectPropertyRhinoTest extends Log4JToConsoleTest
 
 		msg = JSONUtils.writeDataAsFullToJSON(properties.content, properties.contentType, allowDataConverterContext);
 
-		assertEquals("Simple object type with client function toJSON",
-			msg,
-			"{\"name\":\"test\",\"unknownvalue\":{\"vEr\":8,\"v\":{\"myproperty\":{\"_T\":\"object\",\"_V\":{\"key1\":\"aaa\",\"key2\":{\"_T\":\"clientfunction\",\"_V\":\"func1\"},\"key3\":{\"_T\":\"object\",\"_V\":[\"bbb\",\"ccc\",{\"_T\":\"clientfunction\",\"_V\":\"func2\"}]}}}}}}");
+		// Use JSONObject.similar() to compare JSON content regardless of property order
+		JSONObject actual4 = new JSONObject(msg);
+		JSONObject expected4 = new JSONObject(
+			"{\"name\":\"test\",\"unknownvalue\":{\"vEr\":8,\"v\":{\"myproperty\":{\"_T\":\"object\",\"_V\":{\"key1\":\"aaa\",\"key2\":{\"_T\":\"clientfunction\",\"_V\":\"func1\"},\"key3\":{\"_T\":\"object\",\"_V\":[\"bbb\",\"ccc\",{\"_T\":\"clientfunction\",\"_V\":\"func2\"}]}}}}}}}");
+		assertTrue("Simple object type with client function toJSON - JSON content should be equivalent regardless of property order", expected4.similar(actual4));
 
 		customType1 = new HashMap();
 		customType1.put("key1", "aaa");
@@ -442,9 +450,9 @@ public class CustomArrayAndObjectPropertyRhinoTest extends Log4JToConsoleTest
 			.getJSONArray("_V").getJSONObject(2)
 			.getJSONObject("_V");
 		secondHash.put("functionhash", "dummyhash");
-		assertEquals("Simple object type with server function toJSON",
-			json.toString(),
-			"{\"name\":\"test\",\"unknownvalue\":{\"vEr\":10,\"v\":{\"myproperty\":{\"_T\":\"object\",\"_V\":{\"key1\":\"aaa\",\"key2\":{\"_T\":\"NativeFunction\",\"_V\":{\"functionhash\":\"dummyhash\",\"svyType\":\"NativeFunction\"}},\"key3\":{\"_T\":\"object\",\"_V\":[\"bbb\",\"ccc\",{\"_T\":\"NativeFunction\",\"_V\":{\"functionhash\":\"dummyhash\",\"svyType\":\"NativeFunction\"}}]}}}}}}");
+		JSONObject expected5 = new JSONObject(
+			"{\"name\":\"test\",\"unknownvalue\":{\"vEr\":10,\"v\":{\"myproperty\":{\"_T\":\"object\",\"_V\":{\"key1\":\"aaa\",\"key2\":{\"_T\":\"NativeFunction\",\"_V\":{\"functionhash\":\"dummyhash\",\"svyType\":\"NativeFunction\"}},\"key3\":{\"_T\":\"object\",\"_V\":[\"bbb\",\"ccc\",{\"_T\":\"NativeFunction\",\"_V\":{\"functionhash\":\"dummyhash\",\"svyType\":\"NativeFunction\"}}]}}}}}}}");
+		assertTrue("Simple object type with server function toJSON - JSON content should be equivalent regardless of property order", expected5.similar(json));
 
 	}
 
@@ -512,9 +520,11 @@ public class CustomArrayAndObjectPropertyRhinoTest extends Log4JToConsoleTest
 			TimeZone.setDefault(default1);
 		}
 
-		assertEquals("Simple object type with date toJSON",
-			msg,
+		// Use JSONObject.similar() to compare JSON content regardless of property order
+		JSONObject actual3 = new JSONObject(msg);
+		JSONObject expected3 = new JSONObject(
 			"{\"unknownvaluearray\":{\"vEr\":6,\"v\":[{\"vEr\":2,\"v\":{\"myproperty\":{\"_T\":\"object\",\"_V\":{\"key1\":\"aaa\",\"key2\":{\"_T\":\"svy_date\",\"_V\":\"1990-02-01T00:00+02:00\"},\"key3\":{\"_T\":\"object\",\"_V\":[\"bbb\",\"ccc\",{\"_T\":\"svy_date\",\"_V\":\"2000-11-10T00:00+02:00\"}]}}}}}]},\"name\":\"test\"}");
+		assertTrue("Simple object type with date toJSON - JSON content should be equivalent regardless of property order", expected3.similar(actual3));
 
 		INGApplication application = new ServiceProvider();
 		customType1 = new HashMap();
@@ -530,9 +540,11 @@ public class CustomArrayAndObjectPropertyRhinoTest extends Log4JToConsoleTest
 
 		msg = JSONUtils.writeDataAsFullToJSON(properties.content, properties.contentType, allowDataConverterContext);
 
-		assertEquals("Simple object type with client function toJSON",
-			msg,
+		// Use JSONObject.similar() to compare JSON content regardless of property order
+		JSONObject actual4 = new JSONObject(msg);
+		JSONObject expected4 = new JSONObject(
 			"{\"unknownvaluearray\":{\"vEr\":8,\"v\":[{\"vEr\":2,\"v\":{\"myproperty\":{\"_T\":\"object\",\"_V\":{\"key1\":\"aaa\",\"key2\":{\"_T\":\"clientfunction\",\"_V\":\"func1\"},\"key3\":{\"_T\":\"object\",\"_V\":[\"bbb\",\"ccc\",{\"_T\":\"clientfunction\",\"_V\":\"func2\"}]}}}}}]},\"name\":\"test\"}");
+		assertTrue("Simple object type with client function toJSON - JSON content should be equivalent regardless of property order", expected4.similar(actual4));
 
 		customType1 = new HashMap();
 		customType1.put("key1", "aaa");
@@ -557,9 +569,10 @@ public class CustomArrayAndObjectPropertyRhinoTest extends Log4JToConsoleTest
 			.getJSONArray("_V").getJSONObject(2)
 			.getJSONObject("_V");
 		secondHash.put("functionhash", "dummyhash");
-		assertEquals("Simple object type with server function toJSON",
-			json.toString(),
+		// Use JSONObject.similar() to compare JSON content regardless of property order
+		JSONObject expected5 = new JSONObject(
 			"{\"unknownvaluearray\":{\"vEr\":10,\"v\":[{\"vEr\":2,\"v\":{\"myproperty\":{\"_T\":\"object\",\"_V\":{\"key1\":\"aaa\",\"key2\":{\"_T\":\"NativeFunction\",\"_V\":{\"functionhash\":\"dummyhash\",\"svyType\":\"NativeFunction\"}},\"key3\":{\"_T\":\"object\",\"_V\":[\"bbb\",\"ccc\",{\"_T\":\"NativeFunction\",\"_V\":{\"functionhash\":\"dummyhash\",\"svyType\":\"NativeFunction\"}}]}}}}}]},\"name\":\"test\"}");
+		assertTrue("Simple object type with server function toJSON - JSON content should be equivalent regardless of property order", expected5.similar(json));
 
 	}
 
