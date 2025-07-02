@@ -255,8 +255,6 @@ public class FormatTypeSabloValue implements ISmartSortOrderPrevalence, IHasUnde
 			if (changeMonitor != null) changeMonitor.valueChanged();
 		}
 
-		System.out.println("##### FormatTyoeSabloValue: DPID: " + dataproviderID + " ::: VLID: " + valuelistID);
-
 		// a detach/attach (for ex. a table column that has a format was removed then re-added) could result in everything staying the same but initialize == false;
 		// then on attach we just need to mark it as 'initialized' again
 		if (componentFormat != null) initialized = true;
