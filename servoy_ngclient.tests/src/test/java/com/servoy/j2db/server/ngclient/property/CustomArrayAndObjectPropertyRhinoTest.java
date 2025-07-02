@@ -468,9 +468,11 @@ public class CustomArrayAndObjectPropertyRhinoTest extends Log4JToConsoleTest
 		TypedData<Map<String, Object>> properties = component.getProperties();
 
 		String msg = JSONUtils.writeDataAsFullToJSON(properties.content, properties.contentType, allowDataConverterContext);
-		assertEquals("Simple object toJSON",
-			msg,
+		// Use JSONObject.similar() to compare JSON content regardless of property order
+		JSONObject actual = new JSONObject(msg);
+		JSONObject expected = new JSONObject(
 			"{\"unknownvaluearray\":{\"vEr\":2,\"v\":[{\"vEr\":2,\"v\":{\"myproperty\":{\"key1\":\"aaa\",\"key2\":123,\"key3\":true}}}]},\"name\":\"test\"}");
+		assertTrue("Simple object toJSON - JSON content should be equivalent regardless of property order", expected.similar(actual));
 
 		customType1 = new HashMap<>();
 		customType1.put("key1", "aaa");
