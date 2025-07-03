@@ -35,6 +35,7 @@ import java.util.Objects;
 
 import org.apache.commons.fileupload2.core.DiskFileItem;
 import org.apache.commons.fileupload2.core.DiskFileItemFactory;
+import org.apache.commons.fileupload2.core.DiskFileItemFactory.Builder;
 import org.apache.commons.fileupload2.core.FileUploadException;
 import org.apache.commons.fileupload2.core.FileUploadFileCountLimitException;
 import org.apache.commons.fileupload2.jakarta.servlet6.JakartaServletDiskFileUpload;
@@ -398,8 +399,13 @@ public class MediaResourcesServlet extends AbstractMediaResourceServlet
 						}
 						int tempFileThreshold = Utils.getAsInteger(settings.getProperty("servoy.ng_web_client.tempfile.threshold", "50"), false) * 1000;
 
-						DiskFileItemFactory diskFileItemFactory = DiskFileItemFactory.builder().setFileCleaningTracker(FILE_CLEANING_TRACKER)
-							.setBufferSize(tempFileThreshold).get();
+						Builder builder = DiskFileItemFactory.builder().setFileCleaningTracker(FILE_CLEANING_TRACKER)
+							.setBufferSize(tempFileThreshold);
+						if (fileUploadDir != null)
+						{
+							builder.setPath(fileUploadDir.toPath());
+						}
+						DiskFileItemFactory diskFileItemFactory = builder.get();
 						JakartaServletDiskFileUpload upload = new JakartaServletDiskFileUpload(diskFileItemFactory);
 						upload.setHeaderCharset(Charset.forName(reqEncoding, null));
 
