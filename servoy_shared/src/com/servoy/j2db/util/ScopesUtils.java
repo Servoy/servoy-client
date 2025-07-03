@@ -16,14 +16,17 @@
  */
 package com.servoy.j2db.util;
 
+import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.Undefined;
+
 import com.servoy.j2db.persistence.ISupportScope;
 import com.servoy.j2db.persistence.ScriptVariable;
 
 /**
  * Utility methods for handling global scopes.
- * 
+ *
  * @author rgansevles
- * 
+ *
  * @since 6.1
  */
 public class ScopesUtils
@@ -115,7 +118,7 @@ public class ScopesUtils
 	 * Get the string representation for a variable/method plus scope:
 	 * <br>(null, x) -> x
 	 * <br>(scopename, x) -> scopes.scopename.x
-	 * 
+	 *
 	 */
 	public static String getScopeString(ISupportScope supportScope)
 	{
@@ -124,5 +127,65 @@ public class ScopesUtils
 			return null;
 		}
 		return getScopeString(supportScope.getScopeName(), supportScope.getName());
+	}
+
+	public static Object destructureObject(Scriptable retValue, String destr, String name)
+	{
+		if (retValue == null || destr == null || name == null) return null;
+
+		String destructuring = destr.trim();
+		boolean isArray = destructuring.startsWith("[");
+		String pattern = destructuring.substring(1, destructuring.length() - 1).trim(); // remove {} or []
+		String[] parts = pattern.split(",");
+
+		for (int i = 0; i < parts.length; i++)
+		{
+			String part = parts[i].trim();
+			if (part.isEmpty()) continue;
+
+			String varName;
+			if (part.contains("="))
+			{
+				String[] tokens = part.split("=");
+				varName = tokens[0].trim();
+			}
+			else
+			{
+				varName = part;
+			}
+
+			if (!name.equals(varName)) continue;
+
+			Object value;
+			if (isArray)
+			{
+				// array case: use index
+				if (retValue.has(i, retValue))
+				{
+					value = retValue.get(i, retValue);
+				}
+				else
+				{
+					value = Undefined.instance;
+				}
+			}
+			else
+			{
+				// object case: use property name
+				if (retValue.has(name, retValue))
+				{
+					value = retValue.get(name, retValue);
+				}
+				else
+				{
+					value = Undefined.instance;
+				}
+			}
+
+			return value;
+		}
+
+		// name not found in pattern
+		return null;
 	}
 }

@@ -87,6 +87,47 @@ public abstract class ScriptVariableScope extends LazyCompilationScope
 
 	protected void putScriptVariable(String name, ScriptVariable var, boolean overwriteInitialValue)
 	{
+		Boolean isDestructuring = var.getSerializableRuntimeProperty(IScriptProvider.IS_DESTRUCTURING);
+		if (isDestructuring != null && isDestructuring.booleanValue())
+		{
+			//let the main var create all the destructured variables
+			return;
+		}
+
+		int variableType = var.getVariableType();
+		int lineNumberOffset = var.getLineNumberOffset();
+		Object initValue = var.getInitValue();
+		String varFilename = var.getSerializableRuntimeProperty(IScriptProvider.FILENAME);
+		String scopeName = var.getScopeName();
+
+		if (var.getSerializableRuntimeProperty(IScriptProvider.DESTRUCTURING) != null)
+		{
+			String destructuringInfo = var.getSerializableRuntimeProperty(IScriptProvider.DESTRUCTURING);
+			String[] varNames = var.getSerializableRuntimeProperty(IScriptProvider.DESTRUCTURING_VARS);
+			String[] initValues = var.getSerializableRuntimeProperty(IScriptProvider.DESTRUCTURING_INITIALIZERS);
+			initValue = var.getSerializableRuntimeProperty(IScriptProvider.DESTRUCTURING_VALUE);
+			if (varNames != null)
+			{
+				for (int i = 0; i < varNames.length; i++)
+				{
+					String destructuredVarName = varNames[i];
+					String destructuredInitValue = initValues != null && i < initValues.length ? initValues[i] : null;
+					putScriptVariable(destructuredVarName, overwriteInitialValue, variableType, lineNumberOffset, initValue,
+						varFilename, scopeName, destructuringInfo, destructuredInitValue);
+				}
+			}
+		}
+		else
+
+		{
+			putScriptVariable(name, overwriteInitialValue, variableType, lineNumberOffset, initValue, varFilename, scopeName, null, null);
+		}
+	}
+
+	private void putScriptVariable(String name, boolean overwriteInitialValue, int variableType, int lineNumberOffset,
+		Object initValue,
+		String varFilename, String scopeName, String destructuringInfo, String destructuredInitValue)
+	{
 		if (ScopesUtils.isVariableScope(name))
 		{
 			// global variable: name should have been stripped in GlobalScope
@@ -96,12 +137,12 @@ public abstract class ScriptVariableScope extends LazyCompilationScope
 		int prevType = 0;
 		if (replacedNameType != null && replacedNameType.containsKey(name)) prevType = Utils.getAsInteger(replacedNameType.get(name));
 		else prevType = Utils.getAsInteger(nameType.get(name));
-		boolean existingWithSameType = (prevType == var.getVariableType());
+
+		boolean existingWithSameType = (prevType == variableType);
 		if (!existingWithSameType || overwriteInitialValue)//if same as previous, then leave initial value, this happens in developer or from login->main
 		{
-			nameType.put(name, new Integer(var.getVariableType()));
+			nameType.put(name, new Integer(variableType));
 			if (replacedNameType != null) replacedNameType.remove(name);
-			Object initValue = var.getInitValue();
 			if (initValue instanceof String)
 			{
 				String str = (String)initValue;
@@ -131,7 +172,7 @@ public abstract class ScriptVariableScope extends LazyCompilationScope
 					}
 					str = '(' + str + ')'; // add brackets so that unnamed objects are evaluated correctly (otherwise it will give a syntax error)
 				}
-				String sourceName = var.getSerializableRuntimeProperty(IScriptProvider.FILENAME);
+				String sourceName = varFilename;
 				if (sourceName == null)
 				{
 					sourceName = name;
@@ -147,9 +188,16 @@ public abstract class ScriptVariableScope extends LazyCompilationScope
 						{
 							sourceName = "forms/" + this.getScopeName() + '/' + name;
 						}
-						else sourceName = var.getScopeName() + '/' + name;
+						else
+						{
+							sourceName = scopeName + '/' + name;
+						}
 					}
-					initValue = evalValue(name, str, sourceName, var.getLineNumberOffset());
+					initValue = evalValue(name, str, sourceName, lineNumberOffset, destructuringInfo);
+					if (initValue == null || initValue == Scriptable.NOT_FOUND || initValue == Undefined.instance)
+					{
+						initValue = evalValue(name, destructuredInitValue, sourceName, lineNumberOffset, null);
+					}
 				}
 				finally
 				{
@@ -164,12 +212,12 @@ public abstract class ScriptVariableScope extends LazyCompilationScope
 			Context currentContext = Context.getCurrentContext();
 			if (currentContext != null && currentContext.getDebugger() instanceof IDebuggerWithWatchPoints watchPointDebugger)
 			{
-				watchPointDebugger.registerVariable(name, var.getSerializableRuntimeProperty(IScriptProvider.FILENAME), var.getLineNumberOffset(), this);
+				watchPointDebugger.registerVariable(name, varFilename, lineNumberOffset, this);
 			}
 		}
 	}
 
-	private Object evalValue(String name, String str, String sourceName, int lineNumber)
+	private Object evalValue(String name, String str, String sourceName, int lineNumber, String destructuring)
 	{
 		Object retValue = null;
 		Context cx = Context.enter();
@@ -199,6 +247,19 @@ public abstract class ScriptVariableScope extends LazyCompilationScope
 				o = null;
 			}
 			retValue = o;
+			if (destructuring != null)
+			{
+				// destructuring assignment
+				if (retValue instanceof Scriptable)
+				{
+					retValue = ScopesUtils.destructureObject((Scriptable)retValue, destructuring, name);
+				}
+				else
+				{
+					throw new WrappedException(
+						new RuntimeException("Destructuring assignment is only supported for objects/arrays, not for " + retValue.getClass().getName()));
+				}
+			}
 			Integer previousType = null;
 			if (retValue instanceof Date)
 			{
@@ -464,7 +525,7 @@ public abstract class ScriptVariableScope extends LazyCompilationScope
 		}
 		else if (xmlType && value instanceof String)
 		{
-			value = evalValue(name, (String)value, "internal_anon", -1); //$NON-NLS-1$
+			value = evalValue(name, (String)value, "internal_anon", -1, null); //$NON-NLS-1$
 		}
 		Object oldVar = allVars.get(name);
 		allVars.put(name, value);

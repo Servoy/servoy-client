@@ -16,7 +16,6 @@
  */
 package com.servoy.j2db.persistence;
 
-
 /**
  * Interface to handle script object in a similar way
  * @author jblok
@@ -29,6 +28,31 @@ public interface IScriptProvider extends IScriptElement
 	};
 
 	public static final SerializableRuntimeProperty<String> TYPE = new SerializableRuntimeProperty<String>()
+	{
+		private static final long serialVersionUID = 1L;
+	};
+
+	public static final SerializableRuntimeProperty<Boolean> IS_DESTRUCTURING = new SerializableRuntimeProperty<Boolean>()
+	{
+		private static final long serialVersionUID = 1L;
+	};
+
+	public static final SerializableRuntimeProperty<String> DESTRUCTURING = new SerializableRuntimeProperty<String>()
+	{
+		private static final long serialVersionUID = 1L;
+	};
+
+	public static final SerializableRuntimeProperty<String[]> DESTRUCTURING_VARS = new SerializableRuntimeProperty<String[]>()
+	{
+		private static final long serialVersionUID = 1L;
+	};
+
+	public static final SerializableRuntimeProperty<String[]> DESTRUCTURING_INITIALIZERS = new SerializableRuntimeProperty<String[]>()
+	{
+		private static final long serialVersionUID = 1L;
+	};
+
+	public static final SerializableRuntimeProperty<String> DESTRUCTURING_VALUE = new SerializableRuntimeProperty<String>()
 	{
 		private static final long serialVersionUID = 1L;
 	};
