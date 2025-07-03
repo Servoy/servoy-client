@@ -68,24 +68,7 @@ public class TitleStringPropertyType extends TagStringPropertyType
 		String forDataprovider = null;
 		if (json != null)
 		{
-
-			if (json.has("for"))
-			{
-				Object object = json.get("for");
-				if (object instanceof JSONArray)
-				{
-					JSONArray arr = (JSONArray)object;
-					dependencies = new String[arr.length()];
-					for (int i = 0; i < arr.length(); i++)
-					{
-						dependencies[i] = arr.getString(i);
-					}
-				}
-				else if (object instanceof String)
-				{
-					dependencies = new String[] { (String)object };
-				}
-			}
+			dependencies = getDependencies(json, dependencies);
 			forDataprovider = json.optString(TitleStringConfig.FOR_DATAPROVIDER_CONFIG_OPT, null);
 		}
 		return new TitleStringConfig(tagStringConfig.getDisplayTagsPropertyName(), tagStringConfig.shouldDisplayTags(), tagStringConfig.useParsedValueInRhino(),

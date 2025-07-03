@@ -36,6 +36,7 @@ import org.sablo.specification.WebObjectSpecification;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IConvertedPropertyType;
 import org.sablo.specification.property.ICustomType;
+import org.sablo.specification.property.IPropertyCanDependsOn;
 import org.sablo.specification.property.IPropertyWithClientSideConversions;
 import org.sablo.specification.property.IPushToServerSpecialType;
 import org.sablo.specification.property.ISupportsGranularUpdates;
@@ -80,12 +81,14 @@ import com.servoy.j2db.util.Utils;
  */
 public class FormComponentPropertyType extends DefaultPropertyType<Object> implements IConvertedPropertyType<Object>, ISabloComponentToRhino<Object>,
 	IFormElementToTemplateJSON<Object, Object>, IFormElementToSabloComponent<Object, Object>, IFormComponentType, IPushToServerSpecialType,
-	ISupportsGranularUpdates<Object>, IPropertyWithClientSideConversions<Object>
+	ISupportsGranularUpdates<Object>, IPropertyWithClientSideConversions<Object>, IPropertyCanDependsOn
 {
 	public static final String SVY_FORM = "svy_form"; //$NON-NLS-1$
 
 	public static final FormComponentPropertyType INSTANCE = new FormComponentPropertyType();
 	public static final String TYPE_NAME = "formcomponent"; //$NON-NLS-1$
+
+	private String[] dependencies;
 
 	protected FormComponentPropertyType()
 	{
@@ -102,6 +105,7 @@ public class FormComponentPropertyType extends DefaultPropertyType<Object> imple
 	{
 		if (json == null) return null;
 
+		dependencies = getDependencies(json, dependencies);
 		String forFoundset = json.optString("forFoundset"); //$NON-NLS-1$
 		// we return here a ComponentTypeConfig because this is used in the ComponentPropertyType
 		return forFoundset == null || forFoundset.length() == 0 ? null : new ComponentTypeConfig(forFoundset);

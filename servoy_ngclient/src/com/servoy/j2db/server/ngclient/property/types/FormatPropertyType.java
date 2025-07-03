@@ -92,6 +92,7 @@ public class FormatPropertyType extends DefaultPropertyType<FormatTypeSabloValue
 		{
 			try
 			{
+				dependencies = getDependencies(json, dependencies);
 				Object object = json.get("for");
 				if (object instanceof JSONArray)
 				{
@@ -101,14 +102,11 @@ public class FormatPropertyType extends DefaultPropertyType<FormatTypeSabloValue
 					{
 						retValue[i] = arr.getString(i);
 					}
-					dependencies = retValue;
 					return retValue;
 				}
 				else if (object instanceof String)
 				{
-					String[] retValue = new String[] { (String)object };
-					dependencies = retValue;
-					return retValue;
+					return new String[] { (String)object };
 				}
 				return null;
 			}
@@ -403,7 +401,6 @@ public class FormatPropertyType extends DefaultPropertyType<FormatTypeSabloValue
 	@Override
 	public String[] getDependencies()
 	{
-		// TODO Auto-generated method stub
 		return dependencies;
 	}
 

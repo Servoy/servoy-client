@@ -17,7 +17,6 @@
 
 package com.servoy.j2db.server.ngclient.property;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONWriter;
@@ -139,24 +138,7 @@ public class FoundsetLinkedPropertyType<YF, YT> implements IYieldingType<Foundse
 	@Override
 	public FoundsetLinkedConfig parseConfig(JSONObject config)
 	{
-		if (dependencies == null && config != null && config.has("for"))
-		{
-			Object object = config.get("for");
-			if (object instanceof JSONArray)
-			{
-				JSONArray arr = (JSONArray)object;
-				dependencies = new String[arr.length()];
-				for (int i = 0; i < arr.length(); i++)
-				{
-					dependencies[i] = arr.getString(i);
-				}
-			}
-			else if (object instanceof String)
-			{
-				dependencies = new String[] { (String)object };
-			}
-		}
-
+		dependencies = getDependencies(config, dependencies);
 		return config == null ? null : new FoundsetLinkedConfig(config.optString(FOR_FOUNDSET_PROPERTY_NAME, null), wrappedType.parseConfig(config));
 	}
 

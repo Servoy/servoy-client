@@ -55,7 +55,7 @@ public class FindModePropertyType extends DefaultPropertyType<FindModeSabloValue
 
 	public static final FindModePropertyType INSTANCE = new FindModePropertyType();
 	public static final String TYPE_NAME = "findmode";
-	private final String[] dependencies = null;
+	private String[] dependencies = null;
 
 	@Override
 	public String getName()
@@ -69,6 +69,7 @@ public class FindModePropertyType extends DefaultPropertyType<FindModeSabloValue
 		HashMap<String, Object> forEntities = new HashMap<String, Object>();
 		try
 		{
+			dependencies = getDependencies(config, dependencies);
 			JSONObject forProperty = (JSONObject)config.opt("for"); //$NON-NLS-1$
 			String[] names = ServoyJSONObject.getNames(forProperty);
 			for (String propertyName : names)
@@ -150,11 +151,6 @@ public class FindModePropertyType extends DefaultPropertyType<FindModeSabloValue
 		return writer;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.sablo.specification.property.IPropertyCanDependsOn#getDependencies()
-	 */
 	@Override
 	public String[] getDependencies()
 	{

@@ -33,6 +33,7 @@ import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebObjectApiFunctionDefinition;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IConvertedPropertyType;
+import org.sablo.specification.property.IPropertyCanDependsOn;
 import org.sablo.specification.property.IPropertyType;
 import org.sablo.specification.property.IPropertyWithClientSideConversions;
 import org.sablo.specification.property.ISupportsGranularUpdates;
@@ -74,7 +75,7 @@ public class ComponentPropertyType extends DefaultPropertyType<ComponentTypeSabl
 	IFormElementToTemplateJSON<ComponentTypeFormElementValue, ComponentTypeSabloValue>,
 	IFormElementToSabloComponent<ComponentTypeFormElementValue, ComponentTypeSabloValue>, IConvertedPropertyType<ComponentTypeSabloValue>,
 	ISabloComponentToRhino<ComponentTypeSabloValue>, ISupportsGranularUpdates<ComponentTypeSabloValue>, ITemplateValueUpdaterType<ComponentTypeSabloValue>,
-	II18NPropertyType<ComponentTypeSabloValue>, IPropertyWithClientSideConversions<ComponentTypeSabloValue>
+	II18NPropertyType<ComponentTypeSabloValue>, IPropertyWithClientSideConversions<ComponentTypeSabloValue>, IPropertyCanDependsOn
 {
 
 
@@ -99,6 +100,8 @@ public class ComponentPropertyType extends DefaultPropertyType<ComponentTypeSabl
 
 	public static final String PROPERTY_NAME_KEY = "pn";
 	public static final String VALUE_KEY = "v";
+
+	private String[] dependencies;
 
 	/**
 	 * Used for an update that comes from the browser.
@@ -415,6 +418,7 @@ public class ComponentPropertyType extends DefaultPropertyType<ComponentTypeSabl
 	{
 		if (config == null) return null;
 
+		dependencies = getDependencies(config, dependencies);
 		String tmp = config.optString("forFoundset");
 		return tmp == null || tmp.length() == 0 ? null : new ComponentTypeConfig(tmp);
 	}
@@ -439,6 +443,12 @@ public class ComponentPropertyType extends DefaultPropertyType<ComponentTypeSabl
 		JSONUtils.addKeyIfPresent(w, keyToAddTo);
 		w.value(TYPE_NAME);
 		return true;
+	}
+
+	@Override
+	public String[] getDependencies()
+	{
+		return dependencies;
 	}
 
 }

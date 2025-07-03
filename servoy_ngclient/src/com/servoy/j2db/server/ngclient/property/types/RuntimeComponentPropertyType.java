@@ -26,6 +26,7 @@ import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebObjectSpecification;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IConvertedPropertyType;
+import org.sablo.specification.property.IPropertyCanDependsOn;
 import org.sablo.specification.property.types.DefaultPropertyType;
 import org.sablo.util.ValueReference;
 
@@ -38,10 +39,13 @@ import com.servoy.j2db.server.ngclient.property.FoundsetTypeSabloValue;
  * @author lvostinar
  *
  */
-public class RuntimeComponentPropertyType extends DefaultPropertyType<RuntimeWebComponent> implements IConvertedPropertyType<RuntimeWebComponent>
+public class RuntimeComponentPropertyType extends DefaultPropertyType<RuntimeWebComponent>
+	implements IConvertedPropertyType<RuntimeWebComponent>, IPropertyCanDependsOn
 {
 	public static final RuntimeComponentPropertyType INSTANCE = new RuntimeComponentPropertyType();
 	public static final String TYPE_NAME = "runtimecomponent";
+
+	private String[] dependencies;
 
 	private RuntimeComponentPropertyType()
 	{
@@ -56,6 +60,7 @@ public class RuntimeComponentPropertyType extends DefaultPropertyType<RuntimeWeb
 	@Override
 	public Object parseConfig(JSONObject json)
 	{
+		dependencies = getDependencies(json, dependencies);
 		return json;
 	}
 
@@ -105,5 +110,11 @@ public class RuntimeComponentPropertyType extends DefaultPropertyType<RuntimeWeb
 
 		writer.value(id);
 		return writer;
+	}
+
+	@Override
+	public String[] getDependencies()
+	{
+		return dependencies;
 	}
 }

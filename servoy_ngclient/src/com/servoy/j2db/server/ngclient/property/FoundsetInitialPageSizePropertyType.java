@@ -16,6 +16,7 @@
 package com.servoy.j2db.server.ngclient.property;
 
 import org.json.JSONObject;
+import org.sablo.specification.property.IPropertyCanDependsOn;
 import org.sablo.specification.property.types.IntPropertyType;
 
 
@@ -29,9 +30,11 @@ import org.sablo.specification.property.types.IntPropertyType;
  *
  * @author acostescu
  */
-public class FoundsetInitialPageSizePropertyType extends IntPropertyType
+public class FoundsetInitialPageSizePropertyType extends IntPropertyType implements IPropertyCanDependsOn
 {
 	private static final String CONFIG_KEY_FOR = "for"; //$NON-NLS-1$
+
+	private String[] dependencies;
 
 	@SuppressWarnings("hiding")
 	public static final IntPropertyType INSTANCE = new FoundsetInitialPageSizePropertyType();
@@ -53,7 +56,14 @@ public class FoundsetInitialPageSizePropertyType extends IntPropertyType
 	@Override
 	public Object parseConfig(JSONObject config)
 	{
+		dependencies = getDependencies(config, dependencies);
 		return config.optString(CONFIG_KEY_FOR);
+	}
+
+	@Override
+	public String[] getDependencies()
+	{
+		return dependencies;
 	}
 
 }

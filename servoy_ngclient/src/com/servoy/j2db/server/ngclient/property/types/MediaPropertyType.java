@@ -24,6 +24,7 @@ import org.mozilla.javascript.Scriptable;
 import org.sablo.IWebObjectContext;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IBrowserConverterContext;
+import org.sablo.specification.property.IPropertyCanDependsOn;
 import org.sablo.specification.property.IWrapperType;
 import org.sablo.specification.property.IWrappingContext;
 import org.sablo.specification.property.WrappingContext;
@@ -57,10 +58,12 @@ import com.servoy.j2db.util.Utils;
  * @author jcompagner
  */
 public class MediaPropertyType extends DefaultPropertyType<Object> implements IWrapperType<Object, MediaWrapper>, ISupportTemplateValue<Object>,
-	IFormElementToTemplateJSON<Object, Object>, IRhinoDesignConverter, ISabloComponentToRhino<Object>
+	IFormElementToTemplateJSON<Object, Object>, IRhinoDesignConverter, ISabloComponentToRhino<Object>, IPropertyCanDependsOn
 {
 	public static final MediaPropertyType INSTANCE = new MediaPropertyType();
 	public static final String TYPE_NAME = "media";
+
+	private String[] dependencies;
 
 	private MediaPropertyType()
 	{
@@ -81,6 +84,7 @@ public class MediaPropertyType extends DefaultPropertyType<Object> implements IW
 	@Override
 	public Object parseConfig(JSONObject json)
 	{
+		dependencies = getDependencies(json, dependencies);
 		return json;
 	}
 
@@ -297,5 +301,11 @@ public class MediaPropertyType extends DefaultPropertyType<Object> implements IW
 		}
 		return webComponentValue;
 
+	}
+
+	@Override
+	public String[] getDependencies()
+	{
+		return dependencies;
 	}
 }

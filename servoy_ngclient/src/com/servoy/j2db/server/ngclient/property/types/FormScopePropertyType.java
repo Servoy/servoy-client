@@ -22,6 +22,7 @@ import org.mozilla.javascript.Scriptable;
 import org.sablo.IWebObjectContext;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IBrowserConverterContext;
+import org.sablo.specification.property.IPropertyCanDependsOn;
 import org.sablo.specification.property.IPropertyConverterForBrowser;
 import org.sablo.specification.property.types.DefaultPropertyType;
 import org.sablo.util.ValueReference;
@@ -44,11 +45,14 @@ import com.servoy.j2db.server.ngclient.property.types.NGConversions.IServerRhino
  * @author jcompagner
  */
 public class FormScopePropertyType extends DefaultPropertyType<Object>
-	implements IRhinoToSabloComponent<Object>, ISabloComponentToRhino<Object>, IPropertyConverterForBrowser<FormScope>, IServerRhinoToRhino<Object>
+	implements IRhinoToSabloComponent<Object>, ISabloComponentToRhino<Object>, IPropertyConverterForBrowser<FormScope>, IServerRhinoToRhino<Object>,
+	IPropertyCanDependsOn
 {
 
 	public static final FormScopePropertyType INSTANCE = new FormScopePropertyType();
 	public static final String TYPE_NAME = "formscope";
+
+	private String[] dependencies;
 
 	private FormScopePropertyType()
 	{
@@ -63,6 +67,7 @@ public class FormScopePropertyType extends DefaultPropertyType<Object>
 	@Override
 	public Object parseConfig(JSONObject json)
 	{
+		dependencies = getDependencies(json, dependencies);
 		return json;
 	}
 
@@ -132,6 +137,12 @@ public class FormScopePropertyType extends DefaultPropertyType<Object>
 		Scriptable startScriptable)
 	{
 		return toRhinoValue(serverSideScriptingReturnValue, pd, componentOrService, startScriptable);
+	}
+
+	@Override
+	public String[] getDependencies()
+	{
+		return dependencies;
 	}
 
 }

@@ -61,23 +61,15 @@ public class ModifiablePropertyType extends ServoyStringPropertyType implements 
 		try
 		{
 			dataprovider = config.optString("for");
-			if (dataprovider != null)
-			{
-				dependencies = new String[] { dataprovider };
-			}
 		}
 		catch (JSONException e)
 		{
 			Debug.log(e);
 		}
+		dependencies = getDependencies(config, dependencies);
 		return dataprovider;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.sablo.specification.property.IPropertyCanDependsOn#getDependencies()
-	 */
 	@Override
 	public String[] getDependencies()
 	{
