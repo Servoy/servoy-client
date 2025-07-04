@@ -156,7 +156,7 @@ public class FormComponentPropertyType extends DefaultPropertyType<Object> imple
 		{
 			Form form = getForm(webComponentValue, fs);
 			if (form == null) return null;
-			// TODO return here a NativeScriptable object that understand the full hiearchy?
+			// TODO return here a NativeScriptable object that understand the full hierarchy?
 			cache = FormElementHelper.INSTANCE.getFormComponentCache(webFormComponent.getFormElement(), pd, (JSONObject)webComponentValue, form, fs);
 		}
 		IWebFormUI formUI = webFormComponent.findParent(IWebFormUI.class);
