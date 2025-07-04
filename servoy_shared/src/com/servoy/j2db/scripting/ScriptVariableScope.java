@@ -194,7 +194,7 @@ public abstract class ScriptVariableScope extends LazyCompilationScope
 						}
 					}
 					initValue = evalValue(name, str, sourceName, lineNumberOffset, destructuringInfo);
-					if (initValue == null || initValue == Scriptable.NOT_FOUND || initValue == Undefined.instance)
+					if (destructuredInitValue != null && (initValue == null || initValue == Scriptable.NOT_FOUND || initValue == Undefined.instance))
 					{
 						initValue = evalValue(name, destructuredInitValue, sourceName, lineNumberOffset, null);
 					}
