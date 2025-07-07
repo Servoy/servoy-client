@@ -1059,7 +1059,7 @@ public class ValueListTypeSabloValue
 	@Override
 	public String toString()
 	{
-		return "Valuelist('" + valueList.getName() + "' on prop. '" + vlPD.getName() + "')";
+		return "Valuelist('" + (valueList != null ? valueList.getName() : "<not initialized>") + "' on prop. '" + vlPD.getName() + "')";
 	}
 
 }
