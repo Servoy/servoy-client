@@ -103,7 +103,7 @@ public class ReadonlySabloValue implements ISmartPropertyValue
 			{
 				// ignore the change when this is a find mode change.
 				if (findModeChange) return;
-				savedOppositeOfValue = (Boolean)evt.getNewValue();
+				savedOppositeOfValue = (boolean)webObjectContext.getProperty(configuration.getOppositeOf());
 			}
 		};
 
