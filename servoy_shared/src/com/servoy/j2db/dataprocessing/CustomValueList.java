@@ -408,7 +408,7 @@ public class CustomValueList extends OptimizedDefaultListModel implements IValue
 					else
 					{
 						// if we have real values all display values should be strings
-						o = (o != null) ? o.toString() : null;
+						o = convertToString(o, format == null ? null : format.getDisplayFormat(), application);
 					}
 					super.addElement(o);
 				}
