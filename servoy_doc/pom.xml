@@ -11,8 +11,6 @@
 		<groupId>com.servoy</groupId>
 	</parent>
 
-	<groupId>com.servoy</groupId>
-	<version>2025.6.0.4082</version>
 	<artifactId>servoy-doc</artifactId>
 	<packaging>jar</packaging>
 
