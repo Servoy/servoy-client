@@ -32,8 +32,8 @@ import org.sablo.specification.IYieldingType;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IConvertedPropertyType;
-import org.sablo.specification.property.IPropertyCanDependsOn;
 import org.sablo.specification.property.IPropertyType;
+import org.sablo.specification.property.IPropertyWithAttachDependencies;
 import org.sablo.specification.property.types.DefaultPropertyType;
 import org.sablo.specification.property.types.StringPropertyType;
 import org.sablo.util.ValueReference;
@@ -66,14 +66,13 @@ import com.servoy.j2db.util.RoundHalfUpDecimalFormat;
 @SuppressWarnings("nls")
 public class FormatPropertyType extends DefaultPropertyType<FormatTypeSabloValue> implements IConvertedPropertyType<FormatTypeSabloValue>,
 	ISupportTemplateValue<String>, IFormElementDefaultValueToSabloComponent<String, FormatTypeSabloValue>, ISabloComponentToRhino<FormatTypeSabloValue>,
-	IRhinoToSabloComponent<FormatTypeSabloValue>, II18NPropertyType<FormatTypeSabloValue>, IPropertyCanDependsOn
+	IRhinoToSabloComponent<FormatTypeSabloValue>, II18NPropertyType<FormatTypeSabloValue>, IPropertyWithAttachDependencies<FormatTypeSabloValue>
 {
 
 	private static final Logger log = LoggerFactory.getLogger(FormatPropertyType.class.getCanonicalName());
 
 	public static final FormatPropertyType INSTANCE = new FormatPropertyType();
 	public static final String TYPE_NAME = "format";
-	private String[] dependencies = null;
 
 	private FormatPropertyType()
 	{
@@ -92,7 +91,6 @@ public class FormatPropertyType extends DefaultPropertyType<FormatTypeSabloValue
 		{
 			try
 			{
-				dependencies = getDependencies(json, dependencies);
 				Object object = json.get("for");
 				if (object instanceof JSONArray)
 				{
@@ -115,7 +113,7 @@ public class FormatPropertyType extends DefaultPropertyType<FormatTypeSabloValue
 				log.error("JSONException", e);
 			}
 		}
-		return "";
+		return null;
 	}
 
 	@Override
@@ -392,16 +390,10 @@ public class FormatPropertyType extends DefaultPropertyType<FormatTypeSabloValue
 		return value;
 	}
 
-
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.sablo.specification.property.IPropertyCanDependsOn#getDependencies()
-	 */
 	@Override
-	public String[] getDependencies()
+	public String[] getDependencies(PropertyDescription pd)
 	{
-		return dependencies;
+		return pd.getConfig() != null ? ((String[])pd.getConfig()) : null;
 	}
 
 }

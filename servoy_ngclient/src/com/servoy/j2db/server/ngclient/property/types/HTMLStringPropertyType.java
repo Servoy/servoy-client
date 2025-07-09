@@ -22,7 +22,6 @@ import org.json.JSONWriter;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IConvertedPropertyType;
-import org.sablo.specification.property.IPropertyCanDependsOn;
 import org.sablo.specification.property.types.DefaultPropertyType;
 import org.sablo.util.ValueReference;
 import org.sablo.websocket.utils.JSONUtils;
@@ -37,14 +36,12 @@ import com.servoy.j2db.util.HtmlUtils;
  *
  * @author acostescu
  */
-public class HTMLStringPropertyType extends DefaultPropertyType<String> implements IConvertedPropertyType<String>, IPropertyCanDependsOn
+public class HTMLStringPropertyType extends DefaultPropertyType<String> implements IConvertedPropertyType<String>
 {
 
 	public static final HTMLStringPropertyType INSTANCE = new HTMLStringPropertyType();
 	public final static String TYPE_NAME = "HTMLString"; //$NON-NLS-1$
 	public static final String CONFIG_OPTION_PARSEHTML = "parsehtml";
-
-	private String[] dependencies;
 
 	private HTMLStringPropertyType()
 	{
@@ -59,7 +56,6 @@ public class HTMLStringPropertyType extends DefaultPropertyType<String> implemen
 	@Override
 	public Object parseConfig(JSONObject config)
 	{
-		dependencies = getDependencies(config, dependencies);
 		return Boolean.valueOf(config.optBoolean(CONFIG_OPTION_PARSEHTML, false));
 	}
 
@@ -85,12 +81,6 @@ public class HTMLStringPropertyType extends DefaultPropertyType<String> implemen
 			writer.value(sabloValue);
 		}
 		return writer;
-	}
-
-	@Override
-	public String[] getDependencies()
-	{
-		return dependencies;
 	}
 
 }

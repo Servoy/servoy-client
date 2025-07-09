@@ -27,9 +27,9 @@ import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.PropertyDescriptionBuilder;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IConvertedPropertyType;
-import org.sablo.specification.property.IPropertyCanDependsOn;
 import org.sablo.specification.property.IPropertyType;
 import org.sablo.specification.property.IPropertyWithClientSideConversions;
+import org.sablo.specification.property.IPropertyWithAttachDependencies;
 import org.sablo.specification.property.ISupportsGranularUpdates;
 import org.sablo.util.ValueReference;
 import org.sablo.websocket.utils.JSONUtils;
@@ -79,7 +79,7 @@ public class FoundsetLinkedPropertyType<YF, YT> implements IYieldingType<Foundse
 	IConvertedPropertyType<FoundsetLinkedTypeSabloValue<YF, YT>>, IFindModeAwareType<YF, FoundsetLinkedTypeSabloValue<YF, YT>>,
 	ISabloComponentToRhino<FoundsetLinkedTypeSabloValue<YF, YT>>, IRhinoToSabloComponent<FoundsetLinkedTypeSabloValue<YF, YT>>,
 	ISupportsGranularUpdates<FoundsetLinkedTypeSabloValue<YF, YT>>, IPropertyWithClientSideConversions<FoundsetLinkedTypeSabloValue<YF, YT>>,
-	IPropertyCanDependsOn
+	IPropertyWithAttachDependencies<FoundsetLinkedTypeSabloValue<YF, YT>>
 {
 
 	protected static final String SINGLE_VALUE = "sv"; //$NON-NLS-1$
@@ -93,8 +93,6 @@ public class FoundsetLinkedPropertyType<YF, YT> implements IYieldingType<Foundse
 
 	protected final String name;
 	protected ICanBeLinkedToFoundset<YF, YT> wrappedType;
-
-	private String[] dependencies;
 
 	public FoundsetLinkedPropertyType(String name, ICanBeLinkedToFoundset<YF, YT> wrappedType)
 	{
@@ -138,7 +136,6 @@ public class FoundsetLinkedPropertyType<YF, YT> implements IYieldingType<Foundse
 	@Override
 	public FoundsetLinkedConfig parseConfig(JSONObject config)
 	{
-		dependencies = getDependencies(config, dependencies);
 		return config == null ? null : new FoundsetLinkedConfig(config.optString(FOR_FOUNDSET_PROPERTY_NAME, null), wrappedType.parseConfig(config));
 	}
 
@@ -339,14 +336,25 @@ public class FoundsetLinkedPropertyType<YF, YT> implements IYieldingType<Foundse
 		return true;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.sablo.specification.property.IPropertyCanDependsOn#getDependencies()
-	 */
 	@Override
-	public String[] getDependencies()
+	public String[] getDependencies(PropertyDescription pd)
 	{
+		FoundsetLinkedConfig flc = ((FoundsetLinkedConfig)pd.getConfig());
+		String[] wrappedTypeDependencies = null;
+		if (flc != null && wrappedType instanceof IPropertyWithAttachDependencies wrappedTypeWithDeps)
+			wrappedTypeDependencies = wrappedTypeWithDeps.getDependencies(flc.getWrappedPropertyDescription());
+
+		String[] dependencies = null;
+		if (flc != null)
+		{
+			dependencies = new String[1 + (wrappedTypeDependencies != null ? wrappedTypeDependencies.length : 0)];
+			dependencies[0] = flc.forFoundset;
+			if (wrappedTypeDependencies != null)
+			{
+				for (int i = wrappedTypeDependencies.length - 1; i >= 0; i--)
+					dependencies[i + 1] = wrappedTypeDependencies[i];
+			}
+		}
 		return dependencies;
 	}
 

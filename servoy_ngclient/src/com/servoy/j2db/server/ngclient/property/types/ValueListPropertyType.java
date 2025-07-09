@@ -30,8 +30,8 @@ import org.sablo.IWebObjectContext;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IConvertedPropertyType;
-import org.sablo.specification.property.IPropertyCanDependsOn;
 import org.sablo.specification.property.IPropertyWithClientSideConversions;
+import org.sablo.specification.property.IPropertyWithAttachDependencies;
 import org.sablo.specification.property.IPushToServerSpecialType;
 import org.sablo.specification.property.ISupportsGranularUpdates;
 import org.sablo.specification.property.types.DefaultPropertyType;
@@ -84,13 +84,11 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 	IDataLinkedType<Object, ValueListTypeSabloValue>, IRhinoToSabloComponent<ValueListTypeSabloValue>, ISabloComponentToRhino<ValueListTypeSabloValue>,
 	IPushToServerSpecialType, IRhinoDesignConverter, II18NPropertyType<ValueListTypeSabloValue>, ICanBeLinkedToFoundset<Object, ValueListTypeSabloValue>,
 	ISupportsGranularUpdates<ValueListTypeSabloValue>, IPropertyWithClientSideConversions<ValueListTypeSabloValue>, IDesignerDefaultWriter,
-	IFindModeAwareType<Object, ValueListTypeSabloValue>, IPropertyCanDependsOn
+	IFindModeAwareType<Object, ValueListTypeSabloValue>, IPropertyWithAttachDependencies<ValueListTypeSabloValue>
 {
 
 	public static final ValueListPropertyType INSTANCE = new ValueListPropertyType();
 	public static final String TYPE_NAME = "valuelist";
-
-	private String[] dependencies;
 
 	private ValueListPropertyType()
 	{
@@ -113,7 +111,6 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 		String configPropertyName = null;
 		if (json != null)
 		{
-			dependencies = getDependencies(json, dependencies);
 			dataprovider = json.optString("for");
 			def = json.optString("default");
 			if (json.has("max")) max = json.optInt("max");
@@ -553,9 +550,10 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 	}
 
 	@Override
-	public String[] getDependencies()
+	public String[] getDependencies(PropertyDescription pd)
 	{
-		return dependencies;
+		String dpDependency = ((ValueListConfig)pd.getConfig()).getFor();
+		return dpDependency != null ? new String[] { dpDependency } : null;
 	}
 
 }

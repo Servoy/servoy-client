@@ -31,7 +31,6 @@ import org.sablo.specification.property.ArrayOperation;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IConvertedPropertyType;
 import org.sablo.specification.property.IGranularProtectionChecker;
-import org.sablo.specification.property.IPropertyCanDependsOn;
 import org.sablo.specification.property.IPropertyWithClientSideConversions;
 import org.sablo.specification.property.IPushToServerSpecialType;
 import org.sablo.specification.property.ISupportsGranularUpdates;
@@ -66,7 +65,7 @@ public class FoundsetPropertyType extends DefaultPropertyType<FoundsetTypeSabloV
 	IFormElementToSabloComponent<JSONObject, FoundsetTypeSabloValue>, IFormElementDefaultValueToSabloComponent<JSONObject, FoundsetTypeSabloValue>,
 	IConvertedPropertyType<FoundsetTypeSabloValue>, ISabloComponentToRhino<FoundsetTypeSabloValue>, IRhinoToSabloComponent<FoundsetTypeSabloValue>,
 	ISupportsGranularUpdates<FoundsetTypeSabloValue>, IDataLinkedType<JSONObject, FoundsetTypeSabloValue>, IPushToServerSpecialType,
-	IGranularProtectionChecker<FoundsetTypeSabloValue>, IPropertyWithClientSideConversions<FoundsetTypeSabloValue>, IPropertyCanDependsOn
+	IGranularProtectionChecker<FoundsetTypeSabloValue>, IPropertyWithClientSideConversions<FoundsetTypeSabloValue>
 {
 	public static final FoundsetPropertyType INSTANCE = new FoundsetPropertyType();
 
@@ -79,8 +78,6 @@ public class FoundsetPropertyType extends DefaultPropertyType<FoundsetTypeSabloV
 	private static final String FOUNDSET_KEY_FOR_RHINO = "foundset";
 	private static final String RELATIONNAME_KEY_FOR_RHINO = "relationname";
 	public static final String DATAPROVIDERS_KEY_FOR_DESIGN = "dataproviders";
-
-	private String[] dependencies;
 
 	public FoundsetPropertyType()
 	{
@@ -359,7 +356,6 @@ public class FoundsetPropertyType extends DefaultPropertyType<FoundsetTypeSabloV
 	@Override
 	public Object parseConfig(JSONObject config)
 	{
-		dependencies = getDependencies(config, dependencies);
 		return new FoundsetPropertyTypeConfig(config);
 	}
 
@@ -500,12 +496,6 @@ public class FoundsetPropertyType extends DefaultPropertyType<FoundsetTypeSabloV
 		w.value(TYPE_NAME);
 
 		return true;
-	}
-
-	@Override
-	public String[] getDependencies()
-	{
-		return dependencies;
 	}
 
 }

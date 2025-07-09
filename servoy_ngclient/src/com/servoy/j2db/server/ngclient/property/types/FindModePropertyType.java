@@ -18,6 +18,7 @@
 package com.servoy.j2db.server.ngclient.property.types;
 
 import java.util.HashMap;
+import java.util.Set;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -27,7 +28,7 @@ import org.sablo.IWebObjectContext;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IConvertedPropertyType;
-import org.sablo.specification.property.IPropertyCanDependsOn;
+import org.sablo.specification.property.IPropertyWithAttachDependencies;
 import org.sablo.specification.property.types.DefaultPropertyType;
 import org.sablo.util.ValueReference;
 import org.sablo.websocket.utils.JSONUtils;
@@ -50,12 +51,11 @@ import com.servoy.j2db.util.ServoyJSONObject;
 public class FindModePropertyType extends DefaultPropertyType<FindModeSabloValue>
 	implements IConvertedPropertyType<FindModeSabloValue>, IFormElementDefaultValueToSabloComponent<JSONObject, FindModeSabloValue>,
 	ISabloComponentToRhino<FindModeSabloValue>, IRhinoToSabloComponent<FindModeSabloValue>, IFormElementToTemplateJSON<String, FindModeSabloValue>,
-	IPropertyCanDependsOn
+	IPropertyWithAttachDependencies<FindModeSabloValue>
 {
 
 	public static final FindModePropertyType INSTANCE = new FindModePropertyType();
 	public static final String TYPE_NAME = "findmode";
-	private String[] dependencies = null;
 
 	@Override
 	public String getName()
@@ -69,7 +69,6 @@ public class FindModePropertyType extends DefaultPropertyType<FindModeSabloValue
 		HashMap<String, Object> forEntities = new HashMap<String, Object>();
 		try
 		{
-			dependencies = getDependencies(config, dependencies);
 			JSONObject forProperty = (JSONObject)config.opt("for"); //$NON-NLS-1$
 			String[] names = ServoyJSONObject.getNames(forProperty);
 			for (String propertyName : names)
@@ -152,8 +151,11 @@ public class FindModePropertyType extends DefaultPropertyType<FindModeSabloValue
 	}
 
 	@Override
-	public String[] getDependencies()
+	public String[] getDependencies(PropertyDescription pd)
 	{
-		return dependencies;
+		Set<String> propertiesThatWillBeAlteredByThisOne = ((FindModeConfig)pd.getConfig()).configPropertiesNames();
+		return propertiesThatWillBeAlteredByThisOne.isEmpty() ? null
+			: propertiesThatWillBeAlteredByThisOne.toArray(new String[propertiesThatWillBeAlteredByThisOne.size()]);
 	}
+
 }

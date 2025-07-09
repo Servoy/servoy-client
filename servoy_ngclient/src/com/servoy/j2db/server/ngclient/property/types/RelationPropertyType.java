@@ -21,7 +21,6 @@ import org.json.JSONWriter;
 import org.sablo.IWebObjectContext;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IBrowserConverterContext;
-import org.sablo.specification.property.IPropertyCanDependsOn;
 import org.sablo.specification.property.IPropertyConverterForBrowser;
 import org.sablo.specification.property.types.DefaultPropertyType;
 import org.sablo.util.ValueReference;
@@ -40,12 +39,10 @@ import com.servoy.j2db.server.ngclient.property.types.NGConversions.IRhinoToSabl
  * @author jcompagner
  */
 public class RelationPropertyType extends DefaultPropertyType<String>
-	implements IPropertyConverterForBrowser<String>, IFormElementToTemplateJSON<String, String>, IRhinoToSabloComponent<String>, IPropertyCanDependsOn
+	implements IPropertyConverterForBrowser<String>, IFormElementToTemplateJSON<String, String>, IRhinoToSabloComponent<String>
 {
 	public static RelationPropertyType INSTANCE = new RelationPropertyType();
 	public static final String TYPE_NAME = "relation";
-
-	private String[] dependencies;
 
 	private RelationPropertyType()
 	{
@@ -111,7 +108,6 @@ public class RelationPropertyType extends DefaultPropertyType<String>
 	@Override
 	public Object parseConfig(JSONObject json)
 	{
-		dependencies = getDependencies(json, dependencies);
 		return json;
 	}
 
@@ -127,9 +123,4 @@ public class RelationPropertyType extends DefaultPropertyType<String>
 		return (String)rhinoValue;
 	}
 
-	@Override
-	public String[] getDependencies()
-	{
-		return dependencies;
-	}
 }

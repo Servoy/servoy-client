@@ -24,8 +24,8 @@ import org.sablo.IWebObjectContext;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IConvertedPropertyType;
-import org.sablo.specification.property.IPropertyCanDependsOn;
 import org.sablo.specification.property.IPropertyConverterForBrowserWithDynamicClientType;
+import org.sablo.specification.property.IPropertyWithAttachDependencies;
 import org.sablo.specification.property.types.DefaultPropertyType;
 import org.sablo.util.ValueReference;
 import org.sablo.websocket.utils.JSONUtils;
@@ -57,12 +57,13 @@ public class DataproviderPropertyType extends DefaultPropertyType<DataproviderTy
 	implements IFormElementToSabloComponent<String, DataproviderTypeSabloValue>, IConvertedPropertyType<DataproviderTypeSabloValue>,
 	ISupportTemplateValue<String>, ISabloComponentToRhino<DataproviderTypeSabloValue>, IRhinoToSabloComponent<DataproviderTypeSabloValue>,
 	IDataLinkedType<String, DataproviderTypeSabloValue>, IFindModeAwareType<String, DataproviderTypeSabloValue>,
-	ICanBeLinkedToFoundset<String, DataproviderTypeSabloValue>, IPropertyConverterForBrowserWithDynamicClientType<DataproviderTypeSabloValue>, IPropertyCanDependsOn
+	ICanBeLinkedToFoundset<String, DataproviderTypeSabloValue>, IPropertyConverterForBrowserWithDynamicClientType<DataproviderTypeSabloValue>,
+	IPropertyWithAttachDependencies<DataproviderTypeSabloValue>
 {
 
 	public static final DataproviderPropertyType INSTANCE = new DataproviderPropertyType();
 	public static final String TYPE_NAME = "dataprovider"; //$NON-NLS-1$
-	
+
 	private String[] dependencies;
 
 	private DataproviderPropertyType()
@@ -89,7 +90,6 @@ public class DataproviderPropertyType extends DefaultPropertyType<DataproviderTy
 		boolean resolveValuelist = false;
 		if (json != null)
 		{
-			dependencies = getDependencies(json, dependencies);
 			JSONObject onDataChangeObj = json.optJSONObject("ondatachange");
 			if (onDataChangeObj != null)
 			{
@@ -247,10 +247,12 @@ public class DataproviderPropertyType extends DefaultPropertyType<DataproviderTy
 		TargetDataLinks dataLinks = getDataLinks(formElementValue, form, flattenedSolution);
 		return dataLinks.recordLinked;
 	}
-	
+
 	@Override
-	public String[] getDependencies() {
-		return dependencies;
+	public String[] getDependencies(PropertyDescription pd)
+	{
+		String dtpn = ((DataproviderConfig)pd.getConfig()).getDisplayTagsPropertyName();
+		return dtpn != null ? new String[] { dtpn } : null;
 	}
 
 }

@@ -23,7 +23,6 @@ import org.json.JSONWriter;
 import org.sablo.WebComponent;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IBrowserConverterContext;
-import org.sablo.specification.property.IPropertyCanDependsOn;
 import org.sablo.specification.property.IPropertyConverterForBrowser;
 import org.sablo.specification.property.types.DefaultPropertyType;
 import org.sablo.util.ValueReference;
@@ -42,13 +41,11 @@ import com.servoy.j2db.util.Utils;
  * @author jcompagner
  */
 public class LabelForPropertyType extends DefaultPropertyType<String>
-	implements IPropertyConverterForBrowser<String>, IFormElementToTemplateJSON<String, String>, ISupportTemplateValue<String>, IPropertyCanDependsOn
+	implements IPropertyConverterForBrowser<String>, IFormElementToTemplateJSON<String, String>, ISupportTemplateValue<String>
 {
 
 	public static final LabelForPropertyType INSTANCE = new LabelForPropertyType();
 	public static final String TYPE_NAME = "labelfor";
-
-	private String[] dependencies;
 
 	private LabelForPropertyType()
 	{
@@ -63,7 +60,6 @@ public class LabelForPropertyType extends DefaultPropertyType<String>
 	@Override
 	public Object parseConfig(JSONObject json)
 	{
-		dependencies = getDependencies(json, dependencies);
 		return json;
 	}
 
@@ -150,9 +146,4 @@ public class LabelForPropertyType extends DefaultPropertyType<String>
 		return false;
 	}
 
-	@Override
-	public String[] getDependencies()
-	{
-		return dependencies;
-	}
 }

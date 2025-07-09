@@ -84,9 +84,6 @@ public class MenuTypeSabloValue implements ISmartPropertyValue, IChangeListener,
 		this.customPropertiesDefinitions = getCustomPropertiesDefinitions();
 	}
 
-	/**
-	 * @return
-	 */
 	private Map<String, PropertyDescription> getCustomPropertiesDefinitions()
 	{
 		Map<String, Object> definitions = this.jsMenu.getCustomPropertiesDefinition();
@@ -324,6 +321,12 @@ public class MenuTypeSabloValue implements ISmartPropertyValue, IChangeListener,
 	{
 		this.changeMonitor = changeMonitor;
 		this.jsMenu.addChangeListener(this);
+
+		// TODO sort by dependencies between the child like props. when attaching - those should have a sorted attach / detach order just like
+		// BaseWebObject.properties initialized or ChangeAwareMap.attachToBaseObject() and their detach/dispose counterparts but that code
+		// relies on PropertyDescripion.getAttachComparator() and here we only have extraProperties String->PropertyDescription map. So
+		// it would need a refactor of this type to keep the String->PropertyDescription map in a PropertyDescription.properties instead
+
 		for (Map<String, ISmartPropertyValue> propertyValues : this.extraPropertiesSmartValues.values())
 		{
 			for (ISmartPropertyValue smartValue : propertyValues.values())
@@ -351,6 +354,11 @@ public class MenuTypeSabloValue implements ISmartPropertyValue, IChangeListener,
 
 	private void detachSmartProperties()
 	{
+		// TODO sort by dependencies between the child like props. when detaching - those should have a sorted attach / detach order just like
+		// BaseWebObject.properties initialized or ChangeAwareMap.attachToBaseObject() and their detach/dispose counterparts but that code
+		// relies on PropertyDescripion.getAttachComparator() and here we only have extraProperties String->PropertyDescription map. So
+		// it would need a refactor of this type to keep the String->PropertyDescription map in a PropertyDescription.properties instead
+
 		for (Map<String, ISmartPropertyValue> propertyValues : this.extraPropertiesSmartValues.values())
 		{
 			for (ISmartPropertyValue propertyValue : propertyValues.values())

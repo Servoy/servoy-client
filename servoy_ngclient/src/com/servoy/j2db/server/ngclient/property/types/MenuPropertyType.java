@@ -35,9 +35,9 @@ import org.sablo.specification.PropertyDescriptionBuilder;
 import org.sablo.specification.ValuesConfig;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IConvertedPropertyType;
-import org.sablo.specification.property.IPropertyCanDependsOn;
 import org.sablo.specification.property.IPropertyType;
 import org.sablo.specification.property.IPropertyWithClientSideConversions;
+import org.sablo.specification.property.IPropertyWithAttachDependencies;
 import org.sablo.specification.property.types.DefaultPropertyType;
 import org.sablo.specification.property.types.TypesRegistry;
 import org.sablo.specification.property.types.ValuesPropertyType;
@@ -66,13 +66,11 @@ import com.servoy.j2db.util.Utils;
 public class MenuPropertyType extends DefaultPropertyType<MenuTypeSabloValue>
 	implements IConvertedPropertyType<MenuTypeSabloValue>, IRhinoToSabloComponent<MenuTypeSabloValue>, ISabloComponentToRhino<MenuTypeSabloValue>,
 	IFormElementToSabloComponent<Object, MenuTypeSabloValue>, IFormElementToTemplateJSON<Object, MenuTypeSabloValue>,
-	ISupportTemplateValue<Object>, IPropertyWithClientSideConversions<MenuTypeSabloValue>, IPropertyCanDependsOn
+	ISupportTemplateValue<Object>, IPropertyWithClientSideConversions<MenuTypeSabloValue>, IPropertyWithAttachDependencies<MenuTypeSabloValue>
 {
 	public static final MenuPropertyType INSTANCE = new MenuPropertyType();
 	public static final String TYPE_NAME = "JSMenu";
 	public Map<String, Map<String, PropertyDescription>> extraProperties = new HashMap<String, Map<String, PropertyDescription>>();
-
-	private String[] dependencies;
 
 	private MenuPropertyType()
 	{
@@ -90,11 +88,11 @@ public class MenuPropertyType extends DefaultPropertyType<MenuTypeSabloValue>
 		if (json != null && json.has("extraPropertiesCategory") && json.has("extraProperties"))
 		{
 			String category = json.getString("extraPropertiesCategory");
-			Map<String, PropertyDescription> propertiesMap = extraProperties.get(category);
-			if (propertiesMap == null)
+			Map<String, PropertyDescription> propertiesMapForCategory = extraProperties.get(category);
+			if (propertiesMapForCategory == null)
 			{
-				propertiesMap = new HashMap<String, PropertyDescription>();
-				extraProperties.put(category, propertiesMap);
+				propertiesMapForCategory = new HashMap<String, PropertyDescription>();
+				extraProperties.put(category, propertiesMapForCategory);
 			}
 			JSONObject properties = json.getJSONObject("extraProperties");
 			Iterator<String> it = properties.keys();
@@ -126,11 +124,10 @@ public class MenuPropertyType extends DefaultPropertyType<MenuTypeSabloValue>
 						}
 					}
 				}
-				propertiesMap.put(key, new PropertyDescriptionBuilder().withName(key).withType(
+				propertiesMapForCategory.put(key, new PropertyDescriptionBuilder().withName(key).withType(
 					propertyType).withDefaultValue(defaultValue).withHasDefault(hasDefaultValue).withConfig(config).build());
 			}
 		}
-		dependencies = getDependencies(json, dependencies);
 		return json;
 	}
 
@@ -318,8 +315,8 @@ public class MenuPropertyType extends DefaultPropertyType<MenuTypeSabloValue>
 	}
 
 	@Override
-	public String[] getDependencies()
+	public String[] getDependencies(PropertyDescription pd)
 	{
-		return dependencies;
+		return IPropertyWithAttachDependencies.DEPENDS_ON_ALL;
 	}
 }

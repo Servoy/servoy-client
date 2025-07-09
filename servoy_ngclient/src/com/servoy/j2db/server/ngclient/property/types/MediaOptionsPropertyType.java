@@ -16,19 +16,17 @@
 package com.servoy.j2db.server.ngclient.property.types;
 
 import org.json.JSONObject;
-import org.sablo.specification.property.IPropertyCanDependsOn;
 import org.sablo.specification.property.types.DefaultPropertyType;
 
 /**
  * @author jcompagner
  */
-public class MediaOptionsPropertyType extends DefaultPropertyType<Integer> implements IPropertyCanDependsOn
+public class MediaOptionsPropertyType extends DefaultPropertyType<Integer>
 {
 
 	public static final MediaOptionsPropertyType INSTANCE = new MediaOptionsPropertyType();
 	public static final String TYPE_NAME = "mediaoptions";
 
-	private String[] dependencies;
 
 	private MediaOptionsPropertyType()
 	{
@@ -43,13 +41,7 @@ public class MediaOptionsPropertyType extends DefaultPropertyType<Integer> imple
 	@Override
 	public Object parseConfig(JSONObject json)
 	{
-		dependencies = getDependencies(json, dependencies);
 		return json;
 	}
 
-	@Override
-	public String[] getDependencies()
-	{
-		return dependencies;
-	}
 }

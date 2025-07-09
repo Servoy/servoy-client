@@ -25,7 +25,7 @@ import org.sablo.IWebObjectContext;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IConvertedPropertyType;
-import org.sablo.specification.property.IPropertyCanDependsOn;
+import org.sablo.specification.property.IPropertyWithAttachDependencies;
 import org.sablo.specification.property.types.DefaultPropertyType;
 import org.sablo.util.ValueReference;
 import org.sablo.websocket.utils.JSONUtils;
@@ -47,13 +47,11 @@ import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloCompon
 public class ReadonlyPropertyType extends DefaultPropertyType<ReadonlySabloValue>
 	implements IConvertedPropertyType<ReadonlySabloValue>, IFormElementDefaultValueToSabloComponent<JSONObject, ReadonlySabloValue>,
 	ISabloComponentToRhino<ReadonlySabloValue>, IRhinoToSabloComponent<ReadonlySabloValue>, IFormElementToTemplateJSON<Object, ReadonlySabloValue>,
-	IPropertyCanDependsOn
+	IPropertyWithAttachDependencies<ReadonlySabloValue>
 {
 
 	public static final ReadonlyPropertyType INSTANCE = new ReadonlyPropertyType();
 	public static final String TYPE_NAME = "readOnly";
-
-	private String[] dependencies;
 
 	private ReadonlyPropertyType()
 	{
@@ -69,7 +67,6 @@ public class ReadonlyPropertyType extends DefaultPropertyType<ReadonlySabloValue
 	public ReadonlyConfig parseConfig(JSONObject json)
 	{
 		ReadonlyConfig config = ReadonlyConfig.parse(json);
-		dependencies = getDependencies(json, dependencies);
 		if (config.getOppositeOf() == null)
 		{
 			throw new RuntimeException("Readonly property must also provide the 'oppositeOf' value. Please use type 'protected' instead.");
@@ -148,9 +145,9 @@ public class ReadonlyPropertyType extends DefaultPropertyType<ReadonlySabloValue
 	}
 
 	@Override
-	public String[] getDependencies()
+	public String[] getDependencies(PropertyDescription pd)
 	{
-		return dependencies;
+		return new String[] { ((ReadonlyConfig)pd.getConfig()).getOppositeOf() };
 	}
 
 }

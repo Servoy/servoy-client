@@ -31,7 +31,6 @@ import org.sablo.IWebObjectContext;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IConvertedPropertyType;
-import org.sablo.specification.property.IPropertyCanDependsOn;
 import org.sablo.specification.property.types.DefaultPropertyType;
 import org.sablo.util.ValueReference;
 import org.sablo.websocket.utils.JSONUtils;
@@ -70,13 +69,11 @@ public class TagStringPropertyType extends DefaultPropertyType<BasicTagStringTyp
 	IFormElementToTemplateJSON<String, BasicTagStringTypeSabloValue>, ISupportTemplateValue<String>, IDataLinkedType<String, BasicTagStringTypeSabloValue>,
 	IFormElementToSabloComponent<String, BasicTagStringTypeSabloValue>, IConvertedPropertyType<BasicTagStringTypeSabloValue>,
 	ISabloComponentToRhino<BasicTagStringTypeSabloValue>, IRhinoToSabloComponent<BasicTagStringTypeSabloValue>,
-	ICanBeLinkedToFoundset<String, BasicTagStringTypeSabloValue>, II18NPropertyType<BasicTagStringTypeSabloValue>, IPropertyCanDependsOn
+	ICanBeLinkedToFoundset<String, BasicTagStringTypeSabloValue>, II18NPropertyType<BasicTagStringTypeSabloValue>
 {
 
 	public static final TagStringPropertyType INSTANCE = new TagStringPropertyType();
 	public static final String TYPE_NAME = "tagstring";
-
-	private String[] dependencies;
 
 	protected TagStringPropertyType()
 	{
@@ -99,7 +96,6 @@ public class TagStringPropertyType extends DefaultPropertyType<BasicTagStringTyp
 
 		if (json != null)
 		{
-			dependencies = getDependencies(json, dependencies);
 			// see TagStringConfig docs for what the defaults mean
 			displayTagsPropertyName = json.optString(TagStringConfig.DISPLAY_TAGS_PROPERTY_NAME_CONFIG_OPT, null);
 			displayTags = json.has(TagStringConfig.DISPLAY_TAGS_CONFIG_OPT) ? json.optBoolean(TagStringConfig.DISPLAY_TAGS_CONFIG_OPT, true) : true;
@@ -377,9 +373,4 @@ public class TagStringPropertyType extends DefaultPropertyType<BasicTagStringTyp
 		return value;
 	}
 
-	@Override
-	public String[] getDependencies()
-	{
-		return dependencies;
-	}
 }

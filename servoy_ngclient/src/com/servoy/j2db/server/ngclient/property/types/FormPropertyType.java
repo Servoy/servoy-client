@@ -25,7 +25,6 @@ import org.sablo.IWebObjectContext;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IConvertedPropertyType;
-import org.sablo.specification.property.IPropertyCanDependsOn;
 import org.sablo.specification.property.types.DefaultPropertyType;
 import org.sablo.util.ValueReference;
 import org.sablo.websocket.CurrentWindow;
@@ -51,13 +50,10 @@ import com.servoy.j2db.util.UUID;
  * @author jcompagner
  */
 public class FormPropertyType extends DefaultPropertyType<Object>
-	implements IConvertedPropertyType<Object>, ISabloComponentToRhino<Object>, IFormElementToTemplateJSON<Object, Object>, IRhinoDesignConverter,
-	IPropertyCanDependsOn
+	implements IConvertedPropertyType<Object>, ISabloComponentToRhino<Object>, IFormElementToTemplateJSON<Object, Object>, IRhinoDesignConverter
 {
 	public static final FormPropertyType INSTANCE = new FormPropertyType();
 	public static final String TYPE_NAME = "form";
-
-	private String[] dependencies;
 
 	protected FormPropertyType()
 	{
@@ -72,7 +68,6 @@ public class FormPropertyType extends DefaultPropertyType<Object>
 	@Override
 	public Object parseConfig(JSONObject json)
 	{
-		dependencies = getDependencies(json, dependencies);
 		return json;
 	}
 
@@ -296,9 +291,4 @@ public class FormPropertyType extends DefaultPropertyType<Object>
 		return null;
 	}
 
-	@Override
-	public String[] getDependencies()
-	{
-		return dependencies;
-	}
 }

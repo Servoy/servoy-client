@@ -25,7 +25,6 @@ import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.PropertyDescriptionBuilder;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IConvertedPropertyType;
-import org.sablo.specification.property.IPropertyCanDependsOn;
 import org.sablo.specification.property.IPropertyType;
 import org.sablo.specification.property.IPropertyWithClientSideConversions;
 import org.sablo.specification.property.IWrapperType;
@@ -49,7 +48,7 @@ import com.servoy.j2db.util.ServoyJSONObject;
  * @author acostescu
  */
 public class DatasetPropertyType extends DefaultPropertyType<IDataSet> implements IConvertedPropertyType<IDataSet>,
-	IPropertyWithClientSideConversions<IDataSet>, IPropertyCanDependsOn
+	IPropertyWithClientSideConversions<IDataSet>
 {
 
 	public static final DatasetPropertyType INSTANCE = new DatasetPropertyType();
@@ -57,8 +56,6 @@ public class DatasetPropertyType extends DefaultPropertyType<IDataSet> implement
 	private static final String VALUE_KEY = "v";
 	private static final String TYPES_KEY = "t";
 	private static final String INCLUDES_COLUMN_NAMES_KEY = "i";
-	
-	private String[] dependencies;
 
 	private DatasetPropertyType()
 	{
@@ -185,7 +182,6 @@ public class DatasetPropertyType extends DefaultPropertyType<IDataSet> implement
 
 		if (config != null)
 		{
-			dependencies = getDependencies(config, dependencies);
 			includeColumnNames = config.optBoolean("includeColumnNames");
 			JSONObject columnTypesObj = config.optJSONObject("columnTypes");
 			if (columnTypesObj != null)
@@ -215,12 +211,6 @@ public class DatasetPropertyType extends DefaultPropertyType<IDataSet> implement
 		JSONUtils.addKeyIfPresent(w, keyToAddTo);
 		w.value(TYPE_NAME);
 		return true;
-	}
-	
-	@Override
-	public String[] getDependencies()
-	{
-		return dependencies;
 	}
 
 }
