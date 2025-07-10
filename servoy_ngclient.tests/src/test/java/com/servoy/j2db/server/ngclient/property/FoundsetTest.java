@@ -138,6 +138,7 @@ public class FoundsetTest extends AbstractSolutionTest
 		componentWithPaging.setProperty("myfoundset",
 			new ServoyJSONObject("{foundsetSelector:'',dataproviders:{firstname:'test1',lastname:'test2'}}", false));
 		componentWithPaging.setProperty("pageSize", Integer.valueOf(7));
+		componentWithPaging.setProperty("fakePageSize", Integer.valueOf(77));
 
 		WebComponent componentWithPagingLT1_1 = formSel8.createNewWebComponent("mycomponentwithpagingLT1_1", "mypagingcomponent");
 		componentWithPagingLT1_1.setProperty("myfoundset",
