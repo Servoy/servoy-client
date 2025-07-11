@@ -595,7 +595,7 @@ public final class CSSPositionUtils
 
 	public static void convertToCSSPosition(Form form)
 	{
-		if (form != null && !form.isResponsiveLayout() &&
+		if (form != null && !form.isResponsiveLayout() && !form.getUseCssPosition().booleanValue() &&
 			(form.getView() == IFormConstants.VIEW_TYPE_RECORD || form.getView() == IFormConstants.VIEW_TYPE_RECORD_LOCKED))
 		{
 			form.setUseCssPosition(Boolean.TRUE);
