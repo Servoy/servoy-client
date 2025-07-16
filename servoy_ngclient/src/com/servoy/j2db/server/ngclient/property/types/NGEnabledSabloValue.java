@@ -63,7 +63,7 @@ public class NGEnabledSabloValue extends EnabledSabloValue implements ISmartProp
 			{
 				DataproviderTypeSabloValue dataProviderValue = (DataproviderTypeSabloValue)webObject
 					.getRawPropertyValue(DefaultComponentPropertiesProvider.ENABLED_DATAPROVIDER_NAME);
-				if (dataProviderValue != null)
+				if (dataProviderValue != null && dataProviderValue.isInitialized())
 				{
 					val = Utils.getAsBoolean(dataProviderValue.getValue());
 				}
