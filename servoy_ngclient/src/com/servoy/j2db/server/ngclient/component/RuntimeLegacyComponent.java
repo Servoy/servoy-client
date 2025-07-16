@@ -256,7 +256,7 @@ public class RuntimeLegacyComponent implements Scriptable, IInstanceOf
 								}
 								else styleClass = styleClass.replaceAll("(?<!\\S)\\b" + Pattern.quote(args[0].toString()) + "\\b(?!\\S)", "");
 							}
-							component.setProperty(propertyName, styleClass);
+							component.setProperty(propertyName, styleClass.replaceAll("\\s{2,}", " ").trim());
 						}
 					}
 					return null;
