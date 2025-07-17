@@ -235,7 +235,11 @@ public class HCUtils
 		{
 			return true;
 		}
-
+		if (userAgent.family != null && userAgent.family.contains("Safari") &&
+			(parseInt(userAgent.major) > 15 || (parseInt(userAgent.major) >= 15 && parseInt(userAgent.minor) >= 4)))
+		{
+			return true;
+		}
 		return false;
 	}
 }
