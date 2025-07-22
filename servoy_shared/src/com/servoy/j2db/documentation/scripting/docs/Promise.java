@@ -49,8 +49,11 @@ public class Promise
 	 * This returned promise fulfills when all of the input's promises fulfill (including when an empty iterable is passed),
 	 * with an array of the fulfillment values. It rejects when any of the input's promises rejects, with this first rejection reason.
 	 *
-	 * @param iterable
+	 * @param {Array} iterable An array of Promises to be resolved collectively.
+	 *
+	 * @return A Promise that fulfills with an array of values when all input promises resolve, or rejects with the reason of the first rejected promise.
 	 */
+	@SuppressWarnings("unused")
 	@JSFunction
 	public Promise all(Array iterable)
 	{
@@ -63,7 +66,9 @@ public class Promise
 	 * This returned promise fulfills when all of the input's promises settle (including when an empty iterable is passed),
 	 * with an array of objects that describe the outcome of each promise.
 	 *
-	 * @param iterable
+	 * @param {Array} iterable An array of promises to be settled.
+	 *
+	 * @return A promise that resolves with an array of outcome objects for each settled input promise.
 	 */
 	@JSFunction
 	public Promise allSettled(Array iterable)
@@ -75,7 +80,9 @@ public class Promise
 	 * The Promise.race() static method takes an iterable of promises as input and returns a single Promise.
 	 * This returned promise settles with the eventual state of the first promise that settles.
 	 *
-	 * @param iterable
+	 * @param {Array} iterable An array of promises to race.
+	 *
+	 * @return A promise that settles with the outcome of the first settled input promise.
 	 */
 	@JSFunction
 	public Promise race(Array iterable)
@@ -86,7 +93,9 @@ public class Promise
 	/**
 	 * The Promise.reject() static method returns a Promise object that is rejected with a given reason.
 	 *
-	 * @param reason
+	 * @param {Object} reason The reason for rejecting the promise.
+	 *
+	 * @return A promise that is rejected with the specified reason.
 	 */
 	@JSFunction
 	public Promise reject(Object reason)
@@ -104,7 +113,9 @@ public class Promise
 	 * (e.g. a promise that fulfills to a promise that fulfills to something)
 	 * into a single layer — a promise that fulfills to a non-thenable value.
 	 *
-	 * @param value
+	 * @param {Object} value A value or then able to resolve as a promise.
+	 *
+	 * @return A promise resolved with the given value or flattened if it is thenable.
 	 */
 	@JSFunction
 	public Promise resolve(Object value)
@@ -118,7 +129,9 @@ public class Promise
 	 * It stores the callbacks within the promise it is called on and immediately returns another Promise object,
 	 * allowing you to chain calls to other promise methods.
 	 *
-	 * @param onFulfilled
+	 * @param {Function} onFulfilled A function called when the promise is fulfilled.
+	 *
+	 * @return A promise that resolves or rejects based on the provided fulfillment or rejection handler.
 	 */
 	@JSFunction
 	public Promise then(Function onFulfilled)
@@ -146,7 +159,9 @@ public class Promise
 	 * It immediately returns another Promise object, allowing you to chain calls to other promise methods.
 	 * It is a shortcut for then(undefined, onRejected).
 	 *
-	 * @param onRejected
+	 * @param {Function} onRejected A function invoked when the promise is rejected.
+	 *
+	 * @return A promise that executes the rejection handler and resolves based on its outcome.
 	 */
 	public Promise js_catch(Function onRejected)
 	{
@@ -160,7 +175,9 @@ public class Promise
 	 *
 	 * This lets you avoid duplicating code in both the promise's then() and catch() handlers.
 	 *
-	 * @param onFinally
+	 * @param {Function} onFinally A function called once the promise is settled, regardless of outcome.
+	 *
+	 * @return A promise that executes the finalizing function after the original promise settles.
 	 */
 	public Promise js_finally(Function onFinally)
 	{
