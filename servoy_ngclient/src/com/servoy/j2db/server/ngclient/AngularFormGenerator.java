@@ -40,6 +40,7 @@ import org.slf4j.LoggerFactory;
 import com.inet.lib.less.CompressCssFormatter;
 import com.inet.lib.less.CssFormatter;
 import com.inet.lib.less.Formattable;
+import com.inet.lib.less.Less;
 import com.inet.lib.less.LessParser;
 import com.inet.lib.less.ReaderFactory;
 import com.inet.lib.less.Rule;
@@ -62,6 +63,7 @@ import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.PositionComparator;
 import com.servoy.j2db.server.headlessclient.dataui.AbstractFormLayoutProvider;
 import com.servoy.j2db.server.ngclient.INGClientWindow.IFormHTMLAndJSGenerator;
+import com.servoy.j2db.server.ngclient.less.ServoyLessReaderFactory;
 import com.servoy.j2db.server.ngclient.template.FormTemplateObjectWrapper;
 import com.servoy.j2db.server.ngclient.template.FormWrapper;
 import com.servoy.j2db.server.ngclient.template.PartWrapper;
@@ -150,7 +152,7 @@ public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 			{
 				try
 				{
-					String parsed = parseLess(frm.getFormCss(), frm.getName());
+					String parsed = parseLess(frm.getFormCss(), frm.getName(), servoyDataConverterContext.getSolution());
 
 					writer.key(frm.getName());
 					writer.value(parsed);
@@ -363,11 +365,11 @@ public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 	 * @return
 	 * @throws MalformedURLException
 	 */
-	public static String parseLess(String formCss, String formName) throws Exception
+	public static String parseLess(String formCss, String formName, FlattenedSolution fs) throws Exception
 	{
 		LessParser parser = new LessParser();
 		URL baseUrl = URI.create("http://localhost").toURL();
-		ReaderFactory readerFactory = new ReaderFactory();
+		ReaderFactory readerFactory = new ServoyLessReaderFactory(fs, formName + ".less");
 		parser.parse(baseUrl, new StringReader(formCss), readerFactory);
 		List<Formattable> rules = parser.getRules();
 		rules.forEach(r -> {
@@ -381,7 +383,7 @@ public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 		CssFormatter formatter = new CompressCssFormatter();
 		parser.parseLazy(formatter);
 		StringBuilder builder = new StringBuilder();
-		formatter.format(parser, baseUrl, readerFactory, builder, Collections.emptyMap());
+		formatter.format(parser, baseUrl, readerFactory, builder, Collections.singletonMap(Less.REWRITE_URLS, "all"));
 		return builder.toString();
 	}
 
