@@ -36,6 +36,7 @@ import com.servoy.j2db.util.Utils;
 public class ThemeResourceLoader
 {
 	public static final String CUSTOM_PROPERTIES_LESS = "custom_servoy_theme_properties.less";
+	public static final String SOLUTION_PROPERTIES_LESS = "solution_properties.less";
 	public static final String PROPERTIES_LESS = "servoy_theme_properties.less";
 	public static final String THEME_LESS = "servoy_theme.less";
 	public static final String VARIANTS_JSON = "variants.json";
@@ -80,7 +81,7 @@ public class ThemeResourceLoader
 
 	public static byte[] getCustomProperties()
 	{
-		return load("custom_servoy_theme_properties.less", getLatestNG2Version()).getBytes(Charset.forName("UTF-8"));
+		return load("solution_properties.less", getLatestNG2Version()).getBytes(Charset.forName("UTF-8"));
 	}
 
 	public static String getLatestNG2Version()
@@ -95,12 +96,12 @@ public class ThemeResourceLoader
 
 	public static String getLatestThemeProperties()
 	{
-		return load(themePropertyResource.get(themePropertyResource.lastKey()), ClientVersion.getPureVersion());
+		return getThemeProperties(getLatestNG2Version());
 	}
 
 	public static String getLatestTheme()
 	{
-		return load(themeResource.get(themeResource.lastKey()), ClientVersion.getPureVersion());
+		return getTheme(getLatestNG2Version());
 	}
 
 
@@ -125,7 +126,7 @@ public class ThemeResourceLoader
 	private static String getResource(String maxVersion, SortedMap<Version, String> versionToResource)
 	{
 		Version version = new Version(maxVersion);
-		if ("latest_ng2".equals(maxVersion))
+		if ("latest_ng2".equals(maxVersion) || version.major >= 2025)
 		{
 			version = new Version(getLatestNG2Version());
 		}

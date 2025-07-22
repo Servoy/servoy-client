@@ -2,212 +2,212 @@
 
 /* START General */
 /* main theme color; should be called primary ? */
-@main-color: #E9720B;                           /* {"name":"Main color", "category":"General", "desc":"Changing the value will affect the 'Main color' of the theme!", "type":"color"} */
-@main-color-inverse: #FFF;                      /* {"name":"Main color inverse", "category":"General", "desc":"Changing the value will affect the 'Main color inverse' of the theme!", "type":"color"} */
-@main-color-light: lighten(@main-color, 10%);   /* {"name":"Main color light", "category":"General", "desc":"Changing the value will affect the 'Main color light' of the theme!", "type":"color"} */
-@main-color-dark: darken(@main-color, 15%);     /* {"name":"Main color dark", "category":"General", "desc":"Changing the value will affect the 'Main color dark' of the theme!", "type":"color"} */
+@main-color: #E9720B;                           /* {"name":"Main color", "category":"General", "desc":"Changing the value will affect the '@main-color' of the theme!", "type":"color"} */
+@main-color-inverse: #FFF;                      /* {"name":"Main color inverse", "category":"General", "desc":"Changing the value will affect the '@main-color-inverse' of the theme!", "type":"color"} */
+@main-color-light: lighten(@main-color, 10%);   /* {"name":"Main color light", "category":"General", "desc":"Changing the value will affect the '@main-color-light' of the theme!", "type":"color"} */
+@main-color-dark: darken(@main-color, 15%);     /* {"name":"Main color dark", "category":"General", "desc":"Changing the value will affect the '@main-color-dark' of the theme!", "type":"color"} */
 
-@secondary-color: #18222C;                      /* {"name":"Secondary color", "category":"General", "desc":"Changing the value will affect the 'Secondary color' of the theme!", "type":"color"} */
-@secondary-color-inverse: #FFF;                 /* {"name":"Secondary color inverse", "category":"General", "desc":"Changing the value will affect the 'Secondary color inverse' of the theme!", "type":"color"} */
-@secondary-color-light: #464E56;                /* {"name":"Secondary color light", "category":"General", "desc":"Changing the value will affect the 'Secondary color light' of the theme!", "type":"color"} */
-@secondary-color-dark: #364453;                 /* {"name":"Secondary color dark", "category":"General", "desc":"Changing the value will affect the 'Secondary color dark' of the theme!", "type":"color"} */
+@secondary-color: #18222C;                      /* {"name":"Secondary color", "category":"General", "desc":"Changing the value will affect the '@secondary-color' of the theme!", "type":"color"} */
+@secondary-color-inverse: #FFF;                 /* {"name":"Secondary color inverse", "category":"General", "desc":"Changing the value will affect the '@secondary-color-inverse' of the theme!", "type":"color"} */
+@secondary-color-light: #464E56;                /* {"name":"Secondary color light", "category":"General", "desc":"Changing the value will affect the '@secondary-color-light' of the theme!", "type":"color"} */
+@secondary-color-dark: #364453;                 /* {"name":"Secondary color dark", "category":"General", "desc":"Changing the value will affect the '@secondary-color-dark' of the theme!", "type":"color"} */
 
 /* Scrollbars */
 @theme-scrollbar: true;                         /* {"name":"Theme scrollbar", "category":"General", "desc":"If true - use custom scrollbar theme, if false - use the default browser webkit.", "type":"custom"} */
-@scrollbar-bg: #FFF;                            /* {"name":"Scrollbar background color", "category":"General", "desc":" Only when theme-scrollbar is true.", "type":"color"} */
-@scrollbar-color: #DBDBDB;                      /* {"name":"Scrollbar thumb color", "category":"General", "desc":"Only when theme-scrollbar is true.", "type":"color"} */
-@scrollbar-border-width: 0 1px;                 /* {"name":"Scrollbar border width", "category":"General", "desc":"Only when theme-scrollbar is true", "type":"unit"} */
+@scrollbar-bg: #FFF;                            /* {"name":"Scrollbar background color", "category":"General", "desc":"Sets '@scrollbar-bg' Only when theme-scrollbar is true.", "type":"color"} */
+@scrollbar-color: #DBDBDB;                      /* {"name":"Scrollbar thumb color", "category":"General", "desc":"Sets '@scrollbar-color' Only when theme-scrollbar is true.", "type":"color"} */
+@scrollbar-border-width: 0 1px;                 /* {"name":"Scrollbar border width", "category":"General", "desc":"Sets '@scrollbar-border-width' Only when theme-scrollbar is true", "type":"unit"} */
 
 /* Font & Font Sizes */
-@font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;   /* {"name":"Font family", "category":"General", "desc":"Changing the value will affect the 'Font family' of the theme!", "type":"custom"} */
+@font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;   /* {"name":"Font family", "category":"General", "desc":"Changing the value will affect the '@font-family' of the theme!", "type":"custom"} */
 
 /* when the font-size is set to 62.5 1rem = 10px */
-@rem-to-px: 10;                                 /* {"name":"rem to px", "category":"General", "desc":"Changing the value will affect the 'rem to px' of the theme!", "type":"custom"} */                     
+@rem-to-px: 10;                                 /* {"name":"rem to px", "category":"General", "desc":"Changing the value will affect the '@rem-to-px' of the theme!", "type":"custom"} */                     
 
-@font-size-h1 : 36px;                           /* {"name":"Font size h1", "category":"General", "desc":"Changing the value will affect the 'Font size h1' of the theme!", "type":"unit"} */
-@font-size-h2 : 30px;                           /* {"name":"Font size h2", "category":"General", "desc":"Changing the value will affect the 'Font size h2' of the theme!", "type":"unit"} */
-@font-size-h3 : 24px;                           /* {"name":"Font size h3", "category":"General", "desc":"Changing the value will affect the 'Font size h3' of the theme!", "type":"unit"} */
-@font-size-h4 : 18px;                           /* {"name":"Font size h4", "category":"General", "desc":"Changing the value will affect the 'Font size h4' of the theme!", "type":"unit"} */
-@font-size-h5 : 14px;                           /* {"name":"Font size h5", "category":"General", "desc":"Changing the value will affect the 'Font size h5' of the theme!", "type":"unit"} */
-@font-size-h6 : 12px;                           /* {"name":"Font size h6", "category":"General", "desc":"Changing the value will affect the 'Font size h6' of the theme!", "type":"unit"} */
+@font-size-h1 : 36px;                           /* {"name":"Font size h1", "category":"General", "desc":"Changing the value will affect the '@font-size-h1' of the theme!", "type":"unit"} */
+@font-size-h2 : 30px;                           /* {"name":"Font size h2", "category":"General", "desc":"Changing the value will affect the '@font-size-h2' of the theme!", "type":"unit"} */
+@font-size-h3 : 24px;                           /* {"name":"Font size h3", "category":"General", "desc":"Changing the value will affect the '@font-size-h3' of the theme!", "type":"unit"} */
+@font-size-h4 : 18px;                           /* {"name":"Font size h4", "category":"General", "desc":"Changing the value will affect the '@font-size-h4' of the theme!", "type":"unit"} */
+@font-size-h5 : 14px;                           /* {"name":"Font size h5", "category":"General", "desc":"Changing the value will affect the '@font-size-h5' of the theme!", "type":"unit"} */
+@font-size-h6 : 12px;                           /* {"name":"Font size h6", "category":"General", "desc":"Changing the value will affect the '@font-size-h6' of the theme!", "type":"unit"} */
 
 /* Body bg */
 @body-bg: #FFF;                                 /* {"name":"Body bg", "category":"General", "desc":"Changes the background for the bg class.\n Is also used as part of other less vars like Tab border color, dialogs, breadcrumb, grid menu panel.", "type":"color"} */
-@body-bg-inverse: #DDD;                         /* {"name":"Body bg inverse", "category":"General", "desc":"Changing the value will affect the 'Body bg inverse' of the theme!", "type":"color"} */
+@body-bg-inverse: #DDD;                         /* {"name":"Body bg inverse", "category":"General", "desc":"Changing the value will affect the '@body-bg-inverse' of the theme!", "type":"color"} */
 
 /* TODO setup borders for colors */
 /* Borders */
-@border-color : #DBDBDB;                        /* {"name":"Border color", "category":"General", "desc":"Changing the value will affect the 'Border color' of the theme!", "type":"color"} */
-@border-width : 1px;                            /* {"name":"Border width", "category":"General", "desc":"Changing the value will affect the 'Border width' of the theme!", "type":"unit"} */
-@border-style : solid;                          /* {"name":"Border style", "category":"General", "desc":"Changing the value will affect the 'Border style' of the theme!", "type":"custom"} */
-@border-radius: 2px;                            /* {"name":"Border radius", "category":"General", "desc":"Changing the value will affect the 'Border radius' of the theme!", "type":"unit"} */
+@border-color : #DBDBDB;                        /* {"name":"Border color", "category":"General", "desc":"Changing the value will affect the '@border-color' of the theme!", "type":"color"} */
+@border-width : 1px;                            /* {"name":"Border width", "category":"General", "desc":"Changing the value will affect the '@border-width' of the theme!", "type":"unit"} */
+@border-style : solid;                          /* {"name":"Border style", "category":"General", "desc":"Changing the value will affect the '@border-style' of the theme!", "type":"custom"} */
+@border-radius: 2px;                            /* {"name":"Border radius", "category":"General", "desc":"Changing the value will affect the '@border-radius' of the theme!", "type":"unit"} */
 
 /* Colors for labels and inputs */
-@text-font-size: @font-size-h5;                 /* {"name":"Text font size", "category":"General", "desc":"Changing the value will affect the 'Text font size' of the theme!", "type":"unit"} */
-@text-color : #777777;                          /* {"name":"Text color", "category":"General", "desc":"Changing the value will affect the 'Text color' of the theme!", "type":"color"} */
-@text-color-inverse: @text-color;               /* {"name":"Text color inverse", "category":"General", "desc":"Changing the value will affect the 'Text color inverse' of the theme!", "type":"color"} */
-@text-color-default: #333;                      /* {"name":"Text color default", "category":"General", "desc":"Changing the value will affect the 'Text color default' of the theme!", "type":"color"} */
-@text-color-default-inverse: #333;              /* {"name":"Text color default inverse", "category":"General", "desc":"Changing the value will affect the 'Text color default inverse' of the theme!", "type":"color"} */
+@text-font-size: @font-size-h5;                 /* {"name":"Text font size", "category":"General", "desc":"Changing the value will affect the '@text-font-size' of the theme!", "type":"unit"} */
+@text-color : #777777;                          /* {"name":"Text color", "category":"General", "desc":"Changing the value will affect the '@text-color' of the theme!", "type":"color"} */
+@text-color-inverse: @text-color;               /* {"name":"Text color inverse", "category":"General", "desc":"Changing the value will affect the '@text-color-inverse' of the theme!", "type":"color"} */
+@text-color-default: #333;                      /* {"name":"Text color default", "category":"General", "desc":"Changing the value will affect the '@text-color-default' of the theme!", "type":"color"} */
+@text-color-default-inverse: #333;              /* {"name":"Text color default inverse", "category":"General", "desc":"Changing the value will affect the '@text-color-default-inverse' of the theme!", "type":"color"} */
 
 /* Fields */
-@field-font-size: @text-font-size;              /* {"name":"Field font size", "category":"General", "desc":"Changing the value will affect the 'Field font size' of the theme!", "type":"unit"} */
-@field-bg : #FFF;                               /* {"name":"Field bg", "category":"General", "desc":"Changing the value will affect the 'Field bg' of the theme!", "type":"color"} */
-@field-disabled-bg : @field-bg;                 /* {"name":"Field disabled bg", "category":"General", "desc":"Changing the value will affect the 'Field disabled bg' of the theme!", "type":"color"} */
-@field-color: @text-color;                      /* {"name":"Field color", "category":"General", "desc":"Changing the value will affect the 'Field color' of the theme!", "type":"color"} */
-@field-addon-bg: @field-bg;                     /* {"name":"Field addon bg", "category":"General", "desc":"Changing the value will affect the 'Field addon bg' of the theme!", "type":"color"} */
-@field-border-width: 1px 1px @border-width 1px; /* {"name":"Field width", "category":"General", "desc":"Changing the value will affect the 'Field width' of the theme!", "type":"unit"} */
-@field-border-radius: 2px;                      /* {"name":"Field border radius", "category":"General", "desc":"Changing the value will affect the 'Field border radius' of the theme!", "type":"unit"} */
-@field-check-color: @brand-info;                /* {"name":"Check and Radio Color", "category":"General", "desc":"Changing the value will affect the 'Check and Radio Color' of the theme!", "type":"color"} */
+@field-font-size: @text-font-size;              /* {"name":"Field font size", "category":"General", "desc":"Changing the value will affect the '@field-font-size' of the theme!", "type":"unit"} */
+@field-bg : #FFF;                               /* {"name":"Field bg", "category":"General", "desc":"Changing the value will affect the '@field-bg' of the theme!", "type":"color"} */
+@field-disabled-bg : @field-bg;                 /* {"name":"Field disabled bg", "category":"General", "desc":"Changing the value will affect the '@field-disabled-bg' of the theme!", "type":"color"} */
+@field-color: @text-color;                      /* {"name":"Field color", "category":"General", "desc":"Changing the value will affect the '@field-color' of the theme!", "type":"color"} */
+@field-addon-bg: @field-bg;                     /* {"name":"Field addon bg", "category":"General", "desc":"Changing the value will affect the '@field-addon-bg' of the theme!", "type":"color"} */
+@field-border-width: 1px 1px @border-width 1px; /* {"name":"Field width", "category":"General", "desc":"Changing the value will affect the '@field-border-width' of the theme!", "type":"unit"} */
+@field-border-radius: 2px;                      /* {"name":"Field border radius", "category":"General", "desc":"Changing the value will affect the '@field-border-radius' of the theme!", "type":"unit"} */
+@field-check-color: @brand-info;                /* {"name":"Check and Radio Color", "category":"General", "desc":"Changing the value will affect the '@field-check-color' of the theme!", "type":"color"} */
 
 /* TODO icons */
 
 /* START Sidenav */
-@sidenav-color: @secondary-color;                   /* {"name":"Sidenav color", "category":"Sidenav", "desc":"Changing the value will affect the 'Sidenav color' of the theme!", "type":"color"} */
-@sidenav-text-color: @secondary-color-inverse;      /* {"name":"Sidenav text color", "category":"Sidenav", "desc":"Changing the value will affect the 'Sidenav text color' of the theme!", "type":"color"} */
-@sidenav-text-font-size: @font-size-h6;             /* {"name":"Sidenav text font size", "category":"Sidenav", "desc":"Changing the value will affect the 'Sidenav text font size' of the theme!", "type":"unit"} */
-@sidenav-border-width: 1px;                         /* {"name":"Sidenav border width", "category":"Sidenav", "desc":"Changing the value will affect the 'Sidenav border width' of the theme!", "type":"unit"} */
-@sidenav-border-color: @border-color;               /* {"name":"Sidenav border color", "category":"Sidenav", "desc":"Changing the value will affect the 'Sidenav border color' of the theme!", "type":"color"} */
-@sidenav-selected-color: @secondary-color-light;    /* {"name":"Sidenav selected color", "category":"Sidenav", "desc":"Changing the value will affect the 'Sidenav selected color' of the theme!", "type":"color"} */
-@sidenav-selected-text-color: @sidenav-text-color;  /* {"name":"Sidenav selected text color", "category":"Sidenav", "desc":"Changing the value will affect the 'Sidenav selected text color' of the theme!", "type":"color"} */
-@sidenav-selected-border-color: @main-color;        /* {"name":"Sidenav selected border color", "category":"Sidenav", "desc":"Changing the value will affect the 'Sidenav selected border color' of the theme!", "type":"color"} */
-@sidenav-selected-border-width: 0px 0px 0px 0px;    /* {"name":"Sidenav selected border width", "category":"Sidenav", "desc":"Sidenav border for selected top-level item top|right|bottom|left", "type":"unit"} */
+@sidenav-color: @secondary-color;                   /* {"name":"Sidenav color", "category":"Sidenav", "desc":"Changing the value will affect the '@sidenav-color' of the theme!", "type":"color"} */
+@sidenav-text-color: @secondary-color-inverse;      /* {"name":"Sidenav text color", "category":"Sidenav", "desc":"Changing the value will affect the '@sidenav-text-color' of the theme!", "type":"color"} */
+@sidenav-text-font-size: @font-size-h6;             /* {"name":"Sidenav text font size", "category":"Sidenav", "desc":"Changing the value will affect the '@sidenav-text-font-size' of the theme!", "type":"unit"} */
+@sidenav-border-width: 1px;                         /* {"name":"Sidenav border width", "category":"Sidenav", "desc":"Changing the value will affect the '@sidenav-border-width' of the theme!", "type":"unit"} */
+@sidenav-border-color: @border-color;               /* {"name":"Sidenav border color", "category":"Sidenav", "desc":"Changing the value will affect the '@sidenav-border-color' of the theme!", "type":"color"} */
+@sidenav-selected-color: @secondary-color-light;    /* {"name":"Sidenav selected color", "category":"Sidenav", "desc":"Changing the value will affect the '@sidenav-selected-color' of the theme!", "type":"color"} */
+@sidenav-selected-text-color: @sidenav-text-color;  /* {"name":"Sidenav selected text color", "category":"Sidenav", "desc":"Changing the value will affect the '@sidenav-selected-text-color' of the theme!", "type":"color"} */
+@sidenav-selected-border-color: @main-color;        /* {"name":"Sidenav selected border color", "category":"Sidenav", "desc":"Changing the value will affect the '@sidenav-selected-border-color' of the theme!", "type":"color"} */
+@sidenav-selected-border-width: 0px 0px 0px 0px;    /* {"name":"Sidenav selected border width", "category":"Sidenav", "desc":"Sidenav border '@sidenav-selected-border-width' for selected top-level item top|right|bottom|left", "type":"unit"} */
 
 /* Sidenav Secondary color */
-@sidenav-secondary-color: @main-color;                          /* {"name":"Sidenav secondary color", "category":"Sidenav", "desc":"Changing the value will affect the 'Sidenav secondary color' of the theme!", "type":"color"} */
-@sidenav-secondary-text-color: @main-color-inverse;             /* {"name":"Sidenav secondary text color", "category":"Sidenav", "desc":"Changing the value will affect the 'Sidenav secondary text color' of the theme!", "type":"color"} */
-@sidenav-secondary-text-font-size: @font-size-h6;               /* {"name":"Sidenav secondary text font size", "category":"Sidenav", "desc":"Changing the value will affect the 'Sidenav secondary text font size' of the theme!", "type":"unit"} */
-@sidenav-secondary-border-width: 1px;                           /* {"name":"Sidenav secondary border width", "category":"Sidenav", "desc":"Changing the value will affect the 'Sidenav secondary border width' of the theme!", "type":"unit"} */
-@sidenav-secondary-border-color: @border-color;                 /* {"name":"Sidenav secondary border color", "category":"Sidenav", "desc":"Changing the value will affect the 'Sidenav secondary border color' of the theme!", "type":"color"} */
-@sidenav-secondary-selected-color: @main-color-light;           /* {"name":"Sidenav secondary selected color", "category":"Sidenav", "desc":"Changing the value will affect the 'Sidenav secondary selected color' of the theme!", "type":"color"} */
-@sidenav-secondary-selected-text-color: @main-color-inverse;    /* {"name":"Sidenav secondary selected text color", "category":"Sidenav", "desc":"Changing the value will affect the 'Sidenav secondary selected text color' of the theme!", "type":"color"} */
-@sidenav-secondary-selected-border-color: @main-color-inverse;  /* {"name":"Sidenav secondary selected border color", "category":"Sidenav", "desc":"Changing the value will affect the 'Sidenav secondary selected border color' of the theme!", "type":"color"} */
-@sidenav-secondary-selected-border-width: 0px 0px 0px 5px;      /* {"name":"Sidenav secondary selected border width", "category":"Sidenav", "desc":"Sidenav secondary border for selected top-level item top|right|bottom|left.", "type":"unit"} */
+@sidenav-secondary-color: @main-color;                          /* {"name":"Sidenav secondary color", "category":"Sidenav", "desc":"Changing the value will affect the '@sidenav-secondary-color' of the theme!", "type":"color"} */
+@sidenav-secondary-text-color: @main-color-inverse;             /* {"name":"Sidenav secondary text color", "category":"Sidenav", "desc":"Changing the value will affect the '@sidenav-secondary-text-color' of the theme!", "type":"color"} */
+@sidenav-secondary-text-font-size: @font-size-h6;               /* {"name":"Sidenav secondary text font size", "category":"Sidenav", "desc":"Changing the value will affect the '@sidenav-secondary-text-font-size' of the theme!", "type":"unit"} */
+@sidenav-secondary-border-width: 1px;                           /* {"name":"Sidenav secondary border width", "category":"Sidenav", "desc":"Changing the value will affect the '@sidenav-secondary-border-width' of the theme!", "type":"unit"} */
+@sidenav-secondary-border-color: @border-color;                 /* {"name":"Sidenav secondary border color", "category":"Sidenav", "desc":"Changing the value will affect the '@sidenav-secondary-border-color' of the theme!", "type":"color"} */
+@sidenav-secondary-selected-color: @main-color-light;           /* {"name":"Sidenav secondary selected color", "category":"Sidenav", "desc":"Changing the value will affect the '@sidenav-secondary-selected-color' of the theme!", "type":"color"} */
+@sidenav-secondary-selected-text-color: @main-color-inverse;    /* {"name":"Sidenav secondary selected text color", "category":"Sidenav", "desc":"Changing the value will affect the '@sidenav-secondary-selected-text-color' of the theme!", "type":"color"} */
+@sidenav-secondary-selected-border-color: @main-color-inverse;  /* {"name":"Sidenav secondary selected border color", "category":"Sidenav", "desc":"Changing the value will affect the '@sidenav-secondary-selected-border-color' of the theme!", "type":"color"} */
+@sidenav-secondary-selected-border-width: 0px 0px 0px 5px;      /* {"name":"Sidenav secondary selected border width", "category":"Sidenav", "desc":"Sidenav secondary border '@sidenav-secondary-selected-border-width' for selected top-level item top|right|bottom|left.", "type":"unit"} */
 
 /* START Navbar */
-@navbar-bg: @main-color;                                /* {"name":"Navbar background color", "category":"Navbar", "desc":"Changing the value will affect the 'Navbar background color' of the theme!", "type":"color"} */
-@navbar-bg-highlighted: @main-color-dark;               /* {"name":"Navbar highlighted item", "category":"Navbar", "desc":"Changing the value will affect the 'Navbar highlighted item' of the theme!", "type":"color"} */
-@navbar-text-color: @main-color-inverse;                /* {"name":"Navbar text color", "category":"Navbar", "desc":"Changing the value will affect the 'Navbar text color' of the theme!", "type":"color"} */
-@navbar-dropdown-bg: @navbar-bg;                        /* {"name":"Navbar dropdown bg", "category":"Navbar", "desc":"Changing the value will affect the 'Navbar dropdown bg' of the theme!", "type":"color"} */
-@navbar-dropdown-text-color: @navbar-text-color;        /* {"name":"Navbar dropdown text color", "category":"Navbar", "desc":"Changing the value will affect the 'Navbar dropdown text color' of the theme!", "type":"color"} */
-@navbar-active-bg: @navbar-bg;                          /* {"name":"Navbar active bg", "category":"Navbar", "desc":"Changing the value will affect the 'Navbar active bg' of the theme!", "type":"color"} */
-@navbar-active-text-color: @navbar-text-color;          /* {"name":"Navbar active text color", "category":"Navbar", "desc":"Changing the value will affect the 'Navbar active text color' of the theme!", "type":"color"} */
-@navbar-active-border-color:  @main-color-inverse;      /* {"name":"Navbar active border color", "category":"Navbar", "desc":"Changing the value will affect the 'Navbar active border color' of the theme!", "type":"color"} */
-@navbar-active-border-width: 0;                         /* {"name":"Navbar active border width", "category":"Navbar", "desc":"Changing the value will affect the 'Navbar active border width' of the theme!", "type":"unit"} */
+@navbar-bg: @main-color;                                /* {"name":"Navbar background color", "category":"Navbar", "desc":"Changing the value will affect the '@navbar-bg' of the theme!", "type":"color"} */
+@navbar-bg-highlighted: @main-color-dark;               /* {"name":"Navbar highlighted item", "category":"Navbar", "desc":"Changing the value will affect the '@navbar-bg-highlighted' of the theme!", "type":"color"} */
+@navbar-text-color: @main-color-inverse;                /* {"name":"Navbar text color", "category":"Navbar", "desc":"Changing the value will affect the '@navbar-text-color' of the theme!", "type":"color"} */
+@navbar-dropdown-bg: @navbar-bg;                        /* {"name":"Navbar dropdown bg", "category":"Navbar", "desc":"Changing the value will affect the '@navbar-dropdown-bg' of the theme!", "type":"color"} */
+@navbar-dropdown-text-color: @navbar-text-color;        /* {"name":"Navbar dropdown text color", "category":"Navbar", "desc":"Changing the value will affect the '@navbar-dropdown-text-color' of the theme!", "type":"color"} */
+@navbar-active-bg: @navbar-bg;                          /* {"name":"Navbar active bg", "category":"Navbar", "desc":"Changing the value will affect the '@navbar-active-bg' of the theme!", "type":"color"} */
+@navbar-active-text-color: @navbar-text-color;          /* {"name":"Navbar active text color", "category":"Navbar", "desc":"Changing the value will affect the '@navbar-active-text-color' of the theme!", "type":"color"} */
+@navbar-active-border-color:  @main-color-inverse;      /* {"name":"Navbar active border color", "category":"Navbar", "desc":"Changing the value will affect the '@navbar-active-border-color' of the theme!", "type":"color"} */
+@navbar-active-border-width: 0;                         /* {"name":"Navbar active border width", "category":"Navbar", "desc":"Changing the value will affect the '@navbar-active-border-width' of the theme!", "type":"unit"} */
 
 /* START Tabs */
-@tab-bg: @body-bg-inverse;                      /* {"name":"Tab bg", "category":"Tabs", "desc":"Changing the value will affect the 'Tab bg' of the theme!", "type":"color"} */
-@tab-text-color: @text-color;                   /* {"name":"Tab text color", "category":"Tabs", "desc":"Changing the value will affect the 'Tab text color' of the theme!", "type":"color"} */
-@tab-text-transform: uppercase;                 /* {"name":"Tab text transform", "category":"Tabs", "desc":"Changing the value will affect the 'Tab text transform' of the theme!", "type":"custom"} */
-@tab-border-color: @body-bg;                    /* {"name":"Tab border color", "category":"Tabs", "desc":"Changing the value will affect the 'Tab border color' of the theme!", "type":"color"} */
-@tab-border-width: 0;                           /* {"name":"Tab border width", "category":"Tabs", "desc":"Changing the value will affect the 'Tab border width' of the theme!", "type":"unit"} */
-@tab-border-radius: 0;                          /* {"name":"Tab border radius", "category":"Tabs", "desc":"Changing the value will affect the 'Tab border radius' of the theme!", "type":"unit"} */
+@tab-bg: @body-bg-inverse;                      /* {"name":"Tab bg", "category":"Tabs", "desc":"Changing the value will affect the '@tab-bg' of the theme!", "type":"color"} */
+@tab-text-color: @text-color;                   /* {"name":"Tab text color", "category":"Tabs", "desc":"Changing the value will affect the '@tab-text-color' of the theme!", "type":"color"} */
+@tab-text-transform: uppercase;                 /* {"name":"Tab text transform", "category":"Tabs", "desc":"Changing the value will affect the '@tab-text-transform' of the theme!", "type":"custom"} */
+@tab-border-color: @body-bg;                    /* {"name":"Tab border color", "category":"Tabs", "desc":"Changing the value will affect the '@tab-border-color' of the theme!", "type":"color"} */
+@tab-border-width: 0;                           /* {"name":"Tab border width", "category":"Tabs", "desc":"Changing the value will affect the '@tab-border-width' of the theme!", "type":"unit"} */
+@tab-border-radius: 0;                          /* {"name":"Tab border radius", "category":"Tabs", "desc":"Changing the value will affect the '@tab-border-radius' of the theme!", "type":"unit"} */
 
-@tab-active-bg: @main-color;                    /* {"name":"Tab active bg", "category":"Tabs", "desc":"Changing the value will affect the 'Tab active bg' of the theme!", "type":"color"} */
-@tab-active-text-color: @main-color-inverse;    /* {"name":"Tab active text color", "category":"Tabs", "desc":"Changing the value will affect the 'Tab active text color' of the theme!", "type":"color"} */
-@tab-active-border-color: @main-color;          /* {"name":"Tab active border color", "category":"Tabs", "desc":"Changing the value will affect the 'Tab active border color' of the theme!", "type":"color"} */
-@tab-active-border-width: 0;                    /* {"name":"Tab active border width", "category":"Tabs", "desc":"Changing the value will affect the 'Tab active border width' of the theme!", "type":"unit"} */
+@tab-active-bg: @main-color;                    /* {"name":"Tab active bg", "category":"Tabs", "desc":"Changing the value will affect the '@tab-active-bg' of the theme!", "type":"color"} */
+@tab-active-text-color: @main-color-inverse;    /* {"name":"Tab active text color", "category":"Tabs", "desc":"Changing the value will affect the '@tab-active-text-color' of the theme!", "type":"color"} */
+@tab-active-border-color: @main-color;          /* {"name":"Tab active border color", "category":"Tabs", "desc":"Changing the value will affect the '@tab-active-border-color' of the theme!", "type":"color"} */
+@tab-active-border-width: 0;                    /* {"name":"Tab active border width", "category":"Tabs", "desc":"Changing the value will affect the '@tab-active-border-width' of the theme!", "type":"unit"} */
 
 /* START Windows */
-@window-header-bg : @brand-primary;             /* {"name":"Window header bg", "category":"Windows", "desc":"Changing the value will affect the 'Window header bg' of the theme!", "type":"color"} */
-@window-header-color: @brand-primary-inverse;   /* {"name":"Window header color", "category":"Windows", "desc":"Changing the value will affect the 'Window header color' of the theme!", "type":"color"} */
-@window-body-bg: @body-bg;                      /* {"name":"Window body bg", "category":"Windows", "desc":"Changing the value will affect the 'Window body bg' of the theme!", "type":"color"} */
-@window-footer-bg: @body-bg;                    /* {"name":"Window footer bg", "category":"Windows", "desc":"Changing the value will affect the 'Window footer bg' of the theme!", "type":"color"} */
-@window-border-radius: 6px;                     /* {"name":"Border radius for window and dialogs", "category":"Windows", "desc":"Changing the value will affect the 'Border radius for window and dialogs' of the theme!", "type":"unit"} */
+@window-header-bg : @brand-primary;             /* {"name":"Window header bg", "category":"Windows", "desc":"Changing the value will affect the '@window-header-bg' of the theme!", "type":"color"} */
+@window-header-color: @brand-primary-inverse;   /* {"name":"Window header color", "category":"Windows", "desc":"Changing the value will affect the '@window-header-color' of the theme!", "type":"color"} */
+@window-body-bg: @body-bg;                      /* {"name":"Window body bg", "category":"Windows", "desc":"Changing the value will affect the '@window-body-bg' of the theme!", "type":"color"} */
+@window-footer-bg: @body-bg;                    /* {"name":"Window footer bg", "category":"Windows", "desc":"Changing the value will affect the '@window-footer-bg' of the theme!", "type":"color"} */
+@window-border-radius: 6px;                     /* {"name":"Border radius for window and dialogs", "category":"Windows", "desc":"Changing the value will affect the '@window-border-radius' of the theme!", "type":"unit"} */
 
 /* Popup Menu */
-@popup-selected-bg: @body-bg;                   /* {"name":"Popup selected bg", "category":"Windows", "desc":"Changing the value will affect the 'Popup selected bg' of the theme!", "type":"color"} */
-@popup-selected-text: @text-color;              /* {"name":"Popup selected text", "category":"Windows", "desc":"Changing the value will affect the 'Popup selected text' of the theme!", "type":"color"} */
-@popup-disabled-color: @border-color;           /* {"name":"Popup disabled color", "category":"Windows", "desc":"Changing the value will affect the 'Popup disabled color' of the theme!", "type":"color"} */
+@popup-selected-bg: @body-bg;                   /* {"name":"Popup selected bg", "category":"Windows", "desc":"Changing the value will affect the '@popup-selected-bg' of the theme!", "type":"color"} */
+@popup-selected-text: @text-color;              /* {"name":"Popup selected text", "category":"Windows", "desc":"Changing the value will affect the '@popup-selected-text' of the theme!", "type":"color"} */
+@popup-disabled-color: @border-color;           /* {"name":"Popup disabled color", "category":"Windows", "desc":"Changing the value will affect the '@popup-disabled-color' of the theme!", "type":"color"} */
 
 /* START Dialogs */
-@dialog-info-header-bg: @brand-info;                    /* {"name":"Info Dialog header bg", "category":"Dialogs", "desc":"Changing the value will affect the 'Info Dialog header bg' of the theme!", "type":"color"} */
-@dialog-info-header-color: @brand-info-inverse;         /* {"name":"Info Dialog header color", "category":"Dialogs", "desc":"Changing the value will affect the 'Info Dialog header color' of the theme!", "type":"color"} */
-@dialog-question-header-bg: @window-header-bg;          /* {"name":"Question Dialog header bg", "category":"Dialogs", "desc":"Changing the value will affect the 'Question Dialog header bg' of the theme!", "type":"color"} */
-@dialog-question-header-color: @window-header-color;    /* {"name":"Question Dialog header color", "category":"Dialogs", "desc":"Changing the value will affect the 'Question Dialog header color' of the theme!", "type":"color"} */
-@dialog-input-header-bg: @window-header-bg;             /* {"name":"Input and Select Dialog header bg", "category":"Dialogs", "desc":"Changing the value will affect the 'Input and Select Dialog header bg' of the theme!", "type":"color"} */
-@dialog-input-header-color: @window-header-color;       /* {"name":"Input and Select Dialog header color", "category":"Dialogs", "desc":"Changing the value will affect the 'Input and Select Dialog header color' of the theme!", "type":"color"} */
+@dialog-info-header-bg: @brand-info;                    /* {"name":"Info Dialog header bg", "category":"Dialogs", "desc":"Changing the value will affect the '@dialog-info-header-bg' of the theme!", "type":"color"} */
+@dialog-info-header-color: @brand-info-inverse;         /* {"name":"Info Dialog header color", "category":"Dialogs", "desc":"Changing the value will affect the '@dialog-info-header-color' of the theme!", "type":"color"} */
+@dialog-question-header-bg: @window-header-bg;          /* {"name":"Question Dialog header bg", "category":"Dialogs", "desc":"Changing the value will affect the '@dialog-question-header-bg' of the theme!", "type":"color"} */
+@dialog-question-header-color: @window-header-color;    /* {"name":"Question Dialog header color", "category":"Dialogs", "desc":"Changing the value will affect the '@dialog-question-header-color' of the theme!", "type":"color"} */
+@dialog-input-header-bg: @window-header-bg;             /* {"name":"Input and Select Dialog header bg", "category":"Dialogs", "desc":"Changing the value will affect the '@dialog-input-header-bg' of the theme!", "type":"color"} */
+@dialog-input-header-color: @window-header-color;       /* {"name":"Input and Select Dialog header color", "category":"Dialogs", "desc":"Changing the value will affect the '@dialog-input-header-color' of the theme!", "type":"color"} */
 
 /* START Tables */
-@table-bg: inherit;                             /* {"name":"Table bg", "category":"Tables", "desc":"Changing the value will affect the 'Table bg' of the theme!", "type":"color"} */
-@table-border-width: 1px;                       /* {"name":"Table border width", "category":"Tables", "desc":"Changing the value will affect the 'Table border width' of the theme!", "type":"unit"} */
-@table-border-radius: 0;                        /* {"name":"Table border radius", "category":"Tables", "desc":"Changing the value will affect the 'Table border radius' of the theme!", "type":"unit"} */
-@table-header-bg: inherit;                      /* {"name":"Table header bg", "category":"Tables", "desc":"Changing the value will affect the 'Table header bg' of the theme!", "type":"color"} */
-@table-header-text-color: @text-color;          /* {"name":"Table header color", "category":"Tables", "desc":"Changing the value will affect the 'Table header color' of the theme!", "type":"color"} */
-@table-header-font-style: normal;               /* {"name":"Table header font style", "category":"Tables", "desc":"Changing the value will affect the 'Table header font style' of the theme!", "type":"custom"} */
-@table-header-text-transform: uppercase;        /* {"name":"Table header text transform", "category":"Tables", "desc":"Changing the value will affect the 'Table header text transform' of the theme!", "type":"custom"} */
+@table-bg: inherit;                             /* {"name":"Table bg", "category":"Tables", "desc":"Changing the value will affect the '@table-bg' of the theme!", "type":"color"} */
+@table-border-width: 1px;                       /* {"name":"Table border width", "category":"Tables", "desc":"Changing the value will affect the '@table-border-width' of the theme!", "type":"unit"} */
+@table-border-radius: 0;                        /* {"name":"Table border radius", "category":"Tables", "desc":"Changing the value will affect the '@table-header-bg' of the theme!", "type":"unit"} */
+@table-header-bg: inherit;                      /* {"name":"Table header bg", "category":"Tables", "desc":"Changing the value will affect the '@table-header-bg' of the theme!", "type":"color"} */
+@table-header-text-color: @text-color;          /* {"name":"Table header color", "category":"Tables", "desc":"Changing the value will affect the '@table-header-text-color' of the theme!", "type":"color"} */
+@table-header-font-style: normal;               /* {"name":"Table header font style", "category":"Tables", "desc":"Changing the value will affect the '@table-header-font-style' of the theme!", "type":"custom"} */
+@table-header-text-transform: uppercase;        /* {"name":"Table header text transform", "category":"Tables", "desc":"Changing the value will affect the '@table-header-text-transform: uppercase' of the theme!", "type":"custom"} */
 
-@table-row-odd-bg-color: @body-bg;                      /* {"name":"Table row odd bg color", "category":"Tables", "desc":"Changing the value will affect the 'Table row odd bg color' of the theme!", "type":"color"} */
-@table-row-odd-text-color: @text-color;                 /* {"name":"Table row odd text color", "category":"Tables", "desc":"Changing the value will affect the 'Table row odd text color' of the theme!", "type":"color"} */
-@table-row-even-bg-color: @body-bg;                     /* {"name":"Table row even bg color", "category":"Tables", "desc":"Changing the value will affect the 'Table row even bg color' of the theme!", "type":"color"} */
-@table-row-even-text-color: @text-color;                /* {"name":"Table row even text color", "category":"Tables", "desc":"Changing the value will affect the 'Table row even text color' of the theme!", "type":"color"} */
-@table-row-selected-bg-color: @main-color;              /* {"name":"Table row selected bg color", "category":"Tables", "desc":"Changing the value will affect the 'Table row selected bg color' of the theme!", "type":"color"} */
-@table-row-selected-text-color: @main-color-inverse;    /* {"name":"Table row selected text color", "category":"Tables", "desc":"Changing the value will affect the 'Table row selected text color' of the theme!", "type":"color"} */
-@table-row-border-width: 1px;                           /* {"name":"Table row border width", "category":"Tables", "desc":"Changing the value will affect the 'Table row border width' of the theme!", "type":"unit"} */
+@table-row-odd-bg-color: @body-bg;                      /* {"name":"Table row odd bg color", "category":"Tables", "desc":"Changing the value will affect the '@table-row-odd-bg-color' of the theme!", "type":"color"} */
+@table-row-odd-text-color: @text-color;                 /* {"name":"Table row odd text color", "category":"Tables", "desc":"Changing the value will affect the '@table-row-odd-text-color' of the theme!", "type":"color"} */
+@table-row-even-bg-color: @body-bg;                     /* {"name":"Table row even bg color", "category":"Tables", "desc":"Changing the value will affect the '@table-row-even-bg-color' of the theme!", "type":"color"} */
+@table-row-even-text-color: @text-color;                /* {"name":"Table row even text color", "category":"Tables", "desc":"Changing the value will affect the '@table-row-even-text-color' of the theme!", "type":"color"} */
+@table-row-selected-bg-color: @main-color;              /* {"name":"Table row selected bg color", "category":"Tables", "desc":"Changing the value will affect the '@table-row-selected-bg-color' of the theme!", "type":"color"} */
+@table-row-selected-text-color: @main-color-inverse;    /* {"name":"Table row selected text color", "category":"Tables", "desc":"Changing the value will affect the '@table-row-selected-text-color' of the theme!", "type":"color"} */
+@table-row-border-width: 1px;                           /* {"name":"Table row border width", "category":"Tables", "desc":"Changing the value will affect the '@table-row-border-width' of the theme!", "type":"unit"} */
 
 /* NG Table style: applied only for NG Grid components having the styleClass ag-theme-servoy */
-@ngtable-row-group-bg: @body-bg;                /* {"name":"NGGrids row group bg", "category":"Tables", "desc":"Changing the value will affect the 'NGGrids row group bg' of the theme!", "type":"color"} */    
-@ngtable-row-group-color: @text-color;          /* {"name":"NGGrids row group color", "category":"Tables", "desc":"Changing the value will affect the 'NGGrids row group color' of the theme!", "type":"color"} */    
-@ngtable-row-group-bg-level-0: #F9F9F9;         /* {"name":"NGGrids row group bg level 0", "category":"Tables", "desc":"Changing the value will affect the 'NGGrids row group bg level 0' of the theme!", "type":"color"} */
-@ngtable-row-group-color-level-0: @main-color;  /* {"name":"NGGrids row group color level 0", "category":"Tables", "desc":"Changing the value will affect the 'NGGrids row group color level 0' of the theme!", "type":"color"} */      
-@ngtable-row-group-cell-font-weight : bold;     /* {"name":"NGGrids row group cell font weight", "category":"Tables", "desc":"Changing the value will affect the 'NGGrids row group cell font weight' of the theme!", "type":"custom"} */    
+@ngtable-row-group-bg: @body-bg;                /* {"name":"NGGrids row group bg", "category":"Tables", "desc":"Changing the value will affect the '@ngtable-row-group-bg' of the theme!", "type":"color"} */    
+@ngtable-row-group-color: @text-color;          /* {"name":"NGGrids row group color", "category":"Tables", "desc":"Changing the value will affect the '@ngtable-row-group-color' of the theme!", "type":"color"} */    
+@ngtable-row-group-bg-level-0: #F9F9F9;         /* {"name":"NGGrids row group bg level 0", "category":"Tables", "desc":"Changing the value will affect the '@ngtable-row-group-bg-level-0' of the theme!", "type":"color"} */
+@ngtable-row-group-color-level-0: @main-color;  /* {"name":"NGGrids row group color level 0", "category":"Tables", "desc":"Changing the value will affect the '@ngtable-row-group-color-level-0' of the theme!", "type":"color"} */      
+@ngtable-row-group-cell-font-weight: bold;     /* {"name":"NGGrids row group cell font weight", "category":"Tables", "desc":"Changing the value will affect the '@ngtable-row-group-cell-font-weight' of the theme!", "type":"custom"} */    
 
 /* NG Table Panels: applied only for NG Grid components having the styleClass ag-theme-servoy */
-@ngtable-menu-panel-bg: @body-bg;                           /* {"name":"NGGrids menu panel bg", "category":"Tables", "desc":"Changing the value will affect the 'NGGrids menu panel bg' of the theme!", "type":"color"} */
-@ngtable-menu-panel-text-color: @text-color;                /* {"name":"NGGrids menu panel text color", "category":"Tables", "desc":"Changing the value will affect the 'NGGrids menu panel text color' of the theme!", "type":"color"} */
-@ngtable-side-panel-bg: #F9F9F9;                            /* {"name":"NGGrids side panel bg", "category":"Tables", "desc":"Changing the value will affect the 'NGGrids side panel bg' of the theme!", "type":"color"} */
-@ngtable-side-panel-text-color: @text-color;                /* {"name":"NGGrids side panel text color", "category":"Tables", "desc":"Changing the value will affect the 'NGGrids side panel text color' of the theme!", "type":"color"} */
-@ngtable-side-button-bg: @body-bg;                          /* {"name":"NGGrids side button bg", "category":"Tables", "desc":"Changing the value will affect the 'NGGrids side button bg' of the theme!", "type":"color"} */
-@ngtable-side-button-text-color: @text-color;               /* {"name":"NGGrids side button text color", "category":"Tables", "desc":"Changing the value will affect the 'NGGrids side button text color' of the theme!", "type":"color"} */
-@ngtable-side-button-selected-bg: #F9F9F9;                  /* {"name":"NGGrids side button selected bg", "category":"Tables", "desc":"Changing the value will affect the 'NGGrids side button selected bg' of the theme!", "type":"color"} */
-@ngtable-side-button-selected-text-color: @text-color;      /* {"name":"NGGrids side button selected text color", "category":"Tables", "desc":"Changing the value will affect the 'NGGrids side button selected text color' of the theme!", "type":"color"} */
-@ngtable-search-field-height: 24px;                         /* {"name":"NGGrids search field height", "category":"Tables", "desc":"Changing the value will affect the 'NGGrids search field height' of the theme!", "type":"unit"} */
+@ngtable-menu-panel-bg: @body-bg;                           /* {"name":"NGGrids menu panel bg", "category":"Tables", "desc":"Changing the value will affect the '@ngtable-menu-panel-bg' of the theme!", "type":"color"} */
+@ngtable-menu-panel-text-color: @text-color;                /* {"name":"NGGrids menu panel text color", "category":"Tables", "desc":"Changing the value will affect the '@ngtable-menu-panel-text-color' of the theme!", "type":"color"} */
+@ngtable-side-panel-bg: #F9F9F9;                            /* {"name":"NGGrids side panel bg", "category":"Tables", "desc":"Changing the value will affect the '@ngtable-side-panel-bg' of the theme!", "type":"color"} */
+@ngtable-side-panel-text-color: @text-color;                /* {"name":"NGGrids side panel text color", "category":"Tables", "desc":"Changing the value will affect the '@ngtable-side-panel-text-color' of the theme!", "type":"color"} */
+@ngtable-side-button-bg: @body-bg;                          /* {"name":"NGGrids side button bg", "category":"Tables", "desc":"Changing the value will affect the '@ngtable-side-button-bg' of the theme!", "type":"color"} */
+@ngtable-side-button-text-color: @text-color;               /* {"name":"NGGrids side button text color", "category":"Tables", "desc":"Changing the value will affect the '@ngtable-side-button-text-color' of the theme!", "type":"color"} */
+@ngtable-side-button-selected-bg: #F9F9F9;                  /* {"name":"NGGrids side button selected bg", "category":"Tables", "desc":"Changing the value will affect the '@ngtable-side-button-selected-bg' of the theme!", "type":"color"} */
+@ngtable-side-button-selected-text-color: @text-color;      /* {"name":"NGGrids side button selected text color", "category":"Tables", "desc":"Changing the value will affect the '@ngtable-side-button-selected-text-color' of the theme!", "type":"color"} */
+@ngtable-search-field-height: 24px;                         /* {"name":"NGGrids search field height", "category":"Tables", "desc":"Changing the value will affect the '@ngtable-search-field-height' of the theme!", "type":"unit"} */
 
 /* START Breadcrumb specific style */
-@breadcrumb-bg: @body-bg;                   /* {"name":"Breadcrumb bg", "category":"Breadcrumb specific style", "desc":"Changing the value will affect the 'Breadcrumb bg' of the theme!", "type":"color"} */
-@breadcrumb-color: @main-color;             /* {"name":"Breadcrumb color", "category":"Breadcrumb specific style", "desc":"Changing the value will affect the 'Breadcrumb color' of the theme!", "type":"color"} */
-@breadcrumb-selected-color: @text-color;    /* {"name":"Breadcrumb selected color", "category":"Breadcrumb specific style", "desc":"Changing the value will affect the 'Breadcrumb selected color' of the theme!", "type":"color"} */
+@breadcrumb-bg: @body-bg;                   /* {"name":"Breadcrumb bg", "category":"Breadcrumb specific style", "desc":"Changing the value will affect the '@breadcrumb-bg' of the theme!", "type":"color"} */
+@breadcrumb-color: @main-color;             /* {"name":"Breadcrumb color", "category":"Breadcrumb specific style", "desc":"Changing the value will affect the '@breadcrumb-color' of the theme!", "type":"color"} */
+@breadcrumb-selected-color: @text-color;    /* {"name":"Breadcrumb selected color", "category":"Breadcrumb specific style", "desc":"Changing the value will affect the '@breadcrumb-selected-color' of the theme!", "type":"color"} */
 
 /* START Brand colors */
 /* applicable to labels and buttons */
-@brand-primary: #428bca;                    /* {"name":"Brand primary", "category":"Brand colors", "desc":"Changing the value will affect the 'Brand primary' of the theme!", "type":"color"} */
-@brand-tertiary: #E8E6E6;                   /* {"name":"Brand tertiary", "category":"Brand colors", "desc":"Changing the value will affect the 'Brand tertiary' of the theme!", "type":"color"} */
-@brand-success: #5cb85c;                    /* {"name":"Brand success", "category":"Brand colors", "desc":"Changing the value will affect the 'Brand success' of the theme!", "type":"color"} */
-@brand-info:    #5bc0de;                    /* {"name":"Brand info", "category":"Brand colors", "desc":"Changing the value will affect the 'Brand info' of the theme!", "type":"color"} */
-@brand-warning: #f0ad4e;                    /* {"name":"Brand warning", "category":"Brand colors", "desc":"Changing the value will affect the 'Brand warning' of the theme!", "type":"color"} */
-@brand-danger:  #d9534f;                    /* {"name":"Brand danger", "category":"Brand colors", "desc":"Changing the value will affect the 'Brand danger' of the theme!", "type":"color"} */
+@brand-primary: #428bca;                    /* {"name":"Brand primary", "category":"Brand colors", "desc":"Changing the value will affect the '@brand-primary' of the theme!", "type":"color"} */
+@brand-tertiary: #E8E6E6;                   /* {"name":"Brand tertiary", "category":"Brand colors", "desc":"Changing the value will affect the '@brand-tertiary' of the theme!", "type":"color"} */
+@brand-success: #5cb85c;                    /* {"name":"Brand success", "category":"Brand colors", "desc":"Changing the value will affect the '@brand-success' of the theme!", "type":"color"} */
+@brand-info:    #5bc0de;                    /* {"name":"Brand info", "category":"Brand colors", "desc":"Changing the value will affect the '@brand-info' of the theme!", "type":"color"} */
+@brand-warning: #f0ad4e;                    /* {"name":"Brand warning", "category":"Brand colors", "desc":"Changing the value will affect the '@brand-warning' of the theme!", "type":"color"} */
+@brand-danger:  #d9534f;                    /* {"name":"Brand danger", "category":"Brand colors", "desc":"Changing the value will affect the '@brand-danger' of the theme!", "type":"color"} */
 
 /* TODO this one is not applicable to theme roller, what can i do about it ? */
 @text-tertiary: #999997;                    /* {"name":"Text-tertiary", "category":"Brand colors", "desc":"Changing the value will affect the 'Text-tertiary' of the theme!", "type":"color"} */
 
 /* Brand colors applicable to labels and buttons */
-@brand-primary-inverse: #FFF;               /* {"name":"Brand primary inverse", "category":"Brand colors", "desc":"Changing the value will affect the 'Brand primary inverse' of the theme!", "type":"color"} */
-@brand-tertiary-inverse: @text-color;       /* {"name":"Brand tertiary inverse", "category":"Brand colors", "desc":"Changing the value will affect the 'Brand tertiary inverse' of the theme!", "type":"color"} */
-@brand-success-inverse: #FFF;               /* {"name":"Brand success inverse", "category":"Brand colors", "desc":"Changing the value will affect the 'Brand success inverse' of the theme!", "type":"color"} */
-@brand-info-inverse:    #FFF;               /* {"name":"Brand info inverse", "category":"Brand colors", "desc":"Changing the value will affect the 'Brand info inverse' of the theme!", "type":"color"} */
-@brand-warning-inverse: #FFF;               /* {"name":"Brand warning inverse", "category":"Brand colors", "desc":"Changing the value will affect the 'Brand warning inverse' of the theme!", "type":"color"} */
-@brand-danger-inverse:  #FFF;               /* {"name":"Brand danger inverse", "category":"Brand colors", "desc":"Changing the value will affect the 'Brand danger inverse' of the theme!", "type":"color"} */
+@brand-primary-inverse: #FFF;               /* {"name":"Brand primary inverse", "category":"Brand colors", "desc":"Changing the value will affect the '@brand-primary-inverse' of the theme!", "type":"color"} */
+@brand-tertiary-inverse: @text-color;       /* {"name":"Brand tertiary inverse", "category":"Brand colors", "desc":"Changing the value will affect the '@brand-tertiary-inverse' of the theme!", "type":"color"} */
+@brand-success-inverse: #FFF;               /* {"name":"Brand success inverse", "category":"Brand colors", "desc":"Changing the value will affect the '@brand-success-inverse' of the theme!", "type":"color"} */
+@brand-info-inverse:    #FFF;               /* {"name":"Brand info inverse", "category":"Brand colors", "desc":"Changing the value will affect the '@brand-info-inverse' of the theme!", "type":"color"} */
+@brand-warning-inverse: #FFF;               /* {"name":"Brand warning inverse", "category":"Brand colors", "desc":"Changing the value will affect the '@brand-warning-inverse' of the theme!", "type":"color"} */
+@brand-danger-inverse:  #FFF;               /* {"name":"Brand danger inverse", "category":"Brand colors", "desc":"Changing the value will affect the '@brand-danger-inverse' of the theme!", "type":"color"} */
 
 /* Brand colors applicable to hovers of labels and buttons */
-@brand-primary-highlighted:     darken(@brand-primary, 5%);     /* {"name":"Brand primary highlighted", "category":"Brand colors", "desc":"Changing the value will affect the 'Brand primary highlighted' of the theme!", "type":"color"} */
-@brand-tertiary-highlighted:    darken(@brand-tertiary, 5%);    /* {"name":"Brand tertiary highlighted", "category":"Brand colors", "desc":"Changing the value will affect the 'Brand tertiary highlighted' of the theme!", "type":"color"} */
-@brand-success-highlighted:     darken(@brand-success, 5%);     /* {"name":"Brand success highlighted", "category":"Brand colors", "desc":"Changing the value will affect the 'Brand success highlighted' of the theme!", "type":"color"} */
-@brand-info-highlighted:        darken(@brand-info, 5%);        /* {"name":"Brand info highlighted", "category":"Brand colors", "desc":"Changing the value will affect the 'Brand info highlighted' of the theme!", "type":"color"} */
-@brand-warning-highlighted:     darken(@brand-warning, 5%);     /* {"name":"Brand warning highlighted", "category":"Brand colors", "desc":"Changing the value will affect the 'Brand warning highlighted' of the theme!", "type":"color"} */
-@brand-danger-highlighted:      darken(@brand-danger, 5%);      /* {"name":"Brand danger highlighted", "category":"Brand colors", "desc":"Changing the value will affect the 'Brand danger highlighted' of the theme!", "type":"color"} */
+@brand-primary-highlighted:     darken(@brand-primary, 5%);     /* {"name":"Brand primary highlighted", "category":"Brand colors", "desc":"Changing the value will affect the '@brand-primary-highlighted' of the theme!", "type":"color"} */
+@brand-tertiary-highlighted:    darken(@brand-tertiary, 5%);    /* {"name":"Brand tertiary highlighted", "category":"Brand colors", "desc":"Changing the value will affect the '@brand-tertiary-highlighted' of the theme!", "type":"color"} */
+@brand-success-highlighted:     darken(@brand-success, 5%);     /* {"name":"Brand success highlighted", "category":"Brand colors", "desc":"Changing the value will affect the '@brand-success-highlighted' of the theme!", "type":"color"} */
+@brand-info-highlighted:        darken(@brand-info, 5%);        /* {"name":"Brand info highlighted", "category":"Brand colors", "desc":"Changing the value will affect the '@brand-info-highlighted' of the theme!", "type":"color"} */
+@brand-warning-highlighted:     darken(@brand-warning, 5%);     /* {"name":"Brand warning highlighted", "category":"Brand colors", "desc":"Changing the value will affect the '@brand-warning-highlighted' of the theme!", "type":"color"} */
+@brand-danger-highlighted:      darken(@brand-danger, 5%);      /* {"name":"Brand danger highlighted", "category":"Brand colors", "desc":"Changing the value will affect the '@brand-danger-highlighted' of the theme!", "type":"color"} */
 
 /* Brand colors applicable to hovers of labels and buttons */
-@brand-primary-highlighted-inverse: #FFF;               /* {"name":"Brand primary highlighted inverse", "category":"Brand colors", "desc":"Changing the value will affect the 'Brand primary highlighted inverse' of the theme!", "type":"color"} */
-@brand-tertiary-highlighted-inverse: @text-color;       /* {"name":"Brand tertiary highlighted inverse", "category":"Brand colors", "desc":"Changing the value will affect the 'Brand tertiary highlighted inverse' of the theme!", "type":"color"} */
-@brand-success-highlighted-inverse: #FFF;               /* {"name":"Brand success highlighted inverse", "category":"Brand colors", "desc":"Changing the value will affect the 'Brand success highlighted inverse' of the theme!", "type":"color"} */
-@brand-info-highlighted-inverse:    #FFF;               /* {"name":"Brand info highlighted inverse", "category":"Brand colors", "desc":"Changing the value will affect the 'Brand info highlighted inverse' of the theme!", "type":"color"} */
-@brand-warning-highlighted-inverse: #FFF;               /* {"name":"Brand warning highlighted inverse", "category":"Brand colors", "desc":"Changing the value will affect the 'Brand warning highlighted inverse' of the theme!", "type":"color"} */
-@brand-danger-highlighted-inverse:  #FFF;               /* {"name":"Brand danger highlighted inverse", "category":"Brand colors", "desc":"Changing the value will affect the 'Brand danger highlighted inverse' of the theme!", "type":"color"} */
+@brand-primary-highlighted-inverse: #FFF;               /* {"name":"Brand primary highlighted inverse", "category":"Brand colors", "desc":"Changing the value will affect the '@brand-primary-highlighted-inverse' of the theme!", "type":"color"} */
+@brand-tertiary-highlighted-inverse: @text-color;       /* {"name":"Brand tertiary highlighted inverse", "category":"Brand colors", "desc":"Changing the value will affect the '@brand-tertiary-highlighted-inverse' of the theme!", "type":"color"} */
+@brand-success-highlighted-inverse: #FFF;               /* {"name":"Brand success highlighted inverse", "category":"Brand colors", "desc":"Changing the value will affect the '@brand-success-highlighted-inverse' of the theme!", "type":"color"} */
+@brand-info-highlighted-inverse:    #FFF;               /* {"name":"Brand info highlighted inverse", "category":"Brand colors", "desc":"Changing the value will affect the '@brand-info-highlighted-inverse' of the theme!", "type":"color"} */
+@brand-warning-highlighted-inverse: #FFF;               /* {"name":"Brand warning highlighted inverse", "category":"Brand colors", "desc":"Changing the value will affect the '@brand-warning-highlighted-inverse' of the theme!", "type":"color"} */
+@brand-danger-highlighted-inverse:  #FFF;               /* {"name":"Brand danger highlighted inverse", "category":"Brand colors", "desc":"Changing the value will affect the '@brand-danger-highlighted-inverse' of the theme!", "type":"color"} */
 
 /* START Validations */
 @form-required-label-suffix : "";   /* {"name":"Form required label suffix", "category":"Validations", "desc":"Changing the value will affect the 'Form required label suffix' of the theme!", "type":"custom"} */
 
 /* START Margins and Padding */
 /* Margin sizing applicable to margins and padding */
-@box-size-10 : 10px;                /* {"name":"Box size 10", "category":"Margins and Padding", "desc":"Changing the value will affect the 'Box size 10' of the theme!", "type":"unit"} */
-@box-size-20 : 20px;                /* {"name":"Box size 20", "category":"Margins and Padding", "desc":"Changing the value will affect the 'Box size 20' of the theme!", "type":"unit"} */
-@box-size-30 : 30px;                /* {"name":"Box size 30", "category":"Margins and Padding", "desc":"Changing the value will affect the 'Box size 30' of the theme!", "type":"unit"} */
+@box-size-10 : 10px;                /* {"name":"Box size 10", "category":"Margins and Padding", "desc":"Changing the value will affect the '@box-size-10' of the theme!", "type":"unit"} */
+@box-size-20 : 20px;                /* {"name":"Box size 20", "category":"Margins and Padding", "desc":"Changing the value will affect the '@box-size-20' of the theme!", "type":"unit"} */
+@box-size-30 : 30px;                /* {"name":"Box size 30", "category":"Margins and Padding", "desc":"Changing the value will affect the '@box-size-30' of the theme!", "type":"unit"} */
