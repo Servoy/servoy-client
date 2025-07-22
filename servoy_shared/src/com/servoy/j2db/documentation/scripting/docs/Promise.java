@@ -145,8 +145,9 @@ public class Promise
 	 * It stores the callbacks within the promise it is called on and immediately returns another Promise object,
 	 * allowing you to chain calls to other promise methods.
 	 *
-	 * @param onFulfilled
-	 * @param onRejected
+	 * @param onFulfilled The callback function that is invoked when the Promise is fulfilled.
+	 * @param onRejected The callback function that is invoked when the Promise is rejected.
+	 * @return A Promise that resolves or rejects based on the outcome of the provided fulfillment or rejection callbacks
 	 */
 	@JSFunction
 	public Promise then(Function onFulfilled, Function onRejected)
