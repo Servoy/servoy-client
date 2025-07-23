@@ -20,53 +20,111 @@ package com.servoy.j2db.persistence;
  * Interface to handle script object in a similar way
  * @author jblok
  */
+@SuppressWarnings("nls")
 public interface IScriptProvider extends IScriptElement
 {
 	public static final SerializableRuntimeProperty<String> FILENAME = new SerializableRuntimeProperty<String>()
 	{
 		private static final long serialVersionUID = 1L;
+
+		@Override
+		public String toString()
+		{
+			return "SerializableRuntimeProperty<FILENAME>";
+		}
 	};
 
 	public static final SerializableRuntimeProperty<String> TYPE = new SerializableRuntimeProperty<String>()
 	{
 		private static final long serialVersionUID = 1L;
+
+		@Override
+		public String toString()
+		{
+			return "SerializableRuntimeProperty<TYPE>";
+		}
 	};
 
 	public static final SerializableRuntimeProperty<Boolean> IS_DESTRUCTURING = new SerializableRuntimeProperty<Boolean>()
 	{
 		private static final long serialVersionUID = 1L;
+
+		@Override
+		public String toString()
+		{
+			return "SerializableRuntimeProperty<IS_DESTRUCTURING>";
+		}
 	};
 
 	public static final SerializableRuntimeProperty<String> DESTRUCTURING = new SerializableRuntimeProperty<String>()
 	{
 		private static final long serialVersionUID = 1L;
+
+		@Override
+		public String toString()
+		{
+			return "SerializableRuntimeProperty<DESTRUCTURING>";
+		}
 	};
 
 	public static final SerializableRuntimeProperty<String[]> DESTRUCTURING_VARS = new SerializableRuntimeProperty<String[]>()
 	{
 		private static final long serialVersionUID = 1L;
+
+		@Override
+		public String toString()
+		{
+			return "SerializableRuntimeProperty<DESTRUCTURING_VARS>";
+		}
 	};
 
 	public static final SerializableRuntimeProperty<String[]> DESTRUCTURING_INITIALIZERS = new SerializableRuntimeProperty<String[]>()
 	{
 		private static final long serialVersionUID = 1L;
+
+		@Override
+		public String toString()
+		{
+			return "SerializableRuntimeProperty<DESTRUCTURING_INITIALIZERS>";
+		}
 	};
 
 	public static final SerializableRuntimeProperty<String> DESTRUCTURING_VALUE = new SerializableRuntimeProperty<String>()
 	{
 		private static final long serialVersionUID = 1L;
+
+		@Override
+		public String toString()
+		{
+			return "SerializableRuntimeProperty<DESTRUCTURING_VALUE>";
+		}
 	};
 
 	public static final RuntimeProperty<MethodArgument[]> METHOD_ARGUMENTS = new RuntimeProperty<MethodArgument[]>()
 	{
+		@Override
+		public String toString()
+		{
+			return "RuntimeProperty<METHOD_ARGUMENTS>";
+		}
 	};
 
 	public static final RuntimeProperty<MethodArgument> METHOD_RETURN_TYPE = new RuntimeProperty<MethodArgument>()
 	{
+		@Override
+		public String toString()
+		{
+			return "RuntimeProperty<METHOD_RETURN_TYPE>";
+		}
 	};
 
 	public static final RuntimeProperty<String> COMMENT = new RuntimeProperty<String>()
 	{
+		@Override
+		public String toString()
+		{
+			return "RuntimeProperty<COMMENT>";
+		}
 	};
 
 	public String getDisplayName();

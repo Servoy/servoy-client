@@ -28,7 +28,7 @@ final class PropertyEntry implements Serializable
 
 	/**
 	 * Construct.
-	 * 
+	 *
 	 * @param key meta data key
 	 * @param object
 	 */
@@ -41,9 +41,10 @@ final class PropertyEntry implements Serializable
 	/**
 	 * @see java.lang.Object#toString()
 	 */
+	@SuppressWarnings("nls")
 	@Override
 	public String toString()
 	{
-		return key + "=" + object.getClass().getName() + "@" + Integer.toHexString(object.hashCode()); //$NON-NLS-1$ //$NON-NLS-2$
+		return key + "=" + (object == null ? "null" : object.toString());
 	}
 }
