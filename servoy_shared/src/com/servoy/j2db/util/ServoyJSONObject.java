@@ -290,7 +290,14 @@ public class ServoyJSONObject extends JSONObject implements Serializable, Clonea
 		}
 	}
 
-	private static StringBuffer appendtoString(StringBuffer sb, Object value, boolean noQuotes, boolean newLines, boolean noBrackets) throws JSONException
+	private static StringBuffer appendtoString(StringBuffer sb, Object value, boolean noQuotes, boolean newLines, boolean noBrackets)
+		throws JSONException
+	{
+		return appendtoString(sb, value, noQuotes, newLines, noBrackets, 1);
+	}
+
+	private static StringBuffer appendtoString(StringBuffer sb, Object value, boolean noQuotes, boolean newLines, boolean noBrackets, int level)
+		throws JSONException
 	{
 		if (value == null || value.equals(null))
 		{
@@ -333,7 +340,7 @@ public class ServoyJSONObject extends JSONObject implements Serializable, Clonea
 					{
 						return o;
 					}
-				}, svjson.noQuotes, svjson.newLines, noBrackets /* use settings from context */);
+				}, svjson.noQuotes, svjson.newLines, noBrackets /* use settings from context */, level);
 			}
 			else
 			{
@@ -344,7 +351,7 @@ public class ServoyJSONObject extends JSONObject implements Serializable, Clonea
 					{
 						return o;
 					}
-				}, noQuotes, newLines, noBrackets);
+				}, noQuotes, newLines, noBrackets, level);
 			}
 		}
 		else if (value instanceof Map)
@@ -366,7 +373,11 @@ public class ServoyJSONObject extends JSONObject implements Serializable, Clonea
 			if (!noBrackets)
 			{
 				sb.append('{');
-				if (useNewLines) sb.append('\n');
+				if (useNewLines)
+				{
+					sb.append('\n');
+					sb.append(" ".repeat(level * 4)); //$NON-NLS-1$
+				}
 			}
 
 			for (int i = 0; i < keysArray.length; i++)
@@ -374,27 +385,35 @@ public class ServoyJSONObject extends JSONObject implements Serializable, Clonea
 				if (i > 0)
 				{
 					sb.append(',');
-					if (useNewLines) sb.append('\n');
+					if (useNewLines)
+					{
+						sb.append('\n');
+						sb.append(" ".repeat(level * 4)); //$NON-NLS-1$
+					}
 				}
 				if (useNoQuotes) sb.append(keysArray[i]);
 				else sb.append(quote(keysArray[i]));
 				sb.append(':');
-				appendtoString(sb, map.get(keysArray[i]), noQuotes, newLines, false);
+				appendtoString(sb, map.get(keysArray[i]), noQuotes, newLines, false, level + 1);
 			}
 
 			if (!noBrackets)
 			{
-				if (useNewLines) sb.append('\n');
+				if (useNewLines)
+				{
+					sb.append('\n');
+					sb.append(" ".repeat((level - 1) * 4)); //$NON-NLS-1$
+				}
 				sb.append('}');
 			}
 		}
 		else if (value instanceof Collection)
 		{
-			appendtoString(sb, new ServoyJSONArray((Collection< ? >)value), noQuotes, newLines, false);
+			appendtoString(sb, new ServoyJSONArray((Collection< ? >)value), noQuotes, newLines, false, level);
 		}
 		else if (value.getClass().isArray())
 		{
-			appendtoString(sb, new ServoyJSONArray(value), noQuotes, newLines, false);
+			appendtoString(sb, new ServoyJSONArray(value), noQuotes, newLines, false, level);
 		}
 		else if (value instanceof JSONArray)
 		{
@@ -403,10 +422,18 @@ public class ServoyJSONObject extends JSONObject implements Serializable, Clonea
 			for (int i = 0; i < array.length(); i++)
 			{
 				if (i > 0) sb.append(',');
-				if (newLines) sb.append('\n');
-				appendtoString(sb, array.opt(i), noQuotes, newLines, false);
+				if (newLines)
+				{
+					sb.append('\n');
+					sb.append(" ".repeat(level * 4)); //$NON-NLS-1$
+				}
+				appendtoString(sb, array.opt(i), noQuotes, newLines, false, level + 1);
 			}
-			if (newLines && array.length() > 0) sb.append('\n');
+			if (newLines && array.length() > 0)
+			{
+				sb.append('\n');
+				sb.append(" ".repeat((level - 1) * 4)); //$NON-NLS-1$
+			}
 			sb.append(']');
 		}
 		else if (value instanceof Date) // use fixed format as used in rhino NativeDate
