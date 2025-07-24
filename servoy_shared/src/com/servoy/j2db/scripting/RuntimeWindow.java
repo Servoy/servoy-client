@@ -62,6 +62,7 @@ public abstract class RuntimeWindow implements IRuntimeWindow
 	private final JSWindow jsWindow;
 
 	private boolean undecorated = false;
+	private boolean closeOnEscape = false;
 	private float opacity = 1;
 	private boolean isTransparent = false;
 
@@ -324,4 +325,14 @@ public abstract class RuntimeWindow implements IRuntimeWindow
 	public abstract void setCSSClass(String cssClassName);
 
 	public abstract void requestFullscreen();
+
+	public void setCloseOnEscape(boolean closeOnEscape)
+	{
+		this.closeOnEscape = closeOnEscape;
+	}
+
+	public boolean getCloseOnEscape()
+	{
+		return this.closeOnEscape;
+	}
 }

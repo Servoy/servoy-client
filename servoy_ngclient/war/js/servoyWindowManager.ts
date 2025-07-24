@@ -341,6 +341,7 @@ angular.module( 'servoyWindowManager', ['sabloApp'] )	// TODO Refactor so that w
 								opacity: 1,
 								undecorated: false,
 								cssClassName: null,
+                                closeOnEscape: false,
 								size: null,
 								location: null,
 								navigatorForm: null,
@@ -613,6 +614,12 @@ angular.module( 'servoyWindowManager', ['sabloApp'] )	// TODO Refactor so that w
 						instances[name].undecorated = undecorated;
 					}
 				},
+                setCloseOnEscape: function(name, closeOnEscape) {
+                    saveInSessionStorage(closeOnEscape, 'closeOnEscape');
+                    if (instances[name]) {
+                        instances[name].closeOnEscape = closeOnEscape;
+                    }
+                },
 				setCSSClassName: function( name, cssClassName ) {
 					saveInSessionStorage(cssClassName, 'cssClassName');
 					const currentWindow = 'window' + windowCounter;
@@ -814,6 +821,7 @@ angular.module( 'servoyWindowManager', ['sabloApp'] )	// TODO Refactor so that w
         	                   $windowService.switchForm(window.name, window.switchForm, window.navigatorForm);
         	                   $windowService.setTitle(window.name, window.title);
         	                   $windowService.setUndecorated(window.name, window.undecorated);
+                               $windowService.setCloseOnEscape(window.name, window.closeOnEscape);
 							   $windowService.setCSSClassName(window.name, window.cssClassName);
 							   $windowService.setSize(window.name, window.size);
 							   $windowService.requestFullscreen(window.name);

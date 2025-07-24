@@ -458,6 +458,16 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 	}
 
 	@Override
+	public void setCloseOnEscape(boolean closeOnEscape)
+	{
+		super.setCloseOnEscape(closeOnEscape);
+		getApplication().getWebsocketSession()
+			.getClientService(NGRuntimeWindowManager.WINDOW_SERVICE)
+			.executeAsyncServiceCall("setCloseOnEscape",
+				new Object[] { getName(), closeOnEscape });
+	}
+
+	@Override
 	public void setTransparent(boolean isTransparent)
 	{
 		super.setTransparent(isTransparent);

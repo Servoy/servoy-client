@@ -235,6 +235,19 @@ public class JSWindow implements IConstantsObject
 	}
 
 	/**
+	 * Sets whether or not this window can be closed by the user using the escape key (default false).
+	 * */
+	public void js_setCloseOnEscape(boolean closeOnEscape)
+	{
+		impl.setCloseOnEscape(closeOnEscape);
+	}
+
+	public boolean js_getCloseOnEscape()
+	{
+		return impl.getCloseOnEscape();
+	}
+
+	/**
 	 * Returns the x coordinate.
 	 *
 	 * @sampleas js_getName()
