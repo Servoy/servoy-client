@@ -21,7 +21,14 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpRequest.BodyPublishers;
+import java.net.http.HttpResponse.BodySubscribers;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
@@ -37,19 +44,6 @@ import java.util.stream.Collectors;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.hc.client5.http.classic.methods.HttpGet;
-import org.apache.hc.client5.http.classic.methods.HttpPost;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
-import org.apache.hc.client5.http.impl.classic.HttpClients;
-import org.apache.hc.core5.http.ClassicHttpResponse;
-import org.apache.hc.core5.http.HttpEntity;
-import org.apache.hc.core5.http.HttpException;
-import org.apache.hc.core5.http.HttpHeaders;
-import org.apache.hc.core5.http.HttpStatus;
-import org.apache.hc.core5.http.io.HttpClientResponseHandler;
-import org.apache.hc.core5.http.io.entity.EntityUtils;
-import org.apache.hc.core5.http.io.entity.StringEntity;
-import org.apache.hc.core5.net.URIBuilder;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.sablo.security.ContentSecurityPolicyConfig;
@@ -81,6 +75,7 @@ import jakarta.servlet.http.HttpServletResponse;
 /**
  * @author emera
  */
+@SuppressWarnings("nls")
 public class CloudStatelessAccessManager
 {
 	private static final Logger log = LoggerFactory.getLogger("stateless.login");
@@ -88,28 +83,23 @@ public class CloudStatelessAccessManager
 	private static final String BASE_CLOUD_URL = System.getProperty("servoy.api.url", "https://middleware-prod.unifiedui.servoy-cloud.eu");
 	public static final String CLOUD_REST_API_GET = BASE_CLOUD_URL + "/servoy-service/rest_ws/api/auth_endpoint/getEndpointUI/";
 	public static final String CLOUD_REST_API_POST = BASE_CLOUD_URL + "/servoy-service/rest_ws/api/auth_endpoint/submitForm/";
-	public static final String CLOUD_URL = BASE_CLOUD_URL +
-		"/servoy-service/rest_ws/api/login_auth/validateAuthUser";
-	public static final String REFRESH_TOKEN_CLOUD_URL = BASE_CLOUD_URL +
-		"/servoy-service/rest_ws/api/login_auth/refreshPermissions";
-	public static final String CLOUD_OAUTH_URL = BASE_CLOUD_URL +
-		"/servoy-service/rest_ws/api/login_auth/validateOAuthUser";
+	public static final URI CLOUD_URL = URI.create(BASE_CLOUD_URL + "/servoy-service/rest_ws/api/login_auth/validateAuthUser");
+	public static final URI REFRESH_TOKEN_CLOUD_URL = URI.create(BASE_CLOUD_URL + "/servoy-service/rest_ws/api/login_auth/refreshPermissions");
+	public static final URI CLOUD_OAUTH_URL = URI.create(BASE_CLOUD_URL + "/servoy-service/rest_ws/api/login_auth/validateOAuthUser");
 	public static final String CLOUD_OAUTH_ENDPOINT = "endpoint";
 
 
 	public static boolean checkCloudOAuthPermissions(Pair<Boolean, String> needToLogin, Solution solution, String payload, Boolean rememberUser,
 		String refresh_token, String provider)
 	{
-		HttpPost post = new HttpPost(CLOUD_OAUTH_URL);
-		post.setEntity(new StringEntity(payload));
+		HttpRequest post = HttpRequest.newBuilder(CLOUD_OAUTH_URL).setHeader("Accept", "application/json")
+			.setHeader("uuid", sanitizeHeader(solution.getUUID().toString())).POST(BodyPublishers.ofString(payload)).build();
 
-		post.addHeader(HttpHeaders.ACCEPT, "application/json");
-		post.addHeader("uuid", sanitizeHeader(solution.getUUID().toString()));
 
-		try (CloseableHttpClient httpclient = HttpClients.createDefault())
+		try (HttpClient httpclient = HttpClient.newHttpClient())
 		{
-			Pair<Integer, JSONObject> res = httpclient.execute(post, new CloudResponseHandler("validateOAuthUser"));
-			if (res.getLeft().intValue() == HttpStatus.SC_OK)
+			Pair<Integer, JSONObject> res = httpclient.send(post, new CloudResponseHandler("validateOAuthUser")).body();
+			if (res.getLeft().intValue() == HttpURLConnection.HTTP_OK)
 			{
 				SvyTokenBuilder tokenBuilder = extractPermissionFromResponse(needToLogin, res, null);
 				if (tokenBuilder == null) return false;
@@ -123,7 +113,7 @@ public class CloudStatelessAccessManager
 				return true;
 			}
 		}
-		catch (IOException e)
+		catch (IOException | InterruptedException e)
 		{
 			log.error("Can't validate user with the Servoy Cloud", e);
 		}
@@ -134,16 +124,19 @@ public class CloudStatelessAccessManager
 		Solution solution,
 		HttpServletRequest request)
 	{
-		HttpGet httpget = new HttpGet(oldToken != null ? REFRESH_TOKEN_CLOUD_URL : CLOUD_URL);
+		HttpRequest.Builder builder = HttpRequest.newBuilder()
+			.uri(oldToken != null ? REFRESH_TOKEN_CLOUD_URL : CLOUD_URL)
+			.GET();
+
 
 		String provider = null;
 		if (oldToken == null)
 		{
-			String auth = username + ":" + password;
+			String auth = username + ':' + password;
 			byte[] encodedAuth = Base64.encodeBase64(auth.getBytes(Charset.forName("ISO-8859-1")));
 			String authHeader = "Basic " + new String(encodedAuth);
-			httpget.setHeader(HttpHeaders.AUTHORIZATION, sanitizeHeader(authHeader));
-			httpget.addHeader(SvyID.REMEMBER, remember); //this is needed until the validateAuthUser endpoint is deprecated
+			builder.setHeader("Authorization", sanitizeHeader(authHeader));
+			builder.setHeader(SvyID.REMEMBER, Boolean.toString(remember)); //this is needed until the validateAuthUser endpoint is deprecated
 		}
 		else
 		{
@@ -178,16 +171,16 @@ public class CloudStatelessAccessManager
 					return false;
 				}
 			}
-			httpget.addHeader(SvyID.USERNAME, sanitizeHeader(oldToken.getUsername()));
-			httpget.addHeader(SvyID.LAST_LOGIN, sanitizeHeader(oldToken.getStringClaim(SvyID.LAST_LOGIN)));
+			builder.setHeader(SvyID.USERNAME, sanitizeHeader(oldToken.getUsername()));
+			builder.setHeader(SvyID.LAST_LOGIN, sanitizeHeader(oldToken.getStringClaim(SvyID.LAST_LOGIN)));
 		}
-		httpget.addHeader(HttpHeaders.ACCEPT, "application/json");
-		httpget.addHeader("uuid", sanitizeHeader(solution.getUUID().toString()));
+		builder.setHeader("Accept", "application/json");
+		builder.setHeader("uuid", sanitizeHeader(solution.getUUID().toString()));
 
-		try (CloseableHttpClient httpclient = HttpClients.createDefault())
+		try (HttpClient httpclient = HttpClient.newHttpClient())
 		{
-			Pair<Integer, JSONObject> res = httpclient.execute(httpget, new CloudResponseHandler("login_auth"));
-			if (res.getLeft().intValue() == HttpStatus.SC_OK)
+			Pair<Integer, JSONObject> res = httpclient.send(builder.build(), new CloudResponseHandler("login_auth")).body();
+			if (res.getLeft().intValue() == HttpURLConnection.HTTP_OK)
 			{
 				SvyTokenBuilder tokenBuilder = extractPermissionFromResponse(needToLogin, res, oldToken.getUsername());
 				if (tokenBuilder == null) return false;
@@ -200,7 +193,7 @@ public class CloudStatelessAccessManager
 				return true;
 			}
 		}
-		catch (IOException e)
+		catch (IOException | InterruptedException e)
 		{
 			log.error("Can't validate user with the Servoy Cloud", e);
 		}
@@ -210,7 +203,7 @@ public class CloudStatelessAccessManager
 	private static JSONObject getOAuthConfigFromTheCloud(Solution solution, HttpServletRequest request, String provider)
 	{
 		JSONObject oauth = null;
-		try (CloseableHttpClient httpclient = HttpClients.createDefault())
+		try (HttpClient httpclient = HttpClient.newHttpClient())
 		{
 			String[] parts = provider.split("\\?");
 			String endpoint = parts[0];
@@ -221,7 +214,7 @@ public class CloudStatelessAccessManager
 				oauth = providerRequest.getRight().getJSONObject("oauth");
 			}
 		}
-		catch (IOException e)
+		catch (IOException | InterruptedException e)
 		{
 			log.error("Can't validate user with the Servoy Cloud", e);
 		}
@@ -240,7 +233,7 @@ public class CloudStatelessAccessManager
 			{
 				if (fs.getSolution().getAuthenticator() == AUTHENTICATOR_TYPE.SERVOY_CLOUD)
 				{
-					try (CloseableHttpClient httpclient = HttpClients.createDefault())
+					try (HttpClient httpclient = HttpClient.newHttpClient())
 					{
 						Solution solution = fs.getSolution();
 						Pair<Integer, JSONObject> res = null;
@@ -293,14 +286,16 @@ public class CloudStatelessAccessManager
 
 	}
 
-	private static Pair<Integer, JSONObject> executeCloudPostRequest(CloseableHttpClient httpclient, Solution solution, String endpoint,
-		HttpServletRequest request, Map<String, String[]> parameters)
+	private static Pair<Integer, JSONObject> executeCloudPostRequest(HttpClient httpclient, Solution solution, String endpoint,
+		HttpServletRequest request, Map<String, String[]> parameters) throws IOException, InterruptedException
 	{
-		HttpPost httppost = new HttpPost(CLOUD_REST_API_POST + endpoint);
-		httppost.addHeader(HttpHeaders.ACCEPT, "application/json");
-		httppost.addHeader(HttpHeaders.CONTENT_TYPE, "application/json");
-		httppost.addHeader("build-number", String.valueOf(ClientVersion.getReleaseNumber()));
-		httppost.addHeader("uuid", sanitizeHeader(solution.getUUID().toString()));
+		HttpRequest.Builder requestBuilder = HttpRequest.newBuilder()
+			.GET()
+			.uri(URI.create(CLOUD_REST_API_POST + endpoint))
+			.setHeader("Accept", "application/json")
+			.setHeader("Content-Type", "application/json")
+			.setHeader("build-number", String.valueOf(ClientVersion.getReleaseNumber()))
+			.setHeader("uuid", sanitizeHeader(solution.getUUID().toString()));
 		JSONObject postParameters = new JSONObject();
 		for (Map.Entry<String, String[]> entry : parameters.entrySet())
 		{
@@ -312,50 +307,67 @@ public class CloudStatelessAccessManager
 		}
 		//the request can be null on logout, but the cloud needs the server url
 		postParameters.put("serverUrl", request != null ? StatelessLoginUtils.getServerURL(request) : "https://");
-		httppost.setEntity(new StringEntity(postParameters.toString()));
-
-		try
-		{
-			return httpclient.execute(httppost, new CloudResponseHandler(endpoint));
-		}
-		catch (IOException e)
-		{
-			log.error("Can't execute cloud post request", e);
-		}
-		return null;
+		requestBuilder.POST(BodyPublishers.ofString(postParameters.toString()));
+		return httpclient.send(requestBuilder.build(), new CloudResponseHandler(endpoint)).body();
 	}
 
-	private static Pair<Integer, JSONObject> executeCloudGetRequest(CloseableHttpClient httpclient, Solution solution, String endpoint,
+	@SuppressWarnings("nls")
+	private static Pair<Integer, JSONObject> executeCloudGetRequest(HttpClient httpclient, Solution solution, String endpoint,
 		HttpServletRequest request)
 	{
 		try
 		{
-			URIBuilder uriBuilder = new URIBuilder(CLOUD_REST_API_GET + endpoint);
-			if (request != null)
-			{
-				Map<String, String[]> parameters = request.getParameterMap();
-				for (Map.Entry<String, String[]> entry : parameters.entrySet())
-				{
-					String[] values = entry.getValue();
-					for (String value : values)
-					{
-						uriBuilder.setParameter(entry.getKey(), value);
-					}
-				}
-			}
-			HttpGet httpget = new HttpGet(uriBuilder.build());
-			httpget.addHeader(HttpHeaders.ACCEPT, "application/json");
-			httpget.addHeader(HttpHeaders.ACCEPT_LANGUAGE, request.getHeader(HttpHeaders.ACCEPT_LANGUAGE));
-			httpget.addHeader("build-number", String.valueOf(ClientVersion.getReleaseNumber()));
-			httpget.addHeader("uuid", sanitizeHeader(solution.getUUID().toString()));
+			String baseUriString = CLOUD_REST_API_GET + endpoint;
 
-			return httpclient.execute(httpget, new CloudResponseHandler(endpoint));
+			// 2. Build the query string from parameters
+			String queryString = buildQueryString(request.getParameterMap());
+
+			// 3. Combine base URI and query string into a final URI object
+			// This handles the final URI construction, ensuring proper encoding for the whole URI.
+			URI finalUri;
+			if (queryString.isEmpty())
+			{
+				finalUri = URI.create(baseUriString);
+			}
+			else
+			{
+				// Ensure the baseUriString itself is valid, then append query
+				finalUri = URI.create(baseUriString + '?' + queryString);
+			}
+
+
+			HttpRequest.Builder requestBuilder = HttpRequest.newBuilder()
+				.GET()
+				.uri(finalUri)
+				.setHeader("Accept", "application/json") // HttpHeaders.ACCEPT
+				.setHeader("Accept-Language", request.getHeader("Accept-Language")) // HttpHeaders.ACCEPT_LANGUAGE
+				.setHeader("build-number", String.valueOf(ClientVersion.getReleaseNumber()))
+				.setHeader("uuid", sanitizeHeader(solution.getUUID().toString()));
+
+			return httpclient.send(requestBuilder.build(), new CloudResponseHandler(endpoint)).body();
 		}
 		catch (Exception e)
 		{
 			log.error("Can't execute cloud get request", e);
 		}
 		return null;
+	}
+
+	@SuppressWarnings("nls")
+	private static String buildQueryString(Map<String, String[]> params)
+	{
+		if (params == null || params.isEmpty())
+		{
+			return "";
+		}
+
+		return params.entrySet().stream()
+			.flatMap(entry -> {
+				String key = URLEncoder.encode(entry.getKey(), StandardCharsets.UTF_8);
+				return List.of(entry.getValue()).stream()
+					.map(value -> key + '=' + URLEncoder.encode(value, StandardCharsets.UTF_8));
+			})
+			.collect(Collectors.joining("&"));
 	}
 
 	public static void revokeToken(Solution solution, DecodedJWT jwt)
@@ -386,7 +398,7 @@ public class CloudStatelessAccessManager
 		JSONObject json = res.getRight();
 		if (json != null)
 		{
-			if (status == HttpStatus.SC_OK && json.has("html"))
+			if (status == HttpURLConnection.HTTP_OK && json.has("html"))
 			{
 				log.atInfo().log(() -> "The cloud returned html: " + json.get("html"));
 				html = json.getString("html");
@@ -546,7 +558,7 @@ public class CloudStatelessAccessManager
 		return result;
 	}
 
-	private static String[] getCloudRestApiEndpoints(ServletContext servletContext, CloseableHttpClient httpclient, Solution solution)
+	private static String[] getCloudRestApiEndpoints(ServletContext servletContext, HttpClient httpclient, Solution solution)
 	{
 		String[] endpoints = (String[])servletContext.getAttribute("endpoints");
 		if (endpoints != null)
@@ -559,12 +571,13 @@ public class CloudStatelessAccessManager
 		}
 		if (endpoints == null)
 		{
-			HttpGet httpget = new HttpGet(CLOUD_REST_API_GET);
-			httpget.addHeader(HttpHeaders.ACCEPT, "application/json");
-			httpget.addHeader("uuid", sanitizeHeader(solution.getUUID().toString()));
+			HttpRequest.Builder requestBuilder = HttpRequest.newBuilder(URI.create(CLOUD_REST_API_GET))
+				.GET()
+				.setHeader("Accept", "application/json")
+				.setHeader("uuid", sanitizeHeader(solution.getUUID().toString()));
 			try
 			{
-				endpoints = getArrayProperty(httpclient, httpget, "endpoints",
+				endpoints = getArrayProperty(httpclient, requestBuilder.build(), "endpoints",
 					"Error when getting the endpoints from the servoycloud: ");
 				if (endpoints != null)
 				{
@@ -576,7 +589,7 @@ public class CloudStatelessAccessManager
 					log.atInfo().log(() -> "No endpoints were returned for solution " + solution.getUUID());
 				}
 			}
-			catch (IOException e)
+			catch (IOException | InterruptedException e)
 			{
 				log.error("Can't get the rest api endpoints", e);
 				servletContext.setAttribute("endpoints", null);
@@ -644,16 +657,12 @@ public class CloudStatelessAccessManager
 		return headerValue.replaceAll("[\n\r]+", " ");
 	}
 
-	private static String[] getArrayProperty(CloseableHttpClient httpclient, HttpGet httpget, String property, String error) throws IOException
+	private static String[] getArrayProperty(HttpClient httpclient, HttpRequest httpget, String property, String error) throws IOException, InterruptedException
 	{
-		String[] permissions = httpclient.execute(httpget, new HttpClientResponseHandler<String[]>()
-		{
-			@Override
-			public String[] handleResponse(ClassicHttpResponse response) throws HttpException, IOException
-			{
-				HttpEntity responseEntity = response.getEntity();
-				String responseString = EntityUtils.toString(responseEntity);
-				if (response.getCode() == HttpStatus.SC_OK)
+		String[] permissions = httpclient.send(httpget, responseInfo -> BodySubscribers.mapping(
+			BodySubscribers.ofString(StandardCharsets.UTF_8), // Upstream subscriber gives us a String
+			(String responseString) -> { // This function converts the String to JSONObject
+				if (responseInfo.statusCode() == HttpURLConnection.HTTP_OK)
 				{
 					JSONObject loginTokenJSON = new JSONObject(responseString);
 					JSONArray permissionsArray = loginTokenJSON.getJSONArray(property);
@@ -670,25 +679,23 @@ public class CloudStatelessAccessManager
 				}
 				else
 				{
-					log.error(error + response.getCode() + " " +
-						response.getReasonPhrase());
+					log.error(error + responseInfo.statusCode() + " " + responseInfo);
 					return null;
 				}
-			}
-		});
+			})).body();
 		return permissions;
 	}
 
 	public static String getCloudLoginPage(HttpServletRequest request, Solution solution, String loginHtml) throws IOException
 	{
-		try (CloseableHttpClient httpClient = HttpClients.createDefault())
+		try (HttpClient httpclient = HttpClient.newHttpClient())
 		{
-			Pair<Integer, JSONObject> result = executeCloudGetRequest(httpClient, solution, "login", request);
+			Pair<Integer, JSONObject> result = executeCloudGetRequest(httpclient, solution, "login", request);
 			if (result != null)
 			{
 				int status = result.getLeft().intValue();
 				JSONObject res = result.getRight();
-				if (status == HttpStatus.SC_OK && res != null)
+				if (status == HttpURLConnection.HTTP_OK && res != null)
 				{
 					loginHtml = res.optString("html", null);
 				}

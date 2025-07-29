@@ -17,13 +17,11 @@
 
 package com.servoy.j2db.server.ngclient.auth;
 
-import java.io.IOException;
+import java.net.http.HttpResponse;
+import java.net.http.HttpResponse.BodySubscriber;
+import java.net.http.HttpResponse.BodySubscribers;
+import java.nio.charset.StandardCharsets;
 
-import org.apache.hc.core5.http.ClassicHttpResponse;
-import org.apache.hc.core5.http.HttpEntity;
-import org.apache.hc.core5.http.HttpException;
-import org.apache.hc.core5.http.io.HttpClientResponseHandler;
-import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +31,8 @@ import com.servoy.j2db.util.Pair;
 /**
  * @author emera
  */
-public class CloudResponseHandler implements HttpClientResponseHandler<Pair<Integer, JSONObject>>
+@SuppressWarnings("nls")
+public class CloudResponseHandler implements HttpResponse.BodyHandler<Pair<Integer, JSONObject>>
 {
 	static final Logger log = LoggerFactory.getLogger("stateless.login");
 	private final String endpoint;
@@ -43,29 +42,23 @@ public class CloudResponseHandler implements HttpClientResponseHandler<Pair<Inte
 		this.endpoint = endpoint;
 	}
 
-	@Override
-	public Pair<Integer, JSONObject> handleResponse(ClassicHttpResponse response) throws HttpException, IOException
+	public BodySubscriber<Pair<Integer, JSONObject>> apply(HttpResponse.ResponseInfo responseInfo)
 	{
-		HttpEntity responseEntity = response.getEntity();
-		if (responseEntity != null)
-		{
-			Pair<Integer, JSONObject> pair = new Pair<>(Integer.valueOf(response.getCode()), null);
-			String responseString = EntityUtils.toString(responseEntity);
-			if (responseString.startsWith("{"))
-			{
-				pair.setRight(new JSONObject(responseString));
-			}
-			else
-			{
-				log.error("The endpoint " + endpoint + " did not return json.");
-			}
-			return pair;
-		}
-		else
-		{
-			log.error("Could not access rest api endpoint " + endpoint + " " + response.getCode() + " " +
-				response.getReasonPhrase());
-		}
-		return null;
+		// Use BodySubscribers.ofString() to get the raw string body
+		// Then map that string to a JSONObject
+		return BodySubscribers.mapping(
+			BodySubscribers.ofString(StandardCharsets.UTF_8), // Upstream subscriber gives us a String
+			(String responseString) -> { // This function converts the String to JSONObject
+				Pair<Integer, JSONObject> pair = new Pair<>(Integer.valueOf(responseInfo.statusCode()), null);
+				if (responseString != null && responseString.startsWith("{"))
+				{
+					pair.setRight(new JSONObject(responseString));
+				}
+				else
+				{
+					log.error("The endpoint " + endpoint + " did not return json.");
+				}
+				return pair;
+			});
 	}
 }
