@@ -24,6 +24,14 @@ import java.util.function.Supplier;
 
 /**
  * multipart/form-data BodyPublisher.
+ *
+ * make sure you also set the Content-Type header to {@link #contentType()}
+ *
+ * Example usage:
+ *   HttpRequest.newBuilder(URI.create("http://localhost:8080/"))
+            .header("Content-Type", body.contentType())
+            .POST(body)
+            .build();
  */
 @SuppressWarnings("nls")
 public class MultipartFormDataBodyPublisher implements BodyPublisher
@@ -45,6 +53,8 @@ public class MultipartFormDataBodyPublisher implements BodyPublisher
 
 	/**
 	 * Construct {@link MultipartFormDataBodyPublisher}
+	 * Make sure you use this class also to set tne Content-Type header to {@link #contentType()};
+	 * like: HttpRequest.newBuilder(URI.create("http://localhost:8080/")).header("Content-Type", body.contentType()).POST(body).build();
 	 */
 	public MultipartFormDataBodyPublisher()
 	{
