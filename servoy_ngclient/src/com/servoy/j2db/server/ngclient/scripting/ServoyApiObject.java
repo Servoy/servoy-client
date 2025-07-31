@@ -18,6 +18,7 @@
 package com.servoy.j2db.server.ngclient.scripting;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +28,7 @@ import java.util.concurrent.TimeoutException;
 import org.mozilla.javascript.IdScriptableObject;
 import org.mozilla.javascript.NativeArray;
 import org.mozilla.javascript.NativeObject;
+import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.annotations.JSFunction;
 import org.sablo.Container;
 import org.sablo.eventthread.IEventDispatcher;
@@ -298,6 +300,33 @@ public class ServoyApiObject
 			return ret;
 		}
 		return false;
+	}
+
+	/**
+	 * Calls showForm delayed with latest form name and relation name from the model.
+	 *
+	 * @sample
+	 * servoyApi.showFormDelayed(model, 'containedForm', 'relationName')
+	 *
+	 * @param model the component model
+	 * @param formNameProperty the name of the property that contains the form name in model
+	 * @param relationNameProperty the name of the property that contains the relation name in model
+	 */
+	@JSFunction
+	public void showFormDelayed(Scriptable model, String formNameProperty, String relationNameProperty)
+	{
+		Utils.invokeLater(app, Arrays.asList(() -> {
+			IWebFormUI formUI = this.component.findParent(IWebFormUI.class);
+			if (component.isVisible() && formUI != null && formUI.getController() != null && formUI.getController().isFormVisible())
+			{
+				String formName = (String)model.get(formNameProperty, model);
+				String relationName = (String)model.get(relationNameProperty, model);
+				if (formName != null)
+				{
+					showForm(formName, relationName);
+				}
+			}
+		}));
 	}
 
 	/**
