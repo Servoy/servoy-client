@@ -17,15 +17,17 @@
 package com.servoy.j2db.scripting;
 
 import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.Symbol;
+import org.mozilla.javascript.SymbolScriptable;
 
 import com.servoy.j2db.BasicFormController;
 import com.servoy.j2db.util.Debug;
 
 /**
  * @author jcompagner
- * 
+ *
  */
-public class SelectedRecordScope implements Scriptable
+public class SelectedRecordScope implements Scriptable, SymbolScriptable
 {
 	private final Scriptable prototype;
 
@@ -143,6 +145,28 @@ public class SelectedRecordScope implements Scriptable
 	public void put(String name, Scriptable start, Object value)
 	{
 		getSelectedRecord().put(name, start, value);
+	}
+
+	@Override
+	public Object get(Symbol key, Scriptable start)
+	{
+		return Scriptable.NOT_FOUND;
+	}
+
+	@Override
+	public boolean has(Symbol key, Scriptable start)
+	{
+		return false;
+	}
+
+	@Override
+	public void put(Symbol key, Scriptable start, Object value)
+	{
+	}
+
+	@Override
+	public void delete(Symbol key)
+	{
 	}
 
 }
