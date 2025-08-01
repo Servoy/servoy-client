@@ -221,7 +221,7 @@ public class ServoyApiObject
 	{
 		if (formNameOrInstance == null)
 		{
-			return false;
+			return true;
 		}
 		String nameOrUUID = null;
 		if (formNameOrInstance instanceof FormScope formScope)
@@ -238,6 +238,7 @@ public class ServoyApiObject
 		}
 		if (nameOrUUID == null || nameOrUUID.isEmpty())
 		{
+			Debug.warn("Cannot show form from Servoy Api showForm because nameOrUUID is null or empty for:" + formNameOrInstance);
 			return false;
 		}
 		String formName = nameOrUUID;
