@@ -546,7 +546,7 @@ public class RuntimeWebComponent implements IBaseRuntimeComponent, Scriptable, I
 					try
 					{
 						Context cx = Context.getCurrentContext();
-						propertySetter.call(cx, start, start, new Object[] { val });
+						propertySetter.call(cx, start, start, new Object[] { value });
 					}
 					finally
 					{
