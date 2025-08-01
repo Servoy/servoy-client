@@ -24,7 +24,6 @@ import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.j2db.server.ngclient.DataAdapterList;
-import com.servoy.j2db.util.Utils;
 
 /**
  * A tag string property value that represents/wraps a simple string.
@@ -82,22 +81,6 @@ public class BasicTagStringTypeSabloValue
 		JSONUtils.addKeyIfPresent(writer, key);
 		String v = getTagReplacedValueForClient(dataConverterContext.getComputedPushToServerValue());
 		writer.value(v != null ? v : "");
-	}
-
-	@Override
-	public boolean equals(Object obj)
-	{
-		if (obj instanceof BasicTagStringTypeSabloValue)
-		{
-			return Utils.equalObjects(((BasicTagStringTypeSabloValue)obj).designValue, designValue);
-		}
-		return false;
-	}
-
-	@Override
-	public int hashCode()
-	{
-		return designValue != null ? designValue.hashCode() : super.hashCode();
 	}
 
 }
