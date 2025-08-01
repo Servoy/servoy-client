@@ -34,6 +34,7 @@ import org.sablo.Container;
 import org.sablo.eventthread.IEventDispatcher;
 
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
+import com.servoy.j2db.BasicFormController;
 import com.servoy.j2db.dataprocessing.FoundSet;
 import com.servoy.j2db.dataprocessing.FoundSetManager;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
@@ -46,6 +47,7 @@ import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.querybuilder.impl.QBSelect;
+import com.servoy.j2db.scripting.FormScope;
 import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.server.ngclient.INGApplication;
 import com.servoy.j2db.server.ngclient.IWebFormController;
@@ -192,13 +194,13 @@ public class ServoyApiObject
 	 * @sample
 	 * servoyApi.showForm(formToShowName)
 	 *
-	 * @param nameOrUUID the form to show
+	 * @param formNameOrInstance the form to show
 	 * @return true if the form was marked as visible
 	 */
 	@JSFunction
-	public boolean showForm(String nameOrUUID)
+	public boolean showForm(Object formNameOrInstance)
 	{
-		return this.showForm(nameOrUUID, null);
+		return this.showForm(formNameOrInstance, null);
 	}
 
 	/**
@@ -210,13 +212,30 @@ public class ServoyApiObject
 	 * @sample
 	 * servoyApi.showForm(formToShowName)
 	 *
-	 * @param nameOrUUID the form to show
+	 * @param formNameOrInstance the form to show
 	 * @param relationName the parent container
 	 * @return true if the form was marked as visible
 	 */
 	@JSFunction
-	public boolean showForm(String nameOrUUID, String relationName)
+	public boolean showForm(Object formNameOrInstance, String relationName)
 	{
+		if (formNameOrInstance == null)
+		{
+			return false;
+		}
+		String nameOrUUID = null;
+		if (formNameOrInstance instanceof FormScope formScope)
+		{
+			nameOrUUID = formScope.getScopeName();
+		}
+		else if (formNameOrInstance instanceof BasicFormController formController)
+		{
+			nameOrUUID = formController.getForm().getName();
+		}
+		else
+		{
+			nameOrUUID = formNameOrInstance.toString();
+		}
 		if (nameOrUUID == null || nameOrUUID.isEmpty())
 		{
 			return false;
@@ -298,6 +317,10 @@ public class ServoyApiObject
 				NGClientWindow.getCurrentWindow().touchForm(app.getFlattenedSolution().getFlattenedForm(form), formName, true, true);
 			}
 			return ret;
+		}
+		else
+		{
+			Debug.warn("Cannot show form '" + formName + "' from Servoy Api showForm because it is not found in the current solution.");
 		}
 		return false;
 	}
