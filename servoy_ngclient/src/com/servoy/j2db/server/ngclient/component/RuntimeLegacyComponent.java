@@ -211,7 +211,7 @@ public class RuntimeLegacyComponent implements Scriptable, IInstanceOf
 			return putCallable;
 		}
 
-		if ("addStyleClass".equals(name) || "removeStyleClass".equals(name) || "hasStyleClass".equals(name))
+		if ("addStyleClass".equals(name) || "removeStyleClass".equals(name) || "hasStyleClass".equals(name) || "getStyleClasses".equals(name))
 		{
 			final String nameFinal = name;
 			return new Callable()
@@ -257,6 +257,17 @@ public class RuntimeLegacyComponent implements Scriptable, IInstanceOf
 								else styleClass = styleClass.replaceAll("(?<!\\S)\\b" + Pattern.quote(args[0].toString()) + "\\b(?!\\S)", "");
 							}
 							component.setProperty(propertyName, styleClass.replaceAll("\\s{2,}", " ").trim());
+						}
+						else if ("getStyleClasses".equals(nameFinal))
+						{
+							if (styleClass != null && styleClass.length() > 0)
+							{
+								return styleClass.split("\\s+");
+							}
+							else
+							{
+								return new String[0];
+							}
 						}
 					}
 					return null;
@@ -399,7 +410,7 @@ public class RuntimeLegacyComponent implements Scriptable, IInstanceOf
 			String newName = generatePropertyName(name);
 			if (webComponentSpec.getProperty(newName) != null) return true;
 		}
-		if ("addStyleClass".equals(name) || "removeStyleClass".equals(name) || "hasStyleClass".equals(name))
+		if ("addStyleClass".equals(name) || "removeStyleClass".equals(name) || "hasStyleClass".equals(name) || "getStyleClasses".equals(name))
 		{
 			if (webComponentSpec.getProperty(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName()) != null) return true;
 		}

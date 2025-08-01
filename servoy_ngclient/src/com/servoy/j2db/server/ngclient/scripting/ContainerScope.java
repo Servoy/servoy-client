@@ -96,6 +96,10 @@ public class ContainerScope implements Scriptable
 						}
 					}
 				}
+				else if ("getStyleClasses".equals(nm))
+				{
+					return cssClasses.toArray(new String[0]);
+				}
 				return Boolean.TRUE;
 			}
 		};
@@ -168,7 +172,7 @@ public class ContainerScope implements Scriptable
 	@Override
 	public Object[] getIds()
 	{
-		return new String[] { "addStyleClass", "removeStyleClass", "hasStyleClass", "setCSSStyle", "removeStyleClasses" };
+		return new String[] { "addStyleClass", "removeStyleClass", "hasStyleClass", "setCSSStyle", "removeStyleClasses", "getStyleClasses" };
 	}
 
 	@Override

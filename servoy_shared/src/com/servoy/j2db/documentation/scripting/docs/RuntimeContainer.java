@@ -90,4 +90,15 @@ public class RuntimeContainer
 	public void removeCSSStyle(String key)
 	{
 	}
+
+	/**
+	 * Returns all the style classes that are currently applied to this container.
+	 *
+	 * @return an array of style class names.
+	 */
+	@JSFunction
+	public String[] getStyleClasses()
+	{
+		return new String[0];
+	}
 }
