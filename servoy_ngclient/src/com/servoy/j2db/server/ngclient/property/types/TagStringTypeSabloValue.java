@@ -32,7 +32,6 @@ import com.servoy.j2db.server.ngclient.property.IDataLinkedPropertyValue;
 import com.servoy.j2db.server.ngclient.property.types.IDataLinkedType.TargetDataLinks;
 import com.servoy.j2db.util.HtmlUtils;
 import com.servoy.j2db.util.Text;
-import com.servoy.j2db.util.Utils;
 
 /**
  * Runtime value stored in WebFormComponents for properties of type {@link TagStringPropertyType} that do need to replace tags (%%x%%).
@@ -128,18 +127,6 @@ public class TagStringTypeSabloValue extends BasicTagStringTypeSabloValue implem
 		{
 			changeMonitor.valueChanged();
 		}
-	}
-
-	@Override
-	public boolean equals(Object obj)
-	{
-		if (obj instanceof TagStringTypeSabloValue)
-		{
-			TagStringTypeSabloValue value = (TagStringTypeSabloValue)obj;
-			return value.pd == pd && value.formElement == formElement &&
-				Utils.equalObjects(value.getDesignValueBeforeInitialI18NConversion(), getDesignValueBeforeInitialI18NConversion());
-		}
-		return false;
 	}
 
 	protected boolean updateTagReplacedValue()
