@@ -554,8 +554,9 @@ public abstract class AbstractRuntimeBaseComponent<C extends IComponent> impleme
 	}
 
 	@Override
-	public void getStyleClasses()
+	public String[] getStyleClasses()
 	{
 		//only implemented in ngclient
+		return new String[0];
 	}
 }

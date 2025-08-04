@@ -73,5 +73,5 @@ public interface HasRuntimeStyleClass
 	 *
 	 */
 	@JSFunction
-	public void getStyleClasses();
+	public String[] getStyleClasses();
 }
