@@ -592,6 +592,17 @@ public class RuntimeWebComponent implements IBaseRuntimeComponent, Scriptable, I
 				if (val != previousVal && val instanceof Boolean isVisible)
 				{
 					List<Runnable> invokeLaterRunnables = new ArrayList<Runnable>();
+					invokeLaterRunnables.add(() -> {
+						WebObjectFunctionDefinition function = null;
+						if (isVisible == null || isVisible.booleanValue())
+							function = RuntimeWebComponent.this.getComponent().getSpecification().getInternalApiFunction("onShow");
+						else
+							function = RuntimeWebComponent.this.getComponent().getSpecification().getInternalApiFunction("onHide");
+						if (function != null)
+						{
+							RuntimeWebComponent.this.executeScopeFunction(function, new Object[0]);
+						}
+					});
 					component.notifyVisible(isVisible.booleanValue(), invokeLaterRunnables, new HashSet<>());
 					Utils.invokeLater(component.getDataConverterContext().getApplication(), invokeLaterRunnables);
 				}
