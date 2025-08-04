@@ -258,7 +258,7 @@ public class ServoyApiObject
 	@SuppressWarnings("nls")
 	private boolean showFormInternal(Object formNameOrInstance, String relationName)
 	{
-		if (formNameOrInstance == null)
+		if (formNameOrInstance == null || "".equals(formNameOrInstance)) //$NON-NLS-1$
 		{
 			return true;
 		}
