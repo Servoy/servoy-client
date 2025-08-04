@@ -90,6 +90,35 @@ import com.servoy.j2db.util.Utils;
 @ServoyClientSupport(sc = false, wc = false, ng = true)
 public class ServoyApiObject
 {
+	private class ShowFormLaterRunnable implements Runnable
+	{
+		private final Object formNameOrInstance;
+		private final String relationName;
+		private boolean cancelled;
+
+		public ShowFormLaterRunnable(Object formNameOrInstance, String relationName)
+		{
+			this.formNameOrInstance = formNameOrInstance;
+			this.relationName = relationName;
+		}
+
+		@Override
+		public void run()
+		{
+			if (!cancelled) showFormInternal(formNameOrInstance, relationName);
+			if (showFormLater == this)
+			{
+				showFormLater = null;
+			}
+		}
+
+		public void cancel()
+		{
+			cancelled = true;
+		}
+	}
+
+	private ShowFormLaterRunnable showFormLater;
 	private final INGApplication app;
 	private final WebFormComponent component;
 
@@ -200,7 +229,7 @@ public class ServoyApiObject
 	@JSFunction
 	public boolean showForm(Object formNameOrInstance)
 	{
-		return this.showForm(formNameOrInstance, null);
+		return this.showFormInternal(formNameOrInstance, null);
 	}
 
 	/**
@@ -214,10 +243,22 @@ public class ServoyApiObject
 	 *
 	 * @param formNameOrInstance the form to show
 	 * @param relationName the parent container
-	 * @return true if the form was marked as visible
+	 * @return true will always return true, this is always a bit later
 	 */
 	@JSFunction
 	public boolean showForm(Object formNameOrInstance, String relationName)
+	{
+		if (showFormLater != null)
+		{
+			showFormLater.cancel();
+		}
+		app.invokeLater(showFormLater = new ShowFormLaterRunnable(formNameOrInstance, relationName));
+		//always just return true, this is always a bit later
+		return true;
+	}
+
+	@SuppressWarnings("nls")
+	private boolean showFormInternal(Object formNameOrInstance, String relationName)
 	{
 		if (formNameOrInstance == null)
 		{
@@ -327,33 +368,6 @@ public class ServoyApiObject
 	}
 
 	/**
-	 * Calls showForm delayed with latest form name and relation name from the model.
-	 *
-	 * @sample
-	 * servoyApi.showFormDelayed(model, 'containedForm', 'relationName')
-	 *
-	 * @param model the component model
-	 * @param formNameProperty the name of the property that contains the form name in model
-	 * @param relationNameProperty the name of the property that contains the relation name in model
-	 */
-	@JSFunction
-	public void showFormDelayed(Scriptable model, String formNameProperty, String relationNameProperty)
-	{
-		Utils.invokeLater(app, Arrays.asList(() -> {
-			IWebFormUI formUI = this.component.findParent(IWebFormUI.class);
-			if (component.isVisible() && formUI != null && formUI.getController() != null && formUI.getController().isFormVisible())
-			{
-				String formName = (String)model.get(formNameProperty, model);
-				String relationName = (String)model.get(relationNameProperty, model);
-				if (formName != null)
-				{
-					showForm(formName, relationName);
-				}
-			}
-		}));
-	}
-
-	/**
 	 * Can be used to deep copy a custom value.
 	 *
 	 * @sample
@@ -429,7 +443,7 @@ public class ServoyApiObject
 				return nativeArray;
 			}
 		}
-		Debug.error("cannot return object: " + value + " as NativeObject");
+		Debug.error("cannot return object: " + value + " as NativeObject"); //$NON-NLS-1$ //$NON-NLS-2$
 		return new NativeObject();
 	}
 

@@ -6,8 +6,7 @@ $scope.setters.setContainedForm = function(form) {
 		if ($scope.model.containedForm && !servoyApi.hideForm($scope.model.containedForm)) {
 			return false;
 		}
-		//wait until form and relation are both correctly set
-		servoyApi.showFormDelayed($scope.model, 'containedForm', 'relationName');
+		servoyApi.showForm(form, $scope.model.relationName);
 	}
 	$scope.model.containedForm = form;
 }
