@@ -90,35 +90,6 @@ import com.servoy.j2db.util.Utils;
 @ServoyClientSupport(sc = false, wc = false, ng = true)
 public class ServoyApiObject
 {
-	private class ShowFormLaterRunnable implements Runnable
-	{
-		private final Object formNameOrInstance;
-		private final String relationName;
-		private boolean cancelled;
-
-		public ShowFormLaterRunnable(Object formNameOrInstance, String relationName)
-		{
-			this.formNameOrInstance = formNameOrInstance;
-			this.relationName = relationName;
-		}
-
-		@Override
-		public void run()
-		{
-			if (!cancelled) showFormInternal(formNameOrInstance, relationName);
-			if (showFormLater == this)
-			{
-				showFormLater = null;
-			}
-		}
-
-		public void cancel()
-		{
-			cancelled = true;
-		}
-	}
-
-	private ShowFormLaterRunnable showFormLater;
 	private final INGApplication app;
 	private final WebFormComponent component;
 
@@ -229,7 +200,7 @@ public class ServoyApiObject
 	@JSFunction
 	public boolean showForm(Object formNameOrInstance)
 	{
-		return this.showFormInternal(formNameOrInstance, null);
+		return this.showForm(formNameOrInstance, null);
 	}
 
 	/**
@@ -247,18 +218,6 @@ public class ServoyApiObject
 	 */
 	@JSFunction
 	public boolean showForm(Object formNameOrInstance, String relationName)
-	{
-		if (showFormLater != null)
-		{
-			showFormLater.cancel();
-		}
-		app.invokeLater(showFormLater = new ShowFormLaterRunnable(formNameOrInstance, relationName));
-		//always just return true, this is always a bit later
-		return true;
-	}
-
-	@SuppressWarnings("nls")
-	private boolean showFormInternal(Object formNameOrInstance, String relationName)
 	{
 		if (formNameOrInstance == null || "".equals(formNameOrInstance)) //$NON-NLS-1$
 		{
@@ -365,6 +324,30 @@ public class ServoyApiObject
 			Debug.warn("Cannot show form '" + formName + "' from Servoy Api showForm because it is not found in the current solution.");
 		}
 		return false;
+	}
+
+	/**
+	 * Calls showForm delayed with latest form name and relation name from the model.
+	 *
+	 * @sample
+	 * servoyApi.showFormDelayed(model, 'containedForm', 'relationName')
+	 *
+	 * @param model the component model
+	 * @param formNameProperty the name of the property that contains the form name in model
+	 * @param relationNameProperty the name of the property that contains the relation name in model
+	 */
+	@JSFunction
+	public void showFormDelayed(Scriptable model, String formNameProperty, String relationNameProperty)
+	{
+		Utils.invokeLater(app, Arrays.asList(() -> {
+			IWebFormUI formUI = this.component.findParent(IWebFormUI.class);
+			if (component.isVisible() && formUI != null && formUI.getController() != null && formUI.getController().isFormVisible())
+			{
+				Object formName = model.get(formNameProperty, model);
+				String relationName = (String)model.get(relationNameProperty, model);
+				showForm(formName, relationName);
+			}
+		}));
 	}
 
 	/**
