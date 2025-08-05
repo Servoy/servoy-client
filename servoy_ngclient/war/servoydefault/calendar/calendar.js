@@ -106,6 +106,7 @@ angular.module('servoydefaultCalendar', [ 'servoy' ]).directive('servoydefaultCa
 			// datepicker
 			ngModel.$render = function() {
 				try {
+					$element.off("dp.error");
 					$element.off("dp.change", inputChanged);
 					if (theDateTimePicker && !$scope.model.findmode) theDateTimePicker.date(correctDateValueToUse(ngModel.$viewValue)); // set default date for widget open; turn undefined to null as well (undefined gives exception)
 					else {
@@ -113,6 +114,7 @@ angular.module('servoydefaultCalendar', [ 'servoy' ]).directive('servoydefaultCa
 						child.children("input").val(ngModel.$viewValue);
 					}
 				} finally {
+					$element.on("dp.error", onError);
 					$element.on("dp.change", inputChanged);
 				}
 			};
