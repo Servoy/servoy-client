@@ -344,8 +344,8 @@ public class ServoyApiObject
 			if (component.isVisible() && formUI != null && formUI.getController() != null && formUI.getController().isFormVisible())
 			{
 				Object formName = model.get(formNameProperty, model);
-				String relationName = (String)model.get(relationNameProperty, model);
-				showForm(formName, relationName);
+				Object relation = model.get(relationNameProperty, model);
+				showForm(formName, relation instanceof String ? (String)relation : null);
 			}
 		}));
 	}
