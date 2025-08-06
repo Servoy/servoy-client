@@ -179,7 +179,8 @@ public class CloudStatelessAccessManager
 				}
 			}
 			httpget.addHeader(SvyID.USERNAME, sanitizeHeader(oldToken.getUsername()));
-			httpget.addHeader(SvyID.LAST_LOGIN, sanitizeHeader(oldToken.getStringClaim(SvyID.LAST_LOGIN)));
+			String lastLogin = oldToken.getStringClaim(SvyID.LAST_LOGIN);
+			if (lastLogin != null) httpget.addHeader(SvyID.LAST_LOGIN, sanitizeHeader(lastLogin));
 		}
 		httpget.addHeader(HttpHeaders.ACCEPT, "application/json");
 		httpget.addHeader("uuid", sanitizeHeader(solution.getUUID().toString()));
