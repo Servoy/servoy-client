@@ -225,7 +225,7 @@ public class CloudStatelessAccessManager
 	public static boolean handlePossibleCloudRequest(HttpServletRequest request, HttpServletResponse response, String solutionName, Object index)
 		throws ServletException
 	{
-		Path path = Paths.get(request.getRequestURI()).normalize();
+		Path path = Paths.get(request.getServletPath()).normalize();
 		if (solutionName != null && path.getNameCount() > 2 && StatelessLoginUtils.SVYLOGIN_PATH.equals(path.getName(2).toString()))
 		{
 			Pair<FlattenedSolution, Boolean> _fs = AngularIndexPageWriter.getFlattenedSolution(solutionName, null, request, response);
