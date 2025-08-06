@@ -341,9 +341,10 @@ public class CloudStatelessAccessManager
 				.GET()
 				.uri(finalUri)
 				.setHeader("Accept", "application/json") // HttpHeaders.ACCEPT
-				.setHeader("Accept-Language", request.getHeader("Accept-Language")) // HttpHeaders.ACCEPT_LANGUAGE
 				.setHeader("build-number", String.valueOf(ClientVersion.getReleaseNumber()))
 				.setHeader("uuid", sanitizeHeader(solution.getUUID().toString()));
+			String acceptLang = request.getHeader("Accept-Language");
+			if (!Utils.stringIsEmpty(acceptLang)) requestBuilder.setHeader("Accept-Language", acceptLang); // HttpHeaders.ACCEPT_LANGUAGE
 
 			return httpclient.send(requestBuilder.build(), new CloudResponseHandler(endpoint)).body();
 		}
