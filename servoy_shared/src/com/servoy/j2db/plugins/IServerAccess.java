@@ -22,6 +22,7 @@ import java.net.URL;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.sql.Connection;
+import java.sql.Statement;
 
 import com.servoy.j2db.dataprocessing.IDataSet;
 import com.servoy.j2db.dataprocessing.JSDataSet;
@@ -439,4 +440,30 @@ public interface IServerAccess extends IPluginAccess
 	 * @since 5.0
 	 */
 	public void releaseLocks(String clientId);
+
+
+	/**
+	 * Add a track statement to the server.
+	 * This is used to track statements that are executed on the server side.
+	 *
+	 * @param clientId the client identifier
+	 * @param server the server name
+	 * @param sql the SQL statement
+	 * @param t1 the start time of the statement execution
+	 * @param ps the prepared statement object
+	 * @return a unique identifier for the tracked statement
+	 *
+	 * @since 2025.09
+	 */
+	public long addTrackStatement(String clientId, String server, String sql, long t1, Statement ps);
+
+	/**
+	 * Remove a tracked statement from the server.
+	 * This is used to remove statements that are no longer needed.
+	 *
+	 * @param statementTrackerId the unique identifier of the tracked statement
+	 *
+	 * @since 2025.09
+	 */
+	public void removeTrackStatement(long statementTrackerId);
 }
