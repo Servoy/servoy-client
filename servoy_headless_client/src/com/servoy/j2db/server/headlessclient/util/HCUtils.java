@@ -206,40 +206,56 @@ public class HCUtils
 	{
 		if (userAgentHeader == null) return false;
 		UserAgent userAgent = USER_AGENT_PARSER.parseUserAgent(userAgentHeader);
-		if (("Chrome".equals(userAgent.family) || "Chromium".equals(userAgent.family)) && parseInt(userAgent.major) >= 52)
+		if (("Chrome".equals(userAgent.family) || "Chromium".equals(userAgent.family)) && safeParseInt(userAgent.major) >= 52)
 		{
 			return true;
 		}
-		if ("Firefox".equals(userAgent.family) && parseInt(userAgent.major) >= 52)
+		if ("Firefox".equals(userAgent.family) && safeParseInt(userAgent.major) >= 52)
 		{
 			return true;
 		}
-		if ("Edge".equals(userAgent.family) && parseInt(userAgent.major) >= 74) // Chromium-based
+		if ("Edge".equals(userAgent.family) && safeParseInt(userAgent.major) >= 74) // Chromium-based
 		{
 			return true;
 		}
-		if ("Opera".equals(userAgent.family) && parseInt(userAgent.major) >= 39)
+		if ("Opera".equals(userAgent.family) && safeParseInt(userAgent.major) >= 39)
 		{
 			return true;
 		}
-		if ("Chrome Mobile WebView".equals(userAgent.family) && parseInt(userAgent.major) >= 76)
+		if ("Chrome Mobile WebView".equals(userAgent.family) && safeParseInt(userAgent.major) >= 76)
 		{
 			return true;
 		}
-		if ("Opera Mini".equals(userAgent.family) && parseInt(userAgent.major) >= 46)
+		if ("Opera Mini".equals(userAgent.family) && safeParseInt(userAgent.major) >= 46)
 		{
 			return true;
 		}
 		if ("Samsung Internet".equals(userAgent.family) &&
-			(parseInt(userAgent.major) > 6 || (parseInt(userAgent.major) == 6 && parseInt(userAgent.minor) >= 2)))
+			(safeParseInt(userAgent.major) > 6 || (safeParseInt(userAgent.major) == 6 && safeParseInt(userAgent.minor) >= 2)))
 		{
 			return true;
 		}
 		if (userAgent.family != null && userAgent.family.contains("Safari") &&
-			(parseInt(userAgent.major) > 15 || (parseInt(userAgent.major) >= 15 && parseInt(userAgent.minor) >= 4)))
+			(safeParseInt(userAgent.major) > 15 || (safeParseInt(userAgent.major) >= 15 && safeParseInt(userAgent.minor) >= 4)))
 		{
 			return true;
 		}
 		return false;
+	}
+
+	private static int safeParseInt(String s)
+	{
+		if (s != null)
+		{
+			try
+			{
+				return parseInt(s);
+			}
+			catch (NumberFormatException e)
+			{
+				// Hmm should not happen
+			}
+		}
+		return 0;
 	}
 }
