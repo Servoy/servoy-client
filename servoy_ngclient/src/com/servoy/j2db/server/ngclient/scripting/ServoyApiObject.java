@@ -263,6 +263,10 @@ public class ServoyApiObject
 		}
 		if (formController != null)
 		{
+			if (form == null)
+			{
+				form = formController.getForm();
+			}
 			List<Runnable> invokeLaterRunnables = new ArrayList<Runnable>();
 			boolean ret = formController.notifyVisible(true, invokeLaterRunnables, true);
 			if (ret)
