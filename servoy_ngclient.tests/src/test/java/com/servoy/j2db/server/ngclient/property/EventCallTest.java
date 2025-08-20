@@ -64,6 +64,7 @@ public class EventCallTest extends AbstractSolutionTest
 		form.setNavigatorID(Form.NAVIGATOR_NONE);
 		form.createNewScriptVariable(DummyValidator.INSTANCE, "testVar", IColumnTypes.INTEGER);
 		GraphicalComponent button = form.createNewGraphicalComponent(new Point(10, 10));
+		button.setName("svy_3");
 		button.setShowClick(true);
 		button.setShowFocus(true);
 		ScriptMethod sm = form.createNewScriptMethod(DummyValidator.INSTANCE, "test");
