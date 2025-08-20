@@ -60,7 +60,6 @@ public abstract class AbstractBase implements IPersist
 	private static final long serialVersionUID = 1L;
 
 	private static final String[] OVERRIDE_PATH = new String[] { "override" }; //$NON-NLS-1$
-	public static final int DEFAULT_INT = ContentSpec.ZERO.intValue(); // == ContentSpec.getJavaClassMemberDefaultValue(IRepository.INTEGER)
 
 	private static final Object UNDEFINED = new Object()
 	{
@@ -77,7 +76,6 @@ public abstract class AbstractBase implements IPersist
 	 * Attributes for IPersist
 	 */
 	protected UUID uuid;
-	protected int element_id;
 	protected int revision = 1;
 	protected boolean isChanged = true;
 	protected ISupportChilds parent;
@@ -100,11 +98,10 @@ public abstract class AbstractBase implements IPersist
 /*
  * _____________________________________________________________ Declaration and definition of constructors
  */
-	public AbstractBase(int type, ISupportChilds parent, int element_id, UUID uuid)
+	public AbstractBase(int type, ISupportChilds parent, UUID uuid)
 	{
 		this.type = type;
 		this.parent = parent;
-		this.element_id = element_id;
 		this.uuid = uuid;
 	}
 
@@ -251,7 +248,7 @@ public abstract class AbstractBase implements IPersist
 	private boolean isNotExtendingAnotherPersist()
 	{
 		return !hasProperty(StaticContentSpecLoader.PROPERTY_EXTENDSID.getPropertyName()) ||
-			(this instanceof ISupportExtendsID && Utils.equalObjects(Integer.valueOf(((ISupportExtendsID)this).getExtendsID()),
+			(this instanceof ISupportExtendsID && Utils.equalObjects(((ISupportExtendsID)this).getExtendsID(),
 				StaticContentSpecLoader.getContentSpec().getPropertyForObjectTypeByName(getTypeID(),
 					StaticContentSpecLoader.PROPERTY_EXTENDSID.getPropertyName()).getDefaultClassValue()));
 	}
@@ -603,19 +600,6 @@ public abstract class AbstractBase implements IPersist
 		this.parent = parent;
 	}
 
-	public int getID()
-	{
-		return element_id;
-	}
-
-	/*
-	 * only called when cloning to set the clone on a new id.
-	 */
-	public void setID(int id)
-	{
-		element_id = id;
-	}
-
 	public void setRevisionNumber(int revision)
 	{
 		this.revision = revision;
@@ -847,16 +831,6 @@ public abstract class AbstractBase implements IPersist
 	{
 	};
 
-	public static final SerializableRuntimeProperty<HashMap<UUID, Integer>> UUIDToIDMapProperty = new SerializableRuntimeProperty<HashMap<UUID, Integer>>()
-	{
-		private static final long serialVersionUID = 1L;
-	};
-
-	public static final SerializableRuntimeProperty<HashMap<String, String>> UnresolvedPropertyToValueMapProperty = new SerializableRuntimeProperty<HashMap<String, String>>()
-	{
-		private static final long serialVersionUID = 1L;
-	};
-
 	private void checkForChange(Object oldValue, Object newValue)
 	{
 		if (isChanged) return;//no need to check
@@ -1036,12 +1010,12 @@ public abstract class AbstractBase implements IPersist
 		return null;
 	}
 
-	public static <T extends IPersist> T selectById(Iterator<T> iterator, int id)
+	public static <T extends IPersist> T selectByUUID(Iterator<T> iterator, String uuid)
 	{
 		while (iterator.hasNext())
 		{
 			T p = iterator.next();
-			if (p.getID() == id)
+			if (p.getUUID().toString().equals(uuid))
 			{
 				return p;
 			}

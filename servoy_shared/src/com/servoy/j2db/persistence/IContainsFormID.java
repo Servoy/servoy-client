@@ -23,7 +23,7 @@ package com.servoy.j2db.persistence;
  */
 public interface IContainsFormID
 {
-	public void setContainsFormID(int formID);
+	public void setContainsFormID(String formID);
 
-	public int getContainsFormID();
+	public String getContainsFormID();
 }

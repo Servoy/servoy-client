@@ -48,9 +48,9 @@ public class ValueList extends AbstractBase
 	/**
 	 * Constructor I
 	 */
-	ValueList(ISupportChilds parent, int element_id, UUID uuid)
+	ValueList(ISupportChilds parent, UUID uuid)
 	{
-		super(IRepository.VALUELISTS, parent, element_id, uuid);
+		super(IRepository.VALUELISTS, parent, uuid);
 	}
 
 /*
@@ -74,7 +74,7 @@ public class ValueList extends AbstractBase
 
 	public void updateName(IValidateName validator, String arg) throws RepositoryException
 	{
-		validator.checkName(arg, getID(), new ValidatorSearchContext(IRepository.VALUELISTS), false);
+		validator.checkName(arg, getUUID(), new ValidatorSearchContext(IRepository.VALUELISTS), false);
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_NAME, arg);
 		getRootObject().getChangeHandler().fireIPersistChanged(this);
 	}
@@ -561,12 +561,12 @@ public class ValueList extends AbstractBase
 	 * @sample "customers_and_company_name"
 	 * @return the valueback valuelist id.
 	 */
-	public int getFallbackValueListID()
+	public String getFallbackValueListID()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_FALLBACKVALUELISTID).intValue();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_FALLBACKVALUELISTID);
 	}
 
-	public void setFallbackValueListID(int id)
+	public void setFallbackValueListID(String id)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_FALLBACKVALUELISTID, id);
 	}

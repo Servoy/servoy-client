@@ -138,16 +138,7 @@ public class MediaPropertyType extends DefaultPropertyType<Object> implements IW
 		{
 			value = ((CharSequence)value).toString();
 		}
-		if (value instanceof Integer)
-		{
-			if (((Integer)value).intValue() == 0)
-			{
-				// 0 means no media
-				return null;
-			}
-			media = flattenedSolution.getMedia(((Integer)value).intValue());
-		}
-		else if (value instanceof String && ((String)value).toLowerCase().startsWith(MediaURLStreamHandler.MEDIA_URL_DEF))
+		if (value instanceof String && ((String)value).toLowerCase().startsWith(MediaURLStreamHandler.MEDIA_URL_DEF))
 		{
 			media = flattenedSolution.getMedia(((String)value).substring(MediaURLStreamHandler.MEDIA_URL_DEF.length()));
 		}
@@ -274,15 +265,7 @@ public class MediaPropertyType extends DefaultPropertyType<Object> implements IW
 		if (dal != null)
 		{
 			FlattenedSolution flattenedSolution = dal.getApplication().getFlattenedSolution();
-			if (webComponentValue instanceof Integer)
-			{
-				Media media = flattenedSolution.getMedia(((Integer)webComponentValue).intValue());
-				if (media != null)
-				{
-					return media.getName();
-				}
-			}
-			else if (webComponentValue != null)
+			if (webComponentValue != null)
 			{
 				Media media = flattenedSolution.getMedia(webComponentValue.toString());
 				if (media == null)

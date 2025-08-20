@@ -97,9 +97,9 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 	/**
 	 * Constructor I
 	 */
-	Relation(ISupportChilds parent, int element_id, UUID uuid)
+	Relation(ISupportChilds parent, UUID uuid)
 	{
-		super(IRepository.RELATIONS, parent, element_id, uuid);
+		super(IRepository.RELATIONS, parent, uuid);
 	}
 
 	/*
@@ -254,7 +254,7 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 
 	public void updateName(IValidateName validator, String name) throws RepositoryException
 	{
-		validator.checkName(name, getID(), new ValidatorSearchContext(IRepository.RELATIONS), true);
+		validator.checkName(name, getUUID(), new ValidatorSearchContext(IRepository.RELATIONS), true);
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_NAME, name);
 		getRootObject().getChangeHandler().fireIPersistChanged(this);
 	}

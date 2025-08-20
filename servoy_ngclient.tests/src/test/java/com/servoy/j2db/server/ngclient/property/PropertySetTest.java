@@ -50,7 +50,7 @@ public class PropertySetTest extends AbstractSolutionTest
 	protected void fillTestSolution() throws ServoyException
 	{
 		Form form = solution.createNewForm(validator, null, "test", null, false, new Dimension(600, 400));
-		form.setNavigatorID(-2);
+		form.setNavigatorID(Form.NAVIGATOR_IGNORE);
 		com.servoy.j2db.persistence.WebComponent bean = form.createNewWebComponent("mycustombean", "mycomponent");
 		bean.setProperty("background", Color.black);
 	}

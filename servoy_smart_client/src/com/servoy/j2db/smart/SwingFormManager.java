@@ -256,33 +256,33 @@ public class SwingFormManager extends FormManager implements ISwingFormManager, 
 		ICmdManager cm = getApplication().getCmdManager();
 		Action a = null;
 		a = cm.getRegisteredAction("cmdnewrecord"); //$NON-NLS-1$
-		if (a != null) a.setEnabled(enable && currentMainShowingForm.getOnNewRecordCmdMethodID() >= 0);
+		if (a != null) a.setEnabled(enable && !"-1".equals(currentMainShowingForm.getOnNewRecordCmdMethodID()));
 		a = cm.getRegisteredAction("cmdduplicaterecord"); //$NON-NLS-1$
-		if (a != null) a.setEnabled(enable && currentMainShowingForm.getOnDuplicateRecordCmdMethodID() >= 0);
+		if (a != null) a.setEnabled(enable && !"-1".equals(currentMainShowingForm.getOnDuplicateRecordCmdMethodID()));
 		a = cm.getRegisteredAction("cmddeleterecord"); //$NON-NLS-1$
-		if (a != null) a.setEnabled(enable && currentMainShowingForm.getOnDeleteRecordCmdMethodID() >= 0);
+		if (a != null) a.setEnabled(enable && !"-1".equals(currentMainShowingForm.getOnDeleteRecordCmdMethodID()));
 		a = cm.getRegisteredAction("cmddeleteallrecord"); //$NON-NLS-1$
-		if (a != null) a.setEnabled(enable && !findMode && currentMainShowingForm.getOnDeleteAllRecordsCmdMethodID() >= 0);
+		if (a != null) a.setEnabled(enable && !findMode && !"-1".equals(currentMainShowingForm.getOnDeleteAllRecordsCmdMethodID()));
 		a = cm.getRegisteredAction("cmdfindmode"); //$NON-NLS-1$
-		if (a != null) a.setEnabled(enable && !findMode && currentMainShowingForm.getOnFindCmdMethodID() >= 0);
+		if (a != null) a.setEnabled(enable && !findMode && !"-1".equals(currentMainShowingForm.getOnFindCmdMethodID()));
 		a = cm.getRegisteredAction("cmdfindall"); //$NON-NLS-1$
-		if (a != null) a.setEnabled(enable && currentMainShowingForm.getOnShowAllRecordsCmdMethodID() >= 0);
+		if (a != null) a.setEnabled(enable && !"-1".equals(currentMainShowingForm.getOnShowAllRecordsCmdMethodID()));
 		a = cm.getRegisteredAction("cmdomitrecord"); //$NON-NLS-1$
-		if (a != null) a.setEnabled(enable && !findMode && currentMainShowingForm.getOnOmitRecordCmdMethodID() >= 0);
+		if (a != null) a.setEnabled(enable && !findMode && !"-1".equals(currentMainShowingForm.getOnOmitRecordCmdMethodID()));
 		a = cm.getRegisteredAction("cmdshowomitrecords"); //$NON-NLS-1$
-		if (a != null) a.setEnabled(enable && !findMode && currentMainShowingForm.getOnShowOmittedRecordsCmdMethodID() >= 0);
+		if (a != null) a.setEnabled(enable && !findMode && !"-1".equals(currentMainShowingForm.getOnShowOmittedRecordsCmdMethodID()));
 		a = cm.getRegisteredAction("cmdrevertrecords"); //$NON-NLS-1$
-		if (a != null) a.setEnabled(enable && !findMode && currentMainShowingForm.getOnInvertRecordsCmdMethodID() >= 0);
+		if (a != null) a.setEnabled(enable && !findMode && !"-1".equals(currentMainShowingForm.getOnInvertRecordsCmdMethodID()));
 		a = cm.getRegisteredAction("cmdpreviewmode"); //$NON-NLS-1$
-		if (a != null) a.setEnabled(enable && !findMode && currentMainShowingForm.getOnPrintPreviewCmdMethodID() >= 0);
+		if (a != null) a.setEnabled(enable && !findMode && !"-1".equals(currentMainShowingForm.getOnPrintPreviewCmdMethodID()));
 		a = cm.getRegisteredAction("cmdsort"); //$NON-NLS-1$
-		if (a != null) a.setEnabled(enable && !findMode && currentMainShowingForm.getOnSortCmdMethodID() >= 0);
+		if (a != null) a.setEnabled(enable && !findMode && !"-1".equals(currentMainShowingForm.getOnSortCmdMethodID()));
 
 		a = cm.getRegisteredAction("cmdnextrecord"); //$NON-NLS-1$
-		if (a != null) a.setEnabled(enable && currentMainShowingForm.getOnNextRecordCmdMethodID() >= 0);
+		if (a != null) a.setEnabled(enable && !"-1".equals(currentMainShowingForm.getOnNextRecordCmdMethodID()));
 
 		a = cm.getRegisteredAction("cmdprevrecord"); //$NON-NLS-1$
-		if (a != null) a.setEnabled(enable && currentMainShowingForm.getOnPreviousRecordCmdMethodID() >= 0);
+		if (a != null) a.setEnabled(enable && !"-1".equals(currentMainShowingForm.getOnPreviousRecordCmdMethodID()));
 
 	}
 
@@ -326,10 +326,8 @@ public class SwingFormManager extends FormManager implements ISwingFormManager, 
 			globalMenu = new JMenu(Messages.getString("servoy.formManager.menuGlobalMethods"));
 			menu.add(globalMenu);
 		}
-		Iterator<ScriptMenuItem> it = globalMenus.iterator();
-		while (it.hasNext())
+		for (ScriptMenuItem item : globalMenus)
 		{
-			ScriptMenuItem item = it.next();
 			globalMenu.add(item);
 		}
 		boolean insertSeparator = menu.getMenuComponentCount() > 0;

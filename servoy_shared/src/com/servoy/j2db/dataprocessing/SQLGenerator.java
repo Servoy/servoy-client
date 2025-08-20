@@ -407,7 +407,7 @@ public class SQLGenerator
 				{
 					AggregateVariable aggregate = (AggregateVariable)column;
 					queryColumn = new QueryAggregate(aggregate.getType(), aggregate.getAggregateQuantifier(),
-						new QueryColumn(foreignQtable, -1, aggregate.getColumnNameToAggregate(),
+						new QueryColumn(foreignQtable, aggregate.getColumnNameToAggregate(),
 							aggregate.getDataProviderType(), aggregate.getLength(), 0, null, aggregate.getFlags()),
 						aggregate.getName(), null, false);
 
@@ -424,7 +424,7 @@ public class SQLGenerator
 
 					// if the aggregate has not been selected yet, add it and skip it in the result
 					QueryAggregate skippedAggregate = new QueryAggregate(aggregate.getType(), aggregate.getAggregateQuantifier(),
-						new QueryColumn(foreignQtable, -1, aggregate.getColumnNameToAggregate(), aggregate.getDataProviderType(), aggregate.getLength(), 0,
+						new QueryColumn(foreignQtable, aggregate.getColumnNameToAggregate(), aggregate.getDataProviderType(), aggregate.getLength(), 0,
 							null, aggregate.getFlags()),
 						aggregate.getName(), null, true);
 					if (!columns.contains(skippedAggregate))
@@ -823,8 +823,8 @@ public class SQLGenerator
 							QuerySelect aggregateSelect = aggregates.get(dataProviderID);
 							if (aggregateSelect != null)
 							{
-								qCol = ((List<IQuerySelectValue>)AbstractBaseQuery.relinkTable(aggregateSelect.getTable(), columnTable,
-									aggregateSelect.getColumnsClone())).get(0);
+								qCol = AbstractBaseQuery.relinkTable(aggregateSelect.getTable(), columnTable,
+									aggregateSelect.getColumnsClone()).get(0);
 							}
 						}
 					}
@@ -988,8 +988,8 @@ public class SQLGenerator
 		QueryColumn[] innerPkColumns = new QueryColumn[pkQueryColumns.length];
 		for (int p = 0; p < pkQueryColumns.length; p++)
 		{
-			BaseQueryColumn pk = pkQueryColumns[p];
-			innerPkColumns[p] = new QueryColumn(existsSelect.getTable(), pk.getId(), pk.getName(), pk.getColumnType(), pk.getNativeTypename(), pk.getFlags(),
+			QueryColumn pk = (QueryColumn)pkQueryColumns[p];
+			innerPkColumns[p] = new QueryColumn(existsSelect.getTable(), pk.getUUID(), pk.getName(), pk.getColumnType(), pk.getNativeTypename(), pk.getFlags(),
 				pk.isIdentity());
 
 			// group by on the inner pk, some dbs (hxtt dbf) require that
@@ -1128,7 +1128,7 @@ public class SQLGenerator
 			AggregateVariable aggregate = it.next();
 			QuerySelect sql = new QuerySelect(queryTable);
 			sql.addColumn(new QueryAggregate(aggregate.getType(), aggregate.getAggregateQuantifier(),
-				new QueryColumn(queryTable, -1, aggregate.getColumnNameToAggregate(), aggregate.getDataProviderType(), aggregate.getLength(), 0, null,
+				new QueryColumn(queryTable, aggregate.getColumnNameToAggregate(), aggregate.getDataProviderType(), aggregate.getLength(), 0, null,
 					aggregate.getFlags()),
 				aggregate.getName(), null, false));
 			sheet.addAggregate(aggregate.getDataProviderID(), aggregate.getDataProviderIDToAggregate(), sql);

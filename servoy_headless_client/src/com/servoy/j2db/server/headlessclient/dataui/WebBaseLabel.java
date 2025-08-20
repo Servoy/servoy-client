@@ -166,7 +166,7 @@ public class WebBaseLabel extends Component implements ILabel, IProviderStylePro
 	/**
 	 * @see com.servoy.j2db.ui.ILabel#setRolloverIcon(byte[])
 	 */
-	public void setRolloverIcon(int rolloverId)
+	public void setRolloverIcon(String rolloverUUID)
 	{
 	}
 
@@ -188,16 +188,16 @@ public class WebBaseLabel extends Component implements ILabel, IProviderStylePro
 		}
 	}
 
-	public int getMediaIcon()
+	public String getMediaIcon()
 	{
-		return media != null ? media.getID() : 0;
+		return media != null ? media.getUUID().toString() : null;
 	}
 
-	public void setMediaIcon(int iconId)
+	public void setMediaIcon(String iconUUID)
 	{
 		this.icon = null;
 		this.iconUrl = null;
-		if ((media = application.getFlattenedSolution().getMedia(iconId)) != null)
+		if ((media = application.getFlattenedSolution().getMedia(iconUUID)) != null)
 		{
 			text_url = MediaURLStreamHandler.MEDIA_URL_DEF + media.getName();
 		}
@@ -291,7 +291,7 @@ public class WebBaseLabel extends Component implements ILabel, IProviderStylePro
 					Media med = application.getFlattenedSolution().getMedia(mediaName);
 					if (med != null)
 					{
-						setMediaIcon(med.getID());
+						setMediaIcon(med.getUUID().toString());
 					}
 					else if (mediaName.startsWith(MediaURLStreamHandler.MEDIA_URL_BLOBLOADER))
 					{
@@ -330,7 +330,7 @@ public class WebBaseLabel extends Component implements ILabel, IProviderStylePro
 				Media m = application.getFlattenedSolution().getMedia(nm);
 				if (m != null)
 				{
-					setRolloverIcon(m.getID());
+					setRolloverIcon(m.getUUID().toString());
 				}
 			}
 		}
@@ -338,10 +338,10 @@ public class WebBaseLabel extends Component implements ILabel, IProviderStylePro
 
 	public byte[] getThumbnailJPGImage(int width, int height)
 	{
-		return getThumbnailJPGImage(width, height, icon, text_url, media != null ? media.getID() : 0, (mediaOptions & 8) == 8, application);
+		return getThumbnailJPGImage(width, height, icon, text_url, media != null ? media.getUUID().toString() : null, (mediaOptions & 8) == 8, application);
 	}
 
-	public static byte[] getThumbnailJPGImage(int width, int height, MediaResource icon, String text_url, int iconId, boolean keepAspectRatio,
+	public static byte[] getThumbnailJPGImage(int width, int height, MediaResource icon, String text_url, String iconUUID, boolean keepAspectRatio,
 		IApplication application)
 	{
 		Image sourceImage = null;
@@ -386,9 +386,9 @@ public class WebBaseLabel extends Component implements ILabel, IProviderStylePro
 				}
 			}
 		}
-		else if (iconId > 0)
+		else if (iconUUID != null)
 		{
-			Media media = application.getFlattenedSolution().getMedia(iconId);
+			Media media = application.getFlattenedSolution().getMedia(iconUUID);
 			if (media != null) sourceRawData = media.getMediaData();
 		}
 

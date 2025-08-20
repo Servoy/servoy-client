@@ -1025,7 +1025,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 						}
 						IWebFormUI formUI = getFormUI();
 						IWebFormController fc = (formUI != null ? formUI.getController() : null);
-						if (fc != null && fc.getForm().getOnSortCmdMethodID() > 0 && dataProviderID != null)
+						if (fc != null && Utils.getAsUUID(fc.getForm().getOnSortCmdMethodID(), false) != null && dataProviderID != null)
 						{
 							// our api only supports one dataproviderid sort at a time
 							JSEvent event = new JSEvent();

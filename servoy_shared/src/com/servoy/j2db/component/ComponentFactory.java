@@ -503,15 +503,15 @@ public class ComponentFactory
 
 	public static Pair<IStyleSheet, IStyleRule> getStyleForBasicComponent(IServiceProvider sp, AbstractBase bc, Form form)
 	{
-		return getStyleForBasicComponentInternal(sp, bc, form, new HashSet<Integer>());
+		return getStyleForBasicComponentInternal(sp, bc, form, new HashSet<String>());
 	}
 
-	private static Pair<IStyleSheet, IStyleRule> getStyleForBasicComponentInternal(IServiceProvider sp, AbstractBase bc, Form form, Set<Integer> visited)
+	private static Pair<IStyleSheet, IStyleRule> getStyleForBasicComponentInternal(IServiceProvider sp, AbstractBase bc, Form form, Set<String> visited)
 	{
 		if (bc == null || sp == null) return null;
 
 		// Protection agains cycle in form inheritance hierarchy.
-		if (!visited.add(new Integer(form.getID()))) return null;
+		if (!visited.add(form.getUUID().toString())) return null;
 
 		Style repos_style = getStyleForForm(sp, form);
 		Pair<IStyleSheet, IStyleRule> pair = null;
@@ -977,7 +977,7 @@ public class ComponentFactory
 			if (list == null)
 			{
 				list = ValueListFactory.createRealValueList(application, valuelist, type, format);
-				if (valuelist.getFallbackValueListID() > 0 && valuelist.getFallbackValueListID() != valuelist.getID())
+				if (valuelist.getFallbackValueListID() != null && !valuelist.getFallbackValueListID().equals(valuelist.getUUID().toString()))
 				{
 					list.setFallbackValueList(getFallbackValueList(application, dataprovider, type, format, valuelist));
 				}
@@ -1041,7 +1041,7 @@ public class ComponentFactory
 		else
 		{
 			list = ValueListFactory.createRealValueList(application, valuelist, type, format);
-			if (valuelist != null && valuelist.getFallbackValueListID() > 0 && valuelist.getFallbackValueListID() != valuelist.getID())
+			if (valuelist != null && valuelist.getFallbackValueListID() != null && !valuelist.getFallbackValueListID().equals(valuelist.getUUID().toString()))
 			{
 				list.setFallbackValueList(getFallbackValueList(application, dataprovider, type, format, valuelist));
 			}
@@ -1255,7 +1255,7 @@ public class ComponentFactory
 				break;
 
 			case Field.TYPE_AHEAD :
-				if (field.getValuelistID() > 0)
+				if (field.getValuelistID() != null)
 				{
 					fl = createTypeAheadWithValueList(application, form, field, dataProviderLookup, fieldFormat.uiType, fieldFormat.parsedFormat,
 						jsChangeRecorder);
@@ -1306,7 +1306,7 @@ public class ComponentFactory
 
 			// else treat as the default case: TEXT_FIELD
 			default ://Field.TEXT_FIELD
-				if (field.getValuelistID() > 0)
+				if (field.getValuelistID() != null)
 				{
 					fl = createTypeAheadWithValueList(application, form, field, dataProviderLookup, fieldFormat.uiType, fieldFormat.parsedFormat,
 						jsChangeRecorder);
@@ -1390,25 +1390,25 @@ public class ComponentFactory
 			cmds = combineMethodsToCommands(form, form.getOnElementFocusLostMethodID(), "onElementFocusLostMethodID", field, field.getOnFocusLostMethodID(),
 				"onFocusLostMethodID");
 			if (cmds != null) fl.setLeaveCmds((String[])cmds[0], (Object[][])cmds[1]);
-			if (field.getOnActionMethodID() > 0)
-				fl.setActionCmd(Integer.toString(field.getOnActionMethodID()), Utils.parseJSExpressions(field.getFlattenedMethodArguments("onActionMethodID")));
-			if (field.getOnDataChangeMethodID() > 0) fl.setChangeCmd(Integer.toString(field.getOnDataChangeMethodID()),
+			if (field.getOnActionMethodID() != null)
+				fl.setActionCmd(field.getOnActionMethodID(), Utils.parseJSExpressions(field.getFlattenedMethodArguments("onActionMethodID")));
+			if (field.getOnDataChangeMethodID() != null) fl.setChangeCmd(field.getOnDataChangeMethodID(),
 				Utils.parseJSExpressions(field.getFlattenedMethodArguments("onDataChangeMethodID")));
-			if (field.getOnRightClickMethodID() > 0) fl.setRightClickCommand(Integer.toString(field.getOnRightClickMethodID()),
+			if (field.getOnRightClickMethodID() != null) fl.setRightClickCommand(field.getOnRightClickMethodID(),
 				Utils.parseJSExpressions(field.getFlattenedMethodArguments("onRightClickMethodID")));
 		}
 
-		int onRenderMethodID = field.getOnRenderMethodID();
+		String onRenderMethodUUID = field.getOnRenderMethodID();
 		AbstractBase onRenderPersist = field;
-		if (onRenderMethodID <= 0)
+		if (onRenderMethodUUID == null)
 		{
-			onRenderMethodID = form.getOnRenderMethodID();
+			onRenderMethodUUID = form.getOnRenderMethodID();
 			onRenderPersist = form;
 		}
-		if (onRenderMethodID > 0)
+		if (onRenderMethodUUID != null)
 		{
 			RenderEventExecutor renderEventExecutor = scriptable.getRenderEventExecutor();
-			renderEventExecutor.setRenderCallback(Integer.toString(onRenderMethodID),
+			renderEventExecutor.setRenderCallback(onRenderMethodUUID,
 				Utils.parseJSExpressions(onRenderPersist.getFlattenedMethodArguments("onRenderMethodID")));
 
 			IForm rendererForm = application.getFormManager().getForm(form.getName());
@@ -1469,20 +1469,20 @@ public class ComponentFactory
 		return fl;
 	}
 
-	private static Object[] combineMethodsToCommands(AbstractBase persist1, int method1, String methodKey1, AbstractBase persist2, int method2,
+	private static Object[] combineMethodsToCommands(AbstractBase persist1, String method1, String methodKey1, AbstractBase persist2, String method2,
 		String methodKey2)
 	{
-		if (method1 <= 0 && method2 <= 0)
+		if (method1 == null && method2 == null)
 		{
 			return null;
 		}
-		if (method1 > 0 && method2 > 0)
+		if (method1 != null && method2 != null)
 		{
-			return new Object[] { new String[] { String.valueOf(method1), String.valueOf(method2) }, new Object[][] { Utils.parseJSExpressions(
+			return new Object[] { new String[] { method1, method2 }, new Object[][] { Utils.parseJSExpressions(
 				persist1.getFlattenedMethodArguments(methodKey1)), Utils.parseJSExpressions(persist2.getFlattenedMethodArguments(methodKey2)) } };
 		}
-		return new Object[] { new String[] { String.valueOf(method1 <= 0 ? method2 : method1) }, new Object[][] { Utils.parseJSExpressions(
-			(method1 <= 0 ? persist2 : persist1).getFlattenedMethodArguments(method1 <= 0 ? methodKey2 : methodKey1)) } };
+		return new Object[] { new String[] { method1 == null ? method2 : method1 }, new Object[][] { Utils.parseJSExpressions(
+			(method1 == null ? persist2 : persist1).getFlattenedMethodArguments(method1 == null ? methodKey2 : methodKey1)) } };
 	}
 
 	/**
@@ -1547,7 +1547,7 @@ public class ComponentFactory
 	public static IValueList getFallbackValueList(IServiceProvider application, String dataProviderID, int type, ParsedFormat format, ValueList valuelist)
 	{
 		IValueList valueList = null;
-		if (valuelist.getFallbackValueListID() > 0 && valuelist.getFallbackValueListID() != valuelist.getID())
+		if (valuelist.getFallbackValueListID() != null && !valuelist.getFallbackValueListID().equals(valuelist.getUUID().toString()))
 		{
 			ValueList fallbackValueList = application.getFlattenedSolution().getValueList(valuelist.getFallbackValueListID());
 			if (fallbackValueList.getValueListType() == IValueListConstants.DATABASE_VALUES)
@@ -1576,7 +1576,7 @@ public class ComponentFactory
 		int style_halign = -1;
 		int style_valign = -1;
 		int textTransform = 0;
-		int mediaid = 0;
+		String mediaUUID = null;
 		Pair<IStyleSheet, IStyleRule> styleInfo = getStyleForBasicComponent(application, label, form);
 		if (styleInfo != null)
 		{
@@ -1610,7 +1610,7 @@ public class ComponentFactory
 							Media media = application.getFlattenedSolution().getMedia(name);
 							if (media != null)
 							{
-								mediaid = media.getID();
+								mediaUUID = media.getUUID().toString();
 							}
 						}
 					}
@@ -1667,7 +1667,7 @@ public class ComponentFactory
 			}
 			((AbstractRuntimeButton<IButton>)scriptable).setComponent(button, label);
 			button.setMediaOption(label.getMediaOptions());
-			if (label.getRolloverImageMediaID() > 0)
+			if (label.getRolloverImageMediaID() != null)
 			{
 				try
 				{
@@ -1686,12 +1686,13 @@ public class ComponentFactory
 			if (label.getDataProviderID() == null && !label.getDisplaysTags())
 			{
 				scriptable = new RuntimeScriptLabel(jsChangeRecorder, application);
-				l = application.getItemFactory().createScriptLabel((RuntimeScriptLabel)scriptable, getWebID(form, label), (label.getOnActionMethodID() > 0));
+				l = application.getItemFactory().createScriptLabel((RuntimeScriptLabel)scriptable, getWebID(form, label),
+					(label.getOnActionMethodID() != null));
 			}
 			else
 			{
 				scriptable = new RuntimeDataLabel(jsChangeRecorder, application);
-				l = application.getItemFactory().createDataLabel((RuntimeDataLabel)scriptable, getWebID(form, label), (label.getOnActionMethodID() > 0));
+				l = application.getItemFactory().createDataLabel((RuntimeDataLabel)scriptable, getWebID(form, label), (label.getOnActionMethodID() != null));
 				IDataProvider dp = null;
 				try
 				{
@@ -1707,7 +1708,7 @@ public class ComponentFactory
 			}
 			((AbstractHTMLSubmitRuntimeLabel<ILabel>)scriptable).setComponent(l, label);
 			l.setMediaOption(label.getMediaOptions());
-			if (label.getRolloverImageMediaID() > 0)
+			if (label.getRolloverImageMediaID() != null)
 			{
 				try
 				{
@@ -1725,30 +1726,30 @@ public class ComponentFactory
 			l.setDisplayedMnemonic(mnemonic.charAt(0));
 		}
 		l.setTextTransform(textTransform);
-		if (el != null && (label.getOnActionMethodID() > 0 || label.getOnDoubleClickMethodID() > 0 || label.getOnRightClickMethodID() > 0))
+		if (el != null && (label.getOnActionMethodID() != null || label.getOnDoubleClickMethodID() != null || label.getOnRightClickMethodID() != null))
 		{
 			l.addScriptExecuter(el);
-			if (label.getOnActionMethodID() > 0) l.setActionCommand(Integer.toString(label.getOnActionMethodID()),
+			if (label.getOnActionMethodID() != null) l.setActionCommand(label.getOnActionMethodID(),
 				Utils.parseJSExpressions(label.getFlattenedMethodArguments("onActionMethodID")));
-			if (label.getOnDoubleClickMethodID() > 0) l.setDoubleClickCommand(Integer.toString(label.getOnDoubleClickMethodID()),
+			if (label.getOnDoubleClickMethodID() != null) l.setDoubleClickCommand(label.getOnDoubleClickMethodID(),
 				Utils.parseJSExpressions(label.getFlattenedMethodArguments("onDoubleClickMethodID")));
-			if (label.getOnRightClickMethodID() > 0) l.setRightClickCommand(Integer.toString(label.getOnRightClickMethodID()),
+			if (label.getOnRightClickMethodID() != null) l.setRightClickCommand(label.getOnRightClickMethodID(),
 				Utils.parseJSExpressions(label.getFlattenedMethodArguments("onRightClickMethodID")));
 		}
 
 		if (label.getLabelFor() == null || (form.getView() != FormController.TABLE_VIEW && form.getView() != FormController.LOCKED_TABLE_VIEW))
 		{
-			int onRenderMethodID = label.getOnRenderMethodID();
+			String onRenderMethodUUID = label.getOnRenderMethodID();
 			AbstractBase onRenderPersist = label;
-			if (onRenderMethodID <= 0)
+			if (onRenderMethodUUID == null)
 			{
-				onRenderMethodID = form.getOnRenderMethodID();
+				onRenderMethodUUID = form.getOnRenderMethodID();
 				onRenderPersist = form;
 			}
-			if (onRenderMethodID > 0)
+			if (onRenderMethodUUID != null)
 			{
 				RenderEventExecutor renderEventExecutor = scriptable.getRenderEventExecutor();
-				renderEventExecutor.setRenderCallback(Integer.toString(onRenderMethodID),
+				renderEventExecutor.setRenderCallback(onRenderMethodUUID,
 					Utils.parseJSExpressions(onRenderPersist.getFlattenedMethodArguments("onRenderMethodID")));
 
 				IForm rendererForm = application.getFormManager().getForm(form.getName());
@@ -1799,7 +1800,7 @@ public class ComponentFactory
 			// ignore
 		}
 		l.setToolTipText(application.getI18NMessageIfPrefixed(label.getToolTipText()));
-		if (label.getImageMediaID() > 0)
+		if (label.getImageMediaID() != null)
 		{
 			try
 			{
@@ -1810,11 +1811,11 @@ public class ComponentFactory
 				Debug.error(e);
 			}
 		}
-		else if (mediaid > 0)
+		else if (mediaUUID != null)
 		{
 			try
 			{
-				l.setMediaIcon(mediaid);
+				l.setMediaIcon(mediaUUID);
 			}
 			catch (Exception e)
 			{
@@ -1883,9 +1884,9 @@ public class ComponentFactory
 		return l;
 	}
 
-	public static byte[] loadIcon(FlattenedSolution solution, Integer key)
+	public static byte[] loadIcon(FlattenedSolution solution, String key)
 	{
-		Media m = solution.getMedia(key.intValue());
+		Media m = solution.getMedia(key);
 		if (m != null)
 		{
 			return m.getMediaData();
@@ -1952,9 +1953,9 @@ public class ComponentFactory
 		}
 
 		splitPane.setDividerLocation(meta.getTabOrientation() == TabPanel.SPLIT_HORIZONTAL ? splitPane.getSize().width / 2 : splitPane.getSize().height / 2);
-		if (el != null && meta.getOnChangeMethodID() > 0)
+		if (el != null && meta.getOnChangeMethodID() != null)
 		{
-			splitPane.setOnDividerChangeMethodCmd((Integer.toString(meta.getOnChangeMethodID())));
+			splitPane.setOnDividerChangeMethodCmd(meta.getOnChangeMethodID());
 			splitPane.addScriptExecuter(el);
 		}
 		return splitPane;
@@ -1992,9 +1993,9 @@ public class ComponentFactory
 			tabs.setTabLayoutPolicy(JTabbedPane.WRAP_TAB_LAYOUT);
 		}
 
-		if (el != null && meta.getOnTabChangeMethodID() > 0)
+		if (el != null && meta.getOnTabChangeMethodID() != null)
 		{
-			tabs.setOnTabChangeMethodCmd(Integer.toString(meta.getOnTabChangeMethodID()),
+			tabs.setOnTabChangeMethodCmd(meta.getOnTabChangeMethodID(),
 				Utils.parseJSExpressions(meta.getFlattenedMethodArguments("onTabChangeMethodID")));
 			tabs.addScriptExecuter(el);
 		}
@@ -2422,7 +2423,7 @@ public class ComponentFactory
 
 	public static boolean isButton(GraphicalComponent label)
 	{
-		return label.getOnActionMethodID() != 0 && label.getShowClick();
+		return label.getOnActionMethodID() != null && label.getShowClick();
 	}
 
 	protected static IComponent createWebComponentPlaceholder(IApplication application, Form form, WebComponent webComponent)

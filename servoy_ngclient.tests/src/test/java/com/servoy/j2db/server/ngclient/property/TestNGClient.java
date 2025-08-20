@@ -54,7 +54,6 @@ import com.servoy.j2db.dataprocessing.TableFilter;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.ITable;
-import com.servoy.j2db.persistence.ITeamRepository;
 import com.servoy.j2db.persistence.Procedure;
 import com.servoy.j2db.persistence.QuerySet;
 import com.servoy.j2db.persistence.QueryString;
@@ -86,6 +85,7 @@ import com.servoy.j2db.server.shared.PerformanceTimingAggregate;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.SafeArrayList;
 import com.servoy.j2db.util.ServoyException;
+import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.xmlxport.ColumnInfoDef;
 
 /**
@@ -395,7 +395,7 @@ public class TestNGClient extends NGClient
 			}
 
 			@Override
-			public Object getNextSequence(String serverName, String tableName, String columnName, int columnInfoID, String columnInfoServer)
+			public Object getNextSequence(String serverName, String tableName, String columnName, UUID columnInfoID, String columnInfoServer)
 				throws RepositoryException
 			{
 				return null;
@@ -578,12 +578,6 @@ public class TestNGClient extends NGClient
 					}
 
 					@Override
-					public ITeamRepository getTeamRepository()
-					{
-						return null;
-					}
-
-					@Override
 					public IRepository getRepository()
 					{
 						return null;
@@ -669,7 +663,7 @@ public class TestNGClient extends NGClient
 					}
 
 					@Override
-					public int getActiveClientCount(int solution_id)
+					public int getActiveClientCount(UUID solution_id)
 					{
 						return 0;
 					}
@@ -677,7 +671,7 @@ public class TestNGClient extends NGClient
 			}
 
 			@Override
-			public long[] getActiveRootObjectsLastModified(int[] rootObjectIds) throws RepositoryException
+			public long[] getActiveRootObjectsLastModified(UUID[] rootObjectIds) throws RepositoryException
 			{
 				return null;
 			}

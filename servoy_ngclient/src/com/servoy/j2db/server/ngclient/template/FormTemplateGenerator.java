@@ -149,7 +149,7 @@ public class FormTemplateGenerator
 				case Field.COMBOBOX :
 					return "servoydefault-combobox";
 				case Field.TEXT_FIELD :
-					if (((Field)persist).getValuelistID() > 0)
+					if (((Field)persist).getValuelistID() != null)
 					{
 						return "servoydefault-typeahead";
 					}
@@ -221,7 +221,7 @@ public class FormTemplateGenerator
 	public static boolean isSingleValueComponent(IFormElement persist)
 	{
 		Field field = (Field)persist;
-		if (field.getValuelistID() > 0)
+		if (field.getValuelistID() != null)
 		{
 			try
 			{

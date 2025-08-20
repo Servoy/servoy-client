@@ -18,7 +18,7 @@ public class FlattenedCSSPositionLayoutContainer extends CSSPositionLayoutContai
 
 	public FlattenedCSSPositionLayoutContainer(FlattenedForm flattenedForm, CSSPositionLayoutContainer layoutContainer)
 	{
-		super(layoutContainer.getParent(), layoutContainer.getID(), layoutContainer.getUUID());
+		super(layoutContainer.getParent(), layoutContainer.getUUID());
 		this.layoutContainer = layoutContainer;
 		this.flattenedForm = flattenedForm;
 		fill();
@@ -40,7 +40,7 @@ public class FlattenedCSSPositionLayoutContainer extends CSSPositionLayoutContai
 		// add overrides from current container to the map
 		for (IPersist child : layoutContainer.getAllObjectsAsList())
 		{
-			if (!(child instanceof ISupportExtendsID) || ((ISupportExtendsID)child).getExtendsID() <= 0) continue;
+			if (!(child instanceof ISupportExtendsID) || ((ISupportExtendsID)child).getExtendsID() == null) continue;
 			IPersist parent = PersistHelper.getSuperPersist((ISupportExtendsID)child);
 			if (parent != null)
 			{

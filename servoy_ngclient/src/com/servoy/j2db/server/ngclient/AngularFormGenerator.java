@@ -303,7 +303,7 @@ public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 					writer.value("0px");
 					writer.key("right");
 					writer.value("0px");
-					int top = form.getPartStartYPos(part.getID());
+					int top = form.getPartStartYPos(part.getUUID().toString());
 					if (part.getPartType() <= Part.BODY)
 					{
 						writer.key("top");
@@ -436,9 +436,9 @@ public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 						Part prt = form.getPartAt(((IFormElement)o).getLocation().y);
 						if (prt != null)
 						{
-							int prtEnd = form.getPartEndYPos(prt.getID());
+							int prtEnd = form.getPartEndYPos(prt.getUUID().toString());
 							if (prtEnd > form.getSize().height) prtEnd = form.getSize().height;
-							partHeight = prtEnd - form.getPartStartYPos(prt.getID());
+							partHeight = prtEnd - form.getPartStartYPos(prt.getUUID().toString());
 						}
 					}
 					writer.value(partHeight - location.y - size.height + "px");
@@ -498,7 +498,7 @@ public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 			{
 				if (CSSPositionUtils.isSet(position.top))
 				{
-					int topStart = form.getPartStartYPos(prt.getID());
+					int topStart = form.getPartStartYPos(prt.getUUID().toString());
 					if (topStart > 0)
 					{
 						if (top.endsWith("px"))

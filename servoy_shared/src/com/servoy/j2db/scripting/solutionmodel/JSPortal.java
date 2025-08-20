@@ -453,8 +453,8 @@ public class JSPortal extends JSComponent<Portal> implements IJSParent<Portal>, 
 			}
 			else
 			{
-				int id = JSForm.getMethodId(action, gc, application);
-				gc.setOnActionMethodID(id);
+				String uuid = JSForm.getMethodId(action, gc, application);
+				gc.setOnActionMethodID(uuid);
 				return new JSButton(this, gc, application, true);
 			}
 		}
@@ -538,8 +538,8 @@ public class JSPortal extends JSComponent<Portal> implements IJSParent<Portal>, 
 			}
 			else
 			{
-				int id = JSForm.getMethodId(action, gc, application);
-				if (id != -1) gc.setOnActionMethodID(id);
+				String uuid = JSForm.getMethodId(action, gc, application);
+				if (uuid != null) gc.setOnActionMethodID(uuid);
 				return new JSLabel(this, gc, application, true);
 			}
 		}

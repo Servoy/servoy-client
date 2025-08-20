@@ -22,7 +22,7 @@ import com.servoy.base.scripting.annotations.ServoyClientSupport;
 
 /**
  * Default/none/ignore constants for some property types.
- * 
+ *
  * @since 7.0
  * @author acostescu
  */
@@ -32,49 +32,49 @@ public interface IBaseSMDefaults
 
 	/**
 	 * Constant used in various places to set properties to their default value.
-	 * 
+	 *
 	 * @sample
 	 * var form = solutionModel.newForm('parentForm', 'db:/example_data/parent_table', null, false, 1200, 800);
 	 * form.navigator = SM_DEFAULTS.DEFAULT; // Show the default navigator on the form.
 	 */
 	@ServoyClientSupport(mc = false, wc = true, sc = true)
-	public static final int DEFAULT = 0;
+	public static final String DEFAULT = null;
 
 	/**
 	 * Constant used in various places to set properties to "none".
-	 * 
+	 *
 	 * @sample-mc
 	 * var form = solutionModel.newForm('parentForm', 'db:/example_data/parent_table');
 	 * form.navigator = SM_DEFAULTS.NONE; // Hide the navigator on the form.
-	 * 
+	 *
 	 * @sample
 	 * var form = solutionModel.newForm('parentForm', 'db:/example_data/parent_table', null, false, 1200, 800);
 	 * form.navigator = SM_DEFAULTS.NONE; // Hide the navigator on the form.
 	 */
-	public static final int NONE = -1;
+	public static final String NONE = "-1";
 
 	/**
 	 * Constant used to remove a component from the tab sequence or set form navigator to IGNORE value.
-	 * 
+	 *
 	 * @description-mc
 	 * Constant used for form navigator, will reuse the current form navigator.
-	 * 
+	 *
 	 * @sample-mc
 	 * var form = solutionModel.newForm('parentForm', 'db:/example_data/parent_table');
 	 * form.navigator = SM_DEFAULTS.IGNORE; // reuse the navigator from current form.
-	 * 
+	 *
 	 * @sample
 	 * // Create three fields. Based on how they are placed, by default they will come one
 	 * // after another in the tab sequence.
 	 * var fieldOne = form.newField('parent_table_id', JSField.TEXT_FIELD, 10, 10, 100, 20);
 	 * var fieldTwo = form.newField('parent_table_text', JSField.TEXT_FIELD, 10, 40, 100, 20);
 	 * var fieldThree = form.newField('parent_table_id', JSField.TEXT_FIELD, 10, 70, 100, 20);
-	 * // Set the third field come before the first in the tab sequence, and remove the 
+	 * // Set the third field come before the first in the tab sequence, and remove the
 	 * // second field from the tab sequence.
 	 * fieldOne.tabSeq = 2;
 	 * fieldTwo.tabSeq = SM_DEFAULTS.IGNORE;
 	 * fieldThree.tabSeq = 1;
 	 */
-	public static final int IGNORE = -2;
+	public static final String IGNORE = "-2";
 
 }

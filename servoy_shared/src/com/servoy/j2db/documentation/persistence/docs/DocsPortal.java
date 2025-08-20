@@ -41,7 +41,7 @@ public class DocsPortal extends Portal implements IBaseDocsComponent
 
 	DocsPortal()
 	{
-		super(null, 0, null);
+		super(null, null);
 	}
 
 	@Override

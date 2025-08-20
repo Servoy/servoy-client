@@ -35,7 +35,7 @@ public class FlattenedTabPanel extends TabPanel implements IFlattenedPersistWrap
 
 	public FlattenedTabPanel(TabPanel tabPanel)
 	{
-		super(tabPanel.getParent(), tabPanel.getID(), tabPanel.getUUID());
+		super(tabPanel.getParent(), tabPanel.getUUID());
 		this.tabPanel = tabPanel;
 		fill();
 	}

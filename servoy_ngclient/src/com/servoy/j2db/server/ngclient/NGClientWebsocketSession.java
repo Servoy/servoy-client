@@ -343,7 +343,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 						Solution sol = (Solution)ApplicationServerRegistry.get().getLocalRepository().getActiveRootObject(solutionName, IRepository.SOLUTIONS);
 						AUTHENTICATOR_TYPE authenticator = sol.getAuthenticator();
 						if (getHttpSession().getAttribute(StatelessLoginHandler.ID_TOKEN) != null && sol != null &&
-							authenticator != AUTHENTICATOR_TYPE.NONE && sol.getLoginFormID() <= 0 && sol.getLoginSolutionName() == null)
+							authenticator != AUTHENTICATOR_TYPE.NONE && sol.getLoginFormID() == null && sol.getLoginSolutionName() == null)
 						{
 							setUserId();
 						}

@@ -166,7 +166,7 @@ public class WebBaseSubmitLink extends Component
 	/**
 	 * @see com.servoy.j2db.ui.ILabel#setRolloverIcon(byte[])
 	 */
-	public void setRolloverIcon(int rolloverMediaId)
+	public void setRolloverIcon(String rolloverMediaUUID)
 	{
 	}
 
@@ -191,17 +191,17 @@ public class WebBaseSubmitLink extends Component
 		}
 	}
 
-	public int getMediaIcon()
+	public String getMediaIcon()
 	{
-		return media != null ? media.getID() : 0;
+		return media != null ? media.getUUID().toString() : null;
 	}
 
-	public void setMediaIcon(int iconId)
+	public void setMediaIcon(String iconUUID)
 	{
 		this.icon = null;
 		this.iconUrl = null;
 		this.media = null;
-		if ((media = application.getFlattenedSolution().getMedia(iconId)) != null)
+		if ((media = application.getFlattenedSolution().getMedia(iconUUID)) != null)
 		{
 			text_url = MediaURLStreamHandler.MEDIA_URL_DEF + media.getName();
 		}
@@ -299,7 +299,7 @@ public class WebBaseSubmitLink extends Component
 				Media m = application.getFlattenedSolution().getMedia(nm);
 				if (m != null)
 				{
-					setRolloverIcon(m.getID());
+					setRolloverIcon(m.getUUID().toString());
 				}
 			}
 		}
@@ -307,7 +307,8 @@ public class WebBaseSubmitLink extends Component
 
 	public byte[] getThumbnailJPGImage(int width, int height)
 	{
-		return WebBaseLabel.getThumbnailJPGImage(width, height, icon, text_url, media != null ? media.getID() : 0, (mediaOptions & 8) == 8, application);
+		return WebBaseLabel.getThumbnailJPGImage(width, height, icon, text_url, media != null ? media.getUUID().toString() : null, (mediaOptions & 8) == 8,
+			application);
 	}
 
 	@Override

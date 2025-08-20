@@ -37,6 +37,7 @@ import com.servoy.j2db.query.ISQLUpdate;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ServoyException;
+import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.xmlxport.ColumnInfoDef;
 
 /**
@@ -133,10 +134,10 @@ public class DataServerProxy implements IDataServer
 		return ds.getBlob(clientId, getMappedServerName(serverName), blobSelect, filters, tid);
 	}
 
-	public Object getNextSequence(String serverName, String tableName, String columnName, int columnInfoID, String columnInfoServer)
+	public Object getNextSequence(String serverName, String tableName, String columnName, UUID columnInfoUUID, String columnInfoServer)
 		throws RepositoryException
 	{
-		return ds.getNextSequence(getMappedServerName(serverName), tableName, columnName, columnInfoID, columnInfoServer);
+		return ds.getNextSequence(getMappedServerName(serverName), tableName, columnName, columnInfoUUID, columnInfoServer);
 	}
 
 	public IDataSet performCustomQuery(String _ignoredClientId, String serverName, String driverTableName, String transaction_id, ISQLSelect sqlSelect,

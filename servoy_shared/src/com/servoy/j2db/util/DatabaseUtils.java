@@ -211,7 +211,7 @@ public class DatabaseUtils
 				{
 					c = t.createNewColumn(DummyValidator.INSTANCE, cid.name, cid.columnType, cid.allowNull);
 					existingColumnInfo++;
-					updateColumnInfo(persistFactory.getNewElementID(null), c, cid);
+					updateColumnInfo(c, cid);
 					changedColumns.add(c);
 				}
 			}
@@ -222,7 +222,7 @@ public class DatabaseUtils
 			if (c.getColumnInfo() == null)
 			{
 				// only create servoy sequences when this was a new table and there is only 1 pk column
-				createNewColumnInfo(persistFactory.getNewElementID(null), c, existingColumnInfo == 0 && t.getPKColumnTypeRowIdentCount() == 1);//was missing - create automatic sequences if missing
+				createNewColumnInfo(c, existingColumnInfo == 0 && t.getPKColumnTypeRowIdentCount() == 1);//was missing - create automatic sequences if missing
 			}
 		}
 
@@ -239,9 +239,9 @@ public class DatabaseUtils
 		t.fireIColumnsChanged(changedColumns);
 	}
 
-	public static void createNewColumnInfo(int element_id, Column c, boolean createMissingServoySequence)
+	public static void createNewColumnInfo(Column c, boolean createMissingServoySequence)
 	{
-		ColumnInfo ci = new ColumnInfo(element_id, false);
+		ColumnInfo ci = new ColumnInfo(false);
 		if (createMissingServoySequence && c.getRowIdentType() != IBaseColumn.NORMAL_COLUMN && c.getSequenceType() == ColumnInfo.NO_SEQUENCE_SELECTED &&
 			(Column.mapToDefaultType(c.getConfiguredColumnType().getSqlType()) == IColumnTypes.INTEGER ||
 				Column.mapToDefaultType(c.getConfiguredColumnType().getSqlType()) == IColumnTypes.NUMBER))
@@ -255,9 +255,9 @@ public class DatabaseUtils
 		c.setColumnInfo(ci);
 	}
 
-	public static void updateColumnInfo(int element_id, Column c, ColumnInfoDef cid)
+	public static void updateColumnInfo(Column c, ColumnInfoDef cid)
 	{
-		ColumnInfo ci = new ColumnInfo(element_id, true);
+		ColumnInfo ci = new ColumnInfo(true);
 		ci.setAutoEnterType(cid.autoEnterType);
 		ci.setAutoEnterSubType(cid.autoEnterSubType);
 		ci.setSequenceStepSize(cid.sequenceStepSize);
@@ -293,7 +293,7 @@ public class DatabaseUtils
 		{
 			if (columnInfoDefinitions.containsKey(column.getName()))
 			{
-				updateColumnInfo(persistFactory.getNewElementID(null), column, columnInfoDefinitions.get(column.getName()));
+				updateColumnInfo(column, columnInfoDefinitions.get(column.getName()));
 			}
 		}
 	}

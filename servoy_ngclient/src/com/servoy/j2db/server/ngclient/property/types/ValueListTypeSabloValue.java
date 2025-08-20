@@ -665,7 +665,7 @@ public class ValueListTypeSabloValue
 			if (valueList != null && valueList.getValueList() != null)
 			{
 				writer.key("valuelistid");
-				writer.value(valueList.getValueList().getID());
+				writer.value(valueList.getValueList().getUUID().toString());
 			}
 
 			writer.key("hasRealValues");
@@ -886,20 +886,11 @@ public class ValueListTypeSabloValue
 	public static ValueList getValuelistPersist(Object valuelistId, FlattenedSolution fs)
 	{
 		ValueList valuelistPersist = null;
-
-		int valuelistID = Utils.getAsInteger(valuelistId);
-		if (valuelistID > 0)
+		// just try to get the valuelist by name or by uuid string (the FS will cache for both)
+		if (valuelistId instanceof String) valuelistPersist = fs.getValueList(valuelistId.toString());
+		if (valuelistPersist == null)
 		{
-			valuelistPersist = fs.getValueList(valuelistID);
-		}
-		else
-		{
-			// just try to get the valuelist by name or by uuid string (the FS will cache for both)
-			if (valuelistId instanceof String) valuelistPersist = fs.getValueList(valuelistId.toString());
-			if (valuelistPersist == null)
-			{
-				if (valuelistId != null) valuelistPersist = (ValueList)fs.searchPersist(valuelistId.toString());
-			}
+			if (valuelistId != null) valuelistPersist = (ValueList)fs.searchPersist(valuelistId.toString());
 		}
 		return valuelistPersist;
 	}

@@ -32,9 +32,9 @@ public class CSSPositionLayoutContainer extends LayoutContainer implements ISupp
 	 * @param element_id
 	 * @param uuid
 	 */
-	protected CSSPositionLayoutContainer(ISupportChilds parent, int element_id, UUID uuid)
+	protected CSSPositionLayoutContainer(ISupportChilds parent, UUID uuid)
 	{
-		super(IRepository.CSSPOS_LAYOUTCONTAINERS, parent, element_id, uuid);
+		super(IRepository.CSSPOS_LAYOUTCONTAINERS, parent, uuid);
 	}
 
 

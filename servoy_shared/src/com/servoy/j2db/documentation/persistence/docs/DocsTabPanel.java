@@ -41,7 +41,7 @@ public class DocsTabPanel extends TabPanel implements IBaseDocsComponent
 
 	DocsTabPanel()
 	{
-		super(null, 0, null);
+		super(null, null);
 	}
 
 	@Override

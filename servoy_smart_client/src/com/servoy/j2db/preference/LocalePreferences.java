@@ -118,11 +118,11 @@ public class LocalePreferences extends PreferencePanel implements ItemListener, 
 
 		ArrayList al = new ArrayList();
 		Locale[] locales = Locale.getAvailableLocales();
-		for (int i = 0; i < locales.length; i++)
+		for (Locale locale : locales)
 		{
-			if (locales[i].getCountry() != null && !locales[i].getCountry().equals("")) //$NON-NLS-1$
+			if (locale.getCountry() != null && !locale.getCountry().equals("")) //$NON-NLS-1$
 			{
-				al.add(locales[i]);
+				al.add(locale);
 			}
 		}
 		locales = new Locale[al.size()];
@@ -238,9 +238,9 @@ public class LocalePreferences extends PreferencePanel implements ItemListener, 
 			{
 				String tableName = (String)lst.get(i);
 				Table table = (Table)server.getTable(tableName);
-				if (table.getColumnInfoID("message_key") == -1) continue; //$NON-NLS-1$
-				if (table.getColumnInfoID("message_value") == -1) continue; //$NON-NLS-1$
-				if (table.getColumnInfoID("message_language") == -1) continue; //$NON-NLS-1$
+				if (table.getColumnInfoID("message_key") == null) continue; //$NON-NLS-1$
+				if (table.getColumnInfoID("message_value") == null) continue; //$NON-NLS-1$
+				if (table.getColumnInfoID("message_language") == null) continue; //$NON-NLS-1$
 				al.add(tableName);
 			}
 			DefaultComboBoxModel model = new DefaultComboBoxModel(al.toArray());
@@ -351,7 +351,7 @@ public class LocalePreferences extends PreferencePanel implements ItemListener, 
 		Object selectedLocale = _cbLocales.getSelectedItem();
 		if (selectedLocale.equals(_defaultLocale))
 		{
-			settings.remove("locale.default");//$NON-NLS-1$ 
+			settings.remove("locale.default");//$NON-NLS-1$
 			loc = Locale.getDefault();
 		}
 		else

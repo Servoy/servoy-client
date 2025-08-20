@@ -332,7 +332,7 @@ public abstract class BasicFormController
 
 	public void notifyResized()
 	{
-		if (form.getOnResizeMethodID() > 0)
+		if (form.getOnResizeMethodID() != null)
 		{
 			executeOnResize();
 		}
@@ -784,7 +784,7 @@ public abstract class BasicFormController
 	 */
 	private boolean executeOnHideMethod()
 	{
-		return form.getOnHideMethodID() == 0 ||
+		return form.getOnHideMethodID() == null ||
 			!Boolean.FALSE.equals(executeFormMethod(StaticContentSpecLoader.PROPERTY_ONHIDEMETHODID, new Object[] { getJSEvent(formScope,
 				RepositoryHelper.getDisplayName(StaticContentSpecLoader.PROPERTY_ONHIDEMETHODID.getPropertyName(), Form.class)) }, null, true, true));
 	}
@@ -840,11 +840,11 @@ public abstract class BasicFormController
 		return currentFormExecutingFunctionCount.get() > 0;
 	}
 
-	public Object executeFormMethod(TypedProperty<Integer> methodProperty, Object[] args, Boolean testFindMode, boolean saveData, boolean allowFoundsetMethods)
+	public Object executeFormMethod(TypedProperty<String> methodProperty, Object[] args, Boolean testFindMode, boolean saveData, boolean allowFoundsetMethods)
 	{
 		Object ret = null;
-		Integer id = ((Integer)form.getProperty(methodProperty.getPropertyName()));
-		if (id != null && id.intValue() > 0 && formScope != null)
+		String uuid = ((String)form.getProperty(methodProperty.getPropertyName()));
+		if (uuid != null && formScope != null)
 		{
 			FormExecutionState formExecutionState = null;
 			if (getFormUI() instanceof ISupportFormExecutionState)
@@ -859,7 +859,7 @@ public abstract class BasicFormController
 				Scriptable scope = formScope;
 
 				// try form method
-				sName = formScope.getFunctionName(id);
+				sName = formScope.getFunctionName(Utils.getAsUUID(uuid, false));
 				if (sName != null)
 				{
 					function = formScope.getFunctionByName(sName);
@@ -868,14 +868,14 @@ public abstract class BasicFormController
 				if (!(function instanceof Function))
 				{
 					// try global method
-					ScriptMethod scriptMethod = application.getFlattenedSolution().getScriptMethod(id.intValue());
+					ScriptMethod scriptMethod = application.getFlattenedSolution().getScriptMethod(uuid);
 					if (scriptMethod != null)
 					{
 						GlobalScope globalScope = application.getScriptEngine().getScopesScope().getGlobalScope(scriptMethod.getScopeName());
 						if (globalScope != null)
 						{
 							scope = globalScope;
-							sName = globalScope.getFunctionName(id);
+							sName = globalScope.getFunctionName(Utils.getAsUUID(uuid, false));
 							if (sName != null)
 							{
 								function = globalScope.getFunctionByName(sName);
@@ -950,13 +950,13 @@ public abstract class BasicFormController
 		{
 //			this.requestFocus();
 			String name = cmd;
-			int id = Utils.getAsInteger(cmd);
-			if (id > 0)
+			UUID uuid = Utils.getAsUUID(cmd, false);
+			if (uuid != null)
 			{
-				name = formScope.getFunctionName(new Integer(id));
+				name = formScope.getFunctionName(uuid);
 			}
 
-			if (id <= 0 && ScopesUtils.isVariableScope(name))
+			if (uuid == null && ScopesUtils.isVariableScope(name))
 			{
 				application.reportError(application.getI18NMessage("servoy.formPanel.error.executingMethod", new Object[] { name }), ex); //$NON-NLS-1$
 			}
@@ -981,15 +981,15 @@ public abstract class BasicFormController
 		Scriptable scope = formScope;
 
 		String name = cmd;
-		int id = Utils.getAsInteger(cmd);
-		if (id > 0)
+		UUID uuid = Utils.getAsUUID(cmd, false);
+		if (uuid != null)
 		{
-			name = formScope.getFunctionName(new Integer(id));
+			name = formScope.getFunctionName(uuid);
 		}
 
 		Pair<String, String> nameScope = ScopesUtils.getVariableScope(name);
 		boolean global = nameScope != null && nameScope.getLeft() != null;
-		if (id <= 0 && global)
+		if (uuid == null && global)
 		{
 			name = nameScope.getRight();
 		}
@@ -998,10 +998,10 @@ public abstract class BasicFormController
 			function = formScope.getFunctionByName(name);
 		}
 
-		if (allowFoundsetMethods && !global && function == null && formModel instanceof FoundSet) // TODO foundset methods for ViewFoundSet?
+		if (allowFoundsetMethods && uuid != null && !global && function == null && formModel instanceof FoundSet) // TODO foundset methods for ViewFoundSet?
 		{
 			// try foundset method
-			ScriptMethod scriptMethod = application.getFlattenedSolution().getScriptMethod(id);
+			ScriptMethod scriptMethod = application.getFlattenedSolution().getScriptMethod(uuid.toString());
 			if (scriptMethod != null)
 			{
 				name = scriptMethod.getName();
@@ -1016,9 +1016,9 @@ public abstract class BasicFormController
 		if (function == null || function == Scriptable.NOT_FOUND)
 		{
 			GlobalScope globalScope = null;
-			if (id > 0)
+			if (uuid != null)
 			{
-				ScriptMethod scriptMethod = application.getFlattenedSolution().getScriptMethod(id);
+				ScriptMethod scriptMethod = application.getFlattenedSolution().getScriptMethod(uuid.toString());
 				if (scriptMethod != null)
 				{
 					globalScope = application.getScriptEngine().getScopesScope().getGlobalScope(scriptMethod.getScopeName());
@@ -1031,9 +1031,9 @@ public abstract class BasicFormController
 			if (globalScope != null)
 			{
 				scope = globalScope;
-				if (id > 0)
+				if (uuid != null)
 				{
-					name = globalScope.getFunctionName(new Integer(id));
+					name = globalScope.getFunctionName(uuid);
 				}
 				function = globalScope.getFunctionByName(name);
 			}
@@ -2037,7 +2037,7 @@ public abstract class BasicFormController
 
 	public void find()
 	{
-		if (form.getOnFindCmdMethodID() == 0)
+		if (form.getOnFindCmdMethodID() == null)
 		{
 			try
 			{
@@ -2057,7 +2057,7 @@ public abstract class BasicFormController
 
 	public void printPreview()//called by cmd
 	{
-		if (form.getOnPrintPreviewCmdMethodID() == 0)
+		if (form.getOnPrintPreviewCmdMethodID() == null)
 		{
 			PrinterJob printerJob = null;//if null it uses the javaxp.printing PrinterJob.getPrinterJob();
 			printPreview(true, false, 100, printerJob);
@@ -2070,7 +2070,7 @@ public abstract class BasicFormController
 
 	public int performFind(final boolean clear, final boolean reduce, final boolean showDialogOnNoResults)
 	{
-		if (form.getOnSearchCmdMethodID() <= 0) //'-none-' has no meaning for onSearchCMD
+		if (form.getOnSearchCmdMethodID() == null) //'-none-' has no meaning for onSearchCMD
 		{
 			try
 			{
@@ -2105,7 +2105,7 @@ public abstract class BasicFormController
 
 	public void loadAllRecords()
 	{
-		if (form.getOnShowAllRecordsCmdMethodID() == 0)
+		if (form.getOnShowAllRecordsCmdMethodID() == null)
 		{
 			try
 			{
@@ -2156,7 +2156,7 @@ public abstract class BasicFormController
 
 	public void showSortDialog()//this one is called by the cmd
 	{
-		if (form.getOnSortCmdMethodID() == 0)
+		if (form.getOnSortCmdMethodID() == null)
 		{
 			showSortDialog(null);
 		}
@@ -2168,7 +2168,7 @@ public abstract class BasicFormController
 
 	public void showOmittedRecords()
 	{
-		if (form.getOnShowOmittedRecordsCmdMethodID() == 0)
+		if (form.getOnShowOmittedRecordsCmdMethodID() == null)
 		{
 			try
 			{
@@ -2187,7 +2187,7 @@ public abstract class BasicFormController
 
 	public void invertRecords()
 	{
-		if (form.getOnInvertRecordsCmdMethodID() == 0)
+		if (form.getOnInvertRecordsCmdMethodID() == null)
 		{
 			try
 			{
@@ -2206,7 +2206,7 @@ public abstract class BasicFormController
 
 	public void omitRecord()
 	{
-		if (form.getOnOmitRecordCmdMethodID() == 0)
+		if (form.getOnOmitRecordCmdMethodID() == null)
 		{
 			try
 			{
@@ -2225,7 +2225,7 @@ public abstract class BasicFormController
 
 	public boolean deleteRecord()
 	{
-		if ((formModel != null && formModel.isInFindMode()) || form.getOnDeleteRecordCmdMethodID() == 0)
+		if ((formModel != null && formModel.isInFindMode()) || form.getOnDeleteRecordCmdMethodID() == null)
 		{
 			try
 			{
@@ -2242,7 +2242,7 @@ public abstract class BasicFormController
 
 	public void newRecord()
 	{
-		if ((formModel != null && formModel.isInFindMode()) || form.getOnNewRecordCmdMethodID() == 0)
+		if ((formModel != null && formModel.isInFindMode()) || form.getOnNewRecordCmdMethodID() == null)
 		{
 			try
 			{
@@ -2262,7 +2262,7 @@ public abstract class BasicFormController
 
 	public void duplicateRecord()
 	{
-		if ((formModel != null && formModel.isInFindMode()) || form.getOnDuplicateRecordCmdMethodID() == 0)
+		if ((formModel != null && formModel.isInFindMode()) || form.getOnDuplicateRecordCmdMethodID() == null)
 		{
 			try
 			{
@@ -2281,7 +2281,7 @@ public abstract class BasicFormController
 
 	public boolean deleteAllRecords()
 	{
-		if (form.getOnDeleteAllRecordsCmdMethodID() == 0)
+		if (form.getOnDeleteAllRecordsCmdMethodID() == null)
 		{
 			int but = JOptionPane.showConfirmDialog((Component)getFormUI(), application.getI18NMessage("servoy.formPanel.deleteall.warning"), //$NON-NLS-1$
 				application.getI18NMessage("servoy.formPanel.deleteall.text"), JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE); //$NON-NLS-1$

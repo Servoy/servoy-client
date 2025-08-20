@@ -78,9 +78,9 @@ public class Part extends AbstractBase implements ISupportSize, IPersistCloneabl
 	/**
 	 * Constructor I
 	 */
-	Part(ISupportChilds parent, int element_id, UUID uuid)
+	Part(ISupportChilds parent, UUID uuid)
 	{
-		super(IRepository.PARTS, parent, element_id, uuid);
+		super(IRepository.PARTS, parent, uuid);
 	}
 
 	/*
@@ -444,14 +444,14 @@ public class Part extends AbstractBase implements ISupportSize, IPersistCloneabl
 		return prevPart;
 	}
 
-	public int getExtendsID()
+	public String getExtendsID()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_EXTENDSID).intValue();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_EXTENDSID);
 	}
 
-	public void setExtendsID(int arg)
+	public void setExtendsID(String uuid)
 	{
-		setTypedProperty(StaticContentSpecLoader.PROPERTY_EXTENDSID, arg);
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_EXTENDSID, uuid);
 	}
 
 	@ServoyClientSupport(mc = true, wc = true, sc = true)

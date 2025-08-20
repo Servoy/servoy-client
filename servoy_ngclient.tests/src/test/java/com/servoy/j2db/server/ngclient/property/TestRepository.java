@@ -37,7 +37,7 @@ public class TestRepository extends AbstractRepository
 {
 	private final IntHashMap<UUID> intToUUID = new IntHashMap<>();
 	private final HashMap<UUID, Integer> uuidToInt = new HashMap<>();
-	private int elementIdCounter = 1;
+	private final int elementIdCounter = 1;
 	private RootObjectMetaData createdMetaData;
 	private IRootObject rootObject;
 
@@ -55,10 +55,10 @@ public class TestRepository extends AbstractRepository
 	 * @see com.servoy.j2db.persistence.AbstractRepository#createRootObjectMetaData(int, com.servoy.j2db.util.UUID, java.lang.String, int, int, int)
 	 */
 	@Override
-	public RootObjectMetaData createRootObjectMetaData(int rootObjectId, UUID rootObjectUuid, String name, int objectTypeId, int activeRelease,
+	public RootObjectMetaData createRootObjectMetaData(UUID rootObjectUuid, String name, int objectTypeId, int activeRelease,
 		int latestRelease)
 	{
-		createdMetaData = super.createRootObjectMetaData(rootObjectId, rootObjectUuid, name, objectTypeId, activeRelease, latestRelease);
+		createdMetaData = super.createRootObjectMetaData(rootObjectUuid, name, objectTypeId, activeRelease, latestRelease);
 		return createdMetaData;
 	}
 
@@ -81,13 +81,13 @@ public class TestRepository extends AbstractRepository
 	}
 
 	@Override
-	public void setRootObjectActiveRelease(int rootObjectId, int releaseNumber) throws RepositoryException
+	public void setRootObjectActiveRelease(UUID rootObjectId, int releaseNumber) throws RepositoryException
 	{
 		// TODO Auto-generated method stub
 	}
 
 	@Override
-	public long[] getActiveRootObjectsLastModified(int[] rootObjectIds) throws RepositoryException
+	public long[] getActiveRootObjectsLastModified(UUID[] rootObjectIds) throws RepositoryException
 	{
 		// TODO Auto-generated method stub
 		return null;
@@ -98,15 +98,6 @@ public class TestRepository extends AbstractRepository
 	{
 		// TODO Auto-generated method stub
 		return null;
-	}
-
-	@Override
-	public int getNewElementID(UUID new_uuid) throws RepositoryException
-	{
-		int id = elementIdCounter++;
-		intToUUID.put(id, new_uuid);
-		uuidToInt.put(new_uuid, Integer.valueOf(id));
-		return id;
 	}
 
 	@Override
@@ -128,9 +119,9 @@ public class TestRepository extends AbstractRepository
 	}
 
 	@Override
-	public IRootObject createNewRootObject(String name, int objectTypeId, int newElementID, UUID uuid) throws RepositoryException
+	public IRootObject createNewRootObject(String name, int objectTypeId, UUID uuid) throws RepositoryException
 	{
-		return createRootObject(createRootObjectMetaData(newElementID, uuid, name, objectTypeId, 1, 1));
+		return createRootObject(createRootObjectMetaData(uuid, name, objectTypeId, 1, 1));
 	}
 
 	@Override
@@ -149,23 +140,10 @@ public class TestRepository extends AbstractRepository
 
 
 	@Override
-	public int resolveIdForElementUuid(UUID id) throws RepositoryException
-	{
-		Integer integer = uuidToInt.get(id);
-		if (integer != null) return integer.intValue();
-		return 0;
-	}
-
-	@Override
 	protected ContentSpec loadContentSpec() throws RepositoryException
 	{
 		return StaticContentSpecLoader.getContentSpec();
 	}
 
-	@Override
-	public UUID resolveUUIDForElementId(int id) throws RepositoryException
-	{
-		return intToUUID.get(id);
-	}
 
 }

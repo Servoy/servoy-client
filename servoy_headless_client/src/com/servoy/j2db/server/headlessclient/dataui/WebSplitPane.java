@@ -821,7 +821,7 @@ public class WebSplitPane extends Component implements ISplitPane, IDisplayRelat
 	 *
 	 * @see com.servoy.j2db.ui.ITabPanel#addTab(java.lang.String, int, com.servoy.j2db.ui.IFormLookupPanel, java.lang.String)
 	 */
-	public void addTab(String text, int iconMediaId, IFormLookupPanel flp, String tooltip)
+	public void addTab(String text, String iconMediaUUID, IFormLookupPanel flp, String tooltip)
 	{
 		// IGNORE
 	}

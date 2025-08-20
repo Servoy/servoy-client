@@ -235,11 +235,11 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 					{
 						if ("-1".equals(relName))
 						{
-							relName = Integer.toHexString(relation.getID());
+							relName = relation.getName();
 						}
 						else
 						{
-							relName += Integer.toHexString(relation.getID());
+							relName += relation.getName();
 						}
 					}
 				}

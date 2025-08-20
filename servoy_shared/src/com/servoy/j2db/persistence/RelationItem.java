@@ -129,9 +129,9 @@ public class RelationItem extends AbstractBase implements ISupportContentEquals,
 	/**
 	 * Constructor I
 	 */
-	RelationItem(ISupportChilds parent, int element_id, UUID uuid)
+	RelationItem(ISupportChilds parent, UUID uuid)
 	{
-		super(IRepository.RELATION_ITEMS, parent, element_id, uuid);
+		super(IRepository.RELATION_ITEMS, parent, uuid);
 	}
 
 	/*

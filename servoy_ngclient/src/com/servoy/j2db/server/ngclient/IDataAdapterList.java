@@ -44,7 +44,7 @@ public interface IDataAdapterList extends ITagResolver
 
 	void pushChanges(WebFormComponent webComponent, String string, Object newValue, String foundsetLinkedRowID);
 
-	Object executeEvent(WebComponent webComponent, String event, int eventId, Object[] args);
+	Object executeEvent(WebComponent webComponent, String event, String eventuuid, Object[] args);
 
 	/**
 	 * @param args args to replace in script - used for HTML-triggered executeInlineScript; so calls generated via HTMLTagsConverter.convert(String, IServoyDataConverterContext, boolean) inside some piece of HTML

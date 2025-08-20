@@ -541,7 +541,7 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 		{
 			ValueList valuelistPersist = ValueListTypeSabloValue.getValuelistPersist(formElementValue, flattenedSolution);
 
-			if (valuelistPersist != null && valuelistPersist.getFallbackValueListID() > 0)
+			if (valuelistPersist != null && valuelistPersist.getFallbackValueListID() != null)
 			{
 				return true;
 			}

@@ -98,7 +98,7 @@ public class DataAdapterListTest extends AbstractSolutionTest
 	{
 		// form 1; 1 tabpanel showing one related tab
 		Form mainForm = solution.createNewForm(validator, null, "mainForm1", "mem:mainTable", false, new Dimension(600, 400));
-		mainForm.setNavigatorID(-1);
+		mainForm.setNavigatorID(Form.NAVIGATOR_NONE);
 		mainForm.createNewPart(IBaseSMPart.BODY, 5);
 		WebComponent mainTabPanel = mainForm.createNewWebComponent("mainTabPanel", "tabpanel");
 		mainTabPanel.setProperty("tabs", new ServoyJSONArray(
@@ -110,7 +110,7 @@ public class DataAdapterListTest extends AbstractSolutionTest
 		field.setDataProviderID("quantity");
 
 		Form relatedForm = solution.createNewForm(validator, null, "relatedForm1", "mem:relatedTable1", false, new Dimension(600, 400));
-		relatedForm.setNavigatorID(-1);
+		relatedForm.setNavigatorID(Form.NAVIGATOR_NONE);
 		relatedForm.createNewPart(IBaseSMPart.BODY, 5);
 
 		field = relatedForm.createNewField(new Point(5, 5));
@@ -120,7 +120,7 @@ public class DataAdapterListTest extends AbstractSolutionTest
 
 		// form 2; 2 tabpanels, one with rel1 and one with rel1torel2
 		mainForm = solution.createNewForm(validator, null, "mainForm2", "mem:mainTable", false, new Dimension(600, 400));
-		mainForm.setNavigatorID(-1);
+		mainForm.setNavigatorID(Form.NAVIGATOR_NONE);
 		mainForm.createNewPart(IBaseSMPart.BODY, 5);
 
 		mainTabPanel = mainForm.createNewWebComponent("mainTabPanel1", "tabpanel");
@@ -137,7 +137,7 @@ public class DataAdapterListTest extends AbstractSolutionTest
 		field.setDataProviderID("quantity");
 
 		relatedForm = solution.createNewForm(validator, null, "relatedForm2", "mem:relatedTable2", false, new Dimension(600, 400));
-		relatedForm.setNavigatorID(-1);
+		relatedForm.setNavigatorID(Form.NAVIGATOR_NONE);
 		relatedForm.createNewPart(IBaseSMPart.BODY, 5);
 
 		field = relatedForm.createNewField(new Point(5, 5));
@@ -147,7 +147,7 @@ public class DataAdapterListTest extends AbstractSolutionTest
 
 		// form 3; 1 tabpanel with rel1torel2; no visual form that uses only rel1
 		mainForm = solution.createNewForm(validator, null, "mainForm3", "mem:mainTable", false, new Dimension(600, 400));
-		mainForm.setNavigatorID(-1);
+		mainForm.setNavigatorID(Form.NAVIGATOR_NONE);
 		mainForm.createNewPart(IBaseSMPart.BODY, 5);
 
 		mainTabPanel = mainForm.createNewWebComponent("mainTabPanel", "tabpanel");
@@ -161,7 +161,7 @@ public class DataAdapterListTest extends AbstractSolutionTest
 
 		// form 4; 2 tabpanels; 1 with globalrel1; one with mixedrel1 (both global and table primary keys)
 		mainForm = solution.createNewForm(validator, null, "mainForm4", "mem:mainTable", false, new Dimension(600, 400));
-		mainForm.setNavigatorID(-1);
+		mainForm.setNavigatorID(Form.NAVIGATOR_NONE);
 		mainForm.createNewPart(IBaseSMPart.BODY, 5);
 
 		mainTabPanel = mainForm.createNewWebComponent("mainTabPanel1", "tabpanel");
@@ -169,7 +169,7 @@ public class DataAdapterListTest extends AbstractSolutionTest
 			"[ { \"_id\": \"abc\", \"containedForm\": \"relatedForm1\", \"relationName\": \"global_relation1\" } ]"));
 
 		relatedForm = solution.createNewForm(validator, null, "relatedForm3", "mem:relatedTable1", false, new Dimension(600, 400));
-		relatedForm.setNavigatorID(-1);
+		relatedForm.setNavigatorID(Form.NAVIGATOR_NONE);
 		relatedForm.createNewPart(IBaseSMPart.BODY, 5);
 
 		field = relatedForm.createNewField(new Point(5, 5));
@@ -188,7 +188,7 @@ public class DataAdapterListTest extends AbstractSolutionTest
 
 		// form 5; 1 tabpanels; 1 unrelated tab
 		mainForm = solution.createNewForm(validator, null, "mainForm5", "mem:relatedTable2", false, new Dimension(600, 400));
-		mainForm.setNavigatorID(-1);
+		mainForm.setNavigatorID(Form.NAVIGATOR_NONE);
 		mainForm.createNewPart(IBaseSMPart.BODY, 5);
 
 		mainTabPanel = mainForm.createNewWebComponent("mainTabPanel", "tabpanel");

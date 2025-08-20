@@ -504,11 +504,11 @@ public class WebDataRenderer extends Component implements IDataRenderer, IProvid
 	public int onDrag(JSDNDEvent event)
 	{
 		Form form = dragNdropController.getForm();
-		int onDragID = form.getOnDragMethodID();
+		String onDragUUID = form.getOnDragMethodID();
 
-		if (onDragID > 0)
+		if (onDragUUID != null)
 		{
-			Object dragReturn = dragNdropController.executeFunction(Integer.toString(onDragID), new Object[] { event }, false, null, false, "onDragMethodID"); //$NON-NLS-1$
+			Object dragReturn = dragNdropController.executeFunction(onDragUUID, new Object[] { event }, false, null, false, "onDragMethodID"); //$NON-NLS-1$
 			if (dragReturn instanceof Number) return ((Number)dragReturn).intValue();
 		}
 
@@ -518,26 +518,26 @@ public class WebDataRenderer extends Component implements IDataRenderer, IProvid
 	public boolean onDragOver(JSDNDEvent event)
 	{
 		Form form = dragNdropController.getForm();
-		int onDragOverID = form.getOnDragOverMethodID();
+		String onDragOverUUID = form.getOnDragOverMethodID();
 
-		if (onDragOverID > 0)
+		if (onDragOverUUID != null)
 		{
-			Object dragOverReturn = dragNdropController.executeFunction(Integer.toString(onDragOverID), new Object[] { event }, false, null, false,
+			Object dragOverReturn = dragNdropController.executeFunction(onDragOverUUID, new Object[] { event }, false, null, false,
 				"onDragOverMethodID"); //$NON-NLS-1$
 			if (dragOverReturn instanceof Boolean) return ((Boolean)dragOverReturn).booleanValue();
 		}
 
-		return form.getOnDropMethodID() > 0;
+		return form.getOnDropMethodID() != null;
 	}
 
 	public boolean onDrop(JSDNDEvent event)
 	{
 		Form form = dragNdropController.getForm();
-		int onDropID = form.getOnDropMethodID();
+		String onDropUUID = form.getOnDropMethodID();
 
-		if (onDropID > 0)
+		if (onDropUUID != null)
 		{
-			Object dropHappened = dragNdropController.executeFunction(Integer.toString(onDropID), new Object[] { event }, false, null, false, "onDropMethodID"); //$NON-NLS-1$
+			Object dropHappened = dragNdropController.executeFunction(onDropUUID, new Object[] { event }, false, null, false, "onDropMethodID"); //$NON-NLS-1$
 			if (dropHappened instanceof Boolean) return ((Boolean)dropHappened).booleanValue();
 		}
 		return false;
@@ -546,11 +546,11 @@ public class WebDataRenderer extends Component implements IDataRenderer, IProvid
 	public void onDragEnd(JSDNDEvent event)
 	{
 		Form form = dragNdropController.getForm();
-		int onDragEndID = form.getOnDragEndMethodID();
+		String onDragEndUUID = form.getOnDragEndMethodID();
 
-		if (onDragEndID > 0)
+		if (onDragEndUUID != null)
 		{
-			dragNdropController.executeFunction(Integer.toString(onDragEndID), new Object[] { event }, false, null, false, "onDragEndMethodID"); //$NON-NLS-1$
+			dragNdropController.executeFunction(onDragEndUUID, new Object[] { event }, false, null, false, "onDragEndMethodID"); //$NON-NLS-1$
 		}
 	}
 

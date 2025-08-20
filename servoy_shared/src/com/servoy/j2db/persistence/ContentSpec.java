@@ -206,11 +206,11 @@ public class ContentSpec
 		switch (type_id)
 		{
 			case IRepository.DIMENSION :
+			case IRepository.ELEMENTS :
 				retval = null;
 				break;
 
 			case IRepository.MEDIA :
-			case IRepository.ELEMENTS :
 			case IRepository.INTEGER :
 			case IRepository.BLOBS :
 				retval = ZERO;

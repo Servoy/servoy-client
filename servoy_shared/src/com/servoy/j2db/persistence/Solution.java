@@ -163,11 +163,6 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	 * _____________________________________________________________ Methods for Form handling
 	 */
 
-	public Form getForm(int id)
-	{
-		return selectById(getForms(null, false), id);
-	}
-
 	public Iterator<Form> getForms(Table basedOnTable, boolean sort)
 	{
 		return getForms(getAllObjectsAsList(),
@@ -249,7 +244,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	{
 		String name = formName == null ? "untitled" : formName; //$NON-NLS-1$
 		// Check if name is in use.
-		validator.checkName(name, 0, new ValidatorSearchContext(IRepository.FORMS), false);
+		validator.checkName(name, null, new ValidatorSearchContext(IRepository.FORMS), false);
 
 		Form f = (Form)getChangeHandler().createNewObject(this, IRepository.FORMS);
 		// Set all the required properties.
@@ -259,7 +254,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 		if (size != null) f.setSize(size);
 		if (style != null) f.setStyleName(style.getName());
 		addChild(f);
-		if (getFirstFormID() == 0) setFirstFormID(f.getID());
+		if (getFirstFormID() == null) setFirstFormID(f.getUUID().toString());
 		if (getSolutionType() == SolutionMetaData.MOBILE)
 		{
 			f.setNavigatorID(Form.NAVIGATOR_NONE);
@@ -481,7 +476,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	{
 		String name = relationName == null ? "untitled" : relationName; //$NON-NLS-1$
 		//check if name is in use
-		validator.checkName(name, 0, new ValidatorSearchContext(primaryDataSource, IRepository.RELATIONS), true);
+		validator.checkName(name, null, new ValidatorSearchContext(primaryDataSource, IRepository.RELATIONS), true);
 		Relation obj = (Relation)getChangeHandler().createNewObject(this, IRepository.RELATIONS);
 		obj.setJoinType(joinType);
 		//set all the required properties
@@ -546,11 +541,6 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 		return vls;
 	}
 
-	public ValueList getValueList(int id)
-	{
-		return selectById(getValueLists(false), id);
-	}
-
 	public ValueList getValueList(String name)
 	{
 		return selectByName(getValueLists(false), name);
@@ -561,7 +551,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 		String name = vlName == null ? "untitled" : vlName; //$NON-NLS-1$
 
 		//check if name is in use
-		validator.checkName(name, 0, new ValidatorSearchContext(IRepository.VALUELISTS), false);
+		validator.checkName(name, null, new ValidatorSearchContext(IRepository.VALUELISTS), false);
 
 		ValueList obj = (ValueList)getChangeHandler().createNewObject(this, IRepository.VALUELISTS);
 		//set all the required properties
@@ -577,7 +567,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 		String name = menuName == null ? "untitled" : menuName; //$NON-NLS-1$
 
 		//check if name is in use
-		validator.checkName(name, 0, new ValidatorSearchContext(IRepository.MENUS), false);
+		validator.checkName(name, null, new ValidatorSearchContext(IRepository.MENUS), false);
 
 		Menu obj = (Menu)getChangeHandler().createNewObject(this, IRepository.MENUS);
 		//set all the required properties
@@ -641,7 +631,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 			throw new RepositoryException("unknow variable type: " + variableType); //$NON-NLS-1$
 		}
 		//check if name is in use
-		validator.checkName(name, 0, new ValidatorSearchContext(scopeName, IRepository.SCRIPTVARIABLES), false);
+		validator.checkName(name, null, new ValidatorSearchContext(scopeName, IRepository.SCRIPTVARIABLES), false);
 		ScriptVariable obj = (ScriptVariable)getChangeHandler().createNewObject(this, IRepository.SCRIPTVARIABLES);
 		//set all the required properties
 
@@ -888,15 +878,10 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	 */
 
 
-	public int getSolutionID()
-	{
-		return getID();
-	}
-
 	// do not need a set
 	public void updateName(IValidateName validator, String arg) throws RepositoryException
 	{
-		validator.checkName(arg, getID(), new ValidatorSearchContext(this, IRepository.SOLUTIONS), false);
+		validator.checkName(arg, getUUID(), new ValidatorSearchContext(this, IRepository.SOLUTIONS), false);
 		//checkForNameChange(getRootObjectMetaData().getName(), arg);
 		getRootObjectMetaData().setName(arg);
 	}
@@ -908,11 +893,6 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	/*
 	 * _____________________________________________________________ Global Script Methods from this class
 	 */
-
-	public ScriptMethod getScriptMethod(int id)
-	{
-		return selectById(getScriptMethods(null, false), id);
-	}
 
 	public ScriptMethod getScriptMethod(String scopeName, String name)
 	{
@@ -943,7 +923,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	public ScriptMethod createNewGlobalScriptMethod(IValidateName validator, String scopeName, String scriptName) throws RepositoryException
 	{
 		String name = scriptName == null ? "untitled" : scriptName; //$NON-NLS-1$
-		validator.checkName(name, 0, new ValidatorSearchContext(scopeName, IRepository.METHODS), false);
+		validator.checkName(name, null, new ValidatorSearchContext(scopeName, IRepository.METHODS), false);
 
 		ScriptMethod obj = (ScriptMethod)getChangeHandler().createNewObject(this, IRepository.METHODS);
 
@@ -1053,10 +1033,10 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 
 	public Media createNewMedia(IValidateName validator, String name) throws RepositoryException
 	{
-		return createNewMedia(validator, name, 0);
+		return createNewMedia(validator, name, null);
 	}
 
-	public Media createNewMedia(IValidateName validator, String name, int skip_element_id_for_name_check) throws RepositoryException
+	public Media createNewMedia(IValidateName validator, String name, UUID skip_element_uuid_for_name_check) throws RepositoryException
 	{
 		if (name == null)
 		{
@@ -1064,7 +1044,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 		}
 
 		// Check if name is in use.
-		validator.checkName(name, skip_element_id_for_name_check, new ValidatorSearchContext(IRepository.MEDIA), false);
+		validator.checkName(name, skip_element_uuid_for_name_check, new ValidatorSearchContext(IRepository.MEDIA), false);
 
 		Media m = (Media)getChangeHandler().createNewObject(this, IRepository.MEDIA);
 		// Set all the required properties.
@@ -1098,11 +1078,6 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 			return Utils.asSortedIterator(medias, NameComparator.INSTANCE);
 		}
 		return medias;
-	}
-
-	public Media getMedia(int media_id)
-	{
-		return selectById(getMedias(false), media_id);
 	}
 
 	public Media getMedia(String name)
@@ -1183,7 +1158,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 			if (metaData != null)
 			{
 
-				Solution module = (Solution)getRepository().getActiveRootObject(metaData.getRootObjectId());
+				Solution module = (Solution)getRepository().getActiveRootObject(metaData.getRootObjectUuid());
 				if (!result.containsKey(metaData.getName()))
 				{
 					result.put(metaData.getName(), module);
@@ -1255,14 +1230,14 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	 * For NGClient - this CSS will be available directly in the browser.
 	 */
 	@ServoyClientSupport(ng = true, mc = true, wc = false, sc = false)
-	public int getStyleSheetID()
+	public String getStyleSheetID()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_STYLESHEET).intValue();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_STYLESHEET);
 	}
 
-	public void setStyleSheetID(int styleSheetMediaID)
+	public void setStyleSheetID(String styleSheetMediaID)
 	{
-		setTypedProperty(StaticContentSpecLoader.PROPERTY_STYLESHEET, Integer.valueOf(styleSheetMediaID));
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_STYLESHEET, styleSheetMediaID);
 	}
 
 	/**
@@ -1316,9 +1291,9 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	 * NOTE: If the Login form is specified, then the firstForm is the first form that will load next after the loginForm.
 	 */
 	@ServoyClientSupport(ng = true, mc = true, wc = true, sc = true)
-	public int getFirstFormID()
+	public String getFirstFormID()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_FIRSTFORMID).intValue();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_FIRSTFORMID);
 	}
 
 	/**
@@ -1332,9 +1307,9 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	 * @templatecode
 	 * return true
 	 */
-	public int getOnCloseMethodID()
+	public String getOnCloseMethodID()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONCLOSEMETHODID).intValue();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONCLOSEMETHODID);
 	}
 
 	/**
@@ -1350,9 +1325,9 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	 * @templateparam Object<Array<String> | String> queryParams all query parameters of the deeplink url with which the Client was started, key>string if there was one value else key>Array<String>
 	 */
 	@ServoyClientSupport(ng = true, mc = true, wc = true, sc = true)
-	public int getOnOpenMethodID()
+	public String getOnOpenMethodID()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONOPENMETHODID).intValue();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONOPENMETHODID);
 	}
 
 	/**
@@ -1369,9 +1344,9 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	 * @templateparam Object<Array<String> | String> queryParams all query parameters of the deeplink url with which the Client was started, key>string if there was one value else key>Array<String>
 	 */
 	@ServoyClientSupport(ng = true, mc = true, wc = true, sc = true)
-	public int getOnBeforeLoginMethodID()
+	public String getOnBeforeLoginMethodID()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONBEFORELOGINMETHODID).intValue();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONBEFORELOGINMETHODID);
 	}
 
 	/**
@@ -1385,26 +1360,26 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	/**
 	 * @param i
 	 */
-	public void setLoginFormID(int i)
+	public void setLoginFormID(String uuid)
 	{
-		setTypedProperty(StaticContentSpecLoader.PROPERTY_LOGINFORMID, i);
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_LOGINFORMID, uuid);
 	}
 
 	/**
 	 * The name of the login form that loads when a solution is deployed.
 	 */
 	@ServoyClientSupport(ng = true, mc = true, wc = true, sc = true)
-	public int getLoginFormID()
+	public String getLoginFormID()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_LOGINFORMID).intValue();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_LOGINFORMID);
 	}
 
 	/**
 	 * @param i
 	 */
-	public void setOnErrorMethodID(int i)
+	public void setOnErrorMethodID(String uuid)
 	{
-		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONERRORMETHODID, i);
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONERRORMETHODID, uuid);
 	}
 
 	/**
@@ -1450,17 +1425,17 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	 * //by default error report means logging the error
 	 * return true
 	 */
-	public int getOnErrorMethodID()
+	public String getOnErrorMethodID()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONERRORMETHODID).intValue();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONERRORMETHODID);
 	}
 
 	/**
 	 * @param i
 	 */
-	public void setOnAutoSaveFailedMethodID(int i)
+	public void setOnAutoSaveFailedMethodID(String uuid)
 	{
-		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONAUTOSAVEDFAILEDMETHODID, i);
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONAUTOSAVEDFAILEDMETHODID, uuid);
 	}
 
 	/**
@@ -1485,41 +1460,41 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	});
 	 *
 	 */
-	public int getOnAutoSaveFailedMethodID()
+	public String getOnAutoSaveFailedMethodID()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONAUTOSAVEDFAILEDMETHODID).intValue();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONAUTOSAVEDFAILEDMETHODID);
 	}
 
 	/**
 	 * @param i
 	 */
-	public void setFirstFormID(int i)
+	public void setFirstFormID(String uuid)
 	{
-		setTypedProperty(StaticContentSpecLoader.PROPERTY_FIRSTFORMID, i);
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_FIRSTFORMID, uuid);
 	}
 
 	/**
 	 * @param i
 	 */
-	public void setOnCloseMethodID(int i)
+	public void setOnCloseMethodID(String uuid)
 	{
-		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONCLOSEMETHODID, i);
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONCLOSEMETHODID, uuid);
 	}
 
 	/**
 	 * @param i
 	 */
-	public void setOnOpenMethodID(int i)
+	public void setOnOpenMethodID(String uuid)
 	{
-		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONOPENMETHODID, i);
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONOPENMETHODID, uuid);
 	}
 
 	/**
 	 * @param i
 	 */
-	public void setOnBeforeLoginMethodID(int i)
+	public void setOnBeforeLoginMethodID(String uuid)
 	{
-		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONBEFORELOGINMETHODID, i);
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONBEFORELOGINMETHODID, uuid);
 	}
 
 	/**
@@ -1632,24 +1607,24 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	 * @templateparam Boolean cached data was cached
 	 * @templateaddtodo
 	 */
-	public int getOnDataBroadcastMethodID()
+	public String getOnDataBroadcastMethodID()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONDATABROADCASTMETHODID).intValue();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONDATABROADCASTMETHODID);
 	}
 
-	public void setOnDataBroadcastMethodID(int arg)
+	public void setOnDataBroadcastMethodID(String uuid)
 	{
-		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONDATABROADCASTMETHODID, arg);
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONDATABROADCASTMETHODID, uuid);
 	}
 
-	public int getOnInitMethodID()
+	public String getOnInitMethodID()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONINITMETHODID).intValue();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONINITMETHODID);
 	}
 
-	public void setOnInitMethodID(int arg)
+	public void setOnInitMethodID(String uuid)
 	{
-		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONINITMETHODID, arg);
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONINITMETHODID, uuid);
 	}
 
 	public void setVersion(String version)

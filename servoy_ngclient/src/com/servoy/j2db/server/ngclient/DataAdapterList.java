@@ -205,9 +205,9 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 	}
 
 	@Override
-	public Object executeEvent(WebComponent webComponent, String event, int eventId, Object[] args)
+	public Object executeEvent(WebComponent webComponent, String event, String eventUUID, Object[] args)
 	{
-		Object jsRetVal = executor.executeEvent(webComponent, event, eventId, args);
+		Object jsRetVal = executor.executeEvent(webComponent, event, eventUUID, args);
 
 		// FIXME I think the convertRhinoToSabloComponentValue should only happen if
 		// call comes from sablo/java (not Rhino - we don't currently have a reverse of IServerRhinoToRhino);

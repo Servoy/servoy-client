@@ -218,7 +218,7 @@ public abstract class AbstractTable implements ITable, Serializable
 				throw new RepositoryException("A column on table " + getName() + " with name/dataProviderID " + newName + " already exists"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			}
 
-			validator.checkName(newName, -1, new ValidatorSearchContext(this, IRepository.COLUMNS), true);
+			validator.checkName(newName, null, new ValidatorSearchContext(this, IRepository.COLUMNS), true);
 			Column c = columns.get(toEnglishLocaleLowerCase(oldName));
 			if (c != null)
 			{

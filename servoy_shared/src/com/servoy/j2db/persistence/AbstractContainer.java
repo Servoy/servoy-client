@@ -40,9 +40,9 @@ public abstract class AbstractContainer extends AbstractBase
 
 	private static final long serialVersionUID = 1L;
 
-	protected AbstractContainer(int type, ISupportChilds parent, int element_id, UUID uuid)
+	protected AbstractContainer(int type, ISupportChilds parent, UUID uuid)
 	{
-		super(type, parent, element_id, uuid);
+		super(type, parent, uuid);
 	}
 
 	/**
@@ -65,7 +65,7 @@ public abstract class AbstractContainer extends AbstractBase
 	{
 		if (validateName(arg))
 		{
-			validator.checkName(arg, getID(), new ValidatorSearchContext(getAncestor(IRepository.FORMS), getTypeID()), false);
+			validator.checkName(arg, getUUID(), new ValidatorSearchContext(getAncestor(IRepository.FORMS), getTypeID()), false);
 		}
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_NAME, arg);
 		getRootObject().getChangeHandler().fireIPersistChanged(this);
@@ -112,12 +112,9 @@ public abstract class AbstractContainer extends AbstractBase
 	 * @see com.servoy.j2db.persistence.ISupportExtendsID#getExtendsID()
 	 */
 	@Override
-	public int getExtendsID()
+	public String getExtendsID()
 	{
-		Integer extendsId = getTypedProperty(StaticContentSpecLoader.PROPERTY_EXTENDSID);
-		if (extendsId != null)
-			return extendsId.intValue();
-		else return 0;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_EXTENDSID);
 	}
 
 	/*
@@ -126,7 +123,7 @@ public abstract class AbstractContainer extends AbstractBase
 	 * @see com.servoy.j2db.persistence.ISupportExtendsID#setExtendsID(int)
 	 */
 	@Override
-	public void setExtendsID(int arg)
+	public void setExtendsID(String arg)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_EXTENDSID, arg);
 

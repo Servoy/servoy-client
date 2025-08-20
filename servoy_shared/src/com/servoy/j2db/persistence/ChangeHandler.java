@@ -51,14 +51,13 @@ public class ChangeHandler
 	public IPersist createNewObject(ISupportChilds parent, int object_type_id) throws RepositoryException
 	{
 		final UUID uuid = UUID.randomUUID();
-		final int element_id = factory.getNewElementID(uuid);
-		return createNewObject(parent, object_type_id, element_id, uuid);
+		return createNewObject(parent, object_type_id, uuid);
 	}
 
-	public IPersist createNewObject(ISupportChilds parent, int object_type_id, int element_id, UUID uuid) throws RepositoryException
+	public IPersist createNewObject(ISupportChilds parent, int object_type_id, UUID uuid) throws RepositoryException
 	{
 		// Create object.
-		IPersist object = factory.createObject(parent, object_type_id, element_id, uuid);
+		IPersist object = factory.createObject(parent, object_type_id, uuid);
 		rootObject.registerNewObject(object);
 		return object;
 	}

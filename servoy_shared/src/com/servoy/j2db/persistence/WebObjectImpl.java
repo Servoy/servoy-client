@@ -39,7 +39,6 @@ import org.sablo.specification.property.IPropertyType;
 import org.sablo.websocket.utils.PropertyUtils;
 
 import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.ServoyJSONArray;
 import com.servoy.j2db.util.ServoyJSONObject;
 import com.servoy.j2db.util.UUID;
@@ -1118,22 +1117,6 @@ public class WebObjectImpl extends WebObjectBasicImpl
 			}
 		}
 		return persistMappedPropetiesByUUID == null ? null : persistMappedPropetiesByUUID.get(childUuid);
-	}
-
-	public static Pair<Integer, UUID> getNewIdAndUUID(IPersist persist)
-	{
-		UUID uuid = UUID.randomUUID();
-		int id;
-		try
-		{
-			id = ((IPersistFactory)((Solution)persist.getAncestor(IRepository.SOLUTIONS)).getRepository()).getNewElementID(uuid);
-		}
-		catch (RepositoryException e)
-		{
-			Debug.error(e);
-			id = 0;
-		}
-		return new Pair<>(Integer.valueOf(id), uuid);
 	}
 
 	private static JSONObject getFullJSONInFrmFile(IBasicWebObject parentWebObject, String jsonKey, int index, boolean isNew)

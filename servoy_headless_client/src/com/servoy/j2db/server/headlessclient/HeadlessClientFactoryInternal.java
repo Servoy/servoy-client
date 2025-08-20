@@ -141,7 +141,7 @@ public class HeadlessClientFactoryInternal
 					protected Solution loadSolution(RootObjectMetaData solutionDef) throws RemoteException, RepositoryException
 					{
 						// grab the latest version (-1) not the active one, because the hook was not yet activated.
-						return (Solution)((IDeveloperRepository)getRepository()).getRootObject(solutionDef.getRootObjectId(), -1);
+						return (Solution)((IDeveloperRepository)getRepository()).getRootObject(solutionDef.getRootObjectUuid(), -1);
 					}
 				};
 			}

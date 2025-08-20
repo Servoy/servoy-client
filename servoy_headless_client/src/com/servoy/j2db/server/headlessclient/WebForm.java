@@ -188,7 +188,7 @@ public class WebForm extends Component
 			}
 			else if (parent instanceof IServoyAwareBean && parent instanceof IComponent)
 			{
-				currentBeanName = ((IComponent)parent).getName();
+				currentBeanName = parent.getName();
 			}
 			else if (parent instanceof WebForm wf)
 			{
@@ -457,7 +457,7 @@ public class WebForm extends Component
 			}
 			else
 			{
-				int startY = fp.getForm().getPartStartYPos(body.getID());
+				int startY = fp.getForm().getPartStartYPos(body.getUUID().toString());
 				int endY = body.getHeight();
 				int sizeHint = endY;
 				if ((sizeHint - startY) <= 40 && fp.getForm().getSize().height == sizeHint) // small body and body is last
@@ -1447,19 +1447,19 @@ public class WebForm extends Component
 				Part part = formController.getForm().getPartAt(((BaseComponent)persist).getLocation().y);
 				if (part != null)
 				{
-					int top = formController.getForm().getPartStartYPos(part.getID());
+					int top = formController.getForm().getPartStartYPos(part.getUUID().toString());
 					designHeight = part.getHeight() - top;
 				}
 				if (partHeight > 0 && formWidth > 0 && designWidth > 0 && designHeight > 0)
 				{
-					int navid = formController.getForm().getNavigatorID();
+					String navuuid = formController.getForm().getNavigatorID();
 					int navigatorWidth = 0;
-					if (navid == Form.NAVIGATOR_DEFAULT && formController.getForm().getView() != FormController.TABLE_VIEW &&
+					if (navuuid == Form.NAVIGATOR_DEFAULT && formController.getForm().getView() != FormController.TABLE_VIEW &&
 						formController.getForm().getView() != FormController.LOCKED_TABLE_VIEW)
 					{
 						navigatorWidth = 0;
 					}
-					else if (navid != Form.NAVIGATOR_NONE)
+					else if (!Form.NAVIGATOR_NONE.equals(navuuid))
 					{
 						ISupportNavigator navigatorSupport = findParent(ISupportNavigator.class);
 						if (navigatorSupport != null)

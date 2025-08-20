@@ -176,16 +176,16 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 		if (window != null && window.getController() == this)
 		{
 			IFormController currentNavigator = window.getNavigator();
-			int form_id = form.getNavigatorID();
-			if (form_id > 0)
+			String form_uuid = form.getNavigatorID();
+			if (form_uuid != null && !Form.NAVIGATOR_IGNORE.equals(form_uuid) && !Form.NAVIGATOR_NONE.equals(form_uuid))
 			{
-				if (currentNavigator == null || currentNavigator.getForm().getID() != form_id)//is already there
+				if (currentNavigator == null || !Utils.equalObjects(currentNavigator.getForm().getUUID().toString(), form_uuid))//is already there
 				{
 					if (currentNavigator != null)
 					{
 						currentNavigator.notifyVisible(false, invokeLaterRunnables, true);
 					}
-					Form navigator = application.getFlattenedSolution().getForm(form_id);
+					Form navigator = application.getFlattenedSolution().getForm(form_uuid);
 					if (navigator != null)
 					{
 						IFormController navigatorController = getApplication().getFormManager().getForm(navigator.getName());
@@ -195,18 +195,18 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 				else
 				{
 					// Try to lease it extra so it will be added to last used screens.
-					Form navigator = application.getFlattenedSolution().getForm(form_id);
+					Form navigator = application.getFlattenedSolution().getForm(form_uuid);
 					if (navigator != null)
 					{
 						getBasicFormManager().leaseFormPanel(navigator.getName());
 					}
 				}
 			}
-			else if (form_id != Form.NAVIGATOR_IGNORE)
+			else if (!Form.NAVIGATOR_IGNORE.equals(form_uuid))
 			{
 				if (currentNavigator != null) currentNavigator.notifyVisible(false, invokeLaterRunnables, true);
 			}
-			window.setNavigator(form_id);
+			window.setNavigator(form_uuid);
 		}
 	}
 

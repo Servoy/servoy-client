@@ -26,6 +26,7 @@ import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.query.ISQLSelect;
 import com.servoy.j2db.server.shared.IClientManagerInternal;
 import com.servoy.j2db.util.ServoyException;
+import com.servoy.j2db.util.UUID;
 
 
 /**
@@ -42,7 +43,7 @@ public interface IDataServerInternal
 
 	IServerManagerInternal getServerManager();
 
-	Object getNextRepositorySequence(String tableName, String columnName, int columnInfoID) throws RepositoryException;
+	Object getNextRepositorySequence(String tableName, String columnName, UUID columnInfoUUID) throws RepositoryException;
 
 	String startRepositoryTransaction(String client_id) throws RepositoryException;
 

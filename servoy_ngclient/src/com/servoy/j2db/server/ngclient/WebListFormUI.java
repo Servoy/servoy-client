@@ -60,9 +60,9 @@ public class WebListFormUI extends WebFormUI
 			List<IFormElement> elements = form.getFlattenedObjects(PositionComparator.XY_PERSIST_COMPARATOR);
 			Iterator<IFormElement> it = elements.iterator();
 			Part body = FormElementHelper.INSTANCE.getBodyPart(form);
-			int bodyStartY = form.getPartStartYPos(body.getID());
+			int bodyStartY = form.getPartStartYPos(body.getUUID().toString());
 			int bodyEndY = body.getHeight();
-			
+
 			// remove body elements; those will be part of elements.add(getPortal())'s childElements below;
 			// only the elements from other form parts then body still need to be added to cached elements
 			while (it.hasNext())

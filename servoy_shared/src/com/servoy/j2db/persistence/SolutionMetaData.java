@@ -62,9 +62,9 @@ public class SolutionMetaData extends RootObjectMetaData
 
 	private transient int fileVersion = AbstractRepository.repository_version;
 
-	public SolutionMetaData(int rootObjectId, UUID rootObjectUuid, String name, int objectTypeId, int activeRelease, int latestRelease)
+	public SolutionMetaData(UUID rootObjectUuid, String name, int objectTypeId, int activeRelease, int latestRelease)
 	{
-		super(rootObjectId, rootObjectUuid, name, objectTypeId, activeRelease, latestRelease);
+		super(rootObjectUuid, name, objectTypeId, activeRelease, latestRelease);
 		solutionType = SolutionMetaData.SOLUTION;
 		if (ApplicationServerRegistry.exists()) protectionPassword = ApplicationServerRegistry.get().calculateProtectionPassword(this, null);
 	}

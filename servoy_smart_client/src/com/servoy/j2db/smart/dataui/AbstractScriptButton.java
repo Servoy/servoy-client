@@ -142,7 +142,7 @@ public abstract class AbstractScriptButton extends JButton implements ISkinnable
 /*
  * does not work, when onAction is fired the repaint event is not yet posted public AbstractScriptButton() { addActionListener(new ActionListener() { public
  * void actionPerformed(ActionEvent e) { Utils.dispatchEvents(700); } }); }
- * 
+ *
  * //We override this method becouse we want first added listners to be notified first! protected void fireActionPerformed(ActionEvent event) { // Guaranteed to
  * return a non-null array Object[] listeners = listenerList.getListenerList(); ActionEvent e = null; // Process the listeners first to last, notifying // those
  * that are interested in this event for (int i = 0 ; i < listeners.length ; i+=2) { if (listeners[i]==ActionListener.class) { // Lazily create the event: if (e
@@ -179,20 +179,20 @@ public abstract class AbstractScriptButton extends JButton implements ISkinnable
 		super.setIcon(icon);
 	}
 
-	public int getMediaIcon()
+	public String getMediaIcon()
 	{
-		return mediaId;
+		return mediaUUID;
 	}
 
-	private int mediaId;
+	private String mediaUUID;
 
-	public void setMediaIcon(int mediaId)
+	public void setMediaIcon(String mediaUUID)
 	{
-		this.mediaId = mediaId;
+		this.mediaUUID = mediaUUID;
 		try
 		{
-			setIcon(ComponentFactory.loadIcon(application.getFlattenedSolution(), new Integer(mediaId)));
-			Media media = application.getFlattenedSolution().getMedia(mediaId);
+			setIcon(ComponentFactory.loadIcon(application.getFlattenedSolution(), mediaUUID));
+			Media media = application.getFlattenedSolution().getMedia(mediaUUID);
 			if (media != null) text_url = MediaURLStreamHandler.MEDIA_URL_DEF + media.getName();
 		}
 		catch (Exception ex)
@@ -258,11 +258,11 @@ public abstract class AbstractScriptButton extends JButton implements ISkinnable
 	/**
 	 * @see com.servoy.j2db.ui.ILabel#setRolloverIcon(int)
 	 */
-	public void setRolloverIcon(int rollOverMediaId)
+	public void setRolloverIcon(String rollOverMediaUUID)
 	{
 		try
 		{
-			setRolloverIcon(ComponentFactory.loadIcon(application.getFlattenedSolution(), new Integer(rollOverMediaId)));
+			setRolloverIcon(ComponentFactory.loadIcon(application.getFlattenedSolution(), rollOverMediaUUID));
 		}
 		catch (Exception ex)
 		{
@@ -472,7 +472,7 @@ public abstract class AbstractScriptButton extends JButton implements ISkinnable
 		return viewable;
 	}
 
-	// If component not shown or not added yet 
+	// If component not shown or not added yet
 	// and request focus is called it should wait for the component
 	// to be created.
 	boolean wantFocus = false;

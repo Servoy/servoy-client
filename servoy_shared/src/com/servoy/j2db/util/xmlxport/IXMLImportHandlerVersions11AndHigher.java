@@ -36,6 +36,7 @@ import com.servoy.j2db.persistence.ISupportChilds;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.ServoyException;
+import com.servoy.j2db.util.UUID;
 
 /**
  * Handler for importing servoy files of versions 11 of higher.
@@ -89,12 +90,10 @@ public interface IXMLImportHandlerVersions11AndHigher
 
 	String getPropertyValue(String oldValue);
 
-	IPersist loadDeletedObjectByElementId(IRootObject rootObject, int elementId, ISupportChilds parent)
+	IPersist loadDeletedObjectByElementId(IRootObject rootObject, UUID elementUUID, ISupportChilds parent)
 		throws RepositoryException, IllegalAccessException, IntrospectionException, InvocationTargetException;
 
 	void setStyleActiveRelease(IRootObject[] rootObjects) throws RepositoryException;
-
-	int getObjectId(boolean b, String string) throws RepositoryException;
 
 	void setAskForImportServerName(boolean askForImportServerName);
 

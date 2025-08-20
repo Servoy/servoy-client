@@ -142,7 +142,8 @@ public class JSBase<T extends AbstractBase> implements ISMHasUUID
 					{
 						for (IPersist p : children)
 						{
-							if (parentPersist.getID() == ((ISupportExtendsID)p).getExtendsID() && form.equals(p.getAncestor(IRepository.FORMS)))
+							if (parentPersist.getUUID().toString().equals(((ISupportExtendsID)p).getExtendsID()) &&
+								form.equals(p.getAncestor(IRepository.FORMS)))
 							{
 								return (AbstractBase)p;
 							}
@@ -156,7 +157,7 @@ public class JSBase<T extends AbstractBase> implements ISMHasUUID
 
 					baseComponent = (AbstractBase)persist.cloneObj(parent.getSupportChild(), false, null, false, false, false);
 					baseComponent.copyPropertiesMap(null, true);
-					((ISupportExtendsID)baseComponent).setExtendsID(parentPersist.getID());
+					((ISupportExtendsID)baseComponent).setExtendsID(parentPersist.getUUID().toString());
 				}
 				catch (Exception ex)
 				{

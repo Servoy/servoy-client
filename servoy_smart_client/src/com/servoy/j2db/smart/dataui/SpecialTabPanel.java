@@ -706,14 +706,14 @@ public class SpecialTabPanel extends EnablePanel implements IDisplayRelatedData,
 		return enclosingComponent.getBackgroundAt(index);
 	}
 
-	public void addTab(String text, int iconMediaId, IFormLookupPanel flp, String tip)
+	public void addTab(String text, String iconMediaUUID, IFormLookupPanel flp, String tip)
 	{
 		Icon icon = null;
-		if (iconMediaId > 0)
+		if (iconMediaUUID != null)
 		{
 			try
 			{
-				icon = ImageLoader.getIcon(ComponentFactory.loadIcon(application.getFlattenedSolution(), new Integer(iconMediaId)), -1, -1, true);
+				icon = ImageLoader.getIcon(ComponentFactory.loadIcon(application.getFlattenedSolution(), iconMediaUUID), -1, -1, true);
 			}
 			catch (Exception ex)
 			{

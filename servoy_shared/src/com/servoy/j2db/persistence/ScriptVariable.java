@@ -71,9 +71,9 @@ public class ScriptVariable extends AbstractBase implements IVariable, IDataProv
 	/**
 	 * Constructor I
 	 */
-	ScriptVariable(ISupportChilds parent, int element_id, UUID uuid)
+	ScriptVariable(ISupportChilds parent, UUID uuid)
 	{
-		super(IRepository.SCRIPTVARIABLES, parent, element_id, uuid);
+		super(IRepository.SCRIPTVARIABLES, parent, uuid);
 	}
 
 	/*
@@ -98,7 +98,7 @@ public class ScriptVariable extends AbstractBase implements IVariable, IDataProv
 	 */
 	public void updateName(IValidateName validator, String arg) throws RepositoryException
 	{
-		validator.checkName(arg, getID(), new ValidatorSearchContext(getScopeName() != null ? getScopeName() : getRootObject(), IRepository.SCRIPTVARIABLES),
+		validator.checkName(arg, getUUID(), new ValidatorSearchContext(getScopeName() != null ? getScopeName() : getRootObject(), IRepository.SCRIPTVARIABLES),
 			false);
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_NAME, arg);
 		prefixedName = null;

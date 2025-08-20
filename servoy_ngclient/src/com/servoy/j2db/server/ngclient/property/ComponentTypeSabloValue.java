@@ -372,17 +372,13 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 				}
 				if (function != null)
 				{
-					childComponent.add(handler, function.getID());
+					childComponent.add(handler, function.getUUID().toString());
 				}
 				else
 				{
 					Debug.warn("Event handler for " + handler + " with value '" + value + "' not found (form " + form + ", form element " +
 						childComponent.getFormElement().getName() + ")");
 				}
-			}
-			else if (value instanceof Number && ((Number)value).intValue() > 0)
-			{
-				childComponent.add(handler, ((Number)value).intValue());
 			}
 		}
 

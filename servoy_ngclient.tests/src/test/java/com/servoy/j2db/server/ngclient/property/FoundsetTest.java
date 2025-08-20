@@ -114,7 +114,7 @@ public class FoundsetTest extends AbstractSolutionTest
 	protected void fillTestSolution() throws ServoyException
 	{
 		Form form = solution.createNewForm(validator, null, "test", "mem:test", false, new Dimension(600, 400));
-		form.setNavigatorID(-1);
+		form.setNavigatorID(Form.NAVIGATOR_NONE);
 		form.createNewPart(IBaseSMPart.BODY, 5);
 		WebComponent bean = form.createNewWebComponent("mycustombean", "my-component");
 		bean.setProperty("myfoundset", new ServoyJSONObject("{foundsetSelector:'',dataproviders:{firstname:'test1',lastname:'test2'}}", false));
@@ -131,7 +131,7 @@ public class FoundsetTest extends AbstractSolutionTest
 			"{foundsetSelector: \"mem:testseparatefoundset\", loadAllRecords: true, dataproviders:{firstname:'test1',lastname:'test2'}}", false));
 
 		Form formSel8 = solution.createNewForm(validator, null, "testSel8", "mem:testsel8", false, new Dimension(600, 400));
-		formSel8.setNavigatorID(-1);
+		formSel8.setNavigatorID(Form.NAVIGATOR_NONE);
 		formSel8.createNewPart(IBaseSMPart.BODY, 5);
 
 		WebComponent componentWithPaging = formSel8.createNewWebComponent("mycomponentwithpaging", "mypagingcomponent");

@@ -87,11 +87,11 @@ public class JSTab extends JSBase<Tab> implements IJavaScriptType, ISMTab
 		checkModification();
 		if (form == null)
 		{
-			getBaseComponent(true).setContainsFormID(0);
+			getBaseComponent(true).setContainsFormID(null);
 		}
 		else
 		{
-			getBaseComponent(true).setContainsFormID(((JSForm)form).getSupportChild().getID());
+			getBaseComponent(true).setContainsFormID(((JSForm)form).getSupportChild().getUUID().toString());
 		}
 	}
 
@@ -141,11 +141,11 @@ public class JSTab extends JSBase<Tab> implements IJavaScriptType, ISMTab
 		checkModification();
 		if (media == null)
 		{
-			getBaseComponent(true).setImageMediaID(0);
+			getBaseComponent(true).setImageMediaID(null);
 		}
 		else
 		{
-			getBaseComponent(true).setImageMediaID(((JSMedia)media).getMedia().getID());
+			getBaseComponent(true).setImageMediaID(((JSMedia)media).getMedia().getUUID().toString());
 		}
 	}
 

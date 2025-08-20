@@ -25,5 +25,5 @@ public interface ISupportScriptProviders
 
 	public Iterator<ScriptVariable> getScriptVariables(boolean b);
 
-	public ScriptMethod getScriptMethod(int methodId);
+	public ScriptMethod getScriptMethod(String methodNameOrUUID);
 }

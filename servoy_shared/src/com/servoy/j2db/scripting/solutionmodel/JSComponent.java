@@ -65,7 +65,7 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 	/**
 	 * Set the event handler for the method key, JSMethod may contain arguments.
 	 */
-	protected void setEventHandler(IApplication application, TypedProperty<Integer> methodProperty, JSMethod method)
+	protected void setEventHandler(IApplication application, TypedProperty<String> methodProperty, JSMethod method)
 	{
 		JSForm.setEventHandler(application, getBaseComponent(true), methodProperty, method);
 	}
@@ -73,7 +73,7 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 	/**
 	 * Get the event handler for the method key, JSMethod may contain arguments.
 	 */
-	protected JSMethod getEventHandler(IApplication application, TypedProperty<Integer> methodProperty)
+	protected JSMethod getEventHandler(IApplication application, TypedProperty<String> methodProperty)
 	{
 		return JSForm.getEventHandler(application, getBaseComponent(false), methodProperty, getJSParent());
 	}

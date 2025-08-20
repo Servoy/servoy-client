@@ -17,18 +17,15 @@
 
 package com.servoy.base.persistence;
 
-
 /**
  * Column representation, both for mobile and regular clients.
- * 
+ *
  * @author rgansevles
  *
  */
 public abstract class BaseColumn implements IBaseColumn
 {
 	public abstract int getType();
-
-	public abstract int getID();
 
 	public abstract String getSQLName();
 

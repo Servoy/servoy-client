@@ -436,7 +436,7 @@ public class DebugUtils
 										formsToReload.add(finalController);
 										return o;
 									}
-									if (o instanceof Field && ((Field)o).getValuelistID() > 0)
+									if (o instanceof Field && ((Field)o).getValuelistID() != null)
 									{
 										ValueList vl = clientState.getFlattenedSolution().getValueList(((Field)o).getValuelistID());
 										if (vl != null && Utils.equalObjects(finalRelation.getName(), vl.getRelationName()))
@@ -487,7 +487,8 @@ public class DebugUtils
 						@Override
 						public Object visit(IPersist o)
 						{
-							if (o instanceof Field && ((Field)o).getValuelistID() > 0 && ((Field)o).getValuelistID() == finalValuelist.getID())
+							if (o instanceof Field && ((Field)o).getValuelistID() != null &&
+								finalValuelist.getUUID().toString().equals(((Field)o).getValuelistID()))
 							{
 								formsToReload.add(finalController);
 								return o;

@@ -33,12 +33,12 @@ public interface ISupportExtendsID extends IPersist
 	 * @sample "ordersForm"
 	 * @return the parent
 	 */
-	int getExtendsID();
+	String getExtendsID();
 
 	/**
 	 * @param arg the selected parent
 	 */
-	void setExtendsID(int arg);
+	void setExtendsID(String uuid);
 
 	Map<String, Object> getFlattenedPropertiesMap();
 

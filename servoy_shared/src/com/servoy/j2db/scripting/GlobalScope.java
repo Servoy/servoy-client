@@ -60,7 +60,7 @@ public class GlobalScope extends ScriptVariableScope
 				return application.getFlattenedSolution().getScriptVariables(scopeName, sort);
 			}
 
-			public ScriptMethod getScriptMethod(int methodId)
+			public ScriptMethod getScriptMethod(String methodUUID)
 			{
 				return null; // is not used in lazy compilation scope
 			}

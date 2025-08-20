@@ -674,7 +674,7 @@ public class RuntimeLegacyComponent implements Scriptable, IInstanceOf
 				int partStartY = 0;
 				if (p != null)
 				{
-					partStartY = f.getPartStartYPos(p.getID());
+					partStartY = f.getPartStartYPos(p.getUUID().toString());
 				}
 				return Integer.valueOf(partStartY + y);
 			}

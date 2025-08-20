@@ -27,6 +27,7 @@ import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.query.ColumnType;
 import com.servoy.j2db.util.Settings;
+import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -88,7 +89,7 @@ public class ColumnInfo implements Serializable, ISupportHTMLToolTipText
 	 */
 	private String databaseDefaultValue = null;
 
-	private int columninfo_id;
+	private UUID columninfo_UUID;
 	private boolean storedPersistently;
 	private boolean changed;
 	private int autoEnterType = NO_AUTO_ENTER;
@@ -119,22 +120,23 @@ public class ColumnInfo implements Serializable, ISupportHTMLToolTipText
 
 	private int flags = 0;
 
-	public ColumnInfo(int columninfo_id, boolean storedPersistently)
+	public ColumnInfo(boolean storedPersistently)
 	{
-		this.columninfo_id = columninfo_id;
+		this.columninfo_UUID = UUID.randomUUID();
 		this.storedPersistently = storedPersistently;
 
 		if (!storedPersistently) changed = true;
 	}
 
-	public int getID()
+	public UUID getUUID()
 	{
-		return columninfo_id;
+		return columninfo_UUID;
 	}
 
-	public void setID(int id)
+	public void setUUID(UUID uuid)
 	{
-		columninfo_id = id;
+		if (uuid == null) this.columninfo_UUID = UUID.randomUUID();
+		this.columninfo_UUID = uuid;
 	}
 
 	public boolean isStoredPersistently()

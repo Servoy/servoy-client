@@ -27,6 +27,7 @@ import java.util.TimeZone;
 
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.SerializableObject;
+import com.servoy.j2db.util.UUID;
 
 /**
  * @author sebster
@@ -61,7 +62,7 @@ public final class ClientInfo implements Serializable
 
 	private long openSolutionTimestamp = 0;
 	private int solutionReleaseNumber = -1;
-	private int openSolutionId = -1;
+	private UUID openSolutionUUID = null;
 	private List<String> infos = new ArrayList<String>();//to make it possible for developer to give a client a meaning full name/description in the admin page
 
 	private String solutionIntendedToBeLoaded;
@@ -102,7 +103,7 @@ public final class ClientInfo implements Serializable
 
 			timeZone = clientInfo.timeZone;
 
-			openSolutionId = clientInfo.openSolutionId;
+			openSolutionUUID = clientInfo.openSolutionUUID;
 			infos = new ArrayList<String>(clientInfo.infos);
 			solutionIntendedToBeLoaded = clientInfo.solutionIntendedToBeLoaded;
 		}
@@ -316,11 +317,11 @@ public final class ClientInfo implements Serializable
 		}
 	}
 
-	public int getOpenSolutionId()
+	public UUID getOpenSolutionUUID()
 	{
 		synchronized (lock)
 		{
-			return openSolutionId;
+			return openSolutionUUID;
 		}
 	}
 
@@ -332,11 +333,11 @@ public final class ClientInfo implements Serializable
 		}
 	}
 
-	public void setOpenSolutionId(int openSolutionId)
+	public void setOpenSolutionUUID(UUID openSolutionUUID)
 	{
 		synchronized (lock)
 		{
-			this.openSolutionId = openSolutionId;
+			this.openSolutionUUID = openSolutionUUID;
 		}
 	}
 

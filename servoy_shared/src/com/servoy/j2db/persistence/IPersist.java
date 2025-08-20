@@ -52,12 +52,6 @@ public interface IPersist extends Serializable
 	 */
 	public Object acceptVisitorDepthFirst(IPersistVisitor visitor) throws RepositoryException;
 
-	/**
-	 * Get the Id from a (repository) object
-	 *
-	 * @return the Id
-	 */
-	public int getID();
 
 	/**
 	 * Set revision number
@@ -158,10 +152,10 @@ public interface IPersist extends Serializable
 	/**
 	 *  Find the child (recursively) with the given extendsID.
 	 */
-	default Optional<IPersist> searchForExtendsId(int extendsID)
+	default Optional<IPersist> searchForExtendsId(UUID extendsUUID)
 	{
 		return Optional.ofNullable((IPersist)acceptVisitor(
-			persist -> (persist instanceof ISupportExtendsID && ((ISupportExtendsID)persist).getExtendsID() == extendsID) ? persist : null));
+			persist -> (persist instanceof ISupportExtendsID && extendsUUID.toString().equals(((ISupportExtendsID)persist).getExtendsID())) ? persist : null));
 	}
 
 	/**

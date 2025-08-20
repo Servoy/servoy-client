@@ -1853,8 +1853,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 									newCol = table.createNewColumn(DummyValidator.INSTANCE, colname, column.getColumnType());
 									if (column.getColumnInfo() != null)
 									{
-										DatabaseUtils.createNewColumnInfo(
-											manager.getApplication().getFlattenedSolution().getPersistFactory().getNewElementID(null), newCol, false);
+										DatabaseUtils.createNewColumnInfo(newCol, false);
 										newCol.getColumnInfo().copyFrom(column.getColumnInfo());
 									}
 								}

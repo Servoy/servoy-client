@@ -216,11 +216,7 @@ public class FormComponentPropertyType extends DefaultPropertyType<Object> imple
 			formId = ((JSONObject)formId).optString("svy_form");
 		}
 		Form form = null;
-		if (formId instanceof Integer)
-		{
-			form = fs.getForm(((Integer)formId).intValue());
-		}
-		else if (formId instanceof String || formId instanceof UUID)
+		if (formId instanceof String || formId instanceof UUID)
 		{
 			// try first by name or uuid (FS caches by both)
 			form = fs.getForm(formId.toString());

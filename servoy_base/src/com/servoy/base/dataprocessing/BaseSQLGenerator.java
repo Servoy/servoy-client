@@ -441,7 +441,7 @@ public class BaseSQLGenerator
 							// in case of composite pk, checking only the first pk column is enough
 							condition = queryFactory.and(condition,
 								queryFactory.createCompareCondition(IBaseSQLCondition.NOT_OPERATOR,
-									queryFactory.createQueryColumn(columnTable, firstForeignPKColumn.getID(), firstForeignPKColumn.getSQLName(),
+									queryFactory.createQueryColumn(columnTable, firstForeignPKColumn.getSQLName(),
 										firstForeignPKColumn.getType(), firstForeignPKColumn.getLength(), firstForeignPKColumn.getScale(),
 										firstForeignPKColumn.getFlags()),
 									null));

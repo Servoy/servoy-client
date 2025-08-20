@@ -62,16 +62,16 @@ public class MenuItem extends AbstractBase implements ISupportUpdateableName, IC
 	/**
 	 * Constructor I
 	 */
-	MenuItem(ISupportChilds parent, int element_id, UUID uuid)
+	MenuItem(ISupportChilds parent, UUID uuid)
 	{
-		super(IRepository.MENU_ITEMS, parent, element_id, uuid);
+		super(IRepository.MENU_ITEMS, parent, uuid);
 	}
 
 	@Override
 	public void updateName(IValidateName validator, String arg) throws RepositoryException
 	{
 		// do we care about duplicates here ?
-		validator.checkName(arg, getID(), new ValidatorSearchContext(IRepository.MENU_ITEMS), false);
+		validator.checkName(arg, getUUID(), new ValidatorSearchContext(IRepository.MENU_ITEMS), false);
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_NAME, arg);
 		getRootObject().getChangeHandler().fireIPersistChanged(this);
 	}
@@ -79,7 +79,7 @@ public class MenuItem extends AbstractBase implements ISupportUpdateableName, IC
 
 	public void updateName(IValidateName validator, String arg, ValidatorSearchContext validatorSearchContext) throws RepositoryException
 	{
-		validator.checkName(arg, getID(), validatorSearchContext, false);
+		validator.checkName(arg, getUUID(), validatorSearchContext, false);
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_NAME, arg);
 		getRootObject().getChangeHandler().fireIPersistChanged(this);
 	}

@@ -65,7 +65,7 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 	private int height = -1;
 	private boolean visible;
 	private String formName;
-	private Integer navigatorID = null;
+	private String navigatorUUID = null;
 
 	final List<NGRuntimeWindow> children = new ArrayList<>();
 	String previousModalWindow = null;
@@ -107,10 +107,10 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 
 	public IWebFormController getNavigator()
 	{
-		if (navigatorID != null && navigatorID > 0)
+		if (navigatorUUID != null && !Form.NAVIGATOR_IGNORE.equals(navigatorUUID) && !Form.NAVIGATOR_NONE.equals(navigatorUUID))
 		{
-			Form navigatorForm = getApplication().getFlattenedSolution().getForm(navigatorID);
-			navigatorID = null;
+			Form navigatorForm = getApplication().getFlattenedSolution().getForm(navigatorUUID);
+			navigatorUUID = null;
 			if (navigatorForm != null)
 			{
 				return getApplication().getFormManager().getForm(navigatorForm.getName());
@@ -119,9 +119,9 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 		return null;
 	}
 
-	public void setNavigator(Integer navigatorID)
+	public void setNavigator(String navigatorUUID)
 	{
-		this.navigatorID = navigatorID;
+		this.navigatorUUID = navigatorUUID;
 	}
 
 	@Override
@@ -684,8 +684,8 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 		Solution solution = getApplication().getFlattenedSolution().getSolution();
 		if (solution != null)
 		{
-			isLoginForm = (solution.getSolutionType() == SolutionMetaData.LOGIN_SOLUTION || solution.getLoginFormID() == currentForm
-				.getForm().getID());
+			isLoginForm = (solution.getSolutionType() == SolutionMetaData.LOGIN_SOLUTION || currentForm
+				.getForm().getUUID().toString().equals(solution.getLoginFormID()));
 		}
 		else isLoginForm = false;
 
@@ -712,51 +712,52 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 	private Map<String, Object> getNavigatorProperties(IWebFormController formController)
 	{
 		Map<String, Object> navigatorForm = new HashMap<String, Object>();
-		int navigatorId = formController.getForm().getNavigatorID();
-		if (formController.getFormUI() instanceof WebListFormUI && navigatorId == Form.NAVIGATOR_DEFAULT)
+		String navigatorUUID = formController.getForm().getNavigatorID();
+		if (formController.getFormUI() instanceof WebListFormUI && navigatorUUID == Form.NAVIGATOR_DEFAULT)
 		{
-			navigatorId = Form.NAVIGATOR_NONE;
+			navigatorUUID = Form.NAVIGATOR_NONE;
 		}
-		switch (navigatorId)
+		if (navigatorUUID == Form.NAVIGATOR_DEFAULT)
 		{
-			case Form.NAVIGATOR_NONE :
-				break;
-			case Form.NAVIGATOR_DEFAULT :
+			navigatorForm.put("name", "servoycore/navigator/default_navigator_container.html");
+			Map<String, Integer> navSize = new HashMap<>();
+			navSize.put("width", 70);
+			navigatorForm.put("size", navSize);
+		}
+		else
+		{
+			switch (navigatorUUID)
 			{
-				navigatorForm.put("name", "servoycore/navigator/default_navigator_container.html");
-				Map<String, Integer> navSize = new HashMap<>();
-				navSize.put("width", 70);
-				navigatorForm.put("size", navSize);
-				break;
-			}
-			case Form.NAVIGATOR_IGNORE :
-			{
-				if (history.getIndex() > 0)
+				case Form.NAVIGATOR_NONE :
+					break;
+				case Form.NAVIGATOR_IGNORE :
 				{
-					String prevForm = history.getFormName(history.getIndex() - 1);
-					if (prevForm != null)
+					if (history.getIndex() > 0)
 					{
-						navigatorForm = getApplication().getFormManager().getForm(prevForm).getNavigatorProperties();
+						String prevForm = history.getFormName(history.getIndex() - 1);
+						if (prevForm != null)
+						{
+							navigatorForm = getApplication().getFormManager().getForm(prevForm).getNavigatorProperties();
+						}
+					}
+					break;
+				}
+				default :
+				{
+					Form navForm = getApplication().getFlattenedSolution().getForm(navigatorUUID);
+					if (navForm != null)
+					{
+						getApplication().getFormManager().getForm(navForm.getName()).getFormUI().setParentWindowName(getName());
+						navigatorForm.put("name", navForm.getName());
+						Map<String, Integer> navSize = new HashMap<>();
+						navSize.put("width", navForm.getSize().width);
+						navSize.put("height", navForm.getSize().height);
+						navigatorForm.put("size", navSize);
+						NGClientWindow.getCurrentWindow().touchForm(getApplication().getFlattenedSolution().getFlattenedForm(navForm), null, true, false);
 					}
 				}
-				break;
-			}
-			default :
-			{
-				Form navForm = getApplication().getFlattenedSolution().getForm(navigatorId);
-				if (navForm != null)
-				{
-					getApplication().getFormManager().getForm(navForm.getName()).getFormUI().setParentWindowName(getName());
-					navigatorForm.put("name", navForm.getName());
-					Map<String, Integer> navSize = new HashMap<>();
-					navSize.put("width", navForm.getSize().width);
-					navSize.put("height", navForm.getSize().height);
-					navigatorForm.put("size", navSize);
-					NGClientWindow.getCurrentWindow().touchForm(getApplication().getFlattenedSolution().getFlattenedForm(navForm), null, true, false);
-				}
 			}
 		}
-
 
 		if (navigatorForm.isEmpty()) // Form.NAVIGATOR_NONE
 		{

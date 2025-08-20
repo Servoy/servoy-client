@@ -140,7 +140,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 			{
 				for (Solution module : modules)
 				{
-					if (module.getFirstFormID() > 0)
+					if (module.getFirstFormID() != null)
 					{
 						first = application.getFlattenedSolution().getForm(module.getFirstFormID());
 						firstFormCanBeInstantiated = application.getFlattenedSolution().formCanBeInstantiated(first);
@@ -165,7 +165,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 		{
 			application.getModeManager().setMode(IModeManager.EDIT_MODE);//start in browse mode
 		}
-		boolean showLoginForm = (solution.getLoginFormID() > 0 && solution.getMustAuthenticate() && application.getUserUID() == null);
+		boolean showLoginForm = (solution.getLoginFormID() != null && solution.getMustAuthenticate() && application.getUserUID() == null);
 		if (application.getUserUID() == null)
 		{
 			ScriptMethod onBeforeLogin = application.getFlattenedSolution().getScriptMethod(solution.getOnBeforeLoginMethodID());
@@ -193,7 +193,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 				}
 			}
 		}
-		if (solution.getLoginFormID() > 0 && solution.getMustAuthenticate() && application.getUserUID() == null)
+		if (solution.getLoginFormID() != null && solution.getMustAuthenticate() && application.getUserUID() == null)
 		{
 			Form login = application.getFlattenedSolution().getForm(solution.getLoginFormID());
 			if (application.getFlattenedSolution().formCanBeInstantiated(login) && loginForm == null)
@@ -209,7 +209,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 			return;
 		}
 		IBasicMainContainer currentContainer = getCurrentContainer();
-		if (solution.getLoginFormID() > 0 && solution.getMustAuthenticate() && application.getUserUID() != null && loginForm != null)
+		if (solution.getLoginFormID() != null && solution.getMustAuthenticate() && application.getUserUID() != null && loginForm != null)
 		{
 			if (currentContainer.getController() != null && loginForm.getName().equals(currentContainer.getController().getForm().getName()))
 			{

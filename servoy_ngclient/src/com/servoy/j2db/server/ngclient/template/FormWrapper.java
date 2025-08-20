@@ -267,7 +267,7 @@ public class FormWrapper
 		List<BaseComponent> baseComponents = new ArrayList<>();
 		if (part == null) return baseComponents;
 
-		int startPos = form.getPartStartYPos(part.getID());
+		int startPos = form.getPartStartYPos(part.getUUID().toString());
 		int endPos = part.getHeight();
 		List<IFormElement> persists = form.getFlattenedObjects(PositionComparator.XY_PERSIST_COMPARATOR);
 		for (IFormElement persist : persists)

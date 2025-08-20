@@ -28,7 +28,6 @@ public class RootObjectImportInfo implements Serializable
 {
 	public boolean skip = false;
 	public IRootObject rootObject = null;
-	public int id = -1;
 	public UUID uuid = null;
 	public String name = null;
 	public RootObjectInfo info = null;

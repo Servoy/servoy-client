@@ -47,7 +47,6 @@ import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.TableNode;
 import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.IntHashMap;
 
 /**
  * This Persist Index class is a ItemChangeListener for the persist by itself.
@@ -64,7 +63,6 @@ public class PersistIndex implements IItemChangeListener<IPersist>, IPersistInde
 	}
 
 	protected final ConcurrentMap<String, IPersist> uuidToPersist = new ConcurrentHashMap<>(128);
-	protected final ConcurrentMap<Class< ? extends IPersist>, IntHashMap<IPersist>> idToPersist = new ConcurrentHashMap<>();
 	// caches per persist class a map of Name->Persist (we assume that is unique!)
 	protected final ConcurrentMap<Class< ? extends IPersist>, ConcurrentMap<String, IPersist>> nameToPersist = new ConcurrentHashMap<>();
 
@@ -220,7 +218,7 @@ public class PersistIndex implements IItemChangeListener<IPersist>, IPersistInde
 							datasourceToPersist.put(tableDs, dsMap);
 						}
 						ConcurrentMap<String, IPersist> tableNodeCache = dsMap.get(TableNode.class);
-						Solution solution = (Solution)((TableNode)persist).getAncestor(IRepository.SOLUTIONS);
+						Solution solution = (Solution)persist.getAncestor(IRepository.SOLUTIONS);
 						tableNodeCache.put(solution.getName(), persist);
 						return IPersistVisitor.CONTINUE_TRAVERSAL;
 					}
@@ -284,36 +282,6 @@ public class PersistIndex implements IItemChangeListener<IPersist>, IPersistInde
 		{
 			cache.put(name, persist);
 		}
-	}
-
-	@Override
-	@SuppressWarnings("unchecked")
-	public <T extends IPersist> T getPersistByID(int id, Class<T> clz)
-	{
-		IntHashMap<IPersist> cacheById = idToPersist.get(clz);
-		if (cacheById != null)
-		{
-			synchronized (cacheById)
-			{
-				return (T)cacheById.get(id);
-			}
-		}
-		return null;
-	}
-
-	@SuppressWarnings("unchecked")
-	public <T extends IPersist> Iterator<T> getIterableFor(Class<T> clz)
-	{
-		IntHashMap<IPersist> cacheById = idToPersist.get(clz);
-		if (cacheById != null)
-		{
-			synchronized (cacheById)
-			{
-				Collection<IPersist> collection = Collections.unmodifiableCollection(cacheById.values());
-				return (Iterator<T>)collection.iterator();
-			}
-		}
-		return (Iterator<T>)Collections.emptyList().iterator();
 	}
 
 	@Override
@@ -395,23 +363,27 @@ public class PersistIndex implements IItemChangeListener<IPersist>, IPersistInde
 		return this;
 	}
 
+	@SuppressWarnings("unchecked")
+	public <T extends IPersist> Iterator<T> getIterableFor(Class<T> clz)
+	{
+		ConcurrentMap<String, IPersist> cacheByName = initNameCache(clz);
+		if (cacheByName != null)
+		{
+			synchronized (cacheByName)
+			{
+				Collection<IPersist> collection = Collections.unmodifiableCollection(cacheByName.values());
+				return (Iterator<T>)collection.iterator();
+			}
+		}
+		return (Iterator<T>)Collections.emptyList().iterator();
+	}
+
 	/**
 	 * @param persist
 	 */
 	protected void putInCache(IPersist persist)
 	{
 		uuidToPersist.put(persist.getUUID().toString(), persist);
-		IntHashMap<IPersist> cacheById = idToPersist.get(persist.getClass());
-		if (cacheById == null)
-		{
-			cacheById = new IntHashMap<>(128);
-			IntHashMap<IPersist> currentValue = idToPersist.putIfAbsent(persist.getClass(), cacheById);
-			if (currentValue != null) cacheById = currentValue;
-		}
-		synchronized (cacheById)
-		{
-			cacheById.put(persist.getID(), persist);
-		}
 	}
 
 	protected final void visit(IPersistVisitor visitor)
@@ -426,7 +398,6 @@ public class PersistIndex implements IItemChangeListener<IPersist>, IPersistInde
 	public void reload()
 	{
 		uuidToPersist.clear();
-		idToPersist.clear();
 		nameToPersist.clear();
 		datasourceToPersist.clear();
 		scopeCacheByName.clear();
@@ -442,7 +413,6 @@ public class PersistIndex implements IItemChangeListener<IPersist>, IPersistInde
 			solution.getChangeHandler().removeIPersistListener(this);
 		}
 		uuidToPersist.clear();
-		idToPersist.clear();
 		nameToPersist.clear();
 		datasourceToPersist.clear();
 		scopeCacheByName.clear();
@@ -526,14 +496,6 @@ public class PersistIndex implements IItemChangeListener<IPersist>, IPersistInde
 	{
 		if (uuidToPersist.isEmpty()) return;
 		uuidToPersist.remove(item.getUUID().toString());
-		IntHashMap<IPersist> idCache = idToPersist.get(item.getClass());
-		if (idCache != null)
-		{
-			synchronized (idCache)
-			{
-				idCache.remove(item.getID());
-			}
-		}
 		testNameCache(item, EventType.REMOVED);
 		testDatasourceCache(item);
 		if (item instanceof ISupportChilds)
@@ -557,19 +519,6 @@ public class PersistIndex implements IItemChangeListener<IPersist>, IPersistInde
 		if (uuidToPersist.isEmpty()) return;
 		// just update the persist by the same uuid in the cache, uuid or id should not change.
 		uuidToPersist.put(item.getUUID().toString(), item);
-		IntHashMap<IPersist> cacheById = idToPersist.get(item.getClass());
-		// changed item should be in the cache..
-		if (cacheById == null)
-		{
-			// solution deserizalier seems to fire changed also for new?
-			cacheById = new IntHashMap<>();
-			IntHashMap<IPersist> currentValue = idToPersist.putIfAbsent(item.getClass(), cacheById);
-			if (currentValue != null) cacheById = currentValue;
-		}
-		synchronized (cacheById)
-		{
-			cacheById.put(item.getID(), item);
-		}
 		testNameCache(item, EventType.UPDATED);
 		testDatasourceCache(item);
 		if (item instanceof ISupportScope)

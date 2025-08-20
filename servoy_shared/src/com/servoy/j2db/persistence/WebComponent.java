@@ -74,9 +74,9 @@ public class WebComponent extends BaseComponent implements IWebComponent
 
 	protected transient WebObjectBasicImpl webObjectImpl;
 
-	protected WebComponent(ISupportChilds parent, int element_id, UUID uuid)
+	protected WebComponent(ISupportChilds parent, UUID uuid)
 	{
-		super(IRepository.WEBCOMPONENTS, parent, element_id, uuid);
+		super(IRepository.WEBCOMPONENTS, parent, uuid);
 		webObjectImpl = createWebObjectImpl();
 	}
 
@@ -377,7 +377,7 @@ public class WebComponent extends BaseComponent implements IWebComponent
 	}
 
 	@Override
-	public void setExtendsID(int arg)
+	public void setExtendsID(String arg)
 	{
 		super.setExtendsID(arg);
 		webObjectImpl.reload(true);

@@ -57,7 +57,6 @@ import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElement
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IRhinoToSabloComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
-import com.servoy.j2db.util.Utils;
 
 /**
  * @author lvostinar
@@ -208,10 +207,6 @@ public class MenuPropertyType extends DefaultPropertyType<MenuTypeSabloValue>
 		if (formElementValue != null)
 		{
 			Menu menu = dataAdapterList.getApplication().getFlattenedSolution().getMenu(formElementValue.toString());
-			if (menu == null)
-			{
-				menu = dataAdapterList.getApplication().getFlattenedSolution().getMenu(Utils.getAsInteger(formElementValue));
-			}
 			if (menu != null)
 			{
 				return new MenuTypeSabloValue(dataAdapterList.getApplication().getMenuManager().getMenu(menu.getName()), this.extraProperties, formElement,
@@ -231,10 +226,6 @@ public class MenuPropertyType extends DefaultPropertyType<MenuTypeSabloValue>
 		if (fs != null)
 		{
 			Menu menu = null;
-			if (formElementValue instanceof Integer)
-			{
-				menu = fs.getMenu(((Integer)formElementValue).intValue());
-			}
 			if (formElementValue instanceof String)
 			{
 				menu = fs.getMenu((String)formElementValue);

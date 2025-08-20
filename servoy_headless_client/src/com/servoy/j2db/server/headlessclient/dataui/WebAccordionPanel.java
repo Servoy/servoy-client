@@ -475,9 +475,9 @@ public class WebAccordionPanel extends Component implements ITabPanel, IDisplayR
 		//TODO should deregister related foundsets??
 	}
 
-	public void addTab(String text, int iconMediaId, IFormLookupPanel flp, String tip)
+	public void addTab(String text, String iconMediaUUID, IFormLookupPanel flp, String tip)
 	{
-		byte[] iconData = ComponentFactory.loadIcon(application.getFlattenedSolution(), new Integer(iconMediaId));
+		byte[] iconData = ComponentFactory.loadIcon(application.getFlattenedSolution(), iconMediaUUID);
 		insertTab(text, iconData, flp, tip, allTabs.size());
 	}
 

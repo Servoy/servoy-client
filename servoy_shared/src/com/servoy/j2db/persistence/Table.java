@@ -27,6 +27,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import com.servoy.base.persistence.IBaseColumn;
 import com.servoy.j2db.dataprocessing.IndexInfo;
 import com.servoy.j2db.util.DataSourceUtils;
+import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.keyword.Ident;
 
@@ -319,7 +320,7 @@ public class Table extends AbstractTable implements ITable, Serializable, ISuppo
 		{
 			throw new RepositoryException("A column on table " + getName() + "/server " + getServerName() + " with name " + colname + " already exists"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		}
-		validator.checkName(colname, 0, new ValidatorSearchContext(this, IRepository.COLUMNS), true);
+		validator.checkName(colname, null, new ValidatorSearchContext(this, IRepository.COLUMNS), true);
 	}
 
 
@@ -401,7 +402,7 @@ public class Table extends AbstractTable implements ITable, Serializable, ISuppo
 		ColumnChangeHandler.getInstance().fireItemRemoved(this, column);
 	}
 
-	public int getColumnInfoID(String columnName)
+	public UUID getColumnInfoID(String columnName)
 	{
 		Column c = getColumn(columnName);
 		if (c != null)
@@ -409,10 +410,10 @@ public class Table extends AbstractTable implements ITable, Serializable, ISuppo
 			ColumnInfo ci = c.getColumnInfo();
 			if (ci != null)
 			{
-				return ci.getID();
+				return ci.getUUID();
 			}
 		}
-		return -1;
+		return null;
 	}
 
 	public void updateName(IValidateName validator, String newname) throws RepositoryException

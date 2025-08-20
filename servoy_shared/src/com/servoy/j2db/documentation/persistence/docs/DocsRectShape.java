@@ -41,7 +41,7 @@ public class DocsRectShape extends RectShape implements IBaseDocsComponent
 
 	DocsRectShape()
 	{
-		super(null, 0, null);
+		super(null, null);
 	}
 
 	@Override

@@ -62,7 +62,7 @@ public class AnchoredFormLayoutProvider extends AbstractFormLayoutProvider
 			partStyle.setProperty("right", "0px");
 		}
 
-		int top = f.getPartStartYPos(part.getID());
+		int top = f.getPartStartYPos(part.getUUID().toString());
 		if (part.getPartType() <= Part.BODY)
 		{
 			partStyle.setProperty("top", (top - spaceUsedOnlyInPrintAbove) + "px");

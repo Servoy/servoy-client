@@ -56,7 +56,7 @@ public abstract class AbstractRootObject extends AbstractBase implements IRootOb
 
 	public AbstractRootObject(IRepository repository, RootObjectMetaData metaData)
 	{
-		super(metaData.getObjectTypeId(), null, metaData.getRootObjectId(), metaData.getRootObjectUuid());
+		super(metaData.getObjectTypeId(), null, metaData.getRootObjectUuid());
 		this.repository = repository;
 		this.metaData = metaData;
 	}

@@ -56,9 +56,9 @@ public class Media extends AbstractBase implements ISupportName, ISupportEncapsu
 	private long lastModifiedTime = -1;
 	byte[] perm_media_data; //only used in runtime/application server
 
-	Media(ISupportChilds parent, int element_id, UUID uuid)
+	Media(ISupportChilds parent, UUID uuid)
 	{
-		super(IRepository.MEDIA, parent, element_id, uuid);
+		super(IRepository.MEDIA, parent, uuid);
 	}
 
 	/**

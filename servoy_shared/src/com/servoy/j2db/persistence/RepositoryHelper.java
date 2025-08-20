@@ -224,13 +224,13 @@ public class RepositoryHelper
 		}
 	}
 
-	public List<RootObjectReference> getActiveSolutionModuleMetaDatas(int solutionId) throws RepositoryException
+	public List<RootObjectReference> getActiveSolutionModuleMetaDatas(UUID solutionUUID) throws RepositoryException
 	{
 		Map<UUID, RootObjectReference> referencedModules = new LinkedHashMap<UUID, RootObjectReference>();
 		// get the main solution;
 		try
 		{
-			Solution sol = (Solution)developerRepository.getActiveRootObject(solutionId);
+			Solution sol = (Solution)developerRepository.getActiveRootObject(solutionUUID);
 			if (sol != null)
 			{
 				referencedModules.put(sol.getUUID(),
@@ -291,7 +291,7 @@ public class RepositoryHelper
 				if (referencedModules.get(uuid) == null && (loadImportHooks || !SolutionMetaData.isImportHook(metaData)))
 				{
 					referencedModules.put(uuid, new RootObjectReference(name, uuid, metaData, releaseNumber));
-					Solution sol = (Solution)developerRepository.getRootObject(metaData.getRootObjectId(), releaseNumber);
+					Solution sol = (Solution)developerRepository.getRootObject(metaData.getRootObjectUuid(), releaseNumber);
 					if (sol != null)
 					{
 						loadObjectMetaDatas(sol.getModulesNames(), referencedModules, loadImportHooks);

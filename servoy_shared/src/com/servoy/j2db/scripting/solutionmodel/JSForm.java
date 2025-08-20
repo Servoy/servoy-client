@@ -1050,7 +1050,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 			Part part = parts.next();
 			if (part.getPartType() == type && (height == -1 || part.getHeight() == height))
 			{
-				return ff.getPartStartYPos(part.getID());
+				return ff.getPartStartYPos(part.getUUID().toString());
 			}
 		}
 		return -1;
@@ -1443,10 +1443,10 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	@JSGetter
 	public JSForm getExtendsForm()
 	{
-		int extendsFormID = getForm().getExtendsID();
-		if (extendsFormID > 0)
+		String extendsFormUUID = getForm().getExtendsID();
+		if (extendsFormUUID != null)
 		{
-			Form superForm = application.getFlattenedSolution().getForm(extendsFormID);
+			Form superForm = application.getFlattenedSolution().getForm(extendsFormUUID);
 			if (superForm != null)
 			{
 				return application.getScriptEngine().getSolutionModifier().instantiateForm(superForm, false);
@@ -1477,7 +1477,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 				throw new RuntimeException("extendsForm must receive either null, a JSForm object or a valid form name");
 			}
 
-			getForm().setExtendsID(AbstractBase.DEFAULT_INT);
+			getForm().setExtendsID(null);
 		}
 		else
 		{
@@ -1501,7 +1501,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 						"' which is a responsive layout form.");
 				}
 			}
-			getForm().setExtendsID(f.getID());
+			getForm().setExtendsID(f.getUUID().toString());
 		}
 	}
 
@@ -1611,9 +1611,10 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	@JSGetter
 	public Object getNavigator()
 	{
-		if (getForm().getNavigatorID() <= 0)
+		if (getForm().getNavigatorID() == Form.NAVIGATOR_DEFAULT || Form.NAVIGATOR_IGNORE.equals(getForm().getNavigatorID()) ||
+			Form.NAVIGATOR_NONE.equals(getForm().getNavigatorID()))
 		{
-			return Integer.valueOf(getForm().getNavigatorID());
+			return getForm().getNavigatorID();
 		}
 		Form f = application.getFlattenedSolution().getForm(getForm().getNavigatorID());
 		if (f != null)
@@ -1627,33 +1628,29 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	public void setNavigator(Object navigator)
 	{
 		checkModification();
-		int id = 0;
+		String uuid = null;
 		if (navigator instanceof JSForm)
 		{
-			id = ((JSForm)navigator).getSupportChild().getID();
+			uuid = ((JSForm)navigator).getSupportChild().getUUID().toString();
 		}
 		else if (navigator instanceof String)
 		{
 			Form f = application.getFlattenedSolution().getForm((String)navigator);
 			if (f != null)
 			{
-				id = f.getID();
+				uuid = f.getUUID().toString();
 			}
 			else
 			{
 				throw new RuntimeException("cannot find form with name '" + (String)navigator + "'");
 			}
 		}
-		else if (navigator instanceof Number)
-		{
-			id = ((Number)navigator).intValue();
-		}
 		else if (navigator != null)
 		{
 			throw new RuntimeException("cannot get navigator form from given object '" + navigator.toString() + "'");
 		}
 
-		getForm().setNavigatorID(id);
+		getForm().setNavigatorID(uuid);
 	}
 
 
@@ -2269,16 +2266,12 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 			ScriptMethod scriptMethod = getScriptMethod(function, application.getFlattenedSolution());
 			if (scriptMethod != null)
 			{
-				getForm().setOnDeleteAllRecordsCmdMethodID(scriptMethod.getID());
+				getForm().setOnDeleteAllRecordsCmdMethodID(scriptMethod.getUUID().toString());
 			}
 			else
 			{
-				getForm().setOnDeleteAllRecordsCmdMethodID(0);
+				getForm().setOnDeleteAllRecordsCmdMethodID(null);
 			}
-		}
-		else if (functionOrInteger instanceof Number)
-		{
-			getForm().setOnDeleteAllRecordsCmdMethodID(((Number)functionOrInteger).intValue());
 		}
 	}
 
@@ -2295,16 +2288,12 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 			ScriptMethod scriptMethod = getScriptMethod(function, application.getFlattenedSolution());
 			if (scriptMethod != null)
 			{
-				getForm().setOnDeleteRecordCmdMethodID(scriptMethod.getID());
+				getForm().setOnDeleteRecordCmdMethodID(scriptMethod.getUUID().toString());
 			}
 			else
 			{
-				getForm().setOnDeleteRecordCmdMethodID(0);
+				getForm().setOnDeleteRecordCmdMethodID(null);
 			}
-		}
-		else if (functionOrInteger instanceof Number)
-		{
-			getForm().setOnDeleteRecordCmdMethodID(((Number)functionOrInteger).intValue());
 		}
 	}
 
@@ -2322,16 +2311,12 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 			ScriptMethod scriptMethod = getScriptMethod(function, application.getFlattenedSolution());
 			if (scriptMethod != null)
 			{
-				getForm().setOnDuplicateRecordCmdMethodID(scriptMethod.getID());
+				getForm().setOnDuplicateRecordCmdMethodID(scriptMethod.getUUID().toString());
 			}
 			else
 			{
-				getForm().setOnDuplicateRecordCmdMethodID(0);
+				getForm().setOnDuplicateRecordCmdMethodID(null);
 			}
-		}
-		else if (functionOrInteger instanceof Number)
-		{
-			getForm().setOnDuplicateRecordCmdMethodID(((Number)functionOrInteger).intValue());
 		}
 	}
 
@@ -2348,16 +2333,12 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 			ScriptMethod scriptMethod = getScriptMethod(function, application.getFlattenedSolution());
 			if (scriptMethod != null)
 			{
-				getForm().setOnFindCmdMethodID(scriptMethod.getID());
+				getForm().setOnFindCmdMethodID(scriptMethod.getUUID().toString());
 			}
 			else
 			{
-				getForm().setOnFindCmdMethodID(0);
+				getForm().setOnFindCmdMethodID(null);
 			}
-		}
-		else if (functionOrInteger instanceof Number)
-		{
-			getForm().setOnFindCmdMethodID(((Number)functionOrInteger).intValue());
 		}
 	}
 
@@ -2374,16 +2355,12 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 			ScriptMethod scriptMethod = getScriptMethod(function, application.getFlattenedSolution());
 			if (scriptMethod != null)
 			{
-				getForm().setOnHideMethodID(scriptMethod.getID());
+				getForm().setOnHideMethodID(scriptMethod.getUUID().toString());
 			}
 			else
 			{
-				getForm().setOnHideMethodID(0);
+				getForm().setOnHideMethodID(null);
 			}
-		}
-		else if (functionOrInteger instanceof Number)
-		{
-			getForm().setOnHideMethodID(((Number)functionOrInteger).intValue());
 		}
 	}
 
@@ -2400,16 +2377,12 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 			ScriptMethod scriptMethod = getScriptMethod(function, application.getFlattenedSolution());
 			if (scriptMethod != null)
 			{
-				getForm().setOnInvertRecordsCmdMethodID(scriptMethod.getID());
+				getForm().setOnInvertRecordsCmdMethodID(scriptMethod.getUUID().toString());
 			}
 			else
 			{
-				getForm().setOnInvertRecordsCmdMethodID(0);
+				getForm().setOnInvertRecordsCmdMethodID(null);
 			}
-		}
-		else if (functionOrInteger instanceof Number)
-		{
-			getForm().setOnInvertRecordsCmdMethodID(((Number)functionOrInteger).intValue());
 		}
 	}
 
@@ -2426,16 +2399,12 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 			ScriptMethod scriptMethod = getScriptMethod(function, application.getFlattenedSolution());
 			if (scriptMethod != null)
 			{
-				getForm().setOnLoadMethodID(scriptMethod.getID());
+				getForm().setOnLoadMethodID(scriptMethod.getUUID().toString());
 			}
 			else
 			{
-				getForm().setOnLoadMethodID(0);
+				getForm().setOnLoadMethodID(null);
 			}
-		}
-		else if (functionOrInteger instanceof Number)
-		{
-			getForm().setOnLoadMethodID(((Number)functionOrInteger).intValue());
 		}
 	}
 
@@ -2452,16 +2421,12 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 			ScriptMethod scriptMethod = getScriptMethod(function, application.getFlattenedSolution());
 			if (scriptMethod != null)
 			{
-				getForm().setOnNewRecordCmdMethodID(scriptMethod.getID());
+				getForm().setOnNewRecordCmdMethodID(scriptMethod.getUUID().toString());
 			}
 			else
 			{
-				getForm().setOnNewRecordCmdMethodID(0);
+				getForm().setOnNewRecordCmdMethodID(null);
 			}
-		}
-		else if (functionOrInteger instanceof Number)
-		{
-			getForm().setOnNewRecordCmdMethodID(((Number)functionOrInteger).intValue());
 		}
 	}
 
@@ -2478,16 +2443,12 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 			ScriptMethod scriptMethod = getScriptMethod(function, application.getFlattenedSolution());
 			if (scriptMethod != null)
 			{
-				getForm().setOnNextRecordCmdMethodID(scriptMethod.getID());
+				getForm().setOnNextRecordCmdMethodID(scriptMethod.getUUID().toString());
 			}
 			else
 			{
-				getForm().setOnNextRecordCmdMethodID(0);
+				getForm().setOnNextRecordCmdMethodID(null);
 			}
-		}
-		else if (functionOrInteger instanceof Number)
-		{
-			getForm().setOnNextRecordCmdMethodID(((Number)functionOrInteger).intValue());
 		}
 	}
 
@@ -2504,16 +2465,12 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 			ScriptMethod scriptMethod = getScriptMethod(function, application.getFlattenedSolution());
 			if (scriptMethod != null)
 			{
-				getForm().setOnOmitRecordCmdMethodID(scriptMethod.getID());
+				getForm().setOnOmitRecordCmdMethodID(scriptMethod.getUUID().toString());
 			}
 			else
 			{
-				getForm().setOnOmitRecordCmdMethodID(0);
+				getForm().setOnOmitRecordCmdMethodID(null);
 			}
-		}
-		else if (functionOrInteger instanceof Number)
-		{
-			getForm().setOnOmitRecordCmdMethodID(((Number)functionOrInteger).intValue());
 		}
 	}
 
@@ -2530,16 +2487,12 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 			ScriptMethod scriptMethod = getScriptMethod(function, application.getFlattenedSolution());
 			if (scriptMethod != null)
 			{
-				getForm().setOnPreviousRecordCmdMethodID(scriptMethod.getID());
+				getForm().setOnPreviousRecordCmdMethodID(scriptMethod.getUUID().toString());
 			}
 			else
 			{
-				getForm().setOnPreviousRecordCmdMethodID(0);
+				getForm().setOnPreviousRecordCmdMethodID(null);
 			}
-		}
-		else if (functionOrInteger instanceof Number)
-		{
-			getForm().setOnPreviousRecordCmdMethodID(((Number)functionOrInteger).intValue());
 		}
 	}
 
@@ -2557,16 +2510,12 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 			ScriptMethod scriptMethod = getScriptMethod(function, application.getFlattenedSolution());
 			if (scriptMethod != null)
 			{
-				getForm().setOnPrintPreviewCmdMethodID(scriptMethod.getID());
+				getForm().setOnPrintPreviewCmdMethodID(scriptMethod.getUUID().toString());
 			}
 			else
 			{
-				getForm().setOnPrintPreviewCmdMethodID(0);
+				getForm().setOnPrintPreviewCmdMethodID(null);
 			}
-		}
-		else if (functionOrInteger instanceof Number)
-		{
-			getForm().setOnPrintPreviewCmdMethodID(((Number)functionOrInteger).intValue());
 		}
 	}
 
@@ -2584,16 +2533,12 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 			ScriptMethod scriptMethod = getScriptMethod(function, application.getFlattenedSolution());
 			if (scriptMethod != null)
 			{
-				getForm().setOnRecordEditStartMethodID(scriptMethod.getID());
+				getForm().setOnRecordEditStartMethodID(scriptMethod.getUUID().toString());
 			}
 			else
 			{
-				getForm().setOnRecordEditStartMethodID(0);
+				getForm().setOnRecordEditStartMethodID(null);
 			}
-		}
-		else if (functionOrInteger instanceof Number)
-		{
-			getForm().setOnRecordEditStartMethodID(((Number)functionOrInteger).intValue());
 		}
 	}
 
@@ -2610,16 +2555,12 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 			ScriptMethod scriptMethod = getScriptMethod(function, application.getFlattenedSolution());
 			if (scriptMethod != null)
 			{
-				getForm().setOnRecordEditStopMethodID(scriptMethod.getID());
+				getForm().setOnRecordEditStopMethodID(scriptMethod.getUUID().toString());
 			}
 			else
 			{
-				getForm().setOnRecordEditStopMethodID(0);
+				getForm().setOnRecordEditStopMethodID(null);
 			}
-		}
-		else if (functionOrInteger instanceof Number)
-		{
-			getForm().setOnRecordEditStopMethodID(((Number)functionOrInteger).intValue());
 		}
 	}
 
@@ -2636,16 +2577,12 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 			ScriptMethod scriptMethod = getScriptMethod(function, application.getFlattenedSolution());
 			if (scriptMethod != null)
 			{
-				getForm().setOnRecordSelectionMethodID(scriptMethod.getID());
+				getForm().setOnRecordSelectionMethodID(scriptMethod.getUUID().toString());
 			}
 			else
 			{
-				getForm().setOnRecordSelectionMethodID(0);
+				getForm().setOnRecordSelectionMethodID(null);
 			}
-		}
-		else if (functionOrInteger instanceof Number)
-		{
-			getForm().setOnRecordSelectionMethodID(((Number)functionOrInteger).intValue());
 		}
 	}
 
@@ -2662,16 +2599,12 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 			ScriptMethod scriptMethod = getScriptMethod(function, application.getFlattenedSolution());
 			if (scriptMethod != null)
 			{
-				getForm().setOnSearchCmdMethodID(scriptMethod.getID());
+				getForm().setOnSearchCmdMethodID(scriptMethod.getUUID().toString());
 			}
 			else
 			{
-				getForm().setOnSearchCmdMethodID(0);
+				getForm().setOnSearchCmdMethodID(null);
 			}
-		}
-		else if (functionOrInteger instanceof Number)
-		{
-			getForm().setOnSearchCmdMethodID(((Number)functionOrInteger).intValue());
 		}
 	}
 
@@ -2688,16 +2621,12 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 			ScriptMethod scriptMethod = getScriptMethod(function, application.getFlattenedSolution());
 			if (scriptMethod != null)
 			{
-				getForm().setOnShowAllRecordsCmdMethodID(scriptMethod.getID());
+				getForm().setOnShowAllRecordsCmdMethodID(scriptMethod.getUUID().toString());
 			}
 			else
 			{
-				getForm().setOnShowAllRecordsCmdMethodID(0);
+				getForm().setOnShowAllRecordsCmdMethodID(null);
 			}
-		}
-		else if (functionOrInteger instanceof Number)
-		{
-			getForm().setOnShowAllRecordsCmdMethodID(((Number)functionOrInteger).intValue());
 		}
 	}
 
@@ -2714,16 +2643,12 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 			ScriptMethod scriptMethod = getScriptMethod(function, application.getFlattenedSolution());
 			if (scriptMethod != null)
 			{
-				getForm().setOnShowMethodID(scriptMethod.getID());
+				getForm().setOnShowMethodID(scriptMethod.getUUID().toString());
 			}
 			else
 			{
-				getForm().setOnShowMethodID(0);
+				getForm().setOnShowMethodID(null);
 			}
-		}
-		else if (functionOrInteger instanceof Number)
-		{
-			getForm().setOnShowMethodID(((Number)functionOrInteger).intValue());
 		}
 	}
 
@@ -2740,16 +2665,12 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 			ScriptMethod scriptMethod = getScriptMethod(function, application.getFlattenedSolution());
 			if (scriptMethod != null)
 			{
-				getForm().setOnShowOmittedRecordsCmdMethodID(scriptMethod.getID());
+				getForm().setOnShowOmittedRecordsCmdMethodID(scriptMethod.getUUID().toString());
 			}
 			else
 			{
-				getForm().setOnShowOmittedRecordsCmdMethodID(0);
+				getForm().setOnShowOmittedRecordsCmdMethodID(null);
 			}
-		}
-		else if (functionOrInteger instanceof Number)
-		{
-			getForm().setOnShowOmittedRecordsCmdMethodID(((Number)functionOrInteger).intValue());
 		}
 	}
 
@@ -2766,16 +2687,12 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 			ScriptMethod scriptMethod = getScriptMethod(function, application.getFlattenedSolution());
 			if (scriptMethod != null)
 			{
-				getForm().setOnSortCmdMethodID(scriptMethod.getID());
+				getForm().setOnSortCmdMethodID(scriptMethod.getUUID().toString());
 			}
 			else
 			{
-				getForm().setOnSortCmdMethodID(0);
+				getForm().setOnSortCmdMethodID(null);
 			}
-		}
-		else if (functionOrInteger instanceof Number)
-		{
-			getForm().setOnSortCmdMethodID(((Number)functionOrInteger).intValue());
 		}
 	}
 
@@ -2792,16 +2709,12 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 			ScriptMethod scriptMethod = getScriptMethod(function, application.getFlattenedSolution());
 			if (scriptMethod != null)
 			{
-				getForm().setOnUnLoadMethodID(scriptMethod.getID());
+				getForm().setOnUnLoadMethodID(scriptMethod.getUUID().toString());
 			}
 			else
 			{
-				getForm().setOnUnLoadMethodID(0);
+				getForm().setOnUnLoadMethodID(null);
 			}
-		}
-		else if (functionOrInteger instanceof Number)
-		{
-			getForm().setOnUnLoadMethodID(((Number)functionOrInteger).intValue());
 		}
 	}
 
@@ -2841,35 +2754,36 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 		return (JSForm)form;
 	}
 
-	protected JSMethod getEventHandler(TypedProperty<Integer> methodProperty)
+	protected JSMethod getEventHandler(TypedProperty<String> methodProperty)
 	{
 		return getEventHandler(application, getForm(), methodProperty, this);
 	}
 
-	static <T extends AbstractBase> JSMethod getEventHandler(IApplication application, T persist, TypedProperty<Integer> methodProperty, IJSParent< ? > parent)
+	static <T extends AbstractBase> JSMethod getEventHandler(IApplication application, T persist, TypedProperty<String> methodProperty, IJSParent< ? > parent)
 	{
-		return getEventHandler(application, persist, ((Integer)persist.getProperty(methodProperty.getPropertyName())).intValue(), parent,
+		Object value = persist.getProperty(methodProperty.getPropertyName());
+		return getEventHandler(application, persist, value != null ? value.toString() : null, parent,
 			methodProperty.getPropertyName());
 	}
 
-	public static <T extends AbstractBase> JSMethod getEventHandler(IApplication application, T persist, int methodid, IJSParent< ? > parent,
+	public static <T extends AbstractBase> JSMethod getEventHandler(IApplication application, T persist, String methoduuid, IJSParent< ? > parent,
 		String propertyName)
 	{
-		if (methodid > 0)
+		if (methoduuid != null)
 		{
 			IJSScriptParent< ? > scriptParent = null;
 			ScriptMethod scriptMethod = null;
 			if (parent instanceof JSForm)
 			{
 				// form method
-				scriptMethod = ((JSForm)parent).getSupportChild().getScriptMethod(methodid);
+				scriptMethod = ((JSForm)parent).getSupportChild().getScriptMethod(methoduuid);
 				if (scriptMethod == null)
 				{
 					Form f = ((JSForm)parent).getSupportChild();
-					while (f != null && f.getExtendsID() > 0 && scriptMethod == null)
+					while (f != null && f.getExtendsID() != null && scriptMethod == null)
 					{
 						f = application.getFlattenedSolution().getForm(f.getExtendsID());
-						if (f != null) scriptMethod = f.getScriptMethod(methodid);
+						if (f != null) scriptMethod = f.getScriptMethod(methoduuid);
 					}
 					if (scriptMethod != null)
 					{
@@ -2883,13 +2797,13 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 				// foundset method
 				if (parent instanceof JSDataSourceNode)
 				{
-					scriptMethod = ((JSDataSourceNode)parent).getSupportChild().getFoundsetMethod(methodid);
+					scriptMethod = ((JSDataSourceNode)parent).getSupportChild().getFoundsetMethod(methoduuid);
 				}
 				else if (parent instanceof JSForm && ((JSForm)parent).getForm().getDataSource() != null)
 				{
 					Iterator<ScriptMethod> foundsetMethods = application.getFlattenedSolution().getFoundsetMethods(((JSForm)parent).getForm().getDataSource(),
 						false);
-					scriptMethod = AbstractBase.selectById(foundsetMethods, methodid);
+					scriptMethod = AbstractBase.selectByUUID(foundsetMethods, methoduuid);
 					if (scriptMethod != null)
 					{
 						scriptParent = new JSDataSourceNode(application, ((JSForm)parent).getForm().getDataSource());
@@ -2900,7 +2814,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 			if (scriptMethod == null)
 			{
 				// global method
-				scriptMethod = application.getFlattenedSolution().getScriptMethod(methodid);
+				scriptMethod = application.getFlattenedSolution().getScriptMethod(methoduuid);
 			}
 
 			if (scriptMethod != null)
@@ -2933,58 +2847,16 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 				}
 			}
 		}
-		else if (methodid == 0 && BaseComponent.isCommandProperty(propertyName))
+		else if (methoduuid == null && BaseComponent.isCommandProperty(propertyName))
 		{
 			return (JSMethod)ISMDefaults.COMMAND_DEFAULT;
 		}
 		return null;
 	}
 
-	public static <T extends AbstractBase> JSMethod getEventHandler(IApplication application, T persist, String uuidOrName, IJSParent< ? > parent,
-		String propertyName)
+	static <T extends AbstractBase> void setEventHandler(IApplication application, T persist, TypedProperty<String> methodProperty, IBaseSMMethod method)
 	{
-		if (uuidOrName != null)
-		{
-			IJSScriptParent< ? > scriptParent = null;
-			ScriptMethod scriptMethod = application.getFlattenedSolution().getScriptMethod(uuidOrName);
-			;
-			if (scriptMethod != null)
-			{
-				if (scriptMethod.getParent() instanceof TableNode && parent instanceof JSDataSourceNode)
-				{
-					scriptParent = (JSDataSourceNode)parent;
-				}
-				else if (scriptMethod.getParent() instanceof Solution)
-				{
-					// global
-					scriptParent = null;
-				}
-				else
-				{
-					// form method
-					scriptParent = getJSFormParent(parent);
-					if (scriptMethod.getParent() != scriptParent.getSupportChild() && scriptParent.getSupportChild() instanceof Form)
-					{
-						scriptParent = application.getScriptEngine().getSolutionModifier().instantiateForm((Form)scriptParent.getSupportChild(), false);
-					}
-				}
-				List<Object> arguments = persist.getFlattenedMethodArguments(propertyName);
-				if (arguments == null || arguments.size() == 0)
-				{
-					return new JSMethod(scriptParent, scriptMethod, application, false);
-				}
-				else
-				{
-					return new JSMethodWithArguments(application, scriptParent, scriptMethod, false, arguments.toArray());
-				}
-			}
-		}
-		return null;
-	}
-
-	static <T extends AbstractBase> void setEventHandler(IApplication application, T persist, TypedProperty<Integer> methodProperty, IBaseSMMethod method)
-	{
-		persist.setProperty(methodProperty.getPropertyName(), new Integer(getMethodId(application, persist, method, methodProperty)));
+		persist.setProperty(methodProperty.getPropertyName(), getMethodId(application, persist, method, methodProperty));
 		persist.putMethodParameters(methodProperty.getPropertyName(),
 			//method instanceof JSMethodWithArguments ? Arrays.asList(((JSMethodWithArguments)method).getParameters()) : null,
 			new ArrayList(), method instanceof JSMethodWithArguments ? Arrays.asList(((JSMethodWithArguments)method).getArguments()) : null);
@@ -2993,7 +2865,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	/**
 	 * Set the event handler for the method key, JSMethod may contain arguments.
 	 */
-	protected void setEventHandler(TypedProperty<Integer> methodProperty, IBaseSMMethod method)
+	protected void setEventHandler(TypedProperty<String> methodProperty, IBaseSMMethod method)
 	{
 		checkModification();
 		setEventHandler(application, getForm(), methodProperty, method);
@@ -4637,8 +4509,8 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 			}
 			else
 			{
-				int id = getMethodId(action, gc, application);
-				gc.setOnActionMethodID(id);
+				String uuid = getMethodId(action, gc, application);
+				gc.setOnActionMethodID(uuid);
 				return new JSButton(this, gc, application, true);
 			}
 		}
@@ -4715,10 +4587,10 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 			}
 			else
 			{
-				int methodId = getMethodId(action, gc, application);
-				if (methodId > 0)
+				String methodUUID = getMethodId(action, gc, application);
+				if (methodUUID != null && !methodUUID.equals("-1")) //$NON-NLS-1$)
 				{
-					gc.setOnActionMethodID(methodId);
+					gc.setOnActionMethodID(methodUUID);
 					gc.setShowClick(false);
 				}
 				return new JSLabel(this, gc, application, true);
@@ -4730,9 +4602,9 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 		}
 	}
 
-	protected static int getMethodId(Object action, GraphicalComponent gc, IApplication application)
+	protected static String getMethodId(Object action, GraphicalComponent gc, IApplication application)
 	{
-		int methodId = -1;
+		String methodUUID = "-1";
 		if (action != null)
 		{
 			if (action instanceof Function)
@@ -4740,29 +4612,29 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 				ScriptMethod scriptMethod = getScriptMethod((Function)action, application.getFlattenedSolution());
 				if (scriptMethod != null)
 				{
-					methodId = getMethodId(application, gc, scriptMethod);
+					methodUUID = getMethodId(application, gc, scriptMethod);
 				}
 			}
 			else if (action instanceof JSMethod)
 			{
-				methodId = getMethodId(application, gc, (JSMethod)action, null);
+				methodUUID = getMethodId(application, gc, (JSMethod)action, null);
 			}
 			else
 			{
 				throw new RuntimeException("method argument not a jsmethod"); //$NON-NLS-1$
 			}
 		}
-		return methodId;
+		return methodUUID;
 	}
 
-	static int getMethodId(IApplication application, AbstractBase base, IBaseSMMethod method, TypedProperty<Integer> methodProperty)
+	static String getMethodId(IApplication application, AbstractBase base, IBaseSMMethod method, TypedProperty<String> methodProperty)
 	{
-		if (method == null && methodProperty != null && BaseComponent.isCommandProperty(methodProperty.getPropertyName())) return -1;
-		if (method == null || method == ISMDefaults.COMMAND_DEFAULT) return 0;
+		if (method == null && methodProperty != null && BaseComponent.isCommandProperty(methodProperty.getPropertyName())) return "-1";
+		if (method == null || method == ISMDefaults.COMMAND_DEFAULT) return null;
 		return getMethodId(application, base, ((JSMethod)method).getScriptMethod());
 	}
 
-	public static int getMethodId(IApplication application, AbstractBase base, ScriptMethod method)
+	public static String getMethodId(IApplication application, AbstractBase base, ScriptMethod method)
 	{
 		ISupportChilds parent = method.getParent();
 
@@ -4770,16 +4642,16 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 		// quick check if it is solution or own form..
 		if (parent instanceof Solution || parent.getUUID().equals(f.getUUID()))
 		{
-			return method.getID();
+			return method.getUUID().toString();
 		}
 
 		// it could be a extends form
-		while (f != null && f.getExtendsID() > 0)
+		while (f != null && f.getExtendsID() != null)
 		{
 			f = application.getFlattenedSolution().getForm(f.getExtendsID());
 			if (f != null && parent.getUUID().equals(f.getUUID()))
 			{
-				return method.getID();
+				return method.getUUID().toString();
 			}
 		}
 
@@ -4787,9 +4659,9 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 		Iterator<ScriptMethod> foundsetMethods = application.getFlattenedSolution().getFoundsetMethods(f.getDataSource(), false);
 		while (foundsetMethods.hasNext())
 		{
-			if (foundsetMethods.next().getID() == method.getID())
+			if (foundsetMethods.next().getUUID().equals(method.getUUID()))
 			{
-				return method.getID();
+				return method.getUUID().toString();
 			}
 		}
 

@@ -40,7 +40,6 @@ public class ImportInfo implements Serializable
 	public Set<RootObjectImportInfo> rootObjectInfoSet = new HashSet<RootObjectImportInfo>();
 	public RootObjectImportInfo main = null;
 	public Map<String, Object> blobIdMap = new HashMap<String, Object>();
-	public MappedUnresolvedUUIDResolver uuidResolver = new MappedUnresolvedUUIDResolver();
 	public boolean isProtected = false;
 
 }

@@ -51,6 +51,7 @@ import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.scripting.info.EventType;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IDestroyable;
+import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -114,7 +115,7 @@ public class FormScope extends ScriptVariableScope implements Wrapper, Contextua
 		{
 			for (int i = 0; i < extendScopes.length; i++)
 			{
-				if (extendScopes[i].getScriptLookup().getScriptMethod(sp.getID()) != null)
+				if (extendScopes[i].getScriptLookup().getScriptMethod(sp.getUUID().toString()) != null)
 				{
 					if (i + 1 < extendScopes.length)
 					{
@@ -145,14 +146,14 @@ public class FormScope extends ScriptVariableScope implements Wrapper, Contextua
 	}
 
 	@Override
-	public String getFunctionName(Integer id)
+	public String getFunctionName(UUID uuid)
 	{
-		String name = super.getFunctionName(id);
+		String name = super.getFunctionName(uuid);
 		if (name == null)
 		{
 			for (LazyCompilationScope element : extendScopes)
 			{
-				name = element.getFunctionName(id);
+				name = element.getFunctionName(uuid);
 				if (name != null) break;
 			}
 		}

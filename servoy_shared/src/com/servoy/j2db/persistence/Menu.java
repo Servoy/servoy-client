@@ -53,14 +53,14 @@ public class Menu extends AbstractBase implements ISupportUpdateableName, ISuppo
 	/**
 	 * Constructor I
 	 */
-	Menu(ISupportChilds parent, int element_id, UUID uuid)
+	Menu(ISupportChilds parent, UUID uuid)
 	{
-		super(IRepository.MENUS, parent, element_id, uuid);
+		super(IRepository.MENUS, parent, uuid);
 	}
 
 	public void updateName(IValidateName validator, String arg) throws RepositoryException
 	{
-		validator.checkName(arg, getID(), new ValidatorSearchContext(IRepository.MENUS), false);
+		validator.checkName(arg, getUUID(), new ValidatorSearchContext(IRepository.MENUS), false);
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_NAME, arg);
 		getRootObject().getChangeHandler().fireIPersistChanged(this);
 	}

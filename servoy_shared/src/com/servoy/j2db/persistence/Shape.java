@@ -46,9 +46,9 @@ public class Shape extends BaseComponent
 	/**
 	 * Constructor I
 	 */
-	Shape(ISupportChilds parent, int element_id, UUID uuid)
+	Shape(ISupportChilds parent, UUID uuid)
 	{
-		super(IRepository.SHAPES, parent, element_id, uuid);
+		super(IRepository.SHAPES, parent, uuid);
 	}
 
 	/**

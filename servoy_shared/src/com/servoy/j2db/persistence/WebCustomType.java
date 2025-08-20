@@ -31,7 +31,6 @@ import org.json.JSONObject;
 import org.sablo.specification.PropertyDescription;
 
 import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.ServoyJSONObject;
 import com.servoy.j2db.util.UUID;
@@ -73,15 +72,14 @@ public class WebCustomType extends AbstractBase implements IChildWebObject, ISup
 	public static WebCustomType createNewInstance(IBasicWebObject parentWebObject, Object propertyDescription, String jsonKey, int index, boolean isNew,
 		UUID uuid)
 	{
-		Pair<Integer, UUID> idAndUUID = WebObjectImpl.getNewIdAndUUID(parentWebObject);
-		return new WebCustomType(parentWebObject, propertyDescription, jsonKey, index, isNew, idAndUUID.getLeft().intValue(),
-			uuid != null ? uuid : idAndUUID.getRight());
+		return new WebCustomType(parentWebObject, propertyDescription, jsonKey, index, isNew,
+			uuid != null ? uuid : UUID.randomUUID());
 	}
 
 
-	public WebCustomType(IBasicWebObject parentWebObject, Object propertyDescription, String jsonKey, int index, boolean isNew, int id, UUID uuid)
+	public WebCustomType(IBasicWebObject parentWebObject, Object propertyDescription, String jsonKey, int index, boolean isNew, UUID uuid)
 	{
-		super(IRepository.WEBCUSTOMTYPES, parentWebObject, id, uuid);
+		super(IRepository.WEBCUSTOMTYPES, parentWebObject, uuid);
 		webObjectImpl = new WebObjectImpl(this, propertyDescription);
 
 		this.jsonKey = jsonKey;
@@ -394,13 +392,15 @@ public class WebCustomType extends AbstractBase implements IChildWebObject, ISup
 	}
 
 	@Override
-	public int getExtendsID()
+	public String getExtendsID()
 	{
-		return getFullJsonInFrmFile().optInt(StaticContentSpecLoader.PROPERTY_EXTENDSID.getPropertyName(), -1);
+		// this used to save the id in the full JSON in the frm file, make sure it doesn't fail
+		Object value = getFullJsonInFrmFile().opt(StaticContentSpecLoader.PROPERTY_EXTENDSID.getPropertyName());
+		return value != null ? value.toString() : null;
 	}
 
 	@Override
-	public void setExtendsID(int arg)
+	public void setExtendsID(String arg)
 	{
 		webObjectImpl.setJsonInternal(getFullJsonInFrmFile().put(StaticContentSpecLoader.PROPERTY_EXTENDSID.getPropertyName(), arg));
 		webObjectImpl.reload(true);

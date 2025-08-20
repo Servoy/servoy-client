@@ -104,7 +104,7 @@ public class SelectNGSolutionFilter implements Filter
 								solutionType = ((SolutionMetaData)element).getSolutionType();
 								if ((solutionType & (SolutionMetaData.SOLUTION | SolutionMetaData.NG_CLIENT_ONLY)) > 0)
 								{
-									Solution solution = (Solution)as.getLocalRepository().getActiveRootObject(element.getRootObjectId());
+									Solution solution = (Solution)as.getLocalRepository().getActiveRootObject(element.getRootObjectUuid());
 									if (solution != null)
 									{
 										ngCompatibleSolutions.add(solution);

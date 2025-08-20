@@ -40,7 +40,7 @@ public class BaseDocsField extends Field implements IComponentWithTitle, IBaseDo
 
 	BaseDocsField()
 	{
-		super(null, 0, null);
+		super(null, null);
 	}
 
 	/**

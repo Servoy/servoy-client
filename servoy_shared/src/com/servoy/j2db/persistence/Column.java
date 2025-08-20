@@ -697,7 +697,7 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 						IDataServer ds = application.getDataServer();
 						if (ds != null)
 						{
-							return ds.getNextSequence(getTable().getServerName(), getTable().getName(), getName(), ci.getID(), getTable().getServerName());
+							return ds.getNextSequence(getTable().getServerName(), getTable().getName(), getName(), ci.getUUID(), getTable().getServerName());
 						}
 						return Integer.valueOf(0);
 					}
@@ -879,17 +879,16 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 /*
  * _____________________________________________________________ The methods below belong to this class
  */
-	@Override
-	public int getID()
+	public UUID getUUID()
 	{
 		ColumnInfo ci = getColumnInfo();
 		if (ci == null)
 		{
-			return -1;
+			return null;
 		}
 		else
 		{
-			return ci.getID();
+			return ci.getUUID();
 		}
 	}
 
@@ -963,7 +962,7 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 		{
 			throw new RepositoryException("A column on table " + table.getName() + " with name/dataProviderID " + ndpid + " already exists"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		}
-		validator.checkName(ndpid, -1, new ValidatorSearchContext(this, IRepository.COLUMNS), false);
+		validator.checkName(ndpid, null, new ValidatorSearchContext(this, IRepository.COLUMNS), false);
 		setDataProviderID(ndpid);
 		table.fireIColumnChanged(this);
 	}
@@ -1352,7 +1351,7 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 
 	public QueryColumn queryColumn(BaseQueryTable queryTable)
 	{
-		return new QueryColumn(queryTable, getID(), getSQLName(), getColumnType(), getNativeTypename(), getFlags(), isDBIdentity());
+		return new QueryColumn(queryTable, getUUID(), getSQLName(), getColumnType(), getNativeTypename(), getFlags(), isDBIdentity());
 	}
 
 	/**
@@ -1383,7 +1382,7 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 			hasBadName = FALSE;
 			try
 			{
-				validator.checkName(getName(), getID(), new ValidatorSearchContext(getTable(), IRepository.COLUMNS), true);
+				validator.checkName(getName(), getUUID(), new ValidatorSearchContext(getTable(), IRepository.COLUMNS), true);
 			}
 			catch (NamevalidationException e)
 			{

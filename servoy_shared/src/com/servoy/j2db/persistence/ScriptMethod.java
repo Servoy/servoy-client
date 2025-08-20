@@ -59,9 +59,9 @@ public class ScriptMethod extends AbstractScriptProvider implements IPersistClon
 	/**
 	 * Constructor I
 	 */
-	ScriptMethod(ISupportChilds parent, int element_id, UUID uuid)
+	ScriptMethod(ISupportChilds parent, UUID uuid)
 	{
-		super(IRepository.METHODS, parent, element_id, uuid);
+		super(IRepository.METHODS, parent, uuid);
 	}
 
 	public void setShowInMenu(boolean arg)

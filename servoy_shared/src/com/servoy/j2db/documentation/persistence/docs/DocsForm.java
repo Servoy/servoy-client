@@ -42,7 +42,7 @@ public class DocsForm extends Form implements IBaseDocsComponent
 
 	DocsForm()
 	{
-		super(null, 0, null);
+		super(null, null);
 	}
 
 	@ServoyClientSupport(mc = false, wc = true, sc = true)

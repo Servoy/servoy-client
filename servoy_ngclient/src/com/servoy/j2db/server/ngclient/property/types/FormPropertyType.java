@@ -139,21 +139,6 @@ public class FormPropertyType extends DefaultPropertyType<Object>
 				}
 			}
 		}
-		else if (sabloValue instanceof Integer && dataConverterContext != null && dataConverterContext.getWebObject() instanceof IContextProvider)
-		{
-			FlattenedSolution flattenedSolution = ((IContextProvider)dataConverterContext.getWebObject()).getDataConverterContext().getApplication()
-				.getFlattenedSolution();
-			Form form = flattenedSolution.getForm((Integer)sabloValue);
-			if (form != null)
-			{
-				formName = form.getName();
-			}
-			else
-			{
-				formName = null;
-				Debug.error("Cannot handle integer value for Form type: " + sabloValue);
-			}
-		}
 		else if (sabloValue instanceof CharSequence)
 		{
 			formName = ((CharSequence)sabloValue).toString();
@@ -235,11 +220,7 @@ public class FormPropertyType extends DefaultPropertyType<Object>
 		FlattenedSolution fs = formElementContext.getFlattenedSolution();
 
 		Form form = null;
-		if (formElementValue instanceof Integer)
-		{
-			form = fs.getForm(((Integer)formElementValue).intValue());
-		}
-		else if (formElementValue instanceof String || formElementValue instanceof UUID)
+		if (formElementValue instanceof String || formElementValue instanceof UUID)
 		{
 			form = fs.getForm(formElementValue.toString());
 			if (form == null)

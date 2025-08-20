@@ -73,7 +73,6 @@ import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.Portal;
 import com.servoy.j2db.persistence.Relation;
-import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.printing.ISupportXMLOutput;
 import com.servoy.j2db.printing.XMLPrintHelper;
 import com.servoy.j2db.scripting.IScriptable;
@@ -1077,10 +1076,10 @@ public class PortalComponent extends EnableScrollPanel implements ListSelectionL
 		{
 			this.portal = portal;
 			dataRendererOnRenderWrapper = new DataRendererOnRenderWrapper(this);
-			int onRenderMethodID = portal.getOnRenderMethodID();
-			if (onRenderMethodID > 0)
+			String onRenderMethodUUID = portal.getOnRenderMethodID();
+			if (onRenderMethodUUID != null)
 			{
-				dataRendererOnRenderWrapper.getRenderEventExecutor().setRenderCallback(Integer.toString(onRenderMethodID),
+				dataRendererOnRenderWrapper.getRenderEventExecutor().setRenderCallback(onRenderMethodUUID,
 					Utils.parseJSExpressions(portal.getFlattenedMethodArguments("onRenderMethodID")));
 				dataRendererOnRenderWrapper.getRenderEventExecutor().setRenderScriptExecuter(se);
 			}

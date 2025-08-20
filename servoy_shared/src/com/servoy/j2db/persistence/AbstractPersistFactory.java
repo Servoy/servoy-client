@@ -27,12 +27,10 @@ import java.util.Map;
 
 import org.json.JSONException;
 
-import com.servoy.j2db.server.shared.IUnresolvedUUIDResolver;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Internalize;
 import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.ServoyJSONObject;
-import com.servoy.j2db.util.TreeBidiMap;
 import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 
@@ -43,7 +41,6 @@ import com.servoy.j2db.util.Utils;
  */
 public abstract class AbstractPersistFactory implements IPersistFactory
 {
-	protected final TreeBidiMap<UUID, Integer> uuid_element_id_map; //uuid->element_id
 	private ContentSpec contentSpec = null;
 
 	/**
@@ -52,201 +49,133 @@ public abstract class AbstractPersistFactory implements IPersistFactory
 	public AbstractPersistFactory()
 	{
 		super();
-		uuid_element_id_map = new TreeBidiMap<UUID, Integer>();
 	}
 
 	public abstract void initClone(IPersist clone, IPersist objToClone, boolean flattenOverrides) throws RepositoryException;
 
-	public int getElementIdForUUID(UUID uuid) throws RepositoryException
-	{
-		synchronized (uuid_element_id_map)
-		{
-			Integer element_id = uuid_element_id_map.get(uuid);
-			if (element_id != null)
-			{
-				return element_id.intValue();
-			}
-		}
-		int resolved = resolveIdForElementUuid(uuid);
-		synchronized (uuid_element_id_map)
-		{
-			Integer element_id = new Integer(resolved);
-			if (!uuid_element_id_map.containsKey(uuid) && !uuid_element_id_map.containsValue(element_id))
-			{
-				uuid_element_id_map.put(uuid, element_id);
-			}
-		}
-		return resolved;
-	}
-
-	public abstract int resolveIdForElementUuid(UUID id) throws RepositoryException;
-
-	/*
-	 * id from uuid lookup methods
-	 */
-
-	public int getElementIdForUUIDString(String uuid) throws RepositoryException
-	{
-		int id = 0;
-		if (uuid != null)
-		{
-			uuid = uuid.trim();
-			if (uuid.indexOf('-') > 0)
-			{
-				// This is really a UUID. Convert it to an element id.
-				return getElementIdForUUID(UUID.fromString(uuid));
-			}
-			else
-			{
-				// This is not a UUID but a degenerate value; parse it and ensure it is less than or equal to 0.
-				try
-				{
-					id = Integer.parseInt(uuid);
-					if (id > 0)
-					{
-						throw new RepositoryException("invalid degenerate UUID value " + id);
-					}
-				}
-				catch (NumberFormatException e)
-				{
-					throw new RepositoryException("invalid UUID format " + uuid);
-				}
-			}
-		}
-		return id;
-	}
 
 	/**
 	 * Create a repositoy object like Form,fields,portals,beans,etc.
 	 *
 	 * @param parent the parent
 	 * @param objectTypeId the type
-	 * @param elementId the element_id for creation
 	 * @return the created object
 	 */
-	public IPersist createObject(ISupportChilds parent, int objectTypeId, int elementId, UUID uuid) throws RepositoryException
+	public IPersist createObject(ISupportChilds parent, int objectTypeId, UUID uuid) throws RepositoryException
 	{
 		IPersist object = null;
 		switch (objectTypeId)
 		{
 			case IRepository.FORMS :
-				object = new Form(parent, elementId, uuid);
+				object = new Form(parent, uuid);
 				break;
 
 			case IRepository.LAYOUTCONTAINERS :
-				object = new LayoutContainer(parent, elementId, uuid);
+				object = new LayoutContainer(parent, uuid);
 				break;
 
 			case IRepository.CSSPOS_LAYOUTCONTAINERS :
-				object = new CSSPositionLayoutContainer(parent, elementId, uuid);
+				object = new CSSPositionLayoutContainer(parent, uuid);
 				break;
 
 			case IRepository.GRAPHICALCOMPONENTS :
-				object = new GraphicalComponent(parent, elementId, uuid);
+				object = new GraphicalComponent(parent, uuid);
 				break;
 
 			case IRepository.FIELDS :
-				object = new Field(parent, elementId, uuid);
+				object = new Field(parent, uuid);
 				break;
 
 			case IRepository.PORTALS :
-				object = new Portal(parent, elementId, uuid);
+				object = new Portal(parent, uuid);
 				break;
 
 			case IRepository.TABPANELS :
-				object = new TabPanel(parent, elementId, uuid);
+				object = new TabPanel(parent, uuid);
 				break;
 
 			case IRepository.TABS :
-				object = new Tab(parent, elementId, uuid);
+				object = new Tab(parent, uuid);
 				break;
 
 			case IRepository.SHAPES :
-				object = new Shape(parent, elementId, uuid);
+				object = new Shape(parent, uuid);
 				break;
 
 			case IRepository.BEANS :
-				object = new Bean(parent, elementId, uuid);
+				object = new Bean(parent, uuid);
 				break;
 
 			case IRepository.RELATIONS :
-				object = new Relation(parent, elementId, uuid);
+				object = new Relation(parent, uuid);
 				break;
 
 			case IRepository.METHODS :
-				object = new ScriptMethod(parent, elementId, uuid);
+				object = new ScriptMethod(parent, uuid);
 				break;
 
 			case IRepository.SCRIPTCALCULATIONS :
-				object = new ScriptCalculation(parent, elementId, uuid);
+				object = new ScriptCalculation(parent, uuid);
 				break;
 
 			case IRepository.AGGREGATEVARIABLES :
-				object = new AggregateVariable(parent, elementId, uuid);
+				object = new AggregateVariable(parent, uuid);
 				break;
 
 			case IRepository.VALUELISTS :
-				object = new ValueList(parent, elementId, uuid);
+				object = new ValueList(parent, uuid);
 				break;
 
 			case IRepository.MENUS :
-				object = new Menu(parent, elementId, uuid);
+				object = new Menu(parent, uuid);
 				break;
 
 			case IRepository.MENU_ITEMS :
-				object = new MenuItem(parent, elementId, uuid);
+				object = new MenuItem(parent, uuid);
 				break;
 
 			case IRepository.SCRIPTVARIABLES :
-				object = new ScriptVariable(parent, elementId, uuid);
+				object = new ScriptVariable(parent, uuid);
 				break;
 
 			case IRepository.RELATION_ITEMS :
-				object = new RelationItem(parent, elementId, uuid);
+				object = new RelationItem(parent, uuid);
 				break;
 
 			case IRepository.RECTSHAPES :
-				object = new RectShape(parent, elementId, uuid);
+				object = new RectShape(parent, uuid);
 				break;
 
 			case IRepository.PARTS :
-				object = new Part(parent, elementId, uuid);
+				object = new Part(parent, uuid);
 				break;
 
 			case IRepository.TABLENODES :
-				object = new TableNode(parent, elementId, uuid);
+				object = new TableNode(parent, uuid);
 				break;
 
 			case IRepository.MEDIA :
-				object = new Media(parent, elementId, uuid);
+				object = new Media(parent, uuid);
 				break;
 
 			case IRepository.WEBCOMPONENTS :
-				object = new WebComponent(parent, elementId, uuid);
+				object = new WebComponent(parent, uuid);
 				break;
 
 			case IRepository.SOLUTIONS :
 			case IRepository.STYLES :
 			case IRepository.TEMPLATES :
-				object = createRootObject(elementId);
+				object = createRootObject(uuid);
 				break;
 
 			default :
 				throw new RepositoryException("cannot create object with type id=" + objectTypeId + ", type does not exist"); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 
-		// Save the uuid to element id mapping.
-		synchronized (uuid_element_id_map)
-		{
-			if (!uuid_element_id_map.containsKey(uuid))
-			{
-				uuid_element_id_map.put(uuid, new Integer(elementId));
-			}
-		}
 		return object;
 	}
 
-	protected abstract IPersist createRootObject(int elementId) throws RepositoryException;
+	protected abstract IPersist createRootObject(UUID rootObjectUUID) throws RepositoryException;
 
 	/**
 	 * Converter method to convert String in object
@@ -265,7 +194,7 @@ public abstract class AbstractPersistFactory implements IPersistFactory
 				break;
 
 			case IRepository.ELEMENTS :
-				retval = Integer.valueOf(getElementIdForUUIDString(s));
+				retval = s;
 				break;
 
 			case IRepository.BLOBS :
@@ -356,7 +285,7 @@ public abstract class AbstractPersistFactory implements IPersistFactory
 
 	public String convertObjectToArgumentString(int typeId, Object obj) throws RepositoryException
 	{
-		return convertObjectToArgumentString(typeId, obj, -1, -1, -1, null);
+		return convertObjectToArgumentString(typeId, obj, -1, -1);
 	}
 
 	/**
@@ -366,7 +295,7 @@ public abstract class AbstractPersistFactory implements IPersistFactory
 	 * @param obj the object
 	 * @return the string
 	 */
-	public String convertObjectToArgumentString(int typeId, Object obj, int elementId, int revision, int contentId, IUnresolvedUUIDResolver resolver)
+	public String convertObjectToArgumentString(int typeId, Object obj, int revision, int contentId)
 		throws RepositoryException
 	{
 		if (obj == null) return null;
@@ -402,7 +331,7 @@ public abstract class AbstractPersistFactory implements IPersistFactory
 				break;
 
 			case IRepository.ELEMENTS :
-				retval = getUUIDStringForElementId(((Integer)obj).intValue(), elementId, revision, contentId, resolver);
+				retval = obj.toString();
 				break;
 
 			case IRepository.STRING :
@@ -425,52 +354,6 @@ public abstract class AbstractPersistFactory implements IPersistFactory
 	}
 
 
-	public String getUUIDStringForElementId(int id, int elementId, int revision, int contentId, IUnresolvedUUIDResolver resolver) throws RepositoryException
-	{
-		UUID uuid = getUUIDForElementId(id, elementId, revision, contentId, resolver);
-		if (uuid != null)
-		{
-			return uuid.toString();
-		}
-		return String.valueOf(id);
-	}
-
-	/*
-	 * uuid from id lookup methods
-	 */
-
-	public UUID getUUIDForElementId(int id, int elementId, int revision, int contentId, IUnresolvedUUIDResolver resolver) throws RepositoryException
-	{
-		if (id == IRepository.UNRESOLVED_ELEMENT)
-		{
-			if (resolver != null)
-			{
-				UUID uid = resolver.resolve(elementId, revision, contentId);
-				if (uid != null)
-				{
-					return uid;
-				}
-			}
-			return IRepository.UNRESOLVED_UUID;
-		}
-		if (id > 0)
-		{
-			UUID uuid = resolveUUIDForElementId(id);
-			if (uuid == null)
-			{
-				synchronized (uuid_element_id_map)
-				{
-					uuid = uuid_element_id_map.getKey(new Integer(id));
-				}
-			}
-			return uuid;
-		}
-		// This is a degenerate reference.
-		return null;
-	}
-
-	public abstract UUID resolveUUIDForElementId(int id) throws RepositoryException;
-
 	public static Map<Object, Object> resetUUIDSRecursively(IPersist persist, final IPersistFactory persistFactory, final boolean flagChanged)
 	{
 		final Map<Object, Object> updatedElementIds = new HashMap<>();
@@ -482,31 +365,13 @@ public abstract class AbstractPersistFactory implements IPersistFactory
 				{
 					UUID current = o.getUUID();
 					((AbstractBase)o).resetUUID();
-					try
-					{
-						int newElementID = persistFactory.getNewElementID(o.getUUID());
-						updatedElementIds.put(current.toString(), o.getUUID().toString());
-						updatedElementIds.put(Integer.valueOf(o.getID()), Integer.valueOf(newElementID));
-						((AbstractBase)o).setID(newElementID);
-						if (flagChanged) o.flagChanged();
-					}
-					catch (RepositoryException e)
-					{
-						Debug.log(e);
-					}
+					updatedElementIds.put(current.toString(), o.getUUID().toString());
+					if (flagChanged) o.flagChanged();
 				}
 				return IPersistVisitor.CONTINUE_TRAVERSAL;
 			}
 		});
 		return updatedElementIds;
-	}
-
-	public void clearUUIDMap()
-	{
-		synchronized (uuid_element_id_map)
-		{
-			uuid_element_id_map.clear();
-		}
 	}
 
 }

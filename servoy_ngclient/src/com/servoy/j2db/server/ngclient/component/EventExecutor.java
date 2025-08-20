@@ -88,16 +88,16 @@ public class EventExecutor
 		this.formController = formController;
 	}
 
-	public Object executeEvent(WebComponent component, String eventType, int eventId, Object[] eventArgs)
+	public Object executeEvent(WebComponent component, String eventType, String eventUUID, Object[] eventArgs)
 	{
 		Scriptable scope = null;
 		Function f = null;
 
 		Object[] newargs = eventArgs != null ? Arrays.copyOf(eventArgs, eventArgs.length) : null;
 
-		if (eventId > 0)
+		if (eventUUID != null)
 		{
-			ScriptMethod scriptMethod = formController.getApplication().getFlattenedSolution().getScriptMethod(eventId);
+			ScriptMethod scriptMethod = formController.getApplication().getFlattenedSolution().getScriptMethod(eventUUID);
 			if (scriptMethod != null)
 			{
 				if (scriptMethod.getParent() instanceof Form)
@@ -141,14 +141,15 @@ public class EventExecutor
 				}
 				if (f == null)
 				{
-					Debug.error("No function found for " + scriptMethod + " when trying to execute the event " + eventType + '(' + eventId + //$NON-NLS-1$ //$NON-NLS-2$
+					Debug.error("No function found for " + scriptMethod + " when trying to execute the event " + eventType + '(' + eventUUID + //$NON-NLS-1$ //$NON-NLS-2$
 						") of component: " + component, new RuntimeException()); //$NON-NLS-1$
 					return null;
 				}
 			}
 			else
 			{
-				Debug.warn("Couldn't find the ScriptMethod for event: " + eventType + " with event id: " + eventId + " to execute for component " + component);
+				Debug.warn(
+					"Couldn't find the ScriptMethod for event: " + eventType + " with event uuid: " + eventUUID + " to execute for component " + component);
 			}
 		}
 		if (formController.isInFindMode() && !Utils.getAsBoolean(f.get("_AllowToRunInFind_", f))) return null; //$NON-NLS-1$

@@ -274,14 +274,15 @@ public class WebFormManager extends FormManager
 								FormController previousNavigator = parent.getNavigator();
 								parent.setController(null);
 								// navigator is not re-applied so apply it manually
-								int navigatorID = previousMainShowingForm.getForm().getNavigatorID();
-								if (navigatorID == Form.NAVIGATOR_IGNORE || (previousNavigator != null && previousNavigator.getForm().getID() == navigatorID))
+								String navigatorUUID = previousMainShowingForm.getForm().getNavigatorID();
+								if (Form.NAVIGATOR_IGNORE.equals(navigatorUUID) ||
+									(previousNavigator != null && previousNavigator.getForm().getUUID().toBytes().equals(navigatorUUID)))
 								{
 									parent.setNavigator(previousNavigator);
 								}
-								else if (navigatorID > 0)
+								else if (navigatorUUID != null && !Form.NAVIGATOR_IGNORE.equals(navigatorUUID))
 								{
-									Form newNavigator = application.getFlattenedSolution().getForm(navigatorID);
+									Form newNavigator = application.getFlattenedSolution().getForm(navigatorUUID);
 									if (newNavigator != null)
 									{
 										parent.setNavigator(leaseFormPanel(newNavigator.getName()));

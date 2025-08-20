@@ -42,9 +42,9 @@ public class TabPanel extends BaseComponent implements ISupportChilds, ISupportT
 	/**
 	 * Constructor I
 	 */
-	protected TabPanel(ISupportChilds parent, int element_id, UUID uuid)
+	protected TabPanel(ISupportChilds parent, UUID uuid)
 	{
-		super(IRepository.TABPANELS, parent, element_id, uuid);
+		super(IRepository.TABPANELS, parent, uuid);
 	}
 
 	/*
@@ -86,7 +86,7 @@ public class TabPanel extends BaseComponent implements ISupportChilds, ISupportT
 
 		obj.setText(text);
 		obj.setRelationName(relationName);
-		obj.setContainsFormID(f.getID());
+		obj.setContainsFormID(f.getUUID().toString());
 
 		addChild(obj);
 		return obj;
@@ -155,13 +155,13 @@ public class TabPanel extends BaseComponent implements ISupportChilds, ISupportT
 	}
 
 	@Deprecated
-	public int getOnTabChangeMethodID()
+	public String getOnTabChangeMethodID()
 	{
 		return getOnChangeMethodID();
 	}
 
 	@Deprecated
-	public void setOnTabChangeMethodID(int arg)
+	public void setOnTabChangeMethodID(String arg)
 	{
 		setOnChangeMethodID(arg);
 	}
@@ -175,9 +175,9 @@ public class TabPanel extends BaseComponent implements ISupportChilds, ISupportT
 	 * @templateparam JSEvent event the event that triggered the action
 	 * @templateaddtodo
 	 */
-	public int getOnChangeMethodID()
+	public String getOnChangeMethodID()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONCHANGEMETHODID).intValue();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONCHANGEMETHODID);
 	}
 
 	/**
@@ -185,7 +185,7 @@ public class TabPanel extends BaseComponent implements ISupportChilds, ISupportT
 	 *
 	 * @param arg The onChangeMethodID to set
 	 */
-	public void setOnChangeMethodID(int arg)
+	public void setOnChangeMethodID(String arg)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONCHANGEMETHODID, arg);
 	}

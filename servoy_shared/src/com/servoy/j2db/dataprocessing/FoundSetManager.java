@@ -3079,12 +3079,12 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		// get column def from the first in-mem datasource found
 		ServoyJSONObject columnsDef = null;
 		Iterator<TableNode> tblIte = application.getFlattenedSolution().getTableNodes(dataSource);
-		int onLoadMethodId = -1;
+		String onLoadMethodUUID = null;
 		while (tblIte.hasNext())
 		{
 			TableNode tn = tblIte.next();
 			if (columnsDef == null) columnsDef = tn.getColumns();
-			if (onLoadMethodId == -1) onLoadMethodId = tn.getOnFoundSetLoadMethodID();
+			if (onLoadMethodUUID == null) onLoadMethodUUID = tn.getOnFoundSetLoadMethodID();
 		}
 
 		HashMap<String, ColumnInfoDef> columnInfoDefinitions = null;
@@ -3263,7 +3263,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 				viewDataSources.put(dataSource, table);
 			}
 			fireTableEvent(table);
-			if (!skipOnLoad && dataSet.getRowCount() == 0 && onLoadMethodId > 0)
+			if (!skipOnLoad && dataSet.getRowCount() == 0 && onLoadMethodUUID != null)
 			{
 				IFoundSetInternal sharedFoundSet = getSharedFoundSet(dataSource);
 				executeFoundsetTriggerReturnFirst(sharedFoundSet.getTable(), new Object[] { DataSourceUtils.getInmemDataSourceName(dataSource) },
@@ -3884,25 +3884,25 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	}
 
 
-	boolean executeFoundsetTriggerBreakOnFalse(ITable table, Object[] args, TypedProperty<Integer> property, boolean throwException, Scriptable foundsetScope)
+	boolean executeFoundsetTriggerBreakOnFalse(ITable table, Object[] args, TypedProperty<String> property, boolean throwException, Scriptable foundsetScope)
 		throws ServoyException
 	{
 		return Boolean.TRUE.equals(executeFoundsetTriggerInternal(table, args, property, BreakOnFalse, throwException, foundsetScope));
 	}
 
-	Object executeFoundsetTriggerReturnFirst(ITable table, Object[] args, TypedProperty<Integer> property, boolean throwException, Scriptable foundsetScope)
+	Object executeFoundsetTriggerReturnFirst(ITable table, Object[] args, TypedProperty<String> property, boolean throwException, Scriptable foundsetScope)
 		throws ServoyException
 	{
 		return executeFoundsetTriggerInternal(table, args, property, ReturnFirst, throwException, foundsetScope);
 	}
 
-	void executeFoundsetTrigger(ITable table, Object[] args, TypedProperty<Integer> property, boolean throwException, Scriptable foundsetScope)
+	void executeFoundsetTrigger(ITable table, Object[] args, TypedProperty<String> property, boolean throwException, Scriptable foundsetScope)
 		throws ServoyException
 	{
 		executeFoundsetTriggerInternal(table, args, property, ExecuteEach, throwException, foundsetScope);
 	}
 
-	private List<TriggerFunction> getTriggerFunctions(ITable table, TypedProperty<Integer> property, Scriptable foundsetScope)
+	private List<TriggerFunction> getTriggerFunctions(ITable table, TypedProperty<String> property, Scriptable foundsetScope)
 	{
 		FlattenedSolution solutionRoot = getApplication().getFlattenedSolution();
 		IExecutingEnviroment scriptEngine = getApplication().getScriptEngine();
@@ -3910,7 +3910,8 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		return stream(solutionRoot.getTableNodes(table)).map(tableNode -> {
 			Object function = null;
 			Scriptable scope = null;
-			ScriptMethod scriptMethod = solutionRoot.getScriptMethod(((Integer)tableNode.getProperty(property.getPropertyName())).intValue());
+			Object propertyValue = tableNode.getProperty(property.getPropertyName());
+			ScriptMethod scriptMethod = solutionRoot.getScriptMethod(propertyValue == null ? null : propertyValue.toString());
 			if (scriptMethod != null)
 			{
 				if (scriptMethod.getParent() instanceof Solution)
@@ -3938,7 +3939,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		}).filter(Objects::nonNull).collect(toList());
 	}
 
-	private Object executeFoundsetTriggerInternal(ITable table, Object[] args, TypedProperty<Integer> property, TriggerExecutionMode executionMode,
+	private Object executeFoundsetTriggerInternal(ITable table, Object[] args, TypedProperty<String> property, TriggerExecutionMode executionMode,
 		boolean throwException, Scriptable foundsetScope) throws ServoyException
 	{
 		IExecutingEnviroment scriptEngine = getApplication().getScriptEngine();
@@ -4015,11 +4016,11 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		}
 	}
 
-	public boolean hasFoundsetTrigger(String dataSource, TypedProperty<Integer> property)
+	public boolean hasFoundsetTrigger(String dataSource, TypedProperty<String> property)
 	{
 		return stream(application.getFlattenedSolution().getTableNodes(dataSource))
-			.mapToInt(tableNode -> tableNode.getTypedProperty(property))
-			.anyMatch(methodId -> methodId > 0);
+			.map(tableNode -> tableNode.getTypedProperty(property))
+			.anyMatch(methodId -> methodId != null);
 	}
 
 	public QuerySet getQuerySet(QuerySelect select, boolean includeFilters) throws RepositoryException

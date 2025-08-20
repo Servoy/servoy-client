@@ -62,9 +62,9 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 	/**
 	 * Constructor I
 	 */
-	protected Field(ISupportChilds parent, int element_id, UUID uuid)
+	protected Field(ISupportChilds parent, UUID uuid)
 	{
-		super(IRepository.FIELDS, parent, element_id, uuid);
+		super(IRepository.FIELDS, parent, uuid);
 	}
 
 	/*
@@ -128,7 +128,7 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 	 *
 	 * @param arg the onChangeMethodID
 	 */
-	public void setOnDataChangeMethodID(int arg)
+	public void setOnDataChangeMethodID(String arg)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONDATACHANGEMETHODID, arg);
 	}
@@ -146,12 +146,12 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 	 * @templatecode
 	 * return true
 	 */
-	public int getOnDataChangeMethodID()
+	public String getOnDataChangeMethodID()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONDATACHANGEMETHODID).intValue();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONDATACHANGEMETHODID);
 	}
 
-	public void setOnRightClickMethodID(int arg)
+	public void setOnRightClickMethodID(String arg)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONRIGHTCLICKMETHODID, arg);
 	}
@@ -164,12 +164,12 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 	 * @templateparam JSEvent event the event that triggered the action
 	 * @templateaddtodo
 	 */
-	public int getOnRightClickMethodID()
+	public String getOnRightClickMethodID()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONRIGHTCLICKMETHODID).intValue();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONRIGHTCLICKMETHODID);
 	}
 
-	public void setOnRenderMethodID(int arg)
+	public void setOnRenderMethodID(String arg)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONRENDERMETHODID, arg);
 	}
@@ -177,9 +177,9 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 	/**
 	 * The method that is executed when the component is rendered.
 	 */
-	public int getOnRenderMethodID()
+	public String getOnRenderMethodID()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONRENDERMETHODID).intValue();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONRENDERMETHODID);
 	}
 
 	/**
@@ -187,7 +187,7 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 	 *
 	 * @param arg the enterMethodID
 	 */
-	public void setOnFocusGainedMethodID(int arg)
+	public void setOnFocusGainedMethodID(String arg)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONFOCUSGAINEDMETHODID, arg);
 	}
@@ -201,12 +201,12 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 	 * @templateparam JSEvent event the event that triggered the action
 	 * @templateaddtodo
 	 */
-	public int getOnFocusGainedMethodID()
+	public String getOnFocusGainedMethodID()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONFOCUSGAINEDMETHODID).intValue();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONFOCUSGAINEDMETHODID);
 	}
 
-	public void setOnFocusLostMethodID(int arg)
+	public void setOnFocusLostMethodID(String arg)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONFOCUSLOSTMETHODID, arg);
 	}
@@ -219,9 +219,9 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 	 * @templateparam JSEvent event the event that triggered the action
 	 * @templateaddtodo
 	 */
-	public int getOnFocusLostMethodID()
+	public String getOnFocusLostMethodID()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONFOCUSLOSTMETHODID).intValue();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONFOCUSLOSTMETHODID);
 	}
 
 	/**
@@ -308,14 +308,14 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 	 *
 	 * @param arg the valuelist_id
 	 */
-	public void setValuelistID(int arg)
+	public void setValuelistID(String arg)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_VALUELISTID, arg);
 	}
 
-	public int getValuelistID()
+	public String getValuelistID()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_VALUELISTID).intValue();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_VALUELISTID);
 	}
 
 	/**
@@ -344,7 +344,7 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 	 *
 	 * @param arg the actionMethodID
 	 */
-	public void setOnActionMethodID(int arg)
+	public void setOnActionMethodID(String arg)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONACTIONMETHODID, arg);
 	}
@@ -357,9 +357,9 @@ public class Field extends BaseComponent implements ISupportTextSetup, ISupportT
 	 * @templateparam JSEvent event the event that triggered the action
 	 * @templateaddtodo
 	 */
-	public int getOnActionMethodID()
+	public String getOnActionMethodID()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONACTIONMETHODID).intValue();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONACTIONMETHODID);
 	}
 
 	@Override

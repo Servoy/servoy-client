@@ -564,7 +564,7 @@ public class DataProviderDateTest
 		}
 
 		@Override
-		public Object executeEvent(WebComponent webComponent, String event, int eventId, Object[] args)
+		public Object executeEvent(WebComponent webComponent, String event, String eventId, Object[] args)
 		{
 			return null;
 		}

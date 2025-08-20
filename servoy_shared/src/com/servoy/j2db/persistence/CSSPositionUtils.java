@@ -607,7 +607,7 @@ public final class CSSPositionUtils
 					if (useCSSPosition(o))
 					{
 						BaseComponent element = (BaseComponent)o;
-						if (form.getExtendsID() > 0 && !element.hasProperty(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName()) &&
+						if (form.getExtendsID() != null && !element.hasProperty(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName()) &&
 							!element.hasProperty(StaticContentSpecLoader.PROPERTY_LOCATION.getPropertyName()))
 						{
 							//do not set css position if parent contains the property, this should be done by converting the parent

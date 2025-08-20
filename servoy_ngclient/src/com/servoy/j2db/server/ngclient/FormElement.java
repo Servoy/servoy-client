@@ -124,11 +124,11 @@ public final class FormElement implements INGFormElement
 
 		this.componentType = willTurnIntoErrorBean ? FormElement.ERROR_BEAN : FormTemplateGenerator.getComponentTypeName(persist);
 		IFormElement superPersist = persist;
-		String uniqueId = String.valueOf(superPersist.getID());
+		String uniqueId = superPersist.getUUID().toString();
 		while (inDesigner && superPersist != null)
 		{
 			superPersist = (IFormElement)PersistHelper.getSuperPersist(superPersist);
-			if (superPersist != null) uniqueId = String.valueOf(superPersist.getID());
+			if (superPersist != null) uniqueId = superPersist.getUUID().toString();
 		}
 		this.uniqueIdWithinForm = uniqueId;
 
@@ -397,7 +397,7 @@ public final class FormElement implements INGFormElement
 					Part part = flatForm.getPartAt(location.y);
 					if (part != null)
 					{
-						int top = flatForm.getPartStartYPos(part.getID());
+						int top = flatForm.getPartStartYPos(part.getUUID().toString());
 						newLocation.y = newLocation.y - top;
 						map.put(StaticContentSpecLoader.PROPERTY_LOCATION.getPropertyName(), newLocation);
 						map.put("offsetY", top);
@@ -694,14 +694,14 @@ public final class FormElement implements INGFormElement
 				handlers.add(eventName);
 			}
 			else if (Utils.equalObjects(eventName, StaticContentSpecLoader.PROPERTY_ONFOCUSGAINEDMETHODID.getPropertyName()) &&
-				(mainForm.getOnElementFocusGainedMethodID() > 0 ||
+				(mainForm.getOnElementFocusGainedMethodID() != null ||
 					(application != null && application.getEventsManager().hasListeners(EventType.onElementFocusGained,
 						IExecutingEnviroment.TOPLEVEL_FORMS + '.' + mainForm.getName()))))
 			{
 				handlers.add(eventName);
 			}
 			else if (Utils.equalObjects(eventName, StaticContentSpecLoader.PROPERTY_ONFOCUSLOSTMETHODID.getPropertyName()) &&
-				(mainForm.getOnElementFocusLostMethodID() > 0 ||
+				(mainForm.getOnElementFocusLostMethodID() != null ||
 					(application != null && application.getEventsManager().hasListeners(EventType.onElementFocusLost,
 						IExecutingEnviroment.TOPLEVEL_FORMS + '.' + mainForm.getName()))))
 			{

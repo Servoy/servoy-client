@@ -35,7 +35,7 @@ final class ExtendsConfiguratingFlattenedSolution extends FlattenedSolution
 		while (it.hasNext())
 		{
 			Form childForm = it.next();
-			if (childForm.getExtendsID() > 0)
+			if (childForm.getExtendsID() != null)
 			{
 				childForm.setExtendsForm(getForm(childForm.getExtendsID()));
 			}

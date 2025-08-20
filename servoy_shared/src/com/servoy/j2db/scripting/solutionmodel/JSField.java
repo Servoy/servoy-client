@@ -351,11 +351,11 @@ public class JSField extends JSComponent<Field> implements ISMField, IMobileSMFi
 	{
 		if (valuelist == null)
 		{
-			getBaseComponent(true).setValuelistID(0);
+			getBaseComponent(true).setValuelistID(null);
 		}
 		else
 		{
-			getBaseComponent(true).setValuelistID(((JSValueList)valuelist).getValueList().getID());
+			getBaseComponent(true).setValuelistID(((JSValueList)valuelist).getValueList().getUUID().toString());
 		}
 	}
 
@@ -380,11 +380,11 @@ public class JSField extends JSComponent<Field> implements ISMField, IMobileSMFi
 		ScriptMethod scriptMethod = JSForm.getScriptMethod(function, application.getFlattenedSolution());
 		if (scriptMethod != null)
 		{
-			getBaseComponent(true).setOnActionMethodID(scriptMethod.getID());
+			getBaseComponent(true).setOnActionMethodID(scriptMethod.getUUID().toString());
 		}
 		else
 		{
-			getBaseComponent(true).setOnActionMethodID(0);
+			getBaseComponent(true).setOnActionMethodID(null);
 		}
 	}
 
@@ -397,11 +397,11 @@ public class JSField extends JSComponent<Field> implements ISMField, IMobileSMFi
 		ScriptMethod scriptMethod = JSForm.getScriptMethod(function, application.getFlattenedSolution());
 		if (scriptMethod != null)
 		{
-			getBaseComponent(true).setOnDataChangeMethodID(scriptMethod.getID());
+			getBaseComponent(true).setOnDataChangeMethodID(scriptMethod.getUUID().toString());
 		}
 		else
 		{
-			getBaseComponent(true).setOnDataChangeMethodID(0);
+			getBaseComponent(true).setOnDataChangeMethodID(null);
 		}
 	}
 
@@ -414,11 +414,11 @@ public class JSField extends JSComponent<Field> implements ISMField, IMobileSMFi
 		ScriptMethod scriptMethod = JSForm.getScriptMethod(function, application.getFlattenedSolution());
 		if (scriptMethod != null)
 		{
-			getBaseComponent(true).setOnFocusGainedMethodID(scriptMethod.getID());
+			getBaseComponent(true).setOnFocusGainedMethodID(scriptMethod.getUUID().toString());
 		}
 		else
 		{
-			getBaseComponent(true).setOnFocusGainedMethodID(0);
+			getBaseComponent(true).setOnFocusGainedMethodID(null);
 		}
 	}
 
@@ -431,11 +431,11 @@ public class JSField extends JSComponent<Field> implements ISMField, IMobileSMFi
 		ScriptMethod scriptMethod = JSForm.getScriptMethod(function, application.getFlattenedSolution());
 		if (scriptMethod != null)
 		{
-			getBaseComponent(true).setOnFocusLostMethodID(scriptMethod.getID());
+			getBaseComponent(true).setOnFocusLostMethodID(scriptMethod.getUUID().toString());
 		}
 		else
 		{
-			getBaseComponent(true).setOnFocusLostMethodID(0);
+			getBaseComponent(true).setOnFocusLostMethodID(null);
 		}
 	}
 

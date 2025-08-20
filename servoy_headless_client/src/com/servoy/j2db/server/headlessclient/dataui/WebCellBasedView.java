@@ -227,7 +227,7 @@ public class WebCellBasedView extends Component implements IView, IPortalCompone
 		{
 			if (child instanceof CellContainer)
 			{
-				Iterator< ? extends Component> it = ((CellContainer)child).iterator();
+				Iterator< ? extends Component> it = child.iterator();
 				if (it.hasNext())
 				{
 					return it.next();
@@ -352,7 +352,7 @@ public class WebCellBasedView extends Component implements IView, IPortalCompone
 
 			if (!isEnabled() && comp instanceof IComponent)
 			{
-				((IComponent)comp).setComponentEnabled(false);
+				comp.setComponentEnabled(false);
 			}
 			if (comp instanceof IDisplayRelatedData && record != null)
 			{
@@ -580,7 +580,7 @@ public class WebCellBasedView extends Component implements IView, IPortalCompone
 
 		boolean sortable = true;
 		String initialSortString = null;
-		int onRenderMethodID = 0;
+		String onRenderMethodUUID = null;
 		AbstractBase onRenderPersist = null;
 		if (cellview instanceof Portal)
 		{
@@ -590,7 +590,7 @@ public class WebCellBasedView extends Component implements IView, IPortalCompone
 			setRowBGColorScript(p.getRowBGColorCalculation(), p.getFlattenedMethodArguments("rowBGColorCalculation")); //$NON-NLS-1$
 			sortable = p.getSortable();
 			initialSortString = p.getInitialSort();
-			onRenderMethodID = p.getOnRenderMethodID();
+			onRenderMethodUUID = p.getOnRenderMethodID();
 			onRenderPersist = p;
 
 			int portalAnchors = p.getAnchors();
@@ -600,14 +600,14 @@ public class WebCellBasedView extends Component implements IView, IPortalCompone
 		else if (cellview instanceof Form)
 		{
 			initialSortString = form.getInitialSort();
-			onRenderMethodID = form.getOnRenderMethodID();
+			onRenderMethodUUID = form.getOnRenderMethodID();
 			onRenderPersist = form;
 			isAnchored = true;
 		}
 
-		if (onRenderMethodID > 0)
+		if (onRenderMethodUUID != null)
 		{
-			dataRendererOnRenderWrapper.getRenderEventExecutor().setRenderCallback(Integer.toString(onRenderMethodID),
+			dataRendererOnRenderWrapper.getRenderEventExecutor().setRenderCallback(onRenderMethodUUID,
 				Utils.parseJSExpressions(onRenderPersist.getFlattenedMethodArguments("onRenderMethodID")));
 			dataRendererOnRenderWrapper.getRenderEventExecutor().setRenderScriptExecuter(fc != null ? fc.getScriptExecuter() : null);
 		}
@@ -786,8 +786,8 @@ public class WebCellBasedView extends Component implements IView, IPortalCompone
 
 				if (element instanceof IFormElement && comp instanceof IComponent)
 				{
-					((IComponent)comp).setLocation(((IFormElement)element).getLocation());
-					((IComponent)comp).setSize(((IFormElement)element).getSize());
+					comp.setLocation(((IFormElement)element).getLocation());
+					comp.setSize(((IFormElement)element).getSize());
 				}
 
 				elementToColumnIdentifierComponent.put(element, comp);
@@ -1162,12 +1162,12 @@ public class WebCellBasedView extends Component implements IView, IPortalCompone
 		{
 			// apply to this cell the state of the columnIdentifier IComponent, do keep the location that is set by the tableview when creating these components the first time.
 			// for listview this is the location to use.
-			Point loc = ((IComponent)c).getLocation();
-			int height = ((IComponent)c).getSize().height;
+			Point loc = c.getLocation();
+			int height = c.getSize().height;
 			PropertyCopy.copyElementProps(elementToColumnIdentifierComponent.get(element), c);
 			if (!isListViewMode())
 			{
-				((IComponent)c).setLocation(loc);
+				c.setLocation(loc);
 				//it shouldn't be possible to change the height
 				if (c instanceof IScriptableProvider)
 				{
@@ -2057,20 +2057,20 @@ public class WebCellBasedView extends Component implements IView, IPortalCompone
 
 	public int onDrag(JSDNDEvent event)
 	{
-		int onDragID = 0;
+		String onDragUUID = null;
 		if (cellview instanceof Portal)
 		{
 			Portal cellviewPortal = (Portal)cellview;
-			onDragID = cellviewPortal.getOnDragMethodID();
+			onDragUUID = cellviewPortal.getOnDragMethodID();
 		}
 		else
 		{
-			onDragID = fc.getForm().getOnDragMethodID();
+			onDragUUID = fc.getForm().getOnDragMethodID();
 		}
 
-		if (onDragID > 0)
+		if (onDragUUID != null)
 		{
-			Object dragReturn = fc.executeFunction(Integer.toString(onDragID), new Object[] { event }, false, null, false, "onDragMethodID"); //$NON-NLS-1$
+			Object dragReturn = fc.executeFunction(onDragUUID, new Object[] { event }, false, null, false, "onDragMethodID"); //$NON-NLS-1$
 			if (dragReturn instanceof Number) return ((Number)dragReturn).intValue();
 		}
 
@@ -2079,46 +2079,46 @@ public class WebCellBasedView extends Component implements IView, IPortalCompone
 
 	public boolean onDragOver(JSDNDEvent event)
 	{
-		int onDragOverID = 0;
+		String onDragOverUUID = null;
 		if (cellview instanceof Portal)
 		{
 			Portal cellviewPortal = (Portal)cellview;
-			onDragOverID = cellviewPortal.getOnDragOverMethodID();
+			onDragOverUUID = cellviewPortal.getOnDragOverMethodID();
 		}
 		else
 		{
-			onDragOverID = fc.getForm().getOnDragOverMethodID();
+			onDragOverUUID = fc.getForm().getOnDragOverMethodID();
 		}
 
-		if (onDragOverID > 0)
+		if (onDragOverUUID != null)
 		{
-			Object dragOverReturn = fc.executeFunction(Integer.toString(onDragOverID), new Object[] { event }, false, null, false, "onDragOverMethodID"); //$NON-NLS-1$
+			Object dragOverReturn = fc.executeFunction(onDragOverUUID, new Object[] { event }, false, null, false, "onDragOverMethodID"); //$NON-NLS-1$
 			if (dragOverReturn instanceof Boolean) return ((Boolean)dragOverReturn).booleanValue();
 		}
-		return getOnDropMethodID() > 0;
+		return getOnDropMethodID() != null;
 	}
 
-	private int getOnDropMethodID()
+	private String getOnDropMethodID()
 	{
-		int onDropID = 0;
+		String onDropUUID = null;
 		if (cellview instanceof Portal)
 		{
 			Portal cellviewPortal = (Portal)cellview;
-			onDropID = cellviewPortal.getOnDropMethodID();
+			onDropUUID = cellviewPortal.getOnDropMethodID();
 		}
 		else
 		{
-			onDropID = fc.getForm().getOnDropMethodID();
+			onDropUUID = fc.getForm().getOnDropMethodID();
 		}
-		return onDropID;
+		return onDropUUID;
 	}
 
 	public boolean onDrop(JSDNDEvent event)
 	{
-		int onDropID = getOnDropMethodID();
-		if (onDropID > 0)
+		String onDropUUID = getOnDropMethodID();
+		if (onDropUUID != null)
 		{
-			Object dropHappened = fc.executeFunction(Integer.toString(onDropID), new Object[] { event }, false, null, false, "onDropMethodID"); //$NON-NLS-1$
+			Object dropHappened = fc.executeFunction(onDropUUID, new Object[] { event }, false, null, false, "onDropMethodID"); //$NON-NLS-1$
 			if (dropHappened instanceof Boolean) return ((Boolean)dropHappened).booleanValue();
 		}
 		return false;
@@ -2126,20 +2126,20 @@ public class WebCellBasedView extends Component implements IView, IPortalCompone
 
 	public void onDragEnd(JSDNDEvent event)
 	{
-		int onDragEndID = 0;
+		String onDragEndUUID = null;
 		if (cellview instanceof Portal)
 		{
 			Portal cellviewPortal = (Portal)cellview;
-			onDragEndID = cellviewPortal.getOnDragEndMethodID();
+			onDragEndUUID = cellviewPortal.getOnDragEndMethodID();
 		}
 		else
 		{
-			onDragEndID = fc.getForm().getOnDragEndMethodID();
+			onDragEndUUID = fc.getForm().getOnDragEndMethodID();
 		}
 
-		if (onDragEndID > 0)
+		if (onDragEndUUID != null)
 		{
-			fc.executeFunction(Integer.toString(onDragEndID), new Object[] { event }, false, null, false, "onDragEndMethodID"); //$NON-NLS-1$
+			fc.executeFunction(onDragEndUUID, new Object[] { event }, false, null, false, "onDragEndMethodID"); //$NON-NLS-1$
 		}
 	}
 
@@ -2185,14 +2185,14 @@ public class WebCellBasedView extends Component implements IView, IPortalCompone
 		if (cellview instanceof Portal)
 		{
 			Portal cellviewPortal = (Portal)cellview;
-			enableDragDrop = (cellviewPortal.getOnDragMethodID() > 0 || cellviewPortal.getOnDragEndMethodID() > 0 ||
-				cellviewPortal.getOnDragOverMethodID() > 0 || cellviewPortal.getOnDropMethodID() > 0);
+			enableDragDrop = (cellviewPortal.getOnDragMethodID() != null || cellviewPortal.getOnDragEndMethodID() != null ||
+				cellviewPortal.getOnDragOverMethodID() != null || cellviewPortal.getOnDropMethodID() != null);
 		}
 		else
 		{
 			Form form = formController.getForm();
-			enableDragDrop = (form.getOnDragMethodID() > 0 || form.getOnDragEndMethodID() > 0 || form.getOnDragOverMethodID() > 0 ||
-				form.getOnDropMethodID() > 0);
+			enableDragDrop = (form.getOnDragMethodID() != null || form.getOnDragEndMethodID() != null || form.getOnDragOverMethodID() != null ||
+				form.getOnDropMethodID() != null);
 		}
 
 	}
@@ -2702,7 +2702,7 @@ public class WebCellBasedView extends Component implements IView, IPortalCompone
 					if (alreadyAddedComponents.hasNext())
 					{
 						Component firstAddedComponent = alreadyAddedComponents.next();
-						if ((firstAddedComponent instanceof IComponent)) height = ((IComponent)firstAddedComponent).getSize().height;
+						if ((firstAddedComponent instanceof IComponent)) height = firstAddedComponent.getSize().height;
 					}
 					ic.setSize(newWidth, height);
 

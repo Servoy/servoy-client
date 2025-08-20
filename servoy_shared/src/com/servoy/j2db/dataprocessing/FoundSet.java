@@ -5043,7 +5043,7 @@ public abstract class FoundSet
 	 * @return
 	 * @throws ServoyException
 	 */
-	boolean executeFoundsetTriggerBreakOnFalse(Object[] args, TypedProperty<Integer> property, boolean throwException) throws ServoyException
+	boolean executeFoundsetTriggerBreakOnFalse(Object[] args, TypedProperty<String> property, boolean throwException) throws ServoyException
 	{
 		return fsm.executeFoundsetTriggerBreakOnFalse(getTable(), args, property, throwException, this);
 	}
@@ -5056,12 +5056,12 @@ public abstract class FoundSet
 	 * @return
 	 * @throws ServoyException
 	 */
-	void executeFoundsetTrigger(Object[] args, TypedProperty<Integer> property, boolean throwException) throws ServoyException
+	void executeFoundsetTrigger(Object[] args, TypedProperty<String> property, boolean throwException) throws ServoyException
 	{
 		fsm.executeFoundsetTrigger(getTable(), args, property, throwException, this);
 	}
 
-	Object executeFoundsetTriggerReturnFirst(Object[] args, TypedProperty<Integer> property, boolean throwException) throws ServoyException
+	Object executeFoundsetTriggerReturnFirst(Object[] args, TypedProperty<String> property, boolean throwException) throws ServoyException
 	{
 		return fsm.executeFoundsetTriggerReturnFirst(getTable(), args, property, throwException, this);
 	}
@@ -5076,13 +5076,15 @@ public abstract class FoundSet
 			while (tableNodes.hasNext())
 			{
 				TableNode node = tableNodes.next();
-				int methodId = node.getOnDeleteMethodID();
-				if (methodId > 0 && solutionRoot.getScriptMethod(methodId) != null || AbstractBase.selectById(foundsetMethods.iterator(), methodId) != null)
+				String methodUUID = node.getOnDeleteMethodID();
+				if (methodUUID != null && solutionRoot.getScriptMethod(methodUUID) != null ||
+					AbstractBase.selectByUUID(foundsetMethods.iterator(), methodUUID) != null)
 				{
 					return true;
 				}
-				methodId = node.getOnAfterDeleteMethodID();
-				if (methodId > 0 && solutionRoot.getScriptMethod(methodId) != null || AbstractBase.selectById(foundsetMethods.iterator(), methodId) != null)
+				methodUUID = node.getOnAfterDeleteMethodID();
+				if (methodUUID != null && solutionRoot.getScriptMethod(methodUUID) != null ||
+					AbstractBase.selectByUUID(foundsetMethods.iterator(), methodUUID) != null)
 				{
 					return true;
 				}
@@ -6948,7 +6950,7 @@ public abstract class FoundSet
 					return Collections.<ScriptVariable> emptyList().iterator();
 				}
 
-				public ScriptMethod getScriptMethod(int methodId)
+				public ScriptMethod getScriptMethod(String methodNameOrUUID)
 				{
 					return null; // not called by LCS
 				}

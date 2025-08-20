@@ -71,7 +71,7 @@ public class RuntimeWebComponentTest extends AbstractSolutionTest
 		{
 			Form form = solution.createNewForm(validator, null, "testForm", null, false, new Dimension(600, 400));
 			form.createNewWebComponent("testComponent", "my-component");
-			form.setNavigatorID(-1);
+			form.setNavigatorID(Form.NAVIGATOR_NONE);
 		}
 		catch (JSONException e)
 		{

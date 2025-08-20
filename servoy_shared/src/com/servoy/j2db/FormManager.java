@@ -196,7 +196,7 @@ public abstract class FormManager extends BasicFormManager implements PropertyCh
 			application.getModeManager().setMode(IModeManager.EDIT_MODE);//start in browse mode
 		}
 
-		boolean showLoginForm = (solution.getLoginFormID() > 0 && solution.getMustAuthenticate() && application.getUserUID() == null);
+		boolean showLoginForm = (solution.getLoginFormID() != null && solution.getMustAuthenticate() && application.getUserUID() == null);
 		if (application.getUserUID() == null)
 		{
 			ScriptMethod onBeforeLogin = application.getFlattenedSolution().getScriptMethod(solution.getOnBeforeLoginMethodID());
@@ -225,7 +225,7 @@ public abstract class FormManager extends BasicFormManager implements PropertyCh
 			}
 		}
 
-		if (solution.getLoginFormID() > 0 && solution.getMustAuthenticate() && application.getUserUID() == null)
+		if (solution.getLoginFormID() != null && solution.getMustAuthenticate() && application.getUserUID() == null)
 		{
 			Form login = application.getFlattenedSolution().getForm(solution.getLoginFormID());
 			if (application.getFlattenedSolution().formCanBeInstantiated(login) && loginForm == null)
@@ -243,7 +243,7 @@ public abstract class FormManager extends BasicFormManager implements PropertyCh
 			return;
 		}
 
-		if (solution.getLoginFormID() > 0 && solution.getMustAuthenticate() && application.getUserUID() != null && loginForm != null)
+		if (solution.getLoginFormID() != null && solution.getMustAuthenticate() && application.getUserUID() != null && loginForm != null)
 		{
 			if (currentContainer.getController() != null && loginForm.getName().equals(currentContainer.getController().getForm().getName()))
 			{

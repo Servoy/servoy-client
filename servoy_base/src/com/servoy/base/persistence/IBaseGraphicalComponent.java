@@ -22,7 +22,7 @@ import com.servoy.base.scripting.annotations.ServoyClientSupport;
 
 /**
  * Base interface for graphical components (for mobile as well as other clients).
- * 
+ *
  * @author rgansevles
  *
  * @since 7.0
@@ -33,7 +33,7 @@ public interface IBaseGraphicalComponent extends IBaseComponent, IBaseGraphicalC
 	/**
 	 * @clonedesc com.servoy.j2db.scripting.solutionmodel.JSGraphicalComponent#getOnAction()
 	 */
-	int getOnActionMethodID();
+	String getOnActionMethodID();
 
-	void setOnActionMethodID(int arg);
+	void setOnActionMethodID(String uuid);
 }

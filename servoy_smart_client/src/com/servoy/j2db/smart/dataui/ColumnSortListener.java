@@ -52,7 +52,7 @@ import com.servoy.j2db.util.Utils;
 
 /**
  * Default sorter for tableview
- * 
+ *
  * @author jblok
  */
 public class ColumnSortListener extends MouseAdapter
@@ -73,7 +73,7 @@ public class ColumnSortListener extends MouseAdapter
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.awt.event.MouseAdapter#mouseReleased(java.awt.event.MouseEvent)
 	 */
 	@Override
@@ -83,7 +83,7 @@ public class ColumnSortListener extends MouseAdapter
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.awt.event.MouseAdapter#mouseClicked(java.awt.event.MouseEvent)
 	 */
 	@Override
@@ -205,29 +205,32 @@ public class ColumnSortListener extends MouseAdapter
 							try
 							{
 								String dataProviderID = ((CellAdapter)column).getDataProviderID();
-								int labelForOnActionMethodId = 0;
-								if (((CellAdapter)column).getHeaderRenderer() instanceof LFAwareSortableHeaderRenderer)
+								String labelForOnActionMethodUUID = null;
+								if (column.getHeaderRenderer() instanceof LFAwareSortableHeaderRenderer)
 								{
-									labelForOnActionMethodId = ((LFAwareSortableHeaderRenderer)((CellAdapter)column).getHeaderRenderer()).getOnActionMethodID();
+									labelForOnActionMethodUUID = ((LFAwareSortableHeaderRenderer)column.getHeaderRenderer()).getOnActionMethodID();
 								}
-								if (fc != null && labelForOnActionMethodId > 0)
+								if (fc != null && labelForOnActionMethodUUID != null)
 								{
-									LFAwareSortableHeaderRenderer renderer = (LFAwareSortableHeaderRenderer)(((CellAdapter)column).getHeaderRenderer());
+									LFAwareSortableHeaderRenderer renderer = (LFAwareSortableHeaderRenderer)(column.getHeaderRenderer());
 									fc.executeFunction(
-										String.valueOf(labelForOnActionMethodId),
+										labelForOnActionMethodUUID,
 										Utils.arrayMerge((new Object[] { getJavaScriptEvent(e, JSEvent.EventType.action, renderer.getName()) }),
-											Utils.parseJSExpressions(renderer.getFlattenedMethodArguments("onActionMethodID"))), true, null, false, "onActionMethodID"); //$NON-NLS-1$//$NON-NLS-2$
+											Utils.parseJSExpressions(renderer.getFlattenedMethodArguments("onActionMethodID"))), //$NON-NLS-1$
+										true, null, false, "onActionMethodID"); //$NON-NLS-1$
 								}
-								else if (fc != null && fc.getForm().getOnSortCmdMethodID() > 0)
+								else if (fc != null && fc.getForm().getOnSortCmdMethodID() != null)
 								{
 									// Also execute the on sort command on none data providers (like a label) then they can do there own sort.
 									fc.executeFunction(
 										String.valueOf(fc.getForm().getOnSortCmdMethodID()),
 										Utils.arrayMerge(
-											(new Object[] { dataProviderID, Boolean.valueOf(lastSortAsc), getJavaScriptEvent(e, JSEvent.EventType.none, null) }),
-											Utils.parseJSExpressions(fc.getForm().getFlattenedMethodArguments("onSortCmdMethodID"))), true, null, false, "onSortCmdMethodID"); //$NON-NLS-1$//$NON-NLS-2$
+											(new Object[] { dataProviderID, Boolean.valueOf(lastSortAsc), getJavaScriptEvent(e, JSEvent.EventType.none,
+												null) }),
+											Utils.parseJSExpressions(fc.getForm().getFlattenedMethodArguments("onSortCmdMethodID"))), //$NON-NLS-1$
+										true, null, false, "onSortCmdMethodID"); //$NON-NLS-1$
 								}
-								else if (dataProviderID != null && fc.getForm().getOnSortCmdMethodID() != -1)
+								else if (dataProviderID != null && fc.getForm().getOnSortCmdMethodID() != null)
 								{
 									List<String> sortingProviders = null;
 									IFoundSetInternal model = (IFoundSetInternal)table.getModel();

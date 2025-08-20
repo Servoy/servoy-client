@@ -90,7 +90,7 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 			}
 			if (o1 instanceof ISupportFormElement) return 1;
 			if (o2 instanceof ISupportFormElement) return -1;
-			return o1.getID() - o2.getID();
+			return o1.getUUID().toString().compareTo(o2.getUUID().toString());
 		}
 	};
 
@@ -152,7 +152,7 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 			return IPersistVisitor.CONTINUE_TRAVERSAL;
 		if (part != null && (o instanceof IFormElement || o instanceof CSSPositionLayoutContainer))
 		{
-			int startPos = form.getPartStartYPos(part.getID());
+			int startPos = form.getPartStartYPos(part.getUUID().toString());
 			int endPos = part.getHeight();
 			Point location = CSSPositionUtils.getLocation(((ISupportBounds)o), form);
 			if (location != null && (startPos > location.y || endPos <= location.y))
@@ -223,7 +223,7 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 									{
 										for (FormElement formElement : fccc.getFormComponentElements())
 										{
-											if (component.getID() == formElement.getPersistIfAvailable().getID())
+											if (component.getUUID().equals(formElement.getPersistIfAvailable().getUUID()))
 											{
 												return formElement;
 											}

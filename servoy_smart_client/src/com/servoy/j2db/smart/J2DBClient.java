@@ -3692,7 +3692,8 @@ public class J2DBClient extends ClientState
 
 	public ResourceBundle getResourceBundle(Locale locale)
 	{
-		return new MessagesResourceBundle(this, locale == null ? getLocale() : locale, i18nColumnName, i18nColunmValue, getSolution().getSolutionID());
+		return new MessagesResourceBundle(this, locale == null ? getLocale() : locale, i18nColumnName, i18nColunmValue,
+			getSolution().getSolutionMetaData().getRootObjectUuid());
 	}
 
 	/*

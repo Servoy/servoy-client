@@ -326,7 +326,7 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 			if (isResponsive != null) form.setResponsiveLayout(isResponsive.booleanValue());
 			form.clearProperty(StaticContentSpecLoader.PROPERTY_DATASOURCE.getPropertyName());
 			application.getFormManager().addForm(form, false);
-			form.setExtendsID(((JSForm)superForm).getSupportChild().getID());
+			form.setExtendsID(((JSForm)superForm).getSupportChild().getUUID().toString());
 			return instantiateForm(form, true);
 		}
 		catch (RepositoryException e)

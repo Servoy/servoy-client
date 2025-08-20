@@ -56,7 +56,6 @@ import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.server.shared.IApplicationServer;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Settings;
-import com.servoy.j2db.util.Utils;
 
 import jakarta.servlet.DispatcherType;
 import jakarta.servlet.FilterChain;
@@ -479,7 +478,7 @@ public class NGClientEntryFilter extends WebEntry
 					if (form.isResponsiveLayout())
 					{
 						FormLayoutStructureGenerator.generateLayout(form, formName, fs, writer,
-							design ? new DesignProperties(Utils.getAsInteger(request.getParameter("cont"))) : null);
+							design ? new DesignProperties(request.getParameter("cont")) : null);
 					}
 					else
 					{

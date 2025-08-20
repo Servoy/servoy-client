@@ -346,11 +346,11 @@ public class JSTabPanel extends JSComponent<TabPanel> implements IJSParent<TabPa
 		ScriptMethod scriptMethod = JSForm.getScriptMethod(function, application.getFlattenedSolution());
 		if (scriptMethod != null)
 		{
-			getBaseComponent(true).setOnTabChangeMethodID(scriptMethod.getID());
+			getBaseComponent(true).setOnTabChangeMethodID(scriptMethod.getUUID().toString());
 		}
 		else
 		{
-			getBaseComponent(true).setOnTabChangeMethodID(0);
+			getBaseComponent(true).setOnTabChangeMethodID(null);
 		}
 	}
 

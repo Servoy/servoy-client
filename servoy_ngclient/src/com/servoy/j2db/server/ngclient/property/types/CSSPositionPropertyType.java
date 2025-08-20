@@ -161,7 +161,7 @@ public class CSSPositionPropertyType extends DefaultPropertyType<CSSPosition>
 					{
 						if (isSet(top))
 						{
-							int topStart = form.getPartStartYPos(part.getID());
+							int topStart = form.getPartStartYPos(part.getUUID().toString());
 							if (topStart > 0)
 							{
 								if (top.endsWith("px"))

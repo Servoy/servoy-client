@@ -29,6 +29,8 @@ import java.util.ResourceBundle;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.server.shared.IApplicationServerMessagesLoader;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.UUID;
+import com.servoy.j2db.util.Utils;
 
 public class MessagesResourceBundle extends ResourceBundle implements Externalizable
 {
@@ -39,7 +41,7 @@ public class MessagesResourceBundle extends ResourceBundle implements Externaliz
 	private transient Locale locale;
 	private transient String i18nColumnName;
 	private transient String[] i18nColunmValue;
-	private transient int solutionId;
+	private transient UUID solutionUUID;
 
 	private transient Properties messages;
 	private transient ResourceBundle jarBundle;
@@ -51,7 +53,7 @@ public class MessagesResourceBundle extends ResourceBundle implements Externaliz
 	}
 
 	/**Set application server loader for loading loading messages on the server that are specific for the client.
-	 * 
+	 *
 	 * @param asl
 	 */
 	public static void setApplicationServerLoader(IApplicationServerMessagesLoader asl)
@@ -59,13 +61,13 @@ public class MessagesResourceBundle extends ResourceBundle implements Externaliz
 		applicationServerLoader = asl;
 	}
 
-	public MessagesResourceBundle(IApplication application, Locale locale, String i18nColumnName, String[] i18nColunmValue, int solutionId)
+	public MessagesResourceBundle(IApplication application, Locale locale, String i18nColumnName, String[] i18nColunmValue, UUID solutionUUID)
 	{
 		this.application = application;
 		this.locale = locale;
 		this.i18nColumnName = i18nColumnName;
 		this.i18nColunmValue = i18nColunmValue;
-		this.solutionId = solutionId;
+		this.solutionUUID = solutionUUID;
 		this.jarBundle = ResourceBundle.getBundle(Messages.BUNDLE_NAME, locale);
 	}
 
@@ -105,7 +107,7 @@ public class MessagesResourceBundle extends ResourceBundle implements Externaliz
 				Solution sol;
 				try
 				{
-					sol = (Solution)application.getRepository().getActiveRootObject(solutionId);
+					sol = (Solution)application.getRepository().getActiveRootObject(solutionUUID);
 					Messages.loadMessagesFromDatabaseInternal(null, application.getClientID(), application.getSettings(), application.getDataServer(),
 						application.getRepository(), messages, locale, Messages.ALL_LOCALES, null, null, i18nColumnName, i18nColunmValue,
 						application.getFoundSetManager());
@@ -121,7 +123,7 @@ public class MessagesResourceBundle extends ResourceBundle implements Externaliz
 			else if (applicationServerLoader != null)
 			{
 				// we are on the server load from the server.
-				applicationServerLoader.loadMessages(messages, locale, solutionId, i18nColumnName, i18nColunmValue, null);
+				applicationServerLoader.loadMessages(messages, locale, solutionUUID, i18nColumnName, i18nColunmValue, null);
 			}
 		}
 		return messages;
@@ -168,7 +170,7 @@ public class MessagesResourceBundle extends ResourceBundle implements Externaliz
 		s.writeObject(locale);
 		s.writeObject(i18nColumnName);
 		s.writeObject(i18nColunmValue);
-		s.writeInt(solutionId);
+		s.writeObject(solutionUUID.toString());
 	}
 
 	public void readExternal(ObjectInput s) throws IOException, ClassNotFoundException
@@ -176,7 +178,7 @@ public class MessagesResourceBundle extends ResourceBundle implements Externaliz
 		locale = (Locale)s.readObject();
 		i18nColumnName = (String)s.readObject();
 		i18nColunmValue = (String[])s.readObject();
-		solutionId = s.readInt();
+		solutionUUID = Utils.getAsUUID(s.readObject(), false);
 		jarBundle = ResourceBundle.getBundle(Messages.BUNDLE_NAME, locale);
 	}
 }

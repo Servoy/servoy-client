@@ -21,8 +21,8 @@ import java.rmi.RemoteException;
 
 import com.servoy.j2db.dataprocessing.IDataServer;
 import com.servoy.j2db.persistence.IRepository;
-import com.servoy.j2db.persistence.ITeamRepository;
 import com.servoy.j2db.persistence.RepositoryException;
+import com.servoy.j2db.util.UUID;
 
 public interface IApplicationServerAccess extends Remote
 {
@@ -34,11 +34,9 @@ public interface IApplicationServerAccess extends Remote
 
 	public void logout(String clientId) throws RemoteException, RepositoryException;
 
-	public ITeamRepository getTeamRepository() throws RemoteException;
-
 	public IUserManager getUserManager(String clientId) throws RemoteException;
 
-	public int getActiveClientCount(int solution_id) throws RemoteException;
+	public int getActiveClientCount(UUID solution_uuid) throws RemoteException;
 
 	public int getClientCountForInfo(String info) throws RemoteException;
 

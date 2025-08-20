@@ -130,7 +130,7 @@ public class DesignFormLayoutStructureGenerator
 			}
 		}
 		writer.print(" svy-id='");
-		writer.print(container.getID());
+		writer.print(container.getUUID().toString());
 		writer.print("'");
 
 		writer.print(">\n");
@@ -190,7 +190,7 @@ public class DesignFormLayoutStructureGenerator
 
 
 		writer.print(" svy-id='");
-		writer.print(formElement.getID());
+		writer.print(formElement.getUUID().toString());
 		writer.print("'");
 
 		writer.print("/>\n");

@@ -33,6 +33,7 @@ import com.servoy.j2db.query.ISQLUpdate;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.util.IDelegate;
 import com.servoy.j2db.util.ServoyException;
+import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.xmlxport.ColumnInfoDef;
 
 /**
@@ -458,10 +459,10 @@ public abstract class AbstractDelegateDataServer implements IDataServer, IDelega
 	 * @throws RemoteException
 	 * @see com.servoy.j2db.dataprocessing.IDataServer#getNextSequence(java.lang.String, java.lang.String, java.lang.String, int, java.lang.String)
 	 */
-	public Object getNextSequence(String serverName, String tableName, String columnName, int columnInfoID, String columnInfoServer)
+	public Object getNextSequence(String serverName, String tableName, String columnName, UUID columnInfoUUID, String columnInfoServer)
 		throws RepositoryException
 	{
-		return dataserver.getNextSequence(serverName, tableName, columnName, columnInfoID, columnInfoServer);
+		return dataserver.getNextSequence(serverName, tableName, columnName, columnInfoUUID, columnInfoServer);
 	}
 
 	/**

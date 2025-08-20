@@ -243,7 +243,7 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 		headerCache = headerComp;
 		leadingGrandSummaryCache = leadingGrandSummaryComp;
 		this.cellview = cellview;
-		int onRenderMethodID = 0;
+		String onRenderMethodUUID = null;
 		AbstractBase onRenderPersist;
 		if (cellview instanceof Portal)
 		{
@@ -260,7 +260,7 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 			sortable = meta.getSortable();
 			setRowBGColorScript(meta.getRowBGColorCalculation(), meta.getFlattenedMethodArguments("rowBGColorCalculation")); //$NON-NLS-1$
 
-			onRenderMethodID = meta.getOnRenderMethodID();
+			onRenderMethodUUID = meta.getOnRenderMethodID();
 			onRenderPersist = meta;
 		}
 		else
@@ -269,7 +269,7 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 			setShowVerticalLines(false);
 			setIntercellSpacing(new Dimension());
 
-			onRenderMethodID = fc.getForm().getOnRenderMethodID();
+			onRenderMethodUUID = fc.getForm().getOnRenderMethodID();
 			onRenderPersist = fc.getForm();
 		}
 
@@ -291,9 +291,9 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 			}
 		}
 
-		if (onRenderMethodID > 0)
+		if (onRenderMethodUUID != null)
 		{
-			dataRendererOnRenderWrapper.getRenderEventExecutor().setRenderCallback(Integer.toString(onRenderMethodID),
+			dataRendererOnRenderWrapper.getRenderEventExecutor().setRenderCallback(onRenderMethodUUID,
 				Utils.parseJSExpressions(onRenderPersist.getFlattenedMethodArguments("onRenderMethodID")));
 			dataRendererOnRenderWrapper.getRenderEventExecutor().setRenderScriptExecuter(fc != null ? fc.getScriptExecuter() : null);
 		}
@@ -373,7 +373,7 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 				}
 				if (body != null)
 				{
-					start = form.getPartStartYPos(body.getID());
+					start = form.getPartStartYPos(body.getUUID().toString());
 					yOffset = start;
 					height = body.getHeight() - start;
 				}
@@ -799,7 +799,7 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 					CellAdapter ca = (CellAdapter)getColumnModel().getColumn(column);
 					String name = String.valueOf(ca.getIdentifier());
 					GraphicalComponent gc = (GraphicalComponent)labelsFor.get(name);
-					if (gc != null && gc.getOnRightClickMethodID() > 0)
+					if (gc != null && gc.getOnRightClickMethodID() != null)
 					{
 						Component editor = ca.getEditor();
 
@@ -1852,11 +1852,10 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 
 			if (editable == false)
 			{
-				Iterator<HasRuntimeReadOnly> readOnlyAwareComponentsIte = getReadOnlyAwareComponents().iterator();
 				HasRuntimeReadOnly el;
-				while (readOnlyAwareComponentsIte.hasNext())
+				for (HasRuntimeReadOnly element : getReadOnlyAwareComponents())
 				{
-					el = readOnlyAwareComponentsIte.next();
+					el = element;
 
 					if (el.isReadOnly() == false)
 					{
@@ -1918,26 +1917,26 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 
 	public boolean shouldDisplaySortIcons()
 	{
-		if (fc != null && fc.getForm() != null && fc.getForm().getOnSortCmdMethodID() < 0) return false;
+		if (fc != null && fc.getForm() != null && "-1".equals(fc.getForm().getOnSortCmdMethodID())) return false;
 		return true;
 	}
 
 	public int onDrag(JSDNDEvent event)
 	{
-		int onDragID = 0;
+		String onDragUUID = null;
 		if (cellview instanceof Portal)
 		{
 			Portal cellviewPortal = (Portal)cellview;
-			onDragID = cellviewPortal.getOnDragMethodID();
+			onDragUUID = cellviewPortal.getOnDragMethodID();
 		}
 		else
 		{
-			onDragID = fc.getForm().getOnDragMethodID();
+			onDragUUID = fc.getForm().getOnDragMethodID();
 		}
 
-		if (onDragID > 0)
+		if (onDragUUID != null)
 		{
-			Object dragReturn = fc.executeFunction(Integer.toString(onDragID), new Object[] { event }, false, null, false, "onDragMethodID"); //$NON-NLS-1$
+			Object dragReturn = fc.executeFunction(onDragUUID, new Object[] { event }, false, null, false, "onDragMethodID"); //$NON-NLS-1$
 			if (dragReturn instanceof Number) return ((Number)dragReturn).intValue();
 		}
 
@@ -1946,48 +1945,48 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 
 	public boolean onDragOver(JSDNDEvent event)
 	{
-		int onDragOverID = 0;
+		String onDragOverUUID = null;
 		if (cellview instanceof Portal)
 		{
 			Portal cellviewPortal = (Portal)cellview;
-			onDragOverID = cellviewPortal.getOnDragOverMethodID();
+			onDragOverUUID = cellviewPortal.getOnDragOverMethodID();
 		}
 		else
 		{
-			onDragOverID = fc.getForm().getOnDragOverMethodID();
+			onDragOverUUID = fc.getForm().getOnDragOverMethodID();
 		}
 
-		if (onDragOverID > 0)
+		if (onDragOverUUID != null)
 		{
-			Object dragOverReturn = fc.executeFunction(Integer.toString(onDragOverID), new Object[] { event }, false, null, false, "onDragOverMethodID"); //$NON-NLS-1$
+			Object dragOverReturn = fc.executeFunction(onDragOverUUID, new Object[] { event }, false, null, false, "onDragOverMethodID"); //$NON-NLS-1$
 			if (dragOverReturn instanceof Boolean) return ((Boolean)dragOverReturn).booleanValue();
 		}
 
-		return getOnDropMethodID() > 0;
+		return getOnDropMethodID() != null;
 	}
 
-	private int getOnDropMethodID()
+	private String getOnDropMethodID()
 	{
-		int onDropID = 0;
+		String onDropUUID = null;
 		if (cellview instanceof Portal)
 		{
 			Portal cellviewPortal = (Portal)cellview;
-			onDropID = cellviewPortal.getOnDropMethodID();
+			onDropUUID = cellviewPortal.getOnDropMethodID();
 		}
 		else
 		{
-			onDropID = fc.getForm().getOnDropMethodID();
+			onDropUUID = fc.getForm().getOnDropMethodID();
 		}
-		return onDropID;
+		return onDropUUID;
 	}
 
 	public boolean onDrop(JSDNDEvent event)
 	{
-		int onDropID = getOnDropMethodID();
+		String onDropUUID = getOnDropMethodID();
 
-		if (onDropID > 0)
+		if (onDropUUID != null)
 		{
-			Object dropHappened = fc.executeFunction(Integer.toString(onDropID), new Object[] { event }, false, null, false, "onDropMethodID"); //$NON-NLS-1$
+			Object dropHappened = fc.executeFunction(onDropUUID, new Object[] { event }, false, null, false, "onDropMethodID"); //$NON-NLS-1$
 			if (dropHappened instanceof Boolean) return ((Boolean)dropHappened).booleanValue();
 		}
 
@@ -1996,20 +1995,20 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 
 	public void onDragEnd(JSDNDEvent event)
 	{
-		int onDragEndID = 0;
+		String onDragEndUUID = null;
 		if (cellview instanceof Portal)
 		{
 			Portal cellviewPortal = (Portal)cellview;
-			onDragEndID = cellviewPortal.getOnDragEndMethodID();
+			onDragEndUUID = cellviewPortal.getOnDragEndMethodID();
 		}
 		else
 		{
-			onDragEndID = fc.getForm().getOnDragEndMethodID();
+			onDragEndUUID = fc.getForm().getOnDragEndMethodID();
 		}
 
-		if (onDragEndID > 0)
+		if (onDragEndUUID != null)
 		{
-			fc.executeFunction(Integer.toString(onDragEndID), new Object[] { event }, false, null, false, "onDragEndMethodID"); //$NON-NLS-1$
+			fc.executeFunction(onDragEndUUID, new Object[] { event }, false, null, false, "onDragEndMethodID"); //$NON-NLS-1$
 		}
 	}
 
@@ -2059,14 +2058,14 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 		if (cellview instanceof Portal)
 		{
 			Portal cellviewPortal = (Portal)cellview;
-			enableDragDrop = (cellviewPortal.getOnDragMethodID() > 0 || cellviewPortal.getOnDragEndMethodID() > 0 ||
-				cellviewPortal.getOnDragOverMethodID() > 0 || cellviewPortal.getOnDropMethodID() > 0);
+			enableDragDrop = (cellviewPortal.getOnDragMethodID() != null || cellviewPortal.getOnDragEndMethodID() != null ||
+				cellviewPortal.getOnDragOverMethodID() != null || cellviewPortal.getOnDropMethodID() != null);
 		}
 		else
 		{
 			Form form = fc.getForm();
-			enableDragDrop = (form.getOnDragMethodID() > 0 || form.getOnDragEndMethodID() > 0 || form.getOnDragOverMethodID() > 0 ||
-				form.getOnDropMethodID() > 0);
+			enableDragDrop = (form.getOnDragMethodID() != null || form.getOnDragEndMethodID() != null || form.getOnDragOverMethodID() != null ||
+				form.getOnDropMethodID() != null);
 		}
 
 		if (enableDragDrop && !GraphicsEnvironment.isHeadless())

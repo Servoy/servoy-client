@@ -100,28 +100,28 @@ public class ClientSideTypesTest extends AbstractSolutionTest
 		try
 		{
 			Form form = solution.createNewForm(validator, null, "dummyForm", null, false, new Dimension(600, 400));
-			form.setNavigatorID(-1);
+			form.setNavigatorID("-1");
 			form.createNewPart(IBaseSMPart.BODY, 5);
-			solution.setFirstFormID(form.getID()); // just a dummy form as first form so that it doesn't initialize our first form too soon, when solution is first shown (the test form will still get populated with design-time content at the beginning of tests)
+			solution.setFirstFormID(form.getUUID().toString()); // just a dummy form as first form so that it doesn't initialize our first form too soon, when solution is first shown (the test form will still get populated with design-time content at the beginning of tests)
 
 			form = solution.createNewForm(validator, null, "comp1Form", null, false, new Dimension(600, 400));
-			form.setNavigatorID(-1);
+			form.setNavigatorID("-1");
 			form.createNewPart(IBaseSMPart.BODY, 5);
 			form.createNewWebComponent("comp1", "component1");
 
 			form = solution.createNewForm(validator, null, "comp2Form", null, false, new Dimension(600, 400));
-			form.setNavigatorID(-1);
+			form.setNavigatorID("-1");
 			form.createNewPart(IBaseSMPart.BODY, 5);
 			form.createNewWebComponent("comp2", "component2");
 
 			form = solution.createNewForm(validator, null, "comp12Form", null, false, new Dimension(600, 400));
-			form.setNavigatorID(-1);
+			form.setNavigatorID("-1");
 			form.createNewPart(IBaseSMPart.BODY, 5);
 			form.createNewWebComponent("comp1", "component1");
 			form.createNewWebComponent("comp2", "component2");
 
 			form = solution.createNewForm(validator, null, "comp3Form", null, false, new Dimension(600, 400));
-			form.setNavigatorID(-1);
+			form.setNavigatorID("-1");
 			form.createNewPart(IBaseSMPart.BODY, 5);
 			form.createNewWebComponent("comp3", "component3");
 		}

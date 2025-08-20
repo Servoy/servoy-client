@@ -98,22 +98,6 @@ public class SolutionModelPersistIndex extends PersistIndex implements ISolution
 	}
 
 	@Override
-	public <T extends IPersist> T getPersistByID(int id, Class<T> persistClass)
-	{
-		T persist = null;
-		if (testIndex())
-		{
-			persist = super.getPersistByID(id, persistClass);
-		}
-		if (persist == null)
-		{
-			persist = index.getPersistByID(id, persistClass);
-		}
-		if (persist != null && isRemoved(persist)) return null;
-		return persist;
-	}
-
-	@Override
 	public <T extends IPersist> T getPersistByDatasource(String datasource, Class<T> persistClass, String name)
 	{
 		T persist = null;

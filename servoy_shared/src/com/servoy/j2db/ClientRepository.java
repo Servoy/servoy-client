@@ -104,12 +104,6 @@ public class ClientRepository implements IRepository, IDelegate<IRepository>
 		return repository.getServerProxies(metas);
 	}
 
-	public RootObjectMetaData getRootObjectMetaData(int rootObjectId) throws RepositoryException
-	{
-		if (repository == null) return null;
-		return repository.getRootObjectMetaData(rootObjectId);
-	}
-
 	public RootObjectMetaData getRootObjectMetaData(UUID uuid) throws RepositoryException
 	{
 		if (repository == null) return null;
@@ -134,10 +128,10 @@ public class ClientRepository implements IRepository, IDelegate<IRepository>
 		return repository.getRootObjectMetaDatasForType(objectTypeId);
 	}
 
-	public IRootObject getActiveRootObject(int id) throws RepositoryException
+	public IRootObject getActiveRootObject(UUID uuid) throws RepositoryException
 	{
 		if (repository == null) return null;
-		return updateRepository(repository.getActiveRootObject(id));
+		return updateRepository(repository.getActiveRootObject(uuid));
 	}
 
 	public IRootObject getActiveRootObject(String name, int objectTypeId) throws RepositoryException
@@ -146,10 +140,10 @@ public class ClientRepository implements IRepository, IDelegate<IRepository>
 		return updateRepository(repository.getActiveRootObject(name, objectTypeId));
 	}
 
-	public long[] getActiveRootObjectsLastModified(int[] rootObjectIds) throws RepositoryException
+	public long[] getActiveRootObjectsLastModified(UUID[] rootObjectUUIDs) throws RepositoryException
 	{
 		if (repository == null) return new long[0];
-		return repository.getActiveRootObjectsLastModified(rootObjectIds);
+		return repository.getActiveRootObjectsLastModified(rootObjectUUIDs);
 	}
 
 	public byte[] getMediaBlob(int blob_id) throws RepositoryException
@@ -158,10 +152,10 @@ public class ClientRepository implements IRepository, IDelegate<IRepository>
 		return repository.getMediaBlob(blob_id);
 	}
 
-	public List<RootObjectReference> getActiveSolutionModuleMetaDatas(int solutionId) throws RepositoryException
+	public List<RootObjectReference> getActiveSolutionModuleMetaDatas(UUID solutionUUID) throws RepositoryException
 	{
 		if (repository == null) return Collections.<RootObjectReference> emptyList();
-		return repository.getActiveSolutionModuleMetaDatas(solutionId);
+		return repository.getActiveSolutionModuleMetaDatas(solutionUUID);
 	}
 
 }

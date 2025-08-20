@@ -362,10 +362,10 @@ public class EditRecordList
 		{
 			IApplication application = fsm.getApplication();
 			Solution solution = application.getSolution();
-			int mid = solution.getOnAutoSaveFailedMethodID();
-			if (mid > 0)
+			String muuid = solution.getOnAutoSaveFailedMethodID();
+			if (muuid != null)
 			{
-				ScriptMethod sm = application.getFlattenedSolution().getScriptMethod(mid);
+				ScriptMethod sm = application.getFlattenedSolution().getScriptMethod(muuid);
 				if (sm != null)
 				{
 					// the validation failed in a none javascript stop (so this was an autosave failure)
@@ -387,7 +387,7 @@ public class EditRecordList
 				else
 				{
 					application
-						.reportJSWarning("Solution " + application.getSolutionName() + " onautosavefailed method not found for id " + mid);
+						.reportJSWarning("Solution " + application.getSolutionName() + " onautosavefailed method not found for uuid " + muuid);
 				}
 			}
 
@@ -980,7 +980,7 @@ public class EditRecordList
 					try
 					{
 						rowUpdateInfoRecord = rowUpdateInfo.getRecord();
-						TypedProperty<Integer> property;
+						TypedProperty<String> property;
 						switch (rowUpdateInfo.getISQLStatement().getAction())
 						{
 							case ISQLActionTypes.INSERT_ACTION :

@@ -62,9 +62,9 @@ public class Tab extends AbstractBase
 	/**
 	 * Constructor I
 	 */
-	Tab(ISupportChilds parent, int element_id, UUID uuid)
+	Tab(ISupportChilds parent, UUID uuid)
 	{
-		super(IRepository.TABS, parent, element_id, uuid);
+		super(IRepository.TABS, parent, uuid);
 	}
 
 	/*
@@ -84,7 +84,7 @@ public class Tab extends AbstractBase
 	{
 		if (arg != null)
 		{
-			validator.checkName(arg, getID(), new ValidatorSearchContext(getParent(), IRepository.TABS), false);
+			validator.checkName(arg, getUUID(), new ValidatorSearchContext(getParent(), IRepository.TABS), false);
 		}
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_NAME, arg);
 	}
@@ -119,7 +119,7 @@ public class Tab extends AbstractBase
 	 *
 	 * @param arg the containsFormID
 	 */
-	public void setContainsFormID(int arg)
+	public void setContainsFormID(String arg)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_CONTAINSFORMID, arg);
 	}
@@ -127,9 +127,9 @@ public class Tab extends AbstractBase
 	/**
 	 * @clonedesc com.servoy.base.solutionmodel.IBaseSMTab#getContainsForm()
 	 */
-	public int getContainsFormID()
+	public String getContainsFormID()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_CONTAINSFORMID).intValue();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_CONTAINSFORMID);
 	}
 
 	/**
@@ -177,7 +177,7 @@ public class Tab extends AbstractBase
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_TOOLTIPTEXT);
 	}
 
-	public void setImageMediaID(int arg)
+	public void setImageMediaID(String arg)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_IMAGEMEDIAID, arg);
 	}
@@ -185,9 +185,9 @@ public class Tab extends AbstractBase
 	/**
 	 * The name of the image Media file used.
 	 */
-	public int getImageMediaID()
+	public String getImageMediaID()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_IMAGEMEDIAID).intValue();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_IMAGEMEDIAID);
 	}
 
 
@@ -307,12 +307,12 @@ public class Tab extends AbstractBase
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_USENEWFORMINSTANCE, useNewFormInstance);
 	}
 
-	public int getExtendsID()
+	public String getExtendsID()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_EXTENDSID).intValue();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_EXTENDSID);
 	}
 
-	public void setExtendsID(int arg)
+	public void setExtendsID(String arg)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_EXTENDSID, arg);
 	}

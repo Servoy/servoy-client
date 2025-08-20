@@ -514,9 +514,9 @@ public class WebTabPanel extends Component implements ITabPanel, IDisplayRelated
 	/*
 	 * tab support----------------------------------------------------------------------------
 	 */
-	public void addTab(String text, int iconMediaId, IFormLookupPanel flp, String tip)
+	public void addTab(String text, String iconMediaUUID, IFormLookupPanel flp, String tip)
 	{
-		byte[] iconData = ComponentFactory.loadIcon(application.getFlattenedSolution(), new Integer(iconMediaId));
+		byte[] iconData = ComponentFactory.loadIcon(application.getFlattenedSolution(), iconMediaUUID);
 		insertTab(text, iconData, flp, tip, allTabs.size(), false);
 	}
 
@@ -563,19 +563,19 @@ public class WebTabPanel extends Component implements ITabPanel, IDisplayRelated
 		WebTabFormLookup flp = (WebTabFormLookup)createFormLookupPanel(tabname, relationName, formName);
 		if (formController != null) flp.setReadOnly(formController.isReadOnly());
 		FlattenedSolution fl = application.getFlattenedSolution();
-		int mediaId = -1;
+		String mediaUUID = null;
 		if (iconURL != null && !"".equals(iconURL))
 		{
 			Media media = fl.getMedia(iconURL.replaceAll("media:///", ""));
-			if (media != null) mediaId = media.getID();
-			if (mediaId == -1)
+			if (media != null) mediaUUID = media.getUUID().toString();
+			if (mediaUUID == null)
 			{
 				Debug.warn("Form '" + formController.getName() + "' with tabpanel  '" + this.name + "' has tabicon  for tab '" + tabname +
 					"'in with icon media url : " + iconURL + " not found");
 			}
 		}
 
-		byte[] iconData = (mediaId == -1 ? null : ComponentFactory.loadIcon(fl, new Integer(mediaId)));
+		byte[] iconData = (mediaUUID == null ? null : ComponentFactory.loadIcon(fl, mediaUUID));
 
 		int count = allTabs.size();
 		int tabIndex = idx;

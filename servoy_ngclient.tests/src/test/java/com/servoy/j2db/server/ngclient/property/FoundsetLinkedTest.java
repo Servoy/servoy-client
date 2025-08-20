@@ -82,12 +82,12 @@ public class FoundsetLinkedTest extends AbstractSolutionTest
 		try
 		{
 			Form form = solution.createNewForm(validator, null, "dummyForm", null, false, new Dimension(600, 400));
-			form.setNavigatorID(-1);
+			form.setNavigatorID("-1");
 			form.createNewPart(IBaseSMPart.BODY, 5);
-			solution.setFirstFormID(form.getID()); // just a dummy form as first form so that it doesn't initialize our first form too soon, when solution is first shown (the test form will still get populated with design-time content at the beginning of tests)
+			solution.setFirstFormID(form.getUUID().toString()); // just a dummy form as first form so that it doesn't initialize our first form too soon, when solution is first shown (the test form will still get populated with design-time content at the beginning of tests)
 
 			form = solution.createNewForm(validator, null, "test", "mem:test", false, new Dimension(600, 400));
-			form.setNavigatorID(-1);
+			form.setNavigatorID("-1");
 			form.createNewPart(IBaseSMPart.BODY, 5);
 			WebComponent bean = form.createNewWebComponent("mycustombean", "my-component");
 			bean.setProperty("myfoundsetWithAllow", new ServoyJSONObject("{foundsetSelector:'',dataproviders:{firstname:'test1',lastname:'test2'}}", false));

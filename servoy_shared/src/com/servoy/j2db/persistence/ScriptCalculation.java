@@ -38,9 +38,9 @@ public class ScriptCalculation extends AbstractScriptProvider implements IDataPr
 	/**
 	 * Constructor I
 	 */
-	ScriptCalculation(ISupportChilds parent, int element_id, UUID uuid)
+	ScriptCalculation(ISupportChilds parent, UUID uuid)
 	{
-		super(IRepository.SCRIPTCALCULATIONS, parent, element_id, uuid);
+		super(IRepository.SCRIPTCALCULATIONS, parent, uuid);
 	}
 
 	@Override

@@ -3684,10 +3684,10 @@ public class JSDatabaseManager implements IJSDatabaseManager
 			Table table = (Table)server.getTable(tableName);
 			if (table == null) return null;
 
-			int columnInfoID = table.getColumnInfoID(columnName);
-			if (columnInfoID == -1) return null;
+			UUID columnInfoUUID = table.getColumnInfoID(columnName);
+			if (columnInfoUUID == null) return null;
 
-			return application.getDataServer().getNextSequence(serverName, tableName, columnName, columnInfoID, serverName);
+			return application.getDataServer().getNextSequence(serverName, tableName, columnName, columnInfoUUID, serverName);
 		}
 		catch (Exception e)
 		{

@@ -42,14 +42,14 @@ public class Bean extends BaseComponent implements ISupportTabSeq, IBasicWebComp
 	/**
 	 * Constructor I
 	 */
-	protected Bean(ISupportChilds parent, int element_id, UUID uuid)
+	protected Bean(ISupportChilds parent, UUID uuid)
 	{
-		this(IRepository.BEANS, parent, element_id, uuid);
+		this(IRepository.BEANS, parent, uuid);
 	}
 
-	protected Bean(int type, ISupportChilds parent, int element_id, UUID uuid)
+	protected Bean(int type, ISupportChilds parent, UUID uuid)
 	{
-		super(type, parent, element_id, uuid);
+		super(type, parent, uuid);
 	}
 
 	/*
@@ -82,7 +82,7 @@ public class Bean extends BaseComponent implements ISupportTabSeq, IBasicWebComp
 	 *
 	 * @param arg the actionMethodID
 	 */
-	public void setOnActionMethodID(int arg)
+	public void setOnActionMethodID(String arg)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONACTIONMETHODID, arg);
 	}
@@ -92,9 +92,9 @@ public class Bean extends BaseComponent implements ISupportTabSeq, IBasicWebComp
 	 *
 	 * @return the method that is triggered when an onAction event occurs
 	 */
-	public int getOnActionMethodID()
+	public String getOnActionMethodID()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONACTIONMETHODID).intValue();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONACTIONMETHODID);
 	}
 
 	/**

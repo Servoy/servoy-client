@@ -136,7 +136,7 @@ public interface IRepository
 	 * Get all the defined server interfaces.
 	 *
 	 * @return String[] all the server names
-
+	
 	 * @throws RepositoryException
 	 */
 	public String[] getServerNames(boolean sort) throws RepositoryException;
@@ -146,7 +146,7 @@ public interface IRepository
 	 * <p>
 	 * <b>NOTE: NEVER call this method from client code, always use solution.getServer(name), databaseManager.switchServer() is based on this!<b>
 	 *
-
+	
 	 * @throws RepositoryException
 	 */
 	public IServer getServer(String name) throws RepositoryException;
@@ -154,7 +154,7 @@ public interface IRepository
 	/**
 	 * Get the names of the server that are valid for the name.
 	 *
-
+	
 	 * @throws RepositoryException
 	 */
 	public String[] getDuplicateServerNames(String name) throws RepositoryException;
@@ -166,7 +166,7 @@ public interface IRepository
 	 * @param release the solution release
 	 * @param alreadyKnownServerNames list of names which are already known and dont have to be returned (can be null)
 	 * @return the server proxies
-
+	
 	 * @throws RepositoryException
 	 */
 	public ConcurrentMap<String, IServer> getServerProxies(RootObjectMetaData[] metas) throws RepositoryException;
@@ -176,8 +176,6 @@ public interface IRepository
 	 *
 	 * @exclude
 	 */
-	public RootObjectMetaData getRootObjectMetaData(int rootObjectId) throws RepositoryException;
-
 	public RootObjectMetaData getRootObjectMetaData(UUID uuid) throws RepositoryException;
 
 	public RootObjectMetaData getRootObjectMetaData(String name, int objectTypeId) throws RepositoryException;
@@ -191,10 +189,10 @@ public interface IRepository
 	 *
 	 * @param id the id
 	 * @return Root object
-
+	
 	 * @throws RepositoryException
 	 */
-	public IRootObject getActiveRootObject(int id) throws RepositoryException;
+	public IRootObject getActiveRootObject(UUID uuid) throws RepositoryException;
 
 	public IRootObject getActiveRootObject(String name, int objectTypeId) throws RepositoryException;
 
@@ -203,10 +201,10 @@ public interface IRepository
 	 *
 	 * @param rootObjectIds the solution ids
 	 * @return the update seqences of the specified solution
-
+	
 	 * @throws RepositoryException
 	 */
-	public long[] getActiveRootObjectsLastModified(int[] rootObjectIds) throws RepositoryException;
+	public long[] getActiveRootObjectsLastModified(UUID[] rootObjectUUIDs) throws RepositoryException;
 
 	/**
 	 * FOR INTERNAL USE ONLY, DO NOT CALL. Should only be called from Media Object!
@@ -215,6 +213,6 @@ public interface IRepository
 	 */
 	public byte[] getMediaBlob(int blob_id) throws RepositoryException;
 
-	public List<RootObjectReference> getActiveSolutionModuleMetaDatas(int solutionId) throws RepositoryException;
+	public List<RootObjectReference> getActiveSolutionModuleMetaDatas(UUID solutionUUID) throws RepositoryException;
 
 }

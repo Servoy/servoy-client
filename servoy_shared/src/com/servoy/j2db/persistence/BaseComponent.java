@@ -44,9 +44,9 @@ public class BaseComponent extends AbstractBase
 	/**
 	 * Constructor I
 	 */
-	protected BaseComponent(int type, ISupportChilds parent, int element_id, UUID uuid)
+	protected BaseComponent(int type, ISupportChilds parent, UUID uuid)
 	{
-		super(type, parent, element_id, uuid);
+		super(type, parent, uuid);
 	}
 
 	/**
@@ -232,7 +232,7 @@ public class BaseComponent extends AbstractBase
 	{
 		if (arg != null)
 		{
-			validator.checkName(arg, getID(), new ValidatorSearchContext(getAncestor(IRepository.FORMS), IRepository.ELEMENTS), false);
+			validator.checkName(arg, getUUID(), new ValidatorSearchContext(getAncestor(IRepository.FORMS), IRepository.ELEMENTS), false);
 		}
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_NAME, arg);
 	}
@@ -374,12 +374,12 @@ public class BaseComponent extends AbstractBase
 		return isEventOrCommandProperty(propertyName) && !isCommandProperty(propertyName);
 	}
 
-	public int getExtendsID()
+	public String getExtendsID()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_EXTENDSID).intValue();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_EXTENDSID);
 	}
 
-	public void setExtendsID(int arg)
+	public void setExtendsID(String arg)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_EXTENDSID, arg);
 	}

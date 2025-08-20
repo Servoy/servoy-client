@@ -120,9 +120,9 @@ public class I18NUtil
 
 				QueryTable messagesTable = i18NTable.queryTable();
 				QueryColumn pkCol = pkColumn.queryColumn(messagesTable);
-				QueryColumn msgLang = new QueryColumn(messagesTable, -1, "message_language", Types.VARCHAR, 150, 0, null, 0);
-				QueryColumn msgKey = new QueryColumn(messagesTable, -1, "message_key", Types.VARCHAR, 150, 0, null, 0);
-				QueryColumn msgVal = new QueryColumn(messagesTable, -1, "message_value", Types.VARCHAR, 2000, 0, null, 0);
+				QueryColumn msgLang = new QueryColumn(messagesTable, "message_language", Types.VARCHAR, 150, 0, null, 0);
+				QueryColumn msgKey = new QueryColumn(messagesTable, "message_key", Types.VARCHAR, 150, 0, null, 0);
+				QueryColumn msgVal = new QueryColumn(messagesTable, "message_value", Types.VARCHAR, 2000, 0, null, 0);
 
 				ArrayList<SQLStatement> updateStatements = new ArrayList<SQLStatement>();
 				// go thorough messages, update exiting, add news to remote
@@ -155,7 +155,7 @@ public class I18NUtil
 						Object[] insertColumnValues = null;
 						if (logIdIsServoyManaged)
 						{
-							Object messageId = dataServer.getNextSequence(i18NServerName, i18NTableName, pkColumn.getName(), -1, i18NServerName);
+							Object messageId = dataServer.getNextSequence(i18NServerName, i18NTableName, pkColumn.getName(), null, i18NServerName);
 							if (lang == null)
 							{
 								insertColumns = new QueryColumn[] { pkCol, msgKey, msgVal };
@@ -289,9 +289,9 @@ public class I18NUtil
 				QueryTable messagesTable = i18NTable.queryTable();
 				QuerySelect sql = new QuerySelect(messagesTable);
 
-				QueryColumn msgLang = new QueryColumn(messagesTable, -1, "message_language", Types.VARCHAR, 150, 0, null, 0);
-				QueryColumn msgKey = new QueryColumn(messagesTable, -1, "message_key", Types.VARCHAR, 150, 0, null, 0);
-				QueryColumn msgVal = new QueryColumn(messagesTable, -1, "message_value", Types.VARCHAR, 2000, 0, null, 0);
+				QueryColumn msgLang = new QueryColumn(messagesTable, "message_language", Types.VARCHAR, 150, 0, null, 0);
+				QueryColumn msgKey = new QueryColumn(messagesTable, "message_key", Types.VARCHAR, 150, 0, null, 0);
+				QueryColumn msgVal = new QueryColumn(messagesTable, "message_value", Types.VARCHAR, 2000, 0, null, 0);
 
 				sql.addColumn(msgLang);
 				sql.addColumn(msgKey);

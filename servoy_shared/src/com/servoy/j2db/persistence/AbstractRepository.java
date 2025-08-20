@@ -133,7 +133,7 @@ public abstract class AbstractRepository extends AbstractPersistFactory implemen
 		return RepositoryHelper.getGettersViaIntrospection(obj);
 	}
 
-	public IPersist createNewPersistInSolution(Solution solution, UUID parentUUID, int typeID, int id, UUID uuid, Map<String, Object> values)
+	public IPersist createNewPersistInSolution(Solution solution, UUID parentUUID, int typeID, UUID uuid, Map<String, Object> values)
 		throws RepositoryException
 	{
 		IPersist parent = searchPersist(solution, parentUUID);
@@ -153,7 +153,7 @@ public abstract class AbstractRepository extends AbstractPersistFactory implemen
 			}
 			if (persist == null)
 			{
-				persist = solution.getChangeHandler().createNewObject((ISupportChilds)parent, typeID, id, uuid);
+				persist = solution.getChangeHandler().createNewObject((ISupportChilds)parent, typeID, uuid);
 				((ISupportChilds)parent).addChild(persist);
 			}
 			updatePersistWithValueMap(persist, values, false);
@@ -264,7 +264,7 @@ public abstract class AbstractRepository extends AbstractPersistFactory implemen
 	 */
 	public Solution createSolutionCopy(Solution solution) throws RepositoryException
 	{
-		Solution solutionCopy = (Solution)createObject(null, solution.getTypeID(), solution.getID(), solution.getUUID());
+		Solution solutionCopy = (Solution)createObject(null, solution.getTypeID(), solution.getUUID());
 		solutionCopy.setChangeHandler(new ChangeHandler(this));
 
 		Map<String, Object> values = getPersistAsValueMap(solution);
@@ -300,7 +300,7 @@ public abstract class AbstractRepository extends AbstractPersistFactory implemen
 				// this should never happen, don't know how to fix this one
 				throw new RepositoryException("Could not update editing solution, please refresh the solution"); //$NON-NLS-1$
 			}
-			destPersist = createObject((ISupportChilds)destParent, persist.getTypeID(), persist.getID(), persist.getUUID());
+			destPersist = createObject((ISupportChilds)destParent, persist.getTypeID(), persist.getUUID());
 			((ISupportChilds)destParent).addChild(destPersist);
 		}
 
@@ -392,20 +392,20 @@ public abstract class AbstractRepository extends AbstractPersistFactory implemen
 		getRootObjectCache().flush();
 	}
 
-	public void flushRootObject(int rootObjectId) throws RepositoryException
+	public void flushRootObject(UUID rootObjectUUID) throws RepositoryException
 	{
-		getRootObjectCache().flushRootObject(rootObjectId);
+		getRootObjectCache().flushRootObject(rootObjectUUID);
 	}
 
-	public void flushRootObjectRelease(int rootObjectId, int release) throws RepositoryException
+	public void flushRootObjectRelease(UUID rootObjectUUID, int release) throws RepositoryException
 	{
-		getRootObjectCache().flushRootObjectRelease(rootObjectId, release);
+		getRootObjectCache().flushRootObjectRelease(rootObjectUUID, release);
 	}
 
-	public void removeRootObject(int rootObjectId) throws RepositoryException
+	public void removeRootObject(UUID rootObjectUUID) throws RepositoryException
 	{
 		// Delete solution from cache...
-		getRootObjectCache().removeRootObject(rootObjectId);
+		getRootObjectCache().removeRootObject(rootObjectUUID);
 	}
 
 	public List<IRootObject> getActiveRootObjects(int objectTypeId) throws RepositoryException
@@ -416,7 +416,7 @@ public abstract class AbstractRepository extends AbstractPersistFactory implemen
 			List<IRootObject> rootObjects = new ArrayList<IRootObject>(metadatas.length);
 			for (RootObjectMetaData element : metadatas)
 			{
-				rootObjects.add(getRootObject(element.getRootObjectId(), element.getActiveRelease()));
+				rootObjects.add(getRootObject(element.getRootObjectUuid(), element.getActiveRelease()));
 			}
 			return rootObjects;
 		}
@@ -452,17 +452,12 @@ public abstract class AbstractRepository extends AbstractPersistFactory implemen
 
 	public RootObjectMetaData getRootObjectMetaData(UUID uuid) throws RepositoryException
 	{
-		return getRootObjectCache().getRootObjectMetaData(getElementIdForUUID(uuid));
+		return getRootObjectCache().getRootObjectMetaData(uuid);
 	}
 
-	public RootObjectMetaData getRootObjectMetaData(int rootObjectId) throws RepositoryException
+	public IRootObject getRootObject(UUID rootObjectUUID, int release) throws RepositoryException
 	{
-		return getRootObjectCache().getRootObjectMetaData(rootObjectId);
-	}
-
-	public IRootObject getRootObject(int rootObjectId, int release) throws RepositoryException
-	{
-		return getRootObjectCache().getRootObject(rootObjectId, release);
+		return getRootObjectCache().getRootObject(rootObjectUUID, release);
 	}
 
 	public IRootObject getRootObject(String name, int objectTypeId, int release) throws RepositoryException
@@ -470,9 +465,9 @@ public abstract class AbstractRepository extends AbstractPersistFactory implemen
 		return getRootObjectCache().getRootObject(name, objectTypeId, release);
 	}
 
-	public IRootObject getActiveRootObject(int rootObjectId) throws RepositoryException
+	public IRootObject getActiveRootObject(UUID rootObjectUUID) throws RepositoryException
 	{
-		return getRootObjectCache().getActiveRootObject(rootObjectId);
+		return getRootObjectCache().getActiveRootObject(rootObjectUUID);
 	}
 
 	public IRootObject getActiveRootObject(String name, int objectTypeId) throws RepositoryException
@@ -480,9 +475,9 @@ public abstract class AbstractRepository extends AbstractPersistFactory implemen
 		return getRootObjectCache().getActiveRootObject(name, objectTypeId);
 	}
 
-	public IRootObject getLatestRootObject(int rootObjectId) throws RepositoryException
+	public IRootObject getLatestRootObject(UUID rootObjectUUID) throws RepositoryException
 	{
-		RootObjectMetaData metadata = getRootObjectCache().getRootObjectMetaData(rootObjectId);
+		RootObjectMetaData metadata = getRootObjectCache().getRootObjectMetaData(rootObjectUUID);
 		if (metadata == null)
 		{
 			try
@@ -490,20 +485,20 @@ public abstract class AbstractRepository extends AbstractPersistFactory implemen
 				for (RootObjectMetaData element : loadRootObjectMetaDatas())
 				{
 					metadata = element;
-					if (metadata.getRootObjectId() == rootObjectId)
+					if (metadata.getRootObjectUuid().equals(rootObjectUUID))
 					{
 						getRootObjectCache().add(metadata, false);
-						return getRootObject(rootObjectId, metadata.getLatestRelease());
+						return getRootObject(rootObjectUUID, metadata.getLatestRelease());
 					}
 				}
 			}
 			catch (Exception e)
 			{
-				Debug.error("Error loading new MetaData for rootobjectid: " + rootObjectId, e); //$NON-NLS-1$
+				Debug.error("Error loading new MetaData for rootobjectuuid: " + rootObjectUUID, e); //$NON-NLS-1$
 			}
 			return null;
 		}
-		return getRootObject(rootObjectId, metadata.getLatestRelease());
+		return getRootObject(rootObjectUUID, metadata.getLatestRelease());
 	}
 
 	protected abstract Collection<RootObjectMetaData> loadRootObjectMetaDatas() throws Exception;
@@ -539,9 +534,9 @@ public abstract class AbstractRepository extends AbstractPersistFactory implemen
 	 * @see com.servoy.j2db.persistence.AbstractPersistFactory#createRootObject(int)
 	 */
 	@Override
-	protected IPersist createRootObject(int elementId) throws RepositoryException
+	protected IPersist createRootObject(UUID rootObjectUUID) throws RepositoryException
 	{
-		RootObjectMetaData rootObjectMetaData = getRootObjectMetaData(elementId);
+		RootObjectMetaData rootObjectMetaData = getRootObjectMetaData(rootObjectUUID);
 		return createRootObject(rootObjectMetaData);
 
 	}
@@ -579,7 +574,7 @@ public abstract class AbstractRepository extends AbstractPersistFactory implemen
 	public IRootObject createNewRootObject(String name, int objectTypeId) throws RepositoryException
 	{
 		UUID uuid = UUID.randomUUID();
-		IRootObject rootObject = createNewRootObject(name, objectTypeId, getNewElementID(uuid), uuid);
+		IRootObject rootObject = createNewRootObject(name, objectTypeId, uuid);
 		// Put the root object in the cache.
 		return rootObject;
 	}
@@ -635,7 +630,7 @@ public abstract class AbstractRepository extends AbstractPersistFactory implemen
 		}
 	}
 
-	public abstract IRootObject createNewRootObject(String name, int objectTypeId, int newElementID, UUID uuid) throws RepositoryException;
+	public abstract IRootObject createNewRootObject(String name, int objectTypeId, UUID uuid) throws RepositoryException;
 
 	public abstract void restoreObjectToCurrentRelease(IPersist persist) throws RepositoryException;
 
@@ -703,34 +698,34 @@ public abstract class AbstractRepository extends AbstractPersistFactory implemen
 		ConcurrentMap<String, IServer> retval = new ConcurrentHashMap<String, IServer>();
 		for (RootObjectMetaData element : metas)
 		{
-			Solution s = (Solution)getRootObject(element.getRootObjectId(), element.getActiveRelease());
+			Solution s = (Solution)getRootObject(element.getRootObjectUuid(), element.getActiveRelease());
 			Map<String, IServer> sps = s.getServerProxies();
 			retval.putAll(sps);
 		}
 		return retval;
 	}
 
-	public List<RootObjectReference> getActiveSolutionModuleMetaDatas(int solutionId) throws RepositoryException
+	public List<RootObjectReference> getActiveSolutionModuleMetaDatas(UUID solutionUUID) throws RepositoryException
 	{
-		return repositoryHelper.getActiveSolutionModuleMetaDatas(solutionId);
+		return repositoryHelper.getActiveSolutionModuleMetaDatas(solutionUUID);
 	}
 
-	public RootObjectMetaData createRootObjectMetaData(int rootObjectId, UUID rootObjectUuid, String name, int objectTypeId, int activeRelease,
+	public RootObjectMetaData createRootObjectMetaData(UUID rootObjectUuid, String name, int objectTypeId, int activeRelease,
 		int latestRelease)
 	{
 		switch (objectTypeId)
 		{
 			case IRepository.SOLUTIONS :
-				return new SolutionMetaData(rootObjectId, rootObjectUuid, name, objectTypeId, activeRelease, latestRelease);
+				return new SolutionMetaData(rootObjectUuid, name, objectTypeId, activeRelease, latestRelease);
 			default :
-				return new RootObjectMetaData(rootObjectId, rootObjectUuid, name, objectTypeId, activeRelease, latestRelease);
+				return new RootObjectMetaData(rootObjectUuid, name, objectTypeId, activeRelease, latestRelease);
 		}
 	}
 
-	public RootObjectMetaData createNewRootObjectMetaData(int rootObjectId, UUID rootObjectUuid, String name, int objectTypeId, int activeRelease,
+	public RootObjectMetaData createNewRootObjectMetaData(UUID rootObjectUuid, String name, int objectTypeId, int activeRelease,
 		int latestRelease) throws RepositoryException
 	{
-		RootObjectMetaData romd = createRootObjectMetaData(rootObjectId, rootObjectUuid, name, objectTypeId, activeRelease, latestRelease);
+		RootObjectMetaData romd = createRootObjectMetaData(rootObjectUuid, name, objectTypeId, activeRelease, latestRelease);
 		getRootObjectCache().add(romd, false);
 		return romd;
 	}

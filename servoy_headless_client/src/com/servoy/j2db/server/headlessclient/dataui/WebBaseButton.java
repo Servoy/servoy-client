@@ -174,7 +174,7 @@ public abstract class WebBaseButton extends Component
 	/**
 	 * @see com.servoy.j2db.ui.ILabel#setRolloverIcon(byte[])
 	 */
-	public void setRolloverIcon(int rollOverId)
+	public void setRolloverIcon(String rollOverUUID)
 	{
 	}
 
@@ -187,16 +187,16 @@ public abstract class WebBaseButton extends Component
 	}
 
 
-	public int getMediaIcon()
+	public String getMediaIcon()
 	{
-		return media == null ? 0 : media.getID();
+		return media == null ? null : media.getUUID().toString();
 	}
 
-	public void setMediaIcon(int iconId)
+	public void setMediaIcon(String iconUUID)
 	{
 		this.icon = null;
 		this.iconUrl = null;
-		if ((media = application.getFlattenedSolution().getMedia(iconId)) != null)
+		if ((media = application.getFlattenedSolution().getMedia(iconUUID)) != null)
 		{
 			text_url = MediaURLStreamHandler.MEDIA_URL_DEF + media.getName();
 		}
@@ -334,7 +334,7 @@ public abstract class WebBaseButton extends Component
 					Media m = application.getFlattenedSolution().getMedia(mediaName);
 					if (m != null)
 					{
-						setMediaIcon(m.getID());
+						setMediaIcon(m.getUUID().toString());
 					}
 					else if (mediaName.startsWith(MediaURLStreamHandler.MEDIA_URL_BLOBLOADER))
 					{
@@ -374,7 +374,7 @@ public abstract class WebBaseButton extends Component
 				Media m = application.getFlattenedSolution().getMedia(nm);
 				if (m != null)
 				{
-					setRolloverIcon(m.getID());
+					setRolloverIcon(m.getUUID().toString());
 				}
 			}
 		}
@@ -383,7 +383,8 @@ public abstract class WebBaseButton extends Component
 
 	public byte[] getThumbnailJPGImage(int width, int height)
 	{
-		return WebBaseLabel.getThumbnailJPGImage(width, height, icon, text_url, media != null ? media.getID() : 0, (mediaOptions & 8) == 8, application);
+		return WebBaseLabel.getThumbnailJPGImage(width, height, icon, text_url, media != null ? media.getUUID().toString() : null, (mediaOptions & 8) == 8,
+			application);
 	}
 
 	/*

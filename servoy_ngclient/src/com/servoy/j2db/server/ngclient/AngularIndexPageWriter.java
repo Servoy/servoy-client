@@ -57,6 +57,7 @@ import com.servoy.j2db.server.shared.IApplicationServer;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.Settings;
+import com.servoy.j2db.util.UUID;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
@@ -378,13 +379,13 @@ public class AngularIndexPageWriter
 	public static String getSolutionDefaultMessage(Solution solution, Locale locale, String key)
 	{
 		// removed the cache, if this gets called more often we may add it again
-		return getSolutionDefaultMessageNotCached(solution.getID(), locale, key);
+		return getSolutionDefaultMessageNotCached(solution.getUUID(), locale, key);
 	}
 
-	public static String getSolutionDefaultMessageNotCached(int solutionId, Locale locale, String key)
+	public static String getSolutionDefaultMessageNotCached(UUID solutionUUID, Locale locale, String key)
 	{
 		MessagesResourceBundle messagesResourceBundle = new MessagesResourceBundle(null /* application */, locale == null ? Locale.ENGLISH : locale,
-			null /* columnNameFilter */, null /* columnValueFilter */, solutionId);
+			null /* columnNameFilter */, null /* columnValueFilter */, solutionUUID);
 		return messagesResourceBundle.getString(key);
 	}
 

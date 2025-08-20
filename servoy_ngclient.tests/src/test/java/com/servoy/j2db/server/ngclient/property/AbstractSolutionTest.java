@@ -262,7 +262,7 @@ public abstract class AbstractSolutionTest extends Log4JToConsoleTest
 	protected IValidateName validator = new IValidateName()
 	{
 		@Override
-		public void checkName(String nameToCheck, int skip_element_id, ValidatorSearchContext searchContext, boolean sqlRelated) throws RepositoryException
+		public void checkName(String nameToCheck, UUID skip_element_uuid, ValidatorSearchContext searchContext, boolean sqlRelated) throws RepositoryException
 		{
 		}
 	};
@@ -453,7 +453,7 @@ public abstract class AbstractSolutionTest extends Log4JToConsoleTest
 		{
 			ApplicationServerRegistry.setApplicationServerSingleton(new TestApplicationServer(tr));
 			UUID uuid = UUID.randomUUID();
-			final RootObjectMetaData metadata = tr.createRootObjectMetaData(tr.getElementIdForUUID(uuid), uuid, "Test", IRepository.SOLUTIONS, 1, 1);
+			final RootObjectMetaData metadata = tr.createRootObjectMetaData(uuid, "Test", IRepository.SOLUTIONS, 1, 1);
 
 			solution = (Solution)tr.createRootObject(metadata);
 			tr.cacheRootObject(solution);

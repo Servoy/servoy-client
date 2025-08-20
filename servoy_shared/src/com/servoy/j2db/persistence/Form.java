@@ -21,8 +21,10 @@ import java.awt.Dimension;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import com.servoy.base.persistence.constants.IFormConstants;
@@ -30,7 +32,6 @@ import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.base.util.DataSourceUtilsBase;
 import com.servoy.j2db.IForm;
 import com.servoy.j2db.util.DataSourceUtils;
-import com.servoy.j2db.util.IntHashMap;
 import com.servoy.j2db.util.SortedList;
 import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
@@ -51,17 +52,17 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	/**
 	 * @sameas getNavigatorID()
 	 */
-	public static final int NAVIGATOR_DEFAULT = IFormConstants.DEFAULT;
+	public static final String NAVIGATOR_DEFAULT = null;
 
 	/**
 	 * @sameas getNavigatorID()
 	 */
-	public static final int NAVIGATOR_NONE = IFormConstants.NAVIGATOR_NONE;
+	public static final String NAVIGATOR_NONE = "" + IFormConstants.NAVIGATOR_NONE;
 
 	/**
 	 * @sameas getNavigatorID()
 	 */
-	public static final int NAVIGATOR_IGNORE = IFormConstants.NAVIGATOR_IGNORE;
+	public static final String NAVIGATOR_IGNORE = "" + IFormConstants.NAVIGATOR_IGNORE;
 
 	/**
 	 * @clonedesc com.servoy.j2db.solutionmodel.ISMForm#EMPTY_FOUNDSET
@@ -99,9 +100,9 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	/**
 	 * Constructor I
 	 */
-	protected Form(ISupportChilds parent, int element_id, UUID uuid)
+	protected Form(ISupportChilds parent, UUID uuid)
 	{
-		super(IRepository.FORMS, parent, element_id, uuid);
+		super(IRepository.FORMS, parent, uuid);
 	}
 
 	/*
@@ -177,7 +178,8 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 					boolean overriden = false;
 					for (Part part : parts)
 					{
-						if (part.getExtendsID() > 0 && (parentPart.getID() == part.getExtendsID() || parentPart.getExtendsID() == part.getExtendsID()))
+						if (part.getExtendsID() != null &&
+							(parentPart.getUUID().toString().equals(part.getExtendsID()) || Utils.equalObjects(parentPart.getExtendsID(), part.getExtendsID())))
 						{
 							overriden = true;
 							break;
@@ -465,9 +467,9 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 * The navigator is a form that usually handles navigation in application. It is displayed on left side of the screen. Can also have value SM_DEFAULTS.NONE (no navigator) or SM_DEFAULTS.IGNORE (reuse current form navigator).
 	 */
 	@ServoyClientSupport(mc = true, wc = true, sc = true)
-	public int getNavigatorID()
+	public String getNavigatorID()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_NAVIGATORID).intValue();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_NAVIGATORID);
 	}
 
 	/**
@@ -475,9 +477,9 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 *
 	 * @param arg
 	 */
-	public void setNavigatorID(int arg)
+	public void setNavigatorID(String uuid)
 	{
-		setTypedProperty(StaticContentSpecLoader.PROPERTY_NAVIGATORID, arg);
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_NAVIGATORID, uuid);
 	}
 
 
@@ -487,7 +489,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 * @deprecated replaced by the extends property
 	 */
 	@Deprecated
-	public int getExtendsFormID()
+	public String getExtendsFormID()
 	{
 		return getExtendsID();
 	}
@@ -498,16 +500,16 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 * @param arg the selected parent
 	 */
 	@Deprecated
-	public void setExtendsFormID(int arg)
+	public void setExtendsFormID(String arg)
 	{
 		setExtendsID(arg);
 	}
 
 	@Override
-	public void setExtendsID(int arg)
+	public void setExtendsID(String arg)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_EXTENDSID, arg);
-		if (arg <= 0 && !isResponsiveLayout() && !hasPart(Part.BODY) && !hasPart(0))
+		if (arg == null && !isResponsiveLayout() && !hasPart(Part.BODY) && !hasPart(0))
 		{
 			//when extends form property is set to -none-
 			//we copy the body part from the parent
@@ -531,10 +533,10 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 			{
 				Part clonedBody = (Part)body.clonePersist(this);
 				clonedBody.resetUUID();
-				clonedBody.setExtendsID(0);
+				clonedBody.setExtendsID(null);
 			}
 		}
-		if ((extendsForm == null ? arg > 0 : extendsForm.getID() != arg) && getRootObject().getChangeHandler() != null)
+		if ((extendsForm == null ? arg != null : !extendsForm.getUUID().toString().equals(arg)) && getRootObject().getChangeHandler() != null)
 		{
 			// fire event to update parent form reference
 			getRootObject().getChangeHandler().fireIPersistChanged(this);
@@ -619,10 +621,10 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	/**
 	 * Get a part start position.
 	 *
-	 * @param partElementId the part element_id
+	 * @param partElementId the part element uuid
 	 * @return the position
 	 */
-	public int getPartStartYPos(int partElementId)
+	public int getPartStartYPos(String partElementUUID)
 	{
 		int totalHeight = 0;
 		//check if parts should be changed
@@ -631,7 +633,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 		while (it.hasNext())
 		{
 			Part p = it.next();
-			if (p.getID() == partElementId)
+			if (p.getUUID().toString().equalsIgnoreCase(partElementUUID))
 			{
 				break;
 			}
@@ -647,7 +649,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 * @param partElementId the part element_id
 	 * @return the position
 	 */
-	public int getPartEndYPos(int partElementId)
+	public int getPartEndYPos(String partElementId)
 	{
 		int totalHeight = 50000;
 		//check if parts should be changed
@@ -656,7 +658,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 		while (it.hasNext())
 		{
 			Part p = it.next();
-			if (p.getID() == partElementId)
+			if (p.getUUID().toString().equals(partElementId))
 			{
 				totalHeight = p.getHeight();
 			}
@@ -719,7 +721,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 		while (gcs.hasNext())
 		{
 			GraphicalComponent gc = gcs.next();
-			if (gc.getOnActionMethodID() != 0)
+			if (gc.getOnActionMethodID() != null)
 			{
 				sl.add(gc);
 			}
@@ -826,7 +828,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 			throw new RepositoryException("unknow variable type: " + variableType); //$NON-NLS-1$
 		}
 		//check if name is in use
-		validator.checkName(name, 0, new ValidatorSearchContext(this, IRepository.SCRIPTVARIABLES), false);
+		validator.checkName(name, null, new ValidatorSearchContext(this, IRepository.SCRIPTVARIABLES), false);
 		ScriptVariable obj = (ScriptVariable)getSolution().getChangeHandler().createNewObject(this, IRepository.SCRIPTVARIABLES);
 		//set all the required properties
 
@@ -856,17 +858,6 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	}
 
 	/**
-	 * Get a script method by id.
-	 *
-	 * @param id the id of the script method to get
-	 * @return the script method
-	 */
-	public ScriptMethod getScriptMethod(int id)
-	{
-		return selectById(getScriptMethods(false), id);
-	}
-
-	/**
 	 * Get a script method by name.
 	 *
 	 * @param name the name of the script method to get
@@ -888,7 +879,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	{
 		String name = nm == null ? "untitled" : nm; //$NON-NLS-1$
 		ValidatorSearchContext ft = new ValidatorSearchContext(this, IRepository.METHODS);
-		validator.checkName(name, 0, ft, false);
+		validator.checkName(name, null, ft, false);
 		ScriptMethod obj = (ScriptMethod)getRootObject().getChangeHandler().createNewObject(this, IRepository.METHODS);
 		//set all the required properties
 
@@ -1042,9 +1033,9 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 * @templateaddtodo
 	 */
 	@ServoyClientSupport(mc = true, wc = true, sc = true)
-	public int getOnLoadMethodID()
+	public String getOnLoadMethodID()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONLOADMETHODID).intValue();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONLOADMETHODID);
 	}
 
 	/**
@@ -1052,9 +1043,9 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 *
 	 * @param arg the onLoadMethodID to set
 	 */
-	public void setOnLoadMethodID(int arg)
+	public void setOnLoadMethodID(String uuid)
 	{
-		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONLOADMETHODID, arg);
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONLOADMETHODID, uuid);
 	}
 
 	/**
@@ -1082,9 +1073,9 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 * @templateparam JSEvent event the event that triggered the action
 	 * @templateaddtodo
 	 */
-	public int getOnUnLoadMethodID()
+	public String getOnUnLoadMethodID()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONUNLOADMETHODID).intValue();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONUNLOADMETHODID);
 	}
 
 	/**
@@ -1092,9 +1083,9 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 *
 	 * @param arg the onLoadMethodID to set
 	 */
-	public void setOnUnLoadMethodID(int arg)
+	public void setOnUnLoadMethodID(String uuid)
 	{
-		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONUNLOADMETHODID, arg);
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONUNLOADMETHODID, uuid);
 	}
 
 	/**
@@ -1139,9 +1130,9 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 *
 	 */
 	@ServoyClientSupport(mc = true, wc = true, sc = true)
-	public int getOnHideMethodID()
+	public String getOnHideMethodID()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONHIDEMETHODID).intValue();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONHIDEMETHODID);
 	}
 
 	/**
@@ -1182,9 +1173,9 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 * return true
 	 */
 	@ServoyClientSupport(mc = false, wc = false, sc = false, ng = true)
-	public int getOnBeforeHideMethodID()
+	public String getOnBeforeHideMethodID()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONBEFOREHIDEMETHODID).intValue();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONBEFOREHIDEMETHODID);
 	}
 
 	/**
@@ -1219,9 +1210,9 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 * @templatecode
 	 * return true
 	 */
-	public int getOnRecordEditStopMethodID()
+	public String getOnRecordEditStopMethodID()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONRECORDEDITSTOPMETHODID).intValue();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONRECORDEDITSTOPMETHODID);
 	}
 
 	/**
@@ -1248,9 +1239,9 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 * @templateaddtodo
 	 */
 	@ServoyClientSupport(mc = true, wc = true, sc = true)
-	public int getOnRecordSelectionMethodID()
+	public String getOnRecordSelectionMethodID()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONRECORDSELECTIONMETHODID).intValue();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONRECORDSELECTIONMETHODID);
 	}
 
 	/**
@@ -1280,9 +1271,9 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 * return true
 	 */
 	@ServoyClientSupport(mc = true, wc = true, sc = true)
-	public int getOnBeforeRecordSelectionMethodID()
+	public String getOnBeforeRecordSelectionMethodID()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONBEFORERECORDSELECTIONMETHODID).intValue();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONBEFORERECORDSELECTIONMETHODID);
 	}
 
 	/**
@@ -1311,9 +1302,9 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 * @templateaddtodo
 	 */
 	@ServoyClientSupport(mc = true, wc = true, sc = true)
-	public int getOnShowMethodID()
+	public String getOnShowMethodID()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONSHOWMETHODID).intValue();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONSHOWMETHODID);
 	}
 
 	/**
@@ -1351,7 +1342,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 *
 	 * @param arg The onHideMethodID to set
 	 */
-	public void setOnHideMethodID(int arg)
+	public void setOnHideMethodID(String arg)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONHIDEMETHODID, arg);
 	}
@@ -1361,7 +1352,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 *
 	 * @param arg The onHideMethodID to set
 	 */
-	public void setOnBeforeHideMethodID(int arg)
+	public void setOnBeforeHideMethodID(String arg)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONBEFOREHIDEMETHODID, arg);
 	}
@@ -1371,7 +1362,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 *
 	 * @param arg The onRecordSaveMethodID to set
 	 */
-	public void setOnRecordEditStopMethodID(int arg)
+	public void setOnRecordEditStopMethodID(String arg)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONRECORDEDITSTOPMETHODID, arg);
 	}
@@ -1381,7 +1372,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 *
 	 * @param arg The onRecordShowMethodID to set
 	 */
-	public void setOnRecordSelectionMethodID(int arg)
+	public void setOnRecordSelectionMethodID(String arg)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONRECORDSELECTIONMETHODID, arg);
 	}
@@ -1391,7 +1382,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 *
 	 * @param arg The onBeforeRecordSelectionMethodID to set
 	 */
-	public void setOnBeforeRecordSelectionMethodID(int arg)
+	public void setOnBeforeRecordSelectionMethodID(String arg)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONBEFORERECORDSELECTIONMETHODID, arg);
 	}
@@ -1401,7 +1392,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 *
 	 * @param arg The onShowMethodID to set
 	 */
-	public void setOnShowMethodID(int arg)
+	public void setOnShowMethodID(String arg)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONSHOWMETHODID, arg);
 	}
@@ -1434,9 +1425,9 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 * @templatecode
 	 * return true
 	 */
-	public int getOnRecordEditStartMethodID()
+	public String getOnRecordEditStartMethodID()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONRECORDEDITSTARTMETHODID).intValue();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONRECORDEDITSTARTMETHODID);
 	}
 
 	/**
@@ -1444,7 +1435,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 *
 	 * @param arg The onRecordEditStart to set
 	 */
-	public void setOnRecordEditStartMethodID(int arg)
+	public void setOnRecordEditStartMethodID(String arg)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONRECORDEDITSTARTMETHODID, arg);
 	}
@@ -1461,9 +1452,9 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 * controller.deleteRecord()
 	 */
 	@ServoyClientSupport(ng = false, wc = false, sc = true)
-	public int getOnDeleteRecordCmdMethodID()
+	public String getOnDeleteRecordCmdMethodID()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONDELETERECORDCMDMETHODID).intValue();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONDELETERECORDCMDMETHODID);
 	}
 
 	/**
@@ -1478,9 +1469,9 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 * controller.duplicateRecord(true)
 	 */
 	@ServoyClientSupport(ng = false, wc = false, sc = true)
-	public int getOnDuplicateRecordCmdMethodID()
+	public String getOnDuplicateRecordCmdMethodID()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONDUPLICATERECORDCMDMETHODID).intValue();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONDUPLICATERECORDCMDMETHODID);
 	}
 
 	/**
@@ -1495,9 +1486,9 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 * controller.find()
 	 */
 	@ServoyClientSupport(ng = false, wc = false, sc = true)
-	public int getOnFindCmdMethodID()
+	public String getOnFindCmdMethodID()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONFINDCMDMETHODID).intValue();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONFINDCMDMETHODID);
 	}
 
 	/**
@@ -1514,9 +1505,9 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 * controller.search(clear, reduce)
 	 */
 	@ServoyClientSupport(ng = false, wc = false, sc = true)
-	public int getOnSearchCmdMethodID()
+	public String getOnSearchCmdMethodID()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONSEARCHCMDMETHODID).intValue();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONSEARCHCMDMETHODID);
 	}
 
 
@@ -1532,9 +1523,9 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 * controller.invertRecords()
 	 */
 	@ServoyClientSupport(ng = false, wc = false, sc = true)
-	public int getOnInvertRecordsCmdMethodID()
+	public String getOnInvertRecordsCmdMethodID()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONINVERTRECORDSCMDMETHODID).intValue();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONINVERTRECORDSCMDMETHODID);
 	}
 
 	/**
@@ -1549,9 +1540,9 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 * controller.newRecord(true)
 	 */
 	@ServoyClientSupport(ng = false, wc = false, sc = true)
-	public int getOnNewRecordCmdMethodID()
+	public String getOnNewRecordCmdMethodID()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONNEWRECORDCMDMETHODID).intValue();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONNEWRECORDCMDMETHODID);
 	}
 
 	/**
@@ -1566,9 +1557,9 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 * controller.omitRecord()
 	 */
 	@ServoyClientSupport(ng = false, wc = false, sc = true)
-	public int getOnOmitRecordCmdMethodID()
+	public String getOnOmitRecordCmdMethodID()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONOMITRECORDCMDMETHODID).intValue();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONOMITRECORDCMDMETHODID);
 	}
 
 	/**
@@ -1583,9 +1574,9 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 * controller.loadAllRecords()
 	 */
 	@ServoyClientSupport(ng = false, wc = false, sc = true)
-	public int getOnShowAllRecordsCmdMethodID()
+	public String getOnShowAllRecordsCmdMethodID()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONSHOWALLRECORDSCMDMETHODID).intValue();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONSHOWALLRECORDSCMDMETHODID);
 	}
 
 	/**
@@ -1600,9 +1591,9 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 * controller.loadOmittedRecords()
 	 */
 	@ServoyClientSupport(ng = false, wc = false, sc = true)
-	public int getOnShowOmittedRecordsCmdMethodID()
+	public String getOnShowOmittedRecordsCmdMethodID()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONSHOWOMITTEDRECORDSCMDMETHODID).intValue();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONSHOWOMITTEDRECORDSCMDMETHODID);
 	}
 
 	/**
@@ -1611,7 +1602,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 * @param i
 	 */
 	@ServoyClientSupport(ng = false, wc = false, sc = true)
-	public void setOnDeleteRecordCmdMethodID(int i)
+	public void setOnDeleteRecordCmdMethodID(String i)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONDELETERECORDCMDMETHODID, i);
 	}
@@ -1622,7 +1613,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 * @param i
 	 */
 	@ServoyClientSupport(ng = false, wc = false, sc = true)
-	public void setOnDuplicateRecordCmdMethodID(int i)
+	public void setOnDuplicateRecordCmdMethodID(String i)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONDUPLICATERECORDCMDMETHODID, i);
 	}
@@ -1634,7 +1625,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 * @param i
 	 */
 	@ServoyClientSupport(ng = false, wc = false, sc = true)
-	public void setOnSearchCmdMethodID(int i)
+	public void setOnSearchCmdMethodID(String i)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONSEARCHCMDMETHODID, i);
 	}
@@ -1645,7 +1636,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 * @param i
 	 */
 	@ServoyClientSupport(ng = false, wc = false, sc = true)
-	public void setOnFindCmdMethodID(int i)
+	public void setOnFindCmdMethodID(String i)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONFINDCMDMETHODID, i);
 	}
@@ -1656,7 +1647,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 * @param i
 	 */
 	@ServoyClientSupport(ng = false, wc = false, sc = true)
-	public void setOnInvertRecordsCmdMethodID(int i)
+	public void setOnInvertRecordsCmdMethodID(String i)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONINVERTRECORDSCMDMETHODID, i);
 	}
@@ -1667,7 +1658,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 * @param i
 	 */
 	@ServoyClientSupport(ng = false, wc = false, sc = true)
-	public void setOnNewRecordCmdMethodID(int i)
+	public void setOnNewRecordCmdMethodID(String i)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONNEWRECORDCMDMETHODID, i);
 	}
@@ -1678,7 +1669,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 * @param i
 	 */
 	@ServoyClientSupport(ng = false, wc = false, sc = true)
-	public void setOnOmitRecordCmdMethodID(int i)
+	public void setOnOmitRecordCmdMethodID(String i)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONOMITRECORDCMDMETHODID, i);
 	}
@@ -1689,7 +1680,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 * @param i
 	 */
 	@ServoyClientSupport(ng = false, wc = false, sc = true)
-	public void setOnShowAllRecordsCmdMethodID(int i)
+	public void setOnShowAllRecordsCmdMethodID(String i)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONSHOWALLRECORDSCMDMETHODID, i);
 	}
@@ -1700,7 +1691,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 * @param i
 	 */
 	@ServoyClientSupport(ng = false, wc = false, sc = true)
-	public void setOnShowOmittedRecordsCmdMethodID(int i)
+	public void setOnShowOmittedRecordsCmdMethodID(String i)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONSHOWOMITTEDRECORDSCMDMETHODID, i);
 	}
@@ -1763,9 +1754,9 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 * controller.deleteAllRecords()
 	 */
 	@ServoyClientSupport(ng = false, wc = false, sc = true)
-	public int getOnDeleteAllRecordsCmdMethodID()
+	public String getOnDeleteAllRecordsCmdMethodID()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONDELETEALLRECORDSCMDMETHODID).intValue();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONDELETEALLRECORDSCMDMETHODID);
 	}
 
 	/**
@@ -1780,9 +1771,9 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 * controller.showPrintPreview(false, null, 100)
 	 */
 	@ServoyClientSupport(ng = false, wc = true, sc = true)
-	public int getOnPrintPreviewCmdMethodID()
+	public String getOnPrintPreviewCmdMethodID()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONPRINTPREVIEWCMDMETHODID).intValue();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONPRINTPREVIEWCMDMETHODID);
 	}
 
 	/**
@@ -1798,9 +1789,9 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 * @templatecode
 	 * controller.sort(dataProviderID+(asc?' asc':' desc'), false)
 	 */
-	public int getOnSortCmdMethodID()
+	public String getOnSortCmdMethodID()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONSORTCMDMETHODID).intValue();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONSORTCMDMETHODID);
 	}
 
 	/**
@@ -1866,7 +1857,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 * @param i
 	 */
 	@ServoyClientSupport(ng = false, wc = false, sc = true)
-	public void setOnDeleteAllRecordsCmdMethodID(int i)
+	public void setOnDeleteAllRecordsCmdMethodID(String i)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONDELETEALLRECORDSCMDMETHODID, i);
 	}
@@ -1877,7 +1868,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 * @param i
 	 */
 	@ServoyClientSupport(ng = false, wc = true, sc = true)
-	public void setOnPrintPreviewCmdMethodID(int i)
+	public void setOnPrintPreviewCmdMethodID(String i)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONPRINTPREVIEWCMDMETHODID, i);
 	}
@@ -1887,7 +1878,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 *
 	 * @param i
 	 */
-	public void setOnSortCmdMethodID(int i)
+	public void setOnSortCmdMethodID(String i)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONSORTCMDMETHODID, i);
 	}
@@ -2000,9 +1991,9 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 * controller.setSelectedIndex(controller.getSelectedIndex()+1)
 	 */
 	@ServoyClientSupport(ng = false, wc = false, sc = true)
-	public int getOnNextRecordCmdMethodID()
+	public String getOnNextRecordCmdMethodID()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONNEXTRECORDCMDMETHODID).intValue();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONNEXTRECORDCMDMETHODID);
 	}
 
 	/**
@@ -2012,7 +2003,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 * @param arg the method
 	 */
 	@ServoyClientSupport(ng = false, wc = false, sc = true)
-	public void setOnNextRecordCmdMethodID(int arg)
+	public void setOnNextRecordCmdMethodID(String arg)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONNEXTRECORDCMDMETHODID, arg);
 	}
@@ -2029,9 +2020,9 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 * controller.setSelectedIndex(controller.getSelectedIndex()-1)
 	 */
 	@ServoyClientSupport(ng = false, wc = false, sc = true)
-	public int getOnPreviousRecordCmdMethodID()
+	public String getOnPreviousRecordCmdMethodID()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONPREVIOUSRECORDCMDMETHODID).intValue();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONPREVIOUSRECORDCMDMETHODID);
 	}
 
 	/**
@@ -2041,7 +2032,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 * @param arg the method
 	 */
 	@ServoyClientSupport(ng = false, wc = false, sc = true)
-	public void setOnPreviousRecordCmdMethodID(int arg)
+	public void setOnPreviousRecordCmdMethodID(String arg)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONPREVIOUSRECORDCMDMETHODID, arg);
 	}
@@ -2129,9 +2120,9 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 * return DRAGNDROP.NONE
 	 */
 	@ServoyClientSupport(ng = false, wc = true, sc = true)
-	public int getOnDragMethodID()
+	public String getOnDragMethodID()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONDRAGMETHODID).intValue();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONDRAGMETHODID);
 	}
 
 	/**
@@ -2140,7 +2131,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 * @param arg the method that is triggered
 	 */
 	@ServoyClientSupport(ng = false, wc = true, sc = true)
-	public void setOnDragMethodID(int arg)
+	public void setOnDragMethodID(String arg)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONDRAGMETHODID, arg);
 	}
@@ -2157,9 +2148,9 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 * @templateaddtodo
 	 */
 	@ServoyClientSupport(ng = false, wc = true, sc = true)
-	public int getOnDragEndMethodID()
+	public String getOnDragEndMethodID()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONDRAGENDMETHODID).intValue();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONDRAGENDMETHODID);
 	}
 
 	/**
@@ -2168,7 +2159,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 * @param arg the method that is triggered
 	 */
 	@ServoyClientSupport(ng = false, wc = true, sc = true)
-	public void setOnDragEndMethodID(int arg)
+	public void setOnDragEndMethodID(String arg)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONDRAGENDMETHODID, arg);
 	}
@@ -2191,9 +2182,9 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 *  return false;
 	 */
 	@ServoyClientSupport(ng = false, wc = true, sc = true)
-	public int getOnDragOverMethodID()
+	public String getOnDragOverMethodID()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONDRAGOVERMETHODID).intValue();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONDRAGOVERMETHODID);
 	}
 
 	/**
@@ -2202,7 +2193,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 * @param arg the method that is triggered
 	 */
 	@ServoyClientSupport(ng = false, wc = true, sc = true)
-	public void setOnDragOverMethodID(int arg)
+	public void setOnDragOverMethodID(String arg)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONDRAGOVERMETHODID, arg);
 	}
@@ -2220,9 +2211,9 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 * return false
 	 */
 	@ServoyClientSupport(ng = false, wc = true, sc = true)
-	public int getOnDropMethodID()
+	public String getOnDropMethodID()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONDROPMETHODID).intValue();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONDROPMETHODID);
 	}
 
 	/**
@@ -2231,7 +2222,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 * @param arg the method that gets triggered
 	 */
 	@ServoyClientSupport(ng = false, wc = true, sc = true)
-	public void setOnDropMethodID(int arg)
+	public void setOnDropMethodID(String arg)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONDROPMETHODID, arg);
 	}
@@ -2264,9 +2255,9 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 * return true
 	 */
 	@ServoyClientSupport(ng = true, wc = true, sc = true)
-	public int getOnElementFocusGainedMethodID()
+	public String getOnElementFocusGainedMethodID()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONELEMENTFOCUSGAINEDMETHODID).intValue();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONELEMENTFOCUSGAINEDMETHODID);
 	}
 
 	/**
@@ -2275,7 +2266,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 * @param arg the method that gets triggered
 	 */
 	@ServoyClientSupport(ng = true, wc = true, sc = true)
-	public void setOnElementFocusGainedMethodID(int arg)
+	public void setOnElementFocusGainedMethodID(String arg)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONELEMENTFOCUSGAINEDMETHODID, arg);
 	}
@@ -2308,9 +2299,9 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 * return true
 	 */
 	@ServoyClientSupport(ng = true, wc = true, sc = true)
-	public int getOnElementFocusLostMethodID()
+	public String getOnElementFocusLostMethodID()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONELEMENTFOCUSLOSTMETHODID).intValue();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONELEMENTFOCUSLOSTMETHODID);
 	}
 
 	/**
@@ -2319,7 +2310,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 * @param arg the method that gets triggered
 	 */
 	@ServoyClientSupport(ng = true, wc = true, sc = true)
-	public void setOnElementFocusLostMethodID(int arg)
+	public void setOnElementFocusLostMethodID(String arg)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONELEMENTFOCUSLOSTMETHODID, arg);
 	}
@@ -2346,9 +2337,9 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 * @templateparam JSEvent event the event that triggered the action
 	 * @templateaddtodo
 	 */
-	public int getOnResizeMethodID()
+	public String getOnResizeMethodID()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONRESIZEMETHODID).intValue();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONRESIZEMETHODID);
 	}
 
 	/**
@@ -2356,13 +2347,13 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 *
 	 * @param arg the method that gets triggered
 	 */
-	public void setOnResizeMethodID(int arg)
+	public void setOnResizeMethodID(String arg)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONRESIZEMETHODID, arg);
 	}
 
 	@ServoyClientSupport(ng = false, wc = true, sc = true)
-	public void setOnRenderMethodID(int arg)
+	public void setOnRenderMethodID(String arg)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONRENDERMETHODID, arg);
 	}
@@ -2405,9 +2396,9 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 *
 	 */
 	@ServoyClientSupport(ng = false, wc = true, sc = true)
-	public int getOnRenderMethodID()
+	public String getOnRenderMethodID()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONRENDERMETHODID).intValue();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONRENDERMETHODID);
 	}
 
 	public long getLastModified()
@@ -2539,7 +2530,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 *
 	 * @param arg the onElementChangeMethodID
 	 */
-	public void setOnElementDataChangeMethodID(int arg)
+	public void setOnElementDataChangeMethodID(String arg)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONELEMENTDATACHANGEMETHODID, arg);
 	}
@@ -2583,9 +2574,9 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 * @templatecode
 	 * return true
 	 */
-	public int getOnElementDataChangeMethodID()
+	public String getOnElementDataChangeMethodID()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONELEMENTDATACHANGEMETHODID).intValue();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONELEMENTDATACHANGEMETHODID);
 	}
 
 	@Override
@@ -2643,22 +2634,22 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 		return true;
 	}
 
-	private transient IntHashMap<IPersist> superPersistCache = null;
+	private transient Map<String, IPersist> superPersistCache = null;
 
 	/**
 	 * @param extendsID
 	 * @return
 	 */
-	public IPersist getSuperPersist(int extendsID)
+	public IPersist getSuperPersist(String extendsID)
 	{
 		synchronized (this)
 		{
 			if (superPersistCache == null)
 			{
-				IntHashMap<IPersist> cache = new IntHashMap<>();
+				Map<String, IPersist> cache = new HashMap<String, IPersist>();
 				acceptVisitor((IPersist persist) -> {
-					cache.put(persist.getID(), persist);
-					if (persist instanceof ISupportExtendsID && ((ISupportExtendsID)persist).getExtendsID() > 0)
+					cache.put(persist.getUUID().toString(), persist);
+					if (persist instanceof ISupportExtendsID && ((ISupportExtendsID)persist).getExtendsID() != null)
 					{
 						cache.put(((ISupportExtendsID)persist).getExtendsID(), persist);
 					}

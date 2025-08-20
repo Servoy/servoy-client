@@ -18,7 +18,6 @@ package com.servoy.j2db.printing;
 
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -97,10 +96,8 @@ public class PartNode
 	private void getAggregatesFromRenderer(final List<AggregateVariable> aggregates, final Form f, DataRenderer a_renderer) throws RepositoryException
 	{
 		Map<IPersist, IDisplay> allFields = a_renderer.getFieldComponents();
-		Iterator<IDisplay> it = allFields.values().iterator();
-		while (it.hasNext())
+		for (IDisplay display : allFields.values())
 		{
-			IDisplay display = it.next();
 			if (display instanceof IDisplayData)
 			{
 				String dataProviderID = ((IDisplayData)display).getDataProviderID();
@@ -233,7 +230,7 @@ public class PartNode
 			//make sql
 			for (AggregateVariable ag : allAggregates)
 			{
-				selectCols.add(new QueryAggregate(ag.getType(), new QueryColumn(newSQLString.getTable(), -1, ag.getColumnNameToAggregate(),
+				selectCols.add(new QueryAggregate(ag.getType(), new QueryColumn(newSQLString.getTable(), ag.getColumnNameToAggregate(),
 					ag.getDataProviderType(), ag.getLength(), 0, null, ag.getFlags()), ag.getName()));
 			}
 

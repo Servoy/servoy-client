@@ -41,7 +41,7 @@ public class DocsBean extends Bean implements IBaseDocsComponent
 
 	DocsBean()
 	{
-		super(null, 0, null);
+		super(null, null);
 	}
 
 	@ServoyClientSupport(mc = false, wc = true, sc = true)

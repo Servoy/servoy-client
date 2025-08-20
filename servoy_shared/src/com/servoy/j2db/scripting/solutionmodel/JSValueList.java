@@ -789,8 +789,8 @@ public class JSValueList implements IConstantsObject, ISMValueList
 	{
 
 		FlattenedSolution fs = application.getFlattenedSolution();
-		int fallbackVLID = valuelist.getFallbackValueListID();
-		ValueList fallbackVL = fs.getValueList(fallbackVLID);
+		String fallbackVLUUID = valuelist.getFallbackValueListID();
+		ValueList fallbackVL = fs.getValueList(fallbackVLUUID);
 		if (fallbackVL != null)
 		{
 			return new JSValueList(fallbackVL, application, false);
@@ -807,11 +807,11 @@ public class JSValueList implements IConstantsObject, ISMValueList
 		checkModification();
 		if (vl == null)
 		{
-			valuelist.setFallbackValueListID(0);
+			valuelist.setFallbackValueListID(null);
 		}
 		else
 		{
-			valuelist.setFallbackValueListID(((JSValueList)vl).getValueList().getID());
+			valuelist.setFallbackValueListID(((JSValueList)vl).getValueList().getUUID().toString());
 		}
 	}
 

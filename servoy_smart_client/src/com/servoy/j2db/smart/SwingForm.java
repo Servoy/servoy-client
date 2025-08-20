@@ -118,6 +118,7 @@ import com.servoy.j2db.dataprocessing.SortColumn;
 import com.servoy.j2db.dataui.IServoyAwareBean;
 import com.servoy.j2db.dnd.DRAGNDROP;
 import com.servoy.j2db.gui.FormDialog;
+import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.FormElementGroup;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.Table;
@@ -748,8 +749,8 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 					((DataRenderer)dataRenderers[FormController.FORM_EDITOR]).setShowSelection(false);
 					((RecordView)view).setCellRenderer((DataRenderer)dataRenderers[FormController.FORM_EDITOR]);
 				}
-				int form_id = fp.getForm().getNavigatorID();
-				if (form_id == 0)
+				String form_uuid = fp.getForm().getNavigatorID();
+				if (form_uuid == Form.NAVIGATOR_DEFAULT)
 				{
 					StyledEnablePanel slider = ((RecordView)view).getSliderComponent();
 					if (bgColor != null) slider.setBackground(bgColor);
@@ -1110,7 +1111,7 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 			Component child = component.getComponent(i);
 			if (child instanceof JTable)
 			{
-				((JTable)child).repaint();
+				child.repaint();
 			}
 			else if (child instanceof JComponent)
 			{

@@ -20,14 +20,12 @@ import com.servoy.j2db.util.UUID;
 
 /**
  * @author jcompagner
- * 
+ *
  */
 public interface IPersistFactory
 {
 
-	public int getNewElementID(UUID new_uuid) throws RepositoryException;
-
-	public IPersist createObject(ISupportChilds parent, int object_type_id, int element_id, UUID uuid) throws RepositoryException;
+	public IPersist createObject(ISupportChilds parent, int object_type_id, UUID uuid) throws RepositoryException;
 
 	public void initClone(IPersist clone, IPersist objToClone, boolean flattenOverrides) throws RepositoryException;
 

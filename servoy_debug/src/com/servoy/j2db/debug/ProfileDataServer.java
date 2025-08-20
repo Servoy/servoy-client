@@ -43,6 +43,7 @@ import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.server.shared.PerformanceTiming;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ServoyException;
+import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.xmlxport.ColumnInfoDef;
 
 /**
@@ -573,13 +574,13 @@ public class ProfileDataServer extends AbstractDelegateDataServer
 	 * @see com.servoy.j2db.dataprocessing.IDataServer#getNextSequence(java.lang.String, java.lang.String, java.lang.String, int)
 	 */
 	@Override
-	public Object getNextSequence(String serverName, String tableName, String columnName, int columnInfoID, String columnInfoServer)
+	public Object getNextSequence(String serverName, String tableName, String columnName, UUID columnInfoUUID, String columnInfoServer)
 		throws RepositoryException
 	{
 		long startTime = System.currentTimeMillis();
 		try
 		{
-			return super.getNextSequence(serverName, tableName, columnName, columnInfoID, columnInfoServer);
+			return super.getNextSequence(serverName, tableName, columnName, columnInfoUUID, columnInfoServer);
 		}
 		finally
 		{

@@ -458,9 +458,9 @@ public class Messages
 		{
 			QueryTable messagesTable = table.queryTable();
 			QuerySelect sql = new QuerySelect(messagesTable);
-			QueryColumn msgKey = new QueryColumn(messagesTable, -1, "message_key", Types.VARCHAR, 150, 0, null, 0); //$NON-NLS-1$
-			QueryColumn msgVal = new QueryColumn(messagesTable, -1, "message_value", Types.VARCHAR, 2000, 0, null, 0); //$NON-NLS-1$
-			QueryColumn msgLang = new QueryColumn(messagesTable, -1, "message_language", Types.VARCHAR, 150, 0, null, 0); //$NON-NLS-1$
+			QueryColumn msgKey = new QueryColumn(messagesTable, "message_key", Types.VARCHAR, 150, 0, null, 0); //$NON-NLS-1$
+			QueryColumn msgVal = new QueryColumn(messagesTable, "message_value", Types.VARCHAR, 2000, 0, null, 0); //$NON-NLS-1$
+			QueryColumn msgLang = new QueryColumn(messagesTable, "message_language", Types.VARCHAR, 150, 0, null, 0); //$NON-NLS-1$
 			sql.addColumn(msgKey);
 			sql.addColumn(msgVal);
 
@@ -487,9 +487,9 @@ public class Messages
 			{
 				QueryTable subselectTable = table.queryTable();
 				QuerySelect subselect = new QuerySelect(subselectTable);
-				QueryColumn msgKeySub = new QueryColumn(subselectTable, -1, "message_key", Types.VARCHAR, 150, 0, null, 0); //$NON-NLS-1$
-				QueryColumn msgValueSub = new QueryColumn(subselectTable, -1, "message_value", Types.VARCHAR, 2000, 0, null, 0); //$NON-NLS-1$
-				QueryColumn msgLangSub = new QueryColumn(subselectTable, -1, "message_language", Types.VARCHAR, 150, 0, null, 0); //$NON-NLS-1$
+				QueryColumn msgKeySub = new QueryColumn(subselectTable, "message_key", Types.VARCHAR, 150, 0, null, 0); //$NON-NLS-1$
+				QueryColumn msgValueSub = new QueryColumn(subselectTable, "message_value", Types.VARCHAR, 2000, 0, null, 0); //$NON-NLS-1$
+				QueryColumn msgLangSub = new QueryColumn(subselectTable, "message_language", Types.VARCHAR, 150, 0, null, 0); //$NON-NLS-1$
 				subselect.addColumn(msgKeySub);
 
 				String condSearch = "SEARCH"; //$NON-NLS-1$
@@ -544,9 +544,9 @@ public class Messages
 	{
 		QueryTable messagesTable = table.queryTable();
 		QuerySelect sql = new QuerySelect(messagesTable);
-		QueryColumn msgKey = new QueryColumn(messagesTable, -1, "message_key", Types.VARCHAR, 150, 0, null, 0); //$NON-NLS-1$
-		QueryColumn msgVal = new QueryColumn(messagesTable, -1, "message_value", Types.VARCHAR, 2000, 0, null, 0); //$NON-NLS-1$
-		QueryColumn msgLang = new QueryColumn(messagesTable, -1, "message_language", Types.VARCHAR, 150, 0, null, 0); //$NON-NLS-1$
+		QueryColumn msgKey = new QueryColumn(messagesTable, "message_key", Types.VARCHAR, 150, 0, null, 0); //$NON-NLS-1$
+		QueryColumn msgVal = new QueryColumn(messagesTable, "message_value", Types.VARCHAR, 2000, 0, null, 0); //$NON-NLS-1$
+		QueryColumn msgLang = new QueryColumn(messagesTable, "message_language", Types.VARCHAR, 150, 0, null, 0); //$NON-NLS-1$
 		sql.addColumn(msgKey);
 		sql.addColumn(msgVal);
 
@@ -573,9 +573,9 @@ public class Messages
 		{
 			QueryTable subselectTable = table.queryTable();
 			QuerySelect subselect = new QuerySelect(subselectTable);
-			QueryColumn msgKeySub = new QueryColumn(subselectTable, -1, "message_key", Types.VARCHAR, 150, 0, null, 0); //$NON-NLS-1$
-			QueryColumn msgValueSub = new QueryColumn(subselectTable, -1, "message_value", Types.VARCHAR, 2000, 0, null, 0); //$NON-NLS-1$
-			QueryColumn msgLangSub = new QueryColumn(subselectTable, -1, "message_language", Types.VARCHAR, 150, 0, null, 0); //$NON-NLS-1$
+			QueryColumn msgKeySub = new QueryColumn(subselectTable, "message_key", Types.VARCHAR, 150, 0, null, 0); //$NON-NLS-1$
+			QueryColumn msgValueSub = new QueryColumn(subselectTable, "message_value", Types.VARCHAR, 2000, 0, null, 0); //$NON-NLS-1$
+			QueryColumn msgLangSub = new QueryColumn(subselectTable, "message_language", Types.VARCHAR, 150, 0, null, 0); //$NON-NLS-1$
 			subselect.addColumn(msgKeySub);
 
 			String condSearch = "SEARCH"; //$NON-NLS-1$
@@ -722,7 +722,7 @@ public class Messages
 				}
 
 				QueryTable messagesTable = table.queryTable();
-				QueryColumn msgKey = new QueryColumn(messagesTable, -1, "message_key", Types.VARCHAR, 150, 0, null, 0); //$NON-NLS-1$
+				QueryColumn msgKey = new QueryColumn(messagesTable, "message_key", Types.VARCHAR, 150, 0, null, 0); //$NON-NLS-1$
 				QueryDelete delete = new QueryDelete(messagesTable);
 				delete.addCondition(new CompareCondition(IBaseSQLCondition.EQUALS_OPERATOR, msgKey, key));
 

@@ -84,7 +84,7 @@ public class ValuelistPropTest extends AbstractSolutionTest
 			vl.setCustomValues("11\n22\n33");
 
 			Form form = solution.createNewForm(validator, null, "test", "mem:test", false, new Dimension(600, 400));
-			form.setNavigatorID(-1);
+			form.setNavigatorID(Form.NAVIGATOR_NONE);
 			form.createNewPart(IBaseSMPart.BODY, 5);
 			form.createNewWebComponent("myCustomComponent", "my-component");
 		}

@@ -29,9 +29,7 @@ public interface IDeveloperRepository extends IRepository, IPersistFactory
 {
 	public ContentSpec getContentSpec() throws RepositoryException;
 
-	public int getElementIdForUUID(UUID id) throws RepositoryException;
-
-	public RootObjectMetaData createRootObjectMetaData(int rootObjectId, UUID rootObjectUuid, String name, int objectTypeId, int activeRelease,
+	public RootObjectMetaData createRootObjectMetaData(UUID rootObjectUuid, String name, int objectTypeId, int activeRelease,
 		int latestRelease) throws RepositoryException;
 
 	public IRootObject createRootObject(RootObjectMetaData metaData) throws RepositoryException;
@@ -54,15 +52,15 @@ public interface IDeveloperRepository extends IRepository, IPersistFactory
 
 	public void setUserProperties(int systemUserId, Map props) throws RepositoryException; //user 0 is SYSTEM
 
-	public void setRootObjectActiveRelease(int rootObjectId, int releaseNumber) throws RepositoryException;
+	public void setRootObjectActiveRelease(UUID rootObjectUUID, int releaseNumber) throws RepositoryException;
 
-	public IRootObject getRootObject(int rootObjectId, int releaseNumber) throws RepositoryException;
+	public IRootObject getRootObject(UUID rootObjectUUID, int releaseNumber) throws RepositoryException;
 
 	public List getActiveRootObjects(int type) throws RepositoryException;
 
-	public void flushRootObject(int rootID) throws RepositoryException;
+	public void flushRootObject(UUID rootUUID) throws RepositoryException;
 
-	public void removeRootObject(int solutionId) throws RepositoryException;
+	public void removeRootObject(UUID solutionUUID) throws RepositoryException;
 
 	public void flushAllCachedData() throws RepositoryException;
 

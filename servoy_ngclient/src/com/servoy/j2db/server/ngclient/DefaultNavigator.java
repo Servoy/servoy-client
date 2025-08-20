@@ -21,7 +21,7 @@ public class DefaultNavigator extends Bean
 
 	private DefaultNavigator()
 	{
-		super(null, 0, null);
+		super(null, null);
 		setBeanXML(
 			"{" + MAXINDEX_PROP + ":0," + MININDEX_PROP + ":0," + CURRENTINDEX_PROP + ":0," + SETELECTEDINDEX_FUNCTION_NAME + ":'" + UUID.randomUUID() + "'}");
 		setName(NAME_PROP_VALUE);

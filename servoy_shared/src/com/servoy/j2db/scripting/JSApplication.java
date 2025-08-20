@@ -243,19 +243,19 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 		application.checkAuthorized();
 		try
 		{
-			int sol_id = 0;
+			UUID sol_uuid = null;
 			if (currentSolutionOnly)
 			{
 				if (application.getFlattenedSolution().isMainSolutionLoaded())
 				{
-					sol_id = application.getSolution().getSolutionID();
+					sol_uuid = application.getSolution().getSolutionMetaData().getRootObjectUuid();
 				}
 				else
 				{
-					sol_id = application.getFlattenedSolution().getMainSolutionMetaData().getRootObjectId();
+					sol_uuid = application.getFlattenedSolution().getMainSolutionMetaData().getRootObjectUuid();
 				}
 			}
-			return application.getApplicationServerAccess().getActiveClientCount(sol_id);
+			return application.getApplicationServerAccess().getActiveClientCount(sol_uuid);
 		}
 		catch (Exception e)
 		{

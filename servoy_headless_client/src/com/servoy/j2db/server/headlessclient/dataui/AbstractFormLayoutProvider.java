@@ -250,7 +250,7 @@ public abstract class AbstractFormLayoutProvider implements IFormLayoutProvider
 			Part otherPart = allParts.next();
 			if (Part.rendersOnlyInPrint(otherPart.getPartType()))
 			{
-				int otherPartHeight = otherPart.getHeight() - f.getPartStartYPos(otherPart.getID());
+				int otherPartHeight = otherPart.getHeight() - f.getPartStartYPos(otherPart.getUUID().toString());
 				if (part.getPartType() > otherPart.getPartType()) spaceUsedOnlyInPrintAbove += otherPartHeight;
 				if (part.getPartType() < otherPart.getPartType()) spaceUsedOnlyInPrintBelow += otherPartHeight;
 			}
