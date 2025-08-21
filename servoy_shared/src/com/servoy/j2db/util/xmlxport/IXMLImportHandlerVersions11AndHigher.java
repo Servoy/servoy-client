@@ -88,8 +88,6 @@ public interface IXMLImportHandlerVersions11AndHigher
 
 	boolean checkI18NStorage();
 
-	String getPropertyValue(String oldValue);
-
 	IPersist loadDeletedObjectByElementId(IRootObject rootObject, UUID elementUUID, ISupportChilds parent)
 		throws RepositoryException, IllegalAccessException, IntrospectionException, InvocationTargetException;
 
