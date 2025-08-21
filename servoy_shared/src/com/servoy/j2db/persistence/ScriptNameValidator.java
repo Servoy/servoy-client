@@ -529,7 +529,7 @@ public class ScriptNameValidator implements IValidateName
 		{
 			for (Column column : table.getColumns())
 			{
-				if (column.getDataProviderID().equals(next) && !column.getUUID().equals(uuid))
+				if (column.getDataProviderID().equals(next) && !Utils.equalObjects(uuid, column.getUUID()))
 				{
 					return column;
 				}
