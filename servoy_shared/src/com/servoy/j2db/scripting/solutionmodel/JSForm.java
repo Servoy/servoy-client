@@ -2776,14 +2776,14 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 			if (parent instanceof JSForm)
 			{
 				// form method
-				scriptMethod = ((JSForm)parent).getSupportChild().getScriptMethod(methoduuid);
+				scriptMethod = AbstractBase.selectByUUID(((JSForm)parent).getSupportChild().getScriptMethods(false), methoduuid);
 				if (scriptMethod == null)
 				{
 					Form f = ((JSForm)parent).getSupportChild();
 					while (f != null && f.getExtendsID() != null && scriptMethod == null)
 					{
 						f = application.getFlattenedSolution().getForm(f.getExtendsID());
-						if (f != null) scriptMethod = f.getScriptMethod(methoduuid);
+						if (f != null) scriptMethod = AbstractBase.selectByUUID(f.getScriptMethods(false), methoduuid);
 					}
 					if (scriptMethod != null)
 					{
