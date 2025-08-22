@@ -355,7 +355,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 		for (String handler : childComponent.getFormElement().getHandlers())
 		{
 			Object value = childComponent.getFormElement().getPropertyValue(handler);
-			if (value instanceof String)
+			if (value instanceof String && Utils.getAsUUID(value, false) != null)
 			{
 				IPersist function = formUI.getController().getApplication().getFlattenedSolution().searchPersist((String)value);
 				Form form = formUI.getController().getForm();
