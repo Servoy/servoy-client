@@ -236,7 +236,12 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 
 	public Form getForm(String name)
 	{
-		return selectByName(getForms(null, false), name);
+		Form form = selectByName(getForms(null, false), name);
+		if (form == null)
+		{
+			form = selectByUUID(getForms(null, false), name);
+		}
+		return form;
 	}
 
 	public Form createNewForm(IValidateName validator, Style style, String formName, String dataSource, boolean show_in_menu, Dimension size)
@@ -1012,7 +1017,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	}
 	/*------------------------------------------------------------------------------------------------------------------------
 	 * LISTENERS
-	
+
 	public void iPersistChanged(IPersist persist)
 	{
 		getChangeHandler().fireIPersistChanged(persist);
