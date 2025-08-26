@@ -223,7 +223,9 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 									{
 										for (FormElement formElement : fccc.getFormComponentElements())
 										{
-											if (component.getUUID().equals(formElement.getPersistIfAvailable().getUUID()))
+											if (component.getName() != null &&
+												Utils.equalObjects(component.getName(), ((AbstractBase)formElement.getPersistIfAvailable())
+													.getRuntimeProperty(FormElementHelper.FORM_COMPONENT_ELEMENT_NAME)))
 											{
 												return formElement;
 											}
