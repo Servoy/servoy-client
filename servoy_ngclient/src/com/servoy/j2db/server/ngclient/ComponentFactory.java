@@ -186,7 +186,7 @@ public class ComponentFactory
 			}
 			else if (eventValue instanceof Number && ((Number)eventValue).intValue() > 0)
 			{
-				Debug.warn("Event handler for " + eventName + " with value '" + eventValue + "' ia a number (form " + form + ", form element " +
+				Debug.warn("Event handler for " + eventName + " with value '" + eventValue + "' is a number (form " + form + ", form element " +
 					formElementName + ")");
 			}
 			else if (Utils.equalObjects(eventName, StaticContentSpecLoader.PROPERTY_ONFOCUSGAINEDMETHODID.getPropertyName()))
