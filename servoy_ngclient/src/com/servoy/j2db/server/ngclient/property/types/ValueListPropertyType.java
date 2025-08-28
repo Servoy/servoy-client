@@ -30,8 +30,8 @@ import org.sablo.IWebObjectContext;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IConvertedPropertyType;
-import org.sablo.specification.property.IPropertyWithClientSideConversions;
 import org.sablo.specification.property.IPropertyWithAttachDependencies;
+import org.sablo.specification.property.IPropertyWithClientSideConversions;
 import org.sablo.specification.property.IPushToServerSpecialType;
 import org.sablo.specification.property.ISupportsGranularUpdates;
 import org.sablo.specification.property.types.DefaultPropertyType;
@@ -148,7 +148,10 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 			// currently the only thing that can come from client is a filter request...
 			previousSabloValue.fromJSON((JSONObject)newJSONValue);
 		}
-		else Debug.error("Got a client update for valuelist property, but valuelist is null or value can't be interpreted: " + newJSONValue + ".");
+		else if (newJSONValue != null)
+		{
+			Debug.error("Got a client update for valuelist property, but valuelist is null or value can't be interpreted: " + newJSONValue + ".");
+		}
 
 		return previousSabloValue;
 	}
