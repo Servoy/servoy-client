@@ -116,13 +116,13 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 			def = json.optString("default");
 			if (json.has("max")) max = json.optInt("max");
 			if (json.has("lazyLoading")) lazyLoading = json.optBoolean("lazyLoading");
-			if (json.has("autoResetFilter")) autoResetFilter = json.optBoolean("autoResetFilter");
 			if (json.has("tags"))
 			{
 				try
 				{
 					JSONObject tags = json.getJSONObject("tags");
 					if (tags.has("logWhenOverMax")) logMax = tags.getBoolean("logWhenOverMax");
+					if (tags.has("autoResetFilter")) autoResetFilter = tags.optBoolean("autoResetFilter");
 				}
 				catch (JSONException e)
 				{
