@@ -570,31 +570,34 @@ public class ValueListTypeSabloValue
 			return;
 		}
 		boolean dbValueRowRendered = false;
-		if ((previousRecord != null && !previousRecord.equals(record)) || Utils.equalObjects(dataProvider, dataproviderID))
+		if ((previousRecord != null && !previousRecord.equals(record)) || (getConfig().isAutoResetFilter() && Utils.equalObjects(dataProvider, dataproviderID)))
 		{
 			revertFilter();
 		}
-		boolean removed = false;
-		if (!fireChangeEvent)
+		if (filteredValuelist == null)
 		{
-			removed = valueList.removeListDataListenerIfNeeded(this);
-		}
-		else
-		{
-			dbValueRowRendered = true;
-		}
-		try
-		{
-			valueList.fill(record);
-		}
-		finally
-		{
+			boolean removed = false;
 			if (!fireChangeEvent)
 			{
-				if (removed)
+				removed = valueList.removeListDataListenerIfNeeded(this);
+			}
+			else
+			{
+				dbValueRowRendered = true;
+			}
+			try
+			{
+				valueList.fill(record);
+			}
+			finally
+			{
+				if (!fireChangeEvent)
 				{
-					// only add it if it was removed
-					valueList.addListDataListener(this);
+					if (removed)
+					{
+						// only add it if it was removed
+						valueList.addListDataListener(this);
+					}
 				}
 			}
 		}
@@ -751,6 +754,10 @@ public class ValueListTypeSabloValue
 				changeMonitor.notifyOfChange(); // in case fill really somehow did not result in the filteredValuelist listener doing a notify
 
 				valueList.addListDataListener(this);
+
+				// if the filterString is empty and autoResetFilter is false,
+				// reset filteredValueList to null so that future filtering operations begin with the complete valueList
+				if ("".equals(filterString) && !getConfig().isAutoResetFilter()) revertFilter();
 			}
 			catch (ServoyException e)
 			{
