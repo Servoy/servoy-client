@@ -16,8 +16,6 @@
  */
 package com.servoy.j2db.util.xmlxport;
 
-import java.util.Map;
-
 import com.servoy.j2db.persistence.InfoChannel;
 
 
@@ -302,7 +300,4 @@ public interface IXMLImportUserChannel extends InfoChannel
 
 	public boolean allowImportEmptySolution();
 
-	public void addFormCss(String uuid, String css);
-
-	public Map<String, String> getFormCss();
 }
