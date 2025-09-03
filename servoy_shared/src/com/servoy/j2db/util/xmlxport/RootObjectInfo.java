@@ -35,7 +35,7 @@ public class RootObjectInfo implements Serializable
 		public String uuid = null;
 		public Map<Integer, PropertyInfo> properties = new HashMap<Integer, PropertyInfo>();
 		public List<RootElementInfo> children = new ArrayList<RootElementInfo>();
-		public String form_css = null;
+		public String form_css = null; // special, just for Form persists/RootElementInfo...
 	}
 
 	public static class PropertyInfo implements Serializable
