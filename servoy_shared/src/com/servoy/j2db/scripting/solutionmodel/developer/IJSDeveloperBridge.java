@@ -40,7 +40,7 @@ public interface IJSDeveloperBridge
 	public Location getLOCATION();
 
 	/**
-	 * Shows the form in in the the ui of the devloper (so in a dialog) where a developer can interact with.
+	 * Shows the form in in the the ui of the developer (so in a dialog) where a developer can interact with.
 	 *
 	 * @param formName
 	 */
