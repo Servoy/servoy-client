@@ -238,10 +238,10 @@ public class MenuTypeSabloValue implements ISmartPropertyValue, IChangeListener,
 						categoryValues.put(propertyName, definition.getDefaultValue());
 					}
 				}
-				else if (smartValues != null && smartValues.containsKey(propertyName) &&
-					definition.getType() instanceof IPropertyConverterForBrowser convertingTypeToUse)
+				else if (definition.getType() instanceof IPropertyConverterForBrowser convertingTypeToUse)
 				{
-					Object sabloValue = smartValues.get(propertyName);
+					Object sabloValue = smartValues != null && smartValues.containsKey(propertyName) ? smartValues.get(propertyName)
+						: categoryValues.get(propertyName);
 					StringWriter stringWriter = new StringWriter();
 					final JSONWriter writer = new JSONWriter(stringWriter);
 					if (convertingTypeToUse instanceof IPropertyWithClientSideConversions)
