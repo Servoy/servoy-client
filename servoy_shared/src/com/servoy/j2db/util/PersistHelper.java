@@ -1004,7 +1004,7 @@ public class PersistHelper
 		if (object instanceof AbstractBase && object instanceof ISupportExtendsID)
 		{
 			return ((AbstractBase)object).hasProperty(StaticContentSpecLoader.PROPERTY_EXTENDSID.getPropertyName()) &&
-				((ISupportExtendsID)object).getExtendsID() != null;
+				Utils.getAsUUID(((ISupportExtendsID)object).getExtendsID(), false) != null;
 		}
 		return false;
 	}
