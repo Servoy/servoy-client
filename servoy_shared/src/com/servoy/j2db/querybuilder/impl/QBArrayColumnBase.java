@@ -18,6 +18,7 @@
 package com.servoy.j2db.querybuilder.impl;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
+import com.servoy.j2db.querybuilder.IQueryBuilderColumn;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 
 /**
@@ -27,7 +28,7 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
  *
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, realClass = QBArrayColumn.class)
-public interface QBArrayColumnBase
+public interface QBArrayColumnBase extends IQueryBuilderColumn
 {
 	/**
 	 * Create cardinality(column) expression

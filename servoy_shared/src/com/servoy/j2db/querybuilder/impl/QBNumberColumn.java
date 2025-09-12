@@ -29,6 +29,8 @@ import com.servoy.j2db.documentation.ServoyDocumented;
  *
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, extendsComponent = "QBColumn")
-public interface QBNumberColumn extends QBNumberColumnBase, QBColumnBaseFunctions<QBNumberColumn>, QBNumberColumnFunctions<QBNumberColumn>
+public interface QBNumberColumn
+	extends QBNumberColumnBase, QBColumnBaseFunctions<QBNumberColumn>, QBNumberColumnFunctions<QBNumberColumn>,
+	QBColumnComparable<QBColumnComparable<QBNumberColumn>>
 {
 }

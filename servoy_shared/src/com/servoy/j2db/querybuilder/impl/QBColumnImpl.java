@@ -29,7 +29,6 @@ import com.servoy.j2db.query.ISQLCondition;
 import com.servoy.j2db.query.QueryCustomSelect;
 import com.servoy.j2db.query.SetCondition;
 import com.servoy.j2db.querybuilder.IQueryBuilder;
-import com.servoy.j2db.querybuilder.IQueryBuilderColumn;
 
 /**
  * A column from a QBSelect. Base class that contains all actual implementations.
@@ -38,8 +37,9 @@ import com.servoy.j2db.querybuilder.IQueryBuilderColumn;
  *
  */
 public class QBColumnImpl extends QBPart
-	implements IQueryBuilderColumn, QBGenericColumnBase, QBIntegerColumnBase, QBDatetimeColumnBase, QBNumberColumnBase, QBMediaColumnBase,
-	QBTextColumnBase, QBColumnComparable, QBArrayColumnBase, QBColumn, QBNumberColumnFunctions<QBColumn>
+	implements QBGenericColumnBase, QBIntegerColumnBase, QBDatetimeColumnBase, QBNumberColumnBase, QBMediaColumnBase,
+	QBTextColumnBase, QBColumnComparable<QBColumnComparable<QBColumn>>, QBTextColumnComparableFunctions, QBArrayColumnBase, QBColumn,
+	QBNumberColumnFunctions<QBColumn>
 {
 	private final IQuerySelectValue queryColumn;
 	protected final boolean negate;
@@ -98,8 +98,14 @@ public class QBColumnImpl extends QBPart
 	}
 
 	/////////////////////////////////////////////////////////
-	////////////// QBColumnCompare methods //////////////////
+	////////////// QBColumnComparable methods //////////////////
 	/////////////////////////////////////////////////////////
+
+	@Override
+	public QBColumnComparable not()
+	{
+		return new QBColumnImpl(getRoot(), getParent(), getQuerySelectValue(), !negate);
+	}
 
 	@Override
 	public QBCondition gt(Object value)
@@ -161,16 +167,38 @@ public class QBColumnImpl extends QBPart
 		return createCompareCondition(IBaseSQLCondition.EQUALS_OPERATOR, value);
 	}
 
+	/////////////////////////////////////////////////////////
+	//////////// QBTextColumnComparable methods ////////////
+	/////////////////////////////////////////////////////////
+
+	@Override
+	public QBCondition like(Object pattern)
+	{
+		if (pattern instanceof String)
+		{
+			// don't try to convert the pattern to the column type
+			return createCondition(new CompareCondition(IBaseSQLCondition.LIKE_OPERATOR, getQuerySelectValue(), pattern));
+		}
+		return createCompareCondition(IBaseSQLCondition.LIKE_OPERATOR, pattern);
+	}
+
+	@Override
+	public QBCondition like(Object pattern, char escape)
+	{
+		if (pattern instanceof String)
+		{
+			// don't try to convert the pattern to the column type
+			return createCondition(
+				new CompareCondition(IBaseSQLCondition.LIKE_OPERATOR, getQuerySelectValue(), new Object[] { pattern, String.valueOf(escape) }));
+		}
+
+		return createCondition(
+			new CompareCondition(IBaseSQLCondition.LIKE_OPERATOR, getQuerySelectValue(), new Object[] { createOperand(pattern), String.valueOf(escape) }));
+	}
 
 	/////////////////////////////////////////////////////////
 	////////////// General QBColumn methods /////////////////
 	/////////////////////////////////////////////////////////
-
-	@Override
-	public QBColumn not()
-	{
-		return new QBColumnImpl(getRoot(), getParent(), getQuerySelectValue(), !negate);
-	}
 
 	@Override
 	public QBSort asc()
@@ -293,32 +321,6 @@ public class QBColumnImpl extends QBPart
 	{
 		return getRoot().functions().locate(arg, this, start);
 	}
-
-	@Override
-	public QBCondition like(Object pattern)
-	{
-		if (pattern instanceof String)
-		{
-			// don't try to convert the pattern to the column type
-			return createCondition(new CompareCondition(IBaseSQLCondition.LIKE_OPERATOR, getQuerySelectValue(), pattern));
-		}
-		return createCompareCondition(IBaseSQLCondition.LIKE_OPERATOR, pattern);
-	}
-
-	@Override
-	public QBCondition like(Object pattern, char escape)
-	{
-		if (pattern instanceof String)
-		{
-			// don't try to convert the pattern to the column type
-			return createCondition(
-				new CompareCondition(IBaseSQLCondition.LIKE_OPERATOR, getQuerySelectValue(), new Object[] { pattern, String.valueOf(escape) }));
-		}
-
-		return createCondition(
-			new CompareCondition(IBaseSQLCondition.LIKE_OPERATOR, getQuerySelectValue(), new Object[] { createOperand(pattern), String.valueOf(escape) }));
-	}
-
 
 	/////////////////////////////////////////////////////////
 	////////// QBNumberColumnFunctions methods //////////////
