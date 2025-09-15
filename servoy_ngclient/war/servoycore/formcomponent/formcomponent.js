@@ -23,7 +23,7 @@ angular.module('servoycoreFormcomponent',['servoy']).directive('servoycoreFormco
      		   if (newValue) {
      			   if ($scope.model.visible)
      			   {
-     				   var elements = $scope.svyServoyapi.getFormComponentElements("containedForm", newValue);
+     				   var elements = $scope.svyServoyapi.getFormComponentElements("containedForm", newValue); // first arg is not used / deprecated
 
      				   // set the styleClass
      				   var styleClass = "svy-formcomponent";

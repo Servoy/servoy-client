@@ -20,6 +20,7 @@ package com.servoy.j2db.server.ngclient;
 import java.awt.Point;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -32,6 +33,7 @@ import java.util.Set;
 import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.function.Function;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -44,7 +46,6 @@ import org.sablo.specification.property.CustomJSONArrayType;
 import com.servoy.j2db.AbstractActiveSolutionHandler;
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.persistence.AbstractBase;
-import com.servoy.j2db.persistence.AbstractContainer;
 import com.servoy.j2db.persistence.BaseComponent;
 import com.servoy.j2db.persistence.CSSPositionUtils;
 import com.servoy.j2db.persistence.Form;
@@ -58,7 +59,6 @@ import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.ISupportBounds;
-import com.servoy.j2db.persistence.ISupportChilds;
 import com.servoy.j2db.persistence.ISupportScrollbars;
 import com.servoy.j2db.persistence.ISupportTabSeq;
 import com.servoy.j2db.persistence.Part;
@@ -74,12 +74,14 @@ import com.servoy.j2db.server.ngclient.property.types.NGTabSeqPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.PropertyPath;
 import com.servoy.j2db.server.ngclient.template.FormLayoutGenerator;
 import com.servoy.j2db.server.ngclient.template.FormTemplateGenerator;
+import com.servoy.j2db.server.ngclient.template.PersistIdentifier;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.server.shared.IApplicationServer;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.ServoyJSONObject;
 import com.servoy.j2db.util.SortedList;
+import com.servoy.j2db.util.StringComparator;
 import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.xmlxport.ISolutionImportListener;
@@ -93,22 +95,18 @@ import com.servoy.j2db.util.xmlxport.SolutionImportNotifier;
  */
 public class FormElementHelper implements IFormElementCache, ISolutionImportListener
 {
-	public final static RuntimeProperty<ConcurrentMap<UUID, Map<String, FormComponentCache>>> SOLUTION_MODEL_CACHE = new RuntimeProperty<ConcurrentMap<UUID, Map<String, FormComponentCache>>>()
-	{
-	};
-	public final static RuntimeProperty<String> FORM_COMPONENT_FORM_NAME = new RuntimeProperty<String>()
-	{
-	};
-	public final static RuntimeProperty<String> FORM_COMPONENT_UUID = new RuntimeProperty<String>()
-	{
-	};
-	public final static RuntimeProperty<String> FORM_COMPONENT_ELEMENT_NAME = new RuntimeProperty<String>()
-	{
-	};
-	public final static RuntimeProperty<Pair<Long, Map<TabSeqProperty, Integer>>> FORM_TAB_SEQUENCE = new RuntimeProperty<Pair<Long, Map<TabSeqProperty, Integer>>>()
-	{
-	};
+
+	// @formatter:off
+	public final static RuntimeProperty<ConcurrentMap<UUID, Map<String, FormComponentCache>>> SOLUTION_MODEL_CACHE = new RuntimeProperty<>() {};
+
+	public final static RuntimeProperty<String> FC_NAME_OF_ROOT_ACTUAL_FORM_EVEN_IN_CASE_OF_NESTED_FORM_COMPONENTS = new RuntimeProperty<>() {};
+	public final static RuntimeProperty<IPersist> FC_DIRECT_PARENT_FORM_COMPONENT_CONTAINER = new RuntimeProperty<>() {};
+	public final static RuntimeProperty<String> FC_CHILD_ELEMENT_NAME_INSIDE_DIRECT_PARENT_FORM_COMPONENT = new RuntimeProperty<>() {};
+	public final static RuntimeProperty<String[]> FC_COMPONENT_AND_PROPERTY_NAME_PATH = new RuntimeProperty<>() {};
+
+	public final static RuntimeProperty<Pair<Long, Map<TabSeqProperty, Integer>>> FORM_TAB_SEQUENCE = new RuntimeProperty<Pair<Long, Map<TabSeqProperty, Integer>>>() {};
 	public final static FormElementHelper INSTANCE = new FormElementHelper();
+	// @formatter:on
 
 	// todo identity key? SolutionModel persist shouldn't be cached at all?
 	private final ConcurrentMap<String, FlattenedSolution> globalFlattendSolutions = new ConcurrentHashMap<>();
@@ -139,15 +137,28 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 		return lst;
 	}
 
-	public FormComponentCache getFormComponentCache(INGFormElement formElement, PropertyDescription pd, JSONObject formElementValue, Form form,
+	public FormComponentCache getFormComponentCache(INGFormElement formComponentContainerElement, PropertyDescription pd, JSONObject formElementValue,
+		Form formComponent,
 		FlattenedSolution fs)
 	{
-		ConcurrentMap<UUID, Map<String, FormComponentCache>> cache = formElement.getDesignId() != null ? formComponentElementsForDesign : formComponentElements;
-		Solution solutionCopy = fs.getSolutionCopy(false);
-		FlattenedSolution usedFS = getSharedFlattenedSolution(fs);
-		if (solutionCopy != null && solutionCopy.getForm(formElement.getForm().getName()) != null)
+		boolean useGloballySharedFlattenedSolution;
+		ConcurrentMap<UUID, Map<String, FormComponentCache>> cache;
+
+		if (formComponentContainerElement.getDesignId() != null)
 		{
-			usedFS = fs;
+			cache = formComponentElementsForDesign;
+			useGloballySharedFlattenedSolution = false;
+		}
+		else
+		{
+			useGloballySharedFlattenedSolution = true;
+			cache = formComponentElements;
+		}
+
+		Solution solutionCopy = fs.getSolutionCopy(false);
+		if (solutionCopy != null && solutionCopy.getForm(formComponentContainerElement.getForm().getName()) != null)
+		{
+			useGloballySharedFlattenedSolution = false;
 			// if the form is a solution model for we can't use the standard caches.
 			cache = solutionCopy.getRuntimeProperty(SOLUTION_MODEL_CACHE);
 			if (cache == null)
@@ -156,25 +167,41 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 				solutionCopy.setRuntimeProperty(SOLUTION_MODEL_CACHE, cache);
 			}
 		}
-		return getFormComponentFromCache(formElement, pd, formElementValue, form, usedFS,
-			cache);
+		return getFormComponentFromCache(formComponentContainerElement, pd, formElementValue, formComponent,
+			useGloballySharedFlattenedSolution ? getSharedFlattenedSolution(fs) : fs, cache);
 	}
 
-	private static FormComponentCache getFormComponentFromCache(INGFormElement parentElement, PropertyDescription pd, JSONObject json, Form frm,
+	private static FormComponentCache getFormComponentFromCache(INGFormElement formComponentContainerElement, PropertyDescription pd,
+		JSONObject formElementValue, Form formComponent,
 		FlattenedSolution fs, ConcurrentMap<UUID, Map<String, FormComponentCache>> cache)
 	{
-		Map<String, FormComponentCache> map = cache.get(parentElement.getPersistIfAvailable().getUUID());
+		Map<String, FormComponentCache> map = cache.get(formComponentContainerElement.getPersistIfAvailable().getUUID());
 		if (map == null)
 		{
 			map = new ConcurrentHashMap<>();
-			cache.put(parentElement.getPersistIfAvailable().getUUID(), map);
+			cache.put(formComponentContainerElement.getPersistIfAvailable().getUUID(), map);
 		}
 		FormComponentCache fcCache = map.get(pd.getName());
-		if (fcCache == null || fcCache.created < frm.getLastModified() || fcCache.created < parentElement.getForm().getLastModified() ||
-			!frm.getUUID().toString().equals(fcCache.frmUUID))
+
+		// it should generate cache if it's not there
+		// it should regenerate it if any form in the form component component nesting hierarchy has a change time-stamp newer then the cache
+		boolean[] shouldGenerateCache = new boolean[] { (fcCache == null || fcCache.created < formComponent.getLastModified() ||
+			fcCache.created < formComponentContainerElement.getForm().getLastModified() ||
+			!formComponent.getUUID().toString().equals(fcCache.frmUUID)) };
+
+		if (!shouldGenerateCache[0])
 		{
-			final List<FormElement> list = generateFormComponentElements(parentElement, pd, json, frm, fs);
-			fcCache = generateFormComponentCacheObject(parentElement, pd, frm, fs, list);
+			FormComponentCache fcCacheFinal = fcCache;
+			forEachFormComponentComponentParentOf(formComponentContainerElement, (ancestorFCC) -> {
+				shouldGenerateCache[0] = (fcCacheFinal.created < ((Form)ancestorFCC.getAncestor(IRepository.FORMS)).getLastModified());
+				return Boolean.valueOf(!shouldGenerateCache[0]); // stop iterating if we know we must regenerate
+			});
+		}
+
+		if (shouldGenerateCache[0])
+		{
+			final List<FormElement> list = generateFormComponentElements(formComponentContainerElement, pd, formElementValue, formComponent, fs);
+			fcCache = generateFormComponentCacheObject(formComponentContainerElement, pd, formComponent, fs, list);
 			map.put(pd.getName(), fcCache);
 		}
 		return fcCache;
@@ -202,64 +229,117 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 		return new FormComponentCache(list, template, frm.getUUID().toString());
 	}
 
-	private static List<FormElement> generateFormComponentElements(INGFormElement parent, PropertyDescription pd, JSONObject json, Form frm,
+	private static List<FormElement> generateFormComponentElements(INGFormElement formComponentContainerElement, PropertyDescription pd,
+		JSONObject formElementValue, Form formComponent,
 		FlattenedSolution fs)
 	{
 		List<FormElement> elements = new ArrayList<>();
-		List<IFormElement> persistElements = generateFormComponentPersists(parent, pd, json, frm, fs);
+		List<IFormElement> persistElements = generateFormComponentPersists(formComponentContainerElement, pd, formElementValue, formComponent, fs);
 		for (IFormElement formElement : persistElements)
 		{
-			elements.add(new FormElement(formElement, fs, new PropertyPath(), parent.getDesignId() != null));
+			elements.add(new FormElement(formElement, fs, new PropertyPath(), formComponentContainerElement.getDesignId() != null));
 		}
 		return elements;
 	}
 
-	private static List<IFormElement> generateFormComponentPersists(INGFormElement parent, PropertyDescription pd, JSONObject json, Form frm,
+	private static List<IFormElement> generateFormComponentPersists(INGFormElement formComponentContainerElement, PropertyDescription pd,
+		JSONObject formElementValue, Form formComponent,
 		FlattenedSolution fs)
 	{
 		List<IFormElement> elements = new ArrayList<>();
-		List<IFormElement> formelements = fs.getFlattenedForm(frm).getFlattenedObjects(PositionComparator.XY_PERSIST_COMPARATOR);
-		for (IFormElement element : formelements)
+		List<IFormElement> formElementsOfFormComponent = fs.getFlattenedForm(formComponent).getFlattenedObjects(PositionComparator.XY_PERSIST_COMPARATOR);
+		for (IFormElement childOfFormComponent : formElementsOfFormComponent)
 		{
-			element = (IFormElement)((AbstractBase)element).clonePersist(null);
+			IFormElement cloneOfChildOfFormComponent = (IFormElement)((AbstractBase)childOfFormComponent).clonePersist(null);
 			// we kind of want to have this element a new uuid, but then it is very hard to get it stable.
-			UUID newElementUUID = null;
+			UUID clonedChildsUUID = null;
 			synchronized (formComponentElementsUUIDS)
 			{
-				Map<UUID, UUID> map = formComponentElementsUUIDS.get(parent.getPersistIfAvailable().getUUID());
+				Map<UUID, UUID> map = formComponentElementsUUIDS.get(formComponentContainerElement.getPersistIfAvailable().getUUID());
 				if (map == null)
 				{
 					map = new HashMap<>();
-					formComponentElementsUUIDS.put(parent.getPersistIfAvailable().getUUID(), map);
+					formComponentElementsUUIDS.put(formComponentContainerElement.getPersistIfAvailable().getUUID(), map);
 				}
-				newElementUUID = map.get(element.getUUID());
-				if (newElementUUID == null)
+				clonedChildsUUID = map.get(cloneOfChildOfFormComponent.getUUID());
+				if (clonedChildsUUID == null)
 				{
-					newElementUUID = UUID.randomUUID();
-					map.put(element.getUUID(), newElementUUID);
+					clonedChildsUUID = UUID.randomUUID();
+					map.put(cloneOfChildOfFormComponent.getUUID(), clonedChildsUUID);
 				}
 			}
-			((AbstractBase)element).resetUUID(newElementUUID);
-			String elementName = element.getName();
-			if (elementName == null)
+			((AbstractBase)cloneOfChildOfFormComponent).resetUUID(clonedChildsUUID);
+			String childNameInsideFormComponent = cloneOfChildOfFormComponent.getName();
+			if (childNameInsideFormComponent == null)
 			{
-				elementName = FormElement.SVY_NAME_PREFIX + String.valueOf(element.getID());
+				childNameInsideFormComponent = FormElement.SVY_NAME_PREFIX + String.valueOf(cloneOfChildOfFormComponent.getID());
 			}
-			String templateName = getStartElementName(parent, pd) + elementName;
-			String formName = parent.getForm().getName();
-			if (parent.getForm().isFormComponent() && parent.getPersistIfAvailable() instanceof AbstractBase &&
-				((AbstractBase)parent.getPersistIfAvailable()).getRuntimeProperty(FORM_COMPONENT_FORM_NAME) != null)
+
+			// build names like fcc1$containedForm$fcc2$containedForm$button1
+			// & the component-and-property-name-path array which is the same but as a String array (the array is used in code to avoid String parsing)
+
+			// we still do this for the name, because even though our code that needs to be aware of form component nesting should now rely on
+			// componentPersist.getRuntimeProperty(FormElementHelper.FC_COMPONENT_AND_PROPERTY_NAME_PATH) instead, we exposed this $ based
+			// name in element.getName() to solutions, and we need an unique name when server-client exchange info about components anyway;
+			// so names should not conflict with the other form component component children or normal element names inside the same form;
+			// this is used also in cypress tests - see the similar comment in ChildrenJSONGenerator where data-cy attribute is added
+			// TODO this approach can still be a problem if an element has a $ in it and it ends up being a duplicate with a form component
+			// named like it before the $ and a child component named like it after the $; but this is unlikely; if needed, it could be fixed
+			// by adding a number or turning the name into a new UUID for example - to make them unique in that case as well (the name should
+			// not be used with string $ parsing anymore anyway)... but that would result in solution code element.getName() returning a different
+			// value then previously expected
+			PersistIdentifier designId = formComponentContainerElement.getDesignId();
+			String parentCompAndPropPathAsString = designId != null && designId.persistUUIDAndFCPropAndComponentPath().length == 1
+				? designId.persistUUIDAndFCPropAndComponentPath()[0] /* this will be an UUID in developer, not a name */
+				: formComponentContainerElement.getName();
+			String fullChildNameForTemplate = (parentCompAndPropPathAsString != null ? parentCompAndPropPathAsString + '$' + pd.getName() + '$' : "") + //$NON-NLS-1$
+				childNameInsideFormComponent;
+
+			String[] parentCompAndPropPath = null;
+			String[] compAndPropPath = null;
+
+			// determine the form name of the actual root (real) form (not formComponent), in case of form components nested on multiple levels
+			String rootParentFormNameOfFormComponentContainersNesting = formComponentContainerElement.getForm().getName();
+
+			if (formComponentContainerElement.getForm().isFormComponent().booleanValue() &&
+				formComponentContainerElement.getPersistIfAvailable() instanceof AbstractBase)
 			{
-				formName = ((AbstractBase)parent.getPersistIfAvailable()).getRuntimeProperty(FORM_COMPONENT_FORM_NAME);
+				if (((AbstractBase)formComponentContainerElement.getPersistIfAvailable())
+					.getRuntimeProperty(FC_NAME_OF_ROOT_ACTUAL_FORM_EVEN_IN_CASE_OF_NESTED_FORM_COMPONENTS) != null)
+				{
+					rootParentFormNameOfFormComponentContainersNesting = ((AbstractBase)formComponentContainerElement.getPersistIfAvailable())
+						.getRuntimeProperty(FC_NAME_OF_ROOT_ACTUAL_FORM_EVEN_IN_CASE_OF_NESTED_FORM_COMPONENTS);
+				}
+				parentCompAndPropPath = ((AbstractBase)formComponentContainerElement.getPersistIfAvailable())
+					.getRuntimeProperty(FC_COMPONENT_AND_PROPERTY_NAME_PATH);
 			}
-			((AbstractBase)element).setRuntimeProperty(FORM_COMPONENT_FORM_NAME, formName);
-			((AbstractBase)element).setRuntimeProperty(FORM_COMPONENT_ELEMENT_NAME, elementName);
-			((AbstractBase)element).setRuntimeProperty(FORM_COMPONENT_UUID, parent.getPersistIfAvailable().getUUID().toString());
-			JSONObject elementJson = json.optJSONObject(elementName);
+
+			if (parentCompAndPropPath != null)
+				compAndPropPath = Arrays.copyOf(parentCompAndPropPath, parentCompAndPropPath.length + 2);
+			else
+			{
+				compAndPropPath = new String[3];
+				compAndPropPath[0] = parentCompAndPropPathAsString; // it's actually just the name (or uuid when in designer) here as we didn't find a parentCompAndPropPath
+			}
+			compAndPropPath[compAndPropPath.length - 2] = pd.getName();
+			compAndPropPath[compAndPropPath.length - 1] = childNameInsideFormComponent;
+
+			((AbstractBase)cloneOfChildOfFormComponent).setRuntimeProperty(
+				FC_NAME_OF_ROOT_ACTUAL_FORM_EVEN_IN_CASE_OF_NESTED_FORM_COMPONENTS,
+				rootParentFormNameOfFormComponentContainersNesting);
+			((AbstractBase)cloneOfChildOfFormComponent).setRuntimeProperty(
+				FC_CHILD_ELEMENT_NAME_INSIDE_DIRECT_PARENT_FORM_COMPONENT,
+				childNameInsideFormComponent);
+			((AbstractBase)cloneOfChildOfFormComponent).setRuntimeProperty(FC_DIRECT_PARENT_FORM_COMPONENT_CONTAINER,
+				formComponentContainerElement.getPersistIfAvailable());
+			((AbstractBase)cloneOfChildOfFormComponent).setRuntimeProperty(FC_COMPONENT_AND_PROPERTY_NAME_PATH,
+				compAndPropPath);
+
+			JSONObject elementJson = formElementValue.optJSONObject(childNameInsideFormComponent);
 			if (elementJson != null)
 			{
-				Map<String, Method> methods = RepositoryHelper.getSetters(element);
-				WebObjectSpecification legacySpec = FormTemplateGenerator.getWebObjectSpecification(element);
+				Map<String, Method> methods = RepositoryHelper.getSetters(cloneOfChildOfFormComponent);
+				WebObjectSpecification legacySpec = FormTemplateGenerator.getWebObjectSpecification(cloneOfChildOfFormComponent);
 				for (String key : elementJson.keySet())
 				{
 					Object val = elementJson.get(key);
@@ -272,7 +352,7 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 							PropertyDescription property = legacySpec.getProperty(key);
 							if (property != null && property.getType() instanceof IDesignValueConverter)
 							{
-								val = ((IDesignValueConverter)property.getType()).fromDesignValue(val, property, element);
+								val = ((IDesignValueConverter)property.getType()).fromDesignValue(val, property, cloneOfChildOfFormComponent);
 							}
 							else
 							{
@@ -285,49 +365,44 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 							}
 						}
 					}
-					if (val instanceof JSONObject && ((AbstractBase)element).getProperty(key) instanceof JSONObject)
+					if (val instanceof JSONObject && ((AbstractBase)cloneOfChildOfFormComponent).getProperty(key) instanceof JSONObject)
 					{
 						// if both are json (like a nested form) then merge it in.
-						ServoyJSONObject.mergeAndDeepCloneJSON((JSONObject)val, (JSONObject)((AbstractBase)element).getProperty(key));
+						ServoyJSONObject.mergeAndDeepCloneJSON((JSONObject)val, (JSONObject)((AbstractBase)cloneOfChildOfFormComponent).getProperty(key));
 					}
 					else if (val instanceof String && StaticContentSpecLoader.PROPERTY_CUSTOMPROPERTIES.getPropertyName().equals(key) &&
-						((AbstractBase)element).getCustomProperties() != null)
+						((AbstractBase)cloneOfChildOfFormComponent).getCustomProperties() != null)
 					{
 						// custom properties needs to be merged in..
-						JSONObject original = new ServoyJSONObject(((AbstractBase)element).getCustomProperties(), true);
+						JSONObject original = new ServoyJSONObject(((AbstractBase)cloneOfChildOfFormComponent).getCustomProperties(), true);
 						ServoyJSONObject.mergeAndDeepCloneJSON(new ServoyJSONObject((String)val, true), original);
-						((AbstractBase)element).setCustomProperties(ServoyJSONObject.toString(original, true, true, true));
+						((AbstractBase)cloneOfChildOfFormComponent).setCustomProperties(ServoyJSONObject.toString(original, true, true, true));
 					}
-					else if (val instanceof JSONArray && ((AbstractBase)element).getProperty(key) instanceof IChildWebObject[])
+					else if (val instanceof JSONArray && ((AbstractBase)cloneOfChildOfFormComponent).getProperty(key) instanceof IChildWebObject[])
 					{
-						IChildWebObject[] webObjectChildren = (IChildWebObject[])((AbstractBase)element).getProperty(key);
+						IChildWebObject[] webObjectChildren = (IChildWebObject[])((AbstractBase)cloneOfChildOfFormComponent).getProperty(key);
 						JSONArray original = new JSONArray();
 						for (IChildWebObject element2 : webObjectChildren)
 						{
 							original.put(element2.getJson());
 						}
 						ServoyJSONObject.mergeAndDeepCloneJSON((JSONArray)val, original);
-						((AbstractBase)element).setProperty(key, original);
+						((AbstractBase)cloneOfChildOfFormComponent).setProperty(key, original);
 					}
-					else((AbstractBase)element).setProperty(key, val);
+					else((AbstractBase)cloneOfChildOfFormComponent).setProperty(key, val);
 				}
 			}
-			element.setName(templateName);
-			elements.add(element);
+			cloneOfChildOfFormComponent.setName(fullChildNameForTemplate);
+			elements.add(cloneOfChildOfFormComponent);
 		}
 		return elements;
-	}
-
-	public static String getStartElementName(INGFormElement parent, PropertyDescription pd)
-	{
-		String name = parent.getDesignId() != null ? parent.getDesignId() : parent.getName();
-		return name != null ? name + '$' + pd.getName() + '$' : null;
 	}
 
 	public FormElement getFormElement(IFormElement formElement, FlattenedSolution fs, PropertyPath propertyPath, final boolean designer)
 	{
 		// dont cache if solution model is used (media,valuelist,relations can be changed for a none changed element)
-		if (designer || (fs.getSolutionCopy(false) != null) || ((AbstractBase)formElement).getRuntimeProperty(FORM_COMPONENT_FORM_NAME) != null)
+		if (designer || (fs.getSolutionCopy(false) != null) ||
+			((AbstractBase)formElement).getRuntimeProperty(FC_NAME_OF_ROOT_ACTUAL_FORM_EVEN_IN_CASE_OF_NESTED_FORM_COMPONENTS) != null)
 		{
 			if (formElement instanceof BodyPortal) return createBodyPortalFormElement((BodyPortal)formElement, fs, designer);
 			else return new FormElement(formElement, fs, propertyPath == null ? new PropertyPath().setShouldAddElementName() : propertyPath, designer);
@@ -675,10 +750,19 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 		{
 			for (IPersist persist : changes)
 			{
-				if (persist instanceof IBasicWebObject)
-				{
-					formComponentElementsForDesign.remove(persist.getParent().getUUID());
-				}
+				// this method is called currently only for persist changes in the editing solution (not the real / saved solution)
+
+				// we need to clear all affected form component component caches - even when they are nested multiple times
+				// treat any parent FCCs
+				forEachFormComponentComponentParentOf(persist, (ancestorFcc) -> {
+					formComponentElementsForDesign.remove(ancestorFcc.getUUID());
+					return Boolean.TRUE;
+				});
+
+				// in case the persist itself is directly an FCC, clear it from the cache as well
+				// (this will not do anything for persists that are not FCCs and a simple remove is faster then trying to figure out if the persist is an FCC or not before doing it)
+				if (persist.getParent() != null) formComponentElementsForDesign.remove(persist.getParent().getUUID());
+
 				persistWrappers.remove(persist);
 			}
 		}
@@ -707,7 +791,7 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 		{
 			if (flattenedForm.isFormComponent() && persistIfAvailable instanceof AbstractBase)
 			{
-				String mainFormName = ((AbstractBase)persistIfAvailable).getRuntimeProperty(FORM_COMPONENT_FORM_NAME);
+				String mainFormName = ((AbstractBase)persistIfAvailable).getRuntimeProperty(FC_NAME_OF_ROOT_ACTUAL_FORM_EVEN_IN_CASE_OF_NESTED_FORM_COMPONENTS);
 				if (mainFormName != null)
 				{
 					flattenedForm = flattenedSolution.getFlattenedForm(flattenedSolution.getForm(mainFormName));
@@ -733,66 +817,14 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 				{
 					public int compare(TabSeqProperty o1, TabSeqProperty o2)
 					{
-						int seq1 = o1.getSeqValue();
-						int seq2 = o2.getSeqValue();
-						if (seq1 == ISupportTabSeq.DEFAULT && seq2 == ISupportTabSeq.DEFAULT)
-						{
-							if (responsiveForm)
-							{
-								if (o1.element.getParent() == o2.element.getParent())
-								{
-									int positionComparator = PositionComparator.comparePoint(false, o1.getLocation(), o2.getLocation());
-									if (positionComparator != 0)
-									{
-										return positionComparator;
-									}
-
-								}
-								else
-								{
-									List<ISupportChilds> ancestors = new ArrayList<ISupportChilds>();
-									IPersist persist = o1.element;
-									while (persist.getParent() instanceof AbstractContainer)
-									{
-										ancestors.add(persist.getParent());
-										persist = persist.getParent();
-									}
-									persist = o2.element;
-									while (persist.getParent() instanceof AbstractContainer)
-									{
-										if (ancestors.contains(persist.getParent()))
-										{
-											// we found the common ancestor
-											int index = ancestors.indexOf(persist.getParent());
-											IPersist comparablePersist = index == 0 ? o1.element : ancestors.get(index - 1);
-											int positionComparator = PositionComparator.comparePoint(false, ((ISupportBounds)comparablePersist).getLocation(),
-												((ISupportBounds)persist).getLocation());
-											if (positionComparator != 0)
-											{
-												return positionComparator;
-											}
-										}
-										persist = persist.getParent();
-									}
-								}
-							}
-							else
-							{
-								int positionComparator = PositionComparator.comparePoint(false, o1.getLocation(), o2.getLocation());
-								if (positionComparator != 0)
-								{
-									return positionComparator;
-								}
-							}
-						}
-						return compareTabSeq(seq1, o1.element, seq2, o2.element, flattenedSolution);
+						return compareTabSeq(o1, o2, responsiveForm);
 					}
 				});
 				Map<TabSeqProperty, List<TabSeqProperty>> listFormComponentMap = new HashMap<TabSeqProperty, List<TabSeqProperty>>();
 				List<TabSeqProperty> listFormComponentElements = null;
-				TabSeqProperty listFormComponentTabSeq = null;
 				for (IFormElement formElement : flattenedForm.getFlattenedObjects(null))
 				{
+					TabSeqProperty listFormComponentTabSeq = null;
 					if (FormTemplateGenerator.isWebcomponentBean(formElement))
 					{
 						String componentType = FormTemplateGenerator.getComponentTypeName(formElement);
@@ -812,6 +844,7 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 									if (listFormComponentTabSeq == null && isListFormComponent)
 									{
 										listFormComponentTabSeq = seqProperty;
+										// I think we assume list form components don't nest other list form components...; so the addFormComponentProperties(...) call below will only use this array on the first level...
 										listFormComponentElements = new ArrayList<TabSeqProperty>();
 										listFormComponentMap.put(listFormComponentTabSeq, listFormComponentElements);
 									}
@@ -826,7 +859,7 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 								}
 							}
 							addFormComponentProperties(formComponentProperties, formElement, flattenedSolution, cachedTabSeq, selected,
-								listFormComponentElements, design, new HashSet<String>());
+								listFormComponentElements, design, new HashSet<String>(), new Point());
 						}
 					}
 					else if (formElement instanceof ISupportTabSeq)
@@ -850,12 +883,13 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 
 				for (TabSeqProperty tabSeq : listFormComponentMap.keySet())
 				{
-					List<TabSeqProperty> elements = listFormComponentMap.get(tabSeq);
-					if (elements != null)
+					List<TabSeqProperty> elementsInThatListFormComponent = listFormComponentMap.get(tabSeq);
+					if (elementsInThatListFormComponent != null)
 					{
-						Integer value = cachedTabSeq.get(tabSeq);
+						Integer value = cachedTabSeq.get(tabSeq); // tabSeq (the key) is the tabSeq of the form component itself
 						// all elements inside list form component have same tabindex as the list itself
-						for (TabSeqProperty tabSeqElement : elements)
+						// TODO why do we make it so?
+						for (TabSeqProperty tabSeqElement : elementsInThatListFormComponent)
 						{
 							cachedTabSeq.put(tabSeqElement, value);
 						}
@@ -886,17 +920,22 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 		}
 	}
 
-	private void addFormComponentProperties(Collection<PropertyDescription> formComponentProperties, IFormElement formElement,
+	/**
+	 * @param parentFCComputedLocation we care about the location of components nested in FC's relative to the form when comparing
+	 * positions in css positioned forms; this param says the starting position of the parent FC (or main form 0,0) of
+	 * formComponentFormElement (Note: FCs can be nested multiple times - that is why we need this as a param here)
+	 */
+	private void addFormComponentProperties(Collection<PropertyDescription> formComponentProperties, IFormElement formComponentFormElement,
 		FlattenedSolution flattenedSolution, Map<TabSeqProperty, Integer> cachedTabSeq, List<TabSeqProperty> selected,
-		List<TabSeqProperty> listFormComponentElements, boolean design, Set<String> recursionCheck)
+		List<TabSeqProperty> listFormComponentElements, boolean design, Set<String> recursionCheck, Point parentFCComputedLocation)
 	{
 		if (formComponentProperties != null && formComponentProperties.size() > 0)
 		{
-			boolean isListFormComponent = isListFormComponent(formComponentProperties);
 			// avoid infinite cycle here
-			FormElement formComponentEl = FormElementHelper.INSTANCE.getFormElement(formElement, flattenedSolution, null, design);
+			FormElement formComponentEl = FormElementHelper.INSTANCE.getFormElement(formComponentFormElement, flattenedSolution, null, design);
 			for (PropertyDescription property : formComponentProperties)
 			{
+				boolean isListFormComponent = isListFormComponent(formComponentProperties);
 				Object frmValue = formComponentEl.getPropertyValue(property.getName());
 				Form frm = FormComponentPropertyType.INSTANCE.getForm(frmValue, flattenedSolution);
 				if (frm == null) continue;
@@ -908,59 +947,69 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 				}
 
 				// do not use the formcomponentcache, we do not want formelement with wrong tabseq to be cached, must caclulate first the sequence
-				List<IFormElement> elements = generateFormComponentPersists(formComponentEl, property, (JSONObject)frmValue, frm, flattenedSolution);
+				List<IFormElement> formComponentPersistsForFCProp = generateFormComponentPersists(formComponentEl, property, (JSONObject)frmValue, frm,
+					flattenedSolution);
 
-				for (IFormElement element : elements)
+				for (IFormElement childPersistOfFCProp : formComponentPersistsForFCProp)
 				{
-					if (element instanceof ISupportTabSeq)
+					if (childPersistOfFCProp instanceof ISupportTabSeq)
 					{
 						if (isListFormComponent && listFormComponentElements != null)
 						{
-							listFormComponentElements.add(new TabSeqProperty(element, StaticContentSpecLoader.PROPERTY_TABSEQ.getPropertyName()));
+							listFormComponentElements.add(new TabSeqProperty(childPersistOfFCProp, StaticContentSpecLoader.PROPERTY_TABSEQ.getPropertyName()));
 						}
-						else if (((ISupportTabSeq)element).getTabSeq() >= 0)
+						else if (((ISupportTabSeq)childPersistOfFCProp).getTabSeq() >= 0)
 						{
-							selected.add(new TabSeqProperty(element, StaticContentSpecLoader.PROPERTY_TABSEQ.getPropertyName(),
-								CSSPositionUtils.getLocation(formElement)));
+							Point locationOfFCInParent = CSSPositionUtils.getLocation(formComponentFormElement);
+							Point fCComputedLocation = new Point(locationOfFCInParent.x + parentFCComputedLocation.x,
+								locationOfFCInParent.y + parentFCComputedLocation.y);
+							selected.add(new TabSeqProperty(childPersistOfFCProp, StaticContentSpecLoader.PROPERTY_TABSEQ.getPropertyName(),
+								fCComputedLocation));
 						}
 						else
 						{
-							cachedTabSeq.put(new TabSeqProperty(element, StaticContentSpecLoader.PROPERTY_TABSEQ.getPropertyName()), Integer.valueOf(-2));
+							cachedTabSeq.put(new TabSeqProperty(childPersistOfFCProp, StaticContentSpecLoader.PROPERTY_TABSEQ.getPropertyName()),
+								Integer.valueOf(-2));
 						}
 					}
-					else if (FormTemplateGenerator.isWebcomponentBean(element))
+					else if (FormTemplateGenerator.isWebcomponentBean(childPersistOfFCProp))
 					{
-						String nestedDomponentType = FormTemplateGenerator.getComponentTypeName(element);
-						WebObjectSpecification nestedSpecification = WebComponentSpecProvider.getSpecProviderState().getWebObjectSpecification(
-							nestedDomponentType);
-						if (nestedSpecification != null)
+						String childComponentType = FormTemplateGenerator.getComponentTypeName(childPersistOfFCProp);
+						WebObjectSpecification childComponentSpecification = WebComponentSpecProvider.getSpecProviderState().getWebObjectSpecification(
+							childComponentType);
+						if (childComponentSpecification != null)
 						{
-							Collection<PropertyDescription> nestedProperties = nestedSpecification.getProperties(NGTabSeqPropertyType.NG_INSTANCE);
-							if (nestedProperties != null && nestedProperties.size() > 0)
+							Point locationOfFCInParent = CSSPositionUtils.getLocation(formComponentFormElement);
+							Point fCComputedLocation = new Point(locationOfFCInParent.x + parentFCComputedLocation.x,
+								locationOfFCInParent.y + parentFCComputedLocation.y);
+
+							Collection<PropertyDescription> childComponentTabSeqProperties = childComponentSpecification
+								.getProperties(NGTabSeqPropertyType.NG_INSTANCE);
+							if (childComponentTabSeqProperties != null && childComponentTabSeqProperties.size() > 0)
 							{
-								IBasicWebComponent webComponent = (IBasicWebComponent)element;
-								for (PropertyDescription tabSeqProperty : nestedProperties)
+								IBasicWebComponent childWebComponent = (IBasicWebComponent)childPersistOfFCProp;
+								for (PropertyDescription childTabSeqProperty : childComponentTabSeqProperties)
 								{
-									int tabseq = Utils.getAsInteger(webComponent.getProperty(tabSeqProperty.getName()));
+									int tabseq = Utils.getAsInteger(childWebComponent.getProperty(childTabSeqProperty.getName()));
 									if (tabseq >= 0 && isListFormComponent && listFormComponentElements != null)
 									{
 										// all elements will have the tabseq of the list
-										listFormComponentElements.add(new TabSeqProperty(element, tabSeqProperty.getName()));
+										listFormComponentElements.add(new TabSeqProperty(childPersistOfFCProp, childTabSeqProperty.getName()));
 									}
 									else if (tabseq >= 0)
 									{
-										selected.add(new TabSeqProperty(element, tabSeqProperty.getName(), CSSPositionUtils.getLocation(formElement)));
+										selected.add(new TabSeqProperty(childPersistOfFCProp, childTabSeqProperty.getName(), fCComputedLocation));
 									}
 									else
 									{
-										cachedTabSeq.put(new TabSeqProperty(element, tabSeqProperty.getName()), Integer.valueOf(-2));
+										cachedTabSeq.put(new TabSeqProperty(childPersistOfFCProp, childTabSeqProperty.getName()), Integer.valueOf(-2));
 									}
 								}
 							}
 
-							nestedProperties = nestedSpecification.getProperties(FormComponentPropertyType.INSTANCE);
-							addFormComponentProperties(nestedProperties, element, flattenedSolution, cachedTabSeq, selected,
-								listFormComponentElements, design, recursionCheck);
+							addFormComponentProperties(childComponentSpecification.getProperties(FormComponentPropertyType.INSTANCE),
+								childPersistOfFCProp, flattenedSolution, cachedTabSeq, selected,
+								listFormComponentElements, design, recursionCheck, fCComputedLocation);
 						}
 					}
 				}
@@ -969,6 +1018,13 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 		}
 	}
 
+	/**
+	 * We currently don't have form component components (list or normal) that contain 2 form component properties in them, only 1 prop;
+	 * and even if we did, we don't have a way to link which tabseq. property is for which list form component prop.<br/>
+	 *
+	 * So we currently decide if it's a list form component or not based on a collection of properties; although logically one property says
+	 * if it's a list form component or a component, not multiple (if it's using forFoundset 'formcomponent' typed properties or not).
+	 */
 	public static boolean isListFormComponent(Collection<PropertyDescription> properties)
 	{
 		boolean isListFormComponent = false;
@@ -1032,6 +1088,11 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 				return ((ISupportTabSeq)element).getTabSeq();
 			}
 			return -1;
+		}
+
+		public IPersist getElement()
+		{
+			return element;
 		}
 
 		public Point getLocation()
@@ -1125,130 +1186,77 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 		}
 	}
 
-	//TODO: try to make this method recursive, for the cases when there are more than 2 nested form components
-	public static int compareTabSeq(int seq1, Object o1, int seq2, Object o2, FlattenedSolution flattenedSolution)
+	public static int compareTabSeq(TabSeqProperty tabSeq1, TabSeqProperty tabSeq2, boolean inResponsiveForm)
 	{
 		int yxCompare = 0;
-		if (seq1 == ISupportTabSeq.DEFAULT && seq2 == ISupportTabSeq.DEFAULT && o1 instanceof IPersist && o2 instanceof IPersist)
+		int seq1 = tabSeq1.getSeqValue();
+		int seq2 = tabSeq2.getSeqValue();
+
+		if (seq1 == ISupportTabSeq.DEFAULT && seq2 == ISupportTabSeq.DEFAULT && tabSeq1.getElement() != null && tabSeq2.getElement() != null)
 		{
-			IPersist form = ((IPersist)o1).getAncestor(IRepository.FORMS);
-			if (form instanceof Form && ((Form)form).isResponsiveLayout())
+			if (inResponsiveForm)
 			{
-				if (((IPersist)o1).getParent().equals(((IPersist)o2).getParent()))
+				if (tabSeq1.getElement().getParent().equals(tabSeq2.getElement().getParent()))
 				{
-					//delegate to Yx
-					yxCompare = PositionComparator.YX_PERSIST_COMPARATOR.compare((IPersist)o1, (IPersist)o2);
+					// same parent; delegate to Yx (place inside the same layout container or same form probably)
+					yxCompare = PositionComparator.YX_PERSIST_COMPARATOR.compare(tabSeq1.getElement(), tabSeq2.getElement());
 				}
 				else
 				{
-					/*
-					 * We must search all the parents of the objects o1 and o2.If the objects have a same parent by searching all the ancestors we must compare
-					 * the objects before encountering the same parent.
-					 */
-					List<IPersist> parentsOfo1 = new ArrayList<IPersist>();
-					IPersist parent = ((IPersist)o1).getParent();
-					while (!(parent instanceof Form))
-					{
-						parentsOfo1.add(parent);
-						parent = parent.getParent();
-					}
-					//also add the form to the list of parents
-					parentsOfo1.add(parent);
+					// different parent
 
-					//the last parent of o1 or o2 is a formComponent, not the main form
-					if (parent instanceof Form)
-					{
-						if (((Form)parent).isFormComponent() && o1 instanceof AbstractBase)
-						{
-							String uuid = ((AbstractBase)o1).getRuntimeProperty(FORM_COMPONENT_UUID);
-							if (uuid != null)
-							{
-								IPersist persist = flattenedSolution.searchPersist(uuid);
-								if (persist != null)
-								{
-									parent = persist.getParent();
-									while (!(parent instanceof Form))
-									{
-										parentsOfo1.add(parent);
-										parent = parent.getParent();
-									}
-									//also add the form to the list of parents
-									parentsOfo1.add(parent);
-								}
-							}
-						}
-					}
+					// We must search all the parents of persist1 and persist2. If the persists have a common ancestor - by searching all the ancestors
+					// (layout containers, including going through parent form component containers) & comparing the position of direct children of
+					// that ancestor in order to determine the default tab seq.
 
-					IPersist childo2 = (IPersist)o2;
-					IPersist parento2 = ((IPersist)o2).getParent();
-					while (!(parento2 instanceof Form))
-					{
-						if (parentsOfo1.contains(parento2))
-						{
-							int index = parentsOfo1.indexOf(parento2);
-							//delegate to Yx
-							if (index > 0)
-							{
-								yxCompare = PositionComparator.YX_PERSIST_COMPARATOR.compare(parentsOfo1.get(index - 1), childo2);
-							}
-						}
-						childo2 = parento2;
-						parento2 = parento2.getParent();
-					}
-					//also check to see if the common parent is the actual form
-					if (parentsOfo1.contains(parento2))
-					{
-						int index = parentsOfo1.indexOf(parento2);
-						if (index > 0)
-						{
-							yxCompare = PositionComparator.YX_PERSIST_COMPARATOR.compare(parentsOfo1.get(index - 1), childo2);
-						}
-					}
+					List<ComparabeParentAbstraction> parentsOfPersist1 = findParentsOfPersistThroughFCs(tabSeq1.getElement());
+					List<ComparabeParentAbstraction> parentsOfPersist2 = findParentsOfPersistThroughFCs(tabSeq2.getElement());
 
-					if (parento2 instanceof Form && !parento2.equals(form))
+					// search for the inner most common parent; we start at idx 1 as idx 0 will always be the initial persist itself
+					for (int indexOfParentOfP1 = 1; indexOfParentOfP1 < parentsOfPersist1.size(); indexOfParentOfP1++)
 					{
-						if (((Form)parento2).isFormComponent() && o2 instanceof AbstractBase)
+						ComparabeParentAbstraction parentOfP1 = parentsOfPersist1.get(indexOfParentOfP1);
+						int indexOfParentOfP1InParentsOfP2 = parentsOfPersist2.indexOf(parentOfP1);
+						if (indexOfParentOfP1InParentsOfP2 > 0) // not >=, as idx 0 will always be the initial persist itself, not a parent
 						{
-							String uuid = ((AbstractBase)o2).getRuntimeProperty(FORM_COMPONENT_UUID);
-							if (uuid != null)
+							// so we found a common parent; could be a form, a layout container or a component container that has multiple FC typed properties;
+							// compare the direct children of this common parent on the two paths
+							// the children could be:
+							//   - Form persists that are actually form components (if the common parent is a form component container that
+							//          uses multiple formComponent properties in it...); we compare those using the names of the 2 FC typed
+							//          properties (so that the comparison is stable and predictable)
+							//   - other persists that implement ISupportBounds (LayoutContainer, IFormElement) that can be compared via x/y
+							ComparabeParentAbstraction child1ToUseForComparison = parentsOfPersist1.get(indexOfParentOfP1 - 1); // -1 should not be a prob. because we do check in the beginning if they have a common parent directly - and they don't; so we should be here already in indexes >= 1
+							ComparabeParentAbstraction child2ToUseForComparison = parentsOfPersist2.get(indexOfParentOfP1InParentsOfP2 - 1);
+
+							if (child1ToUseForComparison.fcPropName() != null && child2ToUseForComparison.fcPropName() != null)
 							{
-								IPersist persist = flattenedSolution.searchPersist(uuid);
-								if (persist != null)
-								{
-									parento2 = persist.getParent();
-									while (!(parento2 instanceof Form))
-									{
-										if (parentsOfo1.contains(parento2))
-										{
-											int index = parentsOfo1.indexOf(parento2);
-											//delegate to Yx
-											if (index > 0)
-											{
-												yxCompare = PositionComparator.YX_PERSIST_COMPARATOR.compare(parentsOfo1.get(index - 1), childo2);
-											}
-										}
-										childo2 = parento2;
-										parento2 = parento2.getParent();
-									}
-								}
+								// that means both initial persists are children of form components (have those FC_... runtime-properties set)
+								// and the first difference is between 2 FromComponentPropertyTypeproperties of the same form component component
+								yxCompare = StringComparator.INSTANCE.compare(child1ToUseForComparison.fcPropName(), child2ToUseForComparison.fcPropName());
 							}
+							else yxCompare = PositionComparator.YX_PERSIST_COMPARATOR.compare(child1ToUseForComparison.persist(),
+								child2ToUseForComparison.persist());
+
+							break;
 						}
-					}
-					if (yxCompare == 0 && parentsOfo1.contains(parento2) && parentsOfo1.size() > 1)
-					{
-						yxCompare = PositionComparator.YX_PERSIST_COMPARATOR.compare(parentsOfo1.get(parentsOfo1.size() - 2), childo2);
 					}
 				}
 			}
-			else if (form instanceof Form && !((Form)form).isResponsiveLayout())
+			else
 			{
-				yxCompare = PositionComparator.YX_PERSIST_COMPARATOR.compare((IPersist)o1, (IPersist)o2);
+				// we are not in a responsive form
+				yxCompare = PositionComparator.comparePoint(false, tabSeq1.getLocation(), tabSeq2.getLocation());
 			}
+
 			// if they are at the same position, and are different persist, just use UUID to decide the sequence
-			return yxCompare == 0 ? ((IPersist)o1).getUUID().compareTo(((IPersist)o2).getUUID()) : yxCompare;
+			return yxCompare == 0 ? tabSeq1.getElement().getUUID().compareTo(tabSeq2.getElement().getUUID()) : yxCompare;
 		}
+		// they still are persists at this point I think; just that at least one of them doesn't have a DEFAULT tab seq...
 		else if (seq1 == ISupportTabSeq.DEFAULT)
 		{
+			// Comparator.compare() says -1 or negative if o1 < o2, 0 if equal and 1 or positive if o1 > o2;
+			// so we say here that o1 > o2 (o2 has lower tab seq., so it gets focused faster, because o2 has a tabseq set and o1 does not)
 			return 1;
 		}
 		else if (seq2 == ISupportTabSeq.DEFAULT)
@@ -1257,4 +1265,106 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 		}
 		return seq1 - seq2;
 	}
+
+	/**
+	 * findParentsOfPersistThroughFCs(...) needs to be able to put in the lists IPersist parents that
+	 * are unique; but a Form that is a form component and is used as a FormComponentPropertyType property
+	 * of a form component component is the same Form instance for all FC clones... so instead of
+	 * identifying it by that Form, we identify it based on the form component component + it's FC property name
+	 * because the form component component is unique (even if there are nested FCs, the form component components
+	 * will be clones - so still unique)<br/><br/>
+	 *
+	 * So this is the purpose of this record. To keep either simple layout persists/initial persist
+	 * (+ null fcPropName) or combinations of form component component persists + their FC property name.
+	 */
+	private static record ComparabeParentAbstraction(IPersist persist, String fcPropName)
+	{
+	}
+
+	private static List<ComparabeParentAbstraction> findParentsOfPersistThroughFCs(IPersist persist)
+	{
+		// when iterating in the while below, in case the persist is inside of nested form components, it will go
+		// through form component parent form-component-containers as well; if that happens, innerMostChildPersistInsideCurrentFormComponentContainer
+		// will get the value of the latest form-component-containers it went through (because that one should have the FC_DIRECT_PARENT_FORM_COMPONENT_CONTAINER
+		// runtime property in order to go even further in form-component-container parents)
+
+		List<ComparabeParentAbstraction> parentsOfPersist = new ArrayList<>();
+
+		parentsOfPersist.add(new ComparabeParentAbstraction(persist, null)); // add first persist as well as later, in the calling code we do a idx - 1 on parent arrays (to check positions of children of common parent) and we don't want that to target index -1
+
+		IPersist innerMostChildPersistInsideCurrentFormComponentContainer = persist;
+		IPersist parent = innerMostChildPersistInsideCurrentFormComponentContainer.getParent();
+
+		while (!(parent instanceof Form || parent == null))
+		{
+			parentsOfPersist.add(new ComparabeParentAbstraction(parent, null)); // a layout container, the actual top form or a intermediate Form that is actually a form component
+			parent = parent.getParent();
+
+			if (parent instanceof Form && ((Form)parent).isFormComponent().booleanValue() && persist instanceof AbstractBase)
+			{
+				String[] fcComponentAndPropertyNamePath = ((AbstractBase)innerMostChildPersistInsideCurrentFormComponentContainer)
+					.getRuntimeProperty(FC_COMPONENT_AND_PROPERTY_NAME_PATH);
+				if (fcComponentAndPropertyNamePath != null)
+				{
+					// if we reached a form component parent, add the parents in the actual form where this form component is used as well
+
+					// we will need the FormComponentType property's name inside the form component component when checking for equal parent abstractions
+					// as well as when comparing between form components used in the same from component component in different properties
+					// see javadoc of ComparabeParentAbstraction
+					String fcPropName = fcComponentAndPropertyNamePath[fcComponentAndPropertyNamePath.length - 2];
+
+					innerMostChildPersistInsideCurrentFormComponentContainer = ((AbstractBase)innerMostChildPersistInsideCurrentFormComponentContainer)
+						.getRuntimeProperty(FC_DIRECT_PARENT_FORM_COMPONENT_CONTAINER);
+					parent = innerMostChildPersistInsideCurrentFormComponentContainer;
+
+					// so we can have Form instances (that are form components actually) in this parents list; we will have
+					// to handle this when using calling code comparison as well (if a form component container uses 2 or more
+					// formComponent properties and persist1 is from one such property and persist2 is from another; then we
+					// should compare those by property name - for example (so that the comparison is stable and predictable))
+					parentsOfPersist.add(new ComparabeParentAbstraction(innerMostChildPersistInsideCurrentFormComponentContainer, fcPropName));
+				} // else we reached the root form and it happens to be a form component... (code of form designers open on form components can end up here)
+			}
+		}
+		// add the actual top form as well
+		if (parent != null) parentsOfPersist.add(new ComparabeParentAbstraction(parent, null)); // "parent" should never be null here BTW
+
+		return parentsOfPersist;
+	}
+
+	/**
+	 * Goes through all form component component parents of the given 'elementInsideAFormComponentComponent' from the most nested one to the top one.<br/><br/>
+	 *
+	 * If the consumer returns FALSE, it stops iterating.<br/><br/>
+	 *
+	 * If the given 'elementInsideAFormComponentComponent' is itself a form component component, it will NOT be given to the consumer.
+	 *
+	 * @param consumer it's actually a function that consumes the FCCs that this method produces, and returns TRUE if it needs more values of FALSE if it is no longer interested in getting more values.
+	 */
+	public static void forEachFormComponentComponentParentOf(INGFormElement elementInsideAFormComponentComponent, Function<IPersist, Boolean> consumer)
+	{
+		FormElementHelper.forEachFormComponentComponentParentOf(elementInsideAFormComponentComponent.getPersistIfAvailable(), consumer);
+	}
+
+	/**
+	 * Goes through all form component component parents of the given 'persistInsideAFormComponentComponent' from the most nested one to the top one.<br/><br/>
+	 *
+	 * If the consumer returns FALSE, it stops iterating.<br/><br/>
+	 *
+	 * If the given 'persistInsideAFormComponentComponent' is itself a form component component, it will NOT be given to the consumer.
+	 *
+	 * @param consumer it's actually a function that consumes the FCCs that this method produces, and returns TRUE if it needs more values of FALSE if it is no longer interested in getting more values.
+	 */
+	public static void forEachFormComponentComponentParentOf(IPersist persistInsideAFormComponentComponent, Function<IPersist, Boolean> consumer)
+	{
+		IPersist currentFCCPersist = persistInsideAFormComponentComponent;
+		Boolean goOn = Boolean.TRUE;
+		while (currentFCCPersist != null && goOn.booleanValue())
+		{
+			currentFCCPersist = (currentFCCPersist instanceof AbstractBase ab)
+				? ab.getRuntimeProperty(FormElementHelper.FC_DIRECT_PARENT_FORM_COMPONENT_CONTAINER) : null;
+
+			if (currentFCCPersist != null) goOn = consumer.apply(currentFCCPersist);
+		}
+	}
+
 }

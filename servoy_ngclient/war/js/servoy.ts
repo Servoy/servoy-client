@@ -377,7 +377,7 @@ angular.module('servoy', ['sabloApp', 'servoyformat', 'servoytooltip', 'servoyfi
                         } else {
                             // form component element
                             const nameParts = targetElNameChain[i].split('$');
-                            if (nameParts.length === 3) {
+                            if (nameParts.length >= 3) {
                                 jsEvent['elementName'] = targetElNameChain[i];
                                 break;
                             }
@@ -952,7 +952,7 @@ angular.module('servoy', ['sabloApp', 'servoyformat', 'servoytooltip', 'servoyfi
                     const newValue = scope.svyFormComponent
                     if (newValue) {
                         element.empty();
-                        const elements = svyServoyApi.getFormComponentElements(newValue.startName, newValue);
+                        const elements = svyServoyApi.getFormComponentElements(undefined, newValue); // first arg is deprecated / not used
 
                         if (newValue.absoluteLayout) {
                             const height = newValue.formHeight;
@@ -1149,7 +1149,7 @@ angular.module('servoy', ['sabloApp', 'servoyformat', 'servoytooltip', 'servoyfi
                                 return $formService.hideForm(formname, svyServoyApi.getFormName(), childElement.name, relationname, formIndex, formNameThatWillShow, relationnameThatWillBeShown, formIndexThatWillBeShown);
                             }
 
-                            this.getFormComponentElements = (propertyName, formComponentValue) => {
+                            this.getFormComponentElements = (_propertyName /* not used, deprecated */, formComponentValue) => {
                                 return $compile($templateCache.get(formComponentValue.uuid))(row);
                             }
                         }
@@ -1332,7 +1332,6 @@ angular.module('servoy', ['sabloApp', 'servoyformat', 'servoytooltip', 'servoyfi
                         parent.empty();
                         parent.append(pager);
                         template = $compile($templateCache.get(scope.svyFormComponent.uuid));
-                        const propertyInName = scope.svyFormComponent.startName
 
                         const height = scope.svyFormComponent.formHeight;
                         const width = scope.svyFormComponent.formWidth;
@@ -1477,7 +1476,6 @@ angular.module('servoy', ['sabloApp', 'servoyformat', 'servoytooltip', 'servoyfi
 
                         for (let j = 0; j < scope.svyFormComponent.childElements.length; j++) {
                             const childElement = scope.svyFormComponent.childElements[j] as componentType.ComponentPropertyValue;
-                            if (childElement.name.indexOf(propertyInName) != 0) throw "The child name " + childElement.name + " should start with " + propertyInName;
                             const simpleName = childElement.name;
                             if (childElement.foundsetConfig && childElement.foundsetConfig.recordBasedProperties && childElement.foundsetConfig.recordBasedProperties.length > 0) {
                                 componentListeners.push(childElement.addViewportChangeListener((change) => {

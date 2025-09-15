@@ -26,6 +26,7 @@ import org.sablo.specification.property.IPropertyType;
 
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IPersist;
+import com.servoy.j2db.server.ngclient.template.PersistIdentifier;
 
 /**
  * @author lvostinar
@@ -61,7 +62,7 @@ public class FormElementExtension implements INGFormElement
 	}
 
 	@Override
-	public String getDesignId()
+	public PersistIdentifier getDesignId()
 	{
 		return parentFormElementContext.getDesignId();
 	}

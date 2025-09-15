@@ -556,18 +556,18 @@ public final class CSSPositionUtils
 	{
 		if (persist instanceof CSSPositionLayoutContainer && ((CSSPositionLayoutContainer)persist).getCssPosition() != null) return true;
 
-		if (persist instanceof BaseComponent && ((BaseComponent)persist).getParent() instanceof Form &&
-			((Form)((BaseComponent)persist).getParent()).getUseCssPosition().booleanValue())
+		if (persist instanceof BaseComponent baseComponent)
 		{
-			return true;
-		}
-		if (persist instanceof BaseComponent && CSSPositionUtils.isInAbsoluteLayoutMode((BaseComponent)persist))
-		{
-			return true;
-		}
-		if (persist instanceof BaseComponent)
-		{
-			ISupportChilds realParent = PersistHelper.getRealParent((BaseComponent)persist);
+			if (baseComponent.getParent() instanceof Form parentFrm &&
+				parentFrm.getUseCssPosition().booleanValue())
+			{
+				return true;
+			}
+			if (CSSPositionUtils.isInAbsoluteLayoutMode(baseComponent))
+			{
+				return true;
+			}
+			ISupportChilds realParent = PersistHelper.getRealParent(baseComponent);
 			if (realParent instanceof LayoutContainer)
 				return CSSPositionUtils.isCSSPositionContainer((LayoutContainer)realParent);
 		}
@@ -634,6 +634,9 @@ public final class CSSPositionUtils
 		}
 	}
 
+	/**
+	 * I think this method assumes that persist.getParent() is a LayoutContainer
+	 */
 	public static boolean isInAbsoluteLayoutMode(IPersist persist)
 	{
 		IPersist parent = persist.getParent();

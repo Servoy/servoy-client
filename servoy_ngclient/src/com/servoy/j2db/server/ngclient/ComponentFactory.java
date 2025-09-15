@@ -63,7 +63,7 @@ public class ComponentFactory
 			if (fe.isFormComponentChild())
 			{
 				Form frm = persist.getAncestor(Form.class);
-				String elementName = ((AbstractBase)persist).getRuntimeProperty(FormElementHelper.FORM_COMPONENT_ELEMENT_NAME);
+				String elementName = ((AbstractBase)persist).getRuntimeProperty(FormElementHelper.FC_CHILD_ELEMENT_NAME_INSIDE_DIRECT_PARENT_FORM_COMPONENT);
 				if (frm != null && elementName != null)
 				{
 					for (IPersist p : frm.getFlattenedFormElementsAndLayoutContainers())

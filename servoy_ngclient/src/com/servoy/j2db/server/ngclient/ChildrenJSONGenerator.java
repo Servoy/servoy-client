@@ -69,6 +69,7 @@ import com.servoy.j2db.server.ngclient.property.types.PropertyPath;
 import com.servoy.j2db.server.ngclient.template.FormLayoutGenerator;
 import com.servoy.j2db.server.ngclient.template.FormLayoutStructureGenerator;
 import com.servoy.j2db.server.ngclient.template.FormTemplateGenerator;
+import com.servoy.j2db.server.ngclient.template.PersistIdentifier;
 import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.Utils;
 
@@ -274,7 +275,7 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 	public boolean isSecurityVisible(IPersist persist)
 	{
 		if (context.getApplication() == null || persist.getUUID() == null || !(persist instanceof IFormElement)) return true;
-		String elementName = ((AbstractBase)persist).getRuntimeProperty(FormElementHelper.FORM_COMPONENT_ELEMENT_NAME);
+		String elementName = ((AbstractBase)persist).getRuntimeProperty(FormElementHelper.FC_CHILD_ELEMENT_NAME_INSIDE_DIRECT_PARENT_FORM_COMPONENT);
 		Form frm = persist.getAncestor(Form.class);
 		if (frm != null && elementName != null)
 		{
@@ -297,7 +298,13 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 		boolean designer)
 	{
 		writer.key("name");
-		String name = designer ? fe.getDesignId() : fe.getName();
+		String name;
+		if (designer)
+		{
+			PersistIdentifier identifier = fe.getDesignId();
+			name = (identifier != null) ? identifier.toJSONString() : null;
+		}
+		else name = fe.getName();
 		writer.value(name);
 		writer.key("specName");
 		if (o instanceof TabPanel)
@@ -378,7 +385,8 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 			writer.object();
 			if (designer)
 			{
-				attributes.put("svy-id", fe.getDesignId());
+				PersistIdentifier designPersistIdentifier = fe.getDesignId();
+				attributes.put("svy-id", designPersistIdentifier != null ? designPersistIdentifier.toJSONString() : null);
 				attributes.put("svy-formelement-type", fe.getTypeName());
 				attributes.put("svy-name", fe.getName());
 				attributes.put("svy-anchors", Integer.toString(((BaseComponent)o).getAnchors()));
@@ -399,12 +407,37 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 			}
 			if (Utils.getAsBoolean(Settings.getInstance().getProperty("servoy.ngclient.testingMode", "false")))
 			{
-				String elementName = name;
-				if (elementName.startsWith("svy_") && o.getUUID() != null)
+				String elementCypressIdentifier = name;
+				if (elementCypressIdentifier.startsWith("svy_") && o.getUUID() != null)
 				{
-					elementName = "svy_" + o.getUUID().toString();
+					elementCypressIdentifier = "svy_" + o.getUUID().toString();
 				}
-				attributes.put("data-cy", form.getName() + "." + elementName);
+
+//	            uncomment this if we decide in the future to not have the elements nested inside form component components show path with '$' in it
+//              currently this is still the case, because even though our code should now rely on
+//				componentPersist.getRuntimeProperty(FormElementHelper.FC_COMPONENT_AND_PROPERTY_NAME_PATH) instead, we exposed that in element.getName()
+//				to solutions, and we need an unique name when server-client exchange info about components anyway; so it should not conflict with the
+//				same name in other form component component children or normal element names inside the same form; see fullChildNameForTemplate from FormElementHelper code
+//				// see if it's inside one or more form components
+//				// keep the data-cy HTML attributes the same as before the refactor where name is no longer $ based - so we kind of build the old name here for cypress tests...
+//				AbstractBase componentPersist = (AbstractBase)fe.getPersistIfAvailable();
+//				if (componentPersist.getRuntimeProperty(FormElementHelper.FC_NAME_OF_ROOT_ACTUAL_FORM_EVEN_IN_CASE_OF_NESTED_FORM_COMPONENTS) != null)
+//				{
+//					StringBuilder pathAndNameAsString = new StringBuilder();
+//					// this is an element that originates from inside a form component
+//					String[] nameAndPath = componentPersist.getRuntimeProperty(FormElementHelper.FC_COMPONENT_AND_PROPERTY_NAME_PATH);
+//					pathAndNameAsString.append(nameAndPath[0]);
+//					int i = 1;
+//					while (i < nameAndPath.length)
+//					{
+//						pathAndNameAsString.append("$");
+//						pathAndNameAsString.append(nameAndPath[i]);
+//						i++;
+//					}
+//					elementCypressIdentifier = pathAndNameAsString.toString();
+//				}
+
+				attributes.put("data-cy", form.getName() + "." + elementCypressIdentifier);
 			}
 			attributes.forEach((key, value) -> {
 				writer.key(StringEscapeUtils.escapeEcmaScript(key));
@@ -538,7 +571,7 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 		}
 		if (designer)
 		{
-			attributes.put("svy-id", layoutContainer.getUUID().toString());
+			attributes.put("svy-id", PersistIdentifier.fromSimpleUUID(layoutContainer.getUUID()).toJSONString());
 			if (spec != null)
 			{
 				attributes.put("svy-layoutname", spec.getPackageName() + "." + spec.getName());

@@ -234,10 +234,11 @@ public class FormWrapper
 						}
 						if (frm.getUseCssPosition())
 						{
-							String name = element.getDesignId() != null ? element.getDesignId() : element.getName();
-							if (!formComponentCSSPositionElementNames.containsKey(name))
+							PersistIdentifier designId = element.getDesignId();
+							String nameOrDesignId = designId != null ? element.getDesignId().toJSONString() : element.getName();
+							if (!formComponentCSSPositionElementNames.containsKey(nameOrDesignId))
 							{
-								formComponentCSSPositionElementNames.put(name, Boolean.TRUE);
+								formComponentCSSPositionElementNames.put(nameOrDesignId, Boolean.TRUE);
 							}
 						}
 						checkFormComponents(components, element, recursiveCheck);
@@ -424,7 +425,8 @@ public class FormWrapper
 			if (form.getUseCssPosition().booleanValue() || CSSPositionUtils.isInAbsoluteLayoutMode(persist))
 			{
 				FormElement formElement = FormElementHelper.INSTANCE.getFormElement(persist, context.getSolution(), null, design);
-				String name = formElement.getDesignId() != null ? formElement.getDesignId() : formElement.getName();
+				PersistIdentifier designId = formElement.getDesignId();
+				String name = (designId != null ? designId.toJSONString() : formElement.getName());
 				if (!names.containsKey(name)) names.put(name, Boolean.TRUE);
 			}
 		}

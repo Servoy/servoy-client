@@ -300,6 +300,9 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 		return dataAdapterList;
 	}
 
+	/**
+	 * Tries to find a child component with the given name; it does go recursively through any child containers when searching for it.
+	 */
 	@Override
 	public WebFormComponent getWebComponent(String compname)
 	{

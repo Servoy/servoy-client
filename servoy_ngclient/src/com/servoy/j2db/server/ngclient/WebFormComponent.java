@@ -311,7 +311,7 @@ public class WebFormComponent extends Container implements IContextProvider, ING
 			IPersist persist = formElement.getPersistIfAvailable();
 			if (persist instanceof AbstractBase)
 			{
-				String formName = ((AbstractBase)persist).getRuntimeProperty(FormElementHelper.FORM_COMPONENT_FORM_NAME);
+				String formName = ((AbstractBase)persist).getRuntimeProperty(FormElementHelper.FC_NAME_OF_ROOT_ACTUAL_FORM_EVEN_IN_CASE_OF_NESTED_FORM_COMPONENTS);
 				if (formName != null)
 				{
 					formElementForm = dataAdapterList.getApplication().getFormManager().getForm(formName).getForm();
@@ -336,7 +336,7 @@ public class WebFormComponent extends Container implements IContextProvider, ING
 		if (formElement.isFormComponentChild())
 		{
 			Form frm = persist.getAncestor(Form.class);
-			String elementName = ((AbstractBase)persist).getRuntimeProperty(FormElementHelper.FORM_COMPONENT_ELEMENT_NAME);
+			String elementName = ((AbstractBase)persist).getRuntimeProperty(FormElementHelper.FC_CHILD_ELEMENT_NAME_INSIDE_DIRECT_PARENT_FORM_COMPONENT);
 			if (frm != null && elementName != null)
 			{
 				for (IPersist p : frm.getFlattenedFormElementsAndLayoutContainers())

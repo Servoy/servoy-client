@@ -53,7 +53,6 @@ public class FormComponentSabloValue implements ISmartPropertyValue
 {
 
 	private final Form form;
-	private final String elementStartName;
 	private final INGFormElement formElement;
 	private final JSONObject formElementValue;
 	private final PropertyDescription pd;
@@ -72,7 +71,6 @@ public class FormComponentSabloValue implements ISmartPropertyValue
 		this.pd = pd;
 		this.dal = dal;
 		this.component = component;
-		this.elementStartName = FormElementHelper.getStartElementName(component.getFormElement(), pd);
 	}
 
 	public FormComponentCache getCache()
@@ -157,9 +155,9 @@ public class FormComponentSabloValue implements ISmartPropertyValue
 				for (ComponentTypeSabloValue componentTypeSabloValue : componentsList)
 				{
 					componentTypeSabloValue.attachToBaseObject(changeMonitor, webObjectContext);
-	}
+				}
 
-	}
+			}
 			currentFormComponentCache = formComponentCache;
 			components = componentsList.toArray(new ComponentTypeSabloValue[0]);
 		}
@@ -205,8 +203,6 @@ public class FormComponentSabloValue implements ISmartPropertyValue
 		writer.value(!form.isResponsiveLayout());
 		writer.key(IContentSpecConstants.PROPERTY_USE_CSS_POSITION);
 		writer.value(form.getUseCssPosition());
-		writer.key("startName");
-		writer.value(elementStartName);
 		writer.key("childElements");
 		writer.array();
 		ComponentTypeSabloValue[] components = getComponents();

@@ -21,6 +21,7 @@ import org.sablo.IPropertyDescriptionProvider;
 
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IPersist;
+import com.servoy.j2db.server.ngclient.template.PersistIdentifier;
 
 /**
  * @author lvostinar
@@ -32,7 +33,7 @@ public interface INGFormElement extends IPropertyDescriptionProvider
 
 	Object getPropertyValue(String propertyName);
 
-	String getDesignId();
+	PersistIdentifier getDesignId();
 
 	String getName();
 

@@ -129,7 +129,7 @@ public class FormLayoutStructureGenerator
 		if (design != null)
 		{
 			writer.print(" svy-id='");
-			writer.print(container.getUUID().toString());
+			writer.print(PersistIdentifier.fromSimpleUUID(container.getUUID()).toHTMLEscapedJSONString());
 			writer.print("'");
 			writer.print(" svy-location='");
 			writer.print(container.getLocation().x);
@@ -284,6 +284,7 @@ public class FormLayoutStructureGenerator
 		writer.print(container.getTagType());
 		writer.print(">");
 	}
+
 //	/**
 //	 * @param form
 //	 * @param fs
@@ -328,7 +329,7 @@ public class FormLayoutStructureGenerator
 //				FormElement fe = allFormElements.get(id);
 //				if (fe != null)
 //				{
-////					if (fe.getTagname().equals(tag.getName())) does not need to be same, if id matches we replace
+	////					if (fe.getTagname().equals(tag.getName())) does not need to be same, if id matches we replace
 //					{
 //						writer.print(fe.toString());
 //						if (!tag.isOpenClose()) skipUntilClosed = tag;

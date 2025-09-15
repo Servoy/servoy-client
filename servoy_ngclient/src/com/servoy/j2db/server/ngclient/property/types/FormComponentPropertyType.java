@@ -156,16 +156,19 @@ public class FormComponentPropertyType extends DefaultPropertyType<Object> imple
 			cache = FormElementHelper.INSTANCE.getFormComponentCache(webFormComponent.getFormElement(), pd, (JSONObject)webComponentValue, form, fs);
 		}
 		IWebFormUI formUI = webFormComponent.findParent(IWebFormUI.class);
-		String prefix = FormElementHelper.getStartElementName(webFormComponent.getFormElement(), pd);
+
 		for (FormElement fe : cache.getFormComponentElements())
 		{
-			String name = fe.getName();
-			if (name != null && !name.startsWith(FormElement.SVY_NAME_PREFIX))
+			String[] feComponentAndPropertyNamePath = ((AbstractBase)fe.getPersistIfAvailable())
+				.getRuntimeProperty(FormElementHelper.FC_COMPONENT_AND_PROPERTY_NAME_PATH);
+			String ownName = feComponentAndPropertyNamePath[feComponentAndPropertyNamePath.length - 1];
+
+			if (!ownName.startsWith(FormElement.SVY_NAME_PREFIX))
 			{
 				RuntimeWebComponent webComponent = formUI.getRuntimeWebComponent(fe.getRawName());
 				if (webComponent != null)
 				{
-					newObject.put(name.substring(prefix.length()), newObject, webComponent);
+					newObject.put(ownName, newObject, webComponent);
 				}
 			}
 		}
@@ -212,7 +215,7 @@ public class FormComponentPropertyType extends DefaultPropertyType<Object> imple
 		Object formId = formElementValue;
 		if (formId instanceof JSONObject)
 		{
-			formId = ((JSONObject)formId).optString("svy_form");
+			formId = ((JSONObject)formId).optString(SVY_FORM);
 		}
 		Form form = null;
 		if (formId instanceof Integer)
@@ -272,18 +275,18 @@ public class FormComponentPropertyType extends DefaultPropertyType<Object> imple
 		return new FormComponentValue(property, (JSONObject)currentValue, application, webComponnent);
 	}
 
+	/**
+	 * Gets (and caches for a later get) a property description constructed to contain:
+	 * <ul>
+	 *   <li>SVY_FORM</li>
+	 *   <li>one property for each child in the form component of the form component property type value "currentValue"</li>
+	 * </ul>
+	 */
 	public PropertyDescription getPropertyDescription(String property, JSONObject currentValue, FlattenedSolution fs)
 	{
 		return getFCPropertyDescription(property, currentValue, fs, new HashSet<String>(), new HashMap<String, PropertyDescription>());
 	}
 
-	/**
-	 * @param property
-	 * @param currentValue
-	 * @param fs
-	 * @param forms
-	 * @return
-	 */
 	private PropertyDescription getFCPropertyDescription(String property, JSONObject currentValue, FlattenedSolution fs, HashSet<String> forms,
 		Map<String, PropertyDescription> cached)
 	{

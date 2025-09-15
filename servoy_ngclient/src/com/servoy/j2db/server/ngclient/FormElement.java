@@ -70,6 +70,7 @@ import com.servoy.j2db.server.ngclient.property.types.NGConversions.IDesignToFor
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementDefaultValueToSabloComponent;
 import com.servoy.j2db.server.ngclient.property.types.PropertyPath;
 import com.servoy.j2db.server.ngclient.template.FormTemplateGenerator;
+import com.servoy.j2db.server.ngclient.template.PersistIdentifier;
 import com.servoy.j2db.server.ngclient.utils.MiniMap;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.PersistHelper;
@@ -375,7 +376,7 @@ public final class FormElement implements INGFormElement
 			if (location != null)
 			{
 				// if it is design client, it has no parts
-				boolean isInDesginer = getDesignId() != null;
+				boolean isInDesginer = (getDesignId() != null);
 				if (isInDesginer)
 				{
 					map.put(StaticContentSpecLoader.PROPERTY_LOCATION.getPropertyName(), location);
@@ -461,6 +462,8 @@ public final class FormElement implements INGFormElement
 				name = SVY_NAME_PREFIX + uniqueIdWithinForm;
 			}
 		}
+
+		// code similar to the one below is used in PersistFinder.searchForPersist() - but that should use now PersistIdentifier anyway; we no longer need to parse names with $ and # etc...
 		if (Character.isDigit(name.charAt(0)))
 		{
 			name = "_" + name;
@@ -468,16 +471,21 @@ public final class FormElement implements INGFormElement
 		return name.replace('-', '_').replace('.', '_');
 	}
 
-	public String getDesignId()
+	public static PersistIdentifier getDesignIdFromPersist(AbstractBase persist)
+	{
+		if (persist.getRuntimeProperty(FormElementHelper.FC_NAME_OF_ROOT_ACTUAL_FORM_EVEN_IN_CASE_OF_NESTED_FORM_COMPONENTS) != null)
+		{
+			// this is an element that originates from inside a form component
+			return new PersistIdentifier(persist.getRuntimeProperty(FormElementHelper.FC_COMPONENT_AND_PROPERTY_NAME_PATH), null);
+		}
+		return PersistIdentifier.fromSimpleUUID(persist.getUUID());
+	}
+
+	public PersistIdentifier getDesignId()
 	{
 		if (inDesigner && getPersistIfAvailable() != null && getPersistIfAvailable().getUUID() != null)
 		{
-			// if this is a form component element just return the name
-			if (((AbstractBase)getPersistIfAvailable()).getRuntimeProperty(FormElementHelper.FORM_COMPONENT_FORM_NAME) != null)
-			{
-				return getName();
-			}
-			return getPersistIfAvailable().getUUID().toString();
+			return FormElement.getDesignIdFromPersist((AbstractBase)getPersistIfAvailable());
 		}
 		return null;
 	}
@@ -609,7 +617,8 @@ public final class FormElement implements INGFormElement
 	public boolean isFormComponentChild()
 	{
 		return getPersistIfAvailable() instanceof AbstractBase &&
-			((AbstractBase)getPersistIfAvailable()).getRuntimeProperty(FormElementHelper.FORM_COMPONENT_FORM_NAME) != null;
+			((AbstractBase)getPersistIfAvailable())
+				.getRuntimeProperty(FormElementHelper.FC_NAME_OF_ROOT_ACTUAL_FORM_EVEN_IN_CASE_OF_NESTED_FORM_COMPONENTS) != null;
 	}
 
 	public String getTagname()
@@ -660,7 +669,8 @@ public final class FormElement implements INGFormElement
 		Form mainForm = getForm();
 		if (isFormComponentChild())
 		{
-			String mainFormName = ((AbstractBase)getPersistIfAvailable()).getRuntimeProperty(FormElementHelper.FORM_COMPONENT_FORM_NAME);
+			String mainFormName = ((AbstractBase)getPersistIfAvailable())
+				.getRuntimeProperty(FormElementHelper.FC_NAME_OF_ROOT_ACTUAL_FORM_EVEN_IN_CASE_OF_NESTED_FORM_COMPONENTS);
 			if (fs != null && mainFormName != null)
 			{
 				mainForm = fs.getForm(mainFormName);
