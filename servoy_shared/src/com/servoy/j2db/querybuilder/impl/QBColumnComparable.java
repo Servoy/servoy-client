@@ -20,7 +20,7 @@ package com.servoy.j2db.querybuilder.impl;
 import org.mozilla.javascript.annotations.JSFunction;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
-import com.servoy.j2db.querybuilder.IQueryBuilderColumn;
+import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 
 /**
  * This interface lists all methods that are for comparing columns with values or other columns.
@@ -33,8 +33,31 @@ import com.servoy.j2db.querybuilder.IQueryBuilderColumn;
  *
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
-public interface QBColumnComparable extends IQueryBuilderColumn
+public interface QBColumnComparable<T extends QBColumnComparable< ? >>
 {
+	/**
+	 * Create a negated condition.
+	 * @sample
+	 * query.where.add(query.columns.flag.not.eq(1))
+	 *
+	 *  @return a QBColumn representing the negated condition.
+	 *
+	 */
+	@JSReadonlyProperty(debuggerRepresentation = "Query not clause")
+	T not();
+
+	/**
+	 * Compare column with null.
+	 * @sample
+	 * query.where.add(query.columns.flag.isNull)
+	 *
+	 *  @return a QBCondition representing the "is null" comparison.
+	 */
+	@JSReadonlyProperty(debuggerRepresentation = "Query isNull clause")
+	default QBCondition isNull()
+	{
+		return eq(null);
+	}
 
 	/**
 	 * Compare column with a value or another column.

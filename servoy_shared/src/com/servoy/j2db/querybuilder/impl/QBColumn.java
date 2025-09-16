@@ -51,32 +51,8 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
  *
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
-public interface QBColumn extends QBColumnBaseFunctions<QBColumn>, IQueryBuilderColumn
+public interface QBColumn extends IQueryBuilderColumn, QBColumnBaseFunctions<QBColumn>, QBColumnComparable<QBColumnComparable<QBColumn>>
 {
-	/**
-	 * Compare column with null.
-	 * @sample
-	 * query.where.add(query.columns.flag.isNull)
-	 *
-	 *  @return a QBCondition representing the "is null" comparison.
-	 */
-	@JSReadonlyProperty(debuggerRepresentation = "Query isNull clause")
-	default QBCondition isNull()
-	{
-		return eq(null);
-	}
-
-	/**
-	 * Create a negated condition.
-	 * @sample
-	 * query.where.add(query.columns.flag.not.eq(1))
-	 *
-	 *  @return a QBColumn representing the negated condition.
-	 *
-	 */
-	@JSReadonlyProperty(debuggerRepresentation = "Query not clause")
-	QBColumnComparable not();
-
 	/**
 	 * Create an ascending sort expression
 	 * @sample
