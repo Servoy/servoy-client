@@ -107,6 +107,7 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 		int max = Integer.MAX_VALUE;
 		boolean logMax = true;
 		boolean lazyLoading = false;
+		boolean autoResetFilter = true;
 		String configPropertyName = null;
 		if (json != null)
 		{
@@ -120,6 +121,7 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 				{
 					JSONObject tags = json.getJSONObject("tags");
 					if (tags.has("logWhenOverMax")) logMax = tags.getBoolean("logWhenOverMax");
+					if (tags.has("autoResetFilter")) autoResetFilter = tags.optBoolean("autoResetFilter");
 				}
 				catch (JSONException e)
 				{
@@ -128,7 +130,7 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 			}
 			configPropertyName = json.optString("config", null);
 		}
-		return new ValueListConfig(dataprovider, def, max, logMax, lazyLoading, configPropertyName);
+		return new ValueListConfig(dataprovider, def, max, logMax, lazyLoading, configPropertyName, autoResetFilter);
 	}
 
 	@Override

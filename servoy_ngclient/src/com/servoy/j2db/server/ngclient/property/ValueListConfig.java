@@ -32,8 +32,10 @@ public class ValueListConfig
 	private final int maxCount;
 	private final boolean logMax;
 	boolean lazyLoading = false;
+	boolean autoResetFilter = true;
 
-	public ValueListConfig(String dataprovider, String def, int maxCount, boolean logMax, boolean lazyLoading, String configPropertyName)
+	public ValueListConfig(String dataprovider, String def, int maxCount, boolean logMax, boolean lazyLoading, String configPropertyName,
+		boolean autoResetFilter)
 	{
 		super();
 		this.dataprovider = dataprovider;
@@ -42,6 +44,7 @@ public class ValueListConfig
 		this.logMax = logMax;
 		this.lazyLoading = lazyLoading;
 		this.configPropertyName = configPropertyName;
+		this.autoResetFilter = autoResetFilter;
 	}
 
 
@@ -80,5 +83,10 @@ public class ValueListConfig
 	public String getConfigPropertyName()
 	{
 		return configPropertyName;
+	}
+
+	public boolean isAutoResetFilter()
+	{
+		return autoResetFilter;
 	}
 }
