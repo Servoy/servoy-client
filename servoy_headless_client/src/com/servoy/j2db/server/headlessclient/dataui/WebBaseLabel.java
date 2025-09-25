@@ -237,7 +237,7 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IL
 				Debug.error("Error serving blobloader url: " + url, ex); //$NON-NLS-1$
 			}
 		}
-		else
+		else if (icon != null)
 		{
 			icon.onResourceRequested();
 		}
