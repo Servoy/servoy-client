@@ -54,6 +54,8 @@ public interface IDebugClientHandler
 
 	<T extends IDebugClient> T getDebugClient(DebugClientType<T> type);
 
+	void registerDebugDeveloperNGClient(IDebugNGClient ngclient);
+
 	void flagModelInitialised();
 
 	void setDesignerCallback(IDesignerCallback designerCallback);
