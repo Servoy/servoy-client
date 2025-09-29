@@ -75,6 +75,7 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 	private volatile DebugAuthenticator debugAuthenticator;
 	@SuppressWarnings("unused")
 	private volatile DebugNGClient debugNGClient;
+	private volatile IDebugNGClient debugDeveloperNGClient;
 	private volatile DebugJ2DBClient debugJ2DBClient;
 	private volatile Solution currentSolution;
 
@@ -96,6 +97,11 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 		{
 			SolutionScope solutionScope = debugNGClient.getScriptEngine().getSolutionScope();
 			designerCallback.addScriptObjects(debugNGClient, solutionScope);
+		}
+		if (debugDeveloperNGClient != null && debugDeveloperNGClient.getSolution() != null)
+		{
+			SolutionScope solutionScope = debugDeveloperNGClient.getScriptEngine().getSolutionScope();
+			designerCallback.addScriptObjects(debugDeveloperNGClient, solutionScope);
 		}
 		if (debugHeadlessClient != null && debugHeadlessClient.getSolution() != null)
 		{
@@ -123,6 +129,7 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 		ArrayList<IDebugClient> lst = new ArrayList<IDebugClient>();
 		if (debugJ2DBClient != null && debugJ2DBClient.getSolution() != null) lst.add(debugJ2DBClient);
 		if (debugNGClient != null && debugNGClient.getSolution() != null) lst.add(debugNGClient);
+		if (debugDeveloperNGClient != null && debugDeveloperNGClient.getSolution() != null) lst.add(debugDeveloperNGClient);
 		if (debugHeadlessClient != null && debugHeadlessClient.getSolution() != null) lst.add(debugHeadlessClient);
 		for (IDebugClient c : customDebugClients.values())
 		{
@@ -136,6 +143,7 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 	{
 		runInClientEventThread(debugJ2DBClient, (cl) -> cl.refreshForI18NChange(recreateForms));
 		runInClientEventThread(debugNGClient, (cl) -> cl.refreshForI18NChange(recreateForms));
+//		runInClientEventThread(debugDeveloperNGClient, (cl) -> cl.refreshForI18NChange(recreateForms));
 		runInClientEventThread(debugHeadlessClient, (cl) -> cl.refreshForI18NChange(recreateForms));
 		runInClientEventThread(debugAuthenticator, (cl) -> cl.refreshForI18NChange(recreateForms));
 		for (IDebugClient c : customDebugClients.values())
@@ -148,6 +156,7 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 	{
 		runInClientEventThread(debugJ2DBClient, (cl) -> cl.refreshPersists(changes));
 		runInClientEventThread(debugNGClient, (cl) -> cl.refreshPersists(changes));
+		runInClientEventThread(debugDeveloperNGClient, (cl) -> cl.refreshPersists(changes));
 		runInClientEventThread(debugHeadlessClient, (cl) -> cl.refreshPersists(changes));
 		runInClientEventThread(debugAuthenticator, (cl) -> cl.refreshPersists(changes));
 		for (IDebugClient c : customDebugClients.values())
@@ -169,6 +178,7 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 	{
 		refreshDebugClientTable(debugJ2DBClient, table);
 		refreshDebugClientTable(debugNGClient, table);
+//		refreshDebugClientTable(debugDeveloperNGClient, table);
 		refreshDebugClientTable(debugHeadlessClient, table);
 		refreshDebugClientTable(debugAuthenticator, table);
 
@@ -550,6 +560,11 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 		}
 		debugNGClient = new DebugNGClient((INGClientWebsocketSession)wsSession, designerCallback);
 		return debugNGClient;
+	}
+
+	public synchronized void registerDebugDeveloperNGClient(IDebugNGClient ngclient)
+	{
+		debugDeveloperNGClient = ngclient;
 	}
 
 	public synchronized SessionClient createDebugHeadlessClient(ServletRequest req, String userName, String password, String method, Object[] objects,

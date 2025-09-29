@@ -94,7 +94,7 @@ public interface IJSDeveloperBridge
 	 * @param menu
 	 * @param callback
 	 * @parma enabler
-	 */
 	@JSFunction
 	void registerMenuItem(JSDeveloperMenu menu, Function callback, Function enabler);
+	 */
 }
