@@ -1635,14 +1635,22 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 		}
 		else if (navigator instanceof String)
 		{
-			Form f = application.getFlattenedSolution().getForm((String)navigator);
-			if (f != null)
+			if (navigator == Form.NAVIGATOR_DEFAULT || Form.NAVIGATOR_IGNORE.equals(navigator) ||
+				Form.NAVIGATOR_NONE.equals(navigator))
 			{
-				uuid = f.getUUID().toString();
+				uuid = (String)navigator;
 			}
 			else
 			{
-				throw new RuntimeException("cannot find form with name '" + (String)navigator + "'");
+				Form f = application.getFlattenedSolution().getForm((String)navigator);
+				if (f != null)
+				{
+					uuid = f.getUUID().toString();
+				}
+				else
+				{
+					throw new RuntimeException("cannot find form with name '" + (String)navigator + "'");
+				}
 			}
 		}
 		else if (navigator != null)

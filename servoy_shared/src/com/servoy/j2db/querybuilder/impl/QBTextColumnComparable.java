@@ -20,15 +20,12 @@ package com.servoy.j2db.querybuilder.impl;
 import com.servoy.j2db.documentation.ServoyDocumented;
 
 /**
- * <p>The <code>QBTextColumn</code> class represents a text column in a <code>QBSelect</code> query.
- *
- * <p>For more information about constructing and executing queries and columns, refer to the
- * <a href="https://docs.servoy.com/reference/servoycore/dev-api/database-manager/qbcolumn">QBSelect</a> section of this documentation.</p>
+ * This interface lists all methods that are for comparing text columns with values or other columns.
  *
  * @author rgansevles
  *
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME, extendsComponent = "QBColumn")
-public interface QBTextColumn extends QBTextColumnBase, QBColumnBaseFunctions<QBTextColumn>, QBTextColumnComparable
+@ServoyDocumented(category = ServoyDocumented.RUNTIME)
+public interface QBTextColumnComparable extends QBColumnComparable<QBTextColumnComparable>, QBTextColumnComparableFunctions
 {
 }

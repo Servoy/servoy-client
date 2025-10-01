@@ -14,6 +14,14 @@
 	<artifactId>servoy_base</artifactId>
 	<version>2025.12.0.4120_rc</version>
 	<packaging>eclipse-plugin</packaging>
+    
+    <distributionManagement>
+        <repository>
+            <id>my-s3-release-repo</id>
+            <url>file://C:/m2-repo/</url>
+        </repository>
+    </distributionManagement>
+    	
 	<build>
 		<plugins>
 			<plugin>
