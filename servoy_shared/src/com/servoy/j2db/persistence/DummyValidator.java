@@ -16,11 +16,17 @@
 */
 package com.servoy.j2db.persistence;
 
+import com.servoy.j2db.util.UUID;
+
 public class DummyValidator implements IValidateName
 {
-	private DummyValidator() {}
-	public static final IValidateName INSTANCE = new DummyValidator(); 
-	public void checkName(String next, int id, ValidatorSearchContext formOrTable,boolean sqlRelated) throws RepositoryException
+	private DummyValidator()
+	{
+	}
+
+	public static final IValidateName INSTANCE = new DummyValidator();
+
+	public void checkName(String next, UUID uuid, ValidatorSearchContext formOrTable, boolean sqlRelated) throws RepositoryException
 	{
 		return;
 	}

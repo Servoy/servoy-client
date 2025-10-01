@@ -33,8 +33,6 @@ import com.servoy.j2db.query.QueryAggregate;
 import com.servoy.j2db.query.QueryColumnValue;
 import com.servoy.j2db.query.QueryCustomSelect;
 import com.servoy.j2db.query.QueryFunction;
-import com.servoy.j2db.query.QueryFunction.QueryFunctionType;
-import com.servoy.j2db.query.QuerySearchedCaseExpression;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.querybuilder.IQueryBuilder;
 import com.servoy.j2db.querybuilder.IQueryBuilderColumn;
@@ -42,6 +40,20 @@ import com.servoy.j2db.querybuilder.IQueryBuilderResult;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 
 /**
+ * <p>The <code>QBResult</code> class serves as a wrapper for managing query results in the
+ * <code>QBSelect</code> framework. It enables precise control over the structure and content of
+ * query results, including the addition of columns, aggregates, functions, case expressions, and
+ * subqueries. This flexibility allows developers to define custom outputs that align with specific
+ * SQL requirements.</p>
+ *
+ * <p>Key features include support for distinct results, dynamic addition or removal of result
+ * components, and methods to include primary key columns automatically. Notable methods include
+ * <code>add(column, alias)</code> to add columns with aliases, <code>addSubSelect(query, alias)</code>
+ * for embedding subqueries, and <code>remove(name)</code> to remove a column by its name.</p>
+ *
+ * <p>For further details, refer to the
+ * <a href="https://docs.servoy.com/reference/servoycore/dev-api/database-manager/qbselect">QBSelect documentation</a>.</p>
+ *
  * @author rgansevles
  *
  */
@@ -57,7 +69,7 @@ public class QBResult extends QBPart implements IQueryBuilderResult
 	}
 
 	@Override
-	@JSReadonlyProperty
+	@JSReadonlyProperty(debuggerRepresentation = "Query parent part")
 	public QBSelect getParent()
 	{
 		return (QBSelect)super.getParent();
@@ -67,6 +79,8 @@ public class QBResult extends QBPart implements IQueryBuilderResult
 	 * Add the tables' primary pk columns in alphabetical order to the query result.
 	 * @sample
 	 * query.result.addPk()
+	 *
+	 * @return The query result object with primary key columns added.
 	 */
 	@JSFunction
 	public QBResult addPk() throws RepositoryException
@@ -86,6 +100,8 @@ public class QBResult extends QBPart implements IQueryBuilderResult
 	 * Clear the columns in the query result.
 	 * @sample
 	 * query.result.clear()
+	 *
+	 * @return The query result object with all columns cleared.
 	 */
 	@JSFunction
 	public QBResult clear()
@@ -120,6 +136,8 @@ public class QBResult extends QBPart implements IQueryBuilderResult
 	 * query.result.add(query.columns.custname)
 	 *
 	 * @param column column to add to result
+	 *
+	 * @return The query result object with the specified column added.
 	 */
 	public QBResult js_add(QBColumn column)
 	{
@@ -133,85 +151,12 @@ public class QBResult extends QBPart implements IQueryBuilderResult
 	 *
 	 * @param column column to add to result
 	 * @param alias column alias
+	 *
+	 * @return The query result object with the specified column and alias added.
 	 */
 	public QBResult js_add(QBColumn column, String alias)
 	{
 		return add(column, alias);
-	}
-
-	/**
-	 * Add an aggregate to the query result.
-	 * @sample
-	 * query.result.add(query.columns.label_text.max)
-	 *
-	 * @param aggregate the aggregate to add to result
-	 */
-	public QBResult js_add(QBAggregate aggregate)
-	{
-		return add(aggregate);
-	}
-
-	/**
-	 * Add an aggregate with alias to the query result.
-	 * @sample
-	 * query.result.add(query.columns.item_count.max, 'maximum_items')
-	 *
-	 * @param aggregate the aggregate to add to result
-	 * @param alias aggregate alias
-	 */
-	public QBResult js_add(QBAggregate aggregate, String alias)
-	{
-		return add(aggregate, alias);
-	}
-
-	/**
-	 * Add a function result to the query result.
-	 * @sample
-	 * query.result.add(query.columns.custname.upper())
-	 *
-	 * @param func the function to add to the result
-	 */
-	public QBResult js_add(QBFunction func)
-	{
-		return add(func);
-	}
-
-	/**
-	 * Add a function with alias result to the query result.
-	 * @sample
-	 * query.result.add(query.columns.custname.upper(), 'customer_name')
-	 *
-	 * @param func the function to add to the result
-	 * @param alias function alias
-	 */
-	public QBResult js_add(QBFunction func, String alias)
-	{
-		return add(func, alias);
-	}
-
-	/**
-	 * Add a case searched expression to the query result.
-	 *
-	 * @param qcase The searched case expression.
-	 *
-	 * @sampleas com.servoy.j2db.querybuilder.impl.QBSelect#js_case()
-	 */
-	public QBResult js_add(QBSearchedCaseExpression qcase)
-	{
-		return add(qcase);
-	}
-
-	/**
-	 * Add a case searched expression with alias to the query result.
-	 *
-	 * @param qcase The searched case expression.
-	 * @param alias function alias
-	 *
-	 * @sampleas com.servoy.j2db.querybuilder.impl.QBSelect#js_case()
-	 */
-	public QBResult js_add(QBSearchedCaseExpression qcase, String alias)
-	{
-		return add(qcase, alias);
 	}
 
 	/**
@@ -221,6 +166,8 @@ public class QBResult extends QBPart implements IQueryBuilderResult
 	 * query.result.add(query.joins.orders_to_orderdetail.columns)
 	 *
 	 * @param columns columns to add to result
+	 *
+	 * @return The query result object with all columns from the specified query or join added.
 	 */
 	public QBResult js_add(QBColumns columns)
 	{
@@ -242,7 +189,7 @@ public class QBResult extends QBPart implements IQueryBuilderResult
 		{
 			throw new RuntimeException("Cannot add null or undefined column to a query");
 		}
-		IQuerySelectValue querySelectValue = ((QBColumn)column).getQuerySelectValue();
+		IQuerySelectValue querySelectValue = ((QBColumnImpl)column).getQuerySelectValue();
 		getParent().getQuery().addColumn(alias == null ? querySelectValue : querySelectValue.asAlias(alias));
 		return this;
 	}
@@ -261,21 +208,15 @@ public class QBResult extends QBPart implements IQueryBuilderResult
 		ArrayList<IQuerySelectValue> columns = getParent().getQuery().getColumns();
 		return columns == null ? new QBColumn[0] : columns.stream().map(selectValue -> {
 
-			if (selectValue instanceof QueryAggregate)
+			if (selectValue instanceof QueryAggregate queryAggregate)
 			{
-				QueryAggregate queryAggregate = (QueryAggregate)selectValue;
-				return new QBAggregate(getRoot(), getParent(), selectValue, queryAggregate.getType(), queryAggregate.getQuantifier());
+				return new QBAggregateImpl(getRoot(), getParent(), selectValue, queryAggregate.getType(), queryAggregate.getQuantifier());
 			}
-			if (selectValue instanceof QueryFunction)
+			if (selectValue instanceof QueryFunction queryFunction)
 			{
-				QueryFunctionType function = ((QueryFunction)selectValue).getFunction();
-				return new QBFunction(getRoot(), getParent(), function, ((QueryFunction)selectValue).getArgs());
+				return new QBFunctionImpl(getRoot(), getParent(), queryFunction.getFunction(), queryFunction.getArgs());
 			}
-			if (selectValue instanceof QuerySearchedCaseExpression)
-			{
-				return new QBSearchedCaseExpression(getRoot(), getParent(), ((QuerySearchedCaseExpression)selectValue));
-			}
-			return new QBColumn(getRoot(), getParent(), selectValue);
+			return new QBColumnImpl(getRoot(), getParent(), selectValue);
 
 		}).toArray(QBColumn[]::new);
 	}
@@ -286,6 +227,8 @@ public class QBResult extends QBPart implements IQueryBuilderResult
 	 * query.result.addValue(100)
 	 *
 	 * @param value value add to result
+	 *
+	 * @return The query result object with the specified value added.
 	 */
 	@JSFunction
 	public QBResult addValue(Object value)
@@ -300,6 +243,8 @@ public class QBResult extends QBPart implements IQueryBuilderResult
 	 *
 	 * @param value value add to result
 	 * @param alias value alias
+	 *
+	 * @return The query result object with the specified value and alias added.
 	 */
 	@JSFunction
 	public QBResult addValue(Object value, String alias)
@@ -318,6 +263,8 @@ public class QBResult extends QBPart implements IQueryBuilderResult
 	 *
 	 * @param customQuery query to add to result
 	 * @param args arguments to the query
+	 *
+	 * @return The query result object with the specified custom subquery added.
 	 */
 	@JSFunction
 	public QBResult addSubSelect(String customQuery, Object[] args)
@@ -335,6 +282,8 @@ public class QBResult extends QBPart implements IQueryBuilderResult
 	 * @param customQuery query to add to result
 	 * @param args arguments to the query
 	 * @param alias result alias
+	 *
+	 * @return The query result object with the specified custom subquery and alias added.
 	 */
 	@JSFunction
 	public QBResult addSubSelect(String customQuery, Object[] args, String alias)
@@ -360,6 +309,8 @@ public class QBResult extends QBPart implements IQueryBuilderResult
 	 *
 	 * @param query query to add to result
 	 * @param alias result alias
+	 *
+	 * @return The query result object with the specified query and alias added.
 	 */
 	public QBResult js_addSubSelect(QBSelect query, String alias) throws RepositoryException
 	{
@@ -373,6 +324,8 @@ public class QBResult extends QBPart implements IQueryBuilderResult
 	 * query.result.addSubSelect(subquery);
 	 *
 	 * @param query query to add to result
+	 *
+	 * @return The query result object with the specified query added.
 	 */
 	public QBResult js_addSubSelect(QBSelect query) throws RepositoryException
 	{
@@ -392,6 +345,8 @@ public class QBResult extends QBPart implements IQueryBuilderResult
 	 * query.result.remove("custname")
 	 *
 	 * @param name name or alias of column to remove from the result
+	 *
+	 * @return The query result object with the specified column removed by name or alias.
 	 */
 	@JSFunction
 	public QBResult remove(String name) throws RepositoryException
@@ -407,6 +362,8 @@ public class QBResult extends QBPart implements IQueryBuilderResult
 	 * query.result.remove(query.columns.custname)
 	 *
 	 * @param column column to remove from the result
+	 *
+	 * @return The query result object with the specified column removed.
 	 */
 	public QBResult js_remove(QBColumn column)
 	{
@@ -417,7 +374,7 @@ public class QBResult extends QBPart implements IQueryBuilderResult
 	{
 		if (column != null)
 		{
-			getParent().getQuery().removeColumn(((QBColumn)column).getQuerySelectValue());
+			getParent().getQuery().removeColumn(((QBColumnImpl)column).getQuerySelectValue());
 		}
 		return this;
 	}
@@ -431,6 +388,8 @@ public class QBResult extends QBPart implements IQueryBuilderResult
 	 * Get/set the distinct flag for the query.
 	 * @sample
 	 * query.result.distinct = true
+	 *
+	 * @return The current state of the distinct flag for the query.
 	 */
 	public boolean js_isDistinct()
 	{
@@ -446,5 +405,11 @@ public class QBResult extends QBPart implements IQueryBuilderResult
 	{
 		getParent().getQuery().setDistinct(distinct);
 		return this;
+	}
+
+	@Override
+	public String toString()
+	{
+		return "QBResult(Helper class for definining the result columns of the query)";
 	}
 }

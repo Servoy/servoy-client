@@ -27,6 +27,7 @@ public class MediaOptionsPropertyType extends DefaultPropertyType<Integer>
 	public static final MediaOptionsPropertyType INSTANCE = new MediaOptionsPropertyType();
 	public static final String TYPE_NAME = "mediaoptions";
 
+
 	private MediaOptionsPropertyType()
 	{
 	}
@@ -42,4 +43,5 @@ public class MediaOptionsPropertyType extends DefaultPropertyType<Integer>
 	{
 		return json;
 	}
+
 }

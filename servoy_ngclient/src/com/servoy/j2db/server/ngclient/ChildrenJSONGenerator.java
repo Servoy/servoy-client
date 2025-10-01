@@ -55,6 +55,7 @@ import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IPersistVisitor;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.ISupportBounds;
+import com.servoy.j2db.persistence.ISupportFormElement;
 import com.servoy.j2db.persistence.LayoutContainer;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.PositionComparator;
@@ -84,13 +85,13 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 		@Override
 		public int compare(IPersist o1, IPersist o2)
 		{
-			if (o1 instanceof IFormElement && o2 instanceof IFormElement)
+			if (o1 instanceof ISupportFormElement && o2 instanceof ISupportFormElement)
 			{
-				return FlattenedForm.FORM_INDEX_WITH_HIERARCHY_COMPARATOR.compare((IFormElement)o1, (IFormElement)o2);
+				return FlattenedForm.FORM_INDEX_WITH_HIERARCHY_COMPARATOR.compare((ISupportFormElement)o1, (ISupportFormElement)o2);
 			}
-			if (o1 instanceof IFormElement) return 1;
-			if (o2 instanceof IFormElement) return -1;
-			return o1.getID() - o2.getID();
+			if (o1 instanceof ISupportFormElement) return 1;
+			if (o2 instanceof ISupportFormElement) return -1;
+			return o1.getUUID().toString().compareTo(o2.getUUID().toString());
 		}
 	};
 
@@ -152,7 +153,7 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 			return IPersistVisitor.CONTINUE_TRAVERSAL;
 		if (part != null && (o instanceof IFormElement || o instanceof CSSPositionLayoutContainer))
 		{
-			int startPos = form.getPartStartYPos(part.getID());
+			int startPos = form.getPartStartYPos(part.getUUID().toString());
 			int endPos = part.getHeight();
 			Point location = CSSPositionUtils.getLocation(((ISupportBounds)o), form);
 			if (location != null && (startPos > location.y || endPos <= location.y))
@@ -223,7 +224,9 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 									{
 										for (FormElement formElement : fccc.getFormComponentElements())
 										{
-											if (component.getID() == formElement.getPersistIfAvailable().getID())
+											if (component.getName() != null &&
+												Utils.equalObjects(component.getName(), ((AbstractBase)formElement.getPersistIfAvailable())
+													.getRuntimeProperty(FormElementHelper.FC_CHILD_ELEMENT_NAME_INSIDE_DIRECT_PARENT_FORM_COMPONENT)))
 											{
 												return formElement;
 											}
@@ -259,12 +262,20 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 			writer.object();
 			LayoutContainer layoutContainer = (LayoutContainer)o;
 
-			writeLayoutContainer(writer, layoutContainer, formUI, form, designer);
+			writeLayoutContainer(writer, layoutContainer, formUI, form, designer, context.getSolution());
 
 			writer.key("children");
 			writer.array();
-			o.acceptVisitor(new ChildrenJSONGenerator(writer, context, o, cache, null, this.form, false, designer),
-				PositionComparator.XY_PERSIST_COMPARATOR);
+			if ("csspositioncontainer".equals(layoutContainer.getSpecName()))
+			{
+				o.acceptVisitor(new ChildrenJSONGenerator(writer, context, o, cache, null, this.form, false, designer),
+					ChildrenJSONGenerator.FORM_INDEX_WITH_HIERARCHY_COMPARATOR);
+			}
+			else
+			{
+				o.acceptVisitor(new ChildrenJSONGenerator(writer, context, o, cache, null, this.form, false, designer),
+					PositionComparator.XY_PERSIST_COMPARATOR);
+			}
 			writer.endArray();
 			writer.endObject();
 			return IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER;
@@ -325,6 +336,8 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 		if (o instanceof BaseComponent)
 		{
 			attributes = new HashMap<String, String>(((BaseComponent)fe.getPersistIfAvailable()).getMergedAttributes());
+
+			addFormAttributesForCss(form, attributes);
 		}
 		if (designer || webComponent == null)
 		{
@@ -358,6 +371,7 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 		else
 		{
 			TypedData<Map<String, Object>> properties = webComponent.getProperties();
+			webComponent.clearChanges();
 			TypedData<Map<String, Object>> templateProperties = fe.propertiesForTemplateJSON();
 			// remove from the templates properties all the properties that are current "live" in the component
 			templateProperties.content.keySet().removeAll(properties.content.keySet());
@@ -371,6 +385,9 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 				}
 				properties.content.keySet().remove(IContentSpecConstants.PROPERTY_ATTRIBUTES);
 			}
+			// remove the size and location properties, should not be used anymore in the client code
+			templateProperties.content.remove(IContentSpecConstantsBase.PROPERTY_SIZE);
+			templateProperties.content.remove(IContentSpecConstantsBase.PROPERTY_LOCATION);
 
 			// write the template properties that are left
 			JSONUtils.writeData(FormElementToJSON.INSTANCE, writer, templateProperties.content, templateProperties.contentType,
@@ -381,12 +398,18 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 
 		if (o instanceof BaseComponent)
 		{
-			writer.key("servoyAttributes");
-			writer.object();
 			if (designer)
 			{
-				PersistIdentifier designPersistIdentifier = fe.getDesignId();
-				attributes.put("svy-id", designPersistIdentifier != null ? designPersistIdentifier.toJSONString() : null);
+				BaseComponent baseComponent = (BaseComponent)fe.getPersistIfAvailable();
+				if (baseComponent.getRuntimeProperty(FormElementHelper.FC_NAME_OF_ROOT_ACTUAL_FORM_EVEN_IN_CASE_OF_NESTED_FORM_COMPONENTS) == null ||
+					(!baseComponent.getRuntimeProperty(FormElementHelper.FC_CHILD_ELEMENT_NAME_INSIDE_DIRECT_PARENT_FORM_COMPONENT)
+						.startsWith(FormElement.SVY_NAME_PREFIX)))
+				{
+					// so it's either not in a form component at all or it's a component that has a name; otherwise we
+					// don't give the svy-id because it should not be selectable inside the form designer
+					PersistIdentifier designPersistIdentifier = fe.getDesignId();
+					attributes.put("svy-id", designPersistIdentifier != null ? designPersistIdentifier.toJSONString() : null);
+				}
 				attributes.put("svy-formelement-type", fe.getTypeName());
 				attributes.put("svy-name", fe.getName());
 				attributes.put("svy-anchors", Integer.toString(((BaseComponent)o).getAnchors()));
@@ -397,7 +420,7 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 					attributes.put("svy-types-properties", String.join(",", typeAndPropertyNames[1]));
 				}
 				attributes.put("svy-priority",
-					form.isResponsiveLayout() || o.getAncestor(IRepository.CSSPOS_LAYOUTCONTAINERS) != null
+					CSSPositionUtils.isInResponsiveLayoutMode(o)
 						? String.valueOf(((ISupportBounds)o).getLocation().x) : String.valueOf(((BaseComponent)o).getFormIndex()));
 				String directEditPropertyName = getDirectEditProperty(fe);
 				if (directEditPropertyName != null)
@@ -405,6 +428,8 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 					attributes.put("directEditPropertyName", directEditPropertyName);
 				}
 			}
+
+			// note that this if is in ServoyAttributesPropertyType as well
 			if (Utils.getAsBoolean(Settings.getInstance().getProperty("servoy.ngclient.testingMode", "false")))
 			{
 				String elementCypressIdentifier = name;
@@ -439,11 +464,17 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 
 				attributes.put("data-cy", form.getName() + "." + elementCypressIdentifier);
 			}
-			attributes.forEach((key, value) -> {
-				writer.key(StringEscapeUtils.escapeEcmaScript(key));
-				writer.value(value);
-			});
-			writer.endObject();
+
+			if (attributes.size() > 0)
+			{
+				writer.key("servoyAttributes");
+				writer.object();
+				attributes.forEach((key, value) -> {
+					writer.key(StringEscapeUtils.escapeEcmaScript(key));
+					writer.value(value);
+				});
+				writer.endObject();
+			}
 		}
 		writer.endObject();
 
@@ -467,7 +498,7 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 			}
 		}
 
-		Collection<String> handlers = fe.getHandlers();
+		Collection<String> handlers = fe.getHandlers(true, context.getApplication());
 		if (handlers.size() > 0)
 		{
 			writer.key("handlers");
@@ -477,6 +508,31 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 				writer.value(handler);
 			}
 			writer.endArray();
+		}
+	}
+
+	/**
+	 * @param form
+	 * @param attributes
+	 */
+	public static void addFormAttributesForCss(Form form, Map<String, String> attributes)
+	{
+		List<Form> allForms;
+		if (form instanceof FlattenedForm ff)
+		{
+			allForms = ff.getAllForms();
+		}
+		else
+		{
+			allForms = List.of(form);
+		}
+		// add the names of the forms that have css in the hierarchy
+		for (Form designParent : allForms)
+		{
+			if (designParent.getFormCss() != null)
+			{
+				attributes.put("svy-" + designParent.getName(), "");
+			}
 		}
 	}
 
@@ -499,7 +555,8 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 		if (elementTypeForClient != null) writer.key("elType").value(elementTypeForClient);
 	}
 
-	public static void writeLayoutContainer(JSONWriter writer, LayoutContainer layoutContainer, WebFormUI formUI, Form form, boolean designer)
+	public static void writeLayoutContainer(JSONWriter writer, LayoutContainer layoutContainer, WebFormUI formUI, Form form, boolean designer,
+		FlattenedSolution flattenedSolution)
 	{
 		WebLayoutSpecification spec = null;
 		if (layoutContainer.getPackageName() != null)
@@ -550,6 +607,8 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 			writer.endArray();
 		}
 		Map<String, String> attributes = new HashMap<String, String>(layoutContainer.getMergedAttributes());
+
+		addFormAttributesForCss(form, attributes);
 		// properties in the .spec file for layouts are seen as "attributes to add to html tag"
 		// except for "class" and "size" that are special - treatead separately below
 		if (spec != null)
@@ -571,7 +630,14 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 		}
 		if (designer)
 		{
-			attributes.put("svy-id", PersistIdentifier.fromSimpleUUID(layoutContainer.getUUID()).toJSONString());
+			// only if the parent form of the layout container is the actual form being edited form we will add a svy-id
+			// so that layout containers inside form component containers will not add it because they should not be selectable.
+			Form parent = layoutContainer.findParent(Form.class);
+			Form currentForm = form instanceof FlattenedForm ? ((FlattenedForm)form).getWrappedPersist() : form;
+			if (flattenedSolution.getFormHierarchy(currentForm).contains(parent))
+				attributes.put("svy-id", PersistIdentifier.fromSimpleUUID(layoutContainer.getUUID()).toJSONString());
+			else attributes.put("svy-id-hidden", PersistIdentifier.fromSimpleUUID(layoutContainer.getUUID()).toJSONString()); // give the id to client anyway, as it needs it in order to nest layout container StructureCache s correctly
+
 			if (spec != null)
 			{
 				attributes.put("svy-layoutname", spec.getPackageName() + "." + spec.getName());

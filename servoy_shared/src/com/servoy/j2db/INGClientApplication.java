@@ -17,6 +17,8 @@
 
 package com.servoy.j2db;
 
+import org.json.JSONObject;
+
 /**
  * @author jcompagner
  *
@@ -33,8 +35,15 @@ public interface INGClientApplication extends IApplication
 
 	String getMediaURL(String mediaName);
 
+	JSONObject getBounds(String webComponentID, String subselector);
+
 	/**
 	 * @param weekday
 	 */
 	void setFirstDayOfTheWeek(int weekday);
+
+	/**
+	 * @return
+	 */
+	public JSONObject getUserAgentAndPlatform();
 }

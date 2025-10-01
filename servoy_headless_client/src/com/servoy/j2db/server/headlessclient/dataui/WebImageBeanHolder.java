@@ -19,20 +19,11 @@ package com.servoy.j2db.server.headlessclient.dataui;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Image;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
-import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.util.Date;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;
-
-import org.apache.wicket.AttributeModifier;
-import org.apache.wicket.IResourceListener;
-import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.markup.html.IHeaderResponse;
-import org.apache.wicket.model.AbstractReadOnlyModel;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.persistence.IAnchorConstants;
@@ -68,106 +59,14 @@ public class WebImageBeanHolder extends WebBaseButton implements IDelegate
 		((ChangesRecorder)scriptable.getChangesRecorder()).setDefaultBorderAndPadding(null, null);
 		this.bean = bean;
 		this.anchoring = anchoring;
-		if (bean != null) bean.addComponentListener(new ComponentAdapter()
-		{
-			@Override
-			public void componentResized(ComponentEvent e)
-			{
-				if (!WebImageBeanHolder.this.getSize().equals(WebImageBeanHolder.this.bean.getSize()))
-				{
-					WebImageBeanHolder.this.getScriptObject().setSize(WebImageBeanHolder.this.bean.getWidth(), WebImageBeanHolder.this.bean.getHeight());
-				}
-			}
-		});
 		setMediaOption(8 + 1);
 
-		add(new AttributeModifier("src", new AbstractReadOnlyModel<String>() //$NON-NLS-1$
-			{
-				private static final long serialVersionUID = 1L;
-
-				@Override
-				public String getObject()
-				{
-					return urlFor(IResourceListener.INTERFACE) + "&x=" + Math.random(); //$NON-NLS-1$
-				}
-
-			}));
-
 		icon = new MediaResource();
-
-		final boolean useAnchors = Utils.getAsBoolean(application.getRuntimeProperties().get("enableAnchors")); //$NON-NLS-1$
-		if (useAnchors)
-		{
-			if ((anchoring & (IAnchorConstants.WEST | IAnchorConstants.EAST)) != 0 || (anchoring & (IAnchorConstants.NORTH | IAnchorConstants.SOUTH)) != 0)
-			{
-				add(new AbstractServoyDefaultAjaxBehavior()
-				{
-					@Override
-					public void renderHead(IHeaderResponse response)
-					{
-						super.renderHead(response);
-
-						String beanHolderId = WebImageBeanHolder.this.getMarkupId();
-
-						int width = getSize().width;
-						int height = getSize().height;
-
-						StringBuffer sb = new StringBuffer();
-						sb.append("if(typeof(beansPreferredSize) != \"undefined\")\n").append("{\n"); //$NON-NLS-1$ //$NON-NLS-2$
-						sb.append("beansPreferredSize['").append(beanHolderId).append("'] = new Array();\n"); //$NON-NLS-1$ //$NON-NLS-2$
-						sb.append("beansPreferredSize['").append(beanHolderId).append("']['height'] = ").append(height).append(";\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-						sb.append("beansPreferredSize['").append(beanHolderId).append("']['width'] = ").append(width).append(";\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-						sb.append("beansPreferredSize['").append(beanHolderId).append("']['callback'] = '").append(getCallbackUrl()).append("';\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-						sb.append("}\n"); //$NON-NLS-1$
-						response.renderOnLoadJavascript(sb.toString());
-					}
-
-					@Override
-					protected void respond(AjaxRequestTarget target)
-					{
-						String sWidthHint = getComponent().getRequest().getParameter("width"); //$NON-NLS-1$ 
-						String sHeightHint = getComponent().getRequest().getParameter("height"); //$NON-NLS-1$ 
-						int widthHint = Integer.parseInt(sWidthHint);
-						int heightHint = Integer.parseInt(sHeightHint);
-
-						setSize(new Dimension(widthHint, heightHint));
-						WebEventExecutor.generateResponse(target, getComponent().getPage());
-					}
-				});
-			}
-		}
 	}
 
 	public Object getDelegate()
 	{
 		return bean;
-	}
-
-	@Override
-	public void onSubmit()
-	{
-		super.onSubmit();
-		try
-		{
-			int x = Utils.getAsInteger(getRequest().getParameter(getInputName() + ".x")); //$NON-NLS-1$
-			int y = Utils.getAsInteger(getRequest().getParameter(getInputName() + ".y")); //$NON-NLS-1$
-			bean.dispatchEvent(new MouseEvent(bean, MouseEvent.MOUSE_CLICKED, System.currentTimeMillis(), 0, x, y, 1, false));
-		}
-		catch (Exception e)
-		{
-			Debug.error(e);
-		}
-	}
-
-	@Override
-	public void onResourceRequested()
-	{
-		Dimension size = getSize();
-		if (size != null)
-		{
-			createBeanIcon(size);
-			super.onResourceRequested();
-		}
 	}
 
 	private void createBeanIcon(Dimension size)
@@ -180,10 +79,6 @@ public class WebImageBeanHolder extends WebBaseButton implements IDelegate
 			if (mostRecentIcon != null)
 			{
 				setIcon(mostRecentIcon);
-				if (icon != null)
-				{
-					icon.setCacheable(false);
-				}
 			}
 		}
 		catch (Exception e)
@@ -195,10 +90,10 @@ public class WebImageBeanHolder extends WebBaseButton implements IDelegate
 	private byte[] getIconIfChanged(Dimension size)
 	{
 		// It seems that the web client generates invocations in pairs: first the "isChanged" method
-		// is invoked, then the "onResourceRequested". The following situation may appear: when the 
+		// is invoked, then the "onResourceRequested". The following situation may appear: when the
 		// "isChanged" method is called, it detects a change, but by the time we get to "onResourceRequested"
 		// there is no new change. In this situation we have to remember the result from the "isChanged".
-		// On the other hand, sometimes the "onResourceRequested" method can be invoked independently of 
+		// On the other hand, sometimes the "onResourceRequested" method can be invoked independently of
 		// "isChanged", in which case we don't have to rely on the results from previous calls to "isChanged".
 		// So, as a compromise, we do the following: we rely on a previous call to "isChanged" only if it
 		// was invoked in the recent past (last 2 seconds). Otherwise we assume any cached data may be
@@ -302,7 +197,7 @@ public class WebImageBeanHolder extends WebBaseButton implements IDelegate
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.server.headlessclient.dataui.WebBaseButton#setComponentVisible(boolean)
 	 */
 	@Override
@@ -341,11 +236,5 @@ public class WebImageBeanHolder extends WebBaseButton implements IDelegate
 			Debug.log("Error checking if bean in web client was changed: " + bean, e);
 			return false;
 		}
-	}
-
-	@Override
-	protected void addEnabledStyleAttributeModifier()
-	{
-		// ignore
 	}
 }

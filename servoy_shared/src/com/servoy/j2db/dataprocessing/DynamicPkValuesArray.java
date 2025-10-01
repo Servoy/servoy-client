@@ -17,7 +17,14 @@
 
 package com.servoy.j2db.dataprocessing;
 
+import static com.google.common.base.Functions.identity;
+import static com.servoy.j2db.dataprocessing.RowManager.createPKHashKey;
+import static java.util.stream.Collectors.toMap;
+
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.query.IDynamicValue;
@@ -25,22 +32,24 @@ import com.servoy.j2db.query.IDynamicValue;
 /**
  * Holder for PK values in data set to be used in a Query condition.
  * The data set can be updated with newly added values.
- * 
+ *
  * @author rgansevles
- * 
+ *
  * @since 6.1.1
  *
  */
 public class DynamicPkValuesArray implements IDynamicValue, Cloneable
 {
 	private final List<Column> pkColumns;
-	private final IDataSet pks;
+	private final Map<String, Object[]> pks;
 
-	/**
-	 * @param pks
-	 * @param columnTypeInfo
-	 */
-	public DynamicPkValuesArray(List<Column> pkColumns, IDataSet pks)
+	public DynamicPkValuesArray(List<Column> pkColumns, Collection<Object[]> pks)
+	{
+		this.pkColumns = pkColumns;
+		this.pks = pks.stream().collect(toMap(RowManager::createPKHashKey, identity()));
+	}
+
+	private DynamicPkValuesArray(List<Column> pkColumns, Map<String, Object[]> pks)
 	{
 		this.pkColumns = pkColumns;
 		this.pks = pks;
@@ -49,12 +58,22 @@ public class DynamicPkValuesArray implements IDynamicValue, Cloneable
 	public Object getValue()
 	{
 		// get the actual values for SetCondition
-		return SQLGenerator.createPKValuesArray(pkColumns, pks);
+		return SQLGenerator.createPKValuesArray(pkColumns, pks.values());
 	}
 
-	public IDataSet getPKs()
+	public void addPk(Object[] pk)
 	{
-		return pks;
+		pks.put(createPKHashKey(pk), pk);
+	}
+
+	public void removePk(Object[] pk)
+	{
+		pks.remove(createPKHashKey(pk));
+	}
+
+	public boolean isEmpty()
+	{
+		return pks.isEmpty();
 	}
 
 	public List<Column> getPkColumns()
@@ -67,6 +86,6 @@ public class DynamicPkValuesArray implements IDynamicValue, Cloneable
 	{
 		// Used by DeepCloneVisitor
 		// pkColumns never changes, pks are updated so clone
-		return new DynamicPkValuesArray(pkColumns, pks.clone());
+		return new DynamicPkValuesArray(pkColumns, new HashMap<>(pks));
 	}
 }

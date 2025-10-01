@@ -84,6 +84,7 @@ import com.servoy.j2db.persistence.ISupportScriptProviders;
 import com.servoy.j2db.persistence.ISupportUpdateableName;
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.Media;
+import com.servoy.j2db.persistence.Menu;
 import com.servoy.j2db.persistence.NameComparator;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.Portal;
@@ -114,6 +115,7 @@ import com.servoy.j2db.query.QueryColumn;
 import com.servoy.j2db.query.QueryCompositeJoin;
 import com.servoy.j2db.query.QueryJoin;
 import com.servoy.j2db.query.QueryTable;
+import com.servoy.j2db.scripting.info.EventType;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IteratorChain;
 import com.servoy.j2db.util.Pair;
@@ -166,6 +168,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 	private VariantsHandler variantsHandler;
 
 	private EncryptionHandler encryptionHandler;
+	private Map<String, EventType> eventTypes;
 
 	/**
 	 * @param cacheFlattenedForms turn flattened form caching on when flushFlattenedFormCache() will also be called.
@@ -264,11 +267,11 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 						Map<String, Object> propertiesMap = ((AbstractBase)o).getPropertiesMap();
 						for (Map.Entry<String, Object> entry : propertiesMap.entrySet())
 						{
-							Object elementId = updatedElementIds.get(entry.getValue());
-							if (elementId instanceof Integer)
+							Object elementUUID = updatedElementIds.get(entry.getValue());
+							if (elementUUID instanceof String)
 							{
 								Element element = StaticContentSpecLoader.getContentSpec().getPropertyForObjectTypeByName(o.getTypeID(), entry.getKey());
-								if (element.getTypeID() == IRepository.ELEMENTS) ((AbstractBase)o).setProperty(entry.getKey(), elementId);
+								if (element.getTypeID() == IRepository.ELEMENTS) ((AbstractBase)o).setProperty(entry.getKey(), elementUUID);
 							}
 							else if (entry.getValue() instanceof JSONObject)
 							{
@@ -504,9 +507,9 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 			{
 				// overwrite this new Object to skip the call to rootObject.registerNewObject(object); which shouldn't be needed for solution model solutions.
 				@Override
-				public IPersist createNewObject(ISupportChilds parent, int object_type_id, int element_id, UUID uuid) throws RepositoryException
+				public IPersist createNewObject(ISupportChilds parent, int object_type_id, UUID uuid) throws RepositoryException
 				{
-					return factory.createObject(parent, object_type_id, element_id, uuid);
+					return factory.createObject(parent, object_type_id, uuid);
 				}
 			});
 			copySolution.getChangeHandler().addIPersistListener(this);
@@ -525,45 +528,11 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 	}
 
 
-	protected int getMaxID()
-	{
-		final int[] maxId = new int[1];
-		IPersistVisitor visitor = new IPersistVisitor()
-		{
-			public Object visit(IPersist o)
-			{
-				if (maxId[0] < o.getID())
-				{
-					maxId[0] = o.getID();
-				}
-				return IPersistVisitor.CONTINUE_TRAVERSAL;
-			}
-		};
-		mainSolution.acceptVisitor(visitor);
-		if (modules != null)
-		{
-			for (Solution module : modules)
-			{
-				module.acceptVisitor(visitor);
-			}
-		}
-		int max = maxId[0];
-		if (loginFlattenedSolution != null)
-		{
-			int loginMax = loginFlattenedSolution.getMaxID();
-			if (loginMax > max)
-			{
-				max = loginMax;
-			}
-		}
-		return max;
-	}
-
 	public SimplePersistFactory getPersistFactory()
 	{
 		if (persistFactory == null)
 		{
-			persistFactory = new SimplePersistFactory(getMaxID());
+			persistFactory = new SimplePersistFactory();
 		}
 		return persistFactory;
 	}
@@ -623,7 +592,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		if (user_created_styles == null) user_created_styles = new ConcurrentHashMap<String, Style>();
 		if (user_created_styles.containsKey(name)) throw new RuntimeException("Style with name '" + name + "' already exists"); //$NON-NLS-1$ //$NON-NLS-2$
 
-		RootObjectMetaData rootObjectMetaData = new RootObjectMetaData(-1, UUID.randomUUID(), name, IRepository.STYLES, 1, 1);
+		RootObjectMetaData rootObjectMetaData = new RootObjectMetaData(UUID.randomUUID(), name, IRepository.STYLES, 1, 1);
 		rootObjectMetaData.setName(name);
 		Style style = new Style(mainSolution.getRepository(), rootObjectMetaData);
 		style.setContent(content);
@@ -711,7 +680,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 			{
 				// Note: referencedModules includes main solution
 				List<RootObjectReference> referencedModules = activeSolutionHandler.getRepository().getActiveSolutionModuleMetaDatas(
-					mainSolutionMetaData.getRootObjectId());
+					mainSolutionMetaData.getRootObjectUuid());
 				if (referencedModules != null && referencedModules.size() != 0)
 				{
 					List<RootObjectMetaData> solutionAndModuleMetaDatas = new ArrayList<RootObjectMetaData>();
@@ -799,6 +768,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 			index.destroy();
 			index = null;
 		}
+		buildEventTypesList();
 	}
 
 	/**
@@ -938,14 +908,14 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		{
 			form = (Form)persist.getAncestor(IRepository.FORMS);
 		}
-		if (form == null || form.getExtendsID() <= 0)
+		if (form == null || form.getExtendsID() == null)
 		{
 			// no form or nothing to flatten
 			return form;
 		}
 
 		// make sure is latest form
-		form = getForm(form.getID());
+		form = getForm(form.getUUID().toString());
 
 		if (form == null) return null; // form is already deleted?
 
@@ -1085,7 +1055,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 						return true;
 					}
 				}
-				if (form instanceof FlattenedForm || f.getExtendsID() <= 0)
+				if (form instanceof FlattenedForm || f.getExtendsID() == null)
 				{
 					// no (more) hierarchy to investigate
 					break;
@@ -1903,9 +1873,9 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		if (persist instanceof Form)
 		{
 			Form form = (Form)persist;
-			if (form.getExtendsID() > 0)
+			if (form.getExtendsID() != null)
 			{
-				if (form.getExtendsForm() == null || form.getExtendsForm().getID() != form.getExtendsID())
+				if (form.getExtendsForm() == null || !form.getExtendsForm().getUUID().toBytes().equals(form.getExtendsID()))
 				{
 					form.setExtendsForm(getForm(form.getExtendsID()));
 				}
@@ -1914,6 +1884,10 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 			{
 				form.setExtendsForm(null);
 			}
+		}
+		if (persist instanceof Solution)
+		{
+			buildEventTypesList();
 		}
 	}
 
@@ -1931,7 +1905,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		if (persist instanceof Form)
 		{
 			Form form = (Form)persist;
-			if (form.getExtendsID() > 0)
+			if (form.getExtendsID() != null)
 			{
 				form.setExtendsForm(getForm(form.getExtendsID()));
 			}
@@ -2115,33 +2089,34 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 			if (!(form instanceof FlattenedForm))
 			{
 				Form extendedForm;
-				int extended_form_id = form.getExtendsID();
+				String extended_form_uuid = form.getExtendsID();
 
 				List<RootObjectReference> modulesMetaData = null;
 
 				// We keep track of visited forms, to avoid infinite loop.
-				Set<Integer> visited = new HashSet<Integer>();
+				Set<String> visited = new HashSet<String>();
 
-				while (style_name == null && extended_form_id > 0)
+				while (style_name == null && extended_form_uuid != null)
 				{
-					visited.add(new Integer(extended_form_id));
+					visited.add(extended_form_uuid);
 
 					// if this is hit here with a normal (not flattened form) that has an extend.
 					// and that form is a solution modal form. the f.getSolution() doesn't have to find it.
 					// because f.getSolution() is the copy solution thats inside the FlattenedSolution.
 					// that one doesn't have any other forms. But normally all forms should be flattened.
-					extendedForm = flattenedSolution == null ? form.getSolution().getForm(extended_form_id) : flattenedSolution.getForm(extended_form_id);
+					extendedForm = flattenedSolution == null ? form.getSolution().getForm(extended_form_uuid) : flattenedSolution.getForm(extended_form_uuid);
 					if (flattenedSolution == null && extendedForm == null) // check for module form
 					{
 						if (modulesMetaData == null)
 						{
-							modulesMetaData = form.getSolution().getRepository().getActiveSolutionModuleMetaDatas(form.getSolution().getID());
+							modulesMetaData = form.getSolution().getRepository().getActiveSolutionModuleMetaDatas(form.getSolution().getUUID());
 						}
 
 						for (RootObjectReference moduleMetaData : modulesMetaData)
 						{
-							Solution module = (Solution)form.getSolution().getRepository().getActiveRootObject(moduleMetaData.getMetaData().getRootObjectId());
-							extendedForm = module.getForm(extended_form_id);
+							Solution module = (Solution)form.getSolution().getRepository()
+								.getActiveRootObject(moduleMetaData.getMetaData().getRootObjectUuid());
+							extendedForm = module.getForm(extended_form_uuid);
 							if (extendedForm != null)
 							{
 								break;
@@ -2154,8 +2129,8 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 						break;//in case referring to no longer existing form
 					}
 					style_name = extendedForm.getStyleName();
-					extended_form_id = extendedForm.getExtendsID();
-					if (visited.contains(new Integer(extended_form_id)))
+					extended_form_uuid = extendedForm.getExtendsID();
+					if (visited.contains(extended_form_uuid))
 					{
 						break;//in case of cycle in form inheritance hierarchy
 					}
@@ -2222,13 +2197,6 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 	public Iterator<ScriptMethod> getScriptMethods(boolean sort)
 	{
 		return getIndex().getGlobalScriptObjects(null, sort, ScriptMethod.class);
-	}
-
-	// will return now all script methods through the whole solution
-	public ScriptMethod getScriptMethod(int methodId)
-	{
-		if (methodId <= 0) return null;
-		return getIndex().getPersistByID(methodId, ScriptMethod.class);
 	}
 
 	// will return now all script methods through the whole solution
@@ -2370,12 +2338,6 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		return Solution.getValueLists(getIndex().getIterableFor(ValueList.class), sort);
 	}
 
-	public ValueList getValueList(int id)
-	{
-		if (id <= 0) return null;
-		return getIndex().getPersistByID(id, ValueList.class);
-	}
-
 	public ValueList getValueList(String nameOrUUID)
 	{
 		if (nameOrUUID == null) return null;
@@ -2383,6 +2345,20 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		ValueList vl = getIndex().getPersistByUUID(nameOrUUID, ValueList.class);
 		if (vl != null) return vl;
 		return getIndex().getPersistByName(nameOrUUID, ValueList.class);
+	}
+
+	public Menu getMenu(String nameOrUUID)
+	{
+		if (nameOrUUID == null) return null;
+
+		Menu menu = getIndex().getPersistByUUID(nameOrUUID, Menu.class);
+		if (menu != null) return menu;
+		return getIndex().getPersistByName(nameOrUUID, Menu.class);
+	}
+
+	public Iterator<Menu> getMenus(boolean sort)
+	{
+		return Solution.getMenus(getIndex().getIterableFor(Menu.class), sort);
 	}
 
 	public Iterator<Form> getForms(ITable basedOnTable, boolean sort)
@@ -2417,12 +2393,6 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		return forms;
 	}
 
-	public Form getForm(int id)
-	{
-		if (id <= 0) return null;
-		return getIndex().getPersistByID(id, Form.class);
-	}
-
 	public Form getForm(String nameOrUUID)
 	{
 		if (nameOrUUID == null) return null;
@@ -2441,7 +2411,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		List<Form> formHierarchy = new ArrayList<Form>();
 		formHierarchy.add(form);
 		Form f = form;
-		while (f != null && f.getExtendsID() > 0)
+		while (f != null && f.getExtendsID() != null)
 		{
 			f = getForm(f.getExtendsID());
 			if (f == null || formHierarchy.contains(f) /* prevent cycles */)
@@ -2461,7 +2431,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		while (sameTableFormsIte.hasNext())
 		{
 			Form sameTableForm = sameTableFormsIte.next();
-			if (sameTableForm.getExtendsID() == parentForm.getID())
+			if (parentForm.getUUID().toString().equals(sameTableForm.getExtendsID()))
 			{
 				inheritingForms.add(sameTableForm);
 			}
@@ -2605,12 +2575,6 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		return Solution.getMedias(getIndex().getIterableFor(Media.class), sort);
 	}
 
-	public Media getMedia(int id)
-	{
-		if (id <= 0) return null;
-		return getIndex().getPersistByID(id, Media.class);
-	}
-
 	public Media getMedia(String nameOrUUID)
 	{
 		if (nameOrUUID == null) return null;
@@ -2734,9 +2698,8 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 				}
 
 				// create internal value list relation
-				QueryTable callingQTable = new QueryTable(callingTable.getSQLName(), callingTable.getDataSource(), callingTable.getCatalog(),
-					callingTable.getSchema());
-				QueryTable destQTable = new QueryTable(destTable.getSQLName(), destTable.getDataSource(), destTable.getCatalog(), destTable.getSchema());
+				QueryTable callingQTable = callingTable.queryTable();
+				QueryTable destQTable = destTable.queryTable();
 
 				List<ISQLTableJoin> joins = new ArrayList<ISQLTableJoin>();
 				ISQLTableJoin lastJoin = null;
@@ -2771,8 +2734,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 							{
 								return null;
 							}
-							foreignQTable = new QueryTable(relForeignTable.getSQLName(), relForeignTable.getDataSource(), relForeignTable.getCatalog(),
-								relForeignTable.getSchema());
+							foreignQTable = relForeignTable.queryTable();
 						}
 						lastJoin = foundSetManager.getSQLGenerator().createJoin(this, r, primaryQTable, foreignQTable, false, new IGlobalValueEntry()
 						{
@@ -2986,6 +2948,45 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 
 	}
 
+	public Collection<EventType> getEventTypes()
+	{
+		if (eventTypes != null)
+		{
+			return eventTypes.values();
+		}
+		return Collections.emptyList();
+	}
+
+	public EventType getEventType(String name)
+	{
+		if (eventTypes != null)
+		{
+			return eventTypes.get(name);
+		}
+		return null;
+	}
+
+	private void buildEventTypesList()
+	{
+		eventTypes = new HashMap<String, EventType>();
+		if (mainSolution != null && mainSolution.getEventTypes() != null)
+		{
+			mainSolution.getEventTypes().keySet().stream()
+				.forEach(name -> eventTypes.put(name, new EventType(name, mainSolution.getEventTypes().getJSONObject(name))));
+		}
+		if (modules != null)
+		{
+			for (Solution solution : modules)
+			{
+				if (solution.getEventTypes() != null)
+				{
+					solution.getEventTypes().keySet().stream().forEach(
+						name -> eventTypes.put(name, new EventType(name, solution.getEventTypes().getJSONObject(name))));
+				}
+			}
+		}
+	}
+
 	private String designFormName = null;
 
 	/**
@@ -3027,10 +3028,10 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 			while (it.hasNext())
 			{
 				Form childForm = it.next();
-				if (childForm.getID() == persist.getID() || childForm.getExtendsID() == persist.getID())
+				if (childForm.getUUID().equals(persist.getUUID()) || persist.getUUID().toString().equals(childForm.getExtendsID()))
 				{
 					// this is an adjustment of a sub form make sure we create a copy first.
-					if (childForm.getID() != persist.getID() && getSolutionCopy().getChild(childForm.getUUID()) == null)
+					if (!childForm.getUUID().equals(persist.getUUID()) && getSolutionCopy().getChild(childForm.getUUID()) == null)
 					{
 						childForm = createPersistCopy(childForm);
 						registerChangedForm(childForm);
@@ -3172,12 +3173,6 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 
 		@Override
 		public <T extends IPersist> T getPersistByName(String name, Class<T> persistClass)
-		{
-			return null;
-		}
-
-		@Override
-		public <T extends IPersist> T getPersistByID(int id, Class<T> clz)
 		{
 			return null;
 		}

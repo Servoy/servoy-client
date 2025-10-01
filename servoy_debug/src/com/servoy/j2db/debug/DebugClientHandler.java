@@ -23,18 +23,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.Consumer;
 
-import javax.servlet.ServletRequest;
-import javax.servlet.http.HttpServletRequest;
 import javax.swing.SwingUtilities;
 
-import org.apache.wicket.Application;
-import org.apache.wicket.RequestCycle;
-import org.apache.wicket.protocol.http.WebRequestCycle;
-import org.apache.wicket.protocol.http.WebResponse;
-import org.apache.wicket.protocol.http.WebSession;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExtension;
@@ -48,7 +40,6 @@ import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IDebugClient;
 import com.servoy.j2db.IDebugClientHandler;
 import com.servoy.j2db.IDebugNGClient;
-import com.servoy.j2db.IDebugWebClient;
 import com.servoy.j2db.IDesignerCallback;
 import com.servoy.j2db.IFormController;
 import com.servoy.j2db.J2DBGlobals;
@@ -65,17 +56,14 @@ import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.scripting.SolutionScope;
-import com.servoy.j2db.server.headlessclient.EmptyRequest;
 import com.servoy.j2db.server.headlessclient.SessionClient;
-import com.servoy.j2db.server.headlessclient.WebClient;
-import com.servoy.j2db.server.headlessclient.WebClientSession;
-import com.servoy.j2db.server.headlessclient.WebClientsApplication;
 import com.servoy.j2db.server.ngclient.INGClientWebsocketSession;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
-import com.servoy.j2db.server.shared.WebCredentials;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IDeveloperURLStreamHandler;
 import com.servoy.j2db.util.Utils;
+
+import jakarta.servlet.ServletRequest;
 
 public class DebugClientHandler implements IDebugClientHandler, IDesignerCallback
 {
@@ -83,15 +71,8 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 	public static final String SUPPORTED_DEBUG_CLIENT_TYPE_ID = "debugClientTypeID";
 	public static final String DEBUG_CLIENT_PROVIDER_EXTENSION_POINT_ID = "servoy_debug.debugClientProvider";
 
-
-	//This is needed for mobile client launch with switch to service option .
-	// switching to service in developer causes a required refresh in a separate thread triggered by activeSolutionChanged
-	// , meanwhile after setActiveSolution is called the mobileClientDelegate opens the browser which causes a get to the service solution which is not fully loaded and debuggable
-	public static Lock activeSolutionRefreshLock = new ReentrantLock();
-
 	private volatile DebugHeadlessClient debugHeadlessClient;
 	private volatile DebugAuthenticator debugAuthenticator;
-	private volatile DebugWebClient debugWebClient;
 	@SuppressWarnings("unused")
 	private volatile DebugNGClient debugNGClient;
 	private volatile DebugJ2DBClient debugJ2DBClient;
@@ -110,11 +91,6 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 		{
 			SolutionScope solutionScope = debugJ2DBClient.getScriptEngine().getSolutionScope();
 			designerCallback.addScriptObjects(debugJ2DBClient, solutionScope);
-		}
-		if (debugWebClient != null && debugWebClient.getSolution() != null)
-		{
-			SolutionScope solutionScope = debugWebClient.getScriptEngine().getSolutionScope();
-			designerCallback.addScriptObjects(debugWebClient, solutionScope);
 		}
 		if (debugNGClient != null && debugNGClient.getSolution() != null)
 		{
@@ -146,7 +122,6 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 	{
 		ArrayList<IDebugClient> lst = new ArrayList<IDebugClient>();
 		if (debugJ2DBClient != null && debugJ2DBClient.getSolution() != null) lst.add(debugJ2DBClient);
-		if (debugWebClient != null && debugWebClient.getSolution() != null) lst.add(debugWebClient);
 		if (debugNGClient != null && debugNGClient.getSolution() != null) lst.add(debugNGClient);
 		if (debugHeadlessClient != null && debugHeadlessClient.getSolution() != null) lst.add(debugHeadlessClient);
 		for (IDebugClient c : customDebugClients.values())
@@ -159,69 +134,56 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 
 	public void refreshDebugClientsI18N(boolean recreateForms)
 	{
-		if (debugJ2DBClient != null && debugJ2DBClient.getSolution() != null) debugJ2DBClient.refreshForI18NChange(recreateForms);
-		if (debugWebClient != null && debugWebClient.getSolution() != null) debugWebClient.refreshForI18NChange(recreateForms);
-		if (debugNGClient != null && debugNGClient.getSolution() != null) debugNGClient.refreshForI18NChange(recreateForms);
-		if (debugHeadlessClient != null && debugHeadlessClient.getSolution() != null) debugHeadlessClient.refreshForI18NChange(recreateForms);
-		if (debugAuthenticator != null && debugAuthenticator.getSolution() != null) debugAuthenticator.refreshForI18NChange(recreateForms);
+		runInClientEventThread(debugJ2DBClient, (cl) -> cl.refreshForI18NChange(recreateForms));
+		runInClientEventThread(debugNGClient, (cl) -> cl.refreshForI18NChange(recreateForms));
+		runInClientEventThread(debugHeadlessClient, (cl) -> cl.refreshForI18NChange(recreateForms));
+		runInClientEventThread(debugAuthenticator, (cl) -> cl.refreshForI18NChange(recreateForms));
 		for (IDebugClient c : customDebugClients.values())
 		{
-			if (c.getSolution() != null) c.refreshForI18NChange(recreateForms);
+			runInClientEventThread(c, (cl) -> cl.refreshForI18NChange(recreateForms));
 		}
 	}
 
-	/**
-	 * @param changes
-	 */
 	public void refreshDebugClients(Collection<IPersist> changes)
 	{
-		if (debugJ2DBClient != null && debugJ2DBClient.getSolution() != null) debugJ2DBClient.refreshPersists(changes);
-		if (debugWebClient != null && debugWebClient.getSolution() != null) debugWebClient.refreshPersists(changes);
-		if (debugNGClient != null && debugNGClient.getSolution() != null) debugNGClient.refreshPersists(changes);
-		if (debugHeadlessClient != null && debugHeadlessClient.getSolution() != null) debugHeadlessClient.refreshPersists(changes);
-		if (debugAuthenticator != null && debugAuthenticator.getSolution() != null) debugAuthenticator.refreshPersists(changes);
+		runInClientEventThread(debugJ2DBClient, (cl) -> cl.refreshPersists(changes));
+		runInClientEventThread(debugNGClient, (cl) -> cl.refreshPersists(changes));
+		runInClientEventThread(debugHeadlessClient, (cl) -> cl.refreshPersists(changes));
+		runInClientEventThread(debugAuthenticator, (cl) -> cl.refreshPersists(changes));
 		for (IDebugClient c : customDebugClients.values())
 		{
-			if (c.getSolution() != null) c.refreshPersists(changes);
+			runInClientEventThread(c, (cl) -> cl.refreshPersists(changes));
 		}
+	}
+
+	private <CT extends IDebugClient> void runInClientEventThread(CT debugClient, Consumer<CT> taskToExecute)
+	{
+		if (debugClient != null && debugClient.getSolution() != null)
+			debugClient.invokeLater(() -> { // move to the correct client event thread - we don't want this executing on some developer worker thread or AWT event thread etc.
+				if (debugClient.isShutDown()) return;
+				taskToExecute.accept(debugClient);
+			});
 	}
 
 	public void refreshDebugClients(ITable table)
 	{
-		if (debugJ2DBClient != null && debugJ2DBClient.getSolution() != null)
-		{
-			String dataSource = debugJ2DBClient.getFoundSetManager().getDataSource(table);
-			((FoundSetManager)debugJ2DBClient.getFoundSetManager()).flushSQLSheet(dataSource);
-		}
-		if (debugWebClient != null && debugWebClient.getSolution() != null)
-		{
-			String dataSource = debugWebClient.getFoundSetManager().getDataSource(table);
-			((FoundSetManager)debugWebClient.getFoundSetManager()).flushSQLSheet(dataSource);
-		}
-		if (debugNGClient != null && debugNGClient.getSolution() != null)
-		{
-			String dataSource = debugNGClient.getFoundSetManager().getDataSource(table);
-			((FoundSetManager)debugNGClient.getFoundSetManager()).flushSQLSheet(dataSource);
-		}
-		if (debugHeadlessClient != null && debugHeadlessClient.getSolution() != null)
-		{
-			String dataSource = debugHeadlessClient.getFoundSetManager().getDataSource(table);
-			((FoundSetManager)debugHeadlessClient.getFoundSetManager()).flushSQLSheet(dataSource);
-		}
-		if (debugAuthenticator != null && debugAuthenticator.getSolution() != null)
-		{
-			String dataSource = debugAuthenticator.getFoundSetManager().getDataSource(table);
-			((FoundSetManager)debugAuthenticator.getFoundSetManager()).flushSQLSheet(dataSource);
-		}
+		refreshDebugClientTable(debugJ2DBClient, table);
+		refreshDebugClientTable(debugNGClient, table);
+		refreshDebugClientTable(debugHeadlessClient, table);
+		refreshDebugClientTable(debugAuthenticator, table);
 
 		for (IDebugClient c : customDebugClients.values())
 		{
-			if (c.getSolution() != null)
-			{
-				String dataSource = c.getFoundSetManager().getDataSource(table);
-				((FoundSetManager)c.getFoundSetManager()).flushSQLSheet(dataSource);
-			}
+			refreshDebugClientTable(c, table);
 		}
+	}
+
+	private void refreshDebugClientTable(IDebugClient debugClient, ITable table)
+	{
+		runInClientEventThread(debugClient, (cl) -> {
+			String dataSource = cl.getFoundSetManager().getDataSource(table);
+			((FoundSetManager)cl.getFoundSetManager()).flushSQLSheet(dataSource);
+		});
 	}
 
 	public IApplication getDebugReadyClient()
@@ -229,10 +191,6 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 		if (debugJ2DBClient != null && debugJ2DBClient.getSolution() != null && RemoteDebugScriptEngine.isConnected(0))
 		{
 			return debugJ2DBClient;
-		}
-		else if (getDebugWebClient() != null && getDebugWebClient().getSolution() != null && RemoteDebugScriptEngine.isConnected(0))
-		{
-			return getDebugWebClient();
 		}
 		else if (getDebugHeadlessClient() != null && getDebugHeadlessClient().getSolution() != null && RemoteDebugScriptEngine.isConnected(0))
 		{
@@ -306,29 +264,6 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 					}
 				});
 			}
-			else if (serviceProvider == getDebugWebClient())
-			{
-				ApplicationServerRegistry.get().getExecutor().execute(new Runnable()
-				{
-					public void run()
-					{
-						RequestCycle rc = null;
-						try
-						{
-							//fake a request as much as possible
-							WebClientsApplication fakeApplication = ((WebClient)serviceProvider).getFakeApplication();
-							Application.set(fakeApplication);
-							rc = new WebRequestCycle(fakeApplication, new EmptyRequest(), new WebResponse());
-							serviceProvider.invokeAndWait(run);
-						}
-						finally
-						{
-							Application.unset();
-							rc.detach();
-						}
-					}
-				});
-			}
 			else
 			{
 				serviceProvider.invokeLater(run);
@@ -345,10 +280,6 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 		if (debugJ2DBClient != null)
 		{
 			debugJ2DBClient.setCurrent(solution);
-		}
-		if (debugWebClient != null)
-		{
-			debugWebClient.setCurrent(solution);
 		}
 		if (debugNGClient != null)
 		{
@@ -378,17 +309,6 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 			try
 			{
 				debugJ2DBClient.loadSecuritySettings(debugJ2DBClient.getFlattenedSolution());
-			}
-			catch (Exception e)
-			{
-				Debug.error(e);
-			}
-		}
-		if (debugWebClient != null && debugWebClient.getSolution() != null && debugWebClient.getFlattenedSolution() != null)
-		{
-			try
-			{
-				debugWebClient.loadSecuritySettings(debugWebClient.getFlattenedSolution());
 			}
 			catch (Exception e)
 			{
@@ -441,10 +361,6 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 		if (debugJ2DBClient != null && debugJ2DBClient.getSolution() != null && debugJ2DBClient.getMainApplicationFrame().isVisible())
 		{
 			debugJ2DBClient.show(form);
-		}
-		if (debugWebClient != null && debugWebClient.getSolution() != null)
-		{
-			debugWebClient.show(form);
 		}
 		if (debugNGClient != null && debugNGClient.getSolution() != null)
 		{
@@ -534,14 +450,6 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 			}
 		}
 		return null;
-	}
-
-	/**
-	 * @return
-	 */
-	public IDebugWebClient getDebugWebClient()
-	{
-		return debugWebClient;
 	}
 
 	@Override
@@ -634,32 +542,6 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 
 	}
 
-	/**
-	 * @param webClientSession
-	 * @param req
-	 * @param userName
-	 * @param password
-	 * @param method
-	 * @param objects
-	 * @return
-	 * @throws Exception
-	 */
-	public synchronized WebClient createDebugWebClient(WebSession webClientSession, HttpServletRequest req, WebCredentials credentials, String method,
-		Object[] objects) throws Exception
-	{
-		if (!(webClientSession instanceof WebClientSession))
-		{
-			throw new IllegalArgumentException("expecting WebClientSession for debug web client: " + webClientSession.getClass().getName()); // nullpointer when webClientSession is null
-		}
-		if (debugWebClient != null && debugWebClient.getSolution() != null)
-		{
-			debugWebClient.shutDown(true);
-		}
-		debugWebClient = new DebugWebClient(req, credentials, method, objects, (currentSolution == null) ? null : currentSolution.getSolutionMetaData(),
-			designerCallback);
-		return debugWebClient;
-	}
-
 	public synchronized IDebugClient createDebugNGClient(Object wsSession) throws Exception
 	{
 		if (debugNGClient != null && !debugNGClient.isShutDown())
@@ -724,7 +606,6 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 	public boolean isClientStarted()
 	{
 		if (debugJ2DBClient != null && !debugJ2DBClient.isShutDown()) return true;
-		if (debugWebClient != null) return true;
 		if (debugNGClient != null) return true;
 		if (debugHeadlessClient != null) return true;
 		return false;
@@ -733,7 +614,6 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 	public void flushValueList(ValueList valueList)
 	{
 		if (debugJ2DBClient != null) ComponentFactory.flushValueList(debugJ2DBClient, valueList);
-		if (debugWebClient != null) ComponentFactory.flushValueList(debugWebClient, valueList);
 		if (debugNGClient != null) ComponentFactory.flushValueList(debugNGClient, valueList);
 		if (debugHeadlessClient != null) ComponentFactory.flushValueList(debugHeadlessClient, valueList);
 		if (debugAuthenticator != null) ComponentFactory.flushValueList(debugAuthenticator, valueList);
@@ -748,7 +628,6 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 		// styles were added/removed; refresh all styles
 		// TODO really refresh all styles (not just flush cache)
 		if (debugJ2DBClient != null) ComponentFactory.flushCachedItems(debugJ2DBClient);
-		if (debugWebClient != null) ComponentFactory.flushCachedItems(debugWebClient);
 		if (debugNGClient != null) ComponentFactory.flushCachedItems(debugNGClient);
 		if (debugHeadlessClient != null) ComponentFactory.flushCachedItems(debugHeadlessClient);
 		if (debugAuthenticator != null) ComponentFactory.flushCachedItems(debugAuthenticator);
@@ -802,11 +681,6 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 		{
 			debugJ2DBClient.shutDownAndDispose();
 			debugJ2DBClient = null;
-		}
-		if (debugWebClient != null)
-		{
-			debugWebClient.shutDown(true);
-			debugWebClient = null;
 		}
 		if (debugNGClient != null)
 		{

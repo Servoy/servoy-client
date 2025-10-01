@@ -20,6 +20,7 @@ package com.servoy.j2db.server.ngclient.component;
 import java.awt.Point;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -30,6 +31,8 @@ import java.util.TreeMap;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Wrapper;
+import org.sablo.IChangeListener;
+import org.sablo.IWebObjectContext;
 import org.sablo.WebComponent;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebObjectApiFunctionDefinition;
@@ -48,7 +51,7 @@ import com.servoy.j2db.IView;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.PrototypeState;
 import com.servoy.j2db.persistence.Form;
-import com.servoy.j2db.persistence.IFormElement;
+import com.servoy.j2db.persistence.ISupportFormElement;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.PositionComparator;
 import com.servoy.j2db.persistence.RepositoryHelper;
@@ -68,8 +71,11 @@ import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.WebFormUI;
 import com.servoy.j2db.server.ngclient.WebListFormUI;
 import com.servoy.j2db.server.ngclient.eventthread.NGClientWebsocketSessionWindows;
+import com.servoy.j2db.server.ngclient.property.IDataLinkedPropertyValue;
+import com.servoy.j2db.server.ngclient.property.types.IDataLinkedType.TargetDataLinks;
 import com.servoy.j2db.server.ngclient.property.types.NGTabSeqPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.ReadonlySabloValue;
+import com.servoy.j2db.server.ngclient.property.types.TagStringPropertyType;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.SortedList;
 import com.servoy.j2db.util.Utils;
@@ -84,6 +90,7 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 	private WebFormUI formUI;
 	private boolean rendering;
 	private String[] tabSequence;
+	private IDataLinkedPropertyValue titleDataChangeListener;
 
 	public WebFormController(INGApplication application, Form form, String name)
 	{
@@ -98,6 +105,7 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 		if (formUI != null)
 		{
 			parentContainer = formUI.getParentContainer();
+			formUI.destroy();
 		}
 		if (form.getView() == IFormConstants.VIEW_TYPE_RECORD || form.getView() == IFormConstants.VIEW_TYPE_RECORD_LOCKED)
 		{
@@ -168,16 +176,16 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 		if (window != null && window.getController() == this)
 		{
 			IFormController currentNavigator = window.getNavigator();
-			int form_id = form.getNavigatorID();
-			if (form_id > 0)
+			String form_uuid = form.getNavigatorID();
+			if (form_uuid != null && !Form.NAVIGATOR_IGNORE.equals(form_uuid) && !Form.NAVIGATOR_NONE.equals(form_uuid))
 			{
-				if (currentNavigator == null || currentNavigator.getForm().getID() != form_id)//is already there
+				if (currentNavigator == null || !Utils.equalObjects(currentNavigator.getForm().getUUID().toString(), form_uuid))//is already there
 				{
 					if (currentNavigator != null)
 					{
 						currentNavigator.notifyVisible(false, invokeLaterRunnables, true);
 					}
-					Form navigator = application.getFlattenedSolution().getForm(form_id);
+					Form navigator = application.getFlattenedSolution().getForm(form_uuid);
 					if (navigator != null)
 					{
 						IFormController navigatorController = getApplication().getFormManager().getForm(navigator.getName());
@@ -187,18 +195,18 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 				else
 				{
 					// Try to lease it extra so it will be added to last used screens.
-					Form navigator = application.getFlattenedSolution().getForm(form_id);
+					Form navigator = application.getFlattenedSolution().getForm(form_uuid);
 					if (navigator != null)
 					{
 						getBasicFormManager().leaseFormPanel(navigator.getName());
 					}
 				}
 			}
-			else if (form_id != Form.NAVIGATOR_IGNORE)
+			else if (!Form.NAVIGATOR_IGNORE.equals(form_uuid))
 			{
 				if (currentNavigator != null) currentNavigator.notifyVisible(false, invokeLaterRunnables, true);
 			}
-			window.setNavigator(form_id);
+			window.setNavigator(form_uuid);
 		}
 	}
 
@@ -207,7 +215,7 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 	{
 		if (isDestroyed()) return true;
 		if (!getFormUI().getDataAdapterList().stopUIEditing(looseFocus)) return false;
-		if (looseFocus && form.getOnRecordEditStopMethodID() != 0)
+		if (looseFocus)
 		{
 			//allow beans to store there data via method
 			IRecordInternal[] records = getApplication().getFoundSetManager().getEditRecordList().getUnmarkedEditedRecords(formModel, this);
@@ -635,10 +643,10 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 			if (defaultTabSequence)
 			{
 				ArrayList<String> sequence = new ArrayList<String>();
-				Iterator<IFormElement> it = form.getFormElementsSortedByFormIndex();
+				Iterator<ISupportFormElement> it = form.getFormElementsSortedByFormIndex();
 				while (it.hasNext())
 				{
-					IFormElement element = it.next();
+					ISupportFormElement element = it.next();
 					if (element.getName() != null) sequence.add(element.getName());
 				}
 				tabSequence = sequence.toArray(new String[sequence.size()]);
@@ -737,23 +745,96 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 		}
 		boolean notifyVisibleSuccess = super.notifyVisible(visible, invokeLaterRunnables, executePreHideSteps);
 
+		if (EventExecutor.EVENT_TRACING_LOG.isTraceEnabled())
+		{
+			Object[] tenantValue = application.getScriptEngine().getJSSecurity().getTenantValue();
+			if (visible)
+			{
+				EventExecutor.EVENT_TRACING_LOG.trace(application.getUserName() + '|' + application.getClientID() + '|' + Arrays.toString(tenantValue) + '|' +
+					application.getSolutionName() + '|' + getName() + "|FORM_SHOWN|" + notifyVisibleSuccess + '|'); //$NON-NLS-1$
+			}
+			else
+			{
+				EventExecutor.EVENT_TRACING_LOG.trace(application.getUserName() + '|' + application.getClientID() + '|' + Arrays.toString(tenantValue) + '|' +
+					application.getSolutionName() + '|' + getName() + "|FORM_HIDDEN|" + notifyVisibleSuccess + '|'); //$NON-NLS-1$
+			}
+		}
 		if (notifyVisibleSuccess)
 		{
-			for (WebComponent comp : getFormUI().getComponents())
+			Runnable run = new Runnable()
 			{
-				RuntimeWebComponent runtimeComponent = getFormUI().getRuntimeWebComponent(comp.getName());
-				if (runtimeComponent != null)
+				public void run()
 				{
-					WebObjectFunctionDefinition function = null;
 					if (visible)
-						function = comp.getSpecification().getInternalApiFunction("onShow");
-					else
-						function = comp.getSpecification().getInternalApiFunction("onHide");
-					if (function != null)
 					{
-						runtimeComponent.executeScopeFunction(function, new Object[0]);
+						Object parentWindowName = formUI.getParentContainer();
+						if (parentWindowName != null && parentWindowName instanceof String parentName)
+						{
+							NGRuntimeWindow window = getApplication().getRuntimeWindowManager().getWindow(parentName);
+
+							TargetDataLinks targetDataLinks = TagStringPropertyType.getDataLinksStatic(getForm().getTitleText(),
+								application.getFlattenedSolution(),
+								getForm());
+							WebFormController.this.titleDataChangeListener = new IDataLinkedPropertyValue()
+							{
+								@Override
+								public void detach()
+								{
+									// not needed
+								}
+
+								@Override
+								public void attachToBaseObject(IChangeListener changeMonitor, IWebObjectContext webObjectContext)
+								{
+									// not needed
+								}
+
+								@Override
+								public void dataProviderOrRecordChanged(IRecordInternal record, String dataProvider, boolean isFormDP, boolean isGlobalDP,
+									boolean fireChangeEvent)
+								{
+									if (window != null)
+									{
+										String windowTitle = window.getTitle();
+										if (windowTitle == null)
+										{
+											window.setTitle(getForm().getTitleText());
+										}
+									}
+								}
+							};
+							formUI.getDataAdapterList().addDataLinkedProperty(titleDataChangeListener, targetDataLinks);
+						}
+					}
+					IWebFormUI formUI2 = getFormUI();
+					if (formUI2 == null)
+					{
+						return;
+					}
+					for (WebComponent comp : formUI2.getComponents())
+					{
+						RuntimeWebComponent runtimeComponent = formUI2.getRuntimeWebComponent(comp.getName());
+						if (runtimeComponent != null)
+						{
+							WebObjectFunctionDefinition function = null;
+							if (visible)
+								function = comp.getSpecification().getInternalApiFunction("onShow");
+							else
+								function = comp.getSpecification().getInternalApiFunction("onHide");
+							if (function != null)
+							{
+								runtimeComponent.executeScopeFunction(function, new Object[0]);
+							}
+						}
 					}
 				}
+			};
+			invokeLaterRunnables.add(run);
+
+			if (!visible && titleDataChangeListener != null) // if we are hiding the form and titleDataChangeListener is not null, then we remove it
+			{
+				formUI.getDataAdapterList().removeDataLinkedProperty(titleDataChangeListener);
+				titleDataChangeListener = null;
 			}
 		}
 

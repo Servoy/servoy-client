@@ -33,7 +33,9 @@ import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IConvertedPropertyType;
 import org.sablo.specification.property.IPropertyType;
+import org.sablo.specification.property.IPropertyWithAttachDependencies;
 import org.sablo.specification.property.types.DefaultPropertyType;
+import org.sablo.specification.property.types.StringPropertyType;
 import org.sablo.util.ValueReference;
 import org.sablo.websocket.utils.JSONUtils;
 import org.slf4j.Logger;
@@ -64,7 +66,7 @@ import com.servoy.j2db.util.RoundHalfUpDecimalFormat;
 @SuppressWarnings("nls")
 public class FormatPropertyType extends DefaultPropertyType<FormatTypeSabloValue> implements IConvertedPropertyType<FormatTypeSabloValue>,
 	ISupportTemplateValue<String>, IFormElementDefaultValueToSabloComponent<String, FormatTypeSabloValue>, ISabloComponentToRhino<FormatTypeSabloValue>,
-	IRhinoToSabloComponent<FormatTypeSabloValue>, II18NPropertyType<FormatTypeSabloValue>
+	IRhinoToSabloComponent<FormatTypeSabloValue>, II18NPropertyType<FormatTypeSabloValue>, IPropertyWithAttachDependencies<FormatTypeSabloValue>
 {
 
 	private static final Logger log = LoggerFactory.getLogger(FormatPropertyType.class.getCanonicalName());
@@ -111,7 +113,7 @@ public class FormatPropertyType extends DefaultPropertyType<FormatTypeSabloValue
 				log.error("JSONException", e);
 			}
 		}
-		return "";
+		return null;
 	}
 
 	@Override
@@ -176,6 +178,7 @@ public class FormatPropertyType extends DefaultPropertyType<FormatTypeSabloValue
 		map.put("isRaw", Boolean.valueOf(format.parsedFormat.isRaw()));
 		map.put("edit", mask);
 		map.put("placeHolder", placeHolder);
+		map.put("useLocalDateTime", Boolean.valueOf(format.parsedFormat.useLocalDateTime()));
 		map.put("allowedCharacters", format.parsedFormat.getAllowedCharacters());
 		map.put("display", format.parsedFormat.getDisplayFormat());
 		map.put("isNumberValidator", Boolean.valueOf(format.parsedFormat.isNumberValidator()));
@@ -227,6 +230,7 @@ public class FormatPropertyType extends DefaultPropertyType<FormatTypeSabloValue
 		String dataproviderID = null;
 		Object valuelistID = null;
 		String foundsetID = null;
+		String formatType = null;
 
 		if (propertyDependencies.dataproviderPropertyName != null)
 		{
@@ -241,8 +245,9 @@ public class FormatPropertyType extends DefaultPropertyType<FormatTypeSabloValue
 		}
 
 		if (propertyDependencies.valueListPropertyName != null) valuelistID = formElement.getPropertyValue(propertyDependencies.valueListPropertyName);
+		if (propertyDependencies.stringPropertyName != null) formatType = (String)formElement.getPropertyValue(propertyDependencies.stringPropertyName);
 
-		return new FormatTypeSabloValue(formElementValue, propertyDependencies, dataproviderID, valuelistID, foundsetID, component);
+		return new FormatTypeSabloValue(formElementValue, propertyDependencies, dataproviderID, valuelistID, foundsetID, component, formatType);
 	}
 
 	@Override
@@ -257,6 +262,7 @@ public class FormatPropertyType extends DefaultPropertyType<FormatTypeSabloValue
 		String forDataproviderPropertyName = null;
 		String forFoundsetPropertyName = null;
 		String forValuelistPropertyName = null;
+		String forStringPropertyName = null;
 
 		if (pd.getConfig() instanceof String[])
 		{
@@ -301,13 +307,19 @@ public class FormatPropertyType extends DefaultPropertyType<FormatTypeSabloValue
 					{
 						if (forValuelistPropertyName == null) forValuelistPropertyName = dependency;
 						else Debug.warn("Format property '" + pd + " declares in .spec file to be for more then one valuelist property; this is incorrect. (" +
-							forDataproviderPropertyName + "," + dependency + ")");
+							forValuelistPropertyName + "," + dependency + ")");
+					}
+					else if (type instanceof StringPropertyType)
+					{
+						if (forStringPropertyName == null) forStringPropertyName = dependency;
+						else Debug.warn("Format property '" + pd + " declares in .spec file to be for more then one string property; this is incorrect. (" +
+							forStringPropertyName + "," + dependency + ")");
 					}
 				}
 			}
 		}
 
-		return new FormatPropertyDependencies(forDataproviderPropertyName, forFoundsetPropertyName, forValuelistPropertyName);
+		return new FormatPropertyDependencies(forDataproviderPropertyName, forFoundsetPropertyName, forValuelistPropertyName, forStringPropertyName);
 	}
 
 	@Override
@@ -357,12 +369,14 @@ public class FormatPropertyType extends DefaultPropertyType<FormatTypeSabloValue
 		public final String dataproviderPropertyName;
 		public final String foundsetPropertyName;
 		public final String valueListPropertyName;
+		public final String stringPropertyName;
 
-		public FormatPropertyDependencies(String dataproviderPropertyName, String foundsetPropertyName, String valueListPropertyName)
+		public FormatPropertyDependencies(String dataproviderPropertyName, String foundsetPropertyName, String valueListPropertyName, String stringPropertyName)
 		{
 			this.dataproviderPropertyName = dataproviderPropertyName;
 			this.valueListPropertyName = valueListPropertyName;
 			this.foundsetPropertyName = foundsetPropertyName;
+			this.stringPropertyName = stringPropertyName;
 		}
 	}
 
@@ -374,6 +388,12 @@ public class FormatPropertyType extends DefaultPropertyType<FormatTypeSabloValue
 			value.resetI18nValue();
 		}
 		return value;
+	}
+
+	@Override
+	public String[] getDependencies(PropertyDescription pd)
+	{
+		return pd.getConfig() != null ? ((String[])pd.getConfig()) : null;
 	}
 
 }

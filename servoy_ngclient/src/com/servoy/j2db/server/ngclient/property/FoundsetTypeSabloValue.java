@@ -19,6 +19,7 @@ package com.servoy.j2db.server.ngclient.property;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -240,33 +241,26 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 		return foundsetSelector;
 	}
 
-	protected boolean isOneOfTheFollowingAPk(Set<String> columnNames)
+	public void updateFoundsetSelector(String newSelector)
 	{
-		if (columnNames == null) return false;
+		foundsetSelector = newSelector;
 
-		if (foundset != null && foundset.getSQLSheet() != null)
+		if (webObjectContext != null)
 		{
-			String[] pkIDs = foundset.getSQLSheet().getPKColumnDataProvidersAsArray();
-			for (String pkID : pkIDs)
-				if (columnNames.contains(pkID)) return true;
+			if (parentDAL != null)
+			{
+				parentDAL.removeDataLinkedProperty(this);
+			}
+			updateFoundset((IRecordInternal)null);
+
+			setDataLinks();
+
+			fireUnderlyingStateChangedListeners();
 		}
-		return false;
 	}
 
-	@Override
-	public void attachToBaseObject(IChangeListener changeNotifier, IWebObjectContext webObjectCntxt)
+	private void setDataLinks()
 	{
-		this.webObjectContext = webObjectCntxt;
-		dataAdapterList = null;
-		changeMonitor.setChangeNotifier(changeNotifier);
-
-		// get the foundset identifier, then the foundset itself
-//		foundset: {
-//			foundsetSelector: 'string',
-//			dataProviders: 'dataprovider[]'
-//		}
-		updateFoundset((IRecordInternal)null);
-
 		// register parent record changed listener
 		if (parentDAL != null)
 		{
@@ -287,8 +281,65 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 			}
 			parentDAL.addDataLinkedProperty(this, dataLinks);
 		}
+	}
+
+	protected boolean isOneOfTheFollowingAPk(Set<String> columnNames)
+	{
+		if (columnNames == null) return false;
+
+		if (foundset != null && foundset.getSQLSheet() != null)
+		{
+			String[] pkIDs = foundset.getSQLSheet().getPKColumnDataProvidersAsArray();
+			for (String pkID : pkIDs)
+				if (columnNames.contains(pkID)) return true;
+		}
+		return false;
+	}
+
+	@Override
+	public void attachToBaseObject(IChangeListener changeNotifier, IWebObjectContext webObjectCntxt)
+	{
+		this.webObjectContext = webObjectCntxt;
+
+		if (dataAdapterList != null) dataAdapterList.destroy(); // just defensive coding; it should never happen that it's non-null (only if attach is called twice without a detach in between)
+		dataAdapterList = null;
+
+		if (webObjectCntxt != null) lookForInitialPreferredViewportSizePropertyAndApplyIt();
+
+		changeMonitor.setChangeNotifier(changeNotifier);
+
+		// get the foundset identifier, then the foundset itself
+//		foundset: {
+//			foundsetSelector: 'string',
+//			dataProviders: 'dataprovider[]'
+//		}
+		updateFoundset((IRecordInternal)null);
+
+		setDataLinks();
 
 		fireUnderlyingStateChangedListeners(); // we now have a webObjectContext so getDataAdapterList() might return non-null now; in some cases this is all other properties need, they don't need the foundset itself
+	}
+
+	private void lookForInitialPreferredViewportSizePropertyAndApplyIt()
+	{
+		Collection<PropertyDescription> properties = webObjectContext
+			.getProperties(TypesRegistry.getType(FoundsetInitialPageSizePropertyType.TYPE_NAME));
+
+		for (PropertyDescription foundsetInitialPageSizeProperty : properties)
+		{
+			// see whether it's "for" this foundset property
+			String fipvsIsFor = (String)foundsetInitialPageSizeProperty.getConfig();
+			if (fipvsIsFor != null && fipvsIsFor.equals(propertyName))
+			{
+				int initialPreferredViewportSize = ((Integer)webObjectContext.getProperty(foundsetInitialPageSizeProperty.getName())).intValue();
+				if (initialPreferredViewportSize > 0)
+				{
+					viewPort.setPreferredViewportSize(initialPreferredViewportSize);
+					viewPort.setPreferredViewportCentersOnSelected(false); // paging mode; as paging components use "foundsetInitialPageSize"
+				}
+				break;
+			}
+		}
 	}
 
 	/**
@@ -352,12 +403,12 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 					}
 					chainedRelatedFoundsetSelectionMonitor.update(newFoundset, record, foundsetSelector);
 				}
-				else
+				else if (parentDAL == null || parentDAL.getApplication().getFlattenedSolution().getRelationSequence(foundsetSelector) == null)
 				{
 					// if it is not a related foundset it must be a shared/named foundset
 					try
 					{
-						newFoundset = getFoundSetManager().getNamedFoundSet(foundsetSelector, record.getParentFoundSet().getDataSource());
+						newFoundset = getFoundSetManager().getNamedFoundSet(foundsetSelector, record.getDataSource());
 					}
 					catch (ServoyException e)
 					{
@@ -555,6 +606,13 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 	@Override
 	public void detach()
 	{
+		if (webObjectContext == null) return; // it is already detached
+
+		if (parentDAL != null)
+		{
+			parentDAL.removeDataLinkedProperty(this);
+		}
+
 		viewPort.dispose();
 		if (foundset instanceof ISwingFoundSet)
 		{
@@ -566,6 +624,13 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 			chainedRelatedFoundsetSelectionMonitor.unregisterListeners();
 			chainedRelatedFoundsetSelectionMonitor = null;
 		}
+		if (dataAdapterList != null)
+		{
+			dataAdapterList.destroy();
+			dataAdapterList = null;
+		}
+
+		webObjectContext = null;
 	}
 
 	public JSONWriter toJSON(JSONWriter destinationJSON, IBrowserConverterContext dataConverterContext) throws JSONException
@@ -914,9 +979,9 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 					{
 						viewPort.setPreferredViewportSize(update.getInt(PREFERRED_VIEWPORT_SIZE));
 						if (update.has(FoundsetPropertyTypeConfig.SEND_SELECTION_VIEWPORT_INITIALLY))
-							viewPort.setSendSelectionViewportInitially(update.getBoolean(FoundsetPropertyTypeConfig.SEND_SELECTION_VIEWPORT_INITIALLY));
+							viewPort.setPreferredViewportContainsSelection(update.getBoolean(FoundsetPropertyTypeConfig.SEND_SELECTION_VIEWPORT_INITIALLY));
 						if (update.has(INITIAL_SELECTION_VIEWPORT_CENTERED))
-							viewPort.setInitialSelectionViewportCentered(update.getBoolean(INITIAL_SELECTION_VIEWPORT_CENTERED));
+							viewPort.setPreferredViewportCentersOnSelected(update.getBoolean(INITIAL_SELECTION_VIEWPORT_CENTERED));
 					}
 					// {loadExtraRecords: negativeOrPositiveCount}
 					else if (update.has("loadExtraRecords"))
@@ -960,7 +1025,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 						}
 						IWebFormUI formUI = getFormUI();
 						IWebFormController fc = (formUI != null ? formUI.getController() : null);
-						if (fc != null && fc.getForm().getOnSortCmdMethodID() > 0 && dataProviderID != null)
+						if (fc != null && Utils.getAsUUID(fc.getForm().getOnSortCmdMethodID(), false) != null && dataProviderID != null)
 						{
 							// our api only supports one dataproviderid sort at a time
 							JSEvent event = new JSEvent();
@@ -1094,8 +1159,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 
 							if (foundset != null)
 							{
-								Pair<String, Integer> splitHashAndIndex = splitPKHashAndIndex(rowIDValue);
-								int recordIndex = foundset.getRecordIndex(splitHashAndIndex.getLeft(), splitHashAndIndex.getRight().intValue());
+								int recordIndex = foundset.getRecordIndex(rowIDValue, getRecordIndexHint());
 
 								if (recordIndex != -1)
 								{
@@ -1133,7 +1197,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 											returnValueAdjustedIncommingValueForRow.value.booleanValue())
 										{
 											changeMonitor.recordsUpdated(recordIndex, recordIndex, foundset.getSize(), viewPort,
-												Arrays.asList(new String[] { dataProviderName }));
+												Set.of(dataProviderName));
 										}
 									}
 								}
@@ -1188,12 +1252,25 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 			? ((WebComponent)webObjectContext.getUnderlyingWebObject()).findParent(IWebFormUI.class) : null;
 	}
 
-	public static Pair<String, Integer> splitPKHashAndIndex(String pkHashAndIndex)
+	public int getRecordIndexHint(/* String pkHashAndIndexHint */)
 	{
-		int index = pkHashAndIndex.lastIndexOf("_");
-		int recordIndex = Integer.parseInt(pkHashAndIndex.substring(index + 1));
-		String pkHash = pkHashAndIndex.substring(0, index);
-		return new Pair<>(pkHash, Integer.valueOf(recordIndex));
+		// there is no splitting being done here from rowID anymore to get the record index hint from it;
+		// as a workaround for case SVY-19773
+		// it was decided to not send index hints anymore to client (because client side components
+		// might decide to use that as an ID and expect it to be stable even after insert/remove)
+		// so even though the foundset and other property types using it worked correctly as they
+		// saw the index as just a hint... the components that expected that to be a stable rowId failed
+
+		// if it's needed in the future, we could send the index hint to client as another key in the
+		// row object, different from the rowID (but that would bloat the JSON a bit)
+
+//		int index = pkHashAndIndexHint.lastIndexOf("_");
+//		int recordIndexHint = Integer.parseInt(pkHashAndIndexHint.substring(index + 1));
+//		String pkHash = pkHashAndIndexHint.substring(0, index);
+//		return new Pair<>(pkHash, Integer.valueOf(recordIndexHint));
+
+		// we give now as index hint here always the middle of the current viewport
+		return viewPort.startIndex + viewPort.size / 2;
 	}
 
 	public void addViewportDataChangeMonitor(ViewportDataChangeMonitor viewPortChangeMonitor)
@@ -1206,24 +1283,15 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 		changeMonitor.removeViewportDataChangeMonitor(viewPortChangeMonitor);
 	}
 
-	public boolean setEditingRowByPkHash(String pkHashAndIndex)
+	public boolean setEditingRowByPkHash(String pkHash)
 	{
-		Pair<String, Integer> splitHashAndIndex = splitPKHashAndIndex(pkHashAndIndex);
-		int recordIndex = splitHashAndIndex.getRight().intValue();
-		IRecordInternal recordByIndexHint = foundset.getRecord(recordIndex);
-		String pkHash = splitHashAndIndex.getLeft();
-		if (recordByIndexHint == null || !pkHash.equals(recordByIndexHint.getPKHashKey()))
+		int recordIndex = foundset.getRecordIndex(pkHash, getRecordIndexHint());
+		if (recordIndex != -1)
 		{
-			recordIndex = foundset.getRecordIndex(pkHash, recordIndex);
-			if (recordIndex != -1)
-			{
-				foundset.setSelectedIndex(recordIndex);
-				return true;
-			}
-			else return false;
+			foundset.setSelectedIndex(recordIndex);
+			return true;
 		}
-		else foundset.setSelectedIndex(recordIndex);
-		return true;
+		else return false;
 	}
 
 	@Override

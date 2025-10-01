@@ -17,7 +17,6 @@
 
 package com.servoy.j2db.server.ngclient;
 
-import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -37,7 +36,7 @@ import org.sablo.specification.WebObjectSpecification.PushToServerEnum;
 import org.sablo.specification.property.BrowserConverterContext;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.util.ValueReference;
-import org.sablo.websocket.CurrentWindow;
+import org.sablo.websocket.DelayedReturnValue;
 import org.sablo.websocket.utils.JSONUtils;
 import org.sablo.websocket.utils.JSONUtils.EmbeddableJSONWriter;
 import org.sablo.websocket.utils.JSONUtils.FullValueToJSONConverter;
@@ -45,14 +44,10 @@ import org.sablo.websocket.utils.JSONUtils.IToJSONConverter;
 
 import com.servoy.j2db.ExitScriptException;
 import com.servoy.j2db.IBasicFormManager.History;
-import com.servoy.j2db.component.ComponentFactory;
-import com.servoy.j2db.dataprocessing.DBValueList;
+import com.servoy.j2db.IRunnableWithEventLevel;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
-import com.servoy.j2db.dataprocessing.IValueList;
-import com.servoy.j2db.dataprocessing.LookupValueList;
 import com.servoy.j2db.persistence.Form;
-import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.server.ngclient.component.RuntimeWebComponent;
 import com.servoy.j2db.server.ngclient.property.FoundsetLinkedTypeSabloValue;
 import com.servoy.j2db.server.ngclient.property.types.FunctionRefType;
@@ -151,19 +146,27 @@ public class NGFormServiceHandler extends FormServiceHandler
 			case "startEdit" :
 			{
 				String formName = args.getString("formname");
-				IWebFormUI form = getApplication().getFormManager().getFormAndSetCurrentWindow(formName).getFormUI();
-				if (form == null)
+				INGFormManager formManager = getApplication().getFormManager();
+				if (formManager == null)
 				{
-					log.error("startEdit for unknown form '" + formName + "'");
+					log.warn("startEdit without formManager");
 				}
 				else
 				{
-					form.getDataAdapterList().startEdit(form.getWebComponent(args.optString("beanname")), args.optString("property"),
-						args.optString("fslRowID", null));
+					IWebFormUI form = formManager.getFormAndSetCurrentWindow(formName).getFormUI();
+					if (form == null)
+					{
+						log.error("startEdit for unknown form '" + formName + "'");
+					}
+					else
+					{
+						form.getDataAdapterList().startEdit(form.getWebComponent(args.optString("beanname")), args.optString("property"),
+							args.optString("fslRowID", null));
+					}
 				}
-
 				break;
 			}
+
 			case "executeInlineScript" :
 			{
 				try
@@ -240,10 +243,10 @@ public class NGFormServiceHandler extends FormServiceHandler
 				}
 
 				boolean ok = true;
+				boolean isVisible = args.getBoolean("visible");
 				List<Runnable> invokeLaterRunnables = new ArrayList<Runnable>();
 				if (controller != null && !controller.isDestroyed())
 				{
-					boolean isVisible = args.getBoolean("visible");
 					WebFormComponent containerComponent = null;
 					String relationName = null;
 					if (parentForm != null)
@@ -326,6 +329,7 @@ public class NGFormServiceHandler extends FormServiceHandler
 				}
 
 				// if this call has an show object, then we need to directly show that form right away
+				Object retValIfHiding = Boolean.valueOf(ok);
 				if (ok && args.has("show") && args.getJSONObject("show").has("formname"))
 				{
 					JSONObject showing = args.getJSONObject("show");
@@ -335,17 +339,79 @@ public class NGFormServiceHandler extends FormServiceHandler
 						showing.put("parentForm", args.getString("parentForm"));
 						showing.put("bean", args.getString("bean"));
 					}
-					executeMethod("formvisibility", showing);
-					// send the changes before returning the value, because else the values will be still
-					// a bit later then the "ok" of the form can be hidden.
-					CurrentWindow.get().sendChanges();
+					retValIfHiding = executeMethod("formvisibility", showing); // call this same code, but with visible 'true' for the form that is going to be shown
+					// this can return a DelayedReturnValue that we must then return here as well
 				}
-				Utils.invokeAndWait(getApplication(), invokeLaterRunnables);
-				Form form = getApplication().getFormManager().getPossibleForm(formName);
-				if (form != null && controller.isFormVisible())
-					NGClientWindow.getCurrentWindow().touchForm(getApplication().getFlattenedSolution().getFlattenedForm(form), formName, true, true);
 
-				return Boolean.valueOf(ok);
+				if (ok && isVisible) // if isVisible = true, then ok will always be true as we don't block shows, just hides
+				{
+					// we want the onShow of newly shown forms to execute before NGClientWindow.getCurrentWindow().touchForm does,
+					// in order to send to the client forms only after (if set) onShow handler has done it's changes, in order to avoid flicker
+					// and sending data multiple times for the same form with onShow;
+					// but because that onShow might have sync calls to components that suspend the event thread until they run (or fail on client),
+					// we give the touchForm a higher event level even if it's added later, so that it does execute
+					// and send stuff to client even if onShow does a sync call before that...
+
+					// so in case of onShow without sync calls what should happen is:
+					// 1. form show code runs that might add the onShow form handler to invokeLaterRunnables
+					// 2. onShow executes
+					// 3. initial form data (updateController to client) if needed, or form data changes are sent to client
+					// 4. this 'formvisibility' call gets resolved on client, so that the form is shown
+
+					// so in case of onShow with sync calls to ca component API what should happen is:
+					// 1. form show code runs that might add the onShow form handler to invokeLaterRunnables
+					// 2. onShow executes; does a sync call to client and waits - suspends the event thread with IEventDispatcher.EVENT_LEVEL_SYNC_API_CALL level; if form is already on client, data changes are send as part of this response
+					// 3. initial form data (updateController to client) is sent to client if form data is not already on client
+					// 4. this 'formvisibility' call gets resolved on client, so that the form is shown
+
+					// as we return a IDelayedReturnValue, that means point 4 will happen in another invokeLater that is added to the end of the list
+					final INGClientWindow window = NGClientWindow.getCurrentWindow();
+					final IWebFormController fc = controller;
+
+					invokeLaterRunnables.add(new IRunnableWithEventLevel()
+					{
+						public void run()
+						{
+							Form form = getApplication().getFormManager().getPossibleForm(formName);
+							if (form != null && fc.isFormVisible() && window.getSession() != null && window.getSession().isValid()) // as this executes later, make sure everything is still ok
+								window.touchForm(getApplication().getFlattenedSolution().getFlattenedForm(form), formName, true, true);
+						}
+
+						public int getEventLevel()
+						{
+							return EVENT_LEVEL_INITIAL_FORM_DATA_REQUEST;
+						}
+					});
+
+					window.getSession().getSabloService().setExpectFormToShowOnClient(true);
+
+					Utils.invokeLater(getApplication(), invokeLaterRunnables);
+
+					// point 4 above: return an IDelayedReturnValue
+					return new DelayedReturnValue(Boolean.valueOf(ok), EVENT_LEVEL_INITIAL_FORM_DATA_REQUEST)
+					{
+						@Override
+						public Object getValueToReturn()
+						{
+							// before returning - also tell client that with this response, the form is going to get shown
+							INGClientWindow currentWindow = NGClientWindow.getCurrentWindow();
+							INGClientWebsocketSession session;
+							if (currentWindow != null && (session = currentWindow.getSession()) != null && session.isValid()) // as this executes later, make sure everything is still in an ok state
+							{
+								session.getSabloService().setExpectFormToShowOnClient(false);
+							}
+
+							// give the go-ahead to client now to really show the form
+							return super.getValueToReturn();
+						}
+					};
+				}
+				else
+				{
+					// a hide form; could either be a failed hide (if something blocked it; returns FALSE)
+					// or a successful hide with or without a following show of another form (with - it will use the retVal of executeMethod("formvisibility", showing) call above; without it will just be TRUE)
+					return retValIfHiding;
+				}
 			}
 
 			case "formLoaded" :
@@ -389,51 +455,6 @@ public class NGFormServiceHandler extends FormServiceHandler
 				else
 				{
 					Debug.error("Form " + formName + " was not found");
-				}
-				break;
-			}
-
-			case "getValuelistDisplayValue" :
-			{
-				String formName = args.optString("formName", null);
-				Object realValue = args.get("realValue");
-				Object valuelistID = args.get("valuelist");
-				int id = Utils.getAsInteger(valuelistID);
-				ValueList val = getApplication().getFlattenedSolution().getValueList(id);
-				if (val != null)
-				{
-					IValueList realValueList = ComponentFactory.getRealValueList(getApplication(), val, true, Types.OTHER, null, null);
-					if (realValueList.realValueIndexOf(realValue) != -1)
-					{
-						try
-						{
-							return realValueList.getElementAt(realValueList.realValueIndexOf(realValue));
-						}
-						catch (Exception ex)
-						{
-							Debug.error(ex);
-							return realValue;
-						}
-					}
-					if (realValueList instanceof DBValueList)
-					{
-						IRecordInternal formRecord = null;
-						if (formName != null)
-						{
-							IWebFormUI form = getApplication().getFormManager().getForm(formName).getFormUI();
-							formRecord = form.getDataAdapterList().getRecord();
-						}
-
-						LookupValueList lookup = new LookupValueList(val, getApplication(),
-							ComponentFactory.getFallbackValueList(getApplication(), null, Types.OTHER, null, val), null, formRecord);
-						Object displayValue = null;
-						if (lookup.realValueIndexOf(realValue) != -1)
-						{
-							displayValue = lookup.getElementAt(lookup.realValueIndexOf(realValue));
-						}
-						lookup.deregister();
-						return displayValue;
-					}
 				}
 				break;
 			}
@@ -497,10 +518,11 @@ public class NGFormServiceHandler extends FormServiceHandler
 
 									if (functionSpec == null)
 									{
-										log.warn("trying to call a function that does not exist in .spec of component '" +
-											webComponent.getName() + " with spec name: " + (componentSpec != null ? componentSpec.getName() : null));
-										throw new RuntimeException("trying to call a function that does not exist in .spec of component '" +
-											webComponent.getName() + " with spec name: " + (componentSpec != null ? componentSpec.getName() : null));
+										log.warn("trying to call a function '" + componentMethodName + "' that does not exist in .spec of component '" +
+											webComponent.getName() + "' with spec name: " + (componentSpec != null ? componentSpec.getName() : null));
+										throw new RuntimeException(
+											"trying to call a function '" + componentMethodName + "' that does not exist in .spec of component '" +
+												webComponent.getName() + "' with spec name: " + (componentSpec != null ? componentSpec.getName() : null));
 									}
 									else
 									{
@@ -698,7 +720,8 @@ public class NGFormServiceHandler extends FormServiceHandler
 				String formName = arguments.optString("formname");
 
 				IWebFormController cachedFormController = getApplication().getFormManager().getCachedFormController(formName);
-				if (cachedFormController == null || !cachedFormController.getFormUI().isChanging())
+				IWebFormUI formUI = cachedFormController != null ? cachedFormController.getFormUI() : null;
+				if (cachedFormController == null || formUI == null || !formUI.isChanging())
 				{
 					return EVENT_LEVEL_INITIAL_FORM_DATA_REQUEST;
 				}

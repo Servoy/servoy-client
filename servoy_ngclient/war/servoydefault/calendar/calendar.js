@@ -106,6 +106,7 @@ angular.module('servoydefaultCalendar', [ 'servoy' ]).directive('servoydefaultCa
 			// datepicker
 			ngModel.$render = function() {
 				try {
+					$element.off("dp.error");
 					$element.off("dp.change", inputChanged);
 					if (theDateTimePicker && !$scope.model.findmode) theDateTimePicker.date(correctDateValueToUse(ngModel.$viewValue)); // set default date for widget open; turn undefined to null as well (undefined gives exception)
 					else {
@@ -113,6 +114,7 @@ angular.module('servoydefaultCalendar', [ 'servoy' ]).directive('servoydefaultCa
 						child.children("input").val(ngModel.$viewValue);
 					}
 				} finally {
+					$element.on("dp.error", onError);
 					$element.on("dp.change", inputChanged);
 				}
 			};
@@ -220,6 +222,14 @@ angular.module('servoydefaultCalendar', [ 'servoy' ]).directive('servoydefaultCa
 				$scope.$digest();
 			}
 			$element.on("dp.error", onError);
+			
+			$scope.$watch('model.readOnly', function() {
+				if ($scope.model.readOnly) {
+					child.datetimepicker("options", {ignoreReadonly: false});
+				} else {
+					child.datetimepicker("options", {ignoreReadonly: true});
+				}
+			});
 
 			$scope.$watch('model.findmode', function() {
 				if ($scope.model.findmode) {
@@ -241,6 +251,7 @@ angular.module('servoydefaultCalendar', [ 'servoy' ]).directive('servoydefaultCa
 									close: 'glyphicon glyphicon-ok'
 								}
 							};
+					opts.locale = numeral.locale();
 					if (showISOWeeks)
 					{
 						opts.isoCalendarWeeks = true;
@@ -372,13 +383,13 @@ angular.module('servoydefaultCalendar', [ 'servoy' ]).directive('servoydefaultCa
 							inputElement.attr("disabled", "disabled");
 						break;
 					case "editable":
-						if (value)
+						if (value && !$scope.model.readOnly)
 							inputElement.removeAttr("readonly");
 						else
 							inputElement.attr("readonly", "readonly");
 						break;
 					case "readOnly":
-						if (!value)
+						if (!value && $scope.model.editable)
 							inputElement.removeAttr("readonly");
 						else
 							inputElement.attr("readonly", "readonly");

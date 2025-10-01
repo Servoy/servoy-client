@@ -30,6 +30,24 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 import com.servoy.j2db.util.ILogLevel;
 
 /**
+ * The <code>JSRecordMarkers</code> scripting wrapper represents the validation state of a record and provides tools for managing and reporting validation failures.
+ * It tracks whether errors or warnings occurred during operations like saving, updating, or deleting records.
+ *
+ * <h2>Functionality</h2>
+ * <p>The <code>hasErrors</code> property indicates whether the validation process encountered blocking errors or only warnings.
+ * Other properties, such as <code>onBeforeDeleteFailed</code>, <code>onBeforeInsertFailed</code>, and <code>onBeforeUpdateFailed</code>, signal failures in specific lifecycle operations.
+ * The <code>record</code> property links the markers to the associated record, providing a direct reference to the affected data.</p>
+ *
+ * <p>The wrapper supports retrieving detailed validation results.
+ * The <code>getMarkers</code> method returns all reported validation problems, while its variant with a <code>level</code> parameter filters issues by severity.
+ * <code>getGenericExceptions</code> lists any generic exceptions that occurred during operations.
+ * The <code>report</code> method allows developers to add custom markers programmatically, with support for internationalized messages, logging levels, and optional metadata.</p>
+ *
+ * <p>These features make JSRecordMarkers an essential tool for robust validation workflows in Servoy applications, ensuring fine-grained error handling and reporting.</p>
+ *
+ * <p>You may also refer to the
+ * <a href="https://docs.servoy.com/reference/servoycore/dev-api/database-manager/viewrecord#recordmarkers">Record Markers - View Record</a> documentation.</p>
+ *
  * @since 2020.09
  *
  * @author jcompagner
@@ -43,6 +61,7 @@ public class JSRecordMarkers implements IJavaScriptType, IRecordMarkers
 	private final List<JSRecordMarker> markers = new ArrayList<>(3);
 	private boolean invalid = false;
 	private boolean onBeforeUpdateFailed;
+	private boolean onBeforeDeleteFailed;
 	private boolean onBeforeInsertFailed;
 	private final Object state;
 
@@ -87,6 +106,12 @@ public class JSRecordMarkers implements IJavaScriptType, IRecordMarkers
 		this.onBeforeUpdateFailed = true;
 	}
 
+	public void setOnBeforeDeleteFailed()
+	{
+		invalid = true;
+		this.onBeforeDeleteFailed = true;
+	}
+
 	public void setOnBeforeInsertFailed()
 	{
 		invalid = true;
@@ -99,7 +124,8 @@ public class JSRecordMarkers implements IJavaScriptType, IRecordMarkers
 	@JSReadonlyProperty
 	public boolean isHasErrors()
 	{
-		return onBeforeInsertFailed || onBeforeUpdateFailed || genericExceptions.size() > 0 || markers.stream().anyMatch(problem -> problem.getLevel() >= 3);
+		return onBeforeInsertFailed || onBeforeUpdateFailed || onBeforeDeleteFailed || genericExceptions.size() > 0 ||
+			markers.stream().anyMatch(problem -> problem.getLevel() >= 3);
 	}
 
 	/**
@@ -208,6 +234,15 @@ public class JSRecordMarkers implements IJavaScriptType, IRecordMarkers
 	}
 
 	/**
+	 * @return the onBeforeUpdateFailed
+	 */
+	@JSReadonlyProperty
+	public boolean isOnBeforeDeleteFailed()
+	{
+		return onBeforeDeleteFailed;
+	}
+
+	/**
 	 * Returns a list of all the generic exceptions that did happen when the various methods where called.
 	 *
 	 * @return the genericExceptions
@@ -247,7 +282,7 @@ public class JSRecordMarkers implements IJavaScriptType, IRecordMarkers
 	@Override
 	public String toString()
 	{
-		return "JSRecordMarkers[markers=" + markers + ", onBeforeUpdateFailed=" + onBeforeUpdateFailed +
+		return "JSRecordMarkers[markers=" + markers + ", onBeforeUpdateFailed=" + onBeforeUpdateFailed + ", onBeforeDeleteFailed=" + onBeforeDeleteFailed +
 			", onBeforeInsertFailed=" + onBeforeInsertFailed + ", genericExceptions=" + genericExceptions + ", record=" + record + "]";
 	}
 

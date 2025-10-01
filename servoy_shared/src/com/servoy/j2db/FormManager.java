@@ -17,8 +17,6 @@
 package com.servoy.j2db;
 
 
-import java.applet.Applet;
-import java.awt.Dimension;
 import java.awt.Event;
 import java.awt.Rectangle;
 import java.awt.print.PrinterJob;
@@ -58,12 +56,27 @@ import com.servoy.j2db.scripting.RuntimeWindow;
 import com.servoy.j2db.scripting.SolutionScope;
 import com.servoy.j2db.util.AllowNullMap;
 import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.UIUtils;
 import com.servoy.j2db.util.Utils;
-import com.servoy.j2db.util.gui.AppletController;
 
 /**
- * This class keeps track of all the forms and handles the window menu
+ * The <code>FormManager</code> class is a central component in the Servoy development environment, managing forms
+ * and their interactions within the application. It oversees the lifecycle of forms, controls their visibility,
+ * and ensures smooth transitions between various application states. By coordinating form display, navigation,
+ * and scripting interactions, the <code>FormManager</code> enables developers to deliver dynamic and user-friendly interfaces.
+ *
+ * ## Functionality and Responsibilities
+ * At its core, the <code>FormManager</code> handles form navigation, allowing forms to be displayed in main panels, dialogs,
+ * or custom containers. It ensures that forms adhere to access controls, checking permissions and visibility rules before rendering them.
+ * A built-in history mechanism tracks the navigation stack, enabling users to move back, forward, or to specific points in their interaction flow.
+ *
+ * The class supports dynamic form behavior through integration with a scripting engine, facilitating runtime actions such as
+ * executing custom methods, loading data, or performing searches. Additionally, it ensures efficient resource management by
+ * dynamically creating and destroying form controllers as needed. By coordinating visibility notifications and managing state changes,
+ * the <code>FormManager</code> ensures forms respond appropriately to user actions and application events.
+ *
+ * This class also integrates with application modes (e.g., browse, find, preview), transitioning forms smoothly while maintaining context.
+ * Its design supports scalability and flexibility, making it a critical component for maintaining a consistent user experience
+ * across diverse application states.
  *
  * @author jblok, jcompagner
  */
@@ -80,7 +93,6 @@ public abstract class FormManager extends BasicFormManager implements PropertyCh
 
 	protected final ConcurrentMap<String, FormController> createdFormControllers; // formName -> FormController
 
-	private final AppletController appletContext; //incase we use applets on form
 
 	private volatile boolean destroyed;
 
@@ -96,7 +108,6 @@ public abstract class FormManager extends BasicFormManager implements PropertyCh
 		currentContainer = mainContainer;
 		this.mainContainer = mainContainer;
 		createdFormControllers = new ConcurrentHashMap<String, FormController>();
-		appletContext = new AppletController(app);
 	}
 
 
@@ -185,7 +196,7 @@ public abstract class FormManager extends BasicFormManager implements PropertyCh
 			application.getModeManager().setMode(IModeManager.EDIT_MODE);//start in browse mode
 		}
 
-		boolean showLoginForm = (solution.getLoginFormID() > 0 && solution.getMustAuthenticate() && application.getUserUID() == null);
+		boolean showLoginForm = (solution.getLoginFormID() != null && solution.getMustAuthenticate() && application.getUserUID() == null);
 		if (application.getUserUID() == null)
 		{
 			ScriptMethod onBeforeLogin = application.getFlattenedSolution().getScriptMethod(solution.getOnBeforeLoginMethodID());
@@ -214,7 +225,7 @@ public abstract class FormManager extends BasicFormManager implements PropertyCh
 			}
 		}
 
-		if (solution.getLoginFormID() > 0 && solution.getMustAuthenticate() && application.getUserUID() == null)
+		if (solution.getLoginFormID() != null && solution.getMustAuthenticate() && application.getUserUID() == null)
 		{
 			Form login = application.getFlattenedSolution().getForm(solution.getLoginFormID());
 			if (application.getFlattenedSolution().formCanBeInstantiated(login) && loginForm == null)
@@ -232,7 +243,7 @@ public abstract class FormManager extends BasicFormManager implements PropertyCh
 			return;
 		}
 
-		if (solution.getLoginFormID() > 0 && solution.getMustAuthenticate() && application.getUserUID() != null && loginForm != null)
+		if (solution.getLoginFormID() != null && solution.getMustAuthenticate() && application.getUserUID() != null && loginForm != null)
 		{
 			if (currentContainer.getController() != null && loginForm.getName().equals(currentContainer.getController().getForm().getName()))
 			{
@@ -972,6 +983,21 @@ public abstract class FormManager extends BasicFormManager implements PropertyCh
 
 	protected abstract boolean isShowingPrintPreview();
 
+	/**
+	 * The <b>History</b> object provides tools to manage a history stack, enabling navigation and manipulation of forms in the stack. It includes properties and methods to configure settings, navigate through history, and modify its content.
+	 *
+	 * <h2>Functionality</h2>
+	 * <p>The primary property, <code>buttonsEnabled</code>, allows enabling or disabling history buttons, enhancing user interface control. It is a Boolean value that can be set or retrieved.</p>
+	 *
+	 * <p>The object offers several methods for history stack management:</p>
+	 * <ul>
+	 *   <li>Navigation methods like <code>back()</code>, <code>forward()</code>, and <code>go(i)</code> allow users to move through or jump to specific points in the history.</li>
+	 *   <li>Management methods such as <code>clear()</code> to reset the stack, <code>removeForm(formName)</code> and <code>removeIndex(index)</code> to delete specific entries, and <code>size()</code> to retrieve the stack's total size.</li>
+	 *   <li>Utility methods like <code>getCurrentIndex()</code> and <code>getFormName(i)</code> provide insights into the stack's state or retrieve specific form names based on their position.</li>
+	 * </ul>
+	 *
+	 * <p>These features ensure efficient and dynamic control over form navigation and history management.</p>
+	 */
 	@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "History", scriptingName = "history")
 	public static class HistoryProvider implements IJSHistory
 	{
@@ -1018,6 +1044,8 @@ public abstract class FormManager extends BasicFormManager implements PropertyCh
 		 * @sample
 		 * history.buttonsEnabled = true;
 		 * var status = history.buttonsEnabled;
+		 *
+		 * @return True if the history navigation buttons are enabled; otherwise, false.
 		 */
 		@JSGetter
 		public boolean getButtonsEnabled()
@@ -1154,19 +1182,6 @@ public abstract class FormManager extends BasicFormManager implements PropertyCh
 
 	public abstract IFormUIInternal getFormUI(FormController formController);
 
-	public void initializeApplet(Applet applet, Dimension initialSize)
-	{
-		try
-		{
-			UIUtils.initializeApplet(appletContext, applet, initialSize);
-		}
-		catch (Throwable e)
-		{
-			//its not made active
-			Debug.error(e);
-			applet.destroy();//call to leave invalid
-		}
-	}
 
 	/**
 	 * There could be one or more forms currently in find mode. Normally you only have one visible set of related forms in find mode at a time. In order to stop

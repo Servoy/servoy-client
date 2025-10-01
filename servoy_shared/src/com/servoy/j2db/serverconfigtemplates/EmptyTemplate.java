@@ -27,6 +27,12 @@ public class EmptyTemplate extends ServerTemplateDefinition
 {
 	public EmptyTemplate()
 	{
-		super(new ServerConfig("new_server", "", "", "", null, "", null, null, true, false, null, null));
+		super(new ServerConfig.Builder()
+			.setServerName("new_server")
+			.setUserName("")
+			.setPassword("")
+			.setServerUrl("")
+			.setDriver("")
+			.build());
 	}
 }

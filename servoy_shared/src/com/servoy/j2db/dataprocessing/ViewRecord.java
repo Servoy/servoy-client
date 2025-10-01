@@ -18,10 +18,11 @@
 package com.servoy.j2db.dataprocessing;
 
 import static com.servoy.j2db.dataprocessing.FireCollector.getFireCollector;
+import static com.servoy.j2db.dataprocessing.Record.sealIfNeeded;
+import static java.util.Collections.synchronizedList;
 
 import java.lang.ref.SoftReference;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,7 +38,6 @@ import org.mozilla.javascript.annotations.JSGetter;
 import org.mozilla.javascript.annotations.JSSetter;
 
 import com.servoy.base.scripting.api.IJSDataSet;
-import com.servoy.base.scripting.api.IJSFoundSet;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.scripting.DefaultJavaScope;
@@ -47,11 +47,28 @@ import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.Utils;
 
 /**
+ * <p>A <code>ViewRecord</code> represents a row in a <code>ViewFoundSet</code>, with functionality tailored
+ * to handle specific record-related operations. Key properties include <code>exception</code>, which provides
+ * information on the last exception that occurred for the record, and <code>foundset</code>, which references
+ * the parent foundset. The <code>recordMarkers</code> property facilitates validation by retaining markers
+ * for issues until a record is successfully saved or manually cleared.</p>
+ *
+ * <p>The <code>ViewRecord</code> object includes methods for examining and managing record state. For instance,
+ * <code>getChangedData</code> retrieves unsaved changes in a dataset format, while <code>hasChangedData</code>
+ * and <code>isEditing</code> determine whether the record has pending modifications. The <code>createMarkers</code>
+ * method allows manual creation of validation markers. Other methods, like <code>revertChanges</code>, undo
+ * unsaved modifications, and <code>getPKs</code> fetch the primary key values of a record. Additionally,
+ * <code>isRelatedFoundSetLoaded</code> verifies if a related foundset is already initialized without triggering
+ * its load.</p>
+ *
+ * <p>For more information on managing records within the context of view foundsets, refer to the
+ * <a href="https://docs.servoy.com/reference/servoycore/dev-api/database-manager/viewfoundset">View foundset</a> section of the documentation.</p>
+ *
  * @author jcompagner
  * @since 8.4
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "ViewRecord", scriptingName = "ViewRecord")
-public final class ViewRecord implements IRecordInternal, Scriptable
+@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "ViewRecord", scriptingName = "ViewRecord", extendsComponent = "JSBaseSQLRecord")
+public final class ViewRecord implements IRecordInternal, IJSBaseSQLRecord, Scriptable
 {
 	public static final Map<String, NativeJavaMethod> jsFunctions = DefaultJavaScope.getJsFunctions(ViewRecord.class);
 
@@ -81,8 +98,8 @@ public final class ViewRecord implements IRecordInternal, Scriptable
 				break;
 			}
 		}
-		this.modificationListeners = Collections.synchronizedList(new ArrayList<IModificationListener>(3));
-		this.relatedFoundSets = new HashMap<String, SoftReference<IFoundSetInternal>>(3);
+		this.modificationListeners = synchronizedList(new ArrayList<>(3));
+		this.relatedFoundSets = new HashMap<>(3);
 	}
 
 	@Override
@@ -100,7 +117,7 @@ public final class ViewRecord implements IRecordInternal, Scriptable
 			// it really did change register this to the changes:
 			if (changes == null)
 			{
-				changes = new HashMap<String, Object>(3);
+				changes = new HashMap<>(3);
 				foundset.addEditedRecord(this);
 			}
 			else if (foundset.isFailedRecord(this))
@@ -262,6 +279,12 @@ public final class ViewRecord implements IRecordInternal, Scriptable
 	}
 
 	@Override
+	public boolean isFlaggedForDeletion()
+	{
+		return false;
+	}
+
+	@Override
 	public boolean isLocked()
 	{
 		return false;
@@ -316,9 +339,9 @@ public final class ViewRecord implements IRecordInternal, Scriptable
 	 * @return The parent foundset of the record.
 	 */
 	@JSReadonlyProperty
-	public IJSFoundSet getFoundset()
+	public ViewFoundSet getFoundset()
 	{
-		return (IJSFoundSet)foundset;
+		return foundset;
 	}
 
 	@Override
@@ -524,12 +547,18 @@ public final class ViewRecord implements IRecordInternal, Scriptable
 	}
 
 	@Override
+	public Object getKey()
+	{
+		return getPK()[0];
+	}
+
+	@Override
 	public boolean equals(Object obj)
 	{
 		if (obj == this) return true;
 		if (obj != null && obj.getClass() == getClass())
 		{
-			return getPK()[0].equals(((ViewRecord)obj).getPK()[0]);
+			return getKey().equals(((ViewRecord)obj).getKey());
 		}
 		return false;
 	}
@@ -537,7 +566,7 @@ public final class ViewRecord implements IRecordInternal, Scriptable
 	@Override
 	public int hashCode()
 	{
-		return getPK()[0].hashCode();
+		return getKey().hashCode();
 	}
 
 	@Override
@@ -546,8 +575,7 @@ public final class ViewRecord implements IRecordInternal, Scriptable
 		return "ViewRecord[" + values + ']';
 	}
 
-
-	// Scriptable impementation
+	// Scriptable implementation
 	private Scriptable prototype;
 	private Scriptable parentScope;
 
@@ -574,7 +602,7 @@ public final class ViewRecord implements IRecordInternal, Scriptable
 			Context context = Context.getCurrentContext();
 			if (context != null) o = context.getWrapFactory().wrap(context, start, o, o.getClass());
 		}
-		return o;
+		return sealIfNeeded(o);
 	}
 
 	@Override

@@ -68,7 +68,7 @@ import com.servoy.j2db.util.Utils;
  */
 public abstract class AbstractApplication extends ClientState implements IApplication
 {
-	private final HashMap<Locale, Properties> messages = new HashMap<Locale, Properties>();
+	private final HashMap<Locale, Properties> messages = new HashMap<Locale, Properties>(4, 0.9f);
 	private final Map<String, String> customMessages = new HashMap<String, String>();
 	protected Locale locale;
 	protected TimeZone timeZone;

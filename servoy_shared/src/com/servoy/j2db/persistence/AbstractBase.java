@@ -60,7 +60,6 @@ public abstract class AbstractBase implements IPersist
 	private static final long serialVersionUID = 1L;
 
 	private static final String[] OVERRIDE_PATH = new String[] { "override" }; //$NON-NLS-1$
-	public static final int DEFAULT_INT = ContentSpec.ZERO.intValue(); // == ContentSpec.getJavaClassMemberDefaultValue(IRepository.INTEGER)
 
 	private static final Object UNDEFINED = new Object()
 	{
@@ -71,12 +70,12 @@ public abstract class AbstractBase implements IPersist
 		}
 	};
 
+	private static String CUSTOM_EVENT_TYPES = "customEventTypes"; //$NON-NLS-1$";
 
 	/*
 	 * Attributes for IPersist
 	 */
 	protected UUID uuid;
-	protected int element_id;
 	protected int revision = 1;
 	protected boolean isChanged = true;
 	protected ISupportChilds parent;
@@ -99,11 +98,10 @@ public abstract class AbstractBase implements IPersist
 /*
  * _____________________________________________________________ Declaration and definition of constructors
  */
-	public AbstractBase(int type, ISupportChilds parent, int element_id, UUID uuid)
+	public AbstractBase(int type, ISupportChilds parent, UUID uuid)
 	{
 		this.type = type;
 		this.parent = parent;
-		this.element_id = element_id;
 		this.uuid = uuid;
 	}
 
@@ -140,7 +138,8 @@ public abstract class AbstractBase implements IPersist
 
 	public boolean hasProperty(String propertyName)
 	{
-		return propertiesMap.containsKey(propertyName) || (bufferPropertiesMap != null && bufferPropertiesMap.containsKey(propertyName));
+		return propertiesMap.containsKey(propertyName) || (bufferPropertiesMap != null && bufferPropertiesMap.containsKey(propertyName)) ||
+			(jsonCustomProperties != null && jsonCustomProperties.containsKey(propertyName));
 	}
 
 	public void copyPropertiesMap(Map<String, Object> newProperties, boolean overwriteMap)
@@ -249,7 +248,7 @@ public abstract class AbstractBase implements IPersist
 	private boolean isNotExtendingAnotherPersist()
 	{
 		return !hasProperty(StaticContentSpecLoader.PROPERTY_EXTENDSID.getPropertyName()) ||
-			(this instanceof ISupportExtendsID && Utils.equalObjects(Integer.valueOf(((ISupportExtendsID)this).getExtendsID()),
+			(this instanceof ISupportExtendsID && Utils.equalObjects(((ISupportExtendsID)this).getExtendsID(),
 				StaticContentSpecLoader.getContentSpec().getPropertyForObjectTypeByName(getTypeID(),
 					StaticContentSpecLoader.PROPERTY_EXTENDSID.getPropertyName()).getDefaultClassValue()));
 	}
@@ -524,6 +523,9 @@ public abstract class AbstractBase implements IPersist
 		propertiesMap.remove(property.getPropertyName());
 	}
 
+	/**
+	 * Additional information, such as programmer notes about this model object's purpose.
+	 */
 	public String getComment()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_COMMENT);
@@ -598,19 +600,6 @@ public abstract class AbstractBase implements IPersist
 		this.parent = parent;
 	}
 
-	public int getID()
-	{
-		return element_id;
-	}
-
-	/*
-	 * only called when cloning to set the clone on a new id.
-	 */
-	public void setID(int id)
-	{
-		element_id = id;
-	}
-
 	public void setRevisionNumber(int revision)
 	{
 		this.revision = revision;
@@ -675,7 +664,12 @@ public abstract class AbstractBase implements IPersist
 
 	public void addChild(IPersist obj)
 	{
-		internalAddChild(obj);
+		addChild(obj, -1); // add to the end
+	}
+
+	public void addChild(IPersist obj, int index)
+	{
+		internalAddChild(obj, index);
 		afterChildWasAdded(obj);
 	}
 
@@ -694,6 +688,11 @@ public abstract class AbstractBase implements IPersist
 
 	public void internalAddChild(IPersist obj)
 	{
+		internalAddChild(obj, -1);
+	}
+
+	public void internalAddChild(IPersist obj, int index)
+	{
 		if (allobjects == null)
 		{
 			allobjects = new CopyOnWriteArrayList<IPersist>();
@@ -702,7 +701,8 @@ public abstract class AbstractBase implements IPersist
 		{
 			internalRemoveChild(obj);
 		}
-		allobjects.add(obj);
+		if (index < 0 || index > allobjects.size()) allobjects.add(obj);
+		else allobjects.add(index, obj);
 		if (allobjectsMap != null && obj != null)
 		{
 			allobjectsMap.put(obj.getUUID(), obj);
@@ -733,6 +733,19 @@ public abstract class AbstractBase implements IPersist
 	private void flushAllObjectsMap()
 	{
 		allobjectsMap = null;
+	}
+
+	public void moveChild(IPersist obj, boolean moveUp)
+	{
+		if (allobjects != null)
+		{
+			int index = allobjects.indexOf(obj);
+			if (index >= 0 && index < allobjects.size())
+			{
+				Collections.swap(allobjects, index, moveUp ? index - 1 : index + 1);
+				flagChanged();
+			}
+		}
 	}
 
 	public IPersist getChild(UUID childUuid)
@@ -816,16 +829,6 @@ public abstract class AbstractBase implements IPersist
 
 	public static final RuntimeProperty<Boolean> AClone = new RuntimeProperty<Boolean>()
 	{
-	};
-
-	public static final SerializableRuntimeProperty<HashMap<UUID, Integer>> UUIDToIDMapProperty = new SerializableRuntimeProperty<HashMap<UUID, Integer>>()
-	{
-		private static final long serialVersionUID = 1L;
-	};
-
-	public static final SerializableRuntimeProperty<HashMap<String, String>> UnresolvedPropertyToValueMapProperty = new SerializableRuntimeProperty<HashMap<String, String>>()
-	{
-		private static final long serialVersionUID = 1L;
 	};
 
 	private void checkForChange(Object oldValue, Object newValue)
@@ -1007,12 +1010,12 @@ public abstract class AbstractBase implements IPersist
 		return null;
 	}
 
-	public static <T extends IPersist> T selectById(Iterator<T> iterator, int id)
+	public static <T extends IPersist> T selectByUUID(Iterator<T> iterator, String uuid)
 	{
 		while (iterator.hasNext())
 		{
 			T p = iterator.next();
-			if (p.getID() == id)
+			if (p.getUUID().toString().equals(uuid))
 			{
 				return p;
 			}
@@ -1494,4 +1497,33 @@ public abstract class AbstractBase implements IPersist
 		ISupportChilds p = getParent();
 		if (p != null) p.childRemoved(obj);
 	}
+
+	public Map<String, Object> getCustomEventsMethods()
+	{
+		Map<String, Object> map = (Map<String, Object>)getCustomProperty(new String[] { CUSTOM_EVENT_TYPES });
+		if (map == null || map.size() == 0)
+		{
+			return new HashMap<String, Object>();
+		}
+		return map;
+	}
+
+	public Object putCustomEventValue(String name, Object value)
+	{
+		if (name != null)
+		{
+			return putCustomProperty(new String[] { CUSTOM_EVENT_TYPES, name }, value);
+		}
+		return null;
+	}
+
+	public Object getCustomEventValue(String name)
+	{
+		if (name != null)
+		{
+			return getCustomProperty(new String[] { CUSTOM_EVENT_TYPES, name });
+		}
+		return null;
+	}
+
 }

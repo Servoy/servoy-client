@@ -25,12 +25,16 @@ import org.json.JSONWriter;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IBrowserConverterContext;
 
+import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IContentSpecConstants;
+import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.IContextProvider;
 import com.servoy.j2db.server.ngclient.INGFormElement;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToSabloComponent;
+import com.servoy.j2db.util.Settings;
+import com.servoy.j2db.util.Utils;
 
 /**
  * @author lvostinar
@@ -41,12 +45,15 @@ public class ServoyAttributesPropertyType extends NGObjectPropertyType implement
 	public final static ServoyAttributesPropertyType NG_INSTANCE = new ServoyAttributesPropertyType();
 	public static final String TYPE_NAME = "servoyattributes";
 
+	private static boolean addDataCYForE2eTests = Utils.getAsBoolean(Settings.getInstance().getProperty("servoy.ngclient.testingMode", "false"));
+
 	@Override
 	public String getName()
 	{
 		return TYPE_NAME;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public JSONWriter toJSON(JSONWriter writer, String key, Object sabloValue, PropertyDescription propertyDescription,
 		IBrowserConverterContext dataConverterContext) throws JSONException
@@ -54,8 +61,26 @@ public class ServoyAttributesPropertyType extends NGObjectPropertyType implement
 		if (IContentSpecConstants.PROPERTY_ATTRIBUTES.equals(key) && dataConverterContext.getWebObject() instanceof IContextProvider &&
 			((IContextProvider)dataConverterContext.getWebObject()).getDataConverterContext().getApplication().getRuntimeProperties().containsKey("NG2"))
 		{
-			key = "servoyAttributes";
+			key = "servoyAttributes"; //$NON-NLS-1$
 		}
+
+		// this if is for when e2e tests are running only (note that the e2e test might also be testing attributes set and resend to client, so it is not enough just to send the data-cy in the template)
+		// note that this if is in ChildrenJSONGenerator as well for the template value...
+		if (addDataCYForE2eTests && dataConverterContext != null /* this actually can't be null I think */
+			&& dataConverterContext.getWebObject() instanceof WebFormComponent component && component.getFormElement() != null &&
+			component.getFormElement().getPersistIfAvailable() != null && sabloValue instanceof Map attrs)
+		{
+			String elementName = /* designer ? fe.getDesignId() : it's e2e tests, it is not designer */
+				component.getName();
+
+			IPersist persist = component.getFormElement().getPersistIfAvailable();
+			if (elementName.startsWith("svy_") && persist.getUUID() != null)
+			{
+				elementName = "svy_" + persist.getUUID().toString();
+			}
+			attrs.put("data-cy", persist.getAncestor(Form.class).getName() + "." + elementName); //$NON-NLS-1$//$NON-NLS-2$
+		}
+
 		return super.toJSON(writer, key, sabloValue, propertyDescription, dataConverterContext);
 	}
 

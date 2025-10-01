@@ -27,10 +27,22 @@ import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.query.ColumnType;
 import com.servoy.j2db.util.Settings;
+import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 
 /**
- * Add some info to a column
+ * <p>The <code>ColumnInfo</code> class holds information about a column in a data source, such as a database table, and
+ * extends basic database metadata with Servoy-specific details. It provides methods to manage various aspects of the column,
+ * including its ID, persistence, and flags. For columns with auto-enter properties, it supports types like system values,
+ * sequences, and custom values, with configurable subtypes for each.</p>
+ *
+ * <p>The class allows for the configuration of column properties such as default values, lookup values, titles, descriptions,
+ * and formatting. For sequences, it manages sequence names, step sizes, and the next value, while also supporting foreign keys
+ * with the <code>foreignType</code> property.</p>
+ *
+ * <p>Additionally, the class offers tools for managing column types, including <code>getConfiguredColumnType()</code> for
+ * retrieving the developer-configured column type, and <code>getCompatibleColumnTypes()</code> for checking column type compatibility.
+ * Flags can be set and checked to track column attributes, and detailed property information can be retrieved or converted to HTML format.</p>
  *
  * @author jblok
  */
@@ -77,7 +89,7 @@ public class ColumnInfo implements Serializable, ISupportHTMLToolTipText
 	 */
 	private String databaseDefaultValue = null;
 
-	private int columninfo_id;
+	private UUID columninfo_UUID;
 	private boolean storedPersistently;
 	private boolean changed;
 	private int autoEnterType = NO_AUTO_ENTER;
@@ -108,22 +120,23 @@ public class ColumnInfo implements Serializable, ISupportHTMLToolTipText
 
 	private int flags = 0;
 
-	public ColumnInfo(int columninfo_id, boolean storedPersistently)
+	public ColumnInfo(boolean storedPersistently)
 	{
-		this.columninfo_id = columninfo_id;
+		this.columninfo_UUID = UUID.randomUUID();
 		this.storedPersistently = storedPersistently;
 
 		if (!storedPersistently) changed = true;
 	}
 
-	public int getID()
+	public UUID getUUID()
 	{
-		return columninfo_id;
+		return columninfo_UUID;
 	}
 
-	public void setID(int id)
+	public void setUUID(UUID uuid)
 	{
-		columninfo_id = id;
+		if (uuid == null) this.columninfo_UUID = UUID.randomUUID();
+		this.columninfo_UUID = uuid;
 	}
 
 	public boolean isStoredPersistently()

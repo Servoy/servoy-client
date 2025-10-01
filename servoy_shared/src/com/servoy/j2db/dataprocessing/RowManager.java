@@ -17,9 +17,13 @@
 package com.servoy.j2db.dataprocessing;
 
 
+import static com.servoy.j2db.query.AbstractBaseQuery.deepClone;
 import static com.servoy.j2db.query.AbstractBaseQuery.setPlaceholderValue;
 import static com.servoy.j2db.query.AbstractBaseQuery.setPlaceholderValueChecked;
+import static java.util.Arrays.asList;
 import static java.util.Arrays.stream;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 
@@ -27,7 +31,6 @@ import java.lang.ref.ReferenceQueue;
 import java.rmi.RemoteException;
 import java.sql.Types;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -40,6 +43,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.stream.Stream;
 
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Streams;
@@ -56,7 +60,6 @@ import com.servoy.j2db.persistence.IServer;
 import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Table;
-import com.servoy.j2db.query.AbstractBaseQuery;
 import com.servoy.j2db.query.IQuerySelectValue;
 import com.servoy.j2db.query.ISQLUpdate;
 import com.servoy.j2db.query.QueryColumn;
@@ -64,7 +67,6 @@ import com.servoy.j2db.query.QueryColumnValue;
 import com.servoy.j2db.query.QueryDelete;
 import com.servoy.j2db.query.QueryInsert;
 import com.servoy.j2db.query.QuerySelect;
-import com.servoy.j2db.query.QueryTable;
 import com.servoy.j2db.query.QueryUpdate;
 import com.servoy.j2db.query.SetCondition;
 import com.servoy.j2db.query.TablePlaceholderKey;
@@ -121,27 +123,27 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 	void register(IRowListener fs)
 	{
 		boolean listenersByEqualValuesAdded = false;
-		if (fsm.config.optimizedNotifyChange() && fs instanceof RelatedFoundSet)
+		if (fsm.config.optimizedNotifyChange() && fs instanceof RelatedFoundSet relatedFoundSet)
 		{
 			FlattenedSolution flattenedSolution = getFoundsetManager().getApplication().getFlattenedSolution();
-			RelatedFoundSet relatedFoundSet = (RelatedFoundSet)fs;
 			Relation relation = flattenedSolution.getRelation(relatedFoundSet.getRelationName());
-
-			if (relation != null && Relation.isValid(relation, flattenedSolution))
+			if (Relation.isValid(relation, flattenedSolution))
 			{
 				Object[] eqArgs = relatedFoundSet.getWhereArgs(true);
 				if (eqArgs != null && !stream(eqArgs).anyMatch(DbIdentValue.class::isInstance))
 				{
-					ConcurrentSoftvaluesMultimap<String, RelatedFoundSet> listenersByEqualValues = listenersByRelationEqualValues.get(relation.getName());
+					var listenersByEqualValues = listenersByRelationEqualValues.get(relation.getName());
 					if (listenersByEqualValues == null)
 					{
-						listenersByEqualValues = new ConcurrentSoftvaluesMultimap<String, RelatedFoundSet>();
-						ConcurrentSoftvaluesMultimap<String, RelatedFoundSet> prevValue = listenersByRelationEqualValues.putIfAbsent(relation.getName(),
-							listenersByEqualValues);
+						listenersByEqualValues = new ConcurrentSoftvaluesMultimap<>();
+						var prevValue = listenersByRelationEqualValues.putIfAbsent(relation.getName(), listenersByEqualValues);
 						if (prevValue != null) listenersByEqualValues = prevValue;
 					}
 
-					listenersByEqualValues.add(createPKHashKey(eqArgs), relatedFoundSet);
+					for (List<Object> expandedEqArgs : expandWhereargsInvalues(eqArgs))
+					{
+						listenersByEqualValues.add(createPKHashKey(expandedEqArgs.toArray()), relatedFoundSet);
+					}
 					listenersByEqualValuesAdded = true;
 				}
 			}
@@ -151,6 +153,51 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 		{
 			listeners.put(fs, dummy);
 		}
+	}
+
+	/**
+	 * Expand the where-args with multiple values into all possible combinations.
+	 *
+	 * For example, a relation with col1 = 42 AND col2 IN [ 5, 6 ].
+	 * The whereArgs are [42, [5, 6]].
+	 * This expands into [42, 5] and [42, 6].
+	 *
+	 * @param whereArgs
+	 */
+	static List<List<Object>> expandWhereargsInvalues(Object[] whereArgs)
+	{
+		return expandWhereargsInvalues(whereArgs, 0);
+	}
+
+	private static List<List<Object>> expandWhereargsInvalues(Object[] whereArgs, int idx)
+	{
+		if (idx >= whereArgs.length)
+		{
+			return singletonList(emptyList());
+		}
+
+		List<List<Object>> expandedValues = new ArrayList<>();
+		for (List<Object> expandedArgsRest : expandWhereargsInvalues(whereArgs, idx + 1))
+		{
+			Stream<Object> argStream;
+			if (whereArgs[idx] instanceof Object[] inValues)
+			{
+				argStream = stream(inValues); // multiple in-values
+			}
+			else
+			{
+				argStream = Stream.of(whereArgs[idx]); // single value
+			}
+
+			argStream.map(arg -> {
+				List<Object> expandedArgs = new ArrayList<>();
+				expandedArgs.add(arg);
+				expandedArgs.addAll(expandedArgsRest);
+				return expandedArgs;
+			}).forEach(expandedValues::add);
+		}
+
+		return expandedValues;
 	}
 
 	void unregister(IRowListener fs)
@@ -404,29 +451,21 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 			return false;
 		}
 		Object[] pk = row.getPK();
-		QuerySelect select = (QuerySelect)AbstractBaseQuery.deepClone(sheet.getSQL(SQLSheet.SELECT));
+		QuerySelect select = sheet.getSelectQuery();
 		if (!select.setPlaceholderValue(new TablePlaceholderKey(select.getTable(), SQLGenerator.PLACEHOLDER_PRIMARY_KEY), pk))
 		{
 			Debug.error(new RuntimeException("Could not set placeholder " + new TablePlaceholderKey(select.getTable(), SQLGenerator.PLACEHOLDER_PRIMARY_KEY) + //$NON-NLS-1$
-				" in query " + select + "-- continuing")); //$NON-NLS-1$//$NON-NLS-2$
+				" in query " + select + " -- continuing")); //$NON-NLS-1$//$NON-NLS-2$
 		}
-		IDataSet formdata;
-		try
+		String transaction_id = null;
+		GlobalTransaction gt = fsm.getGlobalTransaction();
+		if (gt != null)
 		{
-			String transaction_id = null;
-			GlobalTransaction gt = fsm.getGlobalTransaction();
-			if (gt != null)
-			{
-				transaction_id = gt.getTransactionID(sheet.getServerName());
-			}
-			formdata = fsm.getDataServer()
-				.performQuery(fsm.getApplication().getClientID(), sheet.getServerName(), transaction_id, select, null,
-					fsm.getTableFilterParams(sheet.getServerName(), select), false, 0, 1, false);
+			transaction_id = gt.getTransactionID(sheet.getServerName());
 		}
-		catch (RemoteException e)
-		{
-			throw new RepositoryException(e);
-		}
+		IDataSet formdata = fsm.getDataServer()
+			.performQuery(fsm.getApplication().getClientID(), sheet.getServerName(), transaction_id, select, null,
+				fsm.getTableFilterParams(sheet.getServerName(), select), false, 0, 1, false);
 
 		// construct Rows
 		boolean found = formdata.getRowCount() >= 1;
@@ -476,7 +515,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 						eventType = RowEvent.DELETE;
 						if (insertColumnDataOrChangedColumns != null)
 						{
-							List<String> pkdps = Arrays.asList(sheet.getPKColumnDataProvidersAsArray());
+							List<String> pkdps = asList(sheet.getPKColumnDataProvidersAsArray());
 							for (Object changedColumnName : insertColumnDataOrChangedColumns)
 							{
 								if (pkdps.contains(changedColumnName))
@@ -575,7 +614,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 			}
 
 			IDataSet formdata = null;
-			QuerySelect select = (QuerySelect)sheet.getSQL(SQLSheet.SELECT);
+			QuerySelect select = sheet.getSelectQuery();
 			int maxRow = Math.min(row + sizeHint, pks.getRowCount());
 			// get the PK array
 			int ncols = pks.getColumnCount();
@@ -621,31 +660,24 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 			{
 				Debug.error(
 					new RuntimeException("Could not set placeholder " + new TablePlaceholderKey(select.getTable(), SQLGenerator.PLACEHOLDER_PRIMARY_KEY) + //$NON-NLS-1$
-						" in query " + select + "-- continuing")); //$NON-NLS-1$//$NON-NLS-2$
+						" in query " + select + " -- continuing")); //$NON-NLS-1$//$NON-NLS-2$
 			}
 
 			long time = System.currentTimeMillis();
-			try
+			SQLStatement trackingInfo = null;
+			if (fsm.getEditRecordList().hasAccess(sheet.getTable(), IRepository.TRACKING_VIEWS))
 			{
-				SQLStatement trackingInfo = null;
-				if (fsm.getEditRecordList().hasAccess(sheet.getTable(), IRepository.TRACKING_VIEWS))
-				{
-					trackingInfo = new SQLStatement(ISQLActionTypes.SELECT_ACTION, sheet.getServerName(), sheet.getTable().getName(), pks, null);
-					trackingInfo.setTrackingData(sheet.getColumnNames(), new Object[][] { }, new Object[][] { }, fsm.getApplication().getUserUID(),
-						fsm.getTrackingInfo(), fsm.getApplication().getClientID());
-				}
-				formdata = fsm.getDataServer()
-					.performQuery(fsm.getApplication().getClientID(), sheet.getServerName(), transaction_id, select, null /* use types as reported by the db */,
-						fsm.getTableFilterParams(sheet.getServerName(), select), false, 0, nvals, IDataServer.FOUNDSET_LOAD_QUERY, trackingInfo);
-				if (Debug.tracing())
-				{
-					Debug.trace(Thread.currentThread().getName() + ": getting RowData time: " + (System.currentTimeMillis() - time) + ", SQL: " + //$NON-NLS-1$ //$NON-NLS-2$
-						select.toString());
-				}
+				trackingInfo = new SQLStatement(ISQLActionTypes.SELECT_ACTION, sheet.getServerName(), sheet.getTable().getName(), pks, null);
+				trackingInfo.setTrackingData(sheet.getColumnNames(), new Object[][] { }, new Object[][] { }, fsm.getApplication().getUserUID(),
+					fsm.getTrackingInfo(), fsm.getApplication().getClientID());
 			}
-			catch (RemoteException e)
+			formdata = fsm.getDataServer()
+				.performQuery(fsm.getApplication().getClientID(), sheet.getServerName(), transaction_id, select, null /* use types as reported by the db */,
+					fsm.getTableFilterParams(sheet.getServerName(), select), false, 0, nvals, IDataServer.FOUNDSET_LOAD_QUERY, trackingInfo);
+			if (Debug.tracing())
 			{
-				throw new RepositoryException(e);
+				Debug.trace(Thread.currentThread().getName() + ": getting RowData time: " + (System.currentTimeMillis() - time) + ", SQL: " + //$NON-NLS-1$ //$NON-NLS-2$
+					select.toString());
 			}
 
 			//construct Rows
@@ -709,7 +741,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 				if (!columns.isEmpty())
 				{
 					Object[] eqArgs = columns.stream().map(column -> row.getValue(column.getDataProviderID())).toArray();
-					String eqHash = RowManager.createPKHashKey(eqArgs);
+					String eqHash = createPKHashKey(eqArgs);
 					toNotify.addAll(entry.getValue().get(eqHash));
 				}
 			});
@@ -741,7 +773,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 		}
 	}
 
-	RowUpdateInfo getRowUpdateInfo(Row row, boolean tracking) throws ServoyException
+	RowUpdateInfo getRowUpdateInfo(Row row, boolean tracking, String deletedRecordsFilterName) throws ServoyException
 	{
 		try
 		{
@@ -763,11 +795,25 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 				return null;
 			}
 
-			if (!row.isChanged()) return null;
+			boolean deleteRow = row.isFlaggedForDeletion();
+
+			boolean doesExistInDB = row.existInDB();
+
+			if (deleteRow)
+			{
+				if (!doesExistInDB)
+				{
+					return null;
+				}
+			}
+			else if (!row.isChanged())
+			{
+				return null;
+			}
 
 			boolean mustRequeryRow = false;
 
-			List<Column> dbPKReturnValues = new ArrayList<Column>();
+			List<Column> dbPKReturnValues = new ArrayList<>();
 			SQLSheet.SQLDescription sqlDesc = null;
 			int statement_action;
 			ISQLUpdate sqlUpdate = null;
@@ -775,104 +821,131 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 			boolean oracleServer = SQLSheet.isOracleServer(server);
 			boolean usesLobs = false;
 			Table table = sheet.getTable();
-			boolean doesExistInDB = row.existInDB();
-			List<String> aggregatesToRemove = new ArrayList<String>(8);
+			List<String> aggregatesToRemove = new ArrayList<>(8);
 			List<String> changedColumns = null;
 			if (doesExistInDB)
 			{
-				statement_action = ISQLActionTypes.UPDATE_ACTION;
-				sqlDesc = sheet.getSQLDescription(SQLSheet.UPDATE);
-				sqlUpdate = (QueryUpdate)AbstractBaseQuery.deepClone(sqlDesc.getSQLQuery());
-				List<String> req = sqlDesc.getRequiredDataProviderIDs();
+				if (deleteRow)
+				{
+					statement_action = ISQLActionTypes.DELETE_ACTION;
+					sqlDesc = sheet.getSQLDescription(SQLSheet.DELETE);
+					sqlUpdate = deepClone((ISQLUpdate)sqlDesc.getSQLQuery());
+
+					aggregatesToRemove = sqlDesc.getOldRequiredDataProviderIDs().stream()
+						.filter(sheet::isUsedByAggregate)
+						.map(sheet::getAggregateName)
+						.flatMap(Collection::stream).collect(toList());
+				}
+				else
+				{
+					statement_action = ISQLActionTypes.UPDATE_ACTION;
+					sqlDesc = sheet.getSQLDescription(SQLSheet.UPDATE);
+					QueryUpdate queryUpdate = deepClone((QueryUpdate)sqlDesc.getSQLQuery());
+					sqlUpdate = queryUpdate;
+					List<String> req = sqlDesc.getRequiredDataProviderIDs();
+
+					Object[] olddata = row.getRawOldColumnData();
+					if (olddata == null) // for safety only, nothing changed
+					{
+						return null;
+					}
+					Object[] newdata = row.getRawColumnData();
+					for (int i = 0; i < olddata.length; i++)
+					{
+						String dataProviderID = req.get(i);
+						Column c = table.getColumn(dataProviderID);
+						ColumnInfo ci = c.getColumnInfo();
+						if (ci != null && ci.isDBManaged())
+						{
+							mustRequeryRow = true;
+						}
+						else
+						{
+							Object modificationValue = c.getModificationValue(fsm.getApplication());
+							if (modificationValue != null)
+							{
+								row.setRawValue(dataProviderID, modificationValue);
+							}
+						}
+					}
+					for (int i = 0; i < olddata.length; i++)
+					{
+						String dataProviderID = req.get(i);
+						Column c = table.getColumn(dataProviderID);
+						if (newdata[i] instanceof BlobMarkerValue)
+						{
+							// if it is a blob marker then it isn't something that is changed
+							// because that would be a byte[]
+							continue;
+						}
+						if (!Utils.equalObjects(olddata[i], newdata[i]))
+						{
+							if (sheet.isUsedByAggregate(dataProviderID))
+							{
+								aggregatesToRemove.addAll(sheet.getAggregateName(dataProviderID));
+							}
+							Object robj = c.getAsRightType(newdata[i]);
+							if (robj == null)
+							{
+								robj = ValueFactory.createNullValue(c.getType());
+							}
+							else if (c.getColumnType().isArray() && robj instanceof Object[] array)
+							{
+								robj = ValueFactory.createArrayValue(array, c.getColumnType());
+							}
+							queryUpdate.addValue(c.queryColumn(sqlUpdate.getTable()), robj);
+							if (changedColumns == null)
+							{
+								changedColumns = new ArrayList<>(olddata.length - i);
+							}
+							changedColumns.add(c.getName());
+							if (oracleServer && !usesLobs)
+							{
+								int type = c.getType();
+								if (type == Types.BLOB && robj instanceof byte[] && ((byte[])robj).length > 4000)
+								{
+									usesLobs = true;
+								}
+								else if (type == Types.CLOB && robj instanceof String && ((String)robj).length() > 4000)
+								{
+									usesLobs = true;
+								}
+							}
+						}
+					}
+
+					if (changedColumns == null) // nothing changed after all
+					{
+						// clear the old data now else it will be kept and in a changed state.
+						row.flagExistInDB();
+						return null;
+					}
+				}
+
+				// add PK
 				List<String> old = sqlDesc.getOldRequiredDataProviderIDs();
-
-				Object[] olddata = row.getRawOldColumnData();
-				if (olddata == null)//for safety only, nothing changed
-				{
-					return null;
-				}
-				Object[] newdata = row.getRawColumnData();
-				for (int i = 0; i < olddata.length; i++)
-				{
-					String dataProviderID = req.get(i);
-					Column c = table.getColumn(dataProviderID);
-					ColumnInfo ci = c.getColumnInfo();
-					if (ci != null && ci.isDBManaged())
-					{
-						mustRequeryRow = true;
-					}
-					else
-					{
-						Object modificationValue = c.getModificationValue(fsm.getApplication());
-						if (modificationValue != null)
-						{
-							row.setRawValue(dataProviderID, modificationValue);
-						}
-					}
-				}
-				for (int i = 0; i < olddata.length; i++)
-				{
-					String dataProviderID = req.get(i);
-					Column c = table.getColumn(dataProviderID);
-					if (newdata[i] instanceof BlobMarkerValue)
-					{
-						// if it is a blob marker then it isn't something that is changed
-						// because that would be a byte[]
-						continue;
-					}
-					if (!Utils.equalObjects(olddata[i], newdata[i]))
-					{
-						if (sheet.isUsedByAggregate(dataProviderID))
-						{
-							aggregatesToRemove.addAll(sheet.getAggregateName(dataProviderID));
-						}
-						Object robj = c.getAsRightType(newdata[i]);
-						if (robj == null) robj = ValueFactory.createNullValue(c.getType());
-						((QueryUpdate)sqlUpdate).addValue(c.queryColumn(((QueryUpdate)sqlUpdate).getTable()), robj);
-						if (changedColumns == null)
-						{
-							changedColumns = new ArrayList<String>(olddata.length - i);
-						}
-						changedColumns.add(c.getName());
-						if (oracleServer && !usesLobs)
-						{
-							int type = c.getType();
-							if (type == Types.BLOB && robj instanceof byte[] && ((byte[])robj).length > 4000)
-							{
-								usesLobs = true;
-							}
-							else if (type == Types.CLOB && robj instanceof String && ((String)robj).length() > 4000)
-							{
-								usesLobs = true;
-							}
-						}
-					}
-				}
-
-				if (changedColumns == null)//nothing changed after all
-				{
-					// clear the old data now else it will be kept and in a changed state.
-					row.flagExistInDB();
-					return null;
-				}
-
-				//add PK
 				Object[] pkValues = new Object[old.size()];
 				for (int j = 0; j < old.size(); j++)
 				{
 					String dataProviderID = old.get(j);
-					pkValues[j] = row.getOldRequiredValue(dataProviderID);
+					Object value = row.getOldRequiredValue(dataProviderID);
+					if (value == null)
+					{
+						// deletes could now get into this but we need the raw value (like the above getOldXxx also returns)
+						value = row.getRawValue(dataProviderID);
+					}
+					pkValues[j] = value;
 				}
 
-				setPlaceholderValueChecked(sqlUpdate,
-					new TablePlaceholderKey(((QueryUpdate)sqlUpdate).getTable(), SQLGenerator.PLACEHOLDER_PRIMARY_KEY), pkValues);
+				setPlaceholderValueChecked(sqlUpdate, new TablePlaceholderKey(sqlUpdate.getTable(), SQLGenerator.PLACEHOLDER_PRIMARY_KEY), pkValues);
 			}
 			else
 			{
-				List<Object> argsArray = new ArrayList<Object>();
+				List<Object> argsArray = new ArrayList<>();
 				statement_action = ISQLActionTypes.INSERT_ACTION;
 				sqlDesc = sheet.getSQLDescription(SQLSheet.INSERT);
-				sqlUpdate = (ISQLUpdate)AbstractBaseQuery.deepClone(sqlDesc.getSQLQuery());
+				QueryInsert queryInsert = deepClone((QueryInsert)sqlDesc.getSQLQuery());
+				sqlUpdate = queryInsert;
 				List<String> req = sqlDesc.getRequiredDataProviderIDs();
 				if (Debug.tracing()) Debug.trace(sqlUpdate.toString());
 				for (int i = 0; i < req.size(); i++)
@@ -883,7 +956,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 						aggregatesToRemove.addAll(sheet.getAggregateName(dataProviderID));
 					}
 					Column c = table.getColumn(dataProviderID);
-					QueryColumn queryColumn = c.queryColumn(((QueryInsert)sqlUpdate).getTable());
+					QueryColumn queryColumn = c.queryColumn(sqlUpdate.getTable());
 					ColumnInfo ci = c.getColumnInfo();
 					if (c.isDBIdentity())
 					{
@@ -904,7 +977,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 							// The database has a default value, and the value is null, and this is an insert...
 							// Remove the column from the query entirely and make sure the default value is requeried from the db.
 							mustRequeryRow = true;
-							((QueryInsert)sqlUpdate).removeColumn(queryColumn);
+							queryInsert.removeColumn(queryColumn);
 						}
 						else
 						{
@@ -928,9 +1001,9 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 						}
 					}
 				}
-				setPlaceholderValue(sqlUpdate,
-					new TablePlaceholderKey(((QueryInsert)sqlUpdate).getTable(), SQLGenerator.PLACEHOLDER_INSERT_KEY), argsArray.toArray());
+				setPlaceholderValue(sqlUpdate, new TablePlaceholderKey(sqlUpdate.getTable(), SQLGenerator.PLACEHOLDER_INSERT_KEY), argsArray.toArray());
 			}
+
 			Object[] pk = row.getPK();
 			IDataSet pks = new BufferedDataSet();
 			pks.addRow(pk);
@@ -943,17 +1016,27 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 			QuerySelect requerySelect = null;
 			if (mustRequeryRow)
 			{
-				requerySelect = (QuerySelect)AbstractBaseQuery.deepClone(sheet.getSQL(SQLSheet.SELECT));
+				requerySelect = sheet.getSelectQuery();
 				if (!requerySelect.setPlaceholderValue(new TablePlaceholderKey(requerySelect.getTable(), SQLGenerator.PLACEHOLDER_PRIMARY_KEY), pk))
 				{
 					Debug.error(new RuntimeException(
 						"Could not set placeholder " + new TablePlaceholderKey(requerySelect.getTable(), SQLGenerator.PLACEHOLDER_PRIMARY_KEY) + //$NON-NLS-1$
-							" in query " + requerySelect + "-- continuing")); //$NON-NLS-1$//$NON-NLS-2$
+							" in query " + requerySelect + " -- continuing")); //$NON-NLS-1$//$NON-NLS-2$
 				}
 			}
-			SQLStatement statement = new SQLStatement(statement_action, sheet.getServerName(), table.getName(), pks, tid, sqlUpdate,
-				fsm.getTableFilterParams(sheet.getServerName(), sqlUpdate), requerySelect);
-			if (doesExistInDB) statement.setExpectedUpdateCount(1); // check that the row is updated (skip check for insert)
+			ArrayList<TableFilter> tableFilterParams;
+			if (statement_action == ISQLActionTypes.DELETE_ACTION)
+			{
+				tableFilterParams = fsm.getTableFilterParams(sheet.getServerName(), sqlUpdate, asList(deletedRecordsFilterName));
+			}
+			else
+			{
+				tableFilterParams = fsm.getTableFilterParams(sheet.getServerName(), sqlUpdate);
+			}
+
+			SQLStatement statement = new SQLStatement(statement_action, sheet.getServerName(), table.getName(), pks, tid, sqlUpdate, tableFilterParams,
+				requerySelect);
+			if (doesExistInDB) statement.setExpectedUpdateCount(1); // check that the row is updated/deleted (skip check for insert)
 			if (changedColumns != null)
 			{
 				statement.setChangedColumns(changedColumns.toArray(new String[changedColumns.size()]));
@@ -968,9 +1051,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 			}
 			return new RowUpdateInfo(row, statement, dbPKReturnValues, aggregatesToRemove);
 		}
-		catch (
-
-		RemoteException e)
+		catch (RemoteException e)
 		{
 			throw new RepositoryException(e);
 		}
@@ -1159,14 +1240,20 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 		return sheet;
 	}
 
-	void deleteRow(IRowListener src, Row r, boolean tracking, boolean partOfBiggerDelete) throws ServoyException
+	void deleteRow(IRowListener src, Row r, boolean tracking, boolean performDelete) throws ServoyException
 	{
 		if (r.getRowManager() != this) throw new IllegalArgumentException("I'm not the row manager from row"); //$NON-NLS-1$
 
-		r.flagExistInDB();//prevent it processed by any update, changed is false now
-		if (!partOfBiggerDelete)
+		r.flagExistInDB(); // prevent it processed by any update, changed is false now
+
+		SoftReferenceWithData<Row, Pair<Map<String, List<CalculationDependency>>, CalculationDependencyData>> removed;
+		synchronized (this)
 		{
-			QueryDelete sqlDelete = AbstractBaseQuery.deepClone((QueryDelete)sheet.getSQLDescription(SQLSheet.DELETE).getSQLQuery());
+			removed = pkRowMap.remove(r.getPKHashKey());
+		}
+		if (performDelete)
+		{
+			QueryDelete sqlDelete = (QueryDelete)sheet.getSQLDescription(SQLSheet.DELETE).getSQLQuery().deepClone();
 			Object[] pk = r.getPK();
 			if (!sqlDelete.setPlaceholderValue(new TablePlaceholderKey(sqlDelete.getTable(), SQLGenerator.PLACEHOLDER_PRIMARY_KEY), pk))
 			{
@@ -1195,36 +1282,19 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 					fsm.getApplication().getUserUID(), fsm.getTrackingInfo(), fsm.getApplication().getClientID());
 			}
 
-			try
+			Object[] results = fsm.getDataServer().performUpdates(fsm.getApplication().getClientID(), stats_a);
+			for (int i = 0; results != null && i < results.length; i++)
 			{
-				Object[] results = fsm.getDataServer().performUpdates(fsm.getApplication().getClientID(), stats_a);
-				for (int i = 0; results != null && i < results.length; i++)
+				if (results[i] instanceof ServoyException)
 				{
-					if (results[i] instanceof ServoyException)
-					{
-						throw (ServoyException)results[i];
-					}
+					throw (ServoyException)results[i];
 				}
 			}
-			catch (RemoteException e)
-			{
-				throw new RepositoryException(e);
-			}
 
-			SoftReferenceWithData<Row, Pair<Map<String, List<CalculationDependency>>, CalculationDependencyData>> removed;
-			synchronized (this)
-			{
-				removed = pkRowMap.remove(r.getPKHashKey());
-			}
-			fireDependingCalcs(removed, null, null);
 		}
-		else
-		{
-			synchronized (this)
-			{
-				pkRowMap.remove(r.getPKHashKey());
-			}
-		}
+
+		fireDependingCalcs(removed, null, null);
+
 		fireNotifyChange(src, r, r.getPKHashKey(), null, RowEvent.DELETE);
 	}
 
@@ -1358,13 +1428,12 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 	 */
 	Blob getBlob(Row row, int columnIndex) throws Exception
 	{
-		QuerySelect blobSelect = new QuerySelect(
-			new QueryTable(sheet.getTable().getSQLName(), sheet.getTable().getDataSource(), sheet.getTable().getCatalog(), sheet.getTable().getSchema()));
+		QuerySelect blobSelect = new QuerySelect(sheet.getTable().queryTable());
 
 		String blobColumnName = sheet.getColumnNames()[columnIndex];
 		Column blobColumn = sheet.getTable().getColumn(blobColumnName);
-		blobSelect.addColumn(new QueryColumn(blobSelect.getTable(), blobColumn.getID(), blobColumn.getSQLName(), blobColumn.getType(), blobColumn.getLength(),
-			blobColumn.getScale(), blobColumn.getNativeTypename(), blobColumn.getFlags(), false));
+
+		blobSelect.addColumn(blobColumn.queryColumn(blobSelect.getTable()));
 
 		String[] pkColumnNames = sheet.getPKColumnDataProvidersAsArray();
 		IQuerySelectValue[] pkQuerycolumns = new IQuerySelectValue[pkColumnNames.length];
@@ -1375,8 +1444,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 		for (int k = 0; k < pkValues.length; k++)
 		{
 			Column pkcolumn = sheet.getTable().getColumn(pkColumnNames[k]);
-			pkQuerycolumns[k] = new QueryColumn(blobSelect.getTable(), pkcolumn.getID(), pkcolumn.getSQLName(), pkcolumn.getType(), pkcolumn.getLength(),
-				pkcolumn.getScale(), pkcolumn.getNativeTypename(), pkcolumn.getFlags(), false);
+			pkQuerycolumns[k] = pkcolumn.queryColumn(blobSelect.getTable());
 			pkValues[k] = new Object[] { pk[k] };
 		}
 

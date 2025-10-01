@@ -112,7 +112,6 @@ import javax.swing.JRootPane;
 import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
 import javax.swing.LookAndFeel;
-import javax.swing.RepaintManager;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.ToolTipManager;
@@ -181,6 +180,7 @@ import com.servoy.j2db.preference.PreferencePanel;
 import com.servoy.j2db.preference.ServicePanel;
 import com.servoy.j2db.query.AbstractBaseQuery;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
+import com.servoy.j2db.scripting.JSBlobLoaderBuilder;
 import com.servoy.j2db.scripting.ScriptEngine;
 import com.servoy.j2db.scripting.StartupArguments;
 import com.servoy.j2db.server.shared.IApplicationServer;
@@ -259,7 +259,6 @@ import com.servoy.j2db.util.gui.ActionRadioMenuItem;
 import com.servoy.j2db.util.gui.IPropertyEditorDialog;
 import com.servoy.j2db.util.gui.JDK131ProgressBar;
 import com.servoy.j2db.util.gui.JMenuAlwaysEnabled;
-import com.servoy.j2db.util.gui.OverlapRepaintManager;
 import com.servoy.j2db.util.rmi.IRMIClientSocketFactoryFactory;
 import com.servoy.j2db.util.rmi.IReconnectListener;
 import com.servoy.j2db.util.toolbar.IToolbarPanel;
@@ -451,6 +450,12 @@ public class J2DBClient extends ClientState
 	public Object generateBrowserFunction(String functionString)
 	{
 		return functionString;
+	}
+
+	@Override
+	public JSBlobLoaderBuilder createUrlBlobloaderBuilder(String dataprovider)
+	{
+		return null;
 	}
 
 	/*
@@ -1156,18 +1161,6 @@ public class J2DBClient extends ClientState
 			initStreamHandlerFactory();
 
 			super.applicationInit();
-
-			// repaint manager that handles repaint for overlapping components properly (if a component
-			// below other components is repainted, the components on top of it will be repainted too)
-			RepaintManager current = RepaintManager.currentManager(frame);
-			if (!(current instanceof OverlapRepaintManager))
-			{
-				if (current != null && current.getClass() != RepaintManager.class)
-				{
-					Debug.log("Overwriting a none default RepaintManager: " + current.getClass() + " with our overlay repaint manager");
-				}
-				RepaintManager.setCurrentManager(new OverlapRepaintManager());
-			}
 
 			// Add the windows listener
 			WindowListener l = new WindowAdapter()
@@ -3310,7 +3303,6 @@ public class J2DBClient extends ClientState
 		((FoundSetManager)foundSetManager).setInfoListener(this);
 		foundSetManager.init();
 		((FoundSetManager)foundSetManager).setDisableRelatedSiblingsPrefetch(false);
-		((FoundSetManager)foundSetManager).getEditRecordList().addEditListener(this);
 	}
 
 	private int getRmiExportPort() throws Exception
@@ -3326,16 +3318,6 @@ public class J2DBClient extends ClientState
 	@Override
 	protected void bindUserClient()
 	{
-		try
-		{
-			int port = exportObject(userClient);
-			Debug.trace("RMI export succeeded on port: " + port);
-			getClientInfo().setHostPort(port);
-		}
-		catch (RemoteException e)
-		{
-			Debug.error(e);
-		}
 	}
 
 	private int rmiExportPort = -1;
@@ -3378,36 +3360,6 @@ public class J2DBClient extends ClientState
 	@Override
 	protected void unBindUserClient() throws Exception
 	{
-		if (userClient != null)
-		{
-			try
-			{
-				Debug.trace("Unexporting userclient");
-				int counter = 1;
-				while (!UnicastRemoteObject.unexportObject(userClient, false))
-				{
-					Debug.trace("Unexporting userclient not yet successful for " + counter + " time");
-					if (isRunningRemote() && counter < 5)
-					{
-						counter++;
-						// Let the server be able to clean it up.
-						synchronized (this)
-						{
-							this.wait(1000);
-						}
-					}
-					else
-					{
-						UnicastRemoteObject.unexportObject(userClient, true);
-						break;
-					}
-				}
-			}
-			catch (Exception e)
-			{
-				Debug.error(e);
-			}
-		}
 	}
 
 	public void output(Object msg, int level)
@@ -3740,7 +3692,8 @@ public class J2DBClient extends ClientState
 
 	public ResourceBundle getResourceBundle(Locale locale)
 	{
-		return new MessagesResourceBundle(this, locale == null ? getLocale() : locale, i18nColumnName, i18nColunmValue, getSolution().getSolutionID());
+		return new MessagesResourceBundle(this, locale == null ? getLocale() : locale, i18nColumnName, i18nColunmValue,
+			getSolution().getSolutionMetaData().getRootObjectUuid());
 	}
 
 	/*
@@ -3919,186 +3872,6 @@ public class J2DBClient extends ClientState
 	 */
 	public void reconnectedToServer()
 	{
-		if (reconnecting) return;
-		getScheduledExecutor().execute(new Runnable()
-		{
-			@SuppressWarnings("nls")
-			public void run()
-			{
-				if (reconnecting) return;
-				reconnecting = true;
-				final String prevClientId = getClientInfo().getClientId();
-
-				try
-				{
-					if (Debug.tracing())
-					{
-						Debug.trace(Thread.currentThread().getName() + ", Reconnecting to the server, unexporting the current client");
-					}
-					try
-					{
-						// Try to force unexport the object.
-						UnicastRemoteObject.unexportObject(userClient, true);
-					}
-					catch (Exception e1)
-					{
-						// ignore if not
-					}
-
-					// Create new clientinfo object. So that it can have different
-					// addresses..
-					getClientInfo().initHostInfo();
-
-					// recreate the UserClient
-					createUserClient();
-					bindUserClient();
-					try
-					{
-						registerClient(userClient);
-					}
-					catch (Exception e)
-					{
-						if (isConnected())
-						{
-							// Remote client object no longer exists on app server, must have been restarted
-							Debug.error("Error reregistering client", e);
-							invokeAndWait(new Runnable()
-							{
-
-								public void run()
-								{
-									JOptionPane.showMessageDialog(getMainApplicationFrame(), Messages.getString("servoy.client.message.error.registerclient"),
-										Messages.getString("servoy.client.message.clientregister"), JOptionPane.ERROR_MESSAGE);
-									exitHard(1);
-								}
-							});
-						}
-						else
-						{
-							reconnecting = false;
-							disconnectedFromServer();
-							reconnectedToServer();
-							return;
-						}
-					}
-				}
-				finally
-				{
-					reconnecting = false;
-				}
-
-				if (prevClientId == null || !prevClientId.equals(getClientInfo().getClientId()))
-				{
-					Runnable closeAndLogout = new Runnable()
-					{
-						public void run()
-						{
-							JOptionPane.showMessageDialog(disconnectDialog, Messages.getString("servoy.client.serverdisconnect.restarting.solution"),
-								Messages.getString("servoy.client.serverdisconnect.restarting.solution.title"), JOptionPane.INFORMATION_MESSAGE);
-							if (Debug.tracing())
-							{
-								Debug.trace("Client reconnected with id " + getClientID() + " from id " + prevClientId);
-							}
-							if (Debug.tracing())
-							{
-								Debug.trace("Setting disconnect dialog to false.");
-							}
-							disconnectDialog.setVisible(false);
-							closeSolution(true, startupArguments);
-							// logout to make sure the login solution is reloaded in case the main solution needs state from the login solution
-							logout(null);
-						}
-					};
-					if (((FoundSetManager)getFoundSetManager()).hasLocks(null) || ((FoundSetManager)getFoundSetManager()).hasTransaction() ||
-						((FoundSetManager)getFoundSetManager()).hasClientDataSources())
-					{
-						try
-						{
-							getDataServer().logMessage(
-								"Client reconnected with id " + getClientID() + " from id " + prevClientId + ", client needs to restart");
-						}
-						catch (Exception ex)
-						{
-							// ignore
-						}
-						invokeLater(closeAndLogout);
-						return;
-					}
-					// if logged in, login again
-					if (getClientInfo().getUserUid() != null)
-					{
-						try
-						{
-							authenticate(new Credentials(getClientInfo().getClientId(), getClientInfo().getAuthenticatorType(),
-								getClientInfo().getAuthenticatorMethod(), getClientInfo().getJsCredentials()));
-						}
-						catch (RepositoryException e)
-						{
-							Debug.error(e);
-						}
-						if (getClientInfo().getUserUid() == null)
-						{
-							try
-							{
-								getDataServer().logMessage("Client reconnected with id " + getClientID() + " from id " + prevClientId +
-									", relogin with old credentials failed, restarting client");
-							}
-							catch (Exception ex)
-							{
-								// ignore
-							}
-							invokeLater(closeAndLogout);
-							return;
-						}
-					}
-
-
-					try
-					{
-						((FoundSetManager)getFoundSetManager()).registerClientTables(null);
-					}
-					catch (Exception e)
-					{
-						if (isConnected())
-						{
-							// Remote client object no longer exists on app server, must have been restarted
-							Debug.error("Error reregistering client", e); //$NON-NLS-1$
-							invokeAndWait(new Runnable()
-							{
-								public void run()
-								{
-									JOptionPane.showMessageDialog(getMainApplicationFrame(), Messages.getString("servoy.client.message.error.registerclient"),
-										Messages.getString("servoy.client.message.clientregister"), JOptionPane.ERROR_MESSAGE);
-									exitHard(1);
-								}
-							});
-						}
-						else
-						{
-							disconnectedFromServer();
-							reconnectedToServer();
-							return;
-						}
-					}
-					((FoundSetManager)getFoundSetManager()).flushCachedDatabaseData(null);
-				}
-				if (Debug.tracing())
-				{
-					Debug.trace("Client reconnected with id " + getClientID() + " from id " + prevClientId);
-				}
-				invokeLater(new Runnable()
-				{
-					public void run()
-					{
-						if (Debug.tracing())
-						{
-							Debug.trace("Setting disconnect dialog to false.");
-						}
-						disconnectDialog.setVisible(false);
-					}
-				});
-			}
-		});
 	}
 
 	public boolean isEventDispatchThread()

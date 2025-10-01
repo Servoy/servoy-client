@@ -26,6 +26,7 @@ import com.servoy.j2db.solutionmodel.ISMTitleJustification;
  *
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
+@Deprecated
 public class TITLEJUSTIFICATION implements ISMTitleJustification, IPrefixedConstantsObject
 {
 

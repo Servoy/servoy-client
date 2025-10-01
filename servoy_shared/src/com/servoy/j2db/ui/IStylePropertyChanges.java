@@ -18,8 +18,6 @@ package com.servoy.j2db.ui;
 
 import java.util.Properties;
 
-import org.apache.wicket.Component;
-
 /**
  * Components which wants to update themselfs with an ajax call should implement this interface.
  * <p>
@@ -31,15 +29,15 @@ import org.apache.wicket.Component;
  * else it will be re rendered for every coming request. This can be done by calling {@link #setRendered()} from the {@link Component#onAfterRender()}
  * that the wicket component needs to override.
  * <p>
- * NOTE: Try to use the the implementation class {@link com.servoy.j2db.server.headlessclient.dataui.ChangesRecorder} 
+ * NOTE: Try to use the the implementation class {@link com.servoy.j2db.server.headlessclient.dataui.ChangesRecorder}
  * this interface can change with new Servoy versions if new functionality is needed.
  * </p>
- * 
+ *
  * @author jcompagner
- * 
+ *
  * @since 5.0
- * 
- * @see com.servoy.j2db.server.headlessclient.dataui.ChangesRecorder 
+ *
+ * @see com.servoy.j2db.server.headlessclient.dataui.ChangesRecorder
  */
 public interface IStylePropertyChanges
 {
@@ -55,7 +53,7 @@ public interface IStylePropertyChanges
 
 	/**
 	 * Adds all the css properties to the changed set and calls setChanged()
-	 * 
+	 *
 	 * @param changes
 	 */
 	public void setChanges(Properties changes);
@@ -71,7 +69,7 @@ public interface IStylePropertyChanges
 	public void setChanged();
 
 	/**
-	 * returns true if its component model object is changed 
+	 * returns true if its component model object is changed
 	 */
 	public boolean isValueChanged();
 
@@ -82,7 +80,7 @@ public interface IStylePropertyChanges
 
 	/**
 	 * Gets the value of a js property (returns null if the property does not exist).
-	 * 
+	 *
 	 * @param key
 	 * @return the js propery value
 	 */

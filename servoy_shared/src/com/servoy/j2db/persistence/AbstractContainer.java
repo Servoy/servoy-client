@@ -40,9 +40,9 @@ public abstract class AbstractContainer extends AbstractBase
 
 	private static final long serialVersionUID = 1L;
 
-	protected AbstractContainer(int type, ISupportChilds parent, int element_id, UUID uuid)
+	protected AbstractContainer(int type, ISupportChilds parent, UUID uuid)
 	{
-		super(type, parent, element_id, uuid);
+		super(type, parent, uuid);
 	}
 
 	/**
@@ -65,7 +65,7 @@ public abstract class AbstractContainer extends AbstractBase
 	{
 		if (validateName(arg))
 		{
-			validator.checkName(arg, getID(), new ValidatorSearchContext(getAncestor(IRepository.FORMS), getTypeID()), false);
+			validator.checkName(arg, getUUID(), new ValidatorSearchContext(getAncestor(IRepository.FORMS), getTypeID()), false);
 		}
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_NAME, arg);
 		getRootObject().getChangeHandler().fireIPersistChanged(this);
@@ -78,6 +78,7 @@ public abstract class AbstractContainer extends AbstractBase
 
 	/**
 	 * The name of the form.
+	 * @sample "orderDetails"
 	 */
 	@ServoyClientSupport(mc = true, wc = true, sc = true)
 	public String getName()
@@ -111,11 +112,9 @@ public abstract class AbstractContainer extends AbstractBase
 	 * @see com.servoy.j2db.persistence.ISupportExtendsID#getExtendsID()
 	 */
 	@Override
-	public int getExtendsID()
+	public String getExtendsID()
 	{
-		if (getTypedProperty(StaticContentSpecLoader.PROPERTY_EXTENDSID) != null)
-			return getTypedProperty(StaticContentSpecLoader.PROPERTY_EXTENDSID).intValue();
-		else return 0;
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_EXTENDSID);
 	}
 
 	/*
@@ -124,7 +123,7 @@ public abstract class AbstractContainer extends AbstractBase
 	 * @see com.servoy.j2db.persistence.ISupportExtendsID#setExtendsID(int)
 	 */
 	@Override
-	public void setExtendsID(int arg)
+	public void setExtendsID(String arg)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_EXTENDSID, arg);
 
@@ -174,6 +173,11 @@ public abstract class AbstractContainer extends AbstractBase
 		return getObjects(IRepository.LAYOUTCONTAINERS);
 	}
 
+	public Iterator<CSSPositionLayoutContainer> getCSSPositionLayoutContainers()
+	{
+		return getObjects(IRepository.CSSPOS_LAYOUTCONTAINERS);
+	}
+
 	/**
 	 * Create a new layout container.
 	 *
@@ -182,6 +186,15 @@ public abstract class AbstractContainer extends AbstractBase
 	public LayoutContainer createNewLayoutContainer() throws RepositoryException
 	{
 		LayoutContainer obj = (LayoutContainer)getSolution().getChangeHandler().createNewObject(this, IRepository.LAYOUTCONTAINERS);
+
+		addChild(obj);
+		return obj;
+	}
+
+	public CSSPositionLayoutContainer createNewCSSPositionLayoutContainer() throws RepositoryException
+	{
+		CSSPositionLayoutContainer obj = (CSSPositionLayoutContainer)getSolution().getChangeHandler().createNewObject(this,
+			IRepository.CSSPOS_LAYOUTCONTAINERS);
 
 		addChild(obj);
 		return obj;
@@ -452,7 +465,6 @@ public abstract class AbstractContainer extends AbstractBase
 	 * @param searchFor
 	 * @return
 	 */
-
 	public IPersist findChild(UUID searchFor)
 	{
 		List<IPersist> children = getHierarchyChildren();
@@ -464,6 +476,48 @@ public abstract class AbstractContainer extends AbstractBase
 				IPersist result = ((AbstractContainer)iPersist).findChild(searchFor);
 				if (result != null) return result;
 			}
+		}
+		return null;
+	}
+
+	/**
+	 * Search this containers containment hierarchy recursively for the given ISupportName instance with the given type.
+	 */
+	public IPersist findChild(String name, int tp)
+	{
+		// TODO findChild(UUID) uses getHierarchyChildren() that redirects to get objects; check if we need to do something similar here (maybe some other class overrides getHierarchyChildren()
+		Iterator<IPersist> children = getAllObjects();
+		while (children.hasNext())
+		{
+			IPersist iPersist = children.next();
+			if ((iPersist instanceof ISupportName isn) && name.equals(isn.getName()) && iPersist.getTypeID() == tp) return iPersist;
+			if (iPersist instanceof AbstractContainer)
+			{
+				IPersist result = ((AbstractContainer)iPersist).findChild(name, tp);
+				if (result != null) return result;
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Finds the first container parent of this component of the given class.
+	 *
+	 * @param <Z> type of parent
+	 * @param c class to search for
+	 * @return First container parent that is an instance of the given class, or null if none can be
+	 *         found
+	 */
+	public final <Z> Z findParent(final Class<Z> c)
+	{
+		ISupportChilds current = getParent();
+		while (current != null)
+		{
+			if (c.isInstance(current))
+			{
+				return c.cast(current);
+			}
+			current = current.getParent();
 		}
 		return null;
 	}

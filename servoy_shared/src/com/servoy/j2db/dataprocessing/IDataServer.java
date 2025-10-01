@@ -18,7 +18,6 @@ package com.servoy.j2db.dataprocessing;
 
 
 import java.io.Serializable;
-import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -35,6 +34,7 @@ import com.servoy.j2db.query.ISQLSelect;
 import com.servoy.j2db.query.ISQLUpdate;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.util.ServoyException;
+import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.xmlxport.ColumnInfoDef;
 
 /**
@@ -42,7 +42,7 @@ import com.servoy.j2db.util.xmlxport.ColumnInfoDef;
  *
  * @author jblok
  */
-public interface IDataServer extends Remote
+public interface IDataServer
 {
 	public static final int CUSTOM_QUERY = 1;
 	public static final int RELATION_QUERY = 2;
@@ -82,34 +82,34 @@ public interface IDataServer extends Remote
 	 */
 	public IDataSet performQuery(String client_id, String server_name, String transaction_id, ISQLSelect sqlSelect, ColumnType[] resultTypes,
 		ArrayList<TableFilter> filters,
-		boolean distinctInMemory, int startRow, int rowsToRetrieve) throws ServoyException, RemoteException;
+		boolean distinctInMemory, int startRow, int rowsToRetrieve) throws ServoyException;
 
 	public IDataSet performQuery(String client_id, String server_name, String driverTableName, String transaction_id, String sql, Object[] questiondata,
-		int startRow, int rowsToRetrieve) throws ServoyException, RemoteException;
+		int startRow, int rowsToRetrieve) throws ServoyException;
 
 	public IDataSet performQuery(String client_id, String server_name, String transaction_id, ISQLSelect sqlSelect, ColumnType[] resultTypes,
 		ArrayList<TableFilter> filters,
-		boolean distinctInMemory, int startRow, int rowsToRetrieve, int type) throws ServoyException, RemoteException;
+		boolean distinctInMemory, int startRow, int rowsToRetrieve, int type) throws ServoyException;
 
 	public IDataSet performQuery(String client_id, String server_name, String transaction_id, ISQLSelect sqlSelect, ColumnType[] resultTypes,
 		ArrayList<TableFilter> filters,
-		boolean distinctInMemory, int startRow, int rowsToRetrieve, int type, ITrackingSQLStatement trackingInfo) throws ServoyException, RemoteException;
+		boolean distinctInMemory, int startRow, int rowsToRetrieve, int type, ITrackingSQLStatement trackingInfo) throws ServoyException;
 
 	public IDataSet performQuery(String client_id, String server_name, String driverTableName, String transaction_id, String sql, Object[] questiondata,
-		int startRow, int rowsToRetrieve, int type) throws ServoyException, RemoteException;
+		int startRow, int rowsToRetrieve, int type) throws ServoyException;
 
 	public IDataSet performQuery(String client_id, String server_name, String transaction_id, ISQLSelect sqlSelect, ColumnType[] resultTypes,
 		ArrayList<TableFilter> filters, boolean distinctInMemory, int startRow, int rowsToRetrieve, boolean updateIdleTimestamp)
-		throws ServoyException, RemoteException;
+		throws ServoyException;
 
 	public IDataSet performQuery(String client_id, String server_name, String driverTableName, String transaction_id, String sql, Object[] questiondata,
-		int startRow, int rowsToRetrieve, boolean updateIdleTimestamp) throws ServoyException, RemoteException;
+		int startRow, int rowsToRetrieve, boolean updateIdleTimestamp) throws ServoyException;
 
 	//special case only used by user query, does add column info to resultset
 	public IDataSet performCustomQuery(String client_id, String server_name, String driverTableName, String transaction_id, ISQLSelect sqlSelect,
-		ArrayList<TableFilter> filters, int startRow, int rowsToRetrieve) throws ServoyException, RemoteException;
+		ArrayList<TableFilter> filters, int startRow, int rowsToRetrieve) throws ServoyException;
 
-	public IDataSet[] performQuery(String client_id, String server_name, String transaction_id, QueryData[] array) throws ServoyException, RemoteException;
+	public IDataSet[] performQuery(String client_id, String server_name, String transaction_id, QueryData[] array) throws ServoyException;
 
 
 	/**
@@ -124,10 +124,10 @@ public interface IDataServer extends Remote
 	 * @throws RemoteException
 	 */
 	public ISQLStatement createSQLStatement(int action, String server_name, String tableName, Object[] pkColumnData, String tid, String sql,
-		Object[] questiondata) throws RemoteException, RepositoryException;
+		Object[] questiondata) throws RepositoryException;
 
 	public ISQLStatement createSQLStatement(int action, String server_name, String tableName, Object[] pkColumnData, String tid, ISQLUpdate sqlUpdate,
-		ArrayList<TableFilter> filters) throws RemoteException, RepositoryException;
+		ArrayList<TableFilter> filters) throws RepositoryException;
 
 	public boolean notifyDataChange(String client_id, String server_name, String tableName, IDataSet pks, int action, String transaction_id)
 		throws RemoteException;
@@ -144,10 +144,10 @@ public interface IDataServer extends Remote
 	 * @throws RepositoryException
 	 * @throws RemoteException
 	 */
-	public Object[] performUpdates(String clientId, ISQLStatement[] statements) throws ServoyException, RemoteException;
+	public Object[] performUpdates(String clientId, ISQLStatement[] statements) throws ServoyException;
 
 	public Blob getBlob(String clientId, String serverName, ISQLSelect blobSelect, ArrayList<TableFilter> filters, String tid)
-		throws RepositoryException, RemoteException;
+		throws RepositoryException;
 
 	/**
 	 * Start a transaction in backend DB.
@@ -158,7 +158,7 @@ public interface IDataServer extends Remote
 	 * @throws RepositoryException
 	 * @throws RemoteException
 	 */
-	public String startTransaction(String clientId, String server_name) throws RepositoryException, RemoteException;//also starts transaction
+	public String startTransaction(String clientId, String server_name) throws RepositoryException;//also starts transaction
 
 	/**
 	 * End a started transaction in backend DB.
@@ -169,13 +169,13 @@ public interface IDataServer extends Remote
 	 * @throws RepositoryException
 	 * @throws RemoteException
 	 */
-	public boolean endTransactions(String client_id, String[] transaction_id, boolean commit) throws RepositoryException, RemoteException;
+	public boolean endTransactions(String client_id, String[] transaction_id, boolean commit) throws RepositoryException;
 
 	/**
 	 * Get a sequence
 	 */
-	public Object getNextSequence(String serverName, String tableName, String columnName, int columnInfoID, String columnInfoServer)
-		throws RepositoryException, RemoteException;
+	public Object getNextSequence(String serverName, String tableName, String columnName, UUID columnInfoUUID, String columnInfoServer)
+		throws RepositoryException;
 
 	/**
 	 * Insert a data set in a table. When tableName is null a temporary table will be created
@@ -195,7 +195,7 @@ public interface IDataServer extends Remote
 	 * @throws RemoteException
 	 */
 	public InsertResult insertDataSet(String client_id, IDataSet set, String dataSource, String serverName, String tableName, String tid,
-		ColumnType[] columnTypes, String[] pkNames, HashMap<String, ColumnInfoDef> columnInfoDefinitions) throws ServoyException, RemoteException;
+		ColumnType[] columnTypes, String[] pkNames, HashMap<String, ColumnInfoDef> columnInfoDefinitions) throws ServoyException;
 
 	/**
 	 * Insert a data from a query in a table. When tableName is null a temporary table will be created
@@ -221,11 +221,11 @@ public interface IDataServer extends Remote
 	 */
 	public ITable insertQueryResult(String client_id, String queryServerName, String queryTid, ISQLSelect sqlSelect, ArrayList<TableFilter> filters,
 		boolean distinctInMemory, int startRow, int rowsToRetrieve, int type, String dataSource, String targetServerName, String targetTableName,
-		String targetTid, ColumnType[] columnTypes, String[] pkNames) throws ServoyException, RemoteException;
+		String targetTid, ColumnType[] columnTypes, String[] pkNames) throws ServoyException;
 
-	public void dropTemporaryTable(String client_id, String serverName, String tableName) throws RemoteException, RepositoryException;
+	public void dropTemporaryTable(String client_id, String serverName, String tableName) throws RepositoryException;
 
-	public void addClientAsTableUser(String client_id, String serverName, String tableName) throws RemoteException, RepositoryException;
+	public void addClientAsTableUser(String client_id, String serverName, String tableName) throws RepositoryException;
 
 	/**
 	 * Get the sql from the remote server, needed for databasemanager.getSQL() and databasemanager.getSQLParameters() in scripting.
@@ -239,16 +239,16 @@ public interface IDataServer extends Remote
 	 * @throws RemoteException
 	 */
 	public QuerySet getSQLQuerySet(String serverName, ISQLQuery sqlQuery, ArrayList<TableFilter> filters, int startRow, int rowsToRetrieve,
-		boolean forceQualifyColumns, boolean disableUseArrayForIn) throws RepositoryException, RemoteException;
+		boolean forceQualifyColumns, boolean disableUseArrayForIn) throws RepositoryException;
 
 
 	public IDataSet[] executeProcedure(String clientId, String server_name, String tid, Procedure procedure, Object[] arguments)
-		throws RepositoryException, RemoteException;
+		throws RepositoryException;
 
 	public IDataSet acquireLocks(String client_id, String server_name, String table_name, Set<Object> pkhashkeys, QuerySelect lockSelect, String transaction_id,
-		ArrayList<TableFilter> filters, int chunkSize) throws RemoteException, RepositoryException;//returns the data for acquired locks
+		ArrayList<TableFilter> filters, int chunkSize) throws RepositoryException;//returns the data for acquired locks
 
-	public boolean releaseLocks(String client_id, String server_name, String table_name, Set<Object> pkhashkeys) throws RemoteException, RepositoryException;
+	public boolean releaseLocks(String client_id, String server_name, String table_name, Set<Object> pkhashkeys) throws RepositoryException;
 
 
 	/**
@@ -258,7 +258,7 @@ public interface IDataServer extends Remote
 	 * @param serverName
 	 * @param broadcastFilters
 	 */
-	public void setBroadcastFilters(String clientId, String serverName, BroadcastFilter[] broadcastFilters) throws RemoteException;
+	public void setBroadcastFilters(String clientId, String serverName, BroadcastFilter[] broadcastFilters);
 
 	/**
 	 * Get broadcast filters for this client in a server.
@@ -266,25 +266,25 @@ public interface IDataServer extends Remote
 	 * @param clientId
 	 * @param serverName
 	 */
-	public BroadcastFilter[] getBroadcastFilters(String clientId, String serverName) throws RemoteException;
+	public BroadcastFilter[] getBroadcastFilters(String clientId, String serverName);
 
 	/**
 	 * Clear all broadcast filters for this client.
 	 *
 	 * @param clientId
 	 */
-	public void clearBroadcastFilters(String clientId) throws RemoteException;
+	public void clearBroadcastFilters(String clientId);
 
 	/**
 	 * Log a message on the server
 	 *
 	 * @param msg
 	 */
-	public void logMessage(String msg) throws RemoteException;
+	public void logMessage(String msg);
 
-	boolean isInServerMaintenanceMode() throws RemoteException;
+	boolean isInServerMaintenanceMode();
 
-	void setServerMaintenanceMode(boolean maintenanceMode) throws RemoteException;
+	void setServerMaintenanceMode(boolean maintenanceMode);
 
 	public class InsertResult implements Serializable
 	{

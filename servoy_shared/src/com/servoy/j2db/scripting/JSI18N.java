@@ -46,6 +46,38 @@ import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.StringComparator;
 
 /**
+ * The <code>i18n</code> object provides a comprehensive API for internationalization, supporting locale-specific settings,
+ * message formatting, and time zone management.
+ *
+ * <h2>Functionality</h2>
+ *
+ * <h3>Locale and Localization</h3>
+ * <ul>
+ *   <li>Retrieve current locale settings such as country (<code>getCurrentCountry</code>),
+ *       language (<code>getCurrentLanguage</code>), and timezone (<code>getCurrentTimeZone</code>).</li>
+ *   <li>Modify locale settings dynamically using <code>setLocale(language, country)</code> or with private extensions.</li>
+ *   <li>Retrieve available countries (<code>getCountries</code>) and languages (<code>getLanguages</code>).</li>
+ * </ul>
+ *
+ * <h3>Message and Format Handling</h3>
+ * <ul>
+ *   <li>Retrieve localized messages for keys using <code>getI18NMessage</code> with optional dynamic values or specific locale.</li>
+ *   <li>Manage formats such as currency (<code>getCurrencyFormat</code>), date (<code>getDateFormat</code>,
+ *       <code>getDefaultDateFormat</code>), and numbers (<code>getNumberFormat</code>, <code>getDefaultNumberFormat</code>).</li>
+ * </ul>
+ *
+ * <h3>Time Zones</h3>
+ * <ul>
+ *   <li>Get lists of available time zones (<code>getTimeZones</code>) and specific offsets (<code>getTimeZoneOffset</code>).</li>
+ *   <li>Set custom time zone IDs or configurations for precise internationalization needs.</li>
+ * </ul>
+ *
+ * <h3>System Messages and Configuration</h3>
+ * <ul>
+ *   <li>Retrieve system-level internationalization messages (<code>getSystemMessages</code>).</li>
+ *   <li>Customize the first day of the week for calendars (<code>setFirstDayOfTheWeek</code>).</li>
+ * </ul>
+ *
  * @author jcompagner
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "i18n", scriptingName = "i18n")
@@ -222,7 +254,7 @@ public class JSI18N implements IJSI18N
 	}
 
 	/**
-	 * Gets the current time zone of the client; based on the current locale settings in the Servoy Client Locale preferences. For Servoy Web Clients the time zone is given by the browser (if it is possible to obtain it).
+	 * Gets the current time zone given by the browser (if it is possible to obtain it).
 	 *
 	 * @sample
 	 * var currTimeZone = i18n.getCurrentTimeZone();
@@ -655,8 +687,7 @@ public class JSI18N implements IJSI18N
 
 	/**
 	 * Sets the current time zone of the client.
-	 * The parameter should be a string having the format which can be retrieved via i18n.getAvailableTimeZones or
-	 * can be seen in the SmartClient Edit -> Preferences -> Locale at the "Default Timezone" combobox.
+	 * The parameter should be a string having the format which can be retrieved via i18n.getAvailableTimeZones.
 	 * For instance the time zone for Netherlands is set using the ID "Europe/Amsterdam".
 	 *
 	 * @sample
@@ -679,6 +710,8 @@ public class JSI18N implements IJSI18N
 	 * @sample
 	 * //Get the list of available time zones
 	 * var timezones = i18n.getAvailableTimeZoneIDs();
+	 *
+	 * @return An array of Strings containing the available time zones.
 	 */
 	@JSFunction
 	public String[] getAvailableTimeZoneIDs()

@@ -37,6 +37,7 @@ import com.servoy.j2db.util.visitor.ObjectCountVisitor;
 
 /**
  * Query select statement.
+ *
  * @author rgansevles
  */
 public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
@@ -141,7 +142,7 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 	{
 		if (srts != null && srts.size() > 0)
 		{
-			sorts = new ArrayList<IQuerySort>(srts.size());
+			sorts = new ArrayList<>(srts.size());
 			for (int i = 0; i < srts.size(); i++)
 			{
 				Object sort = srts.get(i);
@@ -170,7 +171,7 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 				throw new IllegalArgumentException("Unknown group by class " + sort.getClass().getName()); //$NON-NLS-1$
 			}
 		}
-		groupBy = i == 0 ? null : new ArrayList<IQuerySelectValue>(gb);
+		groupBy = i == 0 ? null : new ArrayList<>(gb);
 	}
 
 	public void setCondition(String name, ISQLCondition c)
@@ -542,7 +543,7 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 		else
 		{
 			aggregateQuantifier = QueryAggregate.ALL;
-			agregee = new QueryColumnValue("*", null, true);
+			agregee = new QueryColumnValue(QueryAggregate.ASTERIX, null, true);
 		}
 
 		selectCount.setColumns(
@@ -655,7 +656,6 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 			.flatMap(this::getRealColumn); // recursive for nested derived tables
 	}
 
-
 	public void acceptVisitor(IVisitor visitor)
 	{
 		table = AbstractBaseQuery.acceptVisitor(table, visitor);
@@ -747,11 +747,11 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 		for (int i = 0; columns != null && i < columns.size(); i++)
 		{
 			sb.append(i == 0 ? ' ' : ',');
-			sb.append(columns.get(i).toString());
+			sb.append(columns.get(i).getColumnName());
 		}
 		sb.append(" FROM ").append(table.toString()); //$NON-NLS-1$
-		sb.append(" WHERE ").append(condition.toString()); //$NON-NLS-1$
-		if (having != null)
+		if (condition != null && !condition.isEmpty()) sb.append(" WHERE ").append(condition.toString()); //$NON-NLS-1$
+		if (having != null && !having.isEmpty())
 		{
 			sb.append(" HAVING ").append(having.toString()); //$NON-NLS-1$
 		}
@@ -769,7 +769,7 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 			}
 
 		}
-		if (groupBy != null)
+		if (groupBy != null && !groupBy.isEmpty())
 		{
 			sb.append(" GROUP BY "); //$NON-NLS-1$
 			for (int i = 0; groupBy != null && i < groupBy.size(); i++)

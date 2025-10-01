@@ -33,7 +33,23 @@ import com.servoy.j2db.scripting.IConstantsObject;
 import com.servoy.j2db.scripting.IReturnedTypesProvider;
 
 /**
- * IMPORTANT: The names are exposed to javascripting do not refactor names!
+ * The <code>ServoyException</code> class is a specialized exception handling mechanism for the Servoy runtime environment.
+ * It offers extensive support for identifying and managing errors through predefined constants representing various scenarios,
+ * such as database deadlocks, permission issues, and validation failures. The class is designed to provide meaningful context
+ * and feedback for debugging and runtime operations.
+ *
+ * ## Functionality and Features
+ * The class defines a comprehensive set of constants categorized by error type, including database integrity violations,
+ * SQL syntax errors, and application-level access control issues. It enables runtime systems to determine error codes and
+ * retrieve corresponding human-readable messages, facilitating informed decision-making during error handling. Methods like
+ * <code>js_getErrorCode</code> and <code>js_getMessage</code> provide structured access to error information, while the
+ * <code>js_getStackTrace</code> method supports detailed debugging through stack trace retrieval.
+ *
+ * Additionally, the class integrates with <code>RhinoException</code> to generate JavaScript stack traces, ensuring compatibility
+ * with Servoy's scripting environment. This functionality supports scenarios where the cause of the error is a JavaScript exception,
+ * allowing integration between Java and JavaScript layers. Other features include support for custom contexts, logging capabilities,
+ * and tools for managing cascading exceptions in a multi-layered application environment.
+ *
  * @author jblok
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "ServoyException", scriptingName = "ServoyException")
@@ -607,7 +623,7 @@ public class ServoyException extends Exception implements IReturnedTypesProvider
 	 * 	}
 	 * }
 	 * //if returns false or no return, error is not reported to client; if returns true error is reported
-	 * //by default error report means logging the error, in smart client an error dialog will also show up
+	 * //by default error report means logging the error
 	 * return true
 	 *
 	 * @return the error code for this ServoyException. Can be one of the constants declared in ServoyException.
@@ -643,6 +659,9 @@ public class ServoyException extends Exception implements IReturnedTypesProvider
 		return result.toString();
 	}
 
+	/**
+	 * @return the context associated with this ServoyException.
+	 */
 	public String js_getContext()
 	{
 		return context;

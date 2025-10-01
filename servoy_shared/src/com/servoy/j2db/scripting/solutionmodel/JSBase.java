@@ -77,6 +77,8 @@ public class JSBase<T extends AbstractBase> implements ISMHasUUID
 	 * @sample
 	 * var button_uuid = solutionModel.getForm("my_form").getButton("my_button").getUUID();
 	 * application.output(button_uuid.toString());
+	 *
+	 * @return the UUID of this component.
 	 */
 	@JSFunction
 	public UUID getUUID()
@@ -90,6 +92,8 @@ public class JSBase<T extends AbstractBase> implements ISMHasUUID
 	 * @sample
 	 * var comment = solutionModel.getForm("my_form").getButton("my_button").getComment();
 	 * application.output(comment);
+	 *
+	 * @return the comment associated with this component.
 	 */
 	@JSFunction
 	public String getComment()
@@ -138,7 +142,8 @@ public class JSBase<T extends AbstractBase> implements ISMHasUUID
 					{
 						for (IPersist p : children)
 						{
-							if (parentPersist.getID() == ((ISupportExtendsID)p).getExtendsID() && form.equals(p.getAncestor(IRepository.FORMS)))
+							if (parentPersist.getUUID().toString().equals(((ISupportExtendsID)p).getExtendsID()) &&
+								form.equals(p.getAncestor(IRepository.FORMS)))
 							{
 								return (AbstractBase)p;
 							}
@@ -152,7 +157,7 @@ public class JSBase<T extends AbstractBase> implements ISMHasUUID
 
 					baseComponent = (AbstractBase)persist.cloneObj(parent.getSupportChild(), false, null, false, false, false);
 					baseComponent.copyPropertiesMap(null, true);
-					((ISupportExtendsID)baseComponent).setExtendsID(parentPersist.getID());
+					((ISupportExtendsID)baseComponent).setExtendsID(parentPersist.getUUID().toString());
 				}
 				catch (Exception ex)
 				{

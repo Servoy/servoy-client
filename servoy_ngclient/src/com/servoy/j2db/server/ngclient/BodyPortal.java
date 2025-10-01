@@ -36,7 +36,7 @@ public class BodyPortal extends Portal
 
 	public BodyPortal(Form form)
 	{
-		super(null, 0, null);
+		super(null, null);
 		this.form = form;
 		this.tableview = (form.getView() == FormController.TABLE_VIEW || form.getView() == FormController.LOCKED_TABLE_VIEW);
 	}

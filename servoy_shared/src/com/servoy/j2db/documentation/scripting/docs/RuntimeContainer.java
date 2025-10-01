@@ -22,7 +22,14 @@ import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
 
 /**
- * Helper class for easier documentation of our JavaScript API for forms.
+ * <p>The <code>RuntimeContainer</code> class is designed to manage the styling of a container in a dynamic environment.
+ * One of its primary functions is to modify the visual appearance of the container by adding or removing style classes.
+ * This functionality allows for flexibility in managing the container’s style dynamically during runtime.</p>
+ *
+ * <p>Additionally, the class provides methods to check for specific set of style classes in the container.
+ * This can be particularly useful for making conditional styling decisions based on the container's current style state.</p>
+ *
+ * <p>For more granular control over the container's appearance, the <code>setCSSStyle()</code> and <code>removeCSSStyle()</code> methods may be used.</p>
  *
  * @author jcompagner
  * @since 2019.12
@@ -34,7 +41,7 @@ public class RuntimeContainer
 	/**
 	 * Adds one or more style classes to this container.
 	 * @param classes one or more class names
-	 * @return
+	 * @return true if the style classes were successfully added.
 	 */
 	@JSFunction
 	public boolean addStyleClasses(String... classes)
@@ -45,7 +52,7 @@ public class RuntimeContainer
 	/**
 	 * Removes one or more style classes to this container.
 	 * @param classes one or more class names
-	 * @return
+	 * @return true if the style classes were successfully removed.
 	 */
 	@JSFunction
 	public boolean removeStyleClasses(String... classes)
@@ -57,7 +64,7 @@ public class RuntimeContainer
 	 * returns true if this container has all the classes give.
 	 *
 	 * @param classes one or more class names
-	 * @return
+	 * @return true if this container has all the specified classes.
 	 */
 	@JSFunction
 	public boolean hasStyleClasses(String... classes)
@@ -82,5 +89,16 @@ public class RuntimeContainer
 	@JSFunction
 	public void removeCSSStyle(String key)
 	{
+	}
+
+	/**
+	 * Returns all the style classes that are currently applied to this container.
+	 *
+	 * @return an array of style class names.
+	 */
+	@JSFunction
+	public String[] getStyleClasses()
+	{
+		return new String[0];
 	}
 }

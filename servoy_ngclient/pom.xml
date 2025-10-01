@@ -10,10 +10,10 @@
 	<parent>
 		<groupId>com.servoy</groupId>
 		<artifactId>servoy-client</artifactId>
-		<version>2024.6.0.3980_rc</version>
+		<version>2025.12.0.4120_rc</version>
 	</parent>
 	<artifactId>servoy_ngclient</artifactId>
-	<version>2024.6.0.3980_rc</version>
+	<version>2025.12.0.4120_rc</version>
 	<packaging>eclipse-plugin</packaging>
 	<properties>
 	        <test.script>test</test.script>
@@ -23,7 +23,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-dependency-plugin</artifactId>
-				<version>3.6.1</version>
+				<version>3.8.0</version>
 				<executions>
 					<execution>
 						<id>copy_product_and_libs</id>
@@ -50,7 +50,7 @@
 			<plugin>
 				<groupId>com.github.eirslett</groupId>
 				<artifactId>frontend-maven-plugin</artifactId>
-				<version>1.15.0</version>
+				<version>1.15.1</version>
 				<executions>
 
 					<!-- 1. Install node and npm locally -->
@@ -61,7 +61,7 @@
 						</goals>
 						<configuration>
 							<skipTests>${maven.test.skip}</skipTests>
-							<nodeVersion>v20.11.1</nodeVersion>
+							<nodeVersion>v22.11.0</nodeVersion>
 						</configuration>
 					</execution>
 

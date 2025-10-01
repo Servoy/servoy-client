@@ -25,6 +25,7 @@ import org.sablo.specification.property.types.IPropertyTypeFactory;
 import org.sablo.specification.property.types.TypesRegistry;
 
 import com.servoy.j2db.server.ngclient.property.ComponentPropertyType;
+import com.servoy.j2db.server.ngclient.property.FoundsetInitialPageSizePropertyType;
 import com.servoy.j2db.server.ngclient.property.FoundsetLinkedPropertyType;
 import com.servoy.j2db.server.ngclient.property.FoundsetPropertyType;
 import com.servoy.j2db.server.ngclient.property.FoundsetTreePropertyType;
@@ -71,6 +72,7 @@ public class Types
 			new FoundsetLinkedPropertyType<Object, ValueListTypeSabloValue>(ValueListPropertyType.INSTANCE.getName(), ValueListPropertyType.INSTANCE));
 		TypesRegistry.addType(ServoyFunctionPropertyType.SERVOY_INSTANCE);
 		TypesRegistry.addType(ServoyStringPropertyType.INSTANCE);
+		TypesRegistry.addType(ModifiablePropertyType.INSTANCE);
 		TypesRegistry.addType(ByteArrayResourcePropertyType.INSTANCE);
 		TypesRegistry.addType(MediaDataproviderPropertyType.INSTANCE);
 		TypesRegistry.addType(HTMLStringPropertyType.INSTANCE);
@@ -80,6 +82,7 @@ public class Types
 		TypesRegistry.addType(NGObjectPropertyType.NG_INSTANCE);
 		TypesRegistry.addType(ServoyAttributesPropertyType.NG_INSTANCE);
 		TypesRegistry.addType(NGEnabledPropertyType.NG_INSTANCE);
+		TypesRegistry.addType(NGVisiblePropertyType.NG_INSTANCE);
 		TypesRegistry.addType(NGColorPropertyType.NG_INSTANCE);
 		TypesRegistry.addType(NGDatePropertyType.NG_INSTANCE);
 		TypesRegistry.addType(NGUUIDPropertyType.NG_INSTANCE);
@@ -95,6 +98,7 @@ public class Types
 
 		// TODO allow bean developer through a sort of plug point to contribute these kind of types themselves
 		TypesRegistry.addType(FoundsetPropertyType.INSTANCE);
+		TypesRegistry.addType(FoundsetInitialPageSizePropertyType.INSTANCE);
 		TypesRegistry.addType(FoundsetTreePropertyType.INSTANCE);
 		TypesRegistry.addType(ComponentPropertyType.INSTANCE);
 
@@ -129,5 +133,7 @@ public class Types
 		TypesRegistry.addType(DbIdentPropertyType.INSTANCE);
 		TypesRegistry.addType(DynamicClientFunctionPropertyType.INSTANCE);
 		TypesRegistry.addType(ValuelistConfigPropertyType.INSTANCE);
+		TypesRegistry.addType(MenuPropertyType.INSTANCE);
+		TypesRegistry.addType(MenuItemPropertyType.INSTANCE);
 	}
 }

@@ -58,10 +58,8 @@ import com.servoy.j2db.query.OrCondition;
 import com.servoy.j2db.query.Placeholder;
 import com.servoy.j2db.query.QueryColumnValue;
 import com.servoy.j2db.query.QuerySelect;
-import com.servoy.j2db.query.QueryTable;
 import com.servoy.j2db.query.TablePlaceholderKey;
 import com.servoy.j2db.querybuilder.IQueryBuilder;
-import com.servoy.j2db.querybuilder.IQueryBuilderColumn;
 import com.servoy.j2db.querybuilder.IQueryBuilderCondition;
 import com.servoy.j2db.querybuilder.IQueryBuilderLogicalCondition;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
@@ -72,10 +70,17 @@ import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.visitor.IVisitor;
 
 /**
+ * <pre data-puremarkdown>
+`QBSelect` is a wrapper for building SQL `SELECT` queries in Servoy, providing a flexible API to add conditions, sorting, grouping, joins, and parameters to SQL-based queries. Through structured access to clauses like `where`, `groupBy`, and `joins`, `QBSelect` supports complex query construction and parameterized queries.
+
+For detailed query building, see [Query Builder](../../../../guides/develop/programming-guide/working-with-data/searching/query-builder.md) in the Servoy documentation.
+
+ * </pre>
+ *
  * @author rgansevles
  *
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "QBSelect")
+@ServoyDocumented(category = ServoyDocumented.RUNTIME)
 public class QBSelect extends QBTableClause implements IQueryBuilder
 {
 	private static final char QUOTE = '\'';
@@ -178,11 +183,11 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	}
 
 	@Override
-	protected QBColumn createColumn(String name) throws RepositoryException
+	protected QBColumn createColumn(String name, boolean throwOnError) throws RepositoryException
 	{
 		if (getTable() != null)
 		{
-			return super.createColumn(name);
+			return super.createColumn(name, throwOnError);
 		}
 
 		// Column names cannot be retrieved from the datasource, fall back to the columns in the query
@@ -190,11 +195,15 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 		{
 			if (name.equals(qcol.getAliasOrName()) || name.equals(generateNormalizedNonReservedOSName(qcol.getColumnName())))
 			{
-				return new QBColumn(getRoot(), this, qcol);
+				return new QBColumnImpl(getRoot(), this, qcol);
 			}
 		}
 
-		throw new RepositoryException("Cannot find query column '" + name + "' in data source '" + getDataSource() + "'");
+		if (throwOnError)
+		{
+			throw new RepositoryException("Cannot find query column '" + name + "' in data source '" + getDataSource() + "'");
+		}
+		return null;
 	}
 
 	IRelation getRelation(String name)
@@ -218,8 +227,10 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	 * @sample
 	 * var query = foundset.getQuery()
 	 * query.where.add(query.columns.flag.eq(1))
+	 *
+	 * @return the where-part of the query for adding conditions.
 	 */
-	@JSReadonlyProperty
+	@JSReadonlyProperty(debuggerRepresentation = "Query where clause")
 	public QBWhereCondition where() throws RepositoryException
 	{
 		if (where == null)
@@ -237,8 +248,10 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	 * query.groupBy.addPk() // have to group by on pk when using having-conditions in (foundset) pk queries
 	 * .root.having.add(query.joins.orders_to_order_details.columns.quantity.count.eq(0))
 	 * foundset.loadRecords(query)
+	 *
+	 * @return the having-part of the query for adding conditions.
 	 */
-	@JSReadonlyProperty
+	@JSReadonlyProperty(debuggerRepresentation = "Query having clause")
 	public QBLogicalCondition having() throws RepositoryException
 	{
 		if (having == null)
@@ -260,6 +273,8 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	 * q.where.add(q.columns.x.eq(100))
 	 * query.groupBy.clear.root.clearHaving()
 	 * foundset.loadRecords(q);
+	 *
+	 * @return the updated query builder after clearing the having clause.
 	 */
 	@JSFunction
 	public QBSelect clearHaving()
@@ -276,8 +291,10 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	 * Get the result part of the query, used to add result columns or values.
 	 * @sample
 	 * query.result.add(query.columns.company_id).add(query.columns.customerid)
+	 *
+	 * @return the result part of the query for adding result columns or values.
 	 */
-	@JSReadonlyProperty
+	@JSReadonlyProperty(debuggerRepresentation = "Query result clause")
 	public QBResult result()
 	{
 		if (result == null)
@@ -295,8 +312,10 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	 * .add(query.joins.orders_to_order_details.columns.quantity.desc)
 	 * .add(query.columns.companyid)
 	 * foundset.loadRecords(query)
+	 *
+	 * @return the sorting part of the query.
 	 */
-	@JSReadonlyProperty
+	@JSReadonlyProperty(debuggerRepresentation = "Query sort clause")
 	public QBSorts sort()
 	{
 		if (sort == null)
@@ -313,8 +332,10 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	 * query.groupBy.addPk() // have to group by on pk when using having-conditions in (foundset) pk queries
 	 * .root.having.add(query.joins.orders_to_order_details.columns.quantity.count.eq(0))
 	 * foundset.loadRecords(query)
+	 *
+	 * @return the group-by clause of the query.
 	 */
-	@JSReadonlyProperty
+	@JSReadonlyProperty(debuggerRepresentation = "Query group-by clause")
 	public QBGroupBy groupBy()
 	{
 		if (groupBy == null)
@@ -337,6 +358,8 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	 * 	// load orders where contact_id = 200
 	 * 	query.params['mycontactid'] = 200
 	 * 	foundset.loadRecords(query)
+	 *
+	 * @return the named parameters of the query.
 	 */
 	@JSReadonlyProperty
 	public QBParameters params()
@@ -353,6 +376,8 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	 * @sampleas params()
 	 *
 	 * @param name the name of the parameter
+	 *
+	 * @return the parameter with the specified name.
 	 */
 	@JSFunction
 	public QBParameter getParameter(String name) throws RepositoryException
@@ -392,6 +417,8 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	 * 	query.groupBy.add(mult);
 	 *
 	 * @param number value to inline
+	 *
+	 * @return an inlined value appearing literally in the resulting SQL.
 	 */
 	@JSFunction
 	public Object inline(Number number)
@@ -406,12 +433,19 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	 *
 	 * @param number value to inline
 	 * @param columnForType convert value to type of the column
+	 *
+	 * @return an inlined value converted to the type of the specified column.
 	 */
 	@JSFunction
-	public Object inline(Number number, IQueryBuilderColumn columnForType)
+	public Object inline(Number number, QBColumn columnForType)
 	{
-		return number == null ? null : new QueryColumnValue(
-			columnForType == null ? number : getAsRightType(number, columnForType.getColumnType(), columnForType.getFlags()), null, true);
+		if (number == null)
+		{
+			return null;
+		}
+		return new QueryColumnValue(
+			columnForType == null ? number : getAsRightType(number, ((QBColumnImpl)columnForType).getColumnType(), ((QBColumnImpl)columnForType).getFlags()),
+			null, true);
 	}
 
 	/**
@@ -420,6 +454,8 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	 * @sampleas inline(Number)
 	 *
 	 * @param string value to inline
+	 *
+	 * @return an inlined (quoted) string value.
 	 */
 	@JSFunction
 	public Object inline(String string)
@@ -448,8 +484,10 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	/**
 	 * Create an OR-condition to add conditions to.
 	 * @sampleas and()
+	 *
+	 * @return an OR-condition for adding logical conditions.
 	 */
-	@JSReadonlyProperty
+	@JSReadonlyProperty(debuggerRepresentation = "Query or clause")
 	public QBLogicalCondition or()
 	{
 		return new QBLogicalCondition(getRoot(), this, new OrCondition());
@@ -468,11 +506,13 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	 *	    .add(
 	 *	      query.and
 	 *	        .add(query.columns.flag.eq(2))
-	 *	        .add(query.column.order_date.gt(new Date()))
+	 *	        .add(query.columns.order_date.gt(new Date()))
 	 *	     )
 	 *	);
+	 *
+	 * @return an AND-condition for adding logical conditions.
 	 */
-	@JSReadonlyProperty
+	@JSReadonlyProperty(debuggerRepresentation = "Query and clause")
 	public QBLogicalCondition and()
 	{
 		return new QBLogicalCondition(getRoot(), this, new AndCondition());
@@ -484,6 +524,8 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	 * foundset.query.where.add(query.not(query.columns.flag.eq(1)))
 	 *
 	 * @param cond the logical condition to negate
+	 *
+	 * @return a negated version of the specified logical condition.
 	 */
 	@JSFunction
 	public QBCondition not(IQueryBuilderLogicalCondition cond)
@@ -498,6 +540,8 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	 * foundset.query.where.add(query.not(query.columns.flag.eq(1)))
 	 *
 	 * @param cond the condition to negate
+	 *
+	 * @return a negated version of the specified condition.
 	 */
 	@JSFunction
 	public QBCondition not(IQueryBuilderCondition cond)
@@ -512,6 +556,7 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	 *
 	 * @param query the sub query
 	 *
+	 * @return a condition that checks the existence of the given subquery.
 	 */
 	public QBCondition js_exists(QBSelect q) throws RepositoryException
 	{
@@ -535,8 +580,10 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	 * var query = datasources.db.example_data.orders.createSelect();
 	 * query.where.add(query.columns.shipname.upper.eq(query.functions.upper('servoy')))
 	 * foundset.loadRecords(query)
+	 *
+	 * @return the functions clause of the query for non-column-bound functions.
 	 */
-	@JSReadonlyProperty
+	@JSReadonlyProperty(debuggerRepresentation = "Query functions part")
 	public QBFunctions functions()
 	{
 		if (functions == null)
@@ -553,8 +600,10 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	 * query.result.add(query.aggregates.count().add(query.columns.countryCode)
 	 * query.groupBy.add(query.columns.countryCode)
 	 * var ds = databaseManager.getDataSetByQuery(query, 100);
+	 *
+	 * @return the aggregates clause of the query for non-column-bound aggregates.
 	 */
-	@JSReadonlyProperty
+	@JSReadonlyProperty(debuggerRepresentation = "Query aggregates clause")
 	public QBAggregates aggregates()
 	{
 		if (aggregates == null)
@@ -569,6 +618,8 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	 * @sample
 	 * var query = datasources.db.example_data.orders.createSelect();
 	 * query.comment = 'Query comment'
+	 *
+	 * @return the comment associated with this query.
 	 */
 	@JSGetter
 	public String getComment()
@@ -599,8 +650,10 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	 * 		.when(query.columns.quantity.le(20)).then(70)
 	 * 		.else(100)
 	 * 	.multiply(query.columns.unitprice).lt(10000));
+	 *
+	 * @return a case expression for conditional logic in the query.
 	 */
-	@JSReadonlyProperty(property = "case")
+	@JSReadonlyProperty(property = "case", debuggerRepresentation = "Query case clause")
 	public QBCase js_case()
 	{
 		return qcase();
@@ -865,7 +918,7 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 				{
 					throw new RuntimeException("Cannot find table for datasource '" + getDataSource() + "'");
 				}
-				queryTable = new QueryTable(table.getSQLName(), table.getDataSource(), table.getCatalog(), table.getSchema(), tableAlias);
+				queryTable = table.queryTable(tableAlias);
 			}
 		}
 		return queryTable;
@@ -884,9 +937,9 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 
 	IQuerySelectValue createOperand(Object value, BaseColumnType columnType, int flags)
 	{
-		if (value instanceof QBColumn)
+		if (value instanceof QBColumnImpl qbColumn)
 		{
-			return ((QBColumn)value).getQuerySelectValue();
+			return qbColumn.getQuerySelectValue();
 		}
 
 		Object val = value;

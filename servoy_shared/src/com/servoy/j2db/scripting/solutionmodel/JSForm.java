@@ -47,6 +47,8 @@ import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.AbstractContainer;
 import com.servoy.j2db.persistence.BaseComponent;
 import com.servoy.j2db.persistence.Bean;
+import com.servoy.j2db.persistence.CSSPosition;
+import com.servoy.j2db.persistence.CSSPositionLayoutContainer;
 import com.servoy.j2db.persistence.CSSPositionUtils;
 import com.servoy.j2db.persistence.Field;
 import com.servoy.j2db.persistence.Form;
@@ -77,11 +79,26 @@ import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.docvalidator.IdentDocumentValidator;
 
 /**
+ * The <code>JSForm</code> is a Solution Model wrapper for forms, providing properties and methods to dynamically manage
+ * and interact with forms in an application. It includes constants for specifying foundset behavior and selection modes,
+ * properties like <code>dataSource</code>, <code>name</code>, and <code>selectionMode</code>, and methods for creating,
+ * accessing, and manipulating form components, variables, methods, and layout containers.
+ *
+ * <p>
+ * With encapsulation levels, event handlers (e.g., <code>onShow</code>, <code>onHide</code>, <code>onRecordSelection</code>),
+ * and integration of design-time properties, <code>JSForm</code> is pivotal for customizing forms at runtime. It supports
+ * responsive layouts, default sorting, transparent forms, and CSS-based positioning, enabling developers to tailor the UI
+ * dynamically while managing forms effectively.
+ * </p>
+ *
+ *
+ * Please refer to the <a href="https://docs.servoy.com/reference/servoycore/object-model/solution/form">Form</a> section of this documentation for details.
+ *
  * @author jcompagner
  */
 @SuppressWarnings("nls")
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "JSForm")
-public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<Form>, IConstantsObject, ISMForm, IMobileSMForm
+public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<Form>, IConstantsObject, ISMForm, IMobileSMForm, ISupportResponsiveLayoutContainer
 {
 	private Form form;
 	private final IApplication application;
@@ -703,11 +720,13 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	}
 
 	@JSFunction
+	@Deprecated
 	public JSHeader newHeader()
 	{
 		return null; // mobile only
 	}
 
+	@Deprecated
 	@JSFunction
 	public JSHeader getHeader()
 	{
@@ -715,6 +734,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	}
 
 	@JSFunction
+	@Deprecated
 	public JSInsetList newInsetList(int yLocation, String relationName, String headerText, String textDataProviderID)
 	{
 		return null; // mobile only
@@ -722,6 +742,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 
 	@Override
 	@JSFunction
+	@Deprecated
 	public JSInsetList getInsetList(String name)
 	{
 		return null; // mobile only
@@ -729,6 +750,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 
 	@Override
 	@JSFunction
+	@Deprecated
 	public JSInsetList[] getInsetLists()
 	{
 		return null; // mobile only
@@ -736,17 +758,22 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 
 	@Override
 	@JSFunction
+	@Deprecated
 	public boolean removeInsetList(String name)
 	{
 		return false; // mobile only
 	}
 
 	@Override
+	@Deprecated
 	public void setComponentOrder(IBaseSMComponent[] components)
 	{
 		// mobile only
 	}
 
+	/**
+	 * @return True if a header was successfully removed; false otherwise.
+	 */
 	@JSFunction
 	public boolean removeHeader()
 	{
@@ -781,6 +808,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * @return A JSPart instance corresponding to the newly created Leading Grand Summary form part.
 	 */
 	@JSFunction
+	@Deprecated
 	public JSPart newLeadingGrandSummaryPart(int height)
 	{
 		return getOrCreatePart(Part.LEADING_GRAND_SUMMARY, height);
@@ -797,6 +825,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * @return A JSPart instance corresponding to the newly created Leading Subsummary form part.
 	 */
 	@JSFunction
+	@Deprecated
 	public JSPart newLeadingSubSummaryPart(int height)
 	{
 		return getOrCreatePart(Part.LEADING_SUBSUMMARY, height);
@@ -814,6 +843,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * @return A JSPart instance corresponding to the newly created Trailing Subsummary form part.
 	 */
 	@JSFunction
+	@Deprecated
 	public JSPart newTrailingSubSummaryPart(int height)
 	{
 		return getOrCreatePart(Part.TRAILING_SUBSUMMARY, height);
@@ -830,6 +860,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * @return A JSPart instance corresponding to the newly created Trailing Grand Summary form part.
 	 */
 	@JSFunction
+	@Deprecated
 	public JSPart newTrailingGrandSummaryPart(int height)
 	{
 		return getOrCreatePart(Part.TRAILING_GRAND_SUMMARY, height);
@@ -852,12 +883,14 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	}
 
 	@JSFunction
+	@Deprecated
 	public JSFooter newFooter()
 	{
 		return null; // mobile only
 	}
 
 	@JSFunction
+	@Deprecated
 	public JSFooter getFooter()
 	{
 		return null; // mobile only
@@ -880,6 +913,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * @return A JSPart instance corresponding to the newly created Title Footer form part.
 	 */
 	@JSFunction
+	@Deprecated
 	public JSPart newTitleFooterPart(int height)
 	{
 		return getOrCreatePart(Part.TITLE_FOOTER, height);
@@ -1016,7 +1050,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 			Part part = parts.next();
 			if (part.getPartType() == type && (height == -1 || part.getHeight() == height))
 			{
-				return ff.getPartStartYPos(part.getID());
+				return ff.getPartStartYPos(part.getUUID().toString());
 			}
 		}
 		return -1;
@@ -1093,6 +1127,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * @return A JSPart instance corresponding to the Title Header part of the form.
 	 */
 	@JSFunction
+	@Deprecated
 	public JSPart getTitleHeaderPart()
 	{
 		return getPartInternal(Part.TITLE_HEADER);
@@ -1121,6 +1156,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * @return A JSPart instance corresponding to the Leading Grand Summary part of the form.
 	 */
 	@JSFunction
+	@Deprecated
 	public JSPart getLeadingGrandSummaryPart()
 	{
 		return getPartInternal(Part.LEADING_GRAND_SUMMARY);
@@ -1144,6 +1180,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * @return An array of JSPart instances corresponding to the Leading Subsummary parts of the form.
 	 */
 	@JSFunction
+	@Deprecated
 	public JSPart[] getLeadingSubSummaryParts()
 	{
 		return getPartsInternal(Part.LEADING_SUBSUMMARY);
@@ -1167,6 +1204,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * @return An array of JSPart instances corresponding to the Trailing Subsummary parts of the form.
 	 */
 	@JSFunction
+	@Deprecated
 	public JSPart[] getTrailingSubSummaryParts()
 	{
 		return getPartsInternal(Part.TRAILING_SUBSUMMARY);
@@ -1181,6 +1219,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * @return A JSPart instance corresponding to the Trailing Grand Summary part of the form.
 	 */
 	@JSFunction
+	@Deprecated
 	public JSPart getTrailingGrandSummaryPart()
 	{
 		return getPartInternal(Part.TRAILING_GRAND_SUMMARY);
@@ -1209,6 +1248,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * @return A JSPart instance corresponding to the Title Footer part of the form.
 	 */
 	@JSFunction
+	@Deprecated
 	public JSPart getTitleFooterPart()
 	{
 		return getPartInternal(Part.TITLE_FOOTER);
@@ -1217,36 +1257,42 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 
 	@JSFunction
 	@Override
+	@Deprecated
 	public JSBean newBean(String name, int y)
 	{
 		return null; // only in mobile
 	}
 
 	@JSFunction
+	@Deprecated
 	public JSField newField(IBaseSMVariable dataprovider, int type, int y)
 	{
 		return newField(dataprovider, type, 0, y, 10, 10);
 	}
 
 	@JSFunction
+	@Deprecated
 	public JSField newField(String dataprovider, int type, int y)
 	{
 		return newField(dataprovider, type, 0, y, 10, 10);
 	}
 
 	@JSFunction
+	@Deprecated
 	public JSText newTextField(IBaseSMVariable dataprovider, int y)
 	{
 		return (JSText)newField(dataprovider, Field.TEXT_FIELD, 0, y, 10, 10);
 	}
 
 	@JSFunction
+	@Deprecated
 	public JSText newTextField(String dataprovider, int y)
 	{
 		return (JSText)newField(dataprovider, Field.TEXT_FIELD, 0, y, 10, 10);
 	}
 
 	@JSFunction
+	@Deprecated
 	public JSTextArea newTextArea(IBaseSMVariable dataprovider, int y)
 	{
 		return (JSTextArea)newField(dataprovider, Field.TEXT_AREA, 0, y, 10, 10);
@@ -1260,12 +1306,14 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 
 
 	@JSFunction
+	@Deprecated
 	public JSCombobox newCombobox(IBaseSMVariable dataprovider, int y)
 	{
 		return (JSCombobox)newField(dataprovider, Field.COMBOBOX, 0, y, 10, 10);
 	}
 
 	@JSFunction
+	@Deprecated
 	public JSCombobox newCombobox(String dataprovider, int y)
 	{
 		return (JSCombobox)newField(dataprovider, Field.COMBOBOX, 0, y, 10, 10);
@@ -1273,60 +1321,70 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 
 
 	@JSFunction
+	@Deprecated
 	public JSRadios newRadios(IBaseSMVariable dataprovider, int y)
 	{
 		return (JSRadios)newField(dataprovider, Field.RADIOS, 0, y, 10, 10);
 	}
 
 	@JSFunction
+	@Deprecated
 	public JSRadios newRadios(String dataprovider, int y)
 	{
 		return (JSRadios)newField(dataprovider, Field.RADIOS, 0, y, 10, 10);
 	}
 
 	@JSFunction
+	@Deprecated
 	public JSChecks newCheck(IBaseSMVariable dataprovider, int y)
 	{
 		return (JSChecks)newField(dataprovider, Field.CHECKS, 0, y, 10, 10);
 	}
 
 	@JSFunction
+	@Deprecated
 	public JSChecks newCheck(String dataprovider, int y)
 	{
 		return (JSChecks)newField(dataprovider, Field.CHECKS, 0, y, 10, 10);
 	}
 
 	@JSFunction
+	@Deprecated
 	public JSCalendar newCalendar(IBaseSMVariable dataprovider, int y)
 	{
 		return (JSCalendar)newField(dataprovider, Field.CALENDAR, 0, y, 10, 10);
 	}
 
 	@JSFunction
+	@Deprecated
 	public JSCalendar newCalendar(String dataprovider, int y)
 	{
 		return (JSCalendar)newField(dataprovider, Field.CALENDAR, 0, y, 10, 10);
 	}
 
 	@JSFunction
+	@Deprecated
 	public JSPassword newPassword(IBaseSMVariable dataprovider, int y)
 	{
 		return (JSPassword)newField(dataprovider, Field.PASSWORD, 0, y, 10, 10);
 	}
 
 	@JSFunction
+	@Deprecated
 	public JSPassword newPassword(String dataprovider, int y)
 	{
 		return (JSPassword)newField(dataprovider, Field.PASSWORD, 0, y, 10, 10);
 	}
 
 	@JSFunction
+	@Deprecated
 	public JSButton newButton(String txt, int y, IBaseSMMethod jsmethod)
 	{
 		return newButton(txt, 0, y, 10, 10, jsmethod);
 	}
 
 	@JSFunction
+	@Deprecated
 	public JSLabel newLabel(String txt, int y)
 	{
 		return newLabel(txt, 0, y, 10, 10, null);
@@ -1336,6 +1394,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * @sameas com.servoy.j2db.scripting.solutionmodel.JSComponent#getBorderType()
 	 */
 	@JSGetter
+	@Deprecated
 	public String getBorderType()
 	{
 		return getForm().getBorderType();
@@ -1358,6 +1417,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 */
 	@JSGetter
 	@ServoyClientSupport(ng = false, wc = true, sc = true)
+	@Deprecated
 	public String getDefaultPageFormat()
 	{
 		return getForm().getDefaultPageFormat();
@@ -1383,10 +1443,10 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	@JSGetter
 	public JSForm getExtendsForm()
 	{
-		int extendsFormID = getForm().getExtendsID();
-		if (extendsFormID > 0)
+		String extendsFormUUID = getForm().getExtendsID();
+		if (extendsFormUUID != null)
 		{
-			Form superForm = application.getFlattenedSolution().getForm(extendsFormID);
+			Form superForm = application.getFlattenedSolution().getForm(extendsFormUUID);
 			if (superForm != null)
 			{
 				return application.getScriptEngine().getSolutionModifier().instantiateForm(superForm, false);
@@ -1417,7 +1477,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 				throw new RuntimeException("extendsForm must receive either null, a JSForm object or a valid form name");
 			}
 
-			getForm().setExtendsID(AbstractBase.DEFAULT_INT);
+			getForm().setExtendsID(null);
 		}
 		else
 		{
@@ -1441,7 +1501,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 						"' which is a responsive layout form.");
 				}
 			}
-			getForm().setExtendsID(f.getID());
+			getForm().setExtendsID(f.getUUID().toString());
 		}
 	}
 
@@ -1465,6 +1525,48 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	{
 		checkModification();
 		getForm().setInitialSort(arg);
+	}
+
+	/**
+	 * @clonedesc com.servoy.j2db.persistence.Form#getFormCss()
+	 *
+	 * @sample
+	 * var form = solutionModel.newForm('myForm',myDatasource,null,true,800,600);
+	 * form.formCss = mycss; // where mycss is a string with the css content;
+	 *
+	 */
+	@JSGetter
+	public String getFormCss()
+	{
+		return getForm().getFormCss();
+	}
+
+	@JSSetter
+	public void setFormCss(String arg)
+	{
+		checkModification();
+		getForm().setFormCss(arg);
+	}
+
+	/**
+	 * @clonedesc com.servoy.j2db.persistence.Form#getDeprecated()
+	 *
+	 * @sample
+	 * var form = solutionModel.newForm('myForm',myDatasource,null,true,800,600);
+	 * form.deprecated = "not used anymore, replaced with newForm";
+	 *
+	 */
+	@JSGetter
+	public String getDeprecated()
+	{
+		return getForm().getDeprecated();
+	}
+
+	@JSSetter
+	public void setDeprecated(String arg)
+	{
+		checkModification();
+		getForm().setDeprecated(arg);
 	}
 
 	/**
@@ -1509,9 +1611,10 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	@JSGetter
 	public Object getNavigator()
 	{
-		if (getForm().getNavigatorID() <= 0)
+		if (getForm().getNavigatorID() == Form.NAVIGATOR_DEFAULT || Form.NAVIGATOR_IGNORE.equals(getForm().getNavigatorID()) ||
+			Form.NAVIGATOR_NONE.equals(getForm().getNavigatorID()))
 		{
-			return Integer.valueOf(getForm().getNavigatorID());
+			return getForm().getNavigatorID();
 		}
 		Form f = application.getFlattenedSolution().getForm(getForm().getNavigatorID());
 		if (f != null)
@@ -1525,33 +1628,29 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	public void setNavigator(Object navigator)
 	{
 		checkModification();
-		int id = 0;
+		String uuid = null;
 		if (navigator instanceof JSForm)
 		{
-			id = ((JSForm)navigator).getSupportChild().getID();
+			uuid = ((JSForm)navigator).getSupportChild().getUUID().toString();
 		}
 		else if (navigator instanceof String)
 		{
 			Form f = application.getFlattenedSolution().getForm((String)navigator);
 			if (f != null)
 			{
-				id = f.getID();
+				uuid = f.getUUID().toString();
 			}
 			else
 			{
 				throw new RuntimeException("cannot find form with name '" + (String)navigator + "'");
 			}
 		}
-		else if (navigator instanceof Number)
-		{
-			id = ((Number)navigator).intValue();
-		}
 		else if (navigator != null)
 		{
 			throw new RuntimeException("cannot get navigator form from given object '" + navigator.toString() + "'");
 		}
 
-		getForm().setNavigatorID(id);
+		getForm().setNavigatorID(uuid);
 	}
 
 
@@ -1566,6 +1665,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 */
 	@JSGetter
 	@ServoyClientSupport(ng = false, wc = true, sc = true)
+	@Deprecated
 	public int getPaperPrintScale()
 	{
 		return getForm().getPaperPrintScale();
@@ -1654,6 +1754,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 *
 	 */
 	@JSGetter
+	@Deprecated
 	public boolean getShowInMenu()
 	{
 		return getForm().getShowInMenu();
@@ -1704,6 +1805,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 */
 	@JSGetter
 	@ServoyClientSupport(ng = false, wc = true, sc = true)
+	@Deprecated
 	public String getStyleName()
 	{
 		return getForm().getStyleName();
@@ -2008,6 +2110,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * forms['newForm1'].controller.show();
 	 */
 	@JSGetter
+	@Deprecated
 	public int getView()
 	{
 		return getForm().getView();
@@ -2048,8 +2151,11 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * forms['newForm1'].controller.show();
 	 * myForm.width = 120;
 	 * forms['newForm1'].controller.recreateUI();
+	 *
+	 * @deprecated use getMinWidth()
 	 */
 	@JSGetter
+	@Deprecated
 	public int getWidth()
 	{
 		return getForm().getWidth();
@@ -2060,6 +2166,91 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	{
 		checkModification();
 		getForm().setWidth(width);
+	}
+
+	/**
+	 * @clonedesc com.servoy.j2db.persistence.Form#getWidth()
+	 *
+	 * @sample
+	 * var myForm = solutionModel.newForm('newForm1', myDatasource, null, true, 800, 600);
+	 * forms['newForm1'].controller.show();
+	 * myForm.minWidth = 120;
+	 * forms['newForm1'].controller.recreateUI();
+	 *
+	 */
+	@JSGetter
+	public int getMinWidth()
+	{
+		return getForm().getWidth();
+	}
+
+	@JSSetter
+	public void setMinWidth(int width)
+	{
+		checkModification();
+		getForm().setWidth(width);
+	}
+
+	/**
+	 * @clonedesc com.servoy.j2db.persistence.Form#getHeight()
+	 *
+	 * @sample
+	 * var myForm = solutionModel.newForm('newForm1', myDatasource, null, true, 800, 600);
+	 * forms['newForm1'].controller.show();
+	 * myForm.minHeight = 400;
+	 * forms['newForm1'].controller.recreateUI();
+	 */
+	@JSGetter
+	public int getMinHeight()
+	{
+		return getForm().getHeight();
+	}
+
+	@JSSetter
+	public void setMinHeight(int height)
+	{
+		checkModification();
+		getForm().setHeight(height);
+	}
+
+	/**
+	 * @clonedesc com.servoy.j2db.persistence.Form#getUseMinWidth()
+	 *
+	 * @sample
+	 * var myForm = solutionModel.newForm('newForm1', myDatasource, null, true, 800, 600);
+	 * myForm.useMinWidth = true;
+	 */
+	@JSGetter
+	public Boolean getUseMinWidth()
+	{
+		return getForm().getUseMinWidth();
+	}
+
+	@JSSetter
+	public void setUseMinWidth(Boolean use)
+	{
+		checkModification();
+		getForm().setUseMinWidth(use);
+	}
+
+	/**
+	 * @clonedesc com.servoy.j2db.persistence.Form#getUseMinHeight()
+	 *
+	 * @sample
+	 * var myForm = solutionModel.newForm('newForm1', myDatasource, null, true, 800, 600);
+	 * myForm.useMinHeight = true;
+	 */
+	@JSGetter
+	public Boolean getUseMinHeight()
+	{
+		return getForm().getUseMinHeight();
+	}
+
+	@JSSetter
+	public void setUseMinHeight(Boolean use)
+	{
+		checkModification();
+		getForm().setUseMinHeight(use);
 	}
 
 	/**
@@ -2075,16 +2266,12 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 			ScriptMethod scriptMethod = getScriptMethod(function, application.getFlattenedSolution());
 			if (scriptMethod != null)
 			{
-				getForm().setOnDeleteAllRecordsCmdMethodID(scriptMethod.getID());
+				getForm().setOnDeleteAllRecordsCmdMethodID(scriptMethod.getUUID().toString());
 			}
 			else
 			{
-				getForm().setOnDeleteAllRecordsCmdMethodID(0);
+				getForm().setOnDeleteAllRecordsCmdMethodID(null);
 			}
-		}
-		else if (functionOrInteger instanceof Number)
-		{
-			getForm().setOnDeleteAllRecordsCmdMethodID(((Number)functionOrInteger).intValue());
 		}
 	}
 
@@ -2101,16 +2288,12 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 			ScriptMethod scriptMethod = getScriptMethod(function, application.getFlattenedSolution());
 			if (scriptMethod != null)
 			{
-				getForm().setOnDeleteRecordCmdMethodID(scriptMethod.getID());
+				getForm().setOnDeleteRecordCmdMethodID(scriptMethod.getUUID().toString());
 			}
 			else
 			{
-				getForm().setOnDeleteRecordCmdMethodID(0);
+				getForm().setOnDeleteRecordCmdMethodID(null);
 			}
-		}
-		else if (functionOrInteger instanceof Number)
-		{
-			getForm().setOnDeleteRecordCmdMethodID(((Number)functionOrInteger).intValue());
 		}
 	}
 
@@ -2128,16 +2311,12 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 			ScriptMethod scriptMethod = getScriptMethod(function, application.getFlattenedSolution());
 			if (scriptMethod != null)
 			{
-				getForm().setOnDuplicateRecordCmdMethodID(scriptMethod.getID());
+				getForm().setOnDuplicateRecordCmdMethodID(scriptMethod.getUUID().toString());
 			}
 			else
 			{
-				getForm().setOnDuplicateRecordCmdMethodID(0);
+				getForm().setOnDuplicateRecordCmdMethodID(null);
 			}
-		}
-		else if (functionOrInteger instanceof Number)
-		{
-			getForm().setOnDuplicateRecordCmdMethodID(((Number)functionOrInteger).intValue());
 		}
 	}
 
@@ -2154,16 +2333,12 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 			ScriptMethod scriptMethod = getScriptMethod(function, application.getFlattenedSolution());
 			if (scriptMethod != null)
 			{
-				getForm().setOnFindCmdMethodID(scriptMethod.getID());
+				getForm().setOnFindCmdMethodID(scriptMethod.getUUID().toString());
 			}
 			else
 			{
-				getForm().setOnFindCmdMethodID(0);
+				getForm().setOnFindCmdMethodID(null);
 			}
-		}
-		else if (functionOrInteger instanceof Number)
-		{
-			getForm().setOnFindCmdMethodID(((Number)functionOrInteger).intValue());
 		}
 	}
 
@@ -2180,16 +2355,12 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 			ScriptMethod scriptMethod = getScriptMethod(function, application.getFlattenedSolution());
 			if (scriptMethod != null)
 			{
-				getForm().setOnHideMethodID(scriptMethod.getID());
+				getForm().setOnHideMethodID(scriptMethod.getUUID().toString());
 			}
 			else
 			{
-				getForm().setOnHideMethodID(0);
+				getForm().setOnHideMethodID(null);
 			}
-		}
-		else if (functionOrInteger instanceof Number)
-		{
-			getForm().setOnHideMethodID(((Number)functionOrInteger).intValue());
 		}
 	}
 
@@ -2206,16 +2377,12 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 			ScriptMethod scriptMethod = getScriptMethod(function, application.getFlattenedSolution());
 			if (scriptMethod != null)
 			{
-				getForm().setOnInvertRecordsCmdMethodID(scriptMethod.getID());
+				getForm().setOnInvertRecordsCmdMethodID(scriptMethod.getUUID().toString());
 			}
 			else
 			{
-				getForm().setOnInvertRecordsCmdMethodID(0);
+				getForm().setOnInvertRecordsCmdMethodID(null);
 			}
-		}
-		else if (functionOrInteger instanceof Number)
-		{
-			getForm().setOnInvertRecordsCmdMethodID(((Number)functionOrInteger).intValue());
 		}
 	}
 
@@ -2232,16 +2399,12 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 			ScriptMethod scriptMethod = getScriptMethod(function, application.getFlattenedSolution());
 			if (scriptMethod != null)
 			{
-				getForm().setOnLoadMethodID(scriptMethod.getID());
+				getForm().setOnLoadMethodID(scriptMethod.getUUID().toString());
 			}
 			else
 			{
-				getForm().setOnLoadMethodID(0);
+				getForm().setOnLoadMethodID(null);
 			}
-		}
-		else if (functionOrInteger instanceof Number)
-		{
-			getForm().setOnLoadMethodID(((Number)functionOrInteger).intValue());
 		}
 	}
 
@@ -2258,16 +2421,12 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 			ScriptMethod scriptMethod = getScriptMethod(function, application.getFlattenedSolution());
 			if (scriptMethod != null)
 			{
-				getForm().setOnNewRecordCmdMethodID(scriptMethod.getID());
+				getForm().setOnNewRecordCmdMethodID(scriptMethod.getUUID().toString());
 			}
 			else
 			{
-				getForm().setOnNewRecordCmdMethodID(0);
+				getForm().setOnNewRecordCmdMethodID(null);
 			}
-		}
-		else if (functionOrInteger instanceof Number)
-		{
-			getForm().setOnNewRecordCmdMethodID(((Number)functionOrInteger).intValue());
 		}
 	}
 
@@ -2284,16 +2443,12 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 			ScriptMethod scriptMethod = getScriptMethod(function, application.getFlattenedSolution());
 			if (scriptMethod != null)
 			{
-				getForm().setOnNextRecordCmdMethodID(scriptMethod.getID());
+				getForm().setOnNextRecordCmdMethodID(scriptMethod.getUUID().toString());
 			}
 			else
 			{
-				getForm().setOnNextRecordCmdMethodID(0);
+				getForm().setOnNextRecordCmdMethodID(null);
 			}
-		}
-		else if (functionOrInteger instanceof Number)
-		{
-			getForm().setOnNextRecordCmdMethodID(((Number)functionOrInteger).intValue());
 		}
 	}
 
@@ -2310,16 +2465,12 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 			ScriptMethod scriptMethod = getScriptMethod(function, application.getFlattenedSolution());
 			if (scriptMethod != null)
 			{
-				getForm().setOnOmitRecordCmdMethodID(scriptMethod.getID());
+				getForm().setOnOmitRecordCmdMethodID(scriptMethod.getUUID().toString());
 			}
 			else
 			{
-				getForm().setOnOmitRecordCmdMethodID(0);
+				getForm().setOnOmitRecordCmdMethodID(null);
 			}
-		}
-		else if (functionOrInteger instanceof Number)
-		{
-			getForm().setOnOmitRecordCmdMethodID(((Number)functionOrInteger).intValue());
 		}
 	}
 
@@ -2336,16 +2487,12 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 			ScriptMethod scriptMethod = getScriptMethod(function, application.getFlattenedSolution());
 			if (scriptMethod != null)
 			{
-				getForm().setOnPreviousRecordCmdMethodID(scriptMethod.getID());
+				getForm().setOnPreviousRecordCmdMethodID(scriptMethod.getUUID().toString());
 			}
 			else
 			{
-				getForm().setOnPreviousRecordCmdMethodID(0);
+				getForm().setOnPreviousRecordCmdMethodID(null);
 			}
-		}
-		else if (functionOrInteger instanceof Number)
-		{
-			getForm().setOnPreviousRecordCmdMethodID(((Number)functionOrInteger).intValue());
 		}
 	}
 
@@ -2363,16 +2510,12 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 			ScriptMethod scriptMethod = getScriptMethod(function, application.getFlattenedSolution());
 			if (scriptMethod != null)
 			{
-				getForm().setOnPrintPreviewCmdMethodID(scriptMethod.getID());
+				getForm().setOnPrintPreviewCmdMethodID(scriptMethod.getUUID().toString());
 			}
 			else
 			{
-				getForm().setOnPrintPreviewCmdMethodID(0);
+				getForm().setOnPrintPreviewCmdMethodID(null);
 			}
-		}
-		else if (functionOrInteger instanceof Number)
-		{
-			getForm().setOnPrintPreviewCmdMethodID(((Number)functionOrInteger).intValue());
 		}
 	}
 
@@ -2390,16 +2533,12 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 			ScriptMethod scriptMethod = getScriptMethod(function, application.getFlattenedSolution());
 			if (scriptMethod != null)
 			{
-				getForm().setOnRecordEditStartMethodID(scriptMethod.getID());
+				getForm().setOnRecordEditStartMethodID(scriptMethod.getUUID().toString());
 			}
 			else
 			{
-				getForm().setOnRecordEditStartMethodID(0);
+				getForm().setOnRecordEditStartMethodID(null);
 			}
-		}
-		else if (functionOrInteger instanceof Number)
-		{
-			getForm().setOnRecordEditStartMethodID(((Number)functionOrInteger).intValue());
 		}
 	}
 
@@ -2416,16 +2555,12 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 			ScriptMethod scriptMethod = getScriptMethod(function, application.getFlattenedSolution());
 			if (scriptMethod != null)
 			{
-				getForm().setOnRecordEditStopMethodID(scriptMethod.getID());
+				getForm().setOnRecordEditStopMethodID(scriptMethod.getUUID().toString());
 			}
 			else
 			{
-				getForm().setOnRecordEditStopMethodID(0);
+				getForm().setOnRecordEditStopMethodID(null);
 			}
-		}
-		else if (functionOrInteger instanceof Number)
-		{
-			getForm().setOnRecordEditStopMethodID(((Number)functionOrInteger).intValue());
 		}
 	}
 
@@ -2442,16 +2577,12 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 			ScriptMethod scriptMethod = getScriptMethod(function, application.getFlattenedSolution());
 			if (scriptMethod != null)
 			{
-				getForm().setOnRecordSelectionMethodID(scriptMethod.getID());
+				getForm().setOnRecordSelectionMethodID(scriptMethod.getUUID().toString());
 			}
 			else
 			{
-				getForm().setOnRecordSelectionMethodID(0);
+				getForm().setOnRecordSelectionMethodID(null);
 			}
-		}
-		else if (functionOrInteger instanceof Number)
-		{
-			getForm().setOnRecordSelectionMethodID(((Number)functionOrInteger).intValue());
 		}
 	}
 
@@ -2468,16 +2599,12 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 			ScriptMethod scriptMethod = getScriptMethod(function, application.getFlattenedSolution());
 			if (scriptMethod != null)
 			{
-				getForm().setOnSearchCmdMethodID(scriptMethod.getID());
+				getForm().setOnSearchCmdMethodID(scriptMethod.getUUID().toString());
 			}
 			else
 			{
-				getForm().setOnSearchCmdMethodID(0);
+				getForm().setOnSearchCmdMethodID(null);
 			}
-		}
-		else if (functionOrInteger instanceof Number)
-		{
-			getForm().setOnSearchCmdMethodID(((Number)functionOrInteger).intValue());
 		}
 	}
 
@@ -2494,16 +2621,12 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 			ScriptMethod scriptMethod = getScriptMethod(function, application.getFlattenedSolution());
 			if (scriptMethod != null)
 			{
-				getForm().setOnShowAllRecordsCmdMethodID(scriptMethod.getID());
+				getForm().setOnShowAllRecordsCmdMethodID(scriptMethod.getUUID().toString());
 			}
 			else
 			{
-				getForm().setOnShowAllRecordsCmdMethodID(0);
+				getForm().setOnShowAllRecordsCmdMethodID(null);
 			}
-		}
-		else if (functionOrInteger instanceof Number)
-		{
-			getForm().setOnShowAllRecordsCmdMethodID(((Number)functionOrInteger).intValue());
 		}
 	}
 
@@ -2520,16 +2643,12 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 			ScriptMethod scriptMethod = getScriptMethod(function, application.getFlattenedSolution());
 			if (scriptMethod != null)
 			{
-				getForm().setOnShowMethodID(scriptMethod.getID());
+				getForm().setOnShowMethodID(scriptMethod.getUUID().toString());
 			}
 			else
 			{
-				getForm().setOnShowMethodID(0);
+				getForm().setOnShowMethodID(null);
 			}
-		}
-		else if (functionOrInteger instanceof Number)
-		{
-			getForm().setOnShowMethodID(((Number)functionOrInteger).intValue());
 		}
 	}
 
@@ -2546,16 +2665,12 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 			ScriptMethod scriptMethod = getScriptMethod(function, application.getFlattenedSolution());
 			if (scriptMethod != null)
 			{
-				getForm().setOnShowOmittedRecordsCmdMethodID(scriptMethod.getID());
+				getForm().setOnShowOmittedRecordsCmdMethodID(scriptMethod.getUUID().toString());
 			}
 			else
 			{
-				getForm().setOnShowOmittedRecordsCmdMethodID(0);
+				getForm().setOnShowOmittedRecordsCmdMethodID(null);
 			}
-		}
-		else if (functionOrInteger instanceof Number)
-		{
-			getForm().setOnShowOmittedRecordsCmdMethodID(((Number)functionOrInteger).intValue());
 		}
 	}
 
@@ -2572,16 +2687,12 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 			ScriptMethod scriptMethod = getScriptMethod(function, application.getFlattenedSolution());
 			if (scriptMethod != null)
 			{
-				getForm().setOnSortCmdMethodID(scriptMethod.getID());
+				getForm().setOnSortCmdMethodID(scriptMethod.getUUID().toString());
 			}
 			else
 			{
-				getForm().setOnSortCmdMethodID(0);
+				getForm().setOnSortCmdMethodID(null);
 			}
-		}
-		else if (functionOrInteger instanceof Number)
-		{
-			getForm().setOnSortCmdMethodID(((Number)functionOrInteger).intValue());
 		}
 	}
 
@@ -2598,16 +2709,12 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 			ScriptMethod scriptMethod = getScriptMethod(function, application.getFlattenedSolution());
 			if (scriptMethod != null)
 			{
-				getForm().setOnUnLoadMethodID(scriptMethod.getID());
+				getForm().setOnUnLoadMethodID(scriptMethod.getUUID().toString());
 			}
 			else
 			{
-				getForm().setOnUnLoadMethodID(0);
+				getForm().setOnUnLoadMethodID(null);
 			}
-		}
-		else if (functionOrInteger instanceof Number)
-		{
-			getForm().setOnUnLoadMethodID(((Number)functionOrInteger).intValue());
 		}
 	}
 
@@ -2647,35 +2754,36 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 		return (JSForm)form;
 	}
 
-	protected JSMethod getEventHandler(TypedProperty<Integer> methodProperty)
+	protected JSMethod getEventHandler(TypedProperty<String> methodProperty)
 	{
 		return getEventHandler(application, getForm(), methodProperty, this);
 	}
 
-	static <T extends AbstractBase> JSMethod getEventHandler(IApplication application, T persist, TypedProperty<Integer> methodProperty, IJSParent< ? > parent)
+	static <T extends AbstractBase> JSMethod getEventHandler(IApplication application, T persist, TypedProperty<String> methodProperty, IJSParent< ? > parent)
 	{
-		return getEventHandler(application, persist, ((Integer)persist.getProperty(methodProperty.getPropertyName())).intValue(), parent,
+		Object value = persist.getProperty(methodProperty.getPropertyName());
+		return getEventHandler(application, persist, value != null ? value.toString() : null, parent,
 			methodProperty.getPropertyName());
 	}
 
-	public static <T extends AbstractBase> JSMethod getEventHandler(IApplication application, T persist, int methodid, IJSParent< ? > parent,
+	public static <T extends AbstractBase> JSMethod getEventHandler(IApplication application, T persist, String methoduuid, IJSParent< ? > parent,
 		String propertyName)
 	{
-		if (methodid > 0)
+		if (methoduuid != null)
 		{
 			IJSScriptParent< ? > scriptParent = null;
 			ScriptMethod scriptMethod = null;
 			if (parent instanceof JSForm)
 			{
 				// form method
-				scriptMethod = ((JSForm)parent).getSupportChild().getScriptMethod(methodid);
+				scriptMethod = AbstractBase.selectByUUID(((JSForm)parent).getSupportChild().getScriptMethods(false), methoduuid);
 				if (scriptMethod == null)
 				{
 					Form f = ((JSForm)parent).getSupportChild();
-					while (f != null && f.getExtendsID() > 0 && scriptMethod == null)
+					while (f != null && f.getExtendsID() != null && scriptMethod == null)
 					{
 						f = application.getFlattenedSolution().getForm(f.getExtendsID());
-						if (f != null) scriptMethod = f.getScriptMethod(methodid);
+						if (f != null) scriptMethod = AbstractBase.selectByUUID(f.getScriptMethods(false), methoduuid);
 					}
 					if (scriptMethod != null)
 					{
@@ -2689,13 +2797,13 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 				// foundset method
 				if (parent instanceof JSDataSourceNode)
 				{
-					scriptMethod = ((JSDataSourceNode)parent).getSupportChild().getFoundsetMethod(methodid);
+					scriptMethod = ((JSDataSourceNode)parent).getSupportChild().getFoundsetMethod(methoduuid);
 				}
 				else if (parent instanceof JSForm && ((JSForm)parent).getForm().getDataSource() != null)
 				{
 					Iterator<ScriptMethod> foundsetMethods = application.getFlattenedSolution().getFoundsetMethods(((JSForm)parent).getForm().getDataSource(),
 						false);
-					scriptMethod = AbstractBase.selectById(foundsetMethods, methodid);
+					scriptMethod = AbstractBase.selectByUUID(foundsetMethods, methoduuid);
 					if (scriptMethod != null)
 					{
 						scriptParent = new JSDataSourceNode(application, ((JSForm)parent).getForm().getDataSource());
@@ -2706,7 +2814,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 			if (scriptMethod == null)
 			{
 				// global method
-				scriptMethod = application.getFlattenedSolution().getScriptMethod(methodid);
+				scriptMethod = application.getFlattenedSolution().getScriptMethod(methoduuid);
 			}
 
 			if (scriptMethod != null)
@@ -2739,58 +2847,16 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 				}
 			}
 		}
-		else if (methodid == 0 && BaseComponent.isCommandProperty(propertyName))
+		else if (methoduuid == null && BaseComponent.isCommandProperty(propertyName))
 		{
 			return (JSMethod)ISMDefaults.COMMAND_DEFAULT;
 		}
 		return null;
 	}
 
-	public static <T extends AbstractBase> JSMethod getEventHandler(IApplication application, T persist, String uuidOrName, IJSParent< ? > parent,
-		String propertyName)
+	static <T extends AbstractBase> void setEventHandler(IApplication application, T persist, TypedProperty<String> methodProperty, IBaseSMMethod method)
 	{
-		if (uuidOrName != null)
-		{
-			IJSScriptParent< ? > scriptParent = null;
-			ScriptMethod scriptMethod = application.getFlattenedSolution().getScriptMethod(uuidOrName);
-			;
-			if (scriptMethod != null)
-			{
-				if (scriptMethod.getParent() instanceof TableNode && parent instanceof JSDataSourceNode)
-				{
-					scriptParent = (JSDataSourceNode)parent;
-				}
-				else if (scriptMethod.getParent() instanceof Solution)
-				{
-					// global
-					scriptParent = null;
-				}
-				else
-				{
-					// form method
-					scriptParent = getJSFormParent(parent);
-					if (scriptMethod.getParent() != scriptParent.getSupportChild() && scriptParent.getSupportChild() instanceof Form)
-					{
-						scriptParent = application.getScriptEngine().getSolutionModifier().instantiateForm((Form)scriptParent.getSupportChild(), false);
-					}
-				}
-				List<Object> arguments = persist.getFlattenedMethodArguments(propertyName);
-				if (arguments == null || arguments.size() == 0)
-				{
-					return new JSMethod(scriptParent, scriptMethod, application, false);
-				}
-				else
-				{
-					return new JSMethodWithArguments(application, scriptParent, scriptMethod, false, arguments.toArray());
-				}
-			}
-		}
-		return null;
-	}
-
-	static <T extends AbstractBase> void setEventHandler(IApplication application, T persist, TypedProperty<Integer> methodProperty, IBaseSMMethod method)
-	{
-		persist.setProperty(methodProperty.getPropertyName(), new Integer(getMethodId(application, persist, method, methodProperty)));
+		persist.setProperty(methodProperty.getPropertyName(), getMethodId(application, persist, method, methodProperty));
 		persist.putMethodParameters(methodProperty.getPropertyName(),
 			//method instanceof JSMethodWithArguments ? Arrays.asList(((JSMethodWithArguments)method).getParameters()) : null,
 			new ArrayList(), method instanceof JSMethodWithArguments ? Arrays.asList(((JSMethodWithArguments)method).getArguments()) : null);
@@ -2799,7 +2865,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	/**
 	 * Set the event handler for the method key, JSMethod may contain arguments.
 	 */
-	protected void setEventHandler(TypedProperty<Integer> methodProperty, IBaseSMMethod method)
+	protected void setEventHandler(TypedProperty<String> methodProperty, IBaseSMMethod method)
 	{
 		checkModification();
 		setEventHandler(application, getForm(), methodProperty, method);
@@ -2811,6 +2877,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * @sampleas getOnNewRecordCmd()
 	 */
 	@JSGetter
+	@Deprecated
 	public JSMethod getOnDeleteAllRecordsCmd()
 	{
 		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONDELETEALLRECORDSCMDMETHODID);
@@ -2828,6 +2895,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * @sampleas getOnNewRecordCmd()
 	 */
 	@JSGetter
+	@Deprecated
 	public JSMethod getOnDeleteRecordCmd()
 	{
 		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONDELETERECORDCMDMETHODID);
@@ -2850,6 +2918,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 */
 	@JSGetter
 	@ServoyClientSupport(ng = false, wc = true, sc = true)
+	@Deprecated
 	public JSMethod getOnDrag()
 	{
 		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONDRAGMETHODID);
@@ -2869,6 +2938,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 */
 	@JSGetter
 	@ServoyClientSupport(ng = false, wc = true, sc = true)
+	@Deprecated
 	public JSMethod getOnDragEnd()
 	{
 		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONDRAGENDMETHODID);
@@ -2887,6 +2957,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 */
 	@JSGetter
 	@ServoyClientSupport(ng = false, wc = true, sc = true)
+	@Deprecated
 	public JSMethod getOnDragOver()
 	{
 		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONDRAGOVERMETHODID);
@@ -2906,6 +2977,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 */
 	@JSGetter
 	@ServoyClientSupport(ng = false, wc = true, sc = true)
+	@Deprecated
 	public JSMethod getOnDrop()
 	{
 		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONDROPMETHODID);
@@ -2960,6 +3032,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * @sampleas getOnNewRecordCmd()
 	 */
 	@JSGetter
+	@Deprecated
 	public JSMethod getOnDuplicateRecordCmd()
 	{
 		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONDUPLICATERECORDCMDMETHODID);
@@ -2980,6 +3053,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * form.onShowAllRecordsCmd = form.newMethod('function onShowAllRecordsCmd(event) { application.output("onShowAllRecordsCmd intercepted on " + event.getFormName()); }');
 	 */
 	@JSGetter
+	@Deprecated
 	public JSMethod getOnFindCmd()
 	{
 		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONFINDCMDMETHODID);
@@ -3033,6 +3107,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * @sampleas getOnOmitRecordCmd()
 	 */
 	@JSGetter
+	@Deprecated
 	public JSMethod getOnInvertRecordsCmd()
 	{
 		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONINVERTRECORDSCMDMETHODID);
@@ -3073,6 +3148,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * form.onDeleteAllRecordsCmd = form.newMethod('function onDeleteAllRecordsCmd(event) { application.output("onDeleteAllRecordsCmd intercepted on " + event.getFormName()); }');
 	 */
 	@JSGetter
+	@Deprecated
 	public JSMethod getOnNewRecordCmd()
 	{
 		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONNEWRECORDCMDMETHODID);
@@ -3090,6 +3166,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * @sampleas getOnPreviousRecordCmd()
 	 */
 	@JSGetter
+	@Deprecated
 	public JSMethod getOnNextRecordCmd()
 	{
 		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONNEXTRECORDCMDMETHODID);
@@ -3110,6 +3187,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * form.onInvertRecordsCmd = form.newMethod('function onInvertRecordsCmd(event) { application.output("onInvertRecordsCmd intercepted on " + event.getFormName()); }');
 	 */
 	@JSGetter
+	@Deprecated
 	public JSMethod getOnOmitRecordCmd()
 	{
 		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONOMITRECORDCMDMETHODID);
@@ -3129,6 +3207,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * form.onNextRecordCmd = form.newMethod('function onNextRecordCmd(event) { application.output("onNextRecordCmd intercepted on " + event.getFormName()); }');
 	 */
 	@JSGetter
+	@Deprecated
 	public JSMethod getOnPreviousRecordCmd()
 	{
 		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONPREVIOUSRECORDCMDMETHODID);
@@ -3148,6 +3227,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 */
 	@JSGetter
 	@ServoyClientSupport(ng = false, wc = true, sc = true)
+	@Deprecated
 	public JSMethod getOnPrintPreviewCmd()
 	{
 		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONPRINTPREVIEWCMDMETHODID);
@@ -3220,6 +3300,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * @sampleas getOnFindCmd()
 	 */
 	@JSGetter
+	@Deprecated
 	public JSMethod getOnSearchCmd()
 	{
 		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONSEARCHCMDMETHODID);
@@ -3237,6 +3318,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * @sampleas getOnFindCmd()
 	 */
 	@JSGetter
+	@Deprecated
 	public JSMethod getOnShowAllRecordsCmd()
 	{
 		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONSHOWALLRECORDSCMDMETHODID);
@@ -3274,6 +3356,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * @sampleas getOnOmitRecordCmd()
 	 */
 	@JSGetter
+	@Deprecated
 	public JSMethod getOnShowOmittedRecordsCmd()
 	{
 		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONSHOWOMITTEDRECORDSCMDMETHODID);
@@ -3347,6 +3430,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 */
 	@JSGetter
 	@ServoyClientSupport(ng = false, wc = true, sc = true)
+	@Deprecated
 	public JSMethod getOnRender()
 	{
 		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONRENDERMETHODID);
@@ -3408,6 +3492,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * myForm.ngReadOnlyMode = true;
 	 */
 	@JSGetter
+	@Deprecated
 	public boolean getNgReadOnlyMode()
 	{
 		return Utils.getAsBoolean(getForm().getNgReadOnlyMode());
@@ -3462,6 +3547,8 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * @sample
 	 * var frm = solutionModel.getForm('orders')
 	 * var prop = frm.getDesignTimeProperty('myprop')
+	 *
+	 * @return The value of the specified design-time property.
 	 */
 	@JSFunction
 	public Object getDesignTimeProperty(String key)
@@ -3479,6 +3566,8 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * @sample
 	 * var frm = solutionModel.getForm('orders')
 	 * frm.putDesignTimeProperty('myprop', 'lemon')
+	 *
+	 * @return The previous value of the specified design-time property, or null if none existed.
 	 */
 	@JSFunction
 	public Object putDesignTimeProperty(String key, Object value)
@@ -3492,6 +3581,8 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * @sample
 	 * var frm = solutionModel.getForm('orders')
 	 * var propNames = frm.getDesignTimePropertyNames()
+	 *
+	 * @return An array of design-time property names for the form.
 	 */
 	@JSFunction
 	public String[] getDesignTimePropertyNames()
@@ -3512,6 +3603,8 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * frm.removeDesignTimeProperty('myprop')
 	 *
 	 * @param key the property name
+	 *
+	 * @return The previous value of the specified design-time property, or null if none existed.
 	 */
 	@JSFunction
 	public Object removeDesignTimeProperty(String key)
@@ -3526,6 +3619,8 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * @sample
 	 * var form_UUID = myForm.getUUID();
 	 * application.output(form_UUID.toString());
+	 *
+	 * @return The UUID of this form.
 	 */
 	@JSFunction
 	public UUID getUUID()
@@ -3549,9 +3644,12 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 *
 	 * @param type the display type of the JSField object (see the Solution Model -> JSField node for display types)
 	 *
+	 * @return The newly created JSField object.
+	 *
 	 */
 	@ServoyClientSupport(mc = false, ng = true, wc = false, sc = false)
 	@JSFunction
+	@Deprecated
 	public JSField newField(Object dataprovider, int type)
 	{
 		return newField(dataprovider, type, 0, 0, 100, 20);
@@ -3575,6 +3673,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 */
 	@ServoyClientSupport(mc = false, ng = true, wc = false, sc = false)
 	@JSFunction
+	@Deprecated
 	public JSField newTextField(Object dataprovider)
 	{
 		return newField(dataprovider, Field.TEXT_FIELD, 0, 0, 100, 20);
@@ -3598,6 +3697,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 */
 	@ServoyClientSupport(mc = false, ng = true, wc = false, sc = false)
 	@JSFunction
+	@Deprecated
 	public JSField newTextArea(Object dataprovider)
 	{
 		return newField(dataprovider, Field.TEXT_AREA, 0, 0, 100, 100);
@@ -3619,6 +3719,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 */
 	@ServoyClientSupport(mc = false, ng = true, wc = false, sc = false)
 	@JSFunction
+	@Deprecated
 	public JSField newComboBox(Object dataprovider)
 	{
 		return newField(dataprovider, Field.COMBOBOX, 0, 0, 100, 20);
@@ -3640,6 +3741,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 */
 	@ServoyClientSupport(mc = false, ng = true, wc = false, sc = false)
 	@JSFunction
+	@Deprecated
 	public JSField newListBox(Object dataprovider)
 	{
 		return newField(dataprovider, Field.LIST_BOX, 0, 0, 100, 100);
@@ -3661,6 +3763,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 */
 	@ServoyClientSupport(mc = false, ng = true, wc = false, sc = false)
 	@JSFunction
+	@Deprecated
 	public JSField newMultiSelectListBox(Object dataprovider)
 	{
 		return newField(dataprovider, Field.MULTISELECT_LISTBOX, 0, 0, 100, 100);
@@ -3682,6 +3785,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 */
 	@ServoyClientSupport(mc = false, ng = true, wc = false, sc = false)
 	@JSFunction
+	@Deprecated
 	public JSField newSpinner(Object dataprovider)
 	{
 		return newField(dataprovider, Field.SPINNER, 0, 0, 100, 20);
@@ -3705,6 +3809,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 */
 	@ServoyClientSupport(mc = false, ng = true, wc = false, sc = false)
 	@JSFunction
+	@Deprecated
 	public JSField newRadios(Object dataprovider)
 	{
 		return newField(dataprovider, Field.RADIOS, 0, 0, 100, 100);
@@ -3726,6 +3831,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 */
 	@ServoyClientSupport(mc = false, ng = true, wc = false, sc = false)
 	@JSFunction
+	@Deprecated
 	public JSField newCheck(Object dataprovider)
 	{
 		return newField(dataprovider, Field.CHECKS, 0, 0, 100, 100);
@@ -3747,6 +3853,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 */
 	@ServoyClientSupport(mc = false, ng = true, wc = false, sc = false)
 	@JSFunction
+	@Deprecated
 	public JSField newCalendar(Object dataprovider)
 	{
 		return newField(dataprovider, Field.CALENDAR, 0, 0, 100, 20);
@@ -3770,6 +3877,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 */
 	@ServoyClientSupport(mc = false, ng = true, wc = false, sc = false)
 	@JSFunction
+	@Deprecated
 	public JSField newHtmlArea(Object dataprovider)
 	{
 		return newField(dataprovider, Field.HTML_AREA, 0, 0, 200, 300);
@@ -3792,6 +3900,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 */
 	@ServoyClientSupport(mc = false, ng = true, wc = false, sc = false)
 	@JSFunction
+	@Deprecated
 	public JSField newImageMedia(Object dataprovider)
 	{
 		return newField(dataprovider, Field.IMAGE_MEDIA, 0, 0, 200, 200);
@@ -3816,6 +3925,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 */
 	@ServoyClientSupport(mc = false, ng = true, wc = false, sc = false)
 	@JSFunction
+	@Deprecated
 	public JSField newTypeAhead(Object dataprovider)
 	{
 		return newField(dataprovider, Field.TYPE_AHEAD, 0, 0, 100, 20);
@@ -3837,6 +3947,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 */
 	@ServoyClientSupport(mc = false, ng = true, wc = false, sc = false)
 	@JSFunction
+	@Deprecated
 	public JSField newPassword(Object dataprovider)
 	{
 		return newField(dataprovider, Field.PASSWORD, 0, 0, 100, 20);
@@ -3861,6 +3972,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 */
 	@ServoyClientSupport(mc = false, ng = true, wc = false, sc = false)
 	@JSFunction
+	@Deprecated
 	public JSButton newButton(String txt, Object action)
 	{
 		return newButton(txt, 0, 0, 100, 20, action);
@@ -3882,6 +3994,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 */
 	@ServoyClientSupport(mc = false, ng = true, wc = false, sc = false)
 	@JSFunction
+	@Deprecated
 	public JSLabel newLabel(String txt)
 	{
 		return newLabel(txt, 0, 0, 100, 20, null);
@@ -3907,6 +4020,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 */
 	@ServoyClientSupport(mc = false, ng = true, wc = false, sc = false)
 	@JSFunction
+	@Deprecated
 	public JSPortal newPortal(String name, Object relation)
 	{
 		return newPortal(name, relation, 0, 0, 300, 300);
@@ -3935,6 +4049,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * @return a JSTabPanel object
 	 */
 	@JSFunction
+	@Deprecated
 	public JSTabPanel newTabPanel(String name)
 	{
 		return newTabPanel(name, 0, 0, 100, 100);
@@ -3986,6 +4101,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * @return a new JSField object (of the specified display type)
 	 */
 	@JSFunction
+	@Deprecated
 	public JSField newField(Object dataprovider, int type, int x, int y, int width, int height)
 	{
 		checkModification();
@@ -4037,6 +4153,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * @return a JSField object with the displayType of TEXT_FIELD
 	 */
 	@JSFunction
+	@Deprecated
 	public JSField newTextField(Object dataprovider, int x, int y, int width, int height)
 	{
 		return newField(dataprovider, Field.TEXT_FIELD, x, y, width, height);
@@ -4061,6 +4178,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * @return a JSField object with the displayType of TEXT_AREA
 	 */
 	@JSFunction
+	@Deprecated
 	public JSField newTextArea(Object dataprovider, int x, int y, int width, int height)
 	{
 		return newField(dataprovider, Field.TEXT_AREA, x, y, width, height);
@@ -4083,6 +4201,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * @return a new JSField object on the form with the displayType of COMBOBOX
 	 */
 	@JSFunction
+	@Deprecated
 	public JSField newComboBox(Object dataprovider, int x, int y, int width, int height)
 	{
 		return newField(dataprovider, Field.COMBOBOX, x, y, width, height);
@@ -4105,6 +4224,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * @return a new JSField object on the form with the displayType of LISTBOX
 	 */
 	@JSFunction
+	@Deprecated
 	public JSField newListBox(Object dataprovider, int x, int y, int width, int height)
 	{
 		return newField(dataprovider, Field.LIST_BOX, x, y, width, height);
@@ -4127,6 +4247,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * @return a new JSField object on the form with the displayType of MULTISELECT_LISTBOX
 	 */
 	@JSFunction
+	@Deprecated
 	public JSField newMultiSelectListBox(Object dataprovider, int x, int y, int width, int height)
 	{
 		return newField(dataprovider, Field.MULTISELECT_LISTBOX, x, y, width, height);
@@ -4149,6 +4270,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * @return a new JSField object on the form with the displayType of SPINNER
 	 */
 	@JSFunction
+	@Deprecated
 	public JSField newSpinner(Object dataprovider, int x, int y, int width, int height)
 	{
 		return newField(dataprovider, Field.SPINNER, x, y, width, height);
@@ -4173,6 +4295,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * @return a JSField object with the displayType of RADIOS (radio buttons)
 	 */
 	@JSFunction
+	@Deprecated
 	public JSField newRadios(Object dataprovider, int x, int y, int width, int height)
 	{
 		return newField(dataprovider, Field.RADIOS, x, y, width, height);
@@ -4195,6 +4318,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * @return a new JSField object on the form with the displayType of CHECK (checkbox)
 	 */
 	@JSFunction
+	@Deprecated
 	public JSField newCheck(Object dataprovider, int x, int y, int width, int height)
 	{
 		return newField(dataprovider, Field.CHECKS, x, y, width, height);
@@ -4217,6 +4341,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * @return a new JSField object on the form with the displayType of CALENDAR
 	 */
 	@JSFunction
+	@Deprecated
 	public JSField newCalendar(Object dataprovider, int x, int y, int width, int height)
 	{
 		return newField(dataprovider, Field.CALENDAR, x, y, width, height);
@@ -4239,6 +4364,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * @return a JSField object with the displayType of RTF_AREA
 	 */
 	@JSFunction
+	@Deprecated
 	public JSField newRtfArea(Object dataprovider, int x, int y, int width, int height)
 	{
 		return newField(dataprovider, Field.RTF_AREA, x, y, width, height);
@@ -4263,6 +4389,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * @return a JSField object on the form with the displayType of HTML_AREA
 	 */
 	@JSFunction
+	@Deprecated
 	public JSField newHtmlArea(Object dataprovider, int x, int y, int width, int height)
 	{
 		return newField(dataprovider, Field.HTML_AREA, x, y, width, height);
@@ -4286,6 +4413,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * @return a new JSField object on the form with the displayType of IMAGE_MEDIA
 	 */
 	@JSFunction
+	@Deprecated
 	public JSField newImageMedia(Object dataprovider, int x, int y, int width, int height)
 	{
 		return newField(dataprovider, Field.IMAGE_MEDIA, x, y, width, height);
@@ -4311,6 +4439,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * @return a JSField object with the displayType of TYPE_AHEAD
 	 */
 	@JSFunction
+	@Deprecated
 	public JSField newTypeAhead(Object dataprovider, int x, int y, int width, int height)
 	{
 		return newField(dataprovider, Field.TYPE_AHEAD, x, y, width, height);
@@ -4333,6 +4462,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * @return a new JSField object on the form with the displayType of PASSWORD
 	 */
 	@JSFunction
+	@Deprecated
 	public JSField newPassword(Object dataprovider, int x, int y, int width, int height)
 	{
 		return newField(dataprovider, Field.PASSWORD, x, y, width, height);
@@ -4362,6 +4492,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * @return a new JSButton object
 	 */
 	@JSFunction
+	@Deprecated
 	public JSButton newButton(String txt, int x, int y, int width, int height, Object action)
 	{
 		checkModification();
@@ -4378,8 +4509,8 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 			}
 			else
 			{
-				int id = getMethodId(action, gc, application);
-				gc.setOnActionMethodID(id);
+				String uuid = getMethodId(action, gc, application);
+				gc.setOnActionMethodID(uuid);
 				return new JSButton(this, gc, application, true);
 			}
 		}
@@ -4410,6 +4541,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * @return a JSLabel object
 	 */
 	@JSFunction
+	@Deprecated
 	public JSLabel newLabel(String txt, int x, int y, int width, int height)
 	{
 		return newLabel(txt, x, y, width, height, null);
@@ -4438,6 +4570,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * @return a JSLabel object
 	 */
 	@JSFunction
+	@Deprecated
 	public JSLabel newLabel(String txt, int x, int y, int width, int height, Object action)
 	{
 		checkModification();
@@ -4454,10 +4587,10 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 			}
 			else
 			{
-				int methodId = getMethodId(action, gc, application);
-				if (methodId > 0)
+				String methodUUID = getMethodId(action, gc, application);
+				if (methodUUID != null && !methodUUID.equals("-1")) //$NON-NLS-1$)
 				{
-					gc.setOnActionMethodID(methodId);
+					gc.setOnActionMethodID(methodUUID);
 					gc.setShowClick(false);
 				}
 				return new JSLabel(this, gc, application, true);
@@ -4469,9 +4602,9 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 		}
 	}
 
-	protected static int getMethodId(Object action, GraphicalComponent gc, IApplication application)
+	protected static String getMethodId(Object action, GraphicalComponent gc, IApplication application)
 	{
-		int methodId = -1;
+		String methodUUID = "-1";
 		if (action != null)
 		{
 			if (action instanceof Function)
@@ -4479,29 +4612,29 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 				ScriptMethod scriptMethod = getScriptMethod((Function)action, application.getFlattenedSolution());
 				if (scriptMethod != null)
 				{
-					methodId = getMethodId(application, gc, scriptMethod);
+					methodUUID = getMethodId(application, gc, scriptMethod);
 				}
 			}
 			else if (action instanceof JSMethod)
 			{
-				methodId = getMethodId(application, gc, (JSMethod)action, null);
+				methodUUID = getMethodId(application, gc, (JSMethod)action, null);
 			}
 			else
 			{
 				throw new RuntimeException("method argument not a jsmethod"); //$NON-NLS-1$
 			}
 		}
-		return methodId;
+		return methodUUID;
 	}
 
-	static int getMethodId(IApplication application, AbstractBase base, IBaseSMMethod method, TypedProperty<Integer> methodProperty)
+	static String getMethodId(IApplication application, AbstractBase base, IBaseSMMethod method, TypedProperty<String> methodProperty)
 	{
-		if (method == null && methodProperty != null && BaseComponent.isCommandProperty(methodProperty.getPropertyName())) return -1;
-		if (method == null || method == ISMDefaults.COMMAND_DEFAULT) return 0;
+		if (method == null && methodProperty != null && BaseComponent.isCommandProperty(methodProperty.getPropertyName())) return "-1";
+		if (method == null || method == ISMDefaults.COMMAND_DEFAULT) return null;
 		return getMethodId(application, base, ((JSMethod)method).getScriptMethod());
 	}
 
-	public static int getMethodId(IApplication application, AbstractBase base, ScriptMethod method)
+	public static String getMethodId(IApplication application, AbstractBase base, ScriptMethod method)
 	{
 		ISupportChilds parent = method.getParent();
 
@@ -4509,16 +4642,16 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 		// quick check if it is solution or own form..
 		if (parent instanceof Solution || parent.getUUID().equals(f.getUUID()))
 		{
-			return method.getID();
+			return method.getUUID().toString();
 		}
 
 		// it could be a extends form
-		while (f != null && f.getExtendsID() > 0)
+		while (f != null && f.getExtendsID() != null)
 		{
 			f = application.getFlattenedSolution().getForm(f.getExtendsID());
 			if (f != null && parent.getUUID().equals(f.getUUID()))
 			{
-				return method.getID();
+				return method.getUUID().toString();
 			}
 		}
 
@@ -4526,9 +4659,9 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 		Iterator<ScriptMethod> foundsetMethods = application.getFlattenedSolution().getFoundsetMethods(f.getDataSource(), false);
 		while (foundsetMethods.hasNext())
 		{
-			if (foundsetMethods.next().getID() == method.getID())
+			if (foundsetMethods.next().getUUID().equals(method.getUUID()))
 			{
-				return method.getID();
+				return method.getUUID().toString();
 			}
 		}
 
@@ -4572,6 +4705,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * @return a JSPortal object
 	 */
 	@JSFunction
+	@Deprecated
 	public JSPortal newPortal(String name, Object relation, int x, int y, int width, int height)
 	{
 		checkModification();
@@ -4615,6 +4749,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * @return a JSPortal object
 	 */
 	@JSFunction
+	@Deprecated
 	public JSPortal getPortal(String name)
 	{
 		if (name == null) return null;
@@ -4649,6 +4784,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * @return true if the JSPortal has successfully been removed; false otherwise
 	 */
 	@JSFunction
+	@Deprecated
 	public boolean removePortal(String name)
 	{
 		if (name == null) return false;
@@ -4686,6 +4822,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 *
 	 */
 	@JSFunction
+	@Deprecated
 	public JSPortal[] getPortals(boolean returnInheritedElements)
 	{
 		List<JSPortal> portals = new ArrayList<JSPortal>();
@@ -4717,6 +4854,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 *
 	 */
 	@JSFunction
+	@Deprecated
 	public JSPortal[] getPortals()
 	{
 		return getPortals(false);
@@ -4747,6 +4885,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * @return a JSTabPanel object
 	 */
 	@JSFunction
+	@Deprecated
 	public JSTabPanel newTabPanel(String name, int x, int y, int width, int height)
 	{
 		checkModification();
@@ -4778,6 +4917,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * @return a JSTabPanel object
 	 */
 	@JSFunction
+	@Deprecated
 	public JSTabPanel getTabPanel(String name)
 	{
 		if (name == null) return null;
@@ -4817,6 +4957,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * @return true is the JSTabPanel has been successfully removed, false otherwise
 	 */
 	@JSFunction
+	@Deprecated
 	public boolean removeTabPanel(String name)
 	{
 		if (name == null) return false;
@@ -4854,6 +4995,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 *
 	 */
 	@JSFunction
+	@Deprecated
 	public JSTabPanel[] getTabPanels(boolean returnInheritedElements)
 	{
 		List<JSTabPanel> tabPanels = new ArrayList<JSTabPanel>();
@@ -4885,6 +5027,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 *
 	 */
 	@JSFunction
+	@Deprecated
 	public JSTabPanel[] getTabPanels()
 	{
 		return getTabPanels(false);
@@ -4904,6 +5047,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 */
 	@JSFunction
 	@ServoyClientSupport(mc = true, ng = true, wc = true, sc = true)
+	@Deprecated
 	public JSField getField(String name)
 	{
 		if (name == null) return null;
@@ -4939,6 +5083,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 */
 	@ServoyClientSupport(mc = true, ng = true, wc = true, sc = true)
 	@JSFunction
+	@Deprecated
 	public boolean removeField(String name)
 	{
 		if (name == null) return false;
@@ -4974,6 +5119,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 *
 	 */
 	@JSFunction
+	@Deprecated
 	public JSField[] getFields(boolean returnInheritedElements)
 	{
 		List<JSField> fields = new ArrayList<JSField>();
@@ -5004,6 +5150,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 */
 	@ServoyClientSupport(mc = true, ng = true, wc = true, sc = true)
 	@JSFunction
+	@Deprecated
 	public JSField[] getFields()
 	{
 		return getFields(false);
@@ -5022,6 +5169,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 */
 	@ServoyClientSupport(mc = true, ng = true, wc = true, sc = true)
 	@JSFunction
+	@Deprecated
 	public JSButton getButton(String name)
 	{
 		if (name == null) return null;
@@ -5056,6 +5204,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 */
 	@ServoyClientSupport(mc = true, ng = true, wc = true, sc = true)
 	@JSFunction
+	@Deprecated
 	public boolean removeButton(String name)
 	{
 		if (name == null) return false;
@@ -5091,6 +5240,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 *
 	 */
 	@JSFunction
+	@Deprecated
 	public JSButton[] getButtons(boolean returnInheritedElements)
 	{
 		List<JSButton> buttons = new ArrayList<JSButton>();
@@ -5125,6 +5275,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 */
 	@ServoyClientSupport(mc = true, ng = true, wc = true, sc = true)
 	@JSFunction
+	@Deprecated
 	public JSButton[] getButtons()
 	{
 		return getButtons(false);
@@ -5148,6 +5299,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * @return a JSBean object
 	 */
 	@JSFunction
+	@Deprecated
 	public JSBean newBean(String name, String className, int x, int y, int width, int height)
 	{
 		checkModification();
@@ -5177,6 +5329,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 */
 	@ServoyClientSupport(mc = true, ng = true, wc = true, sc = true)
 	@JSFunction
+	@Deprecated
 	public JSBean getBean(String name)
 	{
 		if (name == null) return null;
@@ -5213,6 +5366,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 */
 	@ServoyClientSupport(mc = true, ng = true, wc = true, sc = true)
 	@JSFunction
+	@Deprecated
 	public boolean removeBean(String name)
 	{
 		if (name == null) return false;
@@ -5247,6 +5401,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 *
 	 */
 	@JSFunction
+	@Deprecated
 	public JSBean[] getBeans(boolean returnInheritedElements)
 	{
 		List<JSBean> beans = new ArrayList<JSBean>();
@@ -5274,6 +5429,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 *
 	 */
 	@JSFunction
+	@Deprecated
 	public JSBean[] getBeans()
 	{
 		return getBeans(false);
@@ -5342,6 +5498,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 */
 	@ServoyClientSupport(mc = true, ng = true, wc = true, sc = true)
 	@JSFunction
+	@Deprecated
 	public JSLabel getLabel(String name)
 	{
 		if (name == null) return null;
@@ -5385,6 +5542,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 */
 	@ServoyClientSupport(mc = true, ng = true, wc = true, sc = true)
 	@JSFunction
+	@Deprecated
 	public boolean removeLabel(String name)
 	{
 		if (name == null) return false;
@@ -5420,6 +5578,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 *
 	 */
 	@JSFunction
+	@Deprecated
 	public JSLabel[] getLabels(boolean returnInheritedElements)
 	{
 		List<JSLabel> labels = new ArrayList<JSLabel>();
@@ -5454,9 +5613,41 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 */
 	@ServoyClientSupport(mc = true, ng = true, wc = true, sc = true)
 	@JSFunction
+	@Deprecated
 	public JSLabel[] getLabels()
 	{
 		return getLabels(false);
+	}
+
+	/**
+	 * Create a new responsive layout container at a certain position and size.
+	 * @sample
+	 * var container = form.newResponsiveLayoutContainer(100, 100, 400, 300);
+	 * @param x the horizontal "x" position of the JSBean object in pixels
+	 * @param y the vertical "y" position of the JSBean object in pixels
+	 * @param width the width of the JSBean object in pixels
+	 * @param height the height of the JSBean object in pixels
+	 *
+	 * @return the new responsive layout container
+	 */
+	@ServoyClientSupport(mc = false, ng = true, wc = false, sc = false)
+	@JSFunction
+	public JSResponsiveLayoutContainer newResponsiveLayoutContainer(int x, int y, int width, int height)
+	{
+		try
+		{
+			checkModification();
+			CSSPositionLayoutContainer layoutContainer = getContainer().createNewCSSPositionLayoutContainer();
+			layoutContainer.setPackageName("servoycore");
+			layoutContainer.setSpecName("servoycore-responsivecontainer");
+			layoutContainer
+				.setCssPosition(new CSSPosition(Integer.toString(y), "-1", "-1", Integer.toString(x), Integer.toString(width), Integer.toString(height)));
+			return application.getScriptEngine().getSolutionModifier().createResponsiveLayoutContainer(this, layoutContainer, true);
+		}
+		catch (Exception e)
+		{
+			throw new RuntimeException(e);
+		}
 	}
 
 	public IApplication getApplication()

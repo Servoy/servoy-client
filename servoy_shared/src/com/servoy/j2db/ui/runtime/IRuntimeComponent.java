@@ -20,16 +20,21 @@ import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
 
 /**
- * Interface for all runtime components
+ * The <code>IRuntimeComponent</code> interface defines runtime components in Servoy, offering scripting capabilities
+ * and runtime properties. It extends multiple interfaces to provide functionalities such as managing foreground and background colors,
+ * visibility, enablement, borders, transparency, tooltips, fonts, size, location, and CSS style classes.
+ *
+ * Additionally, the interface includes constants for various component types, such as buttons, calendars, checkboxes, labels,
+ * text fields, and combo boxes. <code>IRuntimeComponent</code> serves as a comprehensive base for scripting runtime UI components
+ * in Servoy applications.
  *
  * @author jcompagner, rgansevles
- *
  * @since 6.1
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "RuntimeComponent", scriptingName = "RuntimeComponent", extendsComponent = "Component")
 @SuppressWarnings("nls")
 @ServoyClientSupport(ng = true, mc = false, wc = true, sc = true)
-public interface IRuntimeComponent extends IBaseRuntimeComponent, HasRuntimeFgBgColor, HasRuntimeVisible, HasRuntimeEnabled, HasRuntimeBorder,
+public interface IRuntimeComponent extends IBaseForInterfaceRuntimeComponent, HasRuntimeFgBgColor, HasRuntimeVisible, HasRuntimeEnabled, HasRuntimeBorder,
 	HasRuntimeTransparant, HasRuntimeTooltip, HasRuntimeFont, HasRuntimeSize, HasRuntimeLocation, HasRuntimeStyleClass
 {
 	// types for getElementType

@@ -31,9 +31,26 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 import com.servoy.j2db.util.ServoyException;
 
 /**
- * This is the wrapper class exposed to javascript access.
+ * The <code>JSWindow</code> object provides functionality for managing and scripting windows and dialogs in a solution.
+ * It supports creating modal and non-modal dialogs, customizing their appearance and behavior, and displaying forms within them.
+ * Windows can have properties like opacity, size, location, resizable state, and titles, and they can also maintain their state across sessions using bounds storage.
+ *
+ * <h2>Functionality</h2>
+ * <p>JSWindow provides constants such as <code>DEFAULT</code> for auto-determined bounds, <code>DIALOG</code> for non-modal windows,
+ * and <code>MODAL_DIALOG</code> for modal dialogs. These constants simplify the creation and configuration of different window types.</p>
+ *
+ * <p>Properties allow fine control over the window’s characteristics. For example, <code>opacity</code> and <code>transparent</code> control visual appearance,
+ * while <code>resizable</code>, <code>undecorated</code>, and <code>storeBounds</code> affect interactivity and persistence.
+ * Methods enable developers to show or hide windows, manipulate their size and position dynamically, and manage associated forms.</p>
+ *
+ * <p>Windows support advanced features like setting CSS classes for styling, managing design-time properties, and attaching handlers for specific events.
+ * These features enhance customization and integration within applications.</p>
+ *
+ * <p>Refer to the
+ * <a href="https://docs.servoy.com/guides/develop/programming-guide/scripting-the-ui/windows-dialogs-and-popups">Creating window</a> documentation for additional details.</p>
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "JSWindow")
+@ServoyClientSupport(ng = true, wc = true, sc = true)
 public class JSWindow implements IConstantsObject
 {
 	/**
@@ -51,7 +68,7 @@ public class JSWindow implements IConstantsObject
 	/**
 	 * Window type constant that identifies a modal dialog type. Modal dialogs will not allow the user to interact with the parent window(s) until closed.
 	 * Dialogs will stay on top of parent windows and are less accessible through the OS window manager. In web-client dialogs will not
-	 * open in a separate browser window. NOTE: no code is executed in Smart Client after a modal dialog is shown (the show operation blocks) until this dialog closes.
+	 * open in a separate browser window.
 	 * @sample
 	 * // create a modal dialog on top of current active form's window and show a form inside it
 	 * var myWindow = application.createWindow("myName", JSWindow.MODAL_DIALOG);
@@ -192,6 +209,8 @@ public class JSWindow implements IConstantsObject
 	 * win1.storeBounds = true;
 	 * win1.title = "Window 1";
 	 * controller.show(win1);
+	 *
+	 *  @return true if the window's bounds are stored/persisted; false otherwise.
 	 */
 	public boolean js_getStoreBounds()
 	{
@@ -202,6 +221,8 @@ public class JSWindow implements IConstantsObject
 	 * Gets/Sets whether or not this window can be resized by the user (default true).
 	 *
 	 * @sampleas js_isVisible()
+	 *
+	 *  @return true if the window is resizable by the user; false otherwise.
 	 */
 	public boolean js_isResizable()
 	{
@@ -211,6 +232,19 @@ public class JSWindow implements IConstantsObject
 	public void js_setResizable(boolean resizable)
 	{
 		impl.setResizable(resizable);
+	}
+
+	/**
+	 * Sets whether or not this window can be closed by the user using the escape key (default false).
+	 * */
+	public void js_setCloseOnEscape(boolean closeOnEscape)
+	{
+		impl.setCloseOnEscape(closeOnEscape);
+	}
+
+	public boolean js_getCloseOnEscape()
+	{
+		return impl.getCloseOnEscape();
 	}
 
 	/**
@@ -287,8 +321,6 @@ public class JSWindow implements IConstantsObject
 
 	/**
 	 * Gets/Sets the transparency property.
-	 * NOTE: For smart clients, the window must be undecorated or the
-	 * servoy.smartclient.allowLAFWindowDecoration property set to true
 	 *
 	 * @sampleas js_getName()
 	 *
@@ -341,12 +373,14 @@ public class JSWindow implements IConstantsObject
 	}
 
 	/**
-	 * Sets whether or not this window should have a text tool bar. Has no effect on web client or smart client main application frame.
+	 * Legacy smart client API, do not use anymore.
+	 * Sets whether or not this window should have a text tool bar.
 	 *
 	 * @param showTextToolbar true if you want a text tool bar to be added to this window, false otherwise.
 	 *
 	 * @sampleas js_toFront()
 	 */
+	@Deprecated
 	public void js_showTextToolbar(boolean showTextToolbar)
 	{
 		impl.showTextToolbar(showTextToolbar);
@@ -466,6 +500,8 @@ public class JSWindow implements IConstantsObject
 	 * } else {
 	 * 	application.output("Window could not be destroyed");
 	 * }
+	 *
+	 *  @return true if the window was successfully destroyed; false otherwise.
 	 */
 	public boolean js_destroy()
 	{

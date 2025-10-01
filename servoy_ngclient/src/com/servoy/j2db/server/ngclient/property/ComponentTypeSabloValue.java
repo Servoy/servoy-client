@@ -355,7 +355,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 		for (String handler : childComponent.getFormElement().getHandlers())
 		{
 			Object value = childComponent.getFormElement().getPropertyValue(handler);
-			if (value instanceof String)
+			if (value instanceof String && Utils.getAsUUID(value, false) != null)
 			{
 				IPersist function = formUI.getController().getApplication().getFlattenedSolution().searchPersist((String)value);
 				Form form = formUI.getController().getForm();
@@ -372,17 +372,13 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 				}
 				if (function != null)
 				{
-					childComponent.add(handler, function.getID());
+					childComponent.add(handler, function.getUUID().toString());
 				}
 				else
 				{
 					Debug.warn("Event handler for " + handler + " with value '" + value + "' not found (form " + form + ", form element " +
 						childComponent.getFormElement().getName() + ")");
 				}
-			}
-			else if (value instanceof Number && ((Number)value).intValue() > 0)
-			{
-				childComponent.add(handler, ((Number)value).intValue());
 			}
 		}
 
@@ -526,7 +522,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 
 		// model content
 		TypedData<Map<String, Object>> allProps = childComponent.getProperties();
-		childComponent.getAndClearChanges(); // just for clear
+		childComponent.clearChanges();
 		removeRecordDependentProperties(allProps);
 
 		destinationJSON.key(ComponentPropertyType.MODEL_KEY);
@@ -660,7 +656,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 
 		// we'll need to update them with runtime values
 		final TypedData<Map<String, Object>> runtimeProperties = childComponent.getProperties();
-		childComponent.getAndClearChanges(); // just for clear
+		childComponent.clearChanges();
 
 		// add to useful properties only those formElement properties that didn't get overridden at runtime (so form element value is still used)
 		boolean templateValuesRemoved = false;
@@ -940,13 +936,13 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 					if (forFoundsetTypedPropertyName != null && recordBasedProperties.contains(propertyName))
 					{
 						String rowIDValue = startEditData.getString(FoundsetTypeSabloValue.ROW_ID_COL_KEY);
-						IFoundSetInternal foundset = getFoundsetValue().getFoundset();
-						dal = getFoundsetValue().getDataAdapterList();
+						FoundsetTypeSabloValue foundsetTypeSabloValue = getFoundsetValue();
+						IFoundSetInternal foundset = foundsetTypeSabloValue.getFoundset();
+						dal = foundsetTypeSabloValue.getDataAdapterList();
 
-						Pair<String, Integer> splitHashAndIndex = FoundsetTypeSabloValue.splitPKHashAndIndex(rowIDValue);
 						if (foundset != null)
 						{
-							int recordIndex = foundset.getRecordIndex(splitHashAndIndex.getLeft(), splitHashAndIndex.getRight().intValue());
+							int recordIndex = foundset.getRecordIndex(rowIDValue, foundsetTypeSabloValue.getRecordIndexHint());
 
 							if (recordIndex != -1)
 							{
@@ -985,10 +981,9 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 	{
 		IFoundSetInternal foundset = foundsetPropertyValue.getFoundset();
 
-		Pair<String, Integer> splitHashAndIndex = FoundsetTypeSabloValue.splitPKHashAndIndex(rowIDValue);
 		if (foundset != null)
 		{
-			int recordIndex = foundset.getRecordIndex(splitHashAndIndex.getLeft(), splitHashAndIndex.getRight().intValue());
+			int recordIndex = foundset.getRecordIndex(rowIDValue, foundsetPropertyValue.getRecordIndexHint());
 
 			if (recordIndex != -1)
 			{

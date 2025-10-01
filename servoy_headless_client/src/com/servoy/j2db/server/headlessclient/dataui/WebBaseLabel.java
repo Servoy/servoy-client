@@ -25,40 +25,21 @@ import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.net.URL;
-import java.util.Locale;
 
 import javax.swing.ImageIcon;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 
-import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
-import org.apache.wicket.IResourceListener;
-import org.apache.wicket.Request;
-import org.apache.wicket.RequestCycle;
-import org.apache.wicket.ResourceReference;
-import org.apache.wicket.markup.ComponentTag;
-import org.apache.wicket.markup.MarkupStream;
-import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.form.Form;
-import org.apache.wicket.markup.html.internal.HtmlHeaderContainer;
-import org.apache.wicket.markup.html.link.ILinkListener;
-import org.apache.wicket.model.Model;
-import org.apache.wicket.util.convert.IConverter;
 
-import com.servoy.base.util.ITagResolver;
 import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IApplication;
-import com.servoy.j2db.IFormUIInternal;
 import com.servoy.j2db.IMainContainer;
 import com.servoy.j2db.IScriptExecuter;
 import com.servoy.j2db.MediaURLStreamHandler;
 import com.servoy.j2db.persistence.ISupportTextSetup;
 import com.servoy.j2db.persistence.Media;
-import com.servoy.j2db.scripting.JSEvent;
-import com.servoy.j2db.server.headlessclient.ByteArrayResource;
 import com.servoy.j2db.server.headlessclient.MainPage;
 import com.servoy.j2db.ui.IAnchoredComponent;
 import com.servoy.j2db.ui.IComponent;
@@ -77,8 +58,6 @@ import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.HtmlUtils;
 import com.servoy.j2db.util.ImageLoader;
-import com.servoy.j2db.util.MimeTypes;
-import com.servoy.j2db.util.Text;
 import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.gui.JpegEncoder;
 
@@ -87,8 +66,8 @@ import com.servoy.j2db.util.gui.JpegEncoder;
  *
  * @author jcompagner,jblok
  */
-public class WebBaseLabel extends Label implements ILabel, IResourceListener, ILatestVersionResourceListener, IProviderStylePropertyChanges,
-	IDoubleClickListener, IRightClickListener, ISupportWebBounds, IImageDisplay, IAnchoredComponent, ISupportSimulateBoundsProvider, ISupportOnRender
+public class WebBaseLabel extends Component implements ILabel, IProviderStylePropertyChanges,
+	ISupportWebBounds, IImageDisplay, IAnchoredComponent, ISupportSimulateBoundsProvider, ISupportOnRender
 {
 	private static final long serialVersionUID = 1L;
 
@@ -100,9 +79,6 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IL
 
 	protected MediaResource icon;
 	private int mediaOptions;
-	private AttributeModifier enabledStyle;
-	private ResourceReference iconReference;
-	private ResourceReference rolloverIconReference;
 	private String iconUrl;
 	private Media media;
 //	private Dimension mediaSize;
@@ -111,7 +87,6 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IL
 	protected final IApplication application;
 	private String text_url;
 	private String rolloverUrl;
-	private AttributeModifier rolloverBehavior;
 
 	protected IFieldComponent labelForComponent;
 	protected final WebEventExecutor eventExecutor;
@@ -126,11 +101,6 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IL
 		halign = ISupportTextSetup.LEFT; // default horizontal align
 		valign = ISupportTextSetup.CENTER; // default vertical align
 
-		((ChangesRecorder)scriptable.getChangesRecorder()).setDefaultBorderAndPadding(null, TemplateGenerator.DEFAULT_LABEL_PADDING);
-		setEscapeModelStrings(false);
-		setOutputMarkupPlaceholderTag(true);
-		add(StyleAttributeModifierModel.INSTANCE);
-		add(TooltipAttributeModifier.INSTANCE);
 		boolean useAJAX = Utils.getAsBoolean(application.getRuntimeProperties().get("useAJAX")); //$NON-NLS-1$
 		eventExecutor = new WebEventExecutor(this, useAJAX);
 	}
@@ -142,7 +112,6 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IL
 	public WebBaseLabel(IApplication application, AbstractRuntimeBaseComponent< ? extends IComponent> scriptable, String id, String label)
 	{
 		this(application, scriptable, id);
-		setDefaultModel(new Model<String>(label));
 	}
 
 	public final AbstractRuntimeBaseComponent< ? extends IComponent> getScriptObject()
@@ -150,99 +119,10 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IL
 		return scriptable;
 	}
 
-	/**
-	 * @see org.apache.wicket.Component#getLocale()
-	 */
-	@Override
-	public Locale getLocale()
-	{
-		return application.getLocale();
-	}
-
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.apache.wicket.Component#renderHead(org.apache.wicket.markup.html.internal.HtmlHeaderContainer)
-	 */
-	@SuppressWarnings("nls")
-	@Override
-	public void renderHead(HtmlHeaderContainer container)
-	{
-		super.renderHead(container);
-		if (hasHtmlOrImage())
-		{
-			container.getHeaderResponse().renderOnLoadJavascript("Servoy.Utils.setLabelChildHeight('" + getMarkupId() + "', " + valign + ");"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		}
-	}
-
 	protected CharSequence getBodyText()
 	{
-		return StripHTMLTagsConverter.convertBodyText(this, getDefaultModelObjectAsString(), scriptable.trustDataAsHtml(),
-			application.getFlattenedSolution()).getBodyTxt();
+		return getText();
 	}
-
-	/**
-	 * @see wicket.markup.html.WebComponent#onRender(wicket.markup.MarkupStream)
-	 */
-	@Override
-	protected void onRender(MarkupStream markupStream)
-	{
-		super.onRender(markupStream);
-		scriptable.getChangesRecorder().setRendered();
-	}
-
-	/**
-	 * @see wicket.IResourceListener#onResourceRequested()
-	 */
-	public void onResourceRequested()
-	{
-		String mediaParameter = RequestCycle.get().getRequest().getParameter("media"); //$NON-NLS-1$
-		if (mediaParameter != null)
-		{
-			Media m;
-			try
-			{
-				m = application.getFlattenedSolution().getMedia(mediaParameter);
-				byte[] bytes = m.getMediaData();
-				new ByteArrayResource(MimeTypes.getContentType(bytes), bytes, null).onResourceRequested();
-			}
-			catch (Exception ex)
-			{
-				Debug.error("Error serving media: " + mediaParameter, ex); //$NON-NLS-1$
-			}
-		}
-		else if (getRequest().getParameter(StripHTMLTagsConverter.BLOB_LOADER_PARAM) != null)
-		{
-			String url = StripHTMLTagsConverter.getBlobLoaderUrlPart(getRequest());
-			try
-			{
-				byte[] bytes = MediaURLStreamHandler.getBlobLoaderMedia(application, url);
-				if (bytes != null)
-				{
-					String mime = MediaURLStreamHandler.getBlobLoaderMimeType(url);
-					if (mime == null) mime = MimeTypes.getContentType(bytes);
-					String filename = MediaURLStreamHandler.getBlobLoaderFileName(url);
-					if (size != null)
-					{
-						MediaResource tempIcon = new MediaResource(bytes, mediaOptions);
-						(tempIcon).checkResize(size);
-						bytes = tempIcon.resized;
-					}
-					new ByteArrayResource(mime, bytes, filename).onResourceRequested();
-
-				}
-			}
-			catch (IOException ex)
-			{
-				Debug.error("Error serving blobloader url: " + url, ex); //$NON-NLS-1$
-			}
-		}
-		else
-		{
-			icon.onResourceRequested();
-		}
-	}
-
 
 	/**
 	 * @see com.servoy.j2db.ui.ILabel#setMediaOption(int)
@@ -286,23 +166,16 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IL
 	/**
 	 * @see com.servoy.j2db.ui.ILabel#setRolloverIcon(byte[])
 	 */
-	public void setRolloverIcon(int rolloverId)
+	public void setRolloverIcon(String rolloverUUID)
 	{
-		if ((rolloverMedia = application.getFlattenedSolution().getMedia(rolloverId)) != null)
-		{
-			addRolloverBehaviors();
-			rolloverIconReference = new ResourceReference("media"); //$NON-NLS-1$
-		}
 	}
 
 	public void setIcon(final byte[] bs)
 	{
 		media = null;
 //		mediaSize = null;
-		iconReference = null;
 		if (bs != null && bs.length != 0)
 		{
-			addEnabledStyleAttributeModifier();
 			icon = new MediaResource(bs, mediaOptions);
 			if (size != null)
 			{
@@ -315,57 +188,25 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IL
 		}
 	}
 
-	private void addRolloverBehaviors()
+	public String getMediaIcon()
 	{
-		if (rolloverBehavior != null) return;
-
-		rolloverBehavior = WebBaseButton.getImageDisplayRolloverBehavior(this);
-		add(rolloverBehavior);
-		add(WebBaseButton.getImageDisplayRolloutBehavior(this));
+		return media != null ? media.getUUID().toString() : null;
 	}
 
-	private void addEnabledStyleAttributeModifier()
-	{
-		if (enabledStyle != null) return;
-
-		enabledStyle = new StyleAppendingModifier(new Model<String>()
-		{
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public String getObject()
-			{
-				return isEnabled() ? "" : "filter:alpha(opacity=50);-moz-opacity:.50;opacity:.50;"; //$NON-NLS-1$ //$NON-NLS-2$
-			}
-		});
-		add(enabledStyle);
-	}
-
-	public int getMediaIcon()
-	{
-		return media != null ? media.getID() : 0;
-	}
-
-	public void setMediaIcon(int iconId)
+	public void setMediaIcon(String iconUUID)
 	{
 		this.icon = null;
 		this.iconUrl = null;
-		this.iconReference = null;
-		if ((media = application.getFlattenedSolution().getMedia(iconId)) != null)
+		if ((media = application.getFlattenedSolution().getMedia(iconUUID)) != null)
 		{
-			addEnabledStyleAttributeModifier();
-			iconReference = new ResourceReference("media"); //$NON-NLS-1$
 			text_url = MediaURLStreamHandler.MEDIA_URL_DEF + media.getName();
 		}
-		else if (enabledStyle != null)
-		{
-			remove(enabledStyle);
-			enabledStyle = null;
-		}
-//		mediaSize = null;
+
 	}
 
 	private int rotation = 0;
+
+	private String txt;
 
 	/**
 	 * @see com.servoy.j2db.ui.ILabel#setRotation(int)
@@ -397,15 +238,15 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IL
 
 	public void setText(String txt)
 	{
-		setDefaultModel(new Model<String>(txt));
+		this.txt = txt;
 	}
 
 	public String getText()
 	{
-		Object o = getDefaultModelObject();
-		return o == null ? null : o.toString();
+		return this.txt;
 	}
 
+	@Override
 	public void setSize(Dimension size)
 	{
 		this.size = size;
@@ -415,29 +256,10 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IL
 		}
 	}
 
+	@Override
 	public void setCursor(Cursor cursor)
 	{
 		this.cursor = cursor;
-	}
-
-	@Override
-	public IConverter getConverter(Class< ? > cls)
-	{
-		if (cls.isArray() && cls.getComponentType().toString().equals("byte")) return new IConverter() //$NON-NLS-1$
-		{
-			private static final long serialVersionUID = 1L;
-
-			public Object convertToObject(String value, Locale locale)
-			{
-				return null;
-			}
-
-			public String convertToString(Object value, Locale locale)
-			{
-				return null;
-			}
-		};
-		return StripHTMLTagsConverter.htmlStripper;
 	}
 
 	public void setTextTransform(int mode)
@@ -451,7 +273,6 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IL
 		if (textUrl == null)
 		{
 			icon = null;
-			iconReference = null;
 			iconUrl = null;
 		}
 		else
@@ -460,9 +281,7 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IL
 			if (index == -1)
 			{
 				icon = null;
-				iconReference = null;
 				iconUrl = textUrl;
-				addEnabledStyleAttributeModifier();
 			}
 			else
 			{
@@ -472,15 +291,13 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IL
 					Media med = application.getFlattenedSolution().getMedia(mediaName);
 					if (med != null)
 					{
-						setMediaIcon(med.getID());
+						setMediaIcon(med.getUUID().toString());
 					}
 					else if (mediaName.startsWith(MediaURLStreamHandler.MEDIA_URL_BLOBLOADER))
 					{
 						// clear previous images
 						icon = null;
-						iconReference = null;
 						iconUrl = null;
-						addEnabledStyleAttributeModifier();
 					}
 				}
 				catch (Exception ex)
@@ -504,7 +321,6 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IL
 	public void setRolloverImageURL(String imageUrl)
 	{
 		this.rolloverUrl = imageUrl;
-		rolloverIconReference = null;
 		if (rolloverUrl != null)
 		{
 			int index = imageUrl.indexOf(MediaURLStreamHandler.MEDIA_URL_DEF);
@@ -514,19 +330,18 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IL
 				Media m = application.getFlattenedSolution().getMedia(nm);
 				if (m != null)
 				{
-					setRolloverIcon(m.getID());
+					setRolloverIcon(m.getUUID().toString());
 				}
 			}
 		}
-		addRolloverBehaviors();
 	}
 
 	public byte[] getThumbnailJPGImage(int width, int height)
 	{
-		return getThumbnailJPGImage(width, height, icon, text_url, media != null ? media.getID() : 0, (mediaOptions & 8) == 8, application);
+		return getThumbnailJPGImage(width, height, icon, text_url, media != null ? media.getUUID().toString() : null, (mediaOptions & 8) == 8, application);
 	}
 
-	public static byte[] getThumbnailJPGImage(int width, int height, MediaResource icon, String text_url, int iconId, boolean keepAspectRatio,
+	public static byte[] getThumbnailJPGImage(int width, int height, MediaResource icon, String text_url, String iconUUID, boolean keepAspectRatio,
 		IApplication application)
 	{
 		Image sourceImage = null;
@@ -571,9 +386,9 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IL
 				}
 			}
 		}
-		else if (iconId > 0)
+		else if (iconUUID != null)
 		{
-			Media media = application.getFlattenedSolution().getMedia(iconId);
+			Media media = application.getFlattenedSolution().getMedia(iconUUID);
 			if (media != null) sourceRawData = media.getMediaData();
 		}
 
@@ -600,15 +415,6 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IL
 	@Deprecated
 	public String getParameterValue(String param)
 	{
-		RequestCycle cycle = RequestCycle.get();
-		if (cycle != null)
-		{
-			Request req = cycle.getRequest();
-			if (req != null)
-			{
-				return req.getParameter(param);
-			}
-		}
 		return null;
 	}
 
@@ -625,6 +431,7 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IL
 	 * name---------------------------------------------------
 	 */
 
+	@Override
 	public void setName(String n)
 	{
 		name = n;
@@ -632,6 +439,7 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IL
 
 	private String name;
 
+	@Override
 	public String getName()
 	{
 		return name;
@@ -643,11 +451,13 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IL
 	 */
 	protected Border border;
 
+	@Override
 	public void setBorder(Border border)
 	{
 		this.border = border;
 	}
 
+	@Override
 	public Border getBorder()
 	{
 		return border;
@@ -657,6 +467,7 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IL
 	/*
 	 * opaque---------------------------------------------------
 	 */
+	@Override
 	public void setOpaque(boolean opaque)
 	{
 		this.opaque = opaque;
@@ -664,6 +475,7 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IL
 
 	private boolean opaque;
 
+	@Override
 	public boolean isOpaque()
 	{
 		return opaque;
@@ -682,6 +494,7 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IL
 
 	private String tooltip;
 
+	@Override
 	public void setToolTipText(String tooltip)
 	{
 		if (Utils.stringIsEmpty(tooltip))
@@ -697,19 +510,16 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IL
 	/**
 	 * @see com.servoy.j2db.ui.IComponent#getToolTipText()
 	 */
+	@Override
 	public String getToolTipText()
 	{
-		if (tooltip != null && getDefaultModel() instanceof ITagResolver)
-		{
-			final ITagResolver resolver = (ITagResolver)getDefaultModel();
-			return Text.processTags(tooltip, resolver);
-		}
 		return tooltip;
 	}
 
 	/*
 	 * font---------------------------------------------------
 	 */
+	@Override
 	public void setFont(Font font)
 	{
 		this.font = font;
@@ -717,6 +527,7 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IL
 
 	private Font font;
 
+	@Override
 	public Font getFont()
 	{
 		return font;
@@ -728,11 +539,13 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IL
 	 */
 	private Color background;
 
+	@Override
 	public void setBackground(Color cbg)
 	{
 		this.background = cbg;
 	}
 
+	@Override
 	public Color getBackground()
 	{
 		return background;
@@ -745,11 +558,13 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IL
 
 	private Color foreground;
 
+	@Override
 	public void setForeground(Color cfg)
 	{
 		this.foreground = cfg;
 	}
 
+	@Override
 	public Color getForeground()
 	{
 		return foreground;
@@ -759,6 +574,7 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IL
 	/*
 	 * visible---------------------------------------------------
 	 */
+	@Override
 	public void setComponentVisible(boolean visible)
 	{
 		if (viewable)
@@ -770,6 +586,7 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IL
 	/*
 	 * enabled---------------------------------------------------
 	 */
+	@Override
 	public void setComponentEnabled(final boolean b)
 	{
 		if (accessible)
@@ -816,11 +633,13 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IL
 		return getLocation().y;
 	}
 
+	@Override
 	public void setLocation(Point location)
 	{
 		this.location = location;
 	}
 
+	@Override
 	public Point getLocation()
 	{
 		return location;
@@ -834,6 +653,7 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IL
 	private char mnemonic;
 
 
+	@Override
 	public Dimension getSize()
 	{
 		return size;
@@ -841,7 +661,7 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IL
 
 	public int getFontSize()
 	{
-		int fontSize = TemplateGenerator.DEFAULT_FONT_SIZE;
+		int fontSize = 11;
 		Font fnt = getFont();
 		if (fnt != null)
 		{
@@ -905,85 +725,6 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IL
 		this.labelForComponent = component;
 	}
 
-	// Searches for a parent form, up the hierarchy of controls in the page.
-	private Form< ? > getForm()
-	{
-		Component c = this;
-		while ((c != null) && !(c instanceof Form))
-			c = c.getParent();
-		return (Form< ? >)c;
-	}
-
-	@Override
-	protected void onComponentTag(final ComponentTag tag)
-	{
-		super.onComponentTag(tag);
-
-		boolean useAJAX = Utils.getAsBoolean(application.getRuntimeProperties().get("useAJAX")); //$NON-NLS-1$
-		if (useAJAX)
-		{
-			Object oe = scriptable.getClientProperty("ajax.enabled"); //$NON-NLS-1$
-			if (oe != null) useAJAX = Utils.getAsBoolean(oe);
-		}
-
-		if (!useAJAX)
-		{
-			Form< ? > f = getForm();
-			if (f != null)
-			{
-				if (eventExecutor.hasActionCmd())
-				{
-					CharSequence url = urlFor(ILinkListener.INTERFACE);
-					tag.put("onclick", f.getJsForInterfaceUrl(url)); //$NON-NLS-1$
-				}
-
-				if (eventExecutor.hasDoubleClickCmd())
-				{
-					CharSequence urld = urlFor(IDoubleClickListener.INTERFACE);
-					tag.put("ondblclick", f.getJsForInterfaceUrl(urld)); //$NON-NLS-1$
-				}
-
-				if (eventExecutor.hasRightClickCmd())
-				{
-					CharSequence urlr = urlFor(IRightClickListener.INTERFACE);
-					// We need a "return false;" so that the context menu is not displayed in the browser.
-					tag.put("oncontextmenu", f.getJsForInterfaceUrl(urlr) + " return false;"); //$NON-NLS-1$ //$NON-NLS-2$
-				}
-			}
-		}
-
-		if (tag.getName().equalsIgnoreCase("label")) //$NON-NLS-1$
-		{
-			IFieldComponent labelFor = getLabelFor();
-			if (labelFor instanceof Component)
-			{
-				tag.put("for", ((Component)labelFor).getMarkupId()); //$NON-NLS-1$
-				char displayMnemonic = (char)getDisplayedMnemonic();
-				if (displayMnemonic > 0) tag.put("accesskey", Character.toString(displayMnemonic)); //$NON-NLS-1$
-			}
-		}
-	}
-
-	public void onDoubleClick()
-	{
-		Form< ? > f = getForm();
-		if (f != null)
-		{
-			// If form validation fails, we don't execute the method.
-			if (f.process()) eventExecutor.onEvent(JSEvent.EventType.doubleClick, null, this, IEventExecutor.MODIFIERS_UNSPECIFIED);
-		}
-	}
-
-	public void onRightClick()
-	{
-		Form< ? > f = getForm();
-		if (f != null)
-		{
-			// If form validation fails, we don't execute the method.
-			if (f.process()) eventExecutor.onEvent(JSEvent.EventType.rightClick, null, this, IEventExecutor.MODIFIERS_UNSPECIFIED);
-		}
-	}
-
 	@Override
 	public String toString()
 	{
@@ -995,47 +736,13 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IL
 		return eventExecutor;
 	}
 
-	@SuppressWarnings("nls")
-	protected void instrumentAndReplaceBody(MarkupStream markupStream, ComponentTag openTag, CharSequence bodyText)
-	{
-		boolean hasHtmlOrImage = hasHtmlOrImage();
-
-		String cssid = hasHtmlOrImage ? getMarkupId() + "_lb" : null;
-		WebCellBasedView wcbw = findParent(WebCellBasedView.class);
-		String cssclass = hasHtmlOrImage && wcbw != null ? wcbw.getTableLabelCSSClass(getId()) : null;
-		boolean designMode = false;
-		IFormUIInternal< ? > formui = findParent(IFormUIInternal.class);
-		if (formui != null && formui.isDesignMode())
-		{
-			designMode = true;
-		}
-		int anchor = Utils.getAsBoolean(application.getRuntimeProperties().get("enableAnchors")) ? anchors : 0; //$NON-NLS-1$
-		replaceComponentTagBody(markupStream, openTag,
-			WebBaseButton.instrumentBodyText(bodyText, scriptable.trustDataAsHtml(), halign, valign, hasHtmlOrImage, border, null, cssid,
-				(char)getDisplayedMnemonic(), getMarkupId(), WebBaseButton.getImageDisplayURL(this), size, false, designMode ? null : cursor, false, anchor,
-				cssclass, rotation, scriptable.isEnabled(), openTag));
-	}
-
 	protected boolean hasHtmlOrImage()
 	{
-		if (!HtmlUtils.startsWithHtml(getDefaultModelObject()))
+		if (!HtmlUtils.startsWithHtml(getText()))
 		{
-			return WebBaseButton.getImageDisplayURL(this) != null;
+			return false;
 		}
 		return true;
-	}
-
-	@Override
-	protected void onBeforeRender()
-	{
-		super.onBeforeRender();
-
-		WebCellBasedView wcbw = findParent(WebCellBasedView.class);
-		if (wcbw != null && hasHtmlOrImage())
-		{
-			wcbw.addLabelCssClass(getId());
-		}
-		fireOnRender(false);
 	}
 
 	public void fireOnRender(boolean force)
@@ -1063,21 +770,6 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IL
 		return icon;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.server.headlessclient.dataui.IImageDisplay#getIconReference()
-	 */
-	public ResourceReference getIconReference()
-	{
-		return iconReference;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.server.headlessclient.dataui.IImageDisplay#getMedia()
-	 */
 	public Media getMedia()
 	{
 		return media;
@@ -1113,15 +805,6 @@ public class WebBaseLabel extends Label implements ILabel, IResourceListener, IL
 		return text_url;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.server.headlessclient.dataui.IImageDisplay#getRolloverIconReference()
-	 */
-	public ResourceReference getRolloverIconReference()
-	{
-		return rolloverIconReference;
-	}
 
 	/*
 	 * (non-Javadoc)

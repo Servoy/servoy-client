@@ -41,9 +41,9 @@ public class RectShape extends BaseComponent
 	/**
 	 * Constructor I
 	 */
-	protected RectShape(ISupportChilds parent, int element_id, UUID uuid)
+	protected RectShape(ISupportChilds parent, UUID uuid)
 	{
-		super(IRepository.RECTSHAPES, parent, element_id, uuid);
+		super(IRepository.RECTSHAPES, parent, uuid);
 	}
 
 /*
@@ -101,7 +101,7 @@ public class RectShape extends BaseComponent
 	 *
 	 * @param arg the containsFormID
 	 */
-	public void setContainsFormID(int arg)
+	public void setContainsFormID(String arg)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_CONTAINSFORMID, arg);
 	}
@@ -110,9 +110,9 @@ public class RectShape extends BaseComponent
 	 * The form that is displayed inside the shape.
 	 *
 	 */
-	public int getContainsFormID()
+	public String getContainsFormID()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_CONTAINSFORMID).intValue();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_CONTAINSFORMID);
 	}
 
 	/**

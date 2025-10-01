@@ -29,7 +29,25 @@ import com.servoy.j2db.scripting.IReturnedTypesProvider;
 import com.servoy.j2db.util.Debug;
 
 /**
- * Scriptable column object for use in scripting
+ * <p>
+ * The <code>JSColumn</code> is a scripting object that represents a column in a data source, accessible
+ * through root objects like <code>datasources</code> and <code>databaseManager</code>. It provides methods
+ * for retrieving and managing metadata, properties, and flags associated with the column.
+ * </p>
+ *
+ * <p>
+ * The object allows developers to interact with column-specific attributes such as data provider IDs,
+ * SQL names, types, lengths, and sequence configurations. It supports checking column flags, including
+ * primary key (<code>PK_COLUMN</code>), UUID, or tenant-specific columns, and retrieving the column’s row
+ * identifier type. Additionally, it provides access to design-time configurations like default formats,
+ * foreign key references, titles, and descriptions.
+ * </p>
+ *
+ * <p>
+ * By enabling advanced operations such as quoting SQL identifiers and retrieving raw JDBC types,
+ * <code>JSColumn</code> ensures integration with the underlying database schema while maintaining
+ * scripting simplicity within the Servoy environment.
+ * </p>
  * @author jblok
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
@@ -115,6 +133,14 @@ public class JSColumn implements IReturnedTypesProvider, IConstantsObject, IColu
 	 * @sampleas js_hasFlag(int)
 	 */
 	public static final int NATIVE_COLUMN = IBaseColumn.NATIVE_COLUMN;
+
+	/**
+	 * Constant used when setting or getting the flags of columns.
+	 * This flag indicates columns whose data is not stored in the log table.
+	 *
+	 * @sampleas js_hasFlag(int)
+	 */
+	public static final int NO_DATA_LOG_COLUMN = IBaseColumn.NO_DATA_LOG_COLUMN;
 
 	/**
 	 * Constant used when setting or getting the sequence type of columns.
@@ -565,6 +591,22 @@ public class JSColumn implements IReturnedTypesProvider, IConstantsObject, IColu
 	public String js_getTitle()
 	{
 		return column.getTitle();
+	}
+
+	/**
+	 * Get the raw title property of the column.
+	 *
+	 * @sample
+	 * var table = databaseManager.getTable('db:/example_data/orders')
+	 * var column = table.getColumn('customername')
+	 * var title = column.getRawTitle()
+	 *
+	 * @return String column title.
+	 */
+	public String js_getRawTitle()
+	{
+		ColumnInfo columnInfo = column.getColumnInfo();
+		return columnInfo != null ? columnInfo.getTitleText() : null;
 	}
 
 	/**

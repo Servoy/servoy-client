@@ -20,20 +20,36 @@ package com.servoy.j2db.server.ngclient;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.io.IOException;
+import java.io.StringReader;
 import java.io.StringWriter;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.json.JSONWriter;
 import org.sablo.Container;
 import org.sablo.websocket.TypedData;
 import org.sablo.websocket.utils.JSONUtils.FullValueToJSONConverter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import com.inet.lib.less.CompressCssFormatter;
+import com.inet.lib.less.CssFormatter;
+import com.inet.lib.less.Formattable;
+import com.inet.lib.less.Less;
+import com.inet.lib.less.LessParser;
+import com.inet.lib.less.ReaderFactory;
+import com.inet.lib.less.Rule;
 import com.servoy.base.persistence.constants.IContentSpecConstantsBase;
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.persistence.BaseComponent;
 import com.servoy.j2db.persistence.CSSPosition;
 import com.servoy.j2db.persistence.CSSPositionUtils;
+import com.servoy.j2db.persistence.FlattenedForm;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IAnchorConstants;
 import com.servoy.j2db.persistence.IContentSpecConstants;
@@ -47,6 +63,7 @@ import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.PositionComparator;
 import com.servoy.j2db.server.headlessclient.dataui.AbstractFormLayoutProvider;
 import com.servoy.j2db.server.ngclient.INGClientWindow.IFormHTMLAndJSGenerator;
+import com.servoy.j2db.server.ngclient.less.ServoyLessReaderFactory;
 import com.servoy.j2db.server.ngclient.template.FormTemplateObjectWrapper;
 import com.servoy.j2db.server.ngclient.template.FormWrapper;
 import com.servoy.j2db.server.ngclient.template.PartWrapper;
@@ -59,7 +76,7 @@ import com.servoy.j2db.util.Utils;
  */
 public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 {
-
+	private static final Logger LOG = LoggerFactory.getLogger("FormOutputGenerator"); //$NON-NLS-1$
 
 	private final NGClient client;
 	private final Form form;
@@ -106,7 +123,7 @@ public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 	{
 		IWebFormController cachedFormController = client != null ? client.getFormManager().getCachedFormController(realFormName) : null;
 
-		FormTemplateObjectWrapper formTemplate = new FormTemplateObjectWrapper(servoyDataConverterContext, true, false);
+		FormTemplateObjectWrapper formTemplate = new FormTemplateObjectWrapper(servoyDataConverterContext, true, false, false);
 		FormWrapper formWrapper = formTemplate.getFormWrapper(form);
 
 		// for this form it is really just some json.
@@ -117,6 +134,38 @@ public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 		writer.object();
 		writer.key("responsive");
 		writer.value(form.isResponsiveLayout());
+		List<Form> allForms = null;
+		if (form instanceof FlattenedForm ff)
+		{
+			allForms = ff.getAllForms();
+			Collections.reverse(allForms);
+		}
+		else
+		{
+			allForms = List.of(form);
+		}
+		writer.key("formCss");
+		writer.object();
+		for (Form frm : allForms)
+		{
+			if (frm.getFormCss() != null)
+			{
+				try
+				{
+					String parsed = parseLess(frm.getFormCss(), frm.getName(), servoyDataConverterContext.getSolution());
+
+					writer.key(frm.getName());
+					writer.value(parsed);
+				}
+				catch (Exception e)
+				{
+					LOG.atError().setCause(e).log("The form {} has less/css which can't be parsed, message: {}", frm.getName(), e.getMessage());
+				}
+			}
+		}
+		writer.endObject();
+
+
 		writer.key("size");
 		writer.object();
 		writer.key("width");
@@ -138,6 +187,7 @@ public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 			// write the properties of the formUI itself using an already present form controller
 			Container con = (Container)cachedFormController.getFormUI();
 			TypedData<Map<String, Object>> typedProperties = con.getProperties();
+			con.clearChanges();
 			con.writeProperties(FullValueToJSONConverter.INSTANCE, null, writer, typedProperties);
 			containerProperties = typedProperties.content;
 		}
@@ -253,7 +303,7 @@ public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 					writer.value("0px");
 					writer.key("right");
 					writer.value("0px");
-					int top = form.getPartStartYPos(part.getID());
+					int top = form.getPartStartYPos(part.getUUID().toString());
 					if (part.getPartType() <= Part.BODY)
 					{
 						writer.key("top");
@@ -303,26 +353,45 @@ public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 		writer.endArray();
 		writer.endObject();
 		writer.endObject();
-		return stringWriter.toString();
+
+		String string = stringWriter.toString();
+
+//		System.err.println(string);
+		return string;
+	}
+
+	/**
+	 * @param frm
+	 * @return
+	 * @throws MalformedURLException
+	 */
+	public static String parseLess(String formCss, String formName, FlattenedSolution fs) throws Exception
+	{
+		LessParser parser = new LessParser();
+		URL baseUrl = URI.create("http://localhost").toURL();
+		ReaderFactory readerFactory = new ServoyLessReaderFactory(fs, formName + ".less");
+		parser.parse(baseUrl, new StringReader(formCss), readerFactory);
+		List<Formattable> rules = parser.getRules();
+		rules.forEach(r -> {
+			if (r instanceof Rule rule)
+			{
+				rule.rewriteSelectors(
+					selector -> selector.contains(" ") ? selector.replaceFirst(" ", "[svy-" + formName + "] ")
+						: selector + "[svy-" + formName + ']');
+			}
+		});
+		CssFormatter formatter = new CompressCssFormatter();
+		parser.parseLazy(formatter);
+		StringBuilder builder = new StringBuilder();
+		formatter.format(parser, baseUrl, readerFactory, builder, Collections.singletonMap(Less.REWRITE_URLS, "all"));
+		return builder.toString();
 	}
 
 	@SuppressWarnings("nls")
 	public static void writePosition(JSONWriter writer, IPersist o, Form form, WebFormComponent webComponent, boolean isDesigner)
 	{
-		if (o instanceof BaseComponent && ((BaseComponent)o).getCssPosition() != null)
-		{
-			CSSPosition position = ((BaseComponent)o).getCssPosition();
-			if (webComponent != null)
-			{
-				Object runtimeValue = webComponent.getProperty(IContentSpecConstants.PROPERTY_CSS_POSITION);
-				if (runtimeValue instanceof CSSPosition)
-				{
-					position = (CSSPosition)runtimeValue;
-				}
-			}
-			writeCSSPosition(writer, (BaseComponent)o, form, isDesigner, position);
-		}
-		else
+		// support for anchored old forms, convert to css position
+		if (o instanceof BaseComponent && ((BaseComponent)o).getCssPosition() == null && !form.isResponsiveLayout())
 		{
 			Point location = ((IFormElement)o).getLocation();
 			Dimension size = ((IFormElement)o).getSize();
@@ -367,9 +436,9 @@ public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 						Part prt = form.getPartAt(((IFormElement)o).getLocation().y);
 						if (prt != null)
 						{
-							int prtEnd = form.getPartEndYPos(prt.getID());
+							int prtEnd = form.getPartEndYPos(prt.getUUID().toString());
 							if (prtEnd > form.getSize().height) prtEnd = form.getSize().height;
-							partHeight = prtEnd - form.getPartStartYPos(prt.getID());
+							partHeight = prtEnd - form.getPartStartYPos(prt.getUUID().toString());
 						}
 					}
 					writer.value(partHeight - location.y - size.height + "px");
@@ -429,7 +498,7 @@ public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 			{
 				if (CSSPositionUtils.isSet(position.top))
 				{
-					int topStart = form.getPartStartYPos(prt.getID());
+					int topStart = form.getPartStartYPos(prt.getUUID().toString());
 					if (topStart > 0)
 					{
 						if (top.endsWith("px"))
@@ -443,7 +512,7 @@ public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 						}
 						else
 						{
-							top = "calc(" + top + "-" + topStart + "px)";
+							top = "calc(" + top + " - " + topStart + "px)";
 						}
 					}
 				}
@@ -463,7 +532,7 @@ public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 						}
 						else
 						{
-							bottom = "calc(" + bottom + "-" + extraHeight + "px)";
+							bottom = "calc(" + bottom + " - " + extraHeight + "px)";
 						}
 					}
 				}

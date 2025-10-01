@@ -455,4 +455,11 @@ public class RuntimeGroup implements IRuntimeGroup
 	{
 		//only implemented in ngclient
 	}
+
+	@Override
+	public String[] getStyleClasses()
+	{
+		//only implemented in ngclient
+		return new String[0];
+	}
 }

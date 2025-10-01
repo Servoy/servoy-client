@@ -74,6 +74,7 @@ import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.Settings;
+import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.serialize.JSONConverter;
 
@@ -105,7 +106,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 	private transient IClientHost clientHost;
 
 	//the script engine
-	private volatile IExecutingEnviroment scriptEngine;
+	protected volatile IExecutingEnviroment scriptEngine;
 
 	//holding the application setting
 	protected Properties settings;
@@ -126,6 +127,15 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 
 	//mode manager handling the application mode
 	protected transient volatile IModeManager modeManager;
+
+	//menu manager handling the application menus
+	protected transient volatile MenuManager menuManager;
+
+	//events manager handling the application events
+	protected transient volatile EventsManager eventsManager;
+
+	//permission manager
+	protected transient volatile PermissionManager permissionManager;
 
 	//foundset manager handling the foundsets
 	protected transient volatile IFoundSetManagerInternal foundSetManager;
@@ -293,6 +303,9 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 
 		// create formmanager
 		formManager = createFormManager();
+
+		// create menumanager
+		menuManager = createMenuManager();
 
 		// Runtime.getRuntime().addShutdownHook(new Thread()
 		// {
@@ -940,6 +953,56 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		return new FoundSetManagerConfig(getSettings());
 	}
 
+	public MenuManager getMenuManager()
+	{
+		return menuManager;
+	}
+
+	protected MenuManager createMenuManager()
+	{
+		return new MenuManager(this);
+	}
+
+	public IEventsManager getEventsManager()
+	{
+		if (eventsManager == null && !isShutDown())
+		{
+			synchronized (this)
+			{
+				if (eventsManager == null)
+				{
+					eventsManager = createEventsManager();
+				}
+			}
+		}
+		return eventsManager;
+	}
+
+	protected EventsManager createEventsManager()
+	{
+		return new EventsManager(this);
+	}
+
+	public PermissionManager getPermissionManager()
+	{
+		if (permissionManager == null && !isShutDown())
+		{
+			synchronized (this)
+			{
+				if (permissionManager == null)
+				{
+					permissionManager = createPermissionManager();
+				}
+			}
+		}
+		return permissionManager;
+	}
+
+	protected PermissionManager createPermissionManager()
+	{
+		return new PermissionManager(this);
+	}
+
 	public String getClientID()
 	{
 		if (clientInfo == null)
@@ -1132,6 +1195,12 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 			Debug.error(e1);
 		}
 
+		menuManager = null;
+
+		eventsManager = null;
+
+		permissionManager = null;
+
 		saveSettings();
 
 		//de register myself
@@ -1283,7 +1352,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 				{
 					if (clientInfo != null)
 					{
-						clientInfo.setOpenSolutionId(-1);
+						clientInfo.setOpenSolutionUUID(null);
 						ch.pushClientInfo(clientInfo.getClientId(), clientInfo);
 					}
 				}
@@ -1306,6 +1375,10 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 				scriptEngine.destroy();
 				scriptEngine = null;// delete current script engine
 			}
+
+			// clean the events manager, will be recreated when the solution is reloaded
+			eventsManager = null;
+			permissionManager = null;
 
 			// clear broadcast filters and drop any temp tables for this client
 			IDataServer ds = getDataServer();
@@ -1487,7 +1560,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 						// Have repository access, don't need authorised access
 						solutionRoot.setSolution(solutionMetaData, false, true, getActiveSolutionHandler());
 						if (solutionMetaData.getMustAuthenticate() && clientInfo.getUserUid() == null && solutionRoot.getSolution() != null &&
-							solutionRoot.getSolution().getLoginFormID() <= 0)
+							Utils.getAsUUID(solutionRoot.getSolution().getLoginFormID(), false) == null)
 						{
 							// must login the old fashioned way
 							showDefaultLogin();
@@ -1525,16 +1598,9 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 				// this happens when the repository server is used in a solution while user tables in repository is disabled
 				if (dataServer != null)
 				{
-					try
-					{
-						// log on the server
-						dataServer.logMessage("Client could not load solution " + solutionMetaData.getName() +
-							", probably because repository server is used, see admin setting " + Settings.ALLOW_CLIENT_REPOSITORY_ACCESS_SETTING);
-					}
-					catch (RemoteException e)
-					{
-						// bummer
-					}
+					// log on the server
+					dataServer.logMessage("Client could not load solution " + solutionMetaData.getName() +
+						", probably because repository server is used, see admin setting " + Settings.ALLOW_CLIENT_REPOSITORY_ACCESS_SETTING);
 				}
 				reportError(Messages.getString("servoy.foundSet.error.noAccess"), ex); //$NON-NLS-1$
 			}
@@ -1562,30 +1628,34 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 			}
 			root.clearSecurityAccess();
 
-			int[] sids = new int[] { sol.getSolutionID() };
+			UUID[] suuids = new UUID[] { sol.getSolutionMetaData().getRootObjectUuid() };
 			int[] srns = new int[] { sol.getReleaseNumber() };
 
 			Solution[] modules = root.getModules();
 			if (modules != null)
 			{
-				sids = new int[modules.length + 1];
-				sids[0] = sol.getSolutionID();
+				suuids = new UUID[modules.length + 1];
+				suuids[0] = sol.getSolutionMetaData().getRootObjectUuid();
 				srns = new int[modules.length + 1];
 				srns[0] = sol.getReleaseNumber();
 				for (int i = 0; i < modules.length; i++)
 				{
 					Solution module = modules[i];
-					sids[i + 1] = module.getSolutionID();
+					suuids[i + 1] = module.getSolutionMetaData().getRootObjectUuid();
 					srns[i + 1] = module.getReleaseNumber();
 				}
 			}
 
-			Pair<Map<Object, Integer>, Set<Object>> securityAccess = getUserManager().getSecurityAccess(clientInfo.getClientId(), sids, srns, groups);
+			Pair<Map<Object, Integer>, Set<Object>> securityAccess = getUserManager().getSecurityAccess(clientInfo.getClientId(), suuids, srns, groups);
 			root.addSecurityAccess(securityAccess);
 
 			if (foundSetManager != null)
 			{
 				((FoundSetManager)foundSetManager).flushSecuritySettings();
+			}
+			if (menuManager != null)
+			{
+				menuManager.setCurrentPermissions(groups);
 			}
 		}
 	}
@@ -1602,7 +1672,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 
 			// These lines must be before other solutionLoaded call implementations, because a long running process
 			// (solution startup method) will never update the status.
-			getClientInfo().setOpenSolutionId(s.getSolutionMetaData().getRootObjectId());
+			getClientInfo().setOpenSolutionUUID(s.getSolutionMetaData().getRootObjectUuid());
 			getClientInfo().setOpenSolutionTimestamp(System.currentTimeMillis());
 			getClientHost().pushClientInfo(getClientInfo().getClientId(), getClientInfo());
 		}
@@ -1660,10 +1730,10 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 				return;
 			}
 			ScriptMethod sm = null;
-			int mid = s.getOnErrorMethodID();
-			if (mid > 0)
+			String muuid = s.getOnErrorMethodID();
+			if (muuid != null)
 			{
-				sm = getFlattenedSolution().getScriptMethod(mid);
+				sm = getFlattenedSolution().getScriptMethod(muuid);
 			}
 
 			if (sm == null || isHandlingError)//check for error handler, or when a error ocurs in error handler

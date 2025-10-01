@@ -17,6 +17,7 @@
 package com.servoy.j2db.util;
 
 import java.util.StringTokenizer;
+import java.util.regex.Pattern;
 
 
 public class HtmlUtils
@@ -578,5 +579,52 @@ public class HtmlUtils
 			}
 		}
 
+	}
+
+
+	private static Pattern formattedPlainTextHintPattern = Pattern.compile(".*((\\n-)|(\\n\\s)|((\\.|\\:)\\n)).*", Pattern.DOTALL); //$NON-NLS-1$
+	private static Pattern wantsMonospacedFontHintPattern = Pattern.compile(".*^( *\\S+)+ {2,}\\S+.*", Pattern.DOTALL | Pattern.MULTILINE); //$NON-NLS-1$
+
+	/**
+	 * NOTE: this would not be needed if of our comments were either all HTML or all plain text (that preserves \n, " " etc.).<br/><br/>
+	 *
+	 * As some JS / JavaDocs descriptions do have HTML tags in them (and they expect it to work correctly, without preserving \n, space etc, so the
+	 * way HTML works) - for example JSDatabaseManager.saveData(), while others do not have HTML tags in them, but they do expect spaces and new lines
+	 * to be preserved - for example FoundsSet.find(), then unless we fix all descriptions to only use HTML or not use HTML, we have to assume
+	 * some things here (that is why it's named 'magic') to try to make both cases work as expected... So:
+	 * <ul>
+	 *   <li>
+	 *     if the comment/description does not contain the "<" char and if we see a \n followed by another \n or " " or "\t", or precedeed by a ".",
+	 *     then we assume it's not meant to be HTML and it has some kind of text indented formatting so we:
+	 *     <ul>
+	 *       <li>if we find content such as "      c1||c2    (condition1 or condition2)", so those spaces that are not at the beginning of a line, so
+	 *       they are probably used to align columns in some grid-like structure with variable cell text width, just
+	 *       surround it with &lt;pre text>&lt;/pre> tags, as that doc probably assumes monospaced font when writing down lists of things...</li>
+	 *       <li>otherwise replace all "\n" or newlines with "&lt;br/>", replace all "  ", so 2 spaces, with "&ampnbsp;&ampnbsp;", replace all "\t" with "&amp;nbsp;&ampnbsp;&ampnbsp;&ampnbsp;",
+	 *       so here we assume the intent was to keep new lines and blank spaces without the need for a monospaced font...</li>
+	 *     </ul>
+	 *   </li>
+	 *   <li>otherwise, we leave it as it is - we expect valid HTML in there.</li>
+	 * </ul>
+	 *
+	 * @param description the description of a member, as written in it's JavaDocs / JSDocs. It should be without @param, @return and other such content; just the description part.
+	 * @return HTML formatted content that represents the initially given description.
+	 */
+	@SuppressWarnings("nls")
+	public static String applyDescriptionMagic(String description)
+	{
+		if (description == null) return null;
+
+		String desc = TextUtils.newLinesToBackslashN(description);
+
+		if (!desc.contains("<") && formattedPlainTextHintPattern.matcher(desc).matches())
+		{
+			if (wantsMonospacedFontHintPattern.matcher(desc).matches()) desc = "<pre text>" + desc + "</pre>";
+			else desc = desc.replace("\n ", "<br/>&nbsp;").replace("\n", "<br/>").replace("\t", "&nbsp;&nbsp;&nbsp;&nbsp;")
+				.replace("  ", "&nbsp;&nbsp;").replace("&nbsp; ", "&nbsp;&nbsp;"); // trying to not replace simple single spaces between words with &nbsp; - so just the ones that are meant for indentations
+		}
+		// else we assume here that it is meant as HTML content (be it with or without HTML tags)
+
+		return desc;
 	}
 }

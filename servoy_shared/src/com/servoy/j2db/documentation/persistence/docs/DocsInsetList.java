@@ -26,15 +26,15 @@ import com.servoy.j2db.persistence.IRepository;
 
 /**
  * Dummy class for use in the documentation generator.
- * 
+ *
  * @author rgansevles
  */
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "InsetList", scriptingName = "InsetList", typeCode = IRepository.PORTALS)
-@ServoyClientSupport(mc = true, wc = false, sc = false)
+@ServoyClientSupport(mc = true, wc = false, sc = false, ng = false)
 public class DocsInsetList extends BaseDocsList implements IBaseSHInsetList
 {
 	/**
-	 * The name of the relationship between the table related to the currently active 
+	 * The name of the relationship between the table related to the currently active
 	 * form and the table you want to show data from in the inset list.
 	 */
 	@Override

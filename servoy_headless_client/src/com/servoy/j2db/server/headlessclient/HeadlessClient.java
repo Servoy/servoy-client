@@ -16,7 +16,7 @@
  */
 package com.servoy.j2db.server.headlessclient;
 
-import javax.servlet.ServletRequest;
+import jakarta.servlet.ServletRequest;
 
 /**
  * @author rgansevles

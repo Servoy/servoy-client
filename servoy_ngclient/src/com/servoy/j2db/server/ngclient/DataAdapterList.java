@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -25,6 +26,7 @@ import org.sablo.Container;
 import org.sablo.IWebObjectContext;
 import org.sablo.IllegalChangeFromClientException;
 import org.sablo.WebComponent;
+import org.sablo.eventthread.IEventDispatcher;
 import org.sablo.specification.PropertyDescriptionBuilder;
 import org.sablo.specification.WebObjectApiFunctionDefinition;
 import org.sablo.specification.WebObjectFunctionDefinition;
@@ -33,11 +35,14 @@ import org.sablo.specification.property.BrowserConverterContext;
 import org.sablo.specification.property.IPropertyConverterForBrowser;
 import org.sablo.specification.property.IPropertyType;
 import org.sablo.specification.property.types.TypesRegistry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.servoy.base.util.ITagResolver;
 import com.servoy.j2db.ApplicationException;
 import com.servoy.j2db.BasicFormController;
 import com.servoy.j2db.FormAndTableDataProviderLookup;
+import com.servoy.j2db.IDebugClient;
 import com.servoy.j2db.dataprocessing.FireCollector;
 import com.servoy.j2db.dataprocessing.FoundSetEvent;
 import com.servoy.j2db.dataprocessing.IDataAdapter;
@@ -71,7 +76,6 @@ import com.servoy.j2db.server.ngclient.component.EventExecutor;
 import com.servoy.j2db.server.ngclient.property.DataproviderConfig;
 import com.servoy.j2db.server.ngclient.property.FoundsetLinkedConfig;
 import com.servoy.j2db.server.ngclient.property.FoundsetLinkedTypeSabloValue;
-import com.servoy.j2db.server.ngclient.property.FoundsetTypeSabloValue;
 import com.servoy.j2db.server.ngclient.property.IDataLinkedPropertyValue;
 import com.servoy.j2db.server.ngclient.property.IFindModeAwarePropertyValue;
 import com.servoy.j2db.server.ngclient.property.types.DataproviderTypeSabloValue;
@@ -89,6 +93,8 @@ import com.servoy.j2db.util.Utils;
 public class DataAdapterList implements IModificationListener, ITagResolver, IDataAdapterList
 {
 
+	protected static final Logger log = LoggerFactory.getLogger(DataAdapterList.class.getCanonicalName());
+
 	// properties that are interested in a specific dataproviderID chaning
 	protected final Map<String, List<IDataLinkedPropertyValue>> dataProviderToLinkedComponentProperty = new HashMap<>(); // dataProviderID -> [(comp, propertyName)]
 
@@ -105,6 +111,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 	private Map<IDataLinkedPropertyValue, Pair<Relation[], List<RelatedListener>>> toWatchRelations;
 	private DLPropertyValueFoundsetFoundsetListener maxRecIndexPropertyValueListener;
 	private final Map<String, List<Pair<String, String>>> lookupDependency = new HashMap<String, List<Pair<String, String>>>();
+	private final List<RelatedFoundsetListenerForChildVisibleForm> nestedRelatedFoundsetListeners = new ArrayList<RelatedFoundsetListenerForChildVisibleForm>();
 
 	private IRecordInternal record;
 	private boolean findMode = false;
@@ -113,9 +120,13 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 	private boolean isFormScopeListener;
 	private boolean isGlobalScopeListener;
 
+	private boolean destroyed = false;
 
 	public DataAdapterList(IWebFormController formController)
 	{
+		if (log.isDebugEnabled())
+			log.debug(getClass().getSimpleName() + "(" + hashCode() + ") created for form: '" + formController.getName() + "'");
+
 		this.formController = formController;
 		this.executor = new EventExecutor(formController);
 
@@ -194,9 +205,9 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 	}
 
 	@Override
-	public Object executeEvent(WebComponent webComponent, String event, int eventId, Object[] args)
+	public Object executeEvent(WebComponent webComponent, String event, String eventUUID, Object[] args)
 	{
-		Object jsRetVal = executor.executeEvent(webComponent, event, eventId, args);
+		Object jsRetVal = executor.executeEvent(webComponent, event, eventUUID, args);
 
 		// FIXME I think the convertRhinoToSabloComponentValue should only happen if
 		// call comes from sablo/java (not Rhino - we don't currently have a reverse of IServerRhinoToRhino);
@@ -215,7 +226,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 	public Object executeInlineScript(String script, JSONObject args, JSONArray appendingArgs)
 	{
 		String decryptedScript = HTMLTagsConverter.decryptInlineScript(script, args, getApplication().getFlattenedSolution());
-		if (appendingArgs != null && decryptedScript.endsWith("()"))
+		if (appendingArgs != null && decryptedScript != null && decryptedScript.endsWith("()"))
 		{
 			Object[] javaArguments = generateArguments(appendingArgs, formController);
 
@@ -404,33 +415,17 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 
 		if (relation != null)
 		{
-			HashMap<IWebFormController, String> childFormsCopy = getVisibleChildFormCopy();
-			for (Entry<IWebFormController, String> relatedFormEntry : childFormsCopy.entrySet())
+			Relation[] relations = formController.getApplication().getFlattenedSolution().getRelationSequence(relation);
+			if (relations != null)
 			{
-				IWebFormController relatedForm = relatedFormEntry.getKey();
-				String relatedFormRelation = relatedFormEntry.getValue();
-				if (relatedFormRelation != null)
+				if (relations.length > 0)
 				{
-					if (relatedFormRelation.startsWith(relation + ".") && relatedFormRelation.length() > relation.length())
-					{
-						if (!containsForm(form.getFormUI(), relatedForm.getFormUI()))
-						{
-							form.getFormUI().getDataAdapterList().addVisibleChildForm(relatedForm, relatedFormRelation.substring(relation.length() + 1), false);
-						}
-					}
-					else if (relation.startsWith(relatedFormRelation + ".") && relation.length() > relatedFormRelation.length())
-					{
-						if (!containsForm(relatedForm.getFormUI(), form.getFormUI()))
-						{
-							relatedForm.getFormUI().getDataAdapterList().addVisibleChildForm(form, relation.substring(relatedFormRelation.length() + 1), false);
-						}
-					}
+					// if selection changes or the current record changes columns that are used as keys somewhere in the relation sequence then a reload of the nested form's foundset needs to happen
+					// the NestedRelatedListener constructor will recursively create one NestedRelatedListener for each intermediat relation in the relation chain
+					nestedRelatedFoundsetListeners.add(new RelatedFoundsetListenerForChildVisibleForm(relations, 0, null,
+						form, relation, this));
 				}
-			}
-			if (!isGlobalScopeListener)
-			{
-				Relation[] relations = formController.getApplication().getFlattenedSolution().getRelationSequence(relation);
-				if (relations != null)
+				if (!isGlobalScopeListener)
 				{
 					for (Relation relationObj : relations)
 					{
@@ -465,6 +460,10 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 			{
 				((IWebFormController)relWFC).getFormUI().getDataAdapterList().removeVisibleChildForm(form, false);
 			}
+			this.nestedRelatedFoundsetListeners.stream()
+				.filter(listener -> Utils.equalObjects(form, listener.leafRelatedFormController))
+				.forEach(nestedRelatedListener -> nestedRelatedListener.dispose());
+			this.nestedRelatedFoundsetListeners.removeIf(listener -> Utils.equalObjects(form, listener.leafRelatedFormController));
 		}
 	}
 
@@ -546,6 +545,16 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 
 	public void addDataLinkedProperty(IDataLinkedPropertyValue propertyValue, TargetDataLinks targetDataLinks)
 	{
+		if (destroyed)
+		{
+			log.error(getClass().getSimpleName() + "(" + hashCode() +
+				") [internal] An attempt to add a property to an already destroyed DAL was detected! Ignoring...",
+				new RuntimeException(
+					"[harmless] Property: " + propertyValue + " (" + targetDataLinks + ") on DAL of form " + formController.getName()));
+
+			return;
+		}
+
 		if (targetDataLinks == TargetDataLinks.NOT_LINKED_TO_DATA || targetDataLinks == null) return;
 
 		String[] dataproviders = targetDataLinks.dataProviderIDs;
@@ -575,9 +584,10 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 			}
 			if (allLinksOfDP.remove(propertyValue))
 			{
-				Debug.warn("DAL.addDataLinkedProperty - trying to register the same (equal) property value twice (" + propertyValue +
+				log.warn("DAL.addDataLinkedProperty... " + getClass().getSimpleName() + "(" + hashCode() + "); form: " + formController.getName() +
+					" - trying to register the same (equal) property value twice (" + propertyValue +
 					"); this means that some code that uses DAL is not working properly (maybe cleanup/detach malfunction); will use latest value... Links: " +
-					targetDataLinks);
+					targetDataLinks, new RuntimeException("[harmless] just for stack trace"));
 			}
 
 			allLinksOfDP.add(propertyValue);
@@ -590,9 +600,58 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		if (targetDataLinks.relations != null)
 		{
 			if (toWatchRelations == null) toWatchRelations = new HashMap<>(3);
-			toWatchRelations.put(propertyValue, new Pair<Relation[], List<RelatedListener>>(targetDataLinks.relations, Collections.emptyList()));
+
+			Pair<Relation[], List<RelatedListener>> previousRelatedListenersForThisProp = toWatchRelations.get(propertyValue);
+			if (previousRelatedListenersForThisProp != null)
+			{
+				// this should never happen - but maybe addDataLinkedProperty gets called twice with the same propertyValue without calling removeDataLinkedProperty in between
+				if (log.isWarnEnabled())
+					log.warn(getClass().getSimpleName() + "(" + hashCode() +
+						") [internal] A property with targetDataLinks.relations != null was added to the DAL twice, without being removed in between those calls.",
+						new RuntimeException(
+							"Property that was added twice without being removed: " + propertyValue + " on DAL of form " + formController.getName()));
+
+				// keep the old value so that createRelationListeners() below clears any old listeners in .getRight()
+				// but update the relations in case they are not the same
+				previousRelatedListenersForThisProp.setLeft(targetDataLinks.relations);
+			}
+			else
+			{
+				if (log.isDebugEnabled())
+					log.debug(getClass().getSimpleName() + "(" + hashCode() +
+						") A property with targetDataLinks.relations != null was added to the DAL.",
+						new RuntimeException("[harmless, just for the stack] Property: " + propertyValue + " on DAL of form " + formController.getName()));
+
+				toWatchRelations.put(propertyValue, new Pair<Relation[], List<RelatedListener>>(targetDataLinks.relations, Collections.emptyList()));
+			}
+
 			createRelationListeners(propertyValue);
 		}
+	}
+
+	private void checkThatThisIsTheEventThread()
+	{
+		INGApplication app = formController.getApplication();
+		if (app instanceof IDebugClient) return; // debug client launch can call app.shutDown(true) outside of the event thread...
+
+		INGClientWebsocketSession wss;
+		if ((wss = app.getWebsocketSession()) != null)
+		{
+			IEventDispatcher ed;
+			if ((ed = wss.getEventDispatcher(false)) != null)
+			{
+				if (!ed.isEventDispatchThread())
+					log.error(getClass().getSimpleName() + "(" + hashCode() +
+						") [internal] Unexpected execution outside of the event dispatch thread in DAL code...",
+						new RuntimeException("DAL of form " + formController.getName()));
+			}
+			else log.error(getClass().getSimpleName() + "(" + hashCode() +
+				") [internal] Unexpected: no event dispatcher in DAL debug code...",
+				new RuntimeException("DAL of form " + formController.getName()));
+		}
+		else log.error(getClass().getSimpleName() + "(" + hashCode() +
+			") [internal] Unexpected: no web socket session in DAL debug code...",
+			new RuntimeException("DAL of form " + formController.getName()));
 	}
 
 	public void removeDataLinkedProperty(IDataLinkedPropertyValue propertyValue)
@@ -612,17 +671,23 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		// remove any relation listeners that may be set for this property value
 		if (toWatchRelations != null)
 		{
+			checkThatThisIsTheEventThread();
 			Pair<Relation[], List<RelatedListener>> toWatchRelationsForPropertyValue = toWatchRelations.remove(propertyValue);
 			if (toWatchRelationsForPropertyValue != null)
 			{
+				if (log.isDebugEnabled())
+					log.debug(getClass().getSimpleName() + "(" + hashCode() +
+						") A property with targetDataLinks.relations != null was removed from the DAL.",
+						new RuntimeException("[harmless, just for the stack] Property: '" + propertyValue + "' on DAL of form " + formController.getName()));
+
 				toWatchRelationsForPropertyValue.getRight().forEach(listener -> listener.dispose());
 				toWatchRelationsForPropertyValue.getRight().clear();
 			}
 		}
 
-		if (maxRecIndexPropertyValueListener != null)
+		if (maxRecIndexPropertyValueListener != null && maxRecIndexPropertyValueListener.removePropertyValueFromListAndCheckEmpty(propertyValue))
 		{
-			maxRecIndexPropertyValueListener.dispose();
+			maxRecIndexPropertyValueListener = null;
 		}
 	}
 
@@ -671,6 +736,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 					this.record.getParentFoundSet().addAggregateModificationListener(this);
 				}
 				createRelationListeners();
+				if (record != null) tellNestedRelatedListenersThatMainDALRecordHasChanged(); // if record == null it could be due to a hide of the main form, in which case we want the related forms to not set their foundsets to null, but keep the last related foundset where the form will be shown next (if another foundset/relation is not enforced on that form then)
 				if (maxRecIndexPropertyValueListener != null) maxRecIndexPropertyValueListener.setRecord(this.record);
 			}
 			finally
@@ -678,19 +744,6 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 				formController.getFormUI().setChanging(false);
 				settingRecord = false;
 				fireCollector.done();
-			}
-			// we should use the "this.record" because fireCollector.done() could result in a setRecord with a different record.
-			if (this.record != null)
-			{
-				for (Entry<IWebFormController, String> entry : getVisibleChildFormCopy().entrySet())
-				{
-					String relation = entry.getValue();
-					if (relation != null)
-					{
-						IWebFormController form = entry.getKey();
-						form.loadRecords(this.record.getRelatedFoundSet(relation, ((BasicFormController)form).getDefaultSortColumns()));
-					}
-				}
 			}
 		}
 		catch (RuntimeException re)
@@ -707,6 +760,17 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 
 	private void createRelationListeners(IDataLinkedPropertyValue propertyValue)
 	{
+		if (formController.isDestroyed() || destroyed)
+		{
+			log.error(getClass().getSimpleName() + "(" + hashCode() +
+				") [internal] An attempt to create relation listeners on an already destroyed DAL: " + destroyed + " or form: " + formController.isDestroyed() +
+				" was detected! Ignoring...",
+				new RuntimeException(
+					"[harmless] Property: " + propertyValue + " on DAL of form " + formController.getName()));
+			return;
+		}
+		checkThatThisIsTheEventThread();
+
 		// first remove the previous ones
 		Pair<Relation[], List<RelatedListener>> pair = toWatchRelations.get(propertyValue);
 		pair.getRight().forEach(listener -> listener.dispose());
@@ -830,36 +894,6 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 	@Override
 	public void valueChanged(ModificationEvent e)
 	{
-		if (record != null && e != null && e.getName() != null)
-		{
-			for (Entry<IWebFormController, String> relatedFormEntry : getVisibleChildFormCopy().entrySet())
-			{
-				IWebFormController relatedForm = relatedFormEntry.getKey();
-				String relatedFormRelation = relatedFormEntry.getValue();
-				boolean depends = false;
-				Relation[] relations = getApplication().getFlattenedSolution().getRelationSequence(relatedFormRelation);
-				for (int r = 0; !depends && relations != null && r < relations.length; r++)
-				{
-					try
-					{
-						IDataProvider[] primaryDataProviders = relations[r].getPrimaryDataProviders(getApplication().getFlattenedSolution());
-						for (int p = 0; !depends && primaryDataProviders != null && p < primaryDataProviders.length; p++)
-						{
-							depends = e.getName().equals(primaryDataProviders[p].getDataProviderID());
-						}
-					}
-					catch (RepositoryException ex)
-					{
-						Debug.log(ex);
-					}
-				}
-				if (depends)
-				{
-					relatedForm.loadRecords(record.getRelatedFoundSet(relatedFormRelation, ((BasicFormController)relatedForm).getDefaultSortColumns()));
-				}
-			}
-		}
-
 		if (!findMode && this.record != null && e.getName() != null && (e.getRecord() == null || e.getRecord() == this.record) &&
 			this.lookupDependency.containsKey(e.getName()) &&
 			!(this.record instanceof PrototypeState))
@@ -874,12 +908,12 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 				}
 			}
 		}
+
 		// one of the relations could be changed make sure they are recreated.
 		createRelationListeners();
-		if (getForm().isFormVisible())
-		{
-			pushChangedValues(e.getName(), true);
-		}
+		if (e.getRecord() == null) tellNestedRelatedListenersThatGlobalOrScopeVariableChanged(e.getName()); // if it's a change in the record, they will refresh anyway due to direct foundset listeners added by nestedRelatedFoundsetListeners or due to DAL.setRecord(...)
+
+		pushChangedValues(e.getName(), true);
 	}
 
 	public void pushChanges(WebFormComponent webComponent, String beanProperty)
@@ -915,132 +949,142 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 	public void pushChanges(WebFormComponent webComponent, String beanProperty, Object value, String foundsetLinkedRowID)
 	{
 		// TODO should this all (svy-apply/push) move to DataProviderType client/server side implementation instead of these specialized calls, instanceof checks and string parsing (see getProperty or getPropertyDescription)?
-
-		String dataProviderID = getDataProviderID(webComponent, beanProperty);
-		if (dataProviderID == null)
+		try
 		{
-			Debug.log(
-				"apply called on a property that is not bound to a dataprovider: " + beanProperty + ", value: " + value + " of component: " + webComponent);
-			return;
-		}
-
-		Object newValue = value;
-		// Check security
-		webComponent.checkThatPropertyAllowsUpdateFromClient(beanProperty);
-
-		IRecordInternal editingRecord = record;
-
-		if (newValue instanceof FoundsetLinkedTypeSabloValue)
-		{
-			if (foundsetLinkedRowID != null)
+			String dataProviderID = getDataProviderID(webComponent, beanProperty);
+			if (dataProviderID == null)
 			{
-				// find the row of the foundset that changed; we can't use client's index (as server-side indexes might have changed meanwhile on server); so we are doing it based on client sent rowID
-				editingRecord = getFoundsetLinkedRecord((FoundsetLinkedTypeSabloValue< ? , ? >)newValue, foundsetLinkedRowID);
-				if (editingRecord == null)
-				{
-					Debug.error("Error pushing data from client to server for foundset linked DP (cannot find record): dp=" + newValue + ", rowID=" +
-						foundsetLinkedRowID);
-					return;
-				}
-			} // hmm, this is strange - usually we should always get rowID, even if foundset linked is actually set by developer to a global or form variable - even though there rowID is not actually needed; just treat this as if it is not record linked
-			newValue = ((FoundsetLinkedTypeSabloValue)newValue).getWrappedValue();
-		}
-		if (newValue instanceof DataproviderTypeSabloValue) newValue = ((DataproviderTypeSabloValue)newValue).getValue();
+				Debug.log(
+					"apply called on a property that is not bound to a dataprovider: " + beanProperty + ", value: " + value + " of component: " + webComponent);
+				return;
+			}
 
-		if (editingRecord == null || editingRecord.startEditing() || editingRecord.getParentFoundSet().getColumnIndex(dataProviderID) == -1)
-		{
-			Object v;
-			// if the value is a map, then it means, that a set of related properties needs to be updated,
-			// ex. newValue = {"" : "image_data", "_filename": "pic.jpg", "_mimetype": "image/jpeg"}
-			// will update property with "image_data", property_filename with "pic.jpg" and property_mimetype with "image/jpeg"
-			if (newValue instanceof HashMap)
+			Object newValue = value;
+			// Check security
+			webComponent.checkThatPropertyAllowsUpdateFromClient(beanProperty);
+
+			IRecordInternal editingRecord = record;
+
+			if (newValue instanceof FoundsetLinkedTypeSabloValue)
 			{
-				v = ((HashMap< ? , ? >)newValue).get(""); // defining value
-				Iterator<Entry< ? , ? >> newValueIte = ((HashMap)newValue).entrySet().iterator();
-				while (newValueIte.hasNext())
+				if (foundsetLinkedRowID != null)
 				{
-					Entry< ? , ? > e = newValueIte.next();
-					if (!"".equals(e.getKey()))
+					// find the row of the foundset that changed; we can't use client's index (as server-side indexes might have changed meanwhile on server); so we are doing it based on client sent rowID
+					editingRecord = getFoundsetLinkedRecord((FoundsetLinkedTypeSabloValue< ? , ? >)newValue, foundsetLinkedRowID);
+					if (editingRecord == null)
 					{
+						Debug.error("Error pushing data from client to server for foundset linked DP (cannot find record): dp=" + newValue + ", rowID=" +
+							foundsetLinkedRowID);
+						return;
+					}
+				} // hmm, this is strange - usually we should always get rowID, even if foundset linked is actually set by developer to a global or form variable - even though there rowID is not actually needed; just treat this as if it is not record linked
+				newValue = ((FoundsetLinkedTypeSabloValue)newValue).getWrappedValue();
+			}
+			if (newValue instanceof DataproviderTypeSabloValue) newValue = ((DataproviderTypeSabloValue)newValue).getValue();
+
+			if (editingRecord == null || editingRecord.startEditing() || editingRecord.getParentFoundSet().getColumnIndex(dataProviderID) == -1)
+			{
+				Object v;
+				// if the value is a map, then it means, that a set of related properties needs to be updated,
+				// ex. newValue = {"" : "image_data", "_filename": "pic.jpg", "_mimetype": "image/jpeg"}
+				// will update property with "image_data", property_filename with "pic.jpg" and property_mimetype with "image/jpeg"
+				if (newValue instanceof HashMap)
+				{
+					v = ((HashMap< ? , ? >)newValue).get(""); // defining value
+					Iterator<Entry< ? , ? >> newValueIte = ((HashMap)newValue).entrySet().iterator();
+					while (newValueIte.hasNext())
+					{
+						Entry< ? , ? > e = newValueIte.next();
+						if (!"".equals(e.getKey()))
+						{
+							try
+							{
+								com.servoy.j2db.dataprocessing.DataAdapterList.setValueObject(editingRecord, formController.getFormScope(),
+									dataProviderID + e.getKey(), e.getValue());
+							}
+							catch (IllegalArgumentException ex)
+							{
+								Debug.trace(ex);
+								getApplication().handleException(null, new ApplicationException(ServoyException.INVALID_INPUT, ex));
+							}
+						}
+					}
+				}
+				else
+				{
+					v = newValue;
+				}
+				Object oldValue = null;
+				Exception setValueException = null;
+				try
+				{
+					oldValue = com.servoy.j2db.dataprocessing.DataAdapterList.setValueObject(editingRecord, formController.getFormScope(), dataProviderID, v);
+					if (value instanceof DataproviderTypeSabloValue) ((DataproviderTypeSabloValue)value).checkValueForChanges(editingRecord);
+				}
+				catch (IllegalArgumentException e)
+				{
+					Debug.trace(e);
+					getApplication().handleException(null, new ApplicationException(ServoyException.INVALID_INPUT, e));
+					setValueException = e;
+					webComponent.setInvalidState(true);
+				}
+				DataproviderConfig dataproviderConfig = getDataproviderConfig(webComponent, beanProperty);
+				String onDataChange = dataproviderConfig.getOnDataChange();
+
+				if (onDataChange != null)
+				{
+					JSONObject event = EventExecutor.createEvent(onDataChange, editingRecord.getParentFoundSet().getSelectedIndex());
+					event.put("data", createDataproviderInfo(editingRecord, formController.getFormScope(), dataProviderID));
+					Object returnValue = null;
+					Exception exception = null;
+					String onDataChangeCallback = null;
+					if (!Utils.equalObjects(oldValue, v) && setValueException == null && webComponent.hasEvent(onDataChange))
+					{
+						getApplication().getWebsocketSession().getClientService("$sabloLoadingIndicator").executeAsyncNowServiceCall("showLoading", null); //$NON-NLS-1$ //$NON-NLS-2$
 						try
 						{
-							com.servoy.j2db.dataprocessing.DataAdapterList.setValueObject(editingRecord, formController.getFormScope(),
-								dataProviderID + e.getKey(), e.getValue());
+							returnValue = webComponent.executeEvent(onDataChange, new Object[] { oldValue, v, event });
 						}
-						catch (IllegalArgumentException ex)
+						catch (Exception e)
 						{
-							Debug.trace(ex);
-							getApplication().handleException(null, new ApplicationException(ServoyException.INVALID_INPUT, ex));
+							Debug.error("Error during onDataChange webComponent=" + webComponent, e);
+							exception = e;
 						}
-					}
-				}
-			}
-			else
-			{
-				v = newValue;
-			}
-			Object oldValue = null;
-			Exception setValueException = null;
-			try
-			{
-				oldValue = com.servoy.j2db.dataprocessing.DataAdapterList.setValueObject(editingRecord, formController.getFormScope(), dataProviderID, v);
-				if (value instanceof DataproviderTypeSabloValue) ((DataproviderTypeSabloValue)value).checkValueForChanges(editingRecord);
-			}
-			catch (IllegalArgumentException e)
-			{
-				Debug.trace(e);
-				getApplication().handleException(null, new ApplicationException(ServoyException.INVALID_INPUT, e));
-				setValueException = e;
-				webComponent.setInvalidState(true);
-			}
-			DataproviderConfig dataproviderConfig = getDataproviderConfig(webComponent, beanProperty);
-			String onDataChange = dataproviderConfig.getOnDataChange();
+						finally
+						{
+							getApplication().getWebsocketSession().getClientService("$sabloLoadingIndicator").executeAsyncNowServiceCall("hideLoading", null); //$NON-NLS-1$ //$NON-NLS-2$
+						}
+						onDataChangeCallback = dataproviderConfig.getOnDataChangeCallback();
 
-			if (onDataChange != null)
-			{
-				JSONObject event = EventExecutor.createEvent(onDataChange, editingRecord.getParentFoundSet().getSelectedIndex());
-				event.put("data", createDataproviderInfo(editingRecord, formController.getFormScope(), dataProviderID));
-				Object returnValue = null;
-				Exception exception = null;
-				String onDataChangeCallback = null;
-				if (!Utils.equalObjects(oldValue, v) && setValueException == null && webComponent.hasEvent(onDataChange))
-				{
-					getApplication().getWebsocketSession().getClientService("$sabloLoadingIndicator").executeAsyncNowServiceCall("showLoading", null); //$NON-NLS-1$ //$NON-NLS-2$
-					try
+					}
+					else if (setValueException != null)
 					{
-						returnValue = webComponent.executeEvent(onDataChange, new Object[] { oldValue, v, event });
+						returnValue = setValueException.getMessage();
+						exception = setValueException;
+						onDataChangeCallback = dataproviderConfig.getOnDataChangeCallback();
+
 					}
-					catch (Exception e)
+					else if (webComponent.isInvalidState() && exception == null)
 					{
-						Debug.error("Error during onDataChange webComponent=" + webComponent, e);
-						exception = e;
+						onDataChangeCallback = dataproviderConfig.getOnDataChangeCallback();
+						webComponent.setInvalidState(false);
+
 					}
-					finally
+					if (webComponent.isVisible() && onDataChangeCallback != null)
 					{
-						getApplication().getWebsocketSession().getClientService("$sabloLoadingIndicator").executeAsyncNowServiceCall("hideLoading", null); //$NON-NLS-1$ //$NON-NLS-2$
+						WebObjectApiFunctionDefinition call = createWebObjectFunction(onDataChangeCallback);
+						webComponent.invokeApi(call, new Object[] { event, returnValue, exception == null ? null : exception.getMessage() });
 					}
-					onDataChangeCallback = dataproviderConfig.getOnDataChangeCallback();
-
-				}
-				else if (setValueException != null)
-				{
-					returnValue = setValueException.getMessage();
-					exception = setValueException;
-					onDataChangeCallback = dataproviderConfig.getOnDataChangeCallback();
-
-				}
-				else if (webComponent.isInvalidState() && exception == null)
-				{
-					onDataChangeCallback = dataproviderConfig.getOnDataChangeCallback();
-					webComponent.setInvalidState(false);
-
-				}
-				if (onDataChangeCallback != null)
-				{
-					WebObjectApiFunctionDefinition call = createWebObjectFunction(onDataChangeCallback);
-					webComponent.invokeApi(call, new Object[] { event, returnValue, exception == null ? null : exception.getMessage() });
 				}
 			}
+		}
+		catch (IllegalChangeFromClientException e)
+		{
+			// we always want to print a warning in the log if a data push was denied
+			// due to form becomming hidden, even if it was hidden just milliseconds before
+			// the deny; we should know if real dataprovider data was discarded due to this...
+			e.setShouldPrintWarningToLog(true);
+			throw e;
 		}
 	}
 
@@ -1070,7 +1114,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		else
 		{
 			scope = record;
-			scopeID = record.getParentFoundSet().getDataSource();
+			scopeID = record.getDataSource();
 		}
 
 		JSONObject dpInfo = new JSONObject();
@@ -1080,11 +1124,6 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		return dpInfo;
 	}
 
-	/**
-	 * @param webComponent
-	 * @param beanProperty
-	 * @return
-	 */
 	static DataproviderConfig getDataproviderConfig(WebFormComponent webComponent, String beanProperty)
 	{
 		Object config = webComponent.getFormElement().getWebComponentSpec().getProperty(beanProperty).getConfig();
@@ -1095,10 +1134,6 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		return config instanceof DataproviderConfig ? (DataproviderConfig)config : null;
 	}
 
-	/**
-	 * @param onDataChangeCallback
-	 * @return
-	 */
 	static WebObjectApiFunctionDefinition createWebObjectFunction(String onDataChangeCallback)
 	{
 		WebObjectApiFunctionDefinition call = new WebObjectApiFunctionDefinition(onDataChangeCallback);
@@ -1112,10 +1147,9 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 	{
 		IRecordInternal recordForRowID = null;
 
-		Pair<String, Integer> splitHashAndIndex = FoundsetTypeSabloValue.splitPKHashAndIndex(foundsetLinkedRowID);
-		int index = foundsetLinkedValue.getFoundset().getRecordIndex(splitHashAndIndex.getLeft(), splitHashAndIndex.getRight().intValue());
-
+		int index = foundsetLinkedValue.getFoundset().getRecordIndex(foundsetLinkedRowID, foundsetLinkedValue.getRecordIndexHint());
 		if (index >= 0) recordForRowID = foundsetLinkedValue.getFoundset().getRecord(index);
+
 		return recordForRowID;
 	}
 
@@ -1183,7 +1217,12 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 	{
 		if (stringValue == null)
 		{
-			if ("selectedIndex".equals(dataProviderID) || isCountOrAvgOrSumAggregateDataProvider(dataProviderID, dataProviderLookup)) //$NON-NLS-1$
+			if ("maxRecordIndex".equals(dataProviderID) || "selectedIndex".equals(dataProviderID) || //$NON-NLS-1$
+				isCountOrAvgOrSumAggregateDataProvider(dataProviderID, dataProviderLookup))
+			{
+				return "0"; //$NON-NLS-1$
+			}
+			if (dataProviderID != null && (dataProviderID.endsWith(".selectedIndex") || dataProviderID.endsWith(".maxRecordIndex")))
 			{
 				return "0"; //$NON-NLS-1$
 			}
@@ -1262,6 +1301,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		}
 		if (!b)
 		{
+			clearNestedRelatedFoundsetListeners();
 			visibleChildForms.clear();
 		}
 	}
@@ -1325,9 +1365,9 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 	{
 		if (record != null)
 		{
-			setRecord(null, false);
+			setRecord(null, false); // null record also indirectly clears maxRecIndexPropertyValueListener's foundset listener
 		}
-		if (formController != null && formController.getFormScope() != null)
+		if (formController != null && !formController.isDestroyed() && formController.getFormScope() != null) // the isDestroyed() check is here due tot SVY-20206; where we try to correct an unexpected situation by destroying the DAL (again) if we see that the form controller is destroyed but the DAL listeners still fire
 		{
 			formController.getFormScope().getModificationSubject().removeModificationListener(this);
 		}
@@ -1339,11 +1379,59 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 				er.getScopesScope().getModificationSubject().removeModificationListener(this);
 			}
 		}
+
+		clearToWatchRelations();
+		clearNestedRelatedFoundsetListeners();
 		dataProviderToLinkedComponentProperty.clear();
 		allComponentPropertiesLinkedToData.clear();
 		findModeAwareProperties.clear();
 		parentRelatedForms.clear();
 		visibleChildForms.clear();
+
+		if (log.isDebugEnabled())
+			log.debug(getClass().getSimpleName() + "(" + hashCode() + ") destroyed for form: '" + formController.getName() + "'");
+
+		destroyed = true;
+	}
+
+	private void clearToWatchRelations()
+	{
+		checkThatThisIsTheEventThread();
+		if (toWatchRelations != null)
+		{
+			toWatchRelations.values().forEach(val -> {
+				val.getRight().forEach(rl -> rl.dispose());
+				if (val.getRight().size() > 0) val.getRight().clear();
+				val.setLeft(null);
+				val.setRight(null);
+			});
+			toWatchRelations.clear();
+		}
+	}
+
+	public void clearNestedRelatedFoundsetListeners()
+	{
+		for (RelatedFoundsetListenerForChildVisibleForm listener : nestedRelatedFoundsetListeners)
+		{
+			listener.dispose();
+		}
+		nestedRelatedFoundsetListeners.clear();
+	}
+
+	public void tellNestedRelatedListenersThatMainDALRecordHasChanged()
+	{
+		for (RelatedFoundsetListenerForChildVisibleForm listener : nestedRelatedFoundsetListeners)
+		{
+			listener.rootDALRecordHasChanged();
+		}
+	}
+
+	public void tellNestedRelatedListenersThatGlobalOrScopeVariableChanged(String globalScopeChangedVariableName)
+	{
+		for (RelatedFoundsetListenerForChildVisibleForm listener : nestedRelatedFoundsetListeners)
+		{
+			listener.globalOrScopeVariableChanged(globalScopeChangedVariableName);
+		}
 	}
 
 	@Override
@@ -1395,6 +1483,18 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 			propertyValues.add(propertyValue);
 		}
 
+		public boolean removePropertyValueFromListAndCheckEmpty(IDataLinkedPropertyValue propertyValue)
+		{
+			propertyValues.remove(propertyValue);
+			if (propertyValues.isEmpty())
+			{
+				dispose();
+				return true;
+			}
+			return false;
+		}
+
+
 		@Override
 		public void foundSetChanged(FoundSetEvent e)
 		{
@@ -1405,6 +1505,11 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		}
 	}
 
+	/**
+	 * Class used to listen to related foundset changes in case a related data-provider was registered to this DAL.
+	 *
+	 * TODO see if it makes sense to merge this class with {@link RelatedFoundsetListenerForChildVisibleForm} class...
+	 */
 	private class RelatedListener implements ListSelectionListener, IModificationListener, IFoundSetEventListener
 	{
 
@@ -1412,9 +1517,8 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		private final IRecordInternal selectedRecord;
 		private final IDataLinkedPropertyValue propertyValue;
 
-		/**
-		 * @param related
-		 */
+		private boolean disposed = false;
+
 		public RelatedListener(IDataLinkedPropertyValue propertyValue, IFoundSetInternal related)
 		{
 			this.propertyValue = propertyValue;
@@ -1433,6 +1537,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 
 		public void dispose()
 		{
+			disposed = true;
 			if (this.related instanceof ISwingFoundSet)
 			{
 				((ISwingFoundSet)this.related).getSelectionModel().removeListSelectionListener(this);
@@ -1446,8 +1551,37 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 
 		private void changed()
 		{
-			propertyValue.dataProviderOrRecordChanged(getRecord(), null, false, false, true);
-			createRelationListeners(propertyValue);
+			if (formController.isDestroyed())
+			{
+				// see SVY-20206
+				// @formatter:off
+				log.error(
+					DataAdapterList.this.getClass().getSimpleName() + "(" + hashCode() + ") formController is DESTROYED yet DAL (\n\t\tdestroyed: "
+						+ destroyed
+						+ ",\n\t\ton relation: " + related.getRelationName()
+						+ ",\n\t\thas this RelatedListener: "
+						+ ((toWatchRelations != null && toWatchRelations.values().stream()
+							.<RelatedListener>mapMulti((pair, consumer) -> pair.getRight().forEach(consumer))
+							.anyMatch((rl) -> rl == this)) ? "yes" : "no") + ",\n\t\t"
+						+ (toWatchRelations != null ? Integer.valueOf(toWatchRelations.size()) : "null") + ",\n\t\t"
+						+ dataProviderToLinkedComponentProperty.size() + ",\n\t\t"
+						+ allComponentPropertiesLinkedToData.size() + ",\n\t\t"
+						+ findModeAwareProperties.size() + ",\n\t\t"
+						+ parentRelatedForms.size()	+ ",\n\t\t"
+						+ visibleChildForms.size() + ",\n\t\t"
+						+ nestedRelatedFoundsetListeners.size() + "\n\t) related listeners just fired! Destroying RelatedListener(previously disposed:"
+						+ disposed + ") & DAL...",
+					new RuntimeException("Destroyed form's name: " + formController.getName()));
+				// @formatter:on
+
+				dispose(); // it sometimes happened - as seen in log files - that the RelatedListener was removed from the DAL already, yet these listeners still fire (as if the RelatedListener was not yet destroyed)
+				destroy(); // the DAL
+			}
+			else
+			{
+				propertyValue.dataProviderOrRecordChanged(getRecord(), null, false, false, true);
+				createRelationListeners(propertyValue);
+			}
 		}
 
 		@Override
@@ -1470,5 +1604,189 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 				changed();
 			}
 		}
+	}
+
+	/**
+	 * Class used to listen to relation changes in related foundset chains used by related child visible forms.
+	 * It will reload records in those related forms when needed.
+	 */
+	private class RelatedFoundsetListenerForChildVisibleForm implements ListSelectionListener, IFoundSetEventListener
+	{
+
+		private final String intermediateRelationName;
+		private final Set<String> nextIntermediateRelationScopeKeys = new HashSet<>();
+		private final Set<String> nextIntermediateRelationColumnKeys = new HashSet<>();
+		private IFoundSetInternal foundsetToListenTo;
+		private final IWebFormController leafRelatedFormController;
+		private final String fullRelationName;
+		private final DataAdapterList dal;
+		private IRecordInternal selectedRecord;
+
+		private final RelatedFoundsetListenerForChildVisibleForm nextIntermediateRelationListener;
+
+		/**
+		 * This listens to changes in the selected record of foundset determined by "intermediateRelationName" (or DAL foundset if intermediateRelationName is null)
+		 * or in columns from the selected record of it that are used as keys in the "relations[currentIntermediateRelationIndex]".<br/><br/>
+		 *
+		 * If there are such changes, then the given formController will reload it's records based on fullRelationName.
+		 *
+		 * @param relations the full relation sequence that needs to be listened to; current NestedRelatedListener will only look at relations[currentIntermediateRelationIndex]
+		 * @param currentIntermediateRelationIndex the index in "relations" that this NestedRelatedListener creates listeners for
+		 * @param intermediateRelationName the relation of the related foundset to look at for selections changes and column changes that might affect; can be null and then we watch the 'dal''s foundset directly (it is for the first relation in the chain);
+		 *                                 this is the String equivalent to the relation sequence up to (excluding) relations[currentIntermediateRelationIndex]; initially it is null
+		 * @param leafRelatedFormController the form controller that corresponds to given fullRelationName
+		 * @param fullRelationName the full relation name of the (end) form for which we are watching selection and column changes
+		 * @param dal the DAL of the parent form that sees leafRelatedFormController becoming visible inside it (nested in tab panels etc.)
+		 */
+		public RelatedFoundsetListenerForChildVisibleForm(Relation[] relations, int currentIntermediateRelationIndex, String intermediateRelationName,
+			IWebFormController leafRelatedFormController, String fullRelationName, DataAdapterList dal)
+		{
+			this.intermediateRelationName = intermediateRelationName;
+			IDataProvider[] nIRColumns = null;
+			try
+			{
+				nIRColumns = relations[currentIntermediateRelationIndex].getPrimaryDataProviders(dal.getApplication().getFlattenedSolution());
+				for (IDataProvider dp : nIRColumns)
+				{
+					String dpID = dp.getDataProviderID();
+					if (ScopesUtils.isVariableScope(dpID)) nextIntermediateRelationScopeKeys.add(dpID);
+					else nextIntermediateRelationColumnKeys.add(dpID);
+				}
+			}
+			catch (RepositoryException e)
+			{
+				Debug.log(e);
+			}
+
+			this.leafRelatedFormController = leafRelatedFormController;
+			this.fullRelationName = fullRelationName;
+			this.dal = dal;
+
+			addListeners();
+
+			if (currentIntermediateRelationIndex < relations.length - 1 && relations[currentIntermediateRelationIndex + 1] != null)
+				nextIntermediateRelationListener = new RelatedFoundsetListenerForChildVisibleForm(relations, currentIntermediateRelationIndex + 1,
+					intermediateRelationName == null ? relations[currentIntermediateRelationIndex].getName()
+						: intermediateRelationName + "." + relations[currentIntermediateRelationIndex].getName(),
+					leafRelatedFormController, fullRelationName, dal);
+			else nextIntermediateRelationListener = null;
+		}
+
+		private void addListeners()
+		{
+			if (this.dal.getRecord() != null)
+			{
+				if (intermediateRelationName != null)
+					this.foundsetToListenTo = this.dal.getRecord().getRelatedFoundSet(intermediateRelationName);
+				else
+					this.foundsetToListenTo = this.dal.getRecord().getParentFoundSet();
+
+				if (this.foundsetToListenTo != null)
+				{
+					if (this.foundsetToListenTo instanceof ISwingFoundSet && intermediateRelationName != null) // if intermediateRelationName == null then this is the foundet of the DAL itself, and the DAL will notify record selection changed itself, because the foundset itself might change...
+					{
+						((ISwingFoundSet)this.foundsetToListenTo).getSelectionModel().addListSelectionListener(this);
+					}
+					selectedRecord = this.foundsetToListenTo.getRecord(this.foundsetToListenTo.getSelectedIndex());
+					this.foundsetToListenTo.addFoundSetEventListener(this);
+				}
+			}
+		}
+
+		private void recreateListenersInChain()
+		{
+			addListeners();
+			if (nextIntermediateRelationListener != null) nextIntermediateRelationListener.addListeners();
+		}
+
+		public void dispose()
+		{
+			if (nextIntermediateRelationListener != null) nextIntermediateRelationListener.dispose();
+
+			if (this.foundsetToListenTo != null)
+			{
+				if (this.foundsetToListenTo instanceof ISwingFoundSet && intermediateRelationName != null)
+				{
+					((ISwingFoundSet)this.foundsetToListenTo).getSelectionModel().removeListSelectionListener(this);
+				}
+				this.foundsetToListenTo.removeFoundSetEventListener(this);
+				this.foundsetToListenTo = null;
+				this.selectedRecord = null;
+			}
+		}
+
+		public void globalOrScopeVariableChanged(String globalScopeChangedVariableName)
+		{
+			// a global/scope variable changed
+			if (nextIntermediateRelationScopeKeys.contains(globalScopeChangedVariableName))
+			{
+				if (nextIntermediateRelationListener != null) nextIntermediateRelationListener.refreshListeners();
+				reloadRecordsOnEndFormController(); // a global/scope variable that is used as a key in the next intermediate relation has changed; reload of records is needed
+			}
+			else if (nextIntermediateRelationListener != null) nextIntermediateRelationListener.globalOrScopeVariableChanged(globalScopeChangedVariableName);
+		}
+
+		/**
+		 * The first NestedRelatedListener in a chain of relations that leads to a related form controller gets it's selection change
+		 * from the DAL directly, just in case the foundset of the DAL has changed as well - so the listeners are recreated on the new foundset then.
+		 */
+		public void rootDALRecordHasChanged()
+		{
+			this.refreshListeners(); // it is possible that the selected record is from another foundset - so refresh including 'this', not just from 'nextIntermediateRelationListener'
+			selectedRecordChanged();
+		}
+
+		@Override
+		public void valueChanged(ListSelectionEvent e)
+		{
+			// selected index changed...
+			selectedRecordChanged();
+		}
+
+		private void selectedRecordChanged()
+		{
+			reloadRecordsOnEndFormController();
+		}
+
+		private void refreshListeners()
+		{
+			dispose(); // calls it for whole relation chain starting from this NestedRelatedListener's intermediate relation
+			recreateListenersInChain(); // calls it for whole relation chain starting from this NestedRelatedListener's intermediate relation
+		}
+
+		private void reloadRecordsOnEndFormController()
+		{
+			leafRelatedFormController.loadRecords(
+				(this.dal.getRecord() != null ? this.dal.getRecord().getRelatedFoundSet(fullRelationName,
+					((BasicFormController)leafRelatedFormController).getDefaultSortColumns()) : null));
+		}
+
+		@Override
+		public void foundSetChanged(FoundSetEvent e)
+		{
+			if (this.foundsetToListenTo != null)
+			{
+				int selectedIndex = this.foundsetToListenTo.getSelectedIndex();
+				if (this.foundsetToListenTo.getRecord(selectedIndex) != this.selectedRecord)
+				{
+					// selected record has changed, but maybe selected index did not (record deletes/inserts etc. could do that)
+					selectedRecordChanged();
+				}
+				else
+				{
+					// same selected record; if it was a change that did affect the current record; check
+					// changed column(s) vs relation keys; see if columns that are used as keys in relations have changed
+					if (this.selectedRecord != null && e != null && e.getType() == FoundSetEvent.CONTENTS_CHANGED &&
+						e.getChangeType() == FoundSetEvent.CHANGE_UPDATE && e.getFirstRow() <= selectedIndex && e.getLastRow() >= selectedIndex &&
+						(e.getDataProviders() == null ||
+							e.getDataProviders().stream().anyMatch((columnName) -> nextIntermediateRelationColumnKeys.contains(columnName))))
+					{
+						if (nextIntermediateRelationListener != null) nextIntermediateRelationListener.refreshListeners();
+						reloadRecordsOnEndFormController(); // a column that is used as a key in the next intermediate relation has changed; reload of records is needed
+					}
+				}
+			}
+		}
+
 	}
 }

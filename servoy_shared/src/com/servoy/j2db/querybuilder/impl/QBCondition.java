@@ -22,10 +22,22 @@ import com.servoy.j2db.query.ISQLCondition;
 import com.servoy.j2db.querybuilder.IQueryBuilderCondition;
 
 /**
+ * <p>The <code>QBCondition</code> class is a wrapper for conditions used in a <code>QBSelect</code> query.
+ * It supports various comparison operations such as equality, ranges, patterns, and inclusion
+ * (<code>compare</code>, <code>in</code>, <code>like</code>, <code>between</code>). These conditions
+ * help refine query results by enabling precise filtering.</p>
+ *
+ * <p>The <code>parent</code> property provides access to the query builder's parent table clause,
+ * which could be a query or a join clause. The <code>root</code> property allows navigation to the
+ * root query builder, facilitating integration with larger query structures.</p>
+ *
+ * <p>For more information about constructing and executing queries, refer to the
+ * <a href="https://docs.servoy.com/reference/servoycore/dev-api/database-manager/qbselect">QBSelect</a> section of this documentation.</p>
+ *
  * @author rgansevles
  *
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "QBCondition")
+@ServoyDocumented(category = ServoyDocumented.RUNTIME)
 public class QBCondition extends QBPart implements IQueryBuilderCondition
 {
 	private final ISQLCondition queryCondition;

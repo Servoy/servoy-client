@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.wicket.RequestCycle;
 import org.eclipse.dltk.rhino.dbgp.CommandHandlerThread;
 import org.eclipse.dltk.rhino.dbgp.DBGPDebugger;
 import org.eclipse.dltk.rhino.dbgp.DBGPDebugger.ITerminationListener;
@@ -40,7 +39,6 @@ import com.servoy.j2db.ClientState;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IDebugClient;
 import com.servoy.j2db.IServiceProvider;
-import com.servoy.j2db.IWebClientApplication;
 import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.IScriptProvider;
@@ -48,6 +46,7 @@ import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.ScriptCalculation;
 import com.servoy.j2db.scripting.LazyCompilationScope;
 import com.servoy.j2db.scripting.ScriptEngine;
+import com.servoy.j2db.server.shared.IPerformanceDataProvider;
 import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ExtendableURLClassLoader;
@@ -82,19 +81,14 @@ public class RemoteDebugScriptEngine extends ScriptEngine implements ITerminatio
 		public void contextCreated(Context cx)
 		{
 			IServiceProvider sp = J2DBGlobals.getServiceProvider();
-			if (sp instanceof IApplication && sp instanceof IDebugClient)
+			if (sp instanceof IApplication application && sp instanceof IDebugClient && application.getPluginManager() != null)
 			{
-				IApplication application = (IApplication)sp;
 				if (debugger != null && debugger.isInited)
 				{
 					// executing can be done multiply in a thread (calc)
 					// only allow the event threads (AWT and web client request thread) to debug.
 					boolean isDispatchThread = application.isEventDispatchThread() &&
 						!(Thread.currentThread() instanceof ServoyDebugger || Thread.currentThread() instanceof CommandHandlerThread);
-					if (isDispatchThread && application instanceof IWebClientApplication)
-					{
-						isDispatchThread = RequestCycle.get() != null; // for web client test extra if this is a Request thread.
-					}
 					if (isDispatchThread)
 					{
 						cx.setApplicationClassLoader(application.getPluginManager().getClassLoader(), false);
@@ -102,6 +96,8 @@ public class RemoteDebugScriptEngine extends ScriptEngine implements ITerminatio
 						cx.setDebugger(debugger, null);
 						cx.setGeneratingDebug(true);
 						cx.setOptimizationLevel(-1);
+
+						debugger.performanceData = application instanceof IPerformanceDataProvider pdp ? pdp.getPerformanceData() : null;
 					}
 					else if (!(cx.getApplicationClassLoader() instanceof ExtendableURLClassLoader))
 					{
@@ -196,9 +192,6 @@ public class RemoteDebugScriptEngine extends ScriptEngine implements ITerminatio
 	private final AtomicInteger executingFunction = new AtomicInteger(0);
 
 
-	/**
-	 * @param app
-	 */
 	public RemoteDebugScriptEngine(IApplication app)
 	{
 		super(app);
@@ -578,9 +571,9 @@ public class RemoteDebugScriptEngine extends ScriptEngine implements ITerminatio
 				{
 					if (debugger != null)
 					{
+						Context.enter();
 						try
 						{
-							Context.enter();
 							debugger.sendEnd(true);
 						}
 						catch (Throwable t)

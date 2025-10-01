@@ -22,14 +22,15 @@ import java.net.URL;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.sql.Connection;
-
-import javax.servlet.http.HttpServlet;
+import java.sql.Statement;
 
 import com.servoy.j2db.dataprocessing.IDataSet;
 import com.servoy.j2db.dataprocessing.JSDataSet;
 import com.servoy.j2db.persistence.IServer;
 import com.servoy.j2db.server.shared.IClientInformation;
 import com.servoy.j2db.util.ServoyException;
+
+import jakarta.servlet.http.HttpServlet;
 
 /**
  * Api to use by server plugins.
@@ -46,7 +47,7 @@ public interface IServerAccess extends IPluginAccess
 
 	/**
 	 * Register a webservice in the application web server Note on the server 'init(servletConfig)' is never called, only 'init()'. The service comes available
-	 * as http://<host>[:port]/servoy-service/<webServiceAlias>
+	 * as http://&lt;host&gt;[:port]/servoy-service/&lt;webServiceAlias&gt;
 	 *
 	 * @param webServiceAlias do start your webServiceAlias with your pluginname, like 'my_pluginName_webService'.
 	 * @param service_servlet
@@ -64,7 +65,7 @@ public interface IServerAccess extends IPluginAccess
 	public void registerRMIService(String interfaceClassName, Remote obj) throws RemoteException;
 
 	/**
-	 * Register a RMI remote object in the application server.
+	 * Register a remote object in the application server that can be accessed by the client plugin.
 	 *
 	 * @param interfaceClassName
 	 * @param obj
@@ -72,7 +73,7 @@ public interface IServerAccess extends IPluginAccess
 	public void registerRemoteService(String interfaceClassName, Remote obj) throws RemoteException;
 
 	/**
-	 * Get a remote server service, will not work in the Servoy Runtime product!
+	 * Get a remote server service that could be registered by the server plugin
 	 */
 	public Remote getRemoteService(String rmiLookupName);
 
@@ -149,6 +150,10 @@ public interface IServerAccess extends IPluginAccess
 	 *
 	 * @param server_name
 	 * @param table_name
+	 * @param pks
+	 * @param action
+	 * @param transaction_id
+	 *
 	 * @since 3.5
 	 */
 	public boolean notifyDataChange(String server_name, String table_name, IDataSet pks, int action, String transaction_id);
@@ -156,9 +161,12 @@ public interface IServerAccess extends IPluginAccess
 	/**
 	 * End the timing that was started with {@link #addPerformanceTiming(String, String, long, String)}
 	 *
+	 * @param context
 	 * @param id the id that was returned by {@link #addPerformanceTiming(String, String, long, String)}
+	 * @param clientId
+	 *
 	 * @since 8.0
-	 * @Deprecated
+	 * @deprecated
 	 */
 	@Deprecated
 	public void endPerformanceTiming(String context, Integer id, String clientId);
@@ -171,6 +179,8 @@ public interface IServerAccess extends IPluginAccess
 	 * @param context group
 	 * @param action
 	 * @param time_ms
+	 * @param clientId
+	 *
 	 * @since 2023.06
 	 */
 	public Long addPerformanceTiming(String context, String action, long time_ms, String clientId);
@@ -178,7 +188,10 @@ public interface IServerAccess extends IPluginAccess
 	/**
 	 * End the timing that was started with {@link #addPerformanceTiming(String, String, long, String)}
 	 *
+	 * @param context
 	 * @param id the id that was returned by {@link #addPerformanceTiming(String, String, long, String)}
+	 * @param clientId
+	 *
 	 * @since 2023.06
 	 */
 	public void endPerformanceTiming(String context, Long id, String clientId);
@@ -427,4 +440,30 @@ public interface IServerAccess extends IPluginAccess
 	 * @since 5.0
 	 */
 	public void releaseLocks(String clientId);
+
+
+	/**
+	 * Add a track statement to the server.
+	 * This is used to track statements that are executed on the server side.
+	 *
+	 * @param clientId the client identifier
+	 * @param server the server name
+	 * @param sql the SQL statement
+	 * @param t1 the start time of the statement execution
+	 * @param ps the prepared statement object
+	 * @return a unique identifier for the tracked statement
+	 *
+	 * @since 2025.09
+	 */
+	public long addTrackStatement(String clientId, String server, String sql, long t1, Statement ps);
+
+	/**
+	 * Remove a tracked statement from the server.
+	 * This is used to remove statements that are no longer needed.
+	 *
+	 * @param statementTrackerId the unique identifier of the tracked statement
+	 *
+	 * @since 2025.09
+	 */
+	public void removeTrackStatement(long statementTrackerId);
 }

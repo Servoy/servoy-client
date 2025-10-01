@@ -32,7 +32,6 @@ import com.servoy.j2db.server.ngclient.property.IDataLinkedPropertyValue;
 import com.servoy.j2db.server.ngclient.property.types.IDataLinkedType.TargetDataLinks;
 import com.servoy.j2db.util.HtmlUtils;
 import com.servoy.j2db.util.Text;
-import com.servoy.j2db.util.Utils;
 
 /**
  * Runtime value stored in WebFormComponents for properties of type {@link TagStringPropertyType} that do need to replace tags (%%x%%).
@@ -94,9 +93,7 @@ public class TagStringTypeSabloValue extends BasicTagStringTypeSabloValue implem
 	{
 		if (!htmlConvertForClientWasHandled)
 		{
-			// only convert html if it is not allowed to be pushed (input fields shouldn't convert the html)
-			// very likely tagstrings are put on labels which are in reject, but to be sure
-			if (HtmlUtils.startsWithHtml(tagReplacedValueBeforeHTMLConvert) && computedPushToServer == PushToServerEnum.reject)
+			if (HtmlUtils.startsWithHtml(tagReplacedValueBeforeHTMLConvert))
 			{
 				tagReplacedValueAfterHTMLConvertForClient = HTMLTagsConverter.convert(tagReplacedValueBeforeHTMLConvert, dataConverterContext, false);
 			}
@@ -132,18 +129,6 @@ public class TagStringTypeSabloValue extends BasicTagStringTypeSabloValue implem
 		}
 	}
 
-	@Override
-	public boolean equals(Object obj)
-	{
-		if (obj instanceof TagStringTypeSabloValue)
-		{
-			TagStringTypeSabloValue value = (TagStringTypeSabloValue)obj;
-			return value.pd == pd && value.formElement == formElement &&
-				Utils.equalObjects(value.getDesignValueBeforeInitialI18NConversion(), getDesignValueBeforeInitialI18NConversion());
-		}
-		return false;
-	}
-
 	protected boolean updateTagReplacedValue()
 	{
 		String oldTagReplacedValueBeforeHTMLConvert = tagReplacedValueBeforeHTMLConvert;
@@ -161,6 +146,13 @@ public class TagStringTypeSabloValue extends BasicTagStringTypeSabloValue implem
 
 		// changed or not
 		return changed;
+	}
+
+	@SuppressWarnings("nls")
+	@Override
+	public String toString()
+	{
+		return "TagString(" + getDesignValueBeforeInitialI18NConversion() + ")";
 	}
 
 }

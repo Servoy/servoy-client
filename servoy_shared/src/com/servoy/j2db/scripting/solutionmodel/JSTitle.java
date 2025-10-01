@@ -25,11 +25,12 @@ import com.servoy.j2db.solutionmodel.ISMTitle;
 
 /**
  * Title label for elements in mobile form.
- * 
+ *
  * @author rgansevles
  *
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
+@Deprecated
 public class JSTitle extends JSBase<GraphicalComponent> implements ISMTitle
 {
 	public JSTitle(IJSParent< ? > parent, GraphicalComponent gc, boolean isNew)
@@ -39,7 +40,7 @@ public class JSTitle extends JSBase<GraphicalComponent> implements ISMTitle
 
 	/**
 	 * @clonedesc com.servoy.base.persistence.IBaseGraphicalComponentCommon#getDataProviderID()
-	 * 
+	 *
 	 * @sample
 	 * var field = form.newTextField('parent_table_text', 1);
 	 * field.getTitle().dataProviderID = 'mytitlevar'
@@ -58,7 +59,7 @@ public class JSTitle extends JSBase<GraphicalComponent> implements ISMTitle
 
 	/**
 	 * @clonedesc com.servoy.base.persistence.IBaseGraphicalComponentCommon#getText()
-	 * 
+	 *
 	 * @sample
 	 * var field = form.newTextField('parent_table_text', 1);
 	 * field.getTitle().text = 'Parent table'
@@ -77,7 +78,7 @@ public class JSTitle extends JSBase<GraphicalComponent> implements ISMTitle
 
 	/**
 	 * @clonedesc com.servoy.base.persistence.IBaseGraphicalComponentCommon#getDisplaysTags()
-	 * 
+	 *
 	 * @sample
 	 * var field = form.newTextField('parent_table_text', 1);
 	 * field.getTitle().text = 'Parent table %%customername%%'
@@ -97,7 +98,7 @@ public class JSTitle extends JSBase<GraphicalComponent> implements ISMTitle
 
 	/**
 	 * @clonedesc com.servoy.base.persistence.IBaseGraphicalComponentCommon#getVisible()
-	 * 
+	 *
 	 * @sample
 	 * var field = form.newTextField('parent_table_text', 1);
 	 * field.getTitle().visible = false

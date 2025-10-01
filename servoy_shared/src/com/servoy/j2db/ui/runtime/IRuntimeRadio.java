@@ -20,8 +20,9 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 
 
 /**
- * Interface for radio components that are placed as separate components (RuntimeRadio).
- *  
+ * The <code>IRuntimeRadio</code> interface provides scripting support for runtime radio components in Servoy,
+ * extending functionalities for fields, valuelists, and read-only properties.
+ *
  * @author jcompagner
  * @since 6.1
  */

@@ -24,6 +24,7 @@ import com.servoy.j2db.solutionmodel.ISMCursor;
  * @author jcompagner
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
+@Deprecated
 public class CURSOR implements ISMCursor, IPrefixedConstantsObject
 {
 

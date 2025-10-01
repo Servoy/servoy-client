@@ -26,11 +26,16 @@ import org.mozilla.javascript.annotations.JSFunction;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.LogUtils;
 
 /**
- * This logger provides an API for logging with arguments, e.g. log.info.log("my message and my {}", "argument");.
- * This class can also be used to obtain JSLogBuilder instances.
- * Available logging levels are (in order): fatal, error, warn, info, debug and trace.
+ * The <code>JSLogger</code> class provides a comprehensive API for managing logging operations. It supports constructing log events
+ * with various severity levels, such as fatal, error, warn, info, debug, and trace, using the <code>JSLogBuilder</code> instances
+ * it creates. Logs can include messages formatted with arguments, enabling flexible and detailed logging.
+ *
+ * The class offers methods to check if a specific logging level is enabled, allowing efficient logging decisions. It also allows
+ * dynamically setting the logger's logging level, overriding the default configuration. This global change persists until the
+ * application server is restarted. The current logging level can be retrieved as a string using the <code>level</code> property.
  *
  * @author jdejong
  *
@@ -258,6 +263,33 @@ public class JSLogger
 	public void setLevel(JSLogBuilder level)
 	{
 		Level logLevel = Level.toLevel(level.getLevel().name(), this.logger.getLevel());
+		if (logLevel != this.logger.getLevel())
+		{
+			Configurator.setAllLevels(logger.getName(), logLevel);
+		}
+	}
+
+	/**
+	 * Set the level for this logger by using the LOGGINGLEVEL constant.
+	 * Be aware that this will override the logging level as configured in log4j.xml,
+	 * meaning it affects all JSLogger instances based on that configuration.
+	 * This changes the global configuration,
+	 * meaning that restarting the client will not reset the logging level to it's default state.
+	 * Only restarting the application server will reset the logging level to it's default state.
+	 *
+	 * @sample
+	 * var log = application.getLogger("myLogger");
+	 * log.setLevel(LOGGINGLEVEL.DEBUG);
+	 *
+	 * @param level the desired logging level for this logger
+	 */
+	@SuppressWarnings("nls")
+	@JSFunction
+	public void setLevel(int level)
+	{
+		String levelName = LogUtils.getLogLevelString(level);
+		if ("*UNKNOWN*".equals(levelName)) throw new IllegalArgumentException("Invalid log level: " + level);
+		Level logLevel = Level.toLevel(levelName, this.logger.getLevel());
 		if (logLevel != this.logger.getLevel())
 		{
 			Configurator.setAllLevels(logger.getName(), logLevel);

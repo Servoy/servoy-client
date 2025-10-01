@@ -1,3 +1,34 @@
+/**
+ * Constant representing the default viewport settings for mobile devices.
+ * This setting allows zooming in and out while displaying content correctly on mobile.
+ */
+var VIEWPORT_MOBILE_DEFAULT;
+
+/**
+ * Constant representing the viewport settings that deny zoom functionality.
+ * This setting prevents users from zooming in or out on mobile devices.
+ */
+var VIEWPORT_MOBILE_DENY_ZOOM;
+
+/**
+ * Constant representing the viewport settings that deny zooming out.
+ * This setting allows zooming in but prevents zooming out on mobile devices.
+ */
+var VIEWPORT_MOBILE_DENY_ZOOM_OUT;
+
+/**
+ * Constant representing the viewport settings that deny zooming in.
+ * This setting allows zooming out but prevents zooming in on mobile devices.
+ */
+var VIEWPORT_MOBILE_DENY_ZOOM_IN;
+
+/**
+ * Array of contributed tags used for dynamic HTML header replacements.
+ * These tags are added to the DOM for customizing meta and other header tags at runtime.
+ */
+var contributedTags;
+
+
 
 /**
  * This will register a callback that will be triggered on all history/window popstate events (back,forward but also next main form).
@@ -5,13 +36,15 @@
  * The callback gets 1 argument and that is the hash of the url, that represents at this time the form where the back button would go to.
  * If this hash argument is an empty string then that means the backbutton was hit to the first loaded page and we force a forward again.
  * 
- * @param {function} callback
+ * @param {function} callback The function to execute when a popstate event occurs.
  */
 function setBackActionCallback(callback) {
 	// implemented server side.
 }
 /**
  * This will return the user agent string of the clients browser.
+ * 
+ * @return {String} The user agent string of the client's browser, identifying the browser, operating system, and device information.
  */
 function getUserAgent()
 {
@@ -78,7 +111,7 @@ function setViewportMetaDefaultForMobileAwareSites()
  *                 { name: "content", value: "width=device-width, initial-scale=1.0" } ]
  *  });</pre>
  *
- * @param {int} viewportDefType one of the constants listed above.
+ * @param {Number} viewportDefType one of the constants listed above.
  */
 function setViewportMetaForMobileAwareSites(viewportDefType)
 {
@@ -91,11 +124,11 @@ function setViewportMetaForMobileAwareSites(viewportDefType)
  * 
  * NOTE: this call will only replace/remove tags that were added via this plugin/service, not others that were previously present in the DOM.
  * 
- * @param {string} tagName the tag name to find for replacement.
- * @param {string} attrNameToFind the attribute to find on that tag name for replacement. If null it will just find the first by 'tagName' and use that one.
- * @param {string} attrValueToFind the value the given attribute must have to match for replacement.
- * @param {tag} newTag the new tag that replaces the old one. If null/undefined it will just remove what it finds.
- * @return {tag} the tag that was removed if any.
+ * @param {String} tagName The tag name to find for replacement.
+ * @param {String} attrNameToFind The attribute to find on that tag name for replacement. If null it will just find the first by 'tagName' and use that one.
+ * @param {String} attrValueToFind The value the given attribute must have to match for replacement.
+ * @param {CustomType<ngclientutils.tag>} newTag The new tag that replaces the old one. If null/undefined it will just remove what it finds.
+ * @return {CustomType<ngclientutils.tag>} the tag that was removed if any.
  */
 function replaceHeaderTag(tagName, attrNameToFind, attrValueToFind, newTag)
 {
@@ -105,8 +138,8 @@ function replaceHeaderTag(tagName, attrNameToFind, attrValueToFind, newTag)
  * Utility method for manipulating form style classes. 
  * It will add a style class to a certain form, similar as a design style class would work.
  * 
- * @param {string} formname the form name to add to.
- * @param {string} styleclass the styleclass to be added to form tag.
+ * @param {String} formname the form name to add to.
+ * @param {String} styleclass the styleclass to be added to form tag.
  */
 function addFormStyleClass(formname,styleclass)
 {
@@ -190,6 +223,7 @@ function printDocument(url)
  * 
  * @param {string} component the component to retrieve location for.
  * @return {point} the location of the component.
+ * @deprecated replaced by clientutils.getBounds()
  */
 function getAbsoluteLocation(component)
 {
@@ -198,7 +232,7 @@ function getAbsoluteLocation(component)
 /**
  * Set lang attribute on html tag.
  * 
- * @param {boolean} showConfirmation boolean for whether to show confirmation message
+ * @param {String} lang The language code to set as the lang attribute on the HTML tag.
  */
 function setLangAttribute(lang)
 {
@@ -213,8 +247,8 @@ function setLangAttribute(lang)
  * - plugins.ngclientutils.scrollIntoView(".toScroll-To");
  * - plugins.ngclientutils.scrollIntoView(".toScroll-To", { behavior: "smooth", block: "start", inline: "nearest" });
  
- * @param anchorSelector {string} the selector to which the scrollbar should be moved to.
- * @param scrollIntoViewOptions option argument used for scrolling animation (example:  { behavior: "smooth", block: "start", inline: "nearest" }).
+ * @param {String} anchorSelector The selector to which the scrollbar should be moved to.
+ * @param {Object} [scrollIntoViewOptions] Argument used for scrolling animation (example:  { behavior: "smooth", block: "start", inline: "nearest" }).
  */
 function scrollIntoView( anchorSelector, scrollIntoViewOptions ) {
 }
@@ -227,7 +261,7 @@ function scrollIntoView( anchorSelector, scrollIntoViewOptions ) {
  * Examples of usage: 
  * - plugins.ngclientutils.scrollToTop(".toScroll-To");
  
- * @param selector {string} the selector to which the scrollbar should be moved to top.
+ * @param {String} selector The selector to which the scrollbar should be moved to top.
  */
 function scrollToTop(selector) {
 }
@@ -238,3 +272,37 @@ function scrollToTop(selector) {
 function removeArguments()
 {
 }
+
+
+var svy_types = {
+
+    /**
+   * Represents a tag element used for dynamic HTML header replacement.
+   */
+  tag: {
+    /**
+     * The tag name (e.g., "meta", "link").
+     */
+    tagName: null,
+
+    /**
+     * An array of attribute objects for the tag.
+     */
+    attrs: null
+  },
+  
+  /**
+   * Represents an attribute for an HTML element.
+   */
+  attribute: {
+    /**
+     * The name of the attribute.
+     */
+    name: null,
+
+    /**
+     * The value of the attribute.
+     */
+    value: null
+  }
+};

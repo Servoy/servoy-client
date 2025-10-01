@@ -47,6 +47,12 @@ public interface IObjectDocumentation
 
 	public String getPublicName();
 
+	public String getScriptingName();
+
+	public String getRealClass();
+
+	public String getDescription(ClientSupport csp);
+
 	public String getCategory();
 
 	public String[] getParentClasses();

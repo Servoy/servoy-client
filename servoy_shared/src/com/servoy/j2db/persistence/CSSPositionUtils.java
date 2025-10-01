@@ -558,18 +558,20 @@ public final class CSSPositionUtils
 
 		if (persist instanceof BaseComponent baseComponent)
 		{
+			ISupportChilds realParent = PersistHelper.getRealParent(baseComponent);
+			if (realParent instanceof LayoutContainer)
+				return CSSPositionUtils.isCSSPositionContainer((LayoutContainer)realParent);
+
 			if (baseComponent.getParent() instanceof Form parentFrm &&
 				parentFrm.getUseCssPosition().booleanValue())
 			{
 				return true;
 			}
+
 			if (CSSPositionUtils.isInAbsoluteLayoutMode(baseComponent))
 			{
 				return true;
 			}
-			ISupportChilds realParent = PersistHelper.getRealParent(baseComponent);
-			if (realParent instanceof LayoutContainer)
-				return CSSPositionUtils.isCSSPositionContainer((LayoutContainer)realParent);
 		}
 		return false;
 	}
@@ -595,7 +597,7 @@ public final class CSSPositionUtils
 
 	public static void convertToCSSPosition(Form form)
 	{
-		if (form != null && !form.isResponsiveLayout() &&
+		if (form != null && !form.isResponsiveLayout() && !form.getUseCssPosition().booleanValue() &&
 			(form.getView() == IFormConstants.VIEW_TYPE_RECORD || form.getView() == IFormConstants.VIEW_TYPE_RECORD_LOCKED))
 		{
 			form.setUseCssPosition(Boolean.TRUE);
@@ -607,7 +609,7 @@ public final class CSSPositionUtils
 					if (useCSSPosition(o))
 					{
 						BaseComponent element = (BaseComponent)o;
-						if (form.getExtendsID() > 0 && !element.hasProperty(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName()) &&
+						if (form.getExtendsID() != null && !element.hasProperty(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName()) &&
 							!element.hasProperty(StaticContentSpecLoader.PROPERTY_LOCATION.getPropertyName()))
 						{
 							//do not set css position if parent contains the property, this should be done by converting the parent
@@ -639,12 +641,24 @@ public final class CSSPositionUtils
 	 */
 	public static boolean isInAbsoluteLayoutMode(IPersist persist)
 	{
-		IPersist parent = persist.getParent();
+		IPersist parent = PersistHelper.getRealParent(persist);
 		while (parent != null)
 		{
 			if (parent instanceof LayoutContainer) return isCSSPositionContainer((LayoutContainer)parent);
 			if (parent instanceof Form) break;
-			parent = parent.getParent();
+			parent = PersistHelper.getRealParent(parent);
+		}
+		return false;
+	}
+
+	public static boolean isInResponsiveLayoutMode(IPersist persist)
+	{
+		IPersist parent = PersistHelper.getRealParent(persist);
+		while (parent != null)
+		{
+			if (parent instanceof LayoutContainer) return !isCSSPositionContainer((LayoutContainer)parent);
+			if (parent instanceof Form) return ((Form)parent).isResponsiveLayout();
+			parent = PersistHelper.getRealParent(parent);
 		}
 		return false;
 	}

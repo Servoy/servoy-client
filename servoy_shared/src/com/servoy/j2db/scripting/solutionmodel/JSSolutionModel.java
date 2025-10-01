@@ -35,7 +35,6 @@ import javax.swing.border.TitledBorder;
 
 import org.mozilla.javascript.annotations.JSFunction;
 
-import com.servoy.base.persistence.IMobileProperties;
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.base.solutionmodel.IBaseSMComponent;
 import com.servoy.base.solutionmodel.IBaseSMForm;
@@ -48,6 +47,7 @@ import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.AbstractContainer;
 import com.servoy.j2db.persistence.Bean;
+import com.servoy.j2db.persistence.CSSPositionLayoutContainer;
 import com.servoy.j2db.persistence.Field;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.GraphicalComponent;
@@ -63,7 +63,6 @@ import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.persistence.ScriptNameValidator;
 import com.servoy.j2db.persistence.ScriptVariable;
-import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.persistence.Style;
 import com.servoy.j2db.persistence.TabPanel;
@@ -87,6 +86,20 @@ import com.servoy.j2db.util.gui.RoundedBorder;
 import com.servoy.j2db.util.gui.SpecialMatteBorder;
 
 /**
+ * <p><code>SolutionModel</code> provides runtime access to design-time objects in Servoy,
+ * enabling dynamic application modifications without recompilation. Developers can retrieve
+ * and modify forms, relations, media, and methods using methods like <code>getForm(name)</code>,
+ * <code>newForm(name)</code>, and <code>getRelation(name)</code>. New components, forms, and
+ * relations can also be created or cloned dynamically.</p>
+ *
+ * <p>Global methods and variables are managed with methods like <code>newGlobalMethod(scopeName, code)</code>
+ * and <code>newGlobalVariable(scopeName, name, type)</code>. Existing ones can be removed using
+ * corresponding <code>remove</code> methods. Forms can be created with specific layouts and styles,
+ * made responsive, or reverted to their original configurations with <code>revertForm(name)</code>.</p>
+ *
+ * <p>The API supports argument wrapping for event handling with <code>wrapMethodWithArguments(method, args)</code>
+ * and allows management of value lists, media, and relations.</p>
+ *
  * @author jcompagner
  */
 @SuppressWarnings("nls")
@@ -108,7 +121,7 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 					JSList.class, JSInsetList.class, //
 					JSComponent.class, JSLabel.class, JSMethod.class, JSPortal.class, JSPartWithConstants.class, JSRelation.class, JSRelationItem.class, //
 					JSStyle.class, JSTabPanel.class, JSTab.class, JSMedia.class, JSValueList.class, JSVariable.class, //
-					JSHeader.class, JSFooter.class, JSTitle.class, JSWebComponent.class//
+					JSHeader.class, JSFooter.class, JSTitle.class, JSWebComponent.class, JSResponsiveLayoutContainer.class//
 				};
 			}
 		});
@@ -216,12 +229,12 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 				form.setResponsiveLayout(true);
 			}
 
-			if (fs.getSolution().getSolutionType() == SolutionMetaData.MOBILE)
-			{
-				// mobile solution, make the form mobile
-				form.putCustomMobileProperty(IMobileProperties.MOBILE_FORM.propertyName, Boolean.TRUE);
-				form.setStyleName("_servoy_mobile"); // set internal style name
-			}
+//			if (fs.getSolution().getSolutionType() == SolutionMetaData.MOBILE)
+//			{
+//				// mobile solution, make the form mobile
+//				form.putCustomMobileProperty(IMobileProperties.MOBILE_FORM.propertyName, Boolean.TRUE);
+//				form.setStyleName("_servoy_mobile"); // set internal style name
+//			}
 
 			application.getFormManager().addForm(form, false);
 			return instantiateForm(form, true);
@@ -313,7 +326,7 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 			if (isResponsive != null) form.setResponsiveLayout(isResponsive.booleanValue());
 			form.clearProperty(StaticContentSpecLoader.PROPERTY_DATASOURCE.getPropertyName());
 			application.getFormManager().addForm(form, false);
-			form.setExtendsID(((JSForm)superForm).getSupportChild().getID());
+			form.setExtendsID(((JSForm)superForm).getSupportChild().getUUID().toString());
 			return instantiateForm(form, true);
 		}
 		catch (RepositoryException e)
@@ -371,6 +384,7 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 
 	@JSFunction
 	@ServoyClientSupport(ng = false, mc = true, wc = false, sc = false)
+	@Deprecated
 	public JSList newListForm(String formName, String dataSource, String textDataProviderID)
 	{
 		return null; // mobile only
@@ -378,6 +392,7 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 
 	@Override
 	@JSFunction
+	@Deprecated
 	@ServoyClientSupport(ng = false, mc = true, wc = false, sc = false)
 	public JSList getListForm(String name)
 	{
@@ -387,6 +402,7 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 	@Override
 	@JSFunction
 	@ServoyClientSupport(ng = false, mc = true, wc = false, sc = false)
+	@Deprecated
 	public JSList[] getListForms()
 	{
 		return null; // mobile only
@@ -410,6 +426,7 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 	 * @return a JSStyle
 	 */
 	@JSFunction
+	@Deprecated
 	public JSStyle getStyle(String name)
 	{
 		Style style = application.getFlattenedSolution().getStyle(name);
@@ -443,6 +460,7 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 	 * @return a JSStyle object
 	 */
 	@JSFunction
+	@Deprecated
 	public JSStyle newStyle(String name, String content)
 	{
 
@@ -765,6 +783,7 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 	 * @return true if the removal was successful, false otherwise
 	 */
 	@JSFunction
+	@Deprecated
 	public boolean removeStyle(String name)
 	{
 		FlattenedSolution fs = application.getFlattenedSolution();
@@ -1857,6 +1876,7 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 	 */
 
 	@JSFunction
+	@Deprecated
 	public String createPageFormat(double width, double height, double leftmargin, double rightmargin, double topmargin, double bottommargin)
 	{
 		return createPageFormat(width, height, leftmargin, rightmargin, topmargin, bottommargin, PageFormat.PORTRAIT, ISMUnits.PIXELS);
@@ -1874,6 +1894,7 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 	 * @param orientation the specified orientation of the page to be printed; the default is Portrait mode
 	 */
 	@JSFunction
+	@Deprecated
 	public String createPageFormat(double width, double height, double leftmargin, double rightmargin, double topmargin, double bottommargin, int orientation)
 	{
 		return createPageFormat(width, height, leftmargin, rightmargin, topmargin, bottommargin, orientation, ISMUnits.PIXELS);
@@ -1892,6 +1913,7 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 	 * @param units the specified units for the width and height of the page to be printed; the default is pixels
 	 */
 	@JSFunction
+	@Deprecated
 	public String createPageFormat(double width, double height, double leftmargin, double rightmargin, double topmargin, double bottommargin, int orientation,
 		int units)
 	{
@@ -1913,6 +1935,7 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 	 *
 	 */
 	@JSFunction
+	@Deprecated
 	public String createFont(String name, int style, int size)
 	{
 		Font font = PersistHelper.createFont(name, style, size);
@@ -1933,6 +1956,7 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 	 *
 	 */
 	@JSFunction
+	@Deprecated
 	public String createEmptyBorder(int top_width, int right_width, int bottom_width, int left_width)
 	{
 		Border border = BorderFactory.createEmptyBorder(top_width, left_width, bottom_width, right_width);
@@ -1952,6 +1976,7 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 	 *
 	 */
 	@JSFunction
+	@Deprecated
 	public String createEtchedBorder(int bevel_type, String highlight_color, String shadow_color)
 	{
 		Border border = null;
@@ -1980,6 +2005,7 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 	 * @param shadow_inner_color bevel border shadow outer color
 	 */
 	@JSFunction
+	@Deprecated
 	public String createBevelBorder(int bevel_type, String highlight_outer_color, String highlight_inner_color, String shadow_outer_color,
 		String shadow_inner_color)
 	{
@@ -2009,6 +2035,7 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 	 *
 	 */
 	@JSFunction
+	@Deprecated
 	public String createLineBorder(int thick, String color)
 	{
 		Border border = BorderFactory.createLineBorder(PersistHelper.createColor(color), thick);
@@ -2030,6 +2057,7 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 	 *
 	 */
 	@JSFunction
+	@Deprecated
 	public String createTitledBorder(String title_text, String font, String color, int title_justification, int title_position)
 	{
 		TitledBorder border = BorderFactory.createTitledBorder(title_text);
@@ -2055,6 +2083,7 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 	 *
 	 */
 	@JSFunction
+	@Deprecated
 	public String createMatteBorder(int top_width, int right_width, int bottom_width, int left_width, String color)
 	{
 		Border border = BorderFactory.createMatteBorder(top_width, left_width, bottom_width, right_width, PersistHelper.createColor(color));
@@ -2081,8 +2110,11 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 	 * @param left_color left border color
 	 * @param rounding_radius width of the arc to round the corners
 	 * @param dash_pattern the dash pattern of border stroke
+	 *
+	 * @deprecated
 	 */
 	@JSFunction
+	@Deprecated
 	public String createSpecialMatteBorder(int top_width, int right_width, int bottom_width, int left_width, String top_color, String right_color,
 		String bottom_color, String left_color, float rounding_radius, float[] dash_pattern)
 	{
@@ -2116,6 +2148,7 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 	 * @param border_style the border styles for the four margins(top/left/bottom/left)
 	 */
 	@JSFunction
+	@Deprecated
 	public String createRoundedBorder(int top_width, int right_width, int bottom_width, int left_width, String top_color, String right_color,
 		String bottom_color, String left_color, float[] rounding_radius, String[] border_style)
 	{
@@ -2202,6 +2235,10 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 			{
 				return JSPart.createPart((JSForm)getParentContainer(persist), (Part)persist, false);
 			}
+			if (persist instanceof CSSPositionLayoutContainer cssPositionLayoutContainer)
+			{
+				return new JSResponsiveLayoutContainer(getParentContainer(persist), application, cssPositionLayoutContainer, false);
+			}
 			if (persist instanceof LayoutContainer)
 			{
 				return new JSLayoutContainer(getParentContainer(persist), application, (LayoutContainer)persist);
@@ -2257,7 +2294,11 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 		}
 		for (AbstractContainer container : parentHierarchy)
 		{
-			if (container instanceof LayoutContainer)
+			if (container instanceof CSSPositionLayoutContainer cssPositionLayoutContainer)
+			{
+				parent = new JSResponsiveLayoutContainer(parent, application, cssPositionLayoutContainer, false);
+			}
+			else if (container instanceof LayoutContainer)
 			{
 				parent = new JSLayoutContainer(parent, application, (LayoutContainer)persist);
 			}
@@ -2267,5 +2308,16 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 			}
 		}
 		return parent;
+	}
+
+	/**
+	 * @param jsResponsiveLayoutContainer
+	 * @param layoutContainer
+	 * @return
+	 */
+	public JSResponsiveLayoutContainer createResponsiveLayoutContainer(IJSParent< ? > parent,
+		CSSPositionLayoutContainer layoutContainer, boolean isNew)
+	{
+		return new JSResponsiveLayoutContainer(parent, application, layoutContainer, isNew);
 	}
 }

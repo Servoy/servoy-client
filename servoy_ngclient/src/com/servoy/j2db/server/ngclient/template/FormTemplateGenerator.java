@@ -70,7 +70,7 @@ public class FormTemplateGenerator
 		cfg = new Configuration(Configuration.VERSION_2_3_32);
 
 		cfg.setTemplateLoader(new ClassTemplateLoader(getClass(), "templates"));
-		cfg.setObjectWrapper(new FormTemplateObjectWrapper(context, useControllerProvider, design));
+		cfg.setObjectWrapper(new FormTemplateObjectWrapper(context, useControllerProvider, design, true));
 		cfg.setDefaultEncoding("UTF-8");
 		cfg.setTemplateExceptionHandler(TemplateExceptionHandler.HTML_DEBUG_HANDLER);
 		cfg.setIncompatibleImprovements(new Version(2, 3, 20));
@@ -125,7 +125,7 @@ public class FormTemplateGenerator
 		return componentType != null ? "data-" + componentType : "data-form";
 	}
 
-	private static String getPersistComponentTypeName(IFormElement persist)
+	public static String getPersistComponentTypeName(IFormElement persist)
 	{
 		if (persist instanceof IBasicWebComponent && isWebcomponentBean(persist))
 		{
@@ -149,7 +149,7 @@ public class FormTemplateGenerator
 				case Field.COMBOBOX :
 					return "servoydefault-combobox";
 				case Field.TEXT_FIELD :
-					if (((Field)persist).getValuelistID() > 0)
+					if (((Field)persist).getValuelistID() != null)
 					{
 						return "servoydefault-typeahead";
 					}
@@ -221,7 +221,7 @@ public class FormTemplateGenerator
 	public static boolean isSingleValueComponent(IFormElement persist)
 	{
 		Field field = (Field)persist;
-		if (field.getValuelistID() > 0)
+		if (field.getValuelistID() != null)
 		{
 			try
 			{

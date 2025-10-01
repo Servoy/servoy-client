@@ -24,11 +24,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.wicket.IPageMap;
-import org.apache.wicket.MarkupContainer;
-import org.apache.wicket.PageMap;
-import org.apache.wicket.RequestCycle;
-import org.apache.wicket.Session;
+import org.apache.wicket.Component;
 
 import com.servoy.j2db.BasicFormController;
 import com.servoy.j2db.FormController;
@@ -54,7 +50,6 @@ import com.servoy.j2db.util.Utils;
 public class WebFormManager extends FormManager
 {
 	private final int maxForms;
-	private final ResourceReferences globalResourceReferences = new ResourceReferences();
 
 	@SuppressWarnings("nls")
 	public WebFormManager(IApplication app, IMainContainer mainp)
@@ -64,10 +59,6 @@ public class WebFormManager extends FormManager
 		maxForms = max == 0 ? 128 : max;
 	}
 
-	public ResourceReferences getGlobalResourceReferences()
-	{
-		return globalResourceReferences;
-	}
 
 	/*
 	 * (non-Javadoc)
@@ -178,7 +169,6 @@ public class WebFormManager extends FormManager
 			MainPage mp = formUI.findParent(MainPage.class);
 			if (mp != null && mainPages.add(mp))
 			{
-				mp.setVersioned(false);
 				mp.setMainPageSwitched();
 			}
 		}
@@ -192,7 +182,7 @@ public class WebFormManager extends FormManager
 				boolean formVisible = fp.isFormVisible();
 				IFoundSetInternal foundset = fp.getFormModel();
 				WebForm wf = (WebForm)fp.getFormUI();
-				MarkupContainer wfParent = wf.getParent();
+				Component wfParent = wf.getParent();
 
 				boolean refresh = false;
 				//datasource has changed, but foundset has not
@@ -284,14 +274,15 @@ public class WebFormManager extends FormManager
 								FormController previousNavigator = parent.getNavigator();
 								parent.setController(null);
 								// navigator is not re-applied so apply it manually
-								int navigatorID = previousMainShowingForm.getForm().getNavigatorID();
-								if (navigatorID == Form.NAVIGATOR_IGNORE || (previousNavigator != null && previousNavigator.getForm().getID() == navigatorID))
+								String navigatorUUID = previousMainShowingForm.getForm().getNavigatorID();
+								if (Form.NAVIGATOR_IGNORE.equals(navigatorUUID) ||
+									(previousNavigator != null && previousNavigator.getForm().getUUID().toBytes().equals(navigatorUUID)))
 								{
 									parent.setNavigator(previousNavigator);
 								}
-								else if (navigatorID > 0)
+								else if (navigatorUUID != null && !Form.NAVIGATOR_IGNORE.equals(navigatorUUID))
 								{
-									Form newNavigator = application.getFlattenedSolution().getForm(navigatorID);
+									Form newNavigator = application.getFlattenedSolution().getForm(navigatorUUID);
 									if (newNavigator != null)
 									{
 										parent.setNavigator(leaseFormPanel(newNavigator.getName()));
@@ -304,11 +295,6 @@ public class WebFormManager extends FormManager
 					}
 				}
 			}
-		}
-
-		for (MainPage mainPage : mainPages)
-		{
-			mainPage.setVersioned(true);
 		}
 	}
 
@@ -351,9 +337,7 @@ public class WebFormManager extends FormManager
 		IMainContainer container = getMainContainer(name);
 		if (container == null)
 		{
-			WebClient wc = (WebClient)getApplication();
-			IPageMap pageMap = PageMap.forName(name);
-			container = new MainPage(wc, pageMap);
+			container = new MainPage(getApplication());
 			containers.put(name, container);
 		}
 		return container;
@@ -362,10 +346,6 @@ public class WebFormManager extends FormManager
 	@Override
 	protected void destroyContainer(IMainContainer container)
 	{
-		if (container instanceof MainPage)
-		{
-			((MainPage)container).close();
-		}
 		super.destroyContainer(container);
 	}
 
@@ -378,7 +358,6 @@ public class WebFormManager extends FormManager
 	protected void destroySolutionSettings()
 	{
 		super.destroySolutionSettings();
-		if (RequestCycle.get() != null) Session.get().setMetaData(Session.PAGEMAP_ACCESS_MDK, null); // reset all pagemap accesses.
 	}
 
 }

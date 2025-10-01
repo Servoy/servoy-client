@@ -30,6 +30,7 @@ import com.servoy.j2db.PersistIndexCache;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.SortedList;
+import com.servoy.j2db.util.UUID;
 
 /**
  * @author sebster
@@ -40,7 +41,7 @@ public class RootObjectCache
 	private static final Logger log = LoggerFactory.getLogger(RootObjectCache.class.getCanonicalName());
 
 	private final AbstractRepository repository;
-	private final HashMap<Integer, CacheRecord> rootObjectsById;
+	private final HashMap<UUID, CacheRecord> rootObjectsByUUID;
 	private final HashMap rootObjectsByName;
 	private final Map<Pair<String, Integer>, Long> loadingBlocker = new HashMap<>(); // map of pair<rootObjectThatIsBeingLoaded, rootObjectType> -> id_of_thread_doing_the_actual_loading; the pair needs to contain information that makes a root object unique enough to not have getRootObject() called twice recursively (for example solution with name "A" while it loads might want to get style with name "A" used by a form and hang the thread if we don't identify rootObjects being loaded based on object types as well in the key of this map); (we ignore here root object versions - as I don't think they can mingle while loading root objects)
 
@@ -89,14 +90,12 @@ public class RootObjectCache
 	RootObjectCache(AbstractRepository repository, Collection<RootObjectMetaData> metaDatas)
 	{
 		this.repository = repository;
-		rootObjectsById = new HashMap<Integer, CacheRecord>();
-		rootObjectsByName = new HashMap<>();
+		rootObjectsByUUID = new HashMap<UUID, CacheRecord>(metaDatas.size(), 0.9f);
+		rootObjectsByName = new HashMap<>(metaDatas.size(), 0.9f);
 
-		// Initialize the cache.
-		Iterator<RootObjectMetaData> iterator = metaDatas.iterator();
-		while (iterator.hasNext())
+		for (RootObjectMetaData element : metaDatas)
 		{
-			add(iterator.next(), false);
+			add(element, false);
 		}
 	}
 
@@ -106,14 +105,13 @@ public class RootObjectCache
 		PersistIndexCache.flush();
 		try
 		{
-			Integer intId = new Integer(metaData.getRootObjectId());
 
-			CacheRecord cacheRecord = allowUpdate ? rootObjectsById.get(intId) : null;
+			CacheRecord cacheRecord = allowUpdate ? rootObjectsByUUID.get(metaData.getRootObjectUuid()) : null;
 			if (cacheRecord == null)
 			{
 				cacheRecord = new CacheRecord();
-				cacheRecord.rootObjects = new HashMap<Integer, IRootObject>();
-				rootObjectsById.put(intId, cacheRecord);
+				cacheRecord.rootObjects = new HashMap<Integer, IRootObject>(4, 0.9f);
+				rootObjectsByUUID.put(metaData.getRootObjectUuid(), cacheRecord);
 				rootObjectsByName.put(new RootObjectKey(metaData.getName(), metaData.getObjectTypeId()), cacheRecord);
 			}
 			else
@@ -138,7 +136,7 @@ public class RootObjectCache
 		PersistIndexCache.flush();
 		try
 		{
-			CacheRecord cacheRecord = getCacheRecordEnsureNotNull(rootObject.getID());
+			CacheRecord cacheRecord = getCacheRecordEnsureNotNull(rootObject.getUUID());
 			Integer release = new Integer(rootObject.getReleaseNumber());
 			if (cacheRecord.rootObjects.get(release) != null)
 			{
@@ -154,13 +152,13 @@ public class RootObjectCache
 		}
 	}
 
-	public void renameRootObject(int rootObjectId, String name) throws RepositoryException
+	public void renameRootObject(UUID rootObjectUUID, String name) throws RepositoryException
 	{
 		AbstractRepository.lock();
 		PersistIndexCache.flush();
 		try
 		{
-			RootObjectMetaData metaData = getRootObjectMetaData(rootObjectId);
+			RootObjectMetaData metaData = getRootObjectMetaData(rootObjectUUID);
 			RootObjectKey newKey = new RootObjectKey(name, metaData.getObjectTypeId());
 			if (rootObjectsByName.containsKey(newKey))
 			{
@@ -177,9 +175,9 @@ public class RootObjectCache
 		}
 	}
 
-	public IRootObject getActiveRootObject(int rootObjectId) throws RepositoryException
+	public IRootObject getActiveRootObject(UUID rootObjectUUID) throws RepositoryException
 	{
-		return getRootObject(rootObjectId, 0);
+		return getRootObject(rootObjectUUID, 0);
 	}
 
 	public IRootObject getActiveRootObject(String name, int objectTypeId) throws RepositoryException
@@ -187,8 +185,9 @@ public class RootObjectCache
 		RootObjectMetaData rod = getRootObjectMetaData(name, objectTypeId);
 		if (rod != null)
 		{
-			return getActiveRootObject(rod.getRootObjectId());
+			return getActiveRootObject(rod.getRootObjectUuid());
 		}
+		Debug.warn("Active root object '" + name + "' , type " + objectTypeId + " not found");
 		return null;
 	}
 
@@ -197,8 +196,9 @@ public class RootObjectCache
 		RootObjectMetaData rod = getRootObjectMetaData(name, objectTypeId);
 		if (rod != null)
 		{
-			return getRootObject(rod.getRootObjectId(), release);
+			return getRootObject(rod.getRootObjectUuid(), release);
 		}
+		Debug.warn("Active root object '" + name + "' , type " + objectTypeId + ", release " + release + " not found");
 		return null;
 	}
 
@@ -210,7 +210,7 @@ public class RootObjectCache
 			RootObjectMetaData rod = getRootObjectMetaData(name, objectTypeId);
 			if (rod != null)
 			{
-				CacheRecord cacheRecord = getCacheRecord(rod.getRootObjectId());
+				CacheRecord cacheRecord = getCacheRecord(rod.getRootObjectUuid());
 				if (cacheRecord != null)
 				{
 					if (release == 0)
@@ -234,12 +234,12 @@ public class RootObjectCache
 		}
 	}
 
-	IRootObject getRootObject(final int rootObjectId, final int release) throws RepositoryException
+	IRootObject getRootObject(final UUID rootObjectUUID, final int release) throws RepositoryException
 	{
 		AbstractRepository.lock();
 		try
 		{
-			CacheRecord cacheRecord = getCacheRecord(rootObjectId);
+			CacheRecord cacheRecord = getCacheRecord(rootObjectUUID);
 			if (cacheRecord == null)
 			{
 				return null;
@@ -298,7 +298,7 @@ public class RootObjectCache
 						if (log.isDebugEnabled()) log.debug("[RootObjectCache][getRootObject][" + Thread.currentThread().getId() + //$NON-NLS-1$
 							"] rechecking rootObj after wait: " + cacheRecord.rootObjectMetaData.getName() + " / " + realRelease + " / " + //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
 							cacheRecord.rootObjectMetaData.getObjectTypeId());
-						return getRootObject(rootObjectId, release); // we waited for the rootObj with this name (and some version) to load above; now check again if it's there and get it (or wait again if another thread loads already some version of this rootObj)
+						return getRootObject(rootObjectUUID, release); // we waited for the rootObj with this name (and some version) to load above; now check again if it's there and get it (or wait again if another thread loads already some version of this rootObj)
 					}
 					else
 					{
@@ -377,12 +377,12 @@ public class RootObjectCache
 //		loadCacheRecordEnsureNotNull(rootObjectId).rootObjectMetaData.setLatestRelease(latestRelease);
 //	}
 
-	public int getLatestRelease(int rootObjectId) throws RepositoryException
+	public int getLatestRelease(UUID rootObjectUUID) throws RepositoryException
 	{
 		AbstractRepository.lock();
 		try
 		{
-			return getCacheRecordEnsureNotNull(rootObjectId).rootObjectMetaData.getLatestRelease();
+			return getCacheRecordEnsureNotNull(rootObjectUUID).rootObjectMetaData.getLatestRelease();
 		}
 		finally
 		{
@@ -390,12 +390,12 @@ public class RootObjectCache
 		}
 	}
 
-	public int getActiveRelease(int rootObjectId) throws RepositoryException
+	public int getActiveRelease(UUID rootObjectUUID) throws RepositoryException
 	{
 		AbstractRepository.lock();
 		try
 		{
-			return getCacheRecordEnsureNotNull(rootObjectId).rootObjectMetaData.getActiveRelease();
+			return getCacheRecordEnsureNotNull(rootObjectUUID).rootObjectMetaData.getActiveRelease();
 		}
 		finally
 		{
@@ -403,12 +403,12 @@ public class RootObjectCache
 		}
 	}
 
-	public RootObjectMetaData getRootObjectMetaData(int rootObjectId) throws RepositoryException
+	public RootObjectMetaData getRootObjectMetaData(UUID rootObjectUUID) throws RepositoryException
 	{
 		AbstractRepository.lock();
 		try
 		{
-			CacheRecord cacheRecord = getCacheRecord(rootObjectId);
+			CacheRecord cacheRecord = getCacheRecord(rootObjectUUID);
 			return cacheRecord != null ? cacheRecord.rootObjectMetaData : null;
 		}
 		finally
@@ -436,12 +436,11 @@ public class RootObjectCache
 		AbstractRepository.lock();
 		try
 		{
-			RootObjectMetaData[] metaDatas = new RootObjectMetaData[rootObjectsById.size()];
-			Iterator<CacheRecord> iterator = rootObjectsById.values().iterator();
+			RootObjectMetaData[] metaDatas = new RootObjectMetaData[rootObjectsByUUID.size()];
 			int i = 0;
-			while (iterator.hasNext())
+			for (CacheRecord element : rootObjectsByUUID.values())
 			{
-				metaDatas[i++] = iterator.next().rootObjectMetaData;
+				metaDatas[i++] = element.rootObjectMetaData;
 			}
 			return metaDatas;
 		}
@@ -457,11 +456,11 @@ public class RootObjectCache
 		try
 		{
 			List list = new SortedList(NameComparator.INSTANCE);
-			Iterator<CacheRecord> iterator = rootObjectsById.values().iterator();
+			Iterator<CacheRecord> iterator = rootObjectsByUUID.values().iterator();
 			while (iterator.hasNext())
 			{
 				RootObjectMetaData metaData = iterator.next().rootObjectMetaData;
-				if (metaData.getObjectTypeId() == objectTypeId)
+				if (metaData != null && metaData.getObjectTypeId() == objectTypeId)
 				{
 					list.add(metaData);
 				}
@@ -475,18 +474,17 @@ public class RootObjectCache
 		}
 	}
 
-	void removeRootObject(int rootObjectId) throws RepositoryException
+	void removeRootObject(UUID rootObjectUUID) throws RepositoryException
 	{
 		AbstractRepository.lock();
 		PersistIndexCache.flush();
 		try
 		{
-			Integer key = new Integer(rootObjectId);
-			flushRootObject(rootObjectId);
-			CacheRecord cacheRecord = rootObjectsById.get(key);
+			flushRootObject(rootObjectUUID);
+			CacheRecord cacheRecord = rootObjectsByUUID.get(rootObjectUUID);
 			if (cacheRecord != null)
 			{
-				rootObjectsById.remove(key);
+				rootObjectsByUUID.remove(rootObjectUUID);
 				rootObjectsByName.remove(new RootObjectKey(cacheRecord.rootObjectMetaData.getName(), cacheRecord.rootObjectMetaData.getObjectTypeId()));
 			}
 		}
@@ -496,14 +494,13 @@ public class RootObjectCache
 		}
 	}
 
-	void flushRootObject(int rootObjectId) throws RepositoryException
+	void flushRootObject(UUID rootObjectUUID) throws RepositoryException
 	{
 		AbstractRepository.lock();
 		PersistIndexCache.flush();
 		try
 		{
-			Integer key = new Integer(rootObjectId);
-			CacheRecord cacheRecord = rootObjectsById.get(key);
+			CacheRecord cacheRecord = rootObjectsByUUID.get(rootObjectUUID);
 			if (cacheRecord != null)
 			{
 				flushRootObjectMap(cacheRecord.rootObjects);
@@ -515,13 +512,13 @@ public class RootObjectCache
 		}
 	}
 
-	void flushRootObjectRelease(int rootObjectId, int release)
+	void flushRootObjectRelease(UUID rootObjectUUID, int release)
 	{
 		AbstractRepository.lock();
 		PersistIndexCache.flush();
 		try
 		{
-			CacheRecord cacheRecord = rootObjectsById.get(new Integer(rootObjectId));
+			CacheRecord cacheRecord = rootObjectsByUUID.get(rootObjectUUID);
 			if (cacheRecord != null)
 			{
 				if (release == 0)
@@ -553,10 +550,8 @@ public class RootObjectCache
 		PersistIndexCache.flush();
 		try
 		{
-			Iterator<CacheRecord> iterator = rootObjectsById.values().iterator();
-			while (iterator.hasNext())
+			for (CacheRecord cacheRecord : rootObjectsByUUID.values())
 			{
-				CacheRecord cacheRecord = iterator.next();
 				flushRootObjectMap(cacheRecord.rootObjects);
 			}
 		}
@@ -581,19 +576,18 @@ public class RootObjectCache
 		}
 	}
 
-	private CacheRecord getCacheRecord(int rootObjectId) throws RepositoryException
+	private CacheRecord getCacheRecord(UUID rootObjectUUID) throws RepositoryException
 	{
-		Integer key = new Integer(rootObjectId);
-		return rootObjectsById.get(key);
+		return rootObjectsByUUID.get(rootObjectUUID);
 
 	}
 
-	private CacheRecord getCacheRecordEnsureNotNull(int rootObjectId) throws RepositoryException
+	private CacheRecord getCacheRecordEnsureNotNull(UUID rootObjectUUID) throws RepositoryException
 	{
-		CacheRecord cacheRecord = getCacheRecord(rootObjectId);
+		CacheRecord cacheRecord = getCacheRecord(rootObjectUUID);
 		if (cacheRecord == null)
 		{
-			throw new RepositoryException("root object with id " + rootObjectId + " does not exist in the repository");
+			throw new RepositoryException("root object with uuid " + rootObjectUUID + " does not exist in the repository");
 		}
 		return cacheRecord;
 	}

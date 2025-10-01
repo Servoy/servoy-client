@@ -25,12 +25,15 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.solutionmodel.ICSSPosition;
 
 /**
+ * The <code>IRuntimeWebComponent</code> interface enables scripting for runtime web components in Servoy,
+ * supporting CSS positioning for NGClient in absolute position forms, offering an intuitive alternative to anchoring.
+ *
  * @author lvostinar
  *
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "RuntimeWebComponent", scriptingName = "RuntimeWebComponent", extendsComponent = "Component")
 @ServoyClientSupport(ng = true, mc = false, wc = false, sc = false)
-public interface IRuntimeWebComponent extends IBaseRuntimeComponent
+public interface IRuntimeWebComponent extends IBaseForInterfaceRuntimeComponent
 {
 	/**
 	 * CSS position is a replacement for anchoring system making it more intuitive to place a component.

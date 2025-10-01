@@ -19,8 +19,8 @@ package com.servoy.j2db.ui.runtime;
 
 /**
  * Interface for RuntimeDataLabel element.
- * 
- *  @author lvostinar
+ *
+ * @author lvostinar
  * @since 6.1
  */
 public interface IRuntimeDataLabel extends IRuntimeBaseLabel, HasRuntimeLabelFor

@@ -16,12 +16,11 @@
  */
 package com.servoy.base.query;
 
-
 /**
  * Common interface for all elements in the query structure.
- * 
+ *
  * @author rgansevles
- * 
+ *
  */
 public interface IBaseQueryElement
 {

@@ -19,7 +19,7 @@ package com.servoy.base.query;
 
 /**
  * Compare-condition for mobile and regular clients.
- * 
+ *
  * @author rgansevles
  *
  */
@@ -30,6 +30,11 @@ public class BaseCompareCondition extends BaseSetCondition<IBaseQuerySelectValue
 	public BaseCompareCondition(int operator, IBaseQuerySelectValue operand1, Object operand2)
 	{
 		super(new int[] { operator }, new IBaseQuerySelectValue[] { operand1 }, new Object[][] { new Object[] { operand2 } }, true);
+	}
+
+	private BaseCompareCondition(int[] operators, IBaseQuerySelectValue[] keys, Object values, boolean andCondition)
+	{
+		super(operators, keys, values, andCondition);
 	}
 
 	public int getOperator()
@@ -48,10 +53,8 @@ public class BaseCompareCondition extends BaseSetCondition<IBaseQuerySelectValue
 	}
 
 	@Override
-	public IBaseSQLCondition negate()
+	protected BaseCompareCondition withOperators(int[] ops, boolean ac)
 	{
-		int op = getOperator();
-		return new BaseCompareCondition(OPERATOR_NEGATED[op & IBaseSQLCondition.OPERATOR_MASK] | (op & ~IBaseSQLCondition.OPERATOR_MASK), getOperand1(),
-			getOperand2());
+		return new BaseCompareCondition(ops, keys, values, ac);
 	}
 }

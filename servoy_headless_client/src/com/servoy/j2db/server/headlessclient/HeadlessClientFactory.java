@@ -20,9 +20,9 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 
-import javax.servlet.ServletRequest;
-
 import com.servoy.j2db.ISessionClient;
+
+import jakarta.servlet.ServletRequest;
 
 /**
  * Factory for headless clients

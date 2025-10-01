@@ -341,6 +341,7 @@ angular.module( 'servoyWindowManager', ['sabloApp'] )	// TODO Refactor so that w
 								opacity: 1,
 								undecorated: false,
 								cssClassName: null,
+                                closeOnEscape: false,
 								size: null,
 								location: null,
 								navigatorForm: null,
@@ -374,6 +375,16 @@ angular.module( 'servoyWindowManager', ['sabloApp'] )	// TODO Refactor so that w
 										win.bsWindowInstance.setSize( size );
 									}
 									if ( this.storeBounds ) storage.set( sol + name + '.storedBounds.size', size )
+								},
+								requestFullscreen: function() {
+									const doc = document.documentElement as IHTMLElement;
+									if (doc.requestFullscreen) {
+										doc.requestFullscreen().catch(err => console.log(err));
+									} else if (doc.webkitRequestFullscreen) { /* Safari */
+										doc.webkitRequestFullscreen().catch(err => console.log(err));
+									} else if (doc.msRequestFullscreen) { /* IE11 */
+										doc.msRequestFullscreen().catch(err => console.log(err));
+									}
 								},
 								getSize: function() {
 									return win.size;
@@ -584,6 +595,11 @@ angular.module( 'servoyWindowManager', ['sabloApp'] )	// TODO Refactor so that w
 						instances[name].setSize( size );
 					}
 				},
+				requestFullscreen: function(name) {
+					if ( instances[name] ) {
+						instances[name].requestFullscreen();
+					}
+				},
 				getSize: function( name ) {
 					if ( instances[name] && instances[name].bsWindowInstance ) {
 						return instances[name].getSize();
@@ -598,6 +614,12 @@ angular.module( 'servoyWindowManager', ['sabloApp'] )	// TODO Refactor so that w
 						instances[name].undecorated = undecorated;
 					}
 				},
+                setCloseOnEscape: function(name, closeOnEscape) {
+                    saveInSessionStorage(closeOnEscape, 'closeOnEscape');
+                    if (instances[name]) {
+                        instances[name].closeOnEscape = closeOnEscape;
+                    }
+                },
 				setCSSClassName: function( name, cssClassName ) {
 					saveInSessionStorage(cssClassName, 'cssClassName');
 					const currentWindow = 'window' + windowCounter;
@@ -799,8 +821,10 @@ angular.module( 'servoyWindowManager', ['sabloApp'] )	// TODO Refactor so that w
         	                   $windowService.switchForm(window.name, window.switchForm, window.navigatorForm);
         	                   $windowService.setTitle(window.name, window.title);
         	                   $windowService.setUndecorated(window.name, window.undecorated);
+                               $windowService.setCloseOnEscape(window.name, window.closeOnEscape);
 							   $windowService.setCSSClassName(window.name, window.cssClassName);
 							   $windowService.setSize(window.name, window.size);
+							   $windowService.requestFullscreen(window.name);
 							   $windowService.setInitialBounds(window.name, window.initialBounds);
 							   $windowService.setStoreBounds(window.name, window.storeBounds);
 							   $windowService.setLocation(window.name, window.location);
@@ -818,4 +842,9 @@ function evalControllerCodeWithoutClosure(controllerCode) {
 	if (controllerCode) {
 		eval(controllerCode);
 	}
+}
+
+interface IHTMLElement extends HTMLElement {
+	webkitRequestFullscreen?: () => Promise<void>;
+	msRequestFullscreen?: () => Promise<void>;
 }

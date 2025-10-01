@@ -74,6 +74,7 @@ import com.servoy.j2db.server.ngclient.component.RuntimeLegacyComponent;
 import com.servoy.j2db.server.ngclient.component.RuntimeWebComponent;
 import com.servoy.j2db.server.ngclient.property.FoundsetTypeSabloValue;
 import com.servoy.j2db.server.ngclient.property.IDataLinkedPropertyValue;
+import com.servoy.j2db.server.ngclient.property.IFindModeAwarePropertyValue;
 import com.servoy.j2db.server.ngclient.property.IHasUnderlyingState;
 import com.servoy.j2db.server.ngclient.property.NGComponentDALContext;
 import com.servoy.j2db.server.ngclient.property.ValueListConfig;
@@ -82,6 +83,7 @@ import com.servoy.j2db.server.ngclient.property.types.ValueListPropertyType.Valu
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.Settings;
+import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -91,7 +93,8 @@ import com.servoy.j2db.util.Utils;
  * @author acostescu
  */
 @SuppressWarnings("nls")
-public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDataListener, PropertyChangeListener, IChangeListener, IHasUnderlyingState
+public class ValueListTypeSabloValue
+	implements IDataLinkedPropertyValue, ListDataListener, PropertyChangeListener, IChangeListener, IHasUnderlyingState, IFindModeAwarePropertyValue
 {
 	private final static Object NULL_VALUE = new Object();
 	private final String ID_KEY = "id";
@@ -138,6 +141,8 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 
 	// realValueRequest return value
 	private Object displayValue = NULL_VALUE;
+
+	protected boolean findMode = false;
 
 	/**
 	 * Creates a new ValueListTypeSabloValue that is not ready yet for operation.<br/>
@@ -193,7 +198,6 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 		if (propertyDependencies.foundsetPropertyName != null) webObjectContext.addPropertyChangeListener(propertyDependencies.foundsetPropertyName, this);
 		if (propertyDependencies.formatPropertyName != null) webObjectContext.addPropertyChangeListener(propertyDependencies.formatPropertyName, this);
 		if (propertyDependencies.configPropertyName != null) webObjectContext.addPropertyChangeListener(propertyDependencies.configPropertyName, this);
-
 		initializeIfPossibleAndNeeded(); // adds more listeners if needed (for example for underlying sablo value of a foundset linked value)
 	}
 
@@ -382,28 +386,30 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 		if (dataproviderID != null && previousRecord != null)
 		{
 			Object dpvalue = dataAdapterListToUse.getValueObject(previousRecord, dataproviderID);
-			int dpindex = (filteredValuelist != null) ? filteredValuelist.realValueIndexOf(dpvalue) : valueList.realValueIndexOf(dpvalue);
-			int vlSize = (filteredValuelist != null) ? filteredValuelist.getSize() : valueList.getSize();
+			int dpindex = (filteredValuelist != null) ? filteredValuelist.realValueIndexOf(dpvalue) : getCurrentValueList().realValueIndexOf(dpvalue);
+			int vlSize = (filteredValuelist != null) ? filteredValuelist.getSize() : getCurrentValueList().getSize();
 			if (dpindex != -1 && (dpindex < 0 || vlSize > getConfig().getMaxCount(dataAdapterListToUse.getApplication())))
 			{
-				dpRealValue = (filteredValuelist != null) ? filteredValuelist.getRealElementAt(dpindex) : valueList.getRealElementAt(dpindex);
-				dpDisplayValue = (filteredValuelist != null) ? filteredValuelist.getElementAt(dpindex) : valueList.getElementAt(dpindex);
+				dpRealValue = (filteredValuelist != null) ? filteredValuelist.getRealElementAt(dpindex) : getCurrentValueList().getRealElementAt(dpindex);
+				dpDisplayValue = (filteredValuelist != null) ? filteredValuelist.getElementAt(dpindex) : getCurrentValueList().getElementAt(dpindex);
 			}
 		}
-		int vlSize = (filteredValuelist != null) ? filteredValuelist.getSize() : valueList.getSize();
+		int vlSize = (filteredValuelist != null) ? filteredValuelist.getSize() : getCurrentValueList().getSize();
 		int size = Math.min(getConfig().getMaxCount(dataAdapterListToUse.getApplication()), vlSize);
 
 		List<Map<String, Object>> array = new ArrayList<>(size);
 		boolean displayAreDates = false;
 		realAreDates = false;
+		boolean realAreUUIDs = false;
 		for (int i = 0; i < size; i++)
 		{
 			Map<String, Object> map = new HashMap<String, Object>();
-			Object realValue = (filteredValuelist != null) ? filteredValuelist.getRealElementAt(i) : valueList.getRealElementAt(i);
-			realAreDates = realAreDates | realValue instanceof Date;
+			Object realValue = (filteredValuelist != null) ? filteredValuelist.getRealElementAt(i) : getCurrentValueList().getRealElementAt(i);
+			if (!realAreUUIDs) realAreDates = realAreDates | realValue instanceof Date;
+			if (!realAreDates) realAreUUIDs = realAreUUIDs | realValue instanceof UUID;
 			map.put("realValue", convertDate(realValue));
 			if (Utils.equalObjects(realValue, dpRealValue)) containsDpValue = true;
-			Object displayValue = (filteredValuelist != null) ? filteredValuelist.getElementAt(i) : valueList.getElementAt(i);
+			Object displayValue = (filteredValuelist != null) ? filteredValuelist.getElementAt(i) : getCurrentValueList().getElementAt(i);
 			if (displayValue instanceof Date)
 			{
 				displayAreDates = true;
@@ -439,16 +445,33 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 			// only add it if it was removed
 			valueList.addListDataListener(this);
 		}
-		writer.key("realValueAreDates");
-		writer.value(realAreDates);
-		writer.key("displayValueAreDates");
-		writer.value(displayAreDates);
+
+		if (realAreDates || realAreUUIDs)
+		{
+			writer.key("realValueType");
+			writer.value(realAreDates ? "Date" : "UUID");
+		}
+		if (displayAreDates)
+		{
+			writer.key("displayValueType");
+			writer.value("Date");
+		}
+
 		return jsonValue;
 	}
 
 	private boolean isItemSendBlockedByAssociatedDataproviderResolve()
 	{
 		return propertyDependencies.dataproviderResolveValuelist && !valuesRequested;
+	}
+
+	private IValueList getCurrentValueList()
+	{
+		if (findMode && valueList.getFallbackValueList() != null)
+		{
+			return valueList.getFallbackValueList();
+		}
+		return valueList;
 	}
 
 	// valuelist should parse the same way as the dataprovider, so if use local date is set also send the valuelist stuff over as local times without the timezone
@@ -510,6 +533,8 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 	@Override
 	public void detach()
 	{
+		if (webObjectContext == null) return; // already detached
+
 		clearUpRuntimeValuelistAndFormat();
 		customValueListDataSet = null;
 
@@ -525,7 +550,7 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 			webObjectContext.removePropertyChangeListener(propertyDependencies.foundsetPropertyName, this);
 
 			Object foundsetValue = webObjectContext.getProperty(propertyDependencies.foundsetPropertyName);
-			if (foundsetValue instanceof IHasUnderlyingState) ((IHasUnderlyingState)foundsetPropertySabloValue).removeStateChangeListener(this);
+			if (foundsetValue instanceof IHasUnderlyingState) foundsetPropertySabloValue.removeStateChangeListener(this);
 		}
 		if (propertyDependencies.formatPropertyName != null)
 		{
@@ -538,6 +563,10 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 			webObjectContext.removePropertyChangeListener(propertyDependencies.configPropertyName, this);
 			Object configPropertyValue = webObjectContext.getProperty(propertyDependencies.configPropertyName);
 			if (configPropertyValue instanceof IHasUnderlyingState) ((IHasUnderlyingState)configPropertyValue).removeStateChangeListener(this);
+		}
+		if (this.dataAdapterListToUse != null)
+		{
+			this.dataAdapterListToUse.removeFindModeAwareProperty(this);
 		}
 		changeMonitor.setChangeNotifier(null);
 		webObjectContext = null;
@@ -552,31 +581,34 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 			return;
 		}
 		boolean dbValueRowRendered = false;
-		if ((previousRecord != null && !previousRecord.equals(record)) || Utils.equalObjects(dataProvider, dataproviderID))
+		if ((previousRecord != null && !previousRecord.equals(record)) || (getConfig().isAutoResetFilter() && Utils.equalObjects(dataProvider, dataproviderID)))
 		{
 			revertFilter();
 		}
-		boolean removed = false;
-		if (!fireChangeEvent)
+		if (filteredValuelist == null)
 		{
-			removed = valueList.removeListDataListenerIfNeeded(this);
-		}
-		else
-		{
-			dbValueRowRendered = true;
-		}
-		try
-		{
-			valueList.fill(record);
-		}
-		finally
-		{
+			boolean removed = false;
 			if (!fireChangeEvent)
 			{
-				if (removed)
+				removed = valueList.removeListDataListenerIfNeeded(this);
+			}
+			else
+			{
+				dbValueRowRendered = true;
+			}
+			try
+			{
+				valueList.fill(record);
+			}
+			finally
+			{
+				if (!fireChangeEvent)
 				{
-					// only add it if it was removed
-					valueList.addListDataListener(this);
+					if (removed)
+					{
+						// only add it if it was removed
+						valueList.addListDataListener(this);
+					}
 				}
 			}
 		}
@@ -636,7 +668,7 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 			if (valueList != null && valueList.getValueList() != null)
 			{
 				writer.key("valuelistid");
-				writer.value(valueList.getValueList().getID());
+				writer.value(valueList.getValueList().getUUID().toString());
 			}
 
 			writer.key("hasRealValues");
@@ -733,6 +765,10 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 				changeMonitor.notifyOfChange(); // in case fill really somehow did not result in the filteredValuelist listener doing a notify
 
 				valueList.addListDataListener(this);
+
+				// if the filterString is empty and autoResetFilter is false,
+				// reset filteredValueList to null so that future filtering operations begin with the complete valueList
+				if ("".equals(filterString) && !getConfig().isAutoResetFilter()) revertFilter();
 			}
 			catch (ServoyException e)
 			{
@@ -745,14 +781,19 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 	private LookupListModel createFilteredValueList()
 	{
 		LookupListModel llm = null;
-		if (valueList instanceof DBValueList)
+		IValueList currentValueList = valueList;
+		if (findMode && currentValueList.getFallbackValueList() != null)
+		{
+			currentValueList = currentValueList.getFallbackValueList();
+		}
+		if (currentValueList instanceof DBValueList)
 		{
 			try
 			{
 				llm = new LookupListModel(dataAdapterListToUse.getApplication(),
-					new LookupValueList(valueList.getValueList(), dataAdapterListToUse.getApplication(),
+					new LookupValueList(currentValueList.getValueList(), dataAdapterListToUse.getApplication(),
 						ComponentFactory.getFallbackValueList(dataAdapterListToUse.getApplication(), dataproviderID, format != null ? format.uiType : 0,
-							format != null ? format.parsedFormat : null, valueList.getValueList()),
+							format != null ? format.parsedFormat : null, currentValueList.getValueList()),
 						format != null && format.parsedFormat != null ? format.parsedFormat.getDisplayFormat() : null, dataAdapterListToUse.getRecord()));
 			}
 			catch (Exception ex)
@@ -760,21 +801,21 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 				Debug.error(ex);
 			}
 		}
-		else if (valueList instanceof CustomValueList)
+		else if (currentValueList instanceof CustomValueList)
 		{
-			llm = new LookupListModel(dataAdapterListToUse.getApplication(), (CustomValueList)valueList);
+			llm = new LookupListModel(dataAdapterListToUse.getApplication(), (CustomValueList)currentValueList);
 		}
-		else if (valueList instanceof LookupValueList)
+		else if (currentValueList instanceof LookupValueList)
 		{
-			llm = new LookupListModel(dataAdapterListToUse.getApplication(), (LookupValueList)valueList);
+			llm = new LookupListModel(dataAdapterListToUse.getApplication(), (LookupValueList)currentValueList);
 		}
-		else if (valueList instanceof ColumnBasedValueList)
+		else if (currentValueList instanceof ColumnBasedValueList)
 		{
-			llm = ((ColumnBasedValueList)valueList).getListModel();
+			llm = ((ColumnBasedValueList)currentValueList).getListModel();
 		}
-		else if (valueList instanceof LookupListModel)
+		else if (currentValueList instanceof LookupListModel)
 		{
-			llm = (LookupListModel)valueList;
+			llm = (LookupListModel)currentValueList;
 		}
 		return llm;
 	}
@@ -815,7 +856,7 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 	private void initializeValuelistAndFormat()
 	{
 		INGApplication application = dataAdapterListToUse.getApplication();
-		ValueList valuelistPersist = getValuelistPersist(valuelistIdentifier, application);
+		ValueList valuelistPersist = getValuelistPersist(valuelistIdentifier, application.getFlattenedSolution());
 
 		format = getComponentFormat(vlPD, dataAdapterListToUse, getConfig(), dataproviderID, webObjectContext);
 		if (valuelistPersist != null)
@@ -825,6 +866,10 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 			{
 				valueList = ValueListFactory.fillRealValueList(application, valuelistPersist, IValueListConstants.CUSTOM_VALUES,
 					((CustomValueList)valueList).getFormat(), ((CustomValueList)valueList).getValueType(), customValueListDataSet);
+			}
+			if (valueList != null && valueList.getFallbackValueList() != null)
+			{
+				this.dataAdapterListToUse.addFindModeAwareProperty(this);
 			}
 		}
 		else
@@ -845,23 +890,14 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 		}
 	}
 
-	public static ValueList getValuelistPersist(Object valuelistId, IApplication application)
+	public static ValueList getValuelistPersist(Object valuelistId, FlattenedSolution fs)
 	{
 		ValueList valuelistPersist = null;
-
-		int valuelistID = Utils.getAsInteger(valuelistId);
-		if (valuelistID > 0)
+		// just try to get the valuelist by name or by uuid string (the FS will cache for both)
+		if (valuelistId instanceof String) valuelistPersist = fs.getValueList(valuelistId.toString());
+		if (valuelistPersist == null)
 		{
-			valuelistPersist = application.getFlattenedSolution().getValueList(valuelistID);
-		}
-		else
-		{
-			// just try to get the valuelist by name or by uuid string (the FS will cache for both)
-			if (valuelistId instanceof String) valuelistPersist = application.getFlattenedSolution().getValueList(valuelistId.toString());
-			if (valuelistPersist == null)
-			{
-				if (valuelistId != null) valuelistPersist = (ValueList)application.getFlattenedSolution().searchPersist(valuelistId.toString());
-			}
+			if (valuelistId != null) valuelistPersist = (ValueList)fs.searchPersist(valuelistId.toString());
 		}
 		return valuelistPersist;
 	}
@@ -1001,6 +1037,27 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 			}
 		}
 		changeMonitor.markFullyChanged(true);
+	}
+
+	@Override
+	public void findModeChanged(boolean newFindMode)
+	{
+		if (findMode != newFindMode)
+		{
+			findMode = newFindMode;
+			if (filteredValuelist != null)
+			{
+				filteredValuelist = createFilteredValueList();
+			}
+			changeMonitor.markFullyChanged(true);
+		}
+
+	}
+
+	@Override
+	public String toString()
+	{
+		return "Valuelist('" + (valueList != null ? valueList.getName() : "<not initialized>") + "' on prop. '" + vlPD.getName() + "')";
 	}
 
 }

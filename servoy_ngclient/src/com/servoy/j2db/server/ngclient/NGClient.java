@@ -4,6 +4,7 @@ import static com.servoy.j2db.util.UUID.randomUUID;
 
 import java.awt.Dimension;
 import java.awt.print.PageFormat;
+import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -26,8 +27,6 @@ import java.util.concurrent.FutureTask;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-
-import javax.servlet.http.HttpSession;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -67,6 +66,7 @@ import com.servoy.j2db.IBasicFormManager;
 import com.servoy.j2db.IDataRendererFactory;
 import com.servoy.j2db.IDesignerCallback;
 import com.servoy.j2db.IFormController;
+import com.servoy.j2db.IRunnableWithEventLevel;
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.Messages;
@@ -74,15 +74,20 @@ import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.dataprocessing.ClientInfo;
 import com.servoy.j2db.dataprocessing.IClient;
 import com.servoy.j2db.dataprocessing.IDataServer;
+import com.servoy.j2db.dataprocessing.IFoundSetManagerInternal;
 import com.servoy.j2db.dataprocessing.SwingFoundSetFactory;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.RepositoryException;
+import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.plugins.IClientPluginAccess;
 import com.servoy.j2db.plugins.IMediaUploadCallback;
+import com.servoy.j2db.scripting.GlobalScope;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
+import com.servoy.j2db.scripting.JSBlobLoaderBuilder;
 import com.servoy.j2db.scripting.PluginScope;
+import com.servoy.j2db.scripting.info.EventType;
 import com.servoy.j2db.scripting.info.NGCONSTANTS;
 import com.servoy.j2db.server.headlessclient.AbstractApplication;
 import com.servoy.j2db.server.headlessclient.util.HCUtils;
@@ -117,6 +122,8 @@ import com.servoy.j2db.util.ServoyScheduledExecutor;
 import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 
+import jakarta.servlet.http.HttpSession;
+
 @SuppressWarnings("nls")
 public class NGClient extends AbstractApplication
 	implements INGApplication, IChangeListener, IServerService, IGetStatusLine, IGetLastAccessed, IPerformanceDataProvider
@@ -127,6 +134,7 @@ public class NGClient extends AbstractApplication
 	public static final String APPLICATION_SERVICE = "$applicationService";
 	public static final String APPLICATION_SERVER_SERVICE = "applicationServerService";
 	private static final String SABLO_LOADING_INDICATOR = "$sabloLoadingIndicator";
+	private static final String CLIENTUTILS_SERVICE = "clientutils";
 
 	private final INGClientWebsocketSession wsSession;
 
@@ -155,6 +163,8 @@ public class NGClient extends AbstractApplication
 	private volatile long lastAccessed;
 
 	private URL serverURL;
+
+	private JSONObject userAgentAndPlatform;
 
 	private final IDesignerCallback designerCallback;
 
@@ -622,7 +632,7 @@ public class NGClient extends AbstractApplication
 	@Override
 	protected int getSolutionTypeFilter()
 	{
-		return super.getSolutionTypeFilter() | SolutionMetaData.NG_CLIENT_ONLY;
+		return super.getSolutionTypeFilter() | SolutionMetaData.NG_CLIENT_ONLY | SolutionMetaData.MOBILE;
 	}
 
 	@Override
@@ -654,6 +664,52 @@ public class NGClient extends AbstractApplication
 	{
 		super.solutionLoaded(s);
 		getWebsocketSession().solutionLoaded(s);
+		getEventsManager().removeSolutionListeners();
+		addCustomEventsListeners(getFlattenedSolution().getSolution());
+		Solution[] mods = getFlattenedSolution().getModules();
+		if (mods != null)
+		{
+			for (Solution mod : mods)
+			{
+				addCustomEventsListeners(mod);
+			}
+		}
+	}
+
+	private void addCustomEventsListeners(Solution solution)
+	{
+		if (solution != null)
+		{
+			Map<String, Object> eventMethods = solution.getCustomEventsMethods();
+			if (eventMethods != null)
+			{
+				for (String eventName : eventMethods.keySet())
+				{
+					EventType eventType = getFlattenedSolution().getEventType(eventName);
+					if (eventType != null)
+					{
+						Object eventUUID = eventMethods.get(eventName);
+						Function function = null;
+						if (eventUUID != null)
+						{
+							ScriptMethod scriptMethod = getFlattenedSolution().getScriptMethod(eventUUID.toString());
+							if (scriptMethod != null && scriptMethod.getParent() instanceof Solution)
+							{
+								if (getScriptEngine().getScopesScope()
+									.getGlobalScope(scriptMethod.getScopeName()) instanceof GlobalScope globalScope)
+								{
+									function = globalScope.getFunctionByName(scriptMethod.getName());
+								}
+							}
+						}
+						if (function != null)
+						{
+							getEventsManager().addListener(eventType, function, "solutions." + solution.getName());
+						}
+					}
+				}
+			}
+		}
 	}
 
 	@Override
@@ -671,13 +727,15 @@ public class NGClient extends AbstractApplication
 	@Override
 	protected void doInvokeLater(Runnable r)
 	{
-		wsSession.getEventDispatcher().postEvent(r);
+		if (r instanceof IRunnableWithEventLevel rwel) wsSession.getEventDispatcher().postEvent(r, rwel.getEventLevel());
+		else wsSession.getEventDispatcher().postEvent(r);
 	}
 
 	@Override
 	public boolean isEventDispatchThread()
 	{
-		return wsSession.getEventDispatcher().isEventDispatchThread();
+		IEventDispatcher eventDispatcher = wsSession.getEventDispatcher(false);
+		return eventDispatcher != null && eventDispatcher.isEventDispatchThread();
 	}
 
 	@Override
@@ -797,6 +855,10 @@ public class NGClient extends AbstractApplication
 				for (WebObjectSpecification serviceSpecification : serviceSpecifications)
 				{
 					WebObjectFunctionDefinition apiFunction = serviceSpecification.getApiFunction("cleanup");
+					if (apiFunction == null)
+					{
+						apiFunction = serviceSpecification.getInternalApiFunction("cleanup");
+					}
 					if (apiFunction != null && getScriptEngine() != null)
 					{
 						final PluginScope scope = (PluginScope)getScriptEngine().getSolutionScope().get("plugins", getScriptEngine().getSolutionScope());
@@ -1020,27 +1082,20 @@ public class NGClient extends AbstractApplication
 		return IApplication.NG_CLIENT;
 	}
 
+
 	@Override
 	public String getClientOSName()
 	{
-		try
+		JSONObject retValue = getUserAgentAndPlatform();
+		if (retValue != null)
 		{
-			Object retValue = this.getWebsocketSession().getClientService(NGClient.APPLICATION_SERVICE).executeServiceCall("getUserAgentAndPlatform", null);
-			if (retValue instanceof JSONObject)
+			String userAgent = retValue.optString("userAgent");
+			if (userAgent != null)
 			{
-				String userAgent = ((JSONObject)retValue).optString("userAgent");
-				if (userAgent != null)
-				{
-					return HCUtils
-						.getOSName(userAgent);
-				}
-				String platform = ((JSONObject)retValue).optString("platform");
-				if (platform != null) return platform;
+				return HCUtils.getOSName(userAgent);
 			}
-		}
-		catch (IOException e)
-		{
-			Debug.error(e);
+			String platform = retValue.optString("platform");
+			if (platform != null) return platform;
 		}
 		return super.getClientOSName();
 	}
@@ -1048,23 +1103,43 @@ public class NGClient extends AbstractApplication
 	@Override
 	public int getClientPlatform()
 	{
+		JSONObject retValue = getUserAgentAndPlatform();
+		if (retValue != null)
+		{
+			String platform = retValue.optString("platform");
+			if (platform != null)
+			{
+				return Utils.getPlatform(platform);
+			}
+		}
+		return super.getClientPlatform();
+	}
+
+	/**
+	 * @return
+	 * @throws IOException
+	 */
+	public JSONObject getUserAgentAndPlatform()
+	{
+		if (userAgentAndPlatform != null)
+		{
+			return userAgentAndPlatform;
+		}
+		Object retValue = null;
 		try
 		{
-			Object retValue = this.getWebsocketSession().getClientService(NGClient.APPLICATION_SERVICE).executeServiceCall("getUserAgentAndPlatform", null);
-			if (retValue instanceof JSONObject)
-			{
-				String platform = ((JSONObject)retValue).optString("platform");
-				if (platform != null)
-				{
-					return Utils.getPlatform(platform);
-				}
-			}
+			retValue = this.getWebsocketSession().getClientService(NGClient.APPLICATION_SERVICE).executeServiceCall("getUserAgentAndPlatform", null);
 		}
 		catch (IOException e)
 		{
 			Debug.error(e);
 		}
-		return super.getClientPlatform();
+		if (retValue instanceof JSONObject json)
+		{
+			userAgentAndPlatform = json;
+			return userAgentAndPlatform;
+		}
+		return null;
 	}
 
 	@Override
@@ -1284,7 +1359,7 @@ public class NGClient extends AbstractApplication
 		// TODO call request focus on a div in a client?
 	}
 
-	private ShowUrl showUrl = null;
+	private volatile ShowUrl showUrl = null;
 
 	@Override
 	public boolean showURL(String url, String target, String target_options, int timeout, boolean onRootFrame)
@@ -1340,7 +1415,30 @@ public class NGClient extends AbstractApplication
 				scheduledExecutorService = null;
 
 			}
-			if (showUrl == null) getWebsocketSession().sendRedirect(null);
+			if (showUrl == null)
+			{
+				getWebsocketSession().sendRedirect(null);
+			}
+			else
+			{
+				// if there is a show url, then this should be send first, just wait a bit
+				ShowUrl show = showUrl;
+				if (show != null)
+				{
+					// add a null/dummy event so the event dispatcher will process it and send the show url
+					getWebsocketSession().getEventDispatcher().addEvent(null);
+					synchronized (show)
+					{
+						try
+						{
+							show.wait(2000);
+						}
+						catch (InterruptedException e)
+						{
+						}
+					}
+				}
+			}
 			WebsocketSessionManager.removeSession(getWebsocketSession().getSessionKey());
 		}
 	}
@@ -1432,6 +1530,15 @@ public class NGClient extends AbstractApplication
 		return mediaInfo;
 	}
 
+	public MediaInfo createMediaInfo(File file, String contentType, String contentDisposition)
+	{
+		MediaInfo mediaInfo = new MediaInfo(randomUUID().toString(), file,
+			contentType == null ? MimeTypes.guessContentTypeFromName(file.getName()) : contentType,
+			contentDisposition);
+		mediaInfos.put(mediaInfo.getName(), mediaInfo);
+		return mediaInfo;
+	}
+
 	public MediaInfo createMediaInfo(byte[] mediaBytes)
 	{
 		return createMediaInfo(mediaBytes, null, null, null);
@@ -1446,6 +1553,12 @@ public class NGClient extends AbstractApplication
 	public String serveResource(String filename, byte[] bs, String mimetype, String contentDisposition)
 	{
 		MediaInfo mediaInfo = createMediaInfo(bs, filename, mimetype, contentDisposition);
+		return mediaInfo.getURL(getWebsocketSession().getSessionKey().getClientnr());
+	}
+
+	public String serveResource(File file, String mimetype, String contentDisposition)
+	{
+		MediaInfo mediaInfo = createMediaInfo(file, mimetype, contentDisposition);
 		return mediaInfo.getURL(getWebsocketSession().getSessionKey().getClientnr());
 	}
 
@@ -1495,18 +1608,31 @@ public class NGClient extends AbstractApplication
 					Debug.error(ex);
 				}
 				return Boolean.FALSE;
+
 			case "autosave" :
-				getFoundSetManager().getEditRecordList().stopEditing(false);
+				IFoundSetManagerInternal fsm = getFoundSetManager();
+				if (fsm != null)
+				{
+					fsm.getEditRecordList().stopEditing(false);
+				}
+				else
+				{
+					Debug.warn("autosave with no foundSetManager.");
+				}
 				break;
+
 			case "callServerSideApi" :
 			{
+				if (getScriptEngine() == null)
+				{
+					return null;
+				}
 				String serviceScriptingName = args.getString("service");
 				PluginScope scope = (PluginScope)getScriptEngine().getSolutionScope().get("plugins", getScriptEngine().getSolutionScope());
 				Object service = scope.get(serviceScriptingName, scope);
 
-				if (service instanceof WebServiceScriptable)
+				if (service instanceof WebServiceScriptable webServiceScriptable)
 				{
-					WebServiceScriptable webServiceScriptable = (WebServiceScriptable)service;
 					JSONArray methodArguments = args.getJSONArray("args");
 					String serviceMethodName = args.getString("methodName");
 
@@ -1570,6 +1696,7 @@ public class NGClient extends AbstractApplication
 	@Override
 	public void logout(final Object[] solution_to_open_args)
 	{
+		Solution initialSolution = getSolution();
 		if (getClientInfo().getUserUid() != null)
 		{
 			boolean doLogoutAndClearUserInfo = false;
@@ -1592,6 +1719,7 @@ public class NGClient extends AbstractApplication
 				HttpSession httpSession = getWebsocketSession().getHttpSession();
 				if (httpSession != null)
 				{
+					if (initialSolution != null) StatelessLoginHandler.logoutAndRevokeToken(httpSession, initialSolution);
 					httpSession.removeAttribute(StatelessLoginHandler.ID_TOKEN);
 				}
 				if (getApplicationServerAccess() != null && getClientID() != null)
@@ -1659,11 +1787,14 @@ public class NGClient extends AbstractApplication
 			}
 			toRecreate.clear();
 		}
-
 		if (showUrl != null)
 		{
-			this.getWebsocketSession().getClientService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("showUrl",
+			this.getWebsocketSession().getClientService(NGClient.APPLICATION_SERVICE).executeAsyncNowServiceCall("showUrl",
 				new Object[] { showUrl.url, showUrl.target, showUrl.target_options, Integer.valueOf(showUrl.timeout) });
+			synchronized (showUrl)
+			{
+				showUrl.notifyAll();
+			}
 			showUrl = null;
 		}
 	}
@@ -1738,6 +1869,7 @@ public class NGClient extends AbstractApplication
 				this.getWebsocketSession().getClientService(NGClientWebsocketSession.CLIENT_FUNCTION_SERVICE).executeAsyncServiceCall("reloadClientFunctions",
 					null);
 			}
+
 		}
 		return uuid;
 	}
@@ -1752,6 +1884,12 @@ public class NGClient extends AbstractApplication
 	public Object generateBrowserFunction(String functionString)
 	{
 		return new BrowserFunction(functionString, this);
+	}
+
+	@Override
+	public JSBlobLoaderBuilder createUrlBlobloaderBuilder(String dataprovider)
+	{
+		return new JSBlobLoaderBuilder(this, dataprovider, getWebsocketSession().getSessionKey().getClientnr());
 	}
 
 
@@ -1871,6 +2009,22 @@ public class NGClient extends AbstractApplication
 			Debug.error("Error getting the clipboard content", e);
 		}
 
+		return null;
+	}
+
+
+	@Override
+	public JSONObject getBounds(String webComponentID, String subselector)
+	{
+		try
+		{
+			return (JSONObject)this.getWebsocketSession().getClientService(NGClient.CLIENTUTILS_SERVICE).executeServiceCall("getBounds",
+				new Object[] { webComponentID, subselector });
+		}
+		catch (IOException e)
+		{
+			Debug.error("Error getting component bounds", e);
+		}
 		return null;
 	}
 

@@ -41,6 +41,16 @@ import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.docvalidator.IdentDocumentValidator;
 
 /**
+ * <p>The <code>JSComponent</code> class provides a set of methods for interacting with and managing components within a solution model.
+ * It offers functionality for setting and retrieving properties such as background, font type, borders, visibility, and positioning.
+ * Through various getter and setter methods, it allows for fine-tuned control over the component’s attributes, including handling design-time properties,
+ * setting Z-index values, and managing anchor configurations.</p>
+ *
+ * <p>In addition to visual and layout properties, <code>JSComponent</code> supports grouping components together by <code>groupID</code>,
+ * enabling batch actions like enabling or disabling multiple elements at once. The class also supports retrieving and setting CSS position
+ * for components in NGClient, as well as managing event handlers and design-time properties. It provides utility methods for managing component attributes,
+ * including getting and setting attribute values, and clearing attributes when necessary.</p>
+ *
  * @author jcompagner
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "JSComponent")
@@ -55,7 +65,7 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 	/**
 	 * Set the event handler for the method key, JSMethod may contain arguments.
 	 */
-	protected void setEventHandler(IApplication application, TypedProperty<Integer> methodProperty, JSMethod method)
+	protected void setEventHandler(IApplication application, TypedProperty<String> methodProperty, JSMethod method)
 	{
 		JSForm.setEventHandler(application, getBaseComponent(true), methodProperty, method);
 	}
@@ -63,7 +73,7 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 	/**
 	 * Get the event handler for the method key, JSMethod may contain arguments.
 	 */
-	protected JSMethod getEventHandler(IApplication application, TypedProperty<Integer> methodProperty)
+	protected JSMethod getEventHandler(IApplication application, TypedProperty<String> methodProperty)
 	{
 		return JSForm.getEventHandler(application, getBaseComponent(false), methodProperty, getJSParent());
 	}
@@ -79,6 +89,8 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 	 * greenLabel.background = 'green'; // Use generic names for colors.
 	 * var redField = form.newField('parent_table_text',JSField.TEXT_FIELD,10,110,100,30);
 	 * redField.background = '#FF0000'; // Use RGB codes for colors.
+	 *
+	 * @return The background color of the component.
 	 */
 	@JSGetter
 	public String getBackground()
@@ -99,6 +111,8 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 	 * //HINT: To know exactly the notation of this property set it in the designer and then read it once out through the solution model.
 	 * var field = form.newField('my_table_text', JSField.TEXT_FIELD, 10, 10, 100, 20);
 	 * field.borderType = solutionModel.createLineBorder(1,'#ff0000');
+	 *
+	 * @return The border type of the component as a string.
 	 */
 	@JSGetter
 	public String getBorderType()
@@ -118,6 +132,8 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 	 * @sample
 	 * var label = form.newLabel('Text here', 10, 50, 100, 20);
 	 * label.fontType = solutionModel.createFont('Times New Roman',1,14);
+	 *
+	 * @return The font type of the component.
 	 */
 	@JSGetter
 	public String getFontType()
@@ -141,6 +157,8 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 	 * labelWithBlueText.foreground = 'blue'; // Use generic names for colors.
 	 * var fieldWithYellowText = form.newField('parent_table_text', JSField.TEXT_FIELD, 10, 50, 100, 20);
 	 * fieldWithYellowText.foreground = '#FFFF00'; // Use RGB codes for colors.
+	 *
+	 * @return The foreground color of the component.
 	 */
 	@JSGetter
 	public String getForeground()
@@ -163,6 +181,8 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 	 * slidingLabel.printSliding = SM_PRINT_SLIDING.GROW_HEIGHT | SM_PRINT_SLIDING.GROW_WIDTH;
 	 * slidingLabel.background = 'gray';
 	 * forms['printForm'].controller.showPrintPreview();
+	 *
+	 * @return The print sliding configuration for the component.
 	 */
 	@JSGetter
 	public int getPrintSliding()
@@ -185,6 +205,8 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 	 * var style = solutionModel.newStyle('myStyle','field.fancy { background-color: yellow; }');
 	 * form.styleName = 'myStyle'; // First set the style on the form.
 	 * field.styleClass = 'fancy'; // Then set the style class on the field.
+	 *
+	 * @return The CSS style class assigned to the component.
 	 */
 	@JSGetter
 	public String getStyleClass()
@@ -213,6 +235,8 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 	 * var nonTransparentField = form.newField('parent_table_text', JSField.TEXT_FIELD, 10, 20, 100, 20);
 	 * var transparentField = form.newField('parent_table_text', JSField.TEXT_FIELD, 10, 50, 100, 20);
 	 * transparentField.transparent = true;
+	 *
+	 * @return True if the component is transparent; false otherwise.
 	 */
 	@JSGetter
 	public boolean getTransparent()
@@ -246,6 +270,8 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 	 * var stickToBottomRightCornerLabel = form.newLabel('Stick to bottom-right corner', 190, 190, 200, 100);
 	 * stickToBottomRightCornerLabel.background = 'pink';
 	 * stickToBottomRightCornerLabel.anchors = SM_ANCHOR.SOUTH | SM_ANCHOR.EAST;
+	 *
+	 * @return The anchor configuration for the component.
 	 */
 	@JSGetter
 	public int getAnchors()
@@ -279,6 +305,8 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 	 * var fieldAbove = form.newField('parent_table_text', JSField.TEXT_FIELD, 10, 10, 100, 30);
 	 * fieldAbove.background = '#FF0000';
 	 * fieldAbove.formIndex = 20;
+	 *
+	 * @return The Z-index of the component.
 	 */
 	@JSGetter
 	public int getFormIndex()
@@ -293,6 +321,8 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 	}
 
 	/**
+	 * @return The X-coordinate position of the component.
+	 *
 	 * @sameas com.servoy.j2db.solutionmodel.ISMPortal#setX(int)
 	 */
 	@JSGetter
@@ -311,6 +341,8 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 	 * @clonedesc com.servoy.j2db.solutionmodel.ISMPortal#setY(int)
 	 *
 	 * @sampleas getX()
+	 *
+	 * @return The Y-coordinate position of the component.
 	 */
 	@JSGetter
 	public int getY()
@@ -334,6 +366,8 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 	 * forms['someForm'].controller.show()
 	 * // Now use the name to access the component.
 	 * forms['someForm'].elements['myLabel'].text = 'Updated text';
+	 *
+	 * @return The name of the component.
 	 */
 	@JSGetter
 	public String getName()
@@ -356,6 +390,8 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 	 * var notPrintedField = form.newField('parent_table_id', JSField.TEXT_FIELD, 10, 40, 100, 20);
 	 * notPrintedField.printable = false; // This field won't show up in print preview and won't be printed.
 	 * forms['printForm'].controller.showPrintPreview()
+	 *
+	 * @return True if the component is printable; false otherwise.
 	 */
 	@JSGetter
 	@ServoyClientSupport(ng = false, wc = true, sc = true)
@@ -378,6 +414,8 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 	 * var form = solutionModel.newForm('printForm', 'db:/example_data/parent_table', null, false, 400, 300);
 	 * var field = form.newField('parent_table_text', JSField.TEXT_FIELD, 10, 10, 100, 20);
 	 * field.enabled = false;
+	 *
+	 * @return True if the component is enabled; false otherwise.
 	 */
 	@JSGetter
 	public boolean getEnabled()
@@ -398,6 +436,8 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 	 * var form = solutionModel.newForm('printForm', 'db:/example_data/parent_table', null, false, 400, 300);
 	 * var field = form.newField('parent_table_text', JSField.TEXT_FIELD, 10, 10, 100, 20);
 	 * field.visible = false;
+	 *
+	 * @return True if the component is visible; false otherwise.
 	 */
 	@JSGetter
 	public boolean getVisible()
@@ -422,6 +462,8 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 	 * field.height = 100;
 	 * application.output('modified width: ' + field.width);
 	 * application.output('modified height: ' + field.height);
+	 *
+	 * @return The width of the component in pixels.
 	 */
 	@JSGetter
 	public int getWidth()
@@ -439,6 +481,8 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 	 * The height in pixels of the component.
 	 *
 	 * @sampleas getWidth()
+	 *
+	 * @return The width of the component in pixels.
 	 */
 	@JSGetter
 	public int getHeight()
@@ -466,13 +510,20 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 	 * label.groupID = 'someGroup';
 	 * field.groupID = 'someGroup';
 	 * forms['someForm'].elements.someGroup.enabled = false;
+	 * @deprecated not used in TiNG
+	 * @return The group ID of the component.
 	 */
+	@Deprecated
 	@JSGetter
 	public String getGroupID()
 	{
 		return getBaseComponent(false).getGroupID();
 	}
 
+	/**
+	 * @deprecated not used in TiNG
+	 */
+	@Deprecated
 	@JSSetter
 	public void setGroupID(String arg)
 	{
@@ -488,6 +539,8 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 	 * @sample
 	 * var label = form.newLabel('Label', -1);
 	 * label.cssPosition.r("10").b("10").w("20%").h("30px")
+	 *
+	 * @return The CSS position of the component.
 	 */
 	@Override
 	@JSGetter
@@ -515,6 +568,8 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 	 * var frm = solutionModel.getForm('orders')
 	 * var fld = frm.getField('fld')
 	 * var prop = fld.getDesignTimeProperty('myprop')
+	 *
+	 * @return The value of the specified design-time property.
 	 */
 	@JSFunction
 	public Object getDesignTimeProperty(String key)
@@ -532,6 +587,8 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 	 * var frm = solutionModel.getForm('orders')
 	 * var fld = frm.getField('fld')
 	 * fld.putDesignTimeProperty('myprop', 'strawberry')
+	 *
+	 * @return The previous value of the specified design-time property, or null if none existed.
 	 */
 	@JSFunction
 	public Object putDesignTimeProperty(String key, Object value)
@@ -547,6 +604,8 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 	 * var frm = solutionModel.getForm('orders')
 	 * var fld = frm.getField('fld')
 	 * fld.removeDesignTimeProperty('myprop')
+	 *
+	 * @return The removed value of the specified design-time property.
 	 */
 	@JSFunction
 	public Object removeDesignTimeProperty(String key)
@@ -560,6 +619,8 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 	 * var frm = solutionModel.getForm('orders')
 	 * var fld = frm.getField('fld')
 	 * var propNames = fld.getDesignTimePropertyNames()
+	 *
+	 * @return An array of design-time property names for the component.
 	 */
 	@JSFunction
 	public String[] getDesignTimePropertyNames()
@@ -583,6 +644,8 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 	 * {
 	 * 		application.output(fld.getAttribute(attributes[i]));
 	 * }
+	 *
+	 * @return An array of attribute names for the component.
 	 */
 	@JSFunction
 	public String[] getAttributes()
@@ -595,6 +658,8 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 	 * @param name the name of the attribute
 	 *
 	 * @sampleas getAttributes()
+	 *
+	 * @return The value of the specified attribute.
 	 */
 	@JSFunction
 	public Object getAttribute(String name)
@@ -630,6 +695,8 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 	 * var frm = solutionModel.getForm('orders')
 	 * var fld = frm.getField('fld')
 	 * fld.removeAttribute('keylistener')
+	 *
+	 * @return The removed attribute value.
 	 */
 	@JSFunction
 	public String removeAttribute(String name)
@@ -662,7 +729,7 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 	 * @sample
 	 * var name = %%prefix%%%%elementName%%.getFormName();
 	 *
-	 * @return The name of the form.
+	 * @return The name of the form containing the component.
 	 */
 	@JSFunction
 	public String getFormName()

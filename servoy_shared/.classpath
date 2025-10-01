@@ -1,23 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-17">
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-21">
 		<attributes>
 			<attribute name="module" value="true"/>
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry exported="true" kind="lib" path="lib/dom4j.jar" sourcepath="libsrc/dom4j-src.jar"/>
 	<classpathentry kind="lib" path="lib/fs-commons.jar" sourcepath="libsrc/flyingsaucer-src.zip"/>
 	<classpathentry kind="lib" path="lib/fs-parser.jar" sourcepath="libsrc/flyingsaucer-src.zip"/>
-	<classpathentry kind="lib" path="lib/jcifs.jar"/>
-	<classpathentry kind="lib" path="lib/joda-time.jar"/>
-	<classpathentry kind="lib" path="lib/minis.jar" sourcepath="libsrc/minis-sources.jar"/>
 	<classpathentry kind="lib" path="lib/PBKDF2.jar" sourcepath="libsrc/PBKDF2-src.zip"/>
-	<classpathentry kind="lib" path="lib/prompt.jar" sourcepath="libsrc/xswingx.zip"/>
-	<classpathentry kind="lib" path="lib/wicket-calendar.jar" sourcepath="libsrc/wicket-calendar-src.jar"/>
-	<classpathentry kind="lib" path="lib/wicket-extentions.jar" sourcepath="libsrc/wicket-extentions-src.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/wicket.jar" sourcepath="libsrc/wicket-src.jar"/>
-	<classpathentry kind="lib" path="lib/wiquery.jar" sourcepath="libsrc/wiquery-sources.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

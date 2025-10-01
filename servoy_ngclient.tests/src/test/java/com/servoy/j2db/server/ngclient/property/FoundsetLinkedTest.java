@@ -82,12 +82,12 @@ public class FoundsetLinkedTest extends AbstractSolutionTest
 		try
 		{
 			Form form = solution.createNewForm(validator, null, "dummyForm", null, false, new Dimension(600, 400));
-			form.setNavigatorID(-1);
+			form.setNavigatorID("-1");
 			form.createNewPart(IBaseSMPart.BODY, 5);
-			solution.setFirstFormID(form.getID()); // just a dummy form as first form so that it doesn't initialize our first form too soon, when solution is first shown (the test form will still get populated with design-time content at the beginning of tests)
+			solution.setFirstFormID(form.getUUID().toString()); // just a dummy form as first form so that it doesn't initialize our first form too soon, when solution is first shown (the test form will still get populated with design-time content at the beginning of tests)
 
 			form = solution.createNewForm(validator, null, "test", "mem:test", false, new Dimension(600, 400));
-			form.setNavigatorID(-1);
+			form.setNavigatorID("-1");
 			form.createNewPart(IBaseSMPart.BODY, 5);
 			WebComponent bean = form.createNewWebComponent("mycustombean", "my-component");
 			bean.setProperty("myfoundsetWithAllow", new ServoyJSONObject("{foundsetSelector:'',dataproviders:{firstname:'test1',lastname:'test2'}}", false));
@@ -178,7 +178,7 @@ public class FoundsetLinkedTest extends AbstractSolutionTest
 			((DataproviderTypeSabloValue)((FoundsetLinkedTypeSabloValue)comp.getProperty("datalinkedDPReject")).getWrappedValue()).getValue()); // not value 501 cause pushToServer is rejected!
 
 		// fake incomming update/svyPush for DP changes on these fsLinked properties; one should get rejected, the other allowed and changed in the DP
-		String pkFromClientForThirdRow = RowManager.createPKHashKey(new Object[] { 3 }) + "_" + 2; // this is not needed for form variables but I think client would send it anyway
+		String pkFromClientForThirdRow = RowManager.createPKHashKey(new Object[] { 3 }); // this is not needed for form variables but I think client would send it anyway
 		endpoint.incoming(
 			"{\"methodname\":\"svyPush\",\"args\":{\"fslRowID\":\"" + pkFromClientForThirdRow +
 				"\",\"property\":\"datalinkedDPReject\",\"beanname\":\"mycustombean\",\"formname\":\"test\",\"changes\":{\"datalinkedDPReject\":[{\"propertyChange\":111}]}},\"service\":\"formService\"}",
@@ -227,7 +227,7 @@ public class FoundsetLinkedTest extends AbstractSolutionTest
 		Assert.assertEquals("value4", fsLinkedReject.optString(1));
 
 		// fake incomming update/svyPush for DP changes on these fsLinked properties; one should get rejected, the other allowed
-		String pkFromClientForThirdRow = RowManager.createPKHashKey(new Object[] { 3 }) + "_" + 2;
+		String pkFromClientForThirdRow = RowManager.createPKHashKey(new Object[] { 3 });
 		endpoint.incoming(
 			"{\"methodname\":\"svyPush\",\"args\":{\"fslRowID\":\"" + pkFromClientForThirdRow +
 				"\", \"property\":\"datalinkedDPReject\",\"beanname\":\"mycustombean\",\"formname\":\"test\",\"changes\":{\"datalinkedDPReject\":[{\"viewportDataChanged\":{\"_svyRowId\":\"" +

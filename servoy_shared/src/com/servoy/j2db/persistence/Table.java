@@ -27,6 +27,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import com.servoy.base.persistence.IBaseColumn;
 import com.servoy.j2db.dataprocessing.IndexInfo;
 import com.servoy.j2db.util.DataSourceUtils;
+import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.keyword.Ident;
 
@@ -297,10 +298,8 @@ public class Table extends AbstractTable implements ITable, Serializable, ISuppo
 	public int getPKColumnTypeRowIdentCount()
 	{
 		int retval = 0;
-		Iterator<Column> it = keyColumns.iterator();
-		while (it.hasNext())
+		for (Column c : keyColumns)
 		{
-			Column c = it.next();
 			if (c.getRowIdentType() == IBaseColumn.PK_COLUMN)
 			{
 				retval++;
@@ -321,22 +320,9 @@ public class Table extends AbstractTable implements ITable, Serializable, ISuppo
 		{
 			throw new RepositoryException("A column on table " + getName() + "/server " + getServerName() + " with name " + colname + " already exists"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		}
-		validator.checkName(colname, 0, new ValidatorSearchContext(this, IRepository.COLUMNS), true);
+		validator.checkName(colname, null, new ValidatorSearchContext(this, IRepository.COLUMNS), true);
 	}
 
-	public Column createNewColumn(IValidateName validator, String colname, int type, int length, boolean allowNull) throws RepositoryException
-	{
-		Column c = createNewColumn(validator, colname, type, length, 0);
-		c.setAllowNull(allowNull);
-		return c;
-	}
-
-	public Column createNewColumn(IValidateName validator, String colname, int type, int length, boolean allowNull, boolean pkColumn) throws RepositoryException
-	{
-		Column c = createNewColumn(validator, colname, type, length, 0, allowNull);
-		c.setDatabasePK(pkColumn);
-		return c;
-	}
 
 	/**
 	 * Called when the dataProviderID of a column might have changed - the special double-keyed map we use should get updated.
@@ -373,20 +359,16 @@ public class Table extends AbstractTable implements ITable, Serializable, ISuppo
 		if (existInDB)
 		{
 			List<Column> notNeededColumns = new ArrayList<Column>();
-			Iterator<Column> it = columns.values().iterator();
-			while (it.hasNext())
+			for (Column c : columns.values())
 			{
-				Column c = it.next();
 				if (!c.getExistInDB())
 				{
 					notNeededColumns.add(c);
 				}
 			}
 
-			Iterator<Column> it2 = notNeededColumns.iterator();
-			while (it2.hasNext())
+			for (Column c : notNeededColumns)
 			{
-				Column c = it2.next();
 				keyColumns.remove(c);//just to make sure
 				columns.remove(c.getName());
 			}
@@ -420,7 +402,7 @@ public class Table extends AbstractTable implements ITable, Serializable, ISuppo
 		ColumnChangeHandler.getInstance().fireItemRemoved(this, column);
 	}
 
-	public int getColumnInfoID(String columnName)
+	public UUID getColumnInfoID(String columnName)
 	{
 		Column c = getColumn(columnName);
 		if (c != null)
@@ -428,10 +410,10 @@ public class Table extends AbstractTable implements ITable, Serializable, ISuppo
 			ColumnInfo ci = c.getColumnInfo();
 			if (ci != null)
 			{
-				return ci.getID();
+				return ci.getUUID();
 			}
 		}
-		return -1;
+		return null;
 	}
 
 	public void updateName(IValidateName validator, String newname) throws RepositoryException

@@ -51,11 +51,6 @@ public interface IPersistIndex
 	 */
 	<T extends IPersist> T getPersistByName(String name, Class<T> persistClass);
 
-	/**
-	 * @param id
-	 * @return the perist found i the index.
-	 */
-	<T extends IPersist> T getPersistByID(int id, Class<T> clz);
 
 	/**
 	 * @param <T>

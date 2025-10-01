@@ -18,9 +18,8 @@ package com.servoy.j2db.persistence;
 
 import java.sql.Types;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
+import java.util.Map.Entry;
 import java.util.TreeMap;
 
 import com.servoy.base.query.IBaseSQLCondition;
@@ -119,11 +118,11 @@ public class I18NUtil
 			{
 				Column pkColumn = i18NTable.getRowIdentColumns().get(0); // runtime exception when no ident columns
 
-				QueryTable messagesTable = new QueryTable(i18NTable.getSQLName(), i18NTable.getDataSource(), i18NTable.getCatalog(), i18NTable.getSchema());
+				QueryTable messagesTable = i18NTable.queryTable();
 				QueryColumn pkCol = pkColumn.queryColumn(messagesTable);
-				QueryColumn msgLang = new QueryColumn(messagesTable, -1, "message_language", Types.VARCHAR, 150, 0, null, 0);
-				QueryColumn msgKey = new QueryColumn(messagesTable, -1, "message_key", Types.VARCHAR, 150, 0, null, 0);
-				QueryColumn msgVal = new QueryColumn(messagesTable, -1, "message_value", Types.VARCHAR, 2000, 0, null, 0);
+				QueryColumn msgLang = new QueryColumn(messagesTable, "message_language", Types.VARCHAR, 150, 0, null, 0);
+				QueryColumn msgKey = new QueryColumn(messagesTable, "message_key", Types.VARCHAR, 150, 0, null, 0);
+				QueryColumn msgVal = new QueryColumn(messagesTable, "message_value", Types.VARCHAR, 2000, 0, null, 0);
 
 				ArrayList<SQLStatement> updateStatements = new ArrayList<SQLStatement>();
 				// go thorough messages, update exiting, add news to remote
@@ -141,11 +140,8 @@ public class I18NUtil
 
 				List<Column> tenantColumns = i18NTable.getTenantColumns();
 
-				Iterator<Map.Entry<String, MessageEntry>> messagesIte = messages.entrySet().iterator();
-				Map.Entry<String, MessageEntry> messageEntry;
-				while (messagesIte.hasNext())
+				for (Entry<String, MessageEntry> messageEntry : messages.entrySet())
 				{
-					messageEntry = messagesIte.next();
 					String key = messageEntry.getKey();
 					String value = messageEntry.getValue().getValue();
 					String lang = messageEntry.getValue().getLanguage();
@@ -159,7 +155,7 @@ public class I18NUtil
 						Object[] insertColumnValues = null;
 						if (logIdIsServoyManaged)
 						{
-							Object messageId = dataServer.getNextSequence(i18NServerName, i18NTableName, pkColumn.getName(), -1, i18NServerName);
+							Object messageId = dataServer.getNextSequence(i18NServerName, i18NTableName, pkColumn.getName(), null, i18NServerName);
 							if (lang == null)
 							{
 								insertColumns = new QueryColumn[] { pkCol, msgKey, msgVal };
@@ -230,12 +226,8 @@ public class I18NUtil
 
 				if (!noRemoves)
 				{
-					// go thorough remote, remove if not existing locally
-					Iterator<Map.Entry<String, MessageEntry>> remoteMessagesIte = remoteMessages.entrySet().iterator();
-					Map.Entry<String, MessageEntry> remoteMessageEntry;
-					while (remoteMessagesIte.hasNext())
+					for (Entry<String, MessageEntry> remoteMessageEntry : remoteMessages.entrySet())
 					{
-						remoteMessageEntry = remoteMessagesIte.next();
 						String key = remoteMessageEntry.getKey();
 						if (!messages.containsKey(key)) // delete
 						{
@@ -294,23 +286,21 @@ public class I18NUtil
 			Table i18NTable = (Table)i18NServer.getTable(i18NTableName);
 			if (i18NTable != null)
 			{
-				QueryTable messagesTable = new QueryTable(i18NTable.getSQLName(), i18NTable.getDataSource(), i18NTable.getCatalog(), i18NTable.getSchema());
+				QueryTable messagesTable = i18NTable.queryTable();
 				QuerySelect sql = new QuerySelect(messagesTable);
 
-				QueryColumn msgLang = new QueryColumn(messagesTable, -1, "message_language", Types.VARCHAR, 150, 0, null, 0);
-				QueryColumn msgKey = new QueryColumn(messagesTable, -1, "message_key", Types.VARCHAR, 150, 0, null, 0);
-				QueryColumn msgVal = new QueryColumn(messagesTable, -1, "message_value", Types.VARCHAR, 2000, 0, null, 0);
+				QueryColumn msgLang = new QueryColumn(messagesTable, "message_language", Types.VARCHAR, 150, 0, null, 0);
+				QueryColumn msgKey = new QueryColumn(messagesTable, "message_key", Types.VARCHAR, 150, 0, null, 0);
+				QueryColumn msgVal = new QueryColumn(messagesTable, "message_value", Types.VARCHAR, 2000, 0, null, 0);
 
 				sql.addColumn(msgLang);
 				sql.addColumn(msgKey);
 				sql.addColumn(msgVal);
 
-				//Filter to only include records with the default (null) value for columns flagged as Tenant column
+				// Filter to only include records with the default (null) value for columns flagged as Tenant column
 				for (Column column : i18NTable.getTenantColumns())
 				{
-					QueryColumn tenantColumn = new QueryColumn(messagesTable, column.getID(), column.getSQLName(), column.getType(), column.getLength(),
-						column.getScale(), null, column.getFlags());
-					CompareCondition cc = new CompareCondition(IBaseSQLCondition.ISNULL_OPERATOR, tenantColumn, null);
+					CompareCondition cc = new CompareCondition(IBaseSQLCondition.ISNULL_OPERATOR, column.queryColumn(messagesTable), null);
 					sql.addCondition("_svy_tenant_id_filter_" + column.getName(), cc);
 				}
 
@@ -319,9 +309,8 @@ public class I18NUtil
 					Column filterColumn = i18NTable.getColumn(filterName);
 					if (filterColumn != null && filterValue != null && filterValue.length > 0)
 					{
-						QueryColumn columnFilter = new QueryColumn(messagesTable, filterColumn.getID(), filterColumn.getSQLName(), filterColumn.getType(),
-							filterColumn.getLength(), filterColumn.getScale(), null, filterColumn.getFlags());
-						CompareCondition cc = new CompareCondition(IBaseSQLCondition.EQUALS_OPERATOR, columnFilter, new QueryColumnValue(filterValue[0], null));
+						CompareCondition cc = new CompareCondition(IBaseSQLCondition.EQUALS_OPERATOR, filterColumn.queryColumn(messagesTable),
+							new QueryColumnValue(filterValue[0], null));
 						sql.addCondition("FILTER", cc); //$NON-NLS-1$
 					}
 				}

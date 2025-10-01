@@ -341,6 +341,11 @@ angular.module('servoy', ['sabloApp', 'servoyformat', 'servoytooltip', 'servoyfi
                 var contextMatch = false;
                 while (parent && parent.getAttribute) {
                     form = parent.getAttribute("ng-controller");
+                    if (form == 'MainController' && targetElNameChain.length === 1) {
+                        // search for the real element
+                        parent = document.querySelector(`[name="${targetElNameChain[0]}"]`);
+                        form = parent.getAttribute("ng-controller");
+                    }
                     if (form) {
                         //global shortcut or context match
                         var shortcuthit = !contextFilter || (contextFilter && form == contextFilter);
@@ -348,7 +353,7 @@ angular.module('servoy', ['sabloApp', 'servoyformat', 'servoytooltip', 'servoyfi
                         contextMatch = true;
                         break;
                     }
-                    if (parent.getAttribute("name")) targetElNameChain.push(parent.getAttribute("name"));
+                    if (parent.getAttribute("name") && !targetElNameChain.includes(parent.getAttribute("name"))) targetElNameChain.push(parent.getAttribute("name"));
                     parent = parent.parentNode;
                 }
                 if (!form || form == 'MainController') {

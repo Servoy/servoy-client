@@ -39,7 +39,6 @@ import org.sablo.specification.property.IPropertyType;
 import org.sablo.websocket.utils.PropertyUtils;
 
 import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.ServoyJSONArray;
 import com.servoy.j2db.util.ServoyJSONObject;
 import com.servoy.j2db.util.UUID;
@@ -114,7 +113,7 @@ public class WebObjectImpl extends WebObjectBasicImpl
 	}
 
 	@Override
-	public void updateJSONFromPersistMappedPropeties()
+	public void updateJSONFromPersistMappedProperties()
 	{
 		// writes persist mapped properties back to json
 		if (arePersistMappedPropertiesLoaded && !skipPersistMappedPropertiesUpdate)
@@ -281,7 +280,7 @@ public class WebObjectImpl extends WebObjectBasicImpl
 					if (getJson() == null) setJson(new ServoyJSONObject());
 					getPersistMappedProperties().put(propertyName, val);
 					persistMappedPropetiesByUUID = null;
-					updateJSONFromPersistMappedPropeties();
+					updateJSONFromPersistMappedProperties();
 					return true;
 				}
 				else
@@ -306,7 +305,7 @@ public class WebObjectImpl extends WebObjectBasicImpl
 		{
 			persistMappedProperties.remove(propertyName); // remove the persist
 			persistMappedPropetiesByUUID = null;
-			updateJSONFromPersistMappedPropeties(); // remove it from json (as child persist is no longer there)
+			updateJSONFromPersistMappedProperties(); // remove it from json (as child persist is no longer there)
 
 			JSONObject json = getJson(); // this actually gets flattened json (ends up in AbstractBase that does that)
 			if (!ServoyJSONObject.isJavascriptNullOrUndefined(json) && json.has(propertyName))
@@ -315,26 +314,8 @@ public class WebObjectImpl extends WebObjectBasicImpl
 		}
 		else
 		{
-			PropertyDescription propertyDescription = getPropertyDescription();
-			if (propertyDescription != null)
-			{
-				// IMPORTANT if we decide that this method shouldn't affect all json properties and we remove the following code, we have to update code
-				// in CustomJSONObjectTypePropertyController.CustomJSONObjectPropertySource.defaultResetProperty(Object) because underlyingPropertySource.defaultResetProperty(id);
-				// depends on this in the end (the same for WebComponentPropertySource)
-				PropertyDescription childPd = propertyDescription.getProperty(propertyName);
-				if (childPd == null && propertyDescription instanceof WebObjectSpecification)
-				{
-					if (((WebObjectSpecification)propertyDescription).getHandler(propertyName) != null)
-						childPd = ((WebObjectSpecification)propertyDescription).getHandler(propertyName).getAsPropertyDescription();
-				}
-				if (childPd != null)
-				{
-					// it is a json property defined in spec, but it's not mapping to a persist
-					return setOrRemoveJsonSubproperty(propertyName, null, true);
-				}
-			}
+			return setOrRemoveJsonSubproperty(propertyName, null, true);
 		}
-		return false;
 	}
 
 	@Override
@@ -1136,22 +1117,6 @@ public class WebObjectImpl extends WebObjectBasicImpl
 			}
 		}
 		return persistMappedPropetiesByUUID == null ? null : persistMappedPropetiesByUUID.get(childUuid);
-	}
-
-	public static Pair<Integer, UUID> getNewIdAndUUID(IPersist persist)
-	{
-		UUID uuid = UUID.randomUUID();
-		int id;
-		try
-		{
-			id = ((IPersistFactory)((Solution)persist.getAncestor(IRepository.SOLUTIONS)).getRepository()).getNewElementID(uuid);
-		}
-		catch (RepositoryException e)
-		{
-			Debug.error(e);
-			id = 0;
-		}
-		return new Pair<>(Integer.valueOf(id), uuid);
 	}
 
 	private static JSONObject getFullJSONInFrmFile(IBasicWebObject parentWebObject, String jsonKey, int index, boolean isNew)

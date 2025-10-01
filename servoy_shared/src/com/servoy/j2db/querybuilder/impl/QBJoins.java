@@ -19,7 +19,11 @@ package com.servoy.j2db.querybuilder.impl;
 
 import static com.servoy.j2db.util.UUID.randomUUID;
 import static com.servoy.j2db.util.Utils.stream;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.IntStream.range;
 
+import java.util.List;
 import java.util.Map;
 
 import org.mozilla.javascript.NativeJavaMethod;
@@ -39,7 +43,6 @@ import com.servoy.j2db.query.ISQLSelect;
 import com.servoy.j2db.query.ISQLTableJoin;
 import com.servoy.j2db.query.QueryJoin;
 import com.servoy.j2db.query.QuerySelect;
-import com.servoy.j2db.query.QueryTable;
 import com.servoy.j2db.query.TableExpression;
 import com.servoy.j2db.querybuilder.IQueryBuilder;
 import com.servoy.j2db.querybuilder.IQueryBuilderJoin;
@@ -50,6 +53,18 @@ import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.Debug;
 
 /**
+ * <p>The <code>QBJoins</code> class is a utility object designed to manage and configure all join
+ * operations in the <code>QBSelect</code> query builder framework. It provides mechanisms to dynamically
+ * add, modify, and remove joins based on data sources, relations, or subqueries. This flexibility allows
+ * developers to construct queries that incorporate complex table relationships.</p>
+ *
+ * <p>The class supports multiple join types, including <code>INNER JOIN</code> and <code>LEFT OUTER JOIN</code>,
+ * and offers tools to manage unused joins, ensuring optimized query execution. It also integrates
+ * with parent and root query references, allowing for scalable and modular query design.</p>
+ *
+ * <p>For additional guidance on query construction and execution, see the
+ * <a href="https://docs.servoy.com/reference/servoycore/dev-api/database-manager/qbselect">QBSelect documentation</a>.</p>
+ *
  * @author rgansevles
  *
  * @since 6.1
@@ -77,11 +92,28 @@ public class QBJoins extends DefaultJavaScope implements IQueryBuilderJoins
 		QuerySelect query = root.getQuery(false);
 		if (query != null)
 		{
-			stream(query.getJoins())
+			// make sure that joins with the same alias are added with separate names
+			Map<String, List<ISQLTableJoin>> joinsPerName = stream(query.getJoins())
 				.filter(ISQLTableJoin.class::isInstance).map(ISQLTableJoin.class::cast)
 				.filter(queryJoin -> parent.getQueryTable() == queryJoin.getPrimaryTable())
-				.forEach(queryJoin -> allVars.put(queryJoin.getAlias(),
-					new QBJoin(root, parent, queryJoin.getForeignTable().getDataSource(), queryJoin, queryJoin.getAlias())));
+				.collect(groupingBy(join -> join.getAlias() == null ? "" : join.getAlias(), toList()));
+
+			joinsPerName.entrySet().stream().forEach(entry -> {
+				var joins = entry.getValue();
+				var alias = entry.getKey();
+				range(0, joins.size())
+					.forEach(idx -> {
+						var join = joins.get(idx);
+						String name = joins.size() == 1 ? alias : (alias + "_" + (idx + 1));
+						var qbJoin = new QBJoin(root, parent, join.getForeignTable().getDataSource(), join, join.getAlias());
+						allVars.put(name, qbJoin);
+						if (joins.size() > 1 && join.getAlias() != null)
+						{
+							// Also add one of the joins with the original name
+							allVars.put(join.getAlias(), qbJoin);
+						}
+					});
+			});
 		}
 		return true;
 	}
@@ -92,8 +124,10 @@ public class QBJoins extends DefaultJavaScope implements IQueryBuilderJoins
 	 * 	var query = datasources.db.example_data.person.createSelect();
 	 * 	query.where.add(query.joins.person_to_parent.joins.person_to_parent.columns.name.eq('john'))
 	 * 	foundset.loadRecords(query)
+	 *
+	 *  @return the parent table clause for these joins.
 	 */
-	@JSReadonlyProperty
+	@JSReadonlyProperty(debuggerRepresentation = "Query parent part")
 	public QBTableClause getParent()
 	{
 		return parent;
@@ -115,16 +149,23 @@ public class QBJoins extends DefaultJavaScope implements IQueryBuilderJoins
 	 * 		)
 	 *
 	 * 	foundset.loadRecords(query)
+	 *
+	 *  @return the root query builder for these joins.
 	 */
-	@JSReadonlyProperty
+	@JSReadonlyProperty(debuggerRepresentation = "Query root part")
 	public QBSelect getRoot()
 	{
 		return root;
 	}
 
+	/**
+	 *
+	 *  @return an array of QBJoin objects representing all joins in this query.
+	 */
 	@JSFunction
 	public QBJoin[] getJoins()
 	{
+		getIds(); // triggers a fill
 		return allVars.values().toArray(new QBJoin[allVars.size()]);
 	}
 
@@ -203,6 +244,8 @@ public class QBJoins extends DefaultJavaScope implements IQueryBuilderJoins
 	 *  query.joins.removeUnused(false)
 	 *
 	 * @param keepInnerjoins when true inner joins are not removed, inner joins may impact the query result, even when not used
+	 *
+	 *  @return this QBJoins instance after removing unused joins.
 	 */
 	@Override
 	@JSFunction
@@ -242,8 +285,7 @@ public class QBJoins extends DefaultJavaScope implements IQueryBuilderJoins
 					return null;
 				}
 				join = addJoin(SQLGenerator.createJoin(root.getDataProviderHandler(), relation, parent.getQueryTable(),
-					new QueryTable(foreignTable.getSQLName(), foreignTable.getDataSource(), foreignTable.getCatalog(), foreignTable.getSchema(), alias), true,
-					root.getGlobalScopeProvider(), false, name), relation.getForeignDataSource(), name);
+					foreignTable.queryTable(alias), true, root.getGlobalScopeProvider(), false, name), relation.getForeignDataSource(), name);
 			}
 			catch (RepositoryException e)
 			{
@@ -279,6 +321,8 @@ public class QBJoins extends DefaultJavaScope implements IQueryBuilderJoins
 	 *
 	 * @param dataSource data source
 	 * @param joinType join type, one of QBJoin.LEFT_OUTER_JOIN, QBJoin.INNER_JOIN, QBJoin.RIGHT_OUTER_JOIN, QBJoin.FULL_JOIN
+	 *
+	 *  @return a QBJoin object representing the newly added join.
 	 */
 	@JSFunction
 	public QBJoin add(String dataSource, int joinType)
@@ -292,6 +336,8 @@ public class QBJoins extends DefaultJavaScope implements IQueryBuilderJoins
 	 *
 	 * @param dataSourceOrRelation data source
 	 * @param alias the alias for joining table
+	 *
+	 *  @return a QBJoin object representing the newly added join using the given alias.
 	 */
 	@JSFunction
 	public QBJoin add(String dataSourceOrRelation, String alias) throws RepositoryException
@@ -314,6 +360,8 @@ public class QBJoins extends DefaultJavaScope implements IQueryBuilderJoins
 	 * @sampleas add(String, int)
 	 *
 	 * @param dataSource data source
+	 *
+	 *  @return a QBJoin object representing the newly added join with a default join type.
 	 */
 	@JSFunction
 	public QBJoin add(String dataSource)
@@ -323,10 +371,12 @@ public class QBJoins extends DefaultJavaScope implements IQueryBuilderJoins
 
 	/**
 	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderJoins#add(IQueryBuilder, int, String)
-	 * @sampleas add(QBSelect, int, String)
+	 * @sampleas js_add(QBSelect, int, String)
 	 *
 	 * @param subqueryBuilder
 	 * @param joinType
+	 *
+	 *  @return a QBJoin object representing the join added for the specified subquery.
 	 */
 	public QBJoin js_add(QBSelect subqueryBuilder, int joinType)
 	{
@@ -356,6 +406,8 @@ public class QBJoins extends DefaultJavaScope implements IQueryBuilderJoins
 	 * @param subqueryBuilder
 	 * @param joinType
 	 * @param alias
+	 *
+	 *   @return a QBJoin object representing the join added for the specified subquery with the given alias.
 	 */
 	public QBJoin js_add(QBSelect subqueryBuilder, int joinType, String alias)
 	{
@@ -388,6 +440,7 @@ public class QBJoins extends DefaultJavaScope implements IQueryBuilderJoins
 	 * @param joinType join type, one of {@link IQueryBuilderJoin#LEFT_OUTER_JOIN}, {@link IQueryBuilderJoin#INNER_JOIN}, {@link IQueryBuilderJoin#RIGHT_OUTER_JOIN}, {@link IQueryBuilderJoin#FULL_JOIN}
 	 * @param alias the alias for joining table
 	 *
+	 *  @return a QBJoin object representing the newly added join with the specified type and alias.
 	 */
 	@JSFunction
 	public QBJoin add(String dataSource, int joinType, String alias)
@@ -441,7 +494,7 @@ public class QBJoins extends DefaultJavaScope implements IQueryBuilderJoins
 		// not a direct child, try recursive
 		for (QBJoin j : getJoins())
 		{
-			QBTableClause found = ((QBTableClause)j).findQueryBuilderTableClause(tableAlias);
+			QBTableClause found = j.findQueryBuilderTableClause(tableAlias);
 			if (found != null)
 			{
 				return found;

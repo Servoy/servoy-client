@@ -19,6 +19,7 @@ package com.servoy.j2db.server.ngclient.property;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -80,9 +81,9 @@ public class FoundsetTreeTypeSabloValue implements ISmartPropertyValue, TableMod
 	private IFoundSetManagerInternal fsm;
 
 	@Override
-	public void attachToBaseObject(IChangeListener changeMonitor, IWebObjectContext webObjectContext)
+	public void attachToBaseObject(IChangeListener chMonitor, IWebObjectContext webObjectContext)
 	{
-		this.changeMonitor = changeMonitor;
+		this.changeMonitor = chMonitor;
 		this.autorefresh = Utils.getAsBoolean(webObjectContext.getProperty("autoRefresh"));
 		this.fsm = ((IContextProvider)webObjectContext.getUnderlyingWebObject()).getDataConverterContext().getApplication().getFoundSetManager();
 	}
@@ -90,9 +91,13 @@ public class FoundsetTreeTypeSabloValue implements ISmartPropertyValue, TableMod
 	@Override
 	public void detach()
 	{
+		if (fsm == null) return; // it is already detached
+
 		this.changeMonitor = null;
 		this.removeAllRoots();
 		this.bindings.clear();
+
+		this.fsm = null;
 	}
 
 	public void flagChanged()
@@ -113,6 +118,7 @@ public class FoundsetTreeTypeSabloValue implements ISmartPropertyValue, TableMod
 		});
 		this.roots.clear();
 		this.flagChanged();
+		this.parentID = null;
 	}
 
 	public void toJSON(JSONWriter writer, String key, IBrowserConverterContext dataConverterContext) throws IllegalArgumentException, JSONException
@@ -396,11 +402,7 @@ public class FoundsetTreeTypeSabloValue implements ISmartPropertyValue, TableMod
 			for (IFoundSetInternal relatedFoundset : relatedFoundsets)
 			{
 				FoundsetTreeBinding relatedBinding = bindings.get(relatedFoundset.getDataSource());
-				boolean listenerAttached = false;
-				if (relatedBinding.foundsets.contains(relatedFoundset))
-				{
-					listenerAttached = true;
-				}
+				boolean listenerAttached = bindings.values().stream().anyMatch(binding -> binding.foundsets.contains(relatedFoundset));
 				if (listenerAttached)
 				{
 					((ISwingFoundSet)relatedFoundset).removeTableModelListener(this);
@@ -498,17 +500,11 @@ public class FoundsetTreeTypeSabloValue implements ISmartPropertyValue, TableMod
 		return relChildren;
 	}
 
-	/**
-	 * @param selectionPath the selectionPath to set
-	 */
 	public void setSelectionPath(Object[] selectionPath)
 	{
 		this.selectionPath = selectionPath;
 	}
 
-	/**
-	 * @return the selectionPath
-	 */
 	public Object[] getSelectionPath()
 	{
 		return selectionPath;
@@ -603,11 +599,6 @@ public class FoundsetTreeTypeSabloValue implements ISmartPropertyValue, TableMod
 		}
 	}
 
-	/**
-	 * @param string
-	 * @param objects
-	 * @param boolean1
-	 */
 	public void updateCheckBoxValues(String datasource, Object[] pks, Boolean checked)
 	{
 		if (this.initialized)
@@ -620,7 +611,7 @@ public class FoundsetTreeTypeSabloValue implements ISmartPropertyValue, TableMod
 		FoundsetTreeBinding binding = bindings.get(datasource);
 		if (binding != null)
 		{
-			List<Object> values = new ArrayList(Arrays.asList(binding.checkboxValues));
+			List<Object> values = new ArrayList(binding.checkboxValues != null ? Arrays.asList(binding.checkboxValues) : Collections.emptyList());
 			if (checked)
 			{
 				for (Object pk : pks)
@@ -668,7 +659,7 @@ public class FoundsetTreeTypeSabloValue implements ISmartPropertyValue, TableMod
 		if (this.autorefresh && this.initialized)
 		{
 			IFoundSetInternal foundset = (IFoundSetInternal)e.getSource();
-			if (foundset instanceof RelatedFoundSet)
+			if (foundset instanceof RelatedFoundSet && !this.roots.contains(foundset))
 			{
 				List<IRecordInternal> parentRecords = ((RelatedFoundSet)foundset).getParents();
 				if (parentRecords != null && parentRecords.size() > 0)
@@ -706,10 +697,6 @@ public class FoundsetTreeTypeSabloValue implements ISmartPropertyValue, TableMod
 
 	}
 
-	/**
-	 * @param number
-	 * @param boolean1
-	 */
 	public void setLevelVisibility(Number level, Boolean visibility)
 	{
 		this.levelVisible = level.intValue();

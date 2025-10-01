@@ -22,8 +22,32 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 
 /**
- * Helper class for easier documentation of our JavaScript API for globals.
- * 
+ * <p>
+ * The <code>globals</code> object represents the original global scope in Servoy, used to store global
+ * variables, methods, and relations. Historically, it was the only global scope available before the
+ * introduction of multiple global scopes via <code>scopes.myScopeName</code>. Although still functional,
+ * its usage has been largely superseded by the more flexible and modular <code>scopes</code> mechanism.
+ * </p>
+ *
+ * <h2>Key Features</h2>
+ * <ul>
+ *   <li>
+ *     Provides access to all global variables (<code>allvariables</code>), methods (<code>allmethods</code>),
+ *     and relations (<code>allrelations</code>) defined in the solution. These are now deprecated in favor
+ *     of more specific solution model methods like
+ *     <code>solutionModel.getGlobalVariables(scopeName)</code>.
+ *   </li>
+ *   <li>
+ *     Includes support for the <code>currentcontroller</code>, which references the controller of the
+ *     top-level form in the active dialog.
+ *   </li>
+ * </ul>
+ *
+ * <p>
+ * The <code>globals</code> object remains part of the runtime for legacy support but encourages migration
+ * to the <code>scopes</code> API for modern solutions.
+ * </p>
+ *
  * @author gerzse
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "Globals", scriptingName = "globals")
@@ -32,13 +56,13 @@ public class Globals
 {
 	/**
 	 * Get all script names of this global scope.
-	 * 
+	 *
 	 * @sample
 	 * var allMethodNames = scopes.globals.allmethods;
 	 * application.output("There are " + allMethodNames.length + " global methods.");
 	 * for (var i=0; i<allMethodNames.length; i++)
 	 * 	application.output(allMethodNames[i]);
-	 *  
+	 *
 	 * @special
 	 * @deprecated use solutionModel.getGlobalMethods("scopeName") instead;
 	 * an exact replacement, if you need it would be 'solutionModel.getGlobalMethods("scopeName").map(function (jsMethod) { return jsMethod.getName() } )'.
@@ -52,13 +76,13 @@ public class Globals
 
 	/**
 	 * Get all variable names of this global scope.
-	 * 
+	 *
 	 * @sample
 	 * var allVarNames = scopes.globals.allvariables;
 	 * application.output("There are " + allVarNames.length + " global variables.");
 	 * for (var i=0; i<allVarNames.length; i++)
 	 * 	application.output(allVarNames[i]);
-	 * 
+	 *
 	 * @special
 	 * @deprecated use solutionModel.getGlobalVariables("scopeName") instead;
 	 * an exact replacement, if you need it would be 'solutionModel.getGlobalVariables("scopeName").map(function (jsVariable) { return jsVariable.name } )'.
@@ -72,13 +96,13 @@ public class Globals
 
 	/**
 	 * Get all global relation names of the current solution.
-	 * 
+	 *
 	 * @sample
 	 * var allRelationNames = scopes.globals.allrelations;
 	 * application.output("There are " + allRelationNames.length + " global relations.");
 	 * for (var i=0; i<allRelationNames.length; i++)
 	 * 	application.output(allRelationNames[i]);
-	 * 
+	 *
 	 * @special
 	 * @deprecated use solutionModel.getRelations(null) instead;
 	 * an exact replacement, if you need it would be 'solutionModel.getRelations(null).map(function (jsRelation) { return jsRelation.name } )'.
@@ -92,9 +116,9 @@ public class Globals
 
 	/**
 	 * Get the controller of the top level form in the currently active dialog.
-	 * 
+	 *
 	 * @sample application.output("Current controller is: " + currentcontroller.getName());
-	 * 
+	 *
 	 * @deprecated use forms.myform.controller instead, currentcontroller usage can be confusing when using multiple windows
 	 */
 	@Deprecated

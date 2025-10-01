@@ -28,10 +28,30 @@ import com.servoy.j2db.util.UUID;
 
 
 /**
- * A part is a section from a Form, which can be used in reporting to aggregate data
+ * <p>The <code>Part</code> class represents a section of a form used for reporting and data aggregation.
+ * It allows for customizing the layout and behavior of different parts within the form, including setting
+ * the height, background, and part type (e.g., <code>HEADER</code>, <code>BODY</code>, <code>FOOTER</code>).
+ * The class provides methods to control the flow of content across pages, such as handling page breaks with
+ * <code>getPageBreakBefore()</code> and <code>getPageBreakAfterOccurrence()</code>, as well as managing
+ * whether content can be broken across page boundaries using <code>getAllowBreakAcrossPageBounds()</code>.</p>
+ *
+ * <p>The class also supports dynamically grouping data, particularly useful for <code>LeadingSubsummary</code>
+ * and <code>TrailingSubsummary</code> parts, with functionality to set and retrieve <code>groupByDataProviderIDs</code>.
+ * Additionally, it allows you to define whether parts should restart page numbering or sink to the bottom of a page
+ * using methods like <code>getRestartPageNumber()</code> and <code>getSinkWhenLast()</code>.</p>
+ *
+ * <p>For layout management, <code>Part</code> includes features to define its size with <code>getSize()</code> and
+ * <code>setSize()</code>, along with the ability to manage style through <code>getStyleClass()</code> and
+ * <code>setStyleClass()</code>. The class can also handle properties like <code>ExtendsID</code>
+ * with methods such as <code>getExtendsID()</code> and <code>setExtendsID()</code>.</p>
+ *
+ * <p>In essence, the <code>Part</code> class offers comprehensive support for building and customizing complex report
+ * sections within the Servoy environment,providing control over layout, data grouping, and pagination.</p>
  *
  * @author jblok
+ * @deprecated
  */
+@Deprecated
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME, typeCode = IRepository.PARTS)
 @ServoyClientSupport(mc = false, wc = true, sc = true)
 public class Part extends AbstractBase implements ISupportSize, IPersistCloneable, ICloneable, ISupportExtendsID, IBasePart
@@ -58,9 +78,9 @@ public class Part extends AbstractBase implements ISupportSize, IPersistCloneabl
 	/**
 	 * Constructor I
 	 */
-	Part(ISupportChilds parent, int element_id, UUID uuid)
+	Part(ISupportChilds parent, UUID uuid)
 	{
-		super(IRepository.PARTS, parent, element_id, uuid);
+		super(IRepository.PARTS, parent, uuid);
 	}
 
 	/*
@@ -424,14 +444,14 @@ public class Part extends AbstractBase implements ISupportSize, IPersistCloneabl
 		return prevPart;
 	}
 
-	public int getExtendsID()
+	public String getExtendsID()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_EXTENDSID).intValue();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_EXTENDSID);
 	}
 
-	public void setExtendsID(int arg)
+	public void setExtendsID(String uuid)
 	{
-		setTypedProperty(StaticContentSpecLoader.PROPERTY_EXTENDSID, arg);
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_EXTENDSID, uuid);
 	}
 
 	@ServoyClientSupport(mc = true, wc = true, sc = true)

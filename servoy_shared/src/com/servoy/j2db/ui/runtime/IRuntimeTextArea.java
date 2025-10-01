@@ -19,10 +19,11 @@ package com.servoy.j2db.ui.runtime;
 import com.servoy.j2db.documentation.ServoyDocumented;
 
 /**
- * Runtime methods for RuntimeTextArea
- * 
+ * The <code>IRuntimeTextArea</code> interface supports scripting for runtime text area components in Servoy,
+ * offering input, text handling, read-only mode, scrolling, and placeholder functionalities.
+ *
  * @author rgansevles
- * 
+ *
  * @since 6.1
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "RuntimeTextArea", extendsComponent = "RuntimeComponent")

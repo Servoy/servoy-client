@@ -18,23 +18,37 @@
 package com.servoy.j2db.server.ngclient.component;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.mozilla.javascript.BaseFunction;
+import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.ScriptableObject;
+import org.mozilla.javascript.json.JsonParser;
 import org.sablo.WebComponent;
 import org.sablo.specification.IFunctionParameters;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebObjectFunctionDefinition;
 import org.sablo.specification.WebObjectSpecification.PushToServerEnum;
 import org.sablo.specification.property.BrowserConverterContext;
+import org.sablo.specification.property.IPropertyConverterForBrowser;
+import org.sablo.specification.property.IPropertyType;
+import org.sablo.specification.property.types.TypesRegistry;
 import org.sablo.util.ValueReference;
 import org.sablo.websocket.utils.JSONUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.servoy.base.persistence.constants.IContentSpecConstantsBase;
 import com.servoy.base.scripting.api.IJSEvent;
+import com.servoy.j2db.dataprocessing.FoundSet;
+import com.servoy.j2db.dataprocessing.IFoundSet;
 import com.servoy.j2db.dataprocessing.IRecord;
 import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.BaseComponent;
@@ -47,10 +61,14 @@ import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.scripting.FormScope;
 import com.servoy.j2db.scripting.GlobalScope;
 import com.servoy.j2db.scripting.JSEvent;
+import com.servoy.j2db.server.ngclient.INGApplication;
 import com.servoy.j2db.server.ngclient.IWebFormController;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.property.types.JSEventType;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions;
+import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
+import com.servoy.j2db.server.ngclient.property.types.NGCustomJSONObjectType;
+import com.servoy.j2db.server.ngclient.property.types.RecordPropertyType;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Utils;
 
@@ -61,6 +79,8 @@ import com.servoy.j2db.util.Utils;
  */
 public class EventExecutor
 {
+	public static final Logger EVENT_TRACING_LOG = LoggerFactory.getLogger("com.servoy.event.tracing");
+
 	private final IWebFormController formController;
 
 	public EventExecutor(IWebFormController formController)
@@ -68,16 +88,16 @@ public class EventExecutor
 		this.formController = formController;
 	}
 
-	public Object executeEvent(WebComponent component, String eventType, int eventId, Object[] eventArgs)
+	public Object executeEvent(WebComponent component, String eventType, String eventUUID, Object[] eventArgs)
 	{
 		Scriptable scope = null;
 		Function f = null;
 
 		Object[] newargs = eventArgs != null ? Arrays.copyOf(eventArgs, eventArgs.length) : null;
 
-		if (eventId > 0)
+		if (eventUUID != null)
 		{
-			ScriptMethod scriptMethod = formController.getApplication().getFlattenedSolution().getScriptMethod(eventId);
+			ScriptMethod scriptMethod = formController.getApplication().getFlattenedSolution().getScriptMethod(eventUUID);
 			if (scriptMethod != null)
 			{
 				if (scriptMethod.getParent() instanceof Form)
@@ -121,34 +141,101 @@ public class EventExecutor
 				}
 				if (f == null)
 				{
-					Debug.error("No function found for " + scriptMethod + " when trying to execute the event " + eventType + '(' + eventId + //$NON-NLS-1$ //$NON-NLS-2$
+					Debug.error("No function found for " + scriptMethod + " when trying to execute the event " + eventType + '(' + eventUUID + //$NON-NLS-1$ //$NON-NLS-2$
 						") of component: " + component, new RuntimeException()); //$NON-NLS-1$
 					return null;
 				}
 			}
 			else
 			{
-				Debug.warn("Couldn't find the ScriptMethod for event: " + eventType + " with event id: " + eventId + " to execute for component " + component);
+				Debug.warn(
+					"Couldn't find the ScriptMethod for event: " + eventType + " with event uuid: " + eventUUID + " to execute for component " + component);
 			}
 		}
 		if (formController.isInFindMode() && !Utils.getAsBoolean(f.get("_AllowToRunInFind_", f))) return null; //$NON-NLS-1$
 
 		if (newargs != null)
 		{
+			WebObjectFunctionDefinition propertyDesc = component.getSpecification().getHandler(eventType);
+			IFunctionParameters parameters = propertyDesc.getParameters();
+
 			for (int i = 0; i < newargs.length; i++)
 			{
-				if (newargs[i] instanceof JSONObject && "event".equals(((JSONObject)newargs[i]).optString("type")))
+				boolean isEvent = false;
+				final NGCustomJSONObjectType< ? , ? , ? > subEventType[] = { null };
+
+				if (newargs[i] instanceof JSONObject)
+				{
+					isEvent = "event".equals(((JSONObject)newargs[i]).optString("type"));
+					if (!isEvent && i < parameters.getDefinedArgsCount())
+					{
+						PropertyDescription parameterPropertyDescription = parameters.getParameterDefinition(i);
+						if (parameterPropertyDescription.getType() instanceof NGCustomJSONObjectType &&
+							JSEvent.class.getSimpleName().equals(((NGCustomJSONObjectType< ? , ? , ? >)parameterPropertyDescription.getType()).getExtends()))
+						{
+							subEventType[0] = (NGCustomJSONObjectType< ? , ? , ? >)parameterPropertyDescription.getType();
+						}
+					}
+				}
+
+				if (isEvent || subEventType[0] != null)
 				{
 					// FIXME I think (but we must check how existing things work to not break stuff) that this
 					// whole if branch can be a part of the JSEventType class that could implement IServerRhinoToRhino conversion;
 					// and this conversion has to be done before this method is even called... see SVY-18096
 
-					JSONObject json = (JSONObject)newargs[i];
-					JSEvent event = new JSEvent();
-					JSEventType.fillJSEvent(event, json, component, formController);
+					final JSONObject json = (JSONObject)newargs[i];
+					final JSEvent event = new JSEvent();
+					JSEventType.fillJSEvent(event, subEventType[0] != null ? json.getJSONObject(NGCustomJSONObjectType.getValueKey()) : json, component,
+						formController);
 					event.setType(getEventType(eventType));
 					event.setName(RepositoryHelper.getDisplayName(eventType, BaseComponent.class));
-					newargs[i] = event;
+
+					if (subEventType[0] != null)
+					{
+						Context cx = Context.enter();
+						try
+						{
+							Object object = new JsonParser(cx, scope).parseValue(json.get(NGCustomJSONObjectType.getValueKey()).toString());
+							if (object instanceof Scriptable s)
+							{
+								s.setPrototype(cx.getWrapFactory().wrapAsJavaObject(cx, scope, event, JSEvent.class));
+								// Define a toString function on the Scriptable object
+								ScriptableObject.putProperty(s, "toString", new BaseFunction() //$NON-NLS-1$
+								{
+									@Override
+									public Object call(Context _cx, Scriptable _scope, Scriptable thisObj, Object[] args)
+									{
+										HashMap<String, Object> customProperties = new HashMap<String, Object>();
+
+										Object values = json.get(NGCustomJSONObjectType.getValueKey());
+										if (values instanceof JSONObject)
+										{
+											for (Map.Entry<String, PropertyDescription> prop : subEventType[0].getCustomJSONTypeDefinition().getProperties()
+												.entrySet())
+											{
+												customProperties.put(prop.getKey(), ((JSONObject)values).opt(prop.getKey()));
+											}
+										}
+										return event.toString(subEventType[0].getName(), customProperties);
+									}
+								});
+							}
+							newargs[i] = object;
+						}
+						catch (Exception ex)
+						{
+							Debug.log(ex);
+						}
+						finally
+						{
+							Context.exit();
+						}
+					}
+					else
+					{
+						newargs[i] = event;
+					}
 				}
 				else if (newargs[i] == JSONObject.NULL)
 				{
@@ -160,17 +247,54 @@ public class EventExecutor
 					// and this conversion has to be done before this method is even called... see SVY-18096
 
 					// try to convert the received arguments
-					WebObjectFunctionDefinition propertyDesc = component.getSpecification().getHandler(eventType);
-					IFunctionParameters parameters = propertyDesc.getParameters();
 					if (i < parameters.getDefinedArgsCount())
 					{
 						PropertyDescription parameterPropertyDescription = parameters.getParameterDefinition(i);
-
-
 						ValueReference<Boolean> returnValueAdjustedIncommingValueForIndex = new ValueReference<Boolean>(Boolean.FALSE);
-						newargs[i] = NGConversions.INSTANCE.convertSabloComponentToRhinoValue(JSONUtils.fromJSON(null, newargs[i], parameterPropertyDescription,
-							new BrowserConverterContext(component, PushToServerEnum.allow), returnValueAdjustedIncommingValueForIndex),
-							parameterPropertyDescription, component, scope);
+						if (newargs[i] instanceof JSONObject jsonValue && jsonValue.has("svyType"))
+						{
+							String typeHint = jsonValue.optString("svyType", null); //$NON-NLS-1$
+							if (typeHint != null)
+							{
+								IPropertyType< ? > propertyType = TypesRegistry.getType(typeHint);
+								if (propertyType instanceof IPropertyConverterForBrowser< ? > propertyConverter)
+								{
+									newargs[i] = propertyConverter.fromJSON(newargs[i], null, parameterPropertyDescription,
+										new BrowserConverterContext(component, PushToServerEnum.allow), returnValueAdjustedIncommingValueForIndex);
+									if (propertyType instanceof ISabloComponentToRhino rhinoConverter)
+									{
+										newargs[i] = rhinoConverter.toRhinoValue(newargs[i], parameterPropertyDescription, component, scope);
+									}
+									else
+									{
+										newargs[i] = RhinoConversion.defaultToRhino(newargs[i], parameterPropertyDescription, component, scope);
+									}
+								}
+							}
+						}
+						else
+						{
+							newargs[i] = NGConversions.INSTANCE.convertSabloComponentToRhinoValue(
+								JSONUtils.fromJSON(null, newargs[i], parameterPropertyDescription,
+									new BrowserConverterContext(component, PushToServerEnum.allow), returnValueAdjustedIncommingValueForIndex),
+								parameterPropertyDescription, component, scope);
+						}
+						if (parameterPropertyDescription.getType() == RecordPropertyType.INSTANCE &&
+							parameterPropertyDescription.getTag("skipCallIfNotSelected") instanceof Boolean &&
+							((Boolean)parameterPropertyDescription.getTag("skipCallIfNotSelected")).booleanValue())
+						{
+							if (newargs[i] == null) return null;
+							IRecord recordArg = (IRecord)newargs[i];
+							IFoundSet foundset = recordArg.getParentFoundSet();
+							if (!foundset.isMultiSelect() && foundset instanceof FoundSet)
+							{
+								FoundSet foundsetObj = (FoundSet)foundset;
+								if (!recordArg.equals(foundsetObj.getSelectedRecord()))
+								{
+									return null;
+								}
+							}
+						}
 					}
 					//TODO? if in propertyDesc.getAsPropertyDescription().getConfig() we have  "type":"${dataproviderType}" and parameterPropertyDescription.getType() is Object
 					//then get the type from the dataprovider and try to convert the json to that type instead of simply object
@@ -203,6 +327,20 @@ public class EventExecutor
 					}
 				}
 			}
+		}
+
+		if (EVENT_TRACING_LOG.isTraceEnabled())
+		{
+			INGApplication application = formController.getApplication();
+			Object[] tenantValue = application.getScriptEngine().getJSSecurity().getTenantValue();
+			String argsAsString = Arrays.asList(newargs).stream()
+				.map(value -> value instanceof JSEvent ? "JSEvent" //$NON-NLS-1$
+					: value instanceof Record ? "JSRecord" //$NON-NLS-1$
+						: value instanceof String str && str.length() > 30 ? str.substring(0, 30)
+							: value instanceof Scriptable s ? Utils.getScriptableString(s) : String.valueOf(value))
+				.collect(Collectors.joining(",")); //$NON-NLS-1$
+			EVENT_TRACING_LOG.trace(application.getUserUID() + '|' + application.getClientID() + '|' + Arrays.toString(tenantValue) + '|' +
+				application.getSolutionName() + '|' + formController.getName() + '|' + component.getName() + '|' + eventType + '|' + argsAsString);
 		}
 
 		try

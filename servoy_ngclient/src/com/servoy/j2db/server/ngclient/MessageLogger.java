@@ -17,13 +17,13 @@
 
 package com.servoy.j2db.server.ngclient;
 
-import javax.websocket.Session;
-
 import org.sablo.websocket.IMessageLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.servoy.j2db.dataprocessing.ClientInfo;
+
+import jakarta.websocket.Session;
 
 /**
  * @author jcompagner

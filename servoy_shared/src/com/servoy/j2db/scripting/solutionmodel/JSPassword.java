@@ -23,10 +23,11 @@ import com.servoy.j2db.solutionmodel.ISMPassword;
 
 /**
  * Solution model password field component.
- * 
+ *
  * @author rgansevles
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
+@Deprecated
 public class JSPassword extends JSField implements ISMPassword
 {
 	public JSPassword(IJSParent< ? > parent, Field field, IApplication application, boolean isNew)

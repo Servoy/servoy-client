@@ -21,8 +21,9 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 
 /**
- * Helper class for easier documentation of our JavaScript API for forms.
- *
+ * <p>
+ * The <code>RuntimeContainers</code> class provides access to all available layout containers in a form when the form is using <code>advanced</code> or <code>responsive</code> layout.
+ * The <code>containers</code> property is a top-level runtime property that allows interaction with layout containers by their names. </p>
  * @author jcompagner
  * @since 2019.12
  */
@@ -32,7 +33,7 @@ public class RuntimeContainers
 {
 
 	/**
-	 * Get an element of the form by its name.
+	 * Get an layout container of the form by its name.
 	 *
 	 * @sample
 	 * 	%%prefix%%containers.name.addStyleClasses("class1");

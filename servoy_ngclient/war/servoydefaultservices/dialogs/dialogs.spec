@@ -3,6 +3,7 @@
 	"displayName": "Servoy Dialogs plugin",
 	"version": 1,
 	"definition": "servoydefaultservices/dialogs/dialogs.js",
+    "doc": "servoydefaultservices/dialogs/dialogs_doc.js",
 	 "ng2Config": {
        "packageName": "@servoy/dialogs",
        "moduleName": "DialogModule",
@@ -84,9 +85,9 @@
 
 				{
 					"name": "dialogMessage",
-					"type": "string"
+					"type": "string",
+                    "optional": "true"
 				},
-
 				{
 					"name": "buttonsText",
 					"type": "string...",
@@ -115,6 +116,12 @@
 
 				{
 					"name": "initialValue",
+					"type": "string",
+					"optional": "true"
+				},
+
+				{
+					"name": "inputType",
 					"type": "string",
 					"optional": "true"
 				}

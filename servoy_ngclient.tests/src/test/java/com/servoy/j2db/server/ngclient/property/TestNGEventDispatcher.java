@@ -25,7 +25,6 @@ import com.servoy.j2db.server.ngclient.endpoint.NGClientEndpoint;
 
 /**
  * @author acostescu
- *
  */
 public class TestNGEventDispatcher implements IEventDispatcher
 {
@@ -105,6 +104,12 @@ public class TestNGEventDispatcher implements IEventDispatcher
 
 	@Override
 	public void postEvent(Runnable event)
+	{
+		event.run();
+	}
+
+	@Override
+	public void postEvent(Runnable event, int eventLevel)
 	{
 		event.run();
 	}

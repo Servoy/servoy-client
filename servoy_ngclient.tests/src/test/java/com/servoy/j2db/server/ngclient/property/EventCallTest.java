@@ -61,14 +61,15 @@ public class EventCallTest extends AbstractSolutionTest
 	protected void fillTestSolution() throws ServoyException
 	{
 		Form form = solution.createNewForm(validator, null, "test", null, false, new Dimension(600, 400));
-		form.setNavigatorID(-1);
+		form.setNavigatorID(Form.NAVIGATOR_NONE);
 		form.createNewScriptVariable(DummyValidator.INSTANCE, "testVar", IColumnTypes.INTEGER);
 		GraphicalComponent button = form.createNewGraphicalComponent(new Point(10, 10));
+		button.setName("svy_3");
 		button.setShowClick(true);
 		button.setShowFocus(true);
 		ScriptMethod sm = form.createNewScriptMethod(DummyValidator.INSTANCE, "test");
 		sm.setDeclaration("function test() {testVar = 10}");
-		button.setOnActionMethodID(sm.getID());
+		button.setOnActionMethodID(sm.getUUID().toString());
 
 		form.createNewScriptVariable(DummyValidator.INSTANCE, "testVar2", IColumnTypes.TEXT);
 		GraphicalComponent button2 = form.createNewGraphicalComponent(new Point(10, 10));
@@ -77,7 +78,7 @@ public class EventCallTest extends AbstractSolutionTest
 		button2.setShowFocus(true);
 		ScriptMethod sm2 = form.createNewScriptMethod(DummyValidator.INSTANCE, "test2");
 		sm2.setDeclaration("function test2() {testVar2 = elements['" + uuid + "'].getName()}");
-		button2.setOnActionMethodID(sm2.getID());
+		button2.setOnActionMethodID(sm2.getUUID().toString());
 
 	}
 

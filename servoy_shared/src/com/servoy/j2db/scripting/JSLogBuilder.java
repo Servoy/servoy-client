@@ -24,11 +24,18 @@ import org.mozilla.javascript.UniqueTag;
 import org.mozilla.javascript.annotations.JSFunction;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
+import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Utils;
 
 /**
- * Object for constructing log events before logging them. Instances of JSLogBuilder should only be created
- * by calling one of the JSLogger methods that return a JSLogBuilder.
+ * The <code>JSLogBuilder</code> class facilitates constructing and logging events with support for exceptions and
+ * parameterized messages. It integrates with the logging framework and is instantiated through <code>JSLogger</code> methods.
+ * The class supports adding exceptions to log events, including <code>Throwable</code> and JavaScript's <code>NativeError</code>.
+ * Developers can log messages with or without additional parameters, using flexible formatting.
+ *
+ * When handling <code>NativeError</code> objects, it extracts properties like name, message, and stack trace for inclusion
+ * in the log. Additionally, it provides functionality to log events without a message, making it suitable for error-only
+ * logging scenarios. The logging level is preserved as part of the instance for potential configuration or usage.
  *
  * @author jdejong
  *
@@ -97,6 +104,10 @@ public class JSLogBuilder
 			if (errorMsg == null || errorMsg instanceof UniqueTag) errorMsg = "";
 			else errorMsg = "\t" + errorMsg + "\n";
 			msg += "\n" + name + errorMsg + nativeError.getStackDelegated();
+		}
+		else if (logLevel.isMoreSpecificThan(Level.WARN))
+		{
+			msg += Debug.getScriptStackTrace(msg, null);
 		}
 		this.builder.log(msg, params);
 		nativeError = null;

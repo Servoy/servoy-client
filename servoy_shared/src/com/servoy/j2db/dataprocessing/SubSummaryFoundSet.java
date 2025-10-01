@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.servoy.j2db.persistence.AggregateVariable;
 import com.servoy.j2db.persistence.Column;
@@ -75,10 +76,7 @@ public class SubSummaryFoundSet implements IFoundSetInternal
 		sheet.setDataProviderIDsColumnMap(columnIndexes);
 	}
 
-	/**
-	 * @see com.servoy.j2db.dataprocessing.IFireCollectable#completeFire(java.util.List)
-	 */
-	public void completeFire(Map<IRecord, List<String>> entries)
+	public void completeFire(Map<IRecord, Set<String>> entries)
 	{
 	}
 
@@ -233,7 +231,7 @@ public class SubSummaryFoundSet implements IFoundSetInternal
 		// ignore
 	}
 
-	public void deleteAllInternal() throws ServoyException
+	public void deleteAllInternal(IDeleteTrigger deleteTrigger) throws ServoyException
 	{
 		// ignore
 	}
@@ -383,9 +381,10 @@ public class SubSummaryFoundSet implements IFoundSetInternal
 	 *
 	 * @param selectedRow The selectedRow to set
 	 */
-	public void setSelectedIndex(int selectedRow)
+	public boolean setSelectedIndex(int selectedRow)
 	{
 		// ignore
+		return true;
 	}
 
 	@Override
@@ -646,9 +645,10 @@ public class SubSummaryFoundSet implements IFoundSetInternal
 	}
 
 	@Override
-	public void setSelectedIndexes(int[] indexes)
+	public boolean setSelectedIndexes(int[] indexes)
 	{
 		// ignore
+		return true;
 	}
 
 	@Override
@@ -697,4 +697,11 @@ public class SubSummaryFoundSet implements IFoundSetInternal
 	{
 		return null;
 	}
+
+	@Override
+	public void fireFoundSetEvent(int firstRow, int lastRow, int changeType, Set<String> dataproviders)
+	{
+		// not used, because completeFire() default impl. was overriden with an empty method
+	}
+
 }

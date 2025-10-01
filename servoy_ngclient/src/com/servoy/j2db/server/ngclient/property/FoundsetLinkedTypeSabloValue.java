@@ -52,7 +52,6 @@ import com.servoy.j2db.server.ngclient.property.types.IDataLinkedType.TargetData
 import com.servoy.j2db.server.ngclient.property.types.ISupportTemplateValue;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions;
 import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -207,6 +206,19 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 		return null;
 	}
 
+	public int getRecordIndexHint()
+	{
+		if (webObjectContext != null)
+		{
+			Object property = webObjectContext.getProperty(forFoundsetPropertyName);
+			if (property instanceof FoundsetTypeSabloValue)
+			{
+				return ((FoundsetTypeSabloValue)property).getRecordIndexHint();
+			}
+		}
+		return 0; // we no longer send index hint to client; if we don't have a FoundsetTypeSabloValue use 0 as hint, but this should not happen
+	}
+
 	public IFoundSetInternal getFoundset()
 	{
 		if (webObjectContext != null)
@@ -236,7 +248,7 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 			@Override
 			public void propertyChange(PropertyChangeEvent evt)
 			{
-				attachToBaseObject(monitor, webObjectCntxt);
+				attachToBaseObject(monitor, webObjectCntxt); // it does "detach" first at the beginning of attachToBaseObject anyway, that is why we don't call detach here
 			}
 		});
 
@@ -340,6 +352,8 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 	@Override
 	public void detach()
 	{
+		if (webObjectContext == null) return; // it is already detached
+
 		// this wrapped detach() should normally trigger unregister idForFoundset and remove viewPortChangeMonitor as well if needed - in dataLinkedPropertyUnregistered() below
 		if (wrappedSabloValue instanceof IDataLinkedPropertyValue) ((IDataLinkedPropertyValue)wrappedSabloValue).detach();
 		if (wrappedSabloValue instanceof IHasUnderlyingState)
@@ -365,7 +379,7 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 
 			if (dataLinkedPropertyRegistrationListener != null)
 			{
-				dal.removeDataLinkedPropertyRegistrationListener(dataLinkedPropertyRegistrationListener);
+				if (dal != null) dal.removeDataLinkedPropertyRegistrationListener(dataLinkedPropertyRegistrationListener);
 				dataLinkedPropertyRegistrationListener = null;
 			}
 		}
@@ -575,11 +589,12 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 		// in attachToBaseObject we didn't even call then attach for the wrapped sablo value so, to avoid exceptions, fullToJSON will just send null single value to client
 		if (getFoundsetValue() == null) return fullToJSON(writer, key, wrappedPropertyDescription, dataConverterContext);
 
-		JSONUtils.addKeyIfPresent(writer, key);
+		boolean somethingWasWritten = false;
 
-		writer.object();
 		if (idForFoundsetChanged)
 		{
+			somethingWasWritten = startContentWithObjectIfNeeded(writer, key, somethingWasWritten);
+
 			writer.key(ID_FOR_FOUNDSET).value(idForFoundset == null ? JSONObject.NULL : idForFoundset);
 			idForFoundsetChanged = false;
 		}
@@ -592,6 +607,7 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 
 			if (wrappedJSONValue != null)
 			{
+				somethingWasWritten = startContentWithObjectIfNeeded(writer, key, somethingWasWritten);
 				writer.key(FoundsetLinkedPropertyType.SINGLE_VALUE_UPDATE).value(wrappedJSONValue);
 				if (wrappedJSONValue.getClientSideType() != null) writer.key(JSONUtils.CONVERSION_CL_SIDE_TYPE_KEY).value(wrappedJSONValue.getClientSideType());
 			}
@@ -602,11 +618,13 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 
 			if (viewPortChangeMonitor.shouldSendWholeViewport())
 			{
+				somethingWasWritten = startContentWithObjectIfNeeded(writer, key, somethingWasWritten);
 				viewPortChangeMonitor.clearChanges();
 				writeWholeViewportToJSON(writer);
 			}
 			else if (viewPortChangeMonitor.hasViewportChanges())
 			{
+				somethingWasWritten = startContentWithObjectIfNeeded(writer, key, somethingWasWritten);
 				writer.key(FoundsetLinkedPropertyType.VIEWPORT_VALUE_UPDATE);
 
 				ArrayOperation[] viewPortChanges = viewPortChangeMonitor.getViewPortChanges();
@@ -624,9 +642,19 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 
 			viewPortChangeMonitor.doneWritingChanges();
 		}
-		writer.endObject();
+		if (somethingWasWritten) writer.endObject();
 
 		return writer;
+	}
+
+	private boolean startContentWithObjectIfNeeded(JSONWriter writer, String key, boolean somethingWasWritten)
+	{
+		if (!somethingWasWritten)
+		{
+			JSONUtils.addKeyIfPresent(writer, key);
+			writer.object();
+		}
+		return true;
 	}
 
 	public void browserUpdatesReceived(Object newJSONValue, PropertyDescription wrappedPropertyDescription, PropertyDescription pd,
@@ -734,11 +762,9 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 	{
 		IFoundSetInternal foundset = foundsetPropertyValue.getFoundset();
 
-		Pair<String, Integer> splitHashAndIndex = FoundsetTypeSabloValue.splitPKHashAndIndex(rowIDValue);
-
 		if (foundset != null)
 		{
-			int recordIndex = foundset.getRecordIndex(splitHashAndIndex.getLeft(), splitHashAndIndex.getRight().intValue());
+			int recordIndex = foundset.getRecordIndex(rowIDValue, foundsetPropertyValue.getRecordIndexHint());
 
 			if (recordIndex != -1)
 			{

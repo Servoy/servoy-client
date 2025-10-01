@@ -66,7 +66,7 @@ public class CSSPositionPropertyType extends DefaultPropertyType<CSSPosition>
 	public static final CSSPositionPropertyType INSTANCE = new CSSPositionPropertyType();
 	public static final String TYPE_NAME = "CSSPosition";
 
-	protected CSSPositionPropertyType()
+	private CSSPositionPropertyType()
 	{
 	}
 
@@ -139,10 +139,10 @@ public class CSSPositionPropertyType extends DefaultPropertyType<CSSPosition>
 	private JSONWriter toJSON(JSONWriter writer, String key, CSSPosition object, PropertyDescription pd, FormElement formElement, FlattenedSolution fs,
 		Form context) throws JSONException
 	{
-		JSONUtils.addKeyIfPresent(writer, key);
-		writer.object();
 		if (object != null)
 		{
+			JSONUtils.addKeyIfPresent(writer, key);
+			writer.object();
 			writer.key("position").value("absolute");
 
 			String top = object.top;
@@ -161,7 +161,7 @@ public class CSSPositionPropertyType extends DefaultPropertyType<CSSPosition>
 					{
 						if (isSet(top))
 						{
-							int topStart = form.getPartStartYPos(part.getID());
+							int topStart = form.getPartStartYPos(part.getUUID().toString());
 							if (topStart > 0)
 							{
 								if (top.endsWith("px"))
@@ -223,8 +223,8 @@ public class CSSPositionPropertyType extends DefaultPropertyType<CSSPosition>
 				}
 				else writer.key("width").value(addPixels(object.width));
 			}
+			writer.endObject();
 		}
-		writer.endObject();
 		return writer;
 	}
 
@@ -256,7 +256,7 @@ public class CSSPositionPropertyType extends DefaultPropertyType<CSSPosition>
 	@Override
 	public CSSPosition defaultValue(PropertyDescription pd)
 	{
-		return new CSSPosition("0", "-1", "-1", "0", "80", "20");
+		return null;
 	}
 
 	@Override

@@ -27,7 +27,9 @@ import com.servoy.j2db.persistence.IRepository;
  * Dummy class for use in the documentation generator.
  *
  * @author rgansevles
+ * @deprecated
  */
+@Deprecated
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "RadioButtons", scriptingName = "RadioButtons", displayType = Field.RADIOS, realClass = Field.class, typeCode = IRepository.FIELDS)
 @ServoyClientSupport(mc = true, wc = true, sc = true)
 public class DocsRadioButtons extends BaseDocsField

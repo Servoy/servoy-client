@@ -23,11 +23,25 @@ import com.servoy.j2db.persistence.IServer;
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Table;
+import com.servoy.j2db.query.ColumnType;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Utils;
 
 /**
- * A javascript wrapper around a {@link ITable} object.
+ * <p>
+ * The <code>JSTableObject</code> is an enhanced version of <code>JSTable</code>, designed to represent
+ * a table that can be modified programmatically before being finalized in the database. This object supports
+ * dynamic schema modifications, such as adding or deleting columns. The changes made to a <code>JSTableObject</code>
+ * do not immediately impact the database and must be explicitly synchronized using methods like
+ * <code>JSServer.synchronizeWithDB</code>.
+ * </p>
+ *
+ * <p>
+ * Developers can create new columns in the table by specifying attributes such as the column name,
+ * data type, length, and whether the column allows null values. Primary key configurations can also be set
+ * programmatically. This flexibility is particularly useful when working with dynamically generated tables or
+ * when adjustments to a schema are needed during runtime.
+ * </p>
  *
  * @author jblok
  */
@@ -47,6 +61,8 @@ public class JSTableObject extends JSTable
 	 * @param type
 	 * @param length
 	 * @param allowNull
+	 *
+	 * @return A JSColumnObject instance representing the newly created column, or null if the column could not be created.
 	 */
 	public JSColumnObject js_createNewColumn(String columnName, Number type, Number length, Boolean allowNull)
 	{
@@ -60,6 +76,8 @@ public class JSTableObject extends JSTable
 	 * @param columnName
 	 * @param type
 	 * @param length
+	 *
+	 * @return A JSColumnObject instance representing the newly created column, or null if the column could not be created.
 	 */
 	public JSColumnObject js_createNewColumn(String columnName, Number type, Number length)
 	{
@@ -101,6 +119,8 @@ public class JSTableObject extends JSTable
 	 * @param length
 	 * @param allowNull
 	 * @param pkColumn
+	 *
+	 * @return A JSColumnObject instance representing the newly created column, or null if the column could not be created.
 	 */
 	public JSColumnObject js_createNewColumn(String columnName, Number type, Number length, Boolean allowNull, Boolean pkColumn)
 	{
@@ -110,7 +130,8 @@ public class JSTableObject extends JSTable
 		boolean _pkColumn = Utils.getAsBoolean(pkColumn);
 		try
 		{
-			Column c = ((Table)getTable()).createNewColumn(DummyValidator.INSTANCE, columnName, _type, _length, _allowNull, _pkColumn);
+			Column c = ((Table)getTable()).createNewColumn(DummyValidator.INSTANCE, columnName, ColumnType.getInstance(_type, _length, 0), _allowNull,
+				_pkColumn);
 			return new JSColumnObject(c, getServer(), getTable());
 		}
 		catch (RepositoryException e)

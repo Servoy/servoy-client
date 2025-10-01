@@ -56,13 +56,6 @@ import com.servoy.j2db.util.serialize.JSONConverter;
 public class RhinoConversion
 {
 	/**
-	 * This is a hack to create a NativeArray that is not dense in order to call the put/delete methods when calling the splice method in native javascript.
-	 * The maximumInitialCapacity from NativeArray is 10000
-	 * If the length of the {@link NativeArray} is greater that 10000, the array will not be dense.
-	 */
-	private final static long MAX_NATIVE_ARRAY_LENGTH = 10001;
-
-	/**
 	 * Default conversion used to convert from Rhino property types that do not explicitly implement component <-> Rhino conversions. <BR/><BR/>
 	 * Values of types that don't implement the sablo <-> rhino conversions are by default accessible directly.
 	 */
@@ -173,7 +166,7 @@ public class RhinoConversion
 			try
 			{
 				final boolean[] initializing = new boolean[] { true };
-				newObject = new NativeArray(MAX_NATIVE_ARRAY_LENGTH) // see comment on this constant
+				newObject = new NativeArray(false) // see comment on this constant
 				{
 					@Override
 					public void put(int index, Scriptable start, Object value)
@@ -395,7 +388,7 @@ public class RhinoConversion
 			try
 			{
 				final boolean[] initializing = new boolean[] { true };
-				newObject = new NativeArray(MAX_NATIVE_ARRAY_LENGTH) // see comment on this constant
+				newObject = new NativeArray(false) // see comment on this constant
 				{
 					private final JSONConverter converter = new JSONConverter();
 
@@ -441,7 +434,7 @@ public class RhinoConversion
 					Object value = null;
 					try
 					{
-						value = array.get(i);
+						value = array.opt(i);
 					}
 					catch (JSONException e)
 					{

@@ -39,6 +39,7 @@ public class FoundSetManagerConfig
 	private final boolean optimizedChangeFires;
 	private final boolean uninitializedFoundsetWhenFiltersAreAdded;
 	private final boolean setRelationNameComment;
+	private final boolean deleteWithAutosaveOff;
 
 	public FoundSetManagerConfig(Properties settings)
 	{
@@ -53,6 +54,7 @@ public class FoundSetManagerConfig
 		optimizedChangeFires = getAsBoolean(settings.getProperty("servoy.foundset.optimizedChangeFires", "true")); // whether to use new optimized mechanism to call notifyChange on IRowListeners
 		uninitializedFoundsetWhenFiltersAreAdded = getAsBoolean(settings.getProperty("servoy.foundset.unitializeWithFilter", "false")); // whether to set initialized to false for a foundset when fs filter params are added
 		setRelationNameComment = getAsBoolean(settings.getProperty("servoy.client.sql.setRelationComment", "true"));
+		deleteWithAutosaveOff = getAsBoolean(settings.getProperty("servoy.foundset.deleteWithAutosaveOff", "false"));
 	}
 
 	public int pkChunkSize()
@@ -109,4 +111,11 @@ public class FoundSetManagerConfig
 	{
 		return setRelationNameComment;
 	}
+
+	public boolean deleteWithAutosaveOff()
+	{
+		return deleteWithAutosaveOff;
+	}
+
+
 }

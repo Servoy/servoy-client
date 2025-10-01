@@ -35,6 +35,7 @@ import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IConvertedPropertyType;
 import org.sablo.specification.property.IPropertyType;
 import org.sablo.specification.property.IPropertyWithClientSideConversions;
+import org.sablo.specification.property.IPropertyWithAttachDependencies;
 import org.sablo.specification.property.ISupportsGranularUpdates;
 import org.sablo.specification.property.types.DefaultPropertyType;
 import org.sablo.util.ValueReference;
@@ -74,7 +75,7 @@ public class ComponentPropertyType extends DefaultPropertyType<ComponentTypeSabl
 	IFormElementToTemplateJSON<ComponentTypeFormElementValue, ComponentTypeSabloValue>,
 	IFormElementToSabloComponent<ComponentTypeFormElementValue, ComponentTypeSabloValue>, IConvertedPropertyType<ComponentTypeSabloValue>,
 	ISabloComponentToRhino<ComponentTypeSabloValue>, ISupportsGranularUpdates<ComponentTypeSabloValue>, ITemplateValueUpdaterType<ComponentTypeSabloValue>,
-	II18NPropertyType<ComponentTypeSabloValue>, IPropertyWithClientSideConversions<ComponentTypeSabloValue>
+	II18NPropertyType<ComponentTypeSabloValue>, IPropertyWithClientSideConversions<ComponentTypeSabloValue>, IPropertyWithAttachDependencies<ComponentTypeSabloValue>
 {
 
 
@@ -439,6 +440,13 @@ public class ComponentPropertyType extends DefaultPropertyType<ComponentTypeSabl
 		JSONUtils.addKeyIfPresent(w, keyToAddTo);
 		w.value(TYPE_NAME);
 		return true;
+	}
+
+	@Override
+	public String[] getDependencies(PropertyDescription pd)
+	{
+		ComponentTypeConfig ctConfig = ((ComponentTypeConfig)pd.getConfig());
+		return ctConfig != null ? new String[] { ctConfig.forFoundset } : null;
 	}
 
 }

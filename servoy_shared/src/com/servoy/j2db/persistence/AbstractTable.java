@@ -18,6 +18,7 @@
 package com.servoy.j2db.persistence;
 
 import static com.servoy.base.persistence.IBaseColumn.TENANT_COLUMN;
+import static com.servoy.j2db.util.Utils.toEnglishLocaleLowerCase;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -28,9 +29,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.servoy.j2db.query.ColumnType;
 import com.servoy.j2db.util.AliasKeyMap;
 import com.servoy.j2db.util.SortedList;
-import com.servoy.j2db.util.Utils;
 
 /**
  * Base class for database tables and in memory tables.
@@ -179,7 +180,12 @@ public abstract class AbstractTable implements ITable, Serializable
 	public Column getColumn(String colname, boolean ignoreCase)
 	{
 		if (colname == null) return null;
-		return columns.get(ignoreCase ? Utils.toEnglishLocaleLowerCase(colname) : colname);
+		Column column = columns.get(colname);
+		if (column == null && ignoreCase)
+		{
+			column = columns.get(toEnglishLocaleLowerCase(colname));
+		}
+		return column;
 	}
 
 	public Column getColumn(String colname)
@@ -207,18 +213,18 @@ public abstract class AbstractTable implements ITable, Serializable
 	{
 		if (oldName != null && newName != null && !oldName.equals(newName))
 		{
-			if (columns.containsKey(Utils.toEnglishLocaleLowerCase(newName)))
+			if (columns.containsKey(toEnglishLocaleLowerCase(newName)))
 			{
 				throw new RepositoryException("A column on table " + getName() + " with name/dataProviderID " + newName + " already exists"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			}
 
-			validator.checkName(newName, -1, new ValidatorSearchContext(this, IRepository.COLUMNS), true);
-			Column c = columns.get(Utils.toEnglishLocaleLowerCase(oldName));
+			validator.checkName(newName, null, new ValidatorSearchContext(this, IRepository.COLUMNS), true);
+			Column c = columns.get(toEnglishLocaleLowerCase(oldName));
 			if (c != null)
 			{
 				c.setSQLName(newName);
-				columns.remove(Utils.toEnglishLocaleLowerCase(oldName));
-				columns.put(Utils.toEnglishLocaleLowerCase(newName), c);
+				columns.remove(toEnglishLocaleLowerCase(oldName));
+				columns.put(toEnglishLocaleLowerCase(newName), c);
 				fireIColumnChanged(c);
 			}
 		}
@@ -227,80 +233,44 @@ public abstract class AbstractTable implements ITable, Serializable
 	protected abstract void validateNewColumn(IValidateName validator, String colname) throws RepositoryException;
 
 	@Override
-	public Column createNewColumn(IValidateName validator, String colname, int type, int length, int scale) throws RepositoryException
+	public Column createNewColumn(IValidateName validator, String colname, ColumnType columnType) throws RepositoryException
 	{
 		validateNewColumn(validator, colname);
-		Column c = new Column(this, colname, type, length, scale, false);
+		Column c = new Column(this, colname, columnType, false);
 		addColumn(c);
 		fireIColumnCreated(c);
 		return c;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.persistence.ITable#createNewColumn(com.servoy.j2db.persistence.IValidateName, java.lang.String, int, int, int, boolean, boolean)
-	 */
 	@Override
-	public Column createNewColumn(IValidateName validator, String colname, int type, int length, int scale, boolean allowNull, boolean pkColumn)
+	public Column createNewColumn(IValidateName validator, String colname, ColumnType columnType, boolean allowNull, boolean pkColumn)
 		throws RepositoryException
 	{
-		Column c = createNewColumn(validator, colname, type, length, scale, allowNull);
+		Column c = createNewColumn(validator, colname, columnType, allowNull);
 		c.setDatabasePK(pkColumn);
 		return c;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.persistence.ITable#createNewColumn(com.servoy.j2db.persistence.IValidateName, java.lang.String, int, int, int, boolean)
-	 */
 	@Override
-	public Column createNewColumn(IValidateName validator, String colname, int type, int length, int scale, boolean allowNull) throws RepositoryException
+	public Column createNewColumn(IValidateName validator, String colname, ColumnType columnType, boolean allowNull) throws RepositoryException
 	{
-		Column c = createNewColumn(validator, colname, type, length, scale);
+		Column c = createNewColumn(validator, colname, columnType);
 		c.setAllowNull(allowNull);
 		return c;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.persistence.ITable#createNewColumn(com.servoy.j2db.persistence.IValidateName, java.lang.String, int, int)
-	 */
-	@Override
-	public Column createNewColumn(IValidateName nameValidator, String colname, int type, int length) throws RepositoryException
-	{
-		return createNewColumn(nameValidator, colname, type, length, 0);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.persistence.ITable#setInitialized(boolean)
-	 */
 	@Override
 	public void setInitialized(boolean initialized)
 	{
 		this.initialized = initialized;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.persistence.ITable#isInitialized()
-	 */
 	@Override
 	public boolean isInitialized()
 	{
 		return initialized;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.persistence.ITable#getDataProviderIDs()
-	 */
 	@Override
 	public String[] getDataProviderIDs()
 	{

@@ -217,7 +217,7 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 			{
 				for (FormElement formElement : list)
 				{
-					if (component.getID() == formElement.getPersistIfAvailable().getID())
+					if (component.getUUID().equals(formElement.getPersistIfAvailable().getUUID()))
 					{
 						return formElement;
 					}
@@ -272,7 +272,7 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 			String childNameInsideFormComponent = cloneOfChildOfFormComponent.getName();
 			if (childNameInsideFormComponent == null)
 			{
-				childNameInsideFormComponent = FormElement.SVY_NAME_PREFIX + String.valueOf(cloneOfChildOfFormComponent.getID());
+				childNameInsideFormComponent = FormElement.SVY_NAME_PREFIX + cloneOfChildOfFormComponent.getUUID().toString();
 			}
 
 			// build names like fcc1$containedForm$fcc2$containedForm$button1
@@ -360,7 +360,7 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 								if (val != null)
 								{
 									IPersist found = fs.searchPersist(val.toString());
-									if (found != null) val = Integer.valueOf(found.getID());
+									if (found != null) val = found.getUUID().toString();
 								}
 							}
 						}
@@ -374,9 +374,9 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 						((AbstractBase)cloneOfChildOfFormComponent).getCustomProperties() != null)
 					{
 						// custom properties needs to be merged in..
-						JSONObject original = new ServoyJSONObject(((AbstractBase)cloneOfChildOfFormComponent).getCustomProperties(), true);
+						JSONObject original = new ServoyJSONObject(((AbstractBase)cloneOfChildOfFormComponent).getCustomProperties(), false);
 						ServoyJSONObject.mergeAndDeepCloneJSON(new ServoyJSONObject((String)val, true), original);
-						((AbstractBase)cloneOfChildOfFormComponent).setCustomProperties(ServoyJSONObject.toString(original, true, true, true));
+						((AbstractBase)cloneOfChildOfFormComponent).setCustomProperties(ServoyJSONObject.toString(original, false, true, false));
 					}
 					else if (val instanceof JSONArray && ((AbstractBase)cloneOfChildOfFormComponent).getProperty(key) instanceof IChildWebObject[])
 					{
@@ -476,7 +476,7 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 			try
 			{
 				String name = "svy_lvp_" + form.getName();
-				int startPos = form.getPartStartYPos(bodyPart.getID());
+				int startPos = form.getPartStartYPos(bodyPart.getUUID().toString());
 				int endPos = bodyPart.getHeight();
 				int bodyheight = endPos - startPos;
 
@@ -508,7 +508,7 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 						headerHeight = 0;
 					}
 					portal.put("headerHeight", headerHeight);
-					portal.put("sortable", form.getOnSortCmdMethodID() != -1);
+					portal.put("sortable", !"-1".equals(form.getOnSortCmdMethodID()));
 				}
 				portal.put("readOnlyMode", form.getNgReadOnlyMode());
 
@@ -649,7 +649,7 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 		if ((form.getScrollbars() & ISupportScrollbars.HORIZONTAL_SCROLLBAR_NEVER) == ISupportScrollbars.HORIZONTAL_SCROLLBAR_NEVER)
 		{
 			Part part = getBodyPart(form);
-			int startPos = form.getPartStartYPos(part.getID());
+			int startPos = form.getPartStartYPos(part.getUUID().toString());
 			int endPos = part.getHeight();
 			Iterator<IPersist> it = form.getAllObjects(PositionComparator.XY_PERSIST_COMPARATOR);
 			while (it.hasNext())
@@ -699,7 +699,7 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 	{
 		int rowHeight = 0;
 		Part part = getBodyPart(form);
-		int startPos = form.getPartStartYPos(part.getID());
+		int startPos = form.getPartStartYPos(part.getUUID().toString());
 		int endPos = part.getHeight();
 		Iterator<IPersist> it = form.getAllObjects(PositionComparator.XY_PERSIST_COMPARATOR);
 		while (it.hasNext())
@@ -1126,7 +1126,7 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 			final int prime = 31;
 			int result = 1;
 			result = prime * result + ((propertyName == null) ? 0 : propertyName.hashCode());
-			result = prime * result + ((element == null) ? 0 : element.getID());
+			result = prime * result + ((element == null) ? 0 : element.getUUID().hashCode());
 			return result;
 		}
 	}

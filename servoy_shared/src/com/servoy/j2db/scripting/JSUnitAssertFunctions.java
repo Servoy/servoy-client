@@ -20,8 +20,13 @@ import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
 
 /**
- * This class is only used to provide code completion and jsunit node in developer's javascript editor/solution explorer.
- * 
+ * The <code>JSUnitAssertFunctions</code> class provides a comprehensive set of assertion methods for unit testing in Servoy.
+ * It supports operations such as equality checks, regular expression matching, null checks, and conditional assertions.
+ * These methods enable the validation of test outcomes with detailed messages and tolerances for specific scenarios like floating-point comparisons.
+ *
+ * Assertions can evaluate conditions as true or false, verify object definitions, or ensure two values are the same or different.
+ * Additional functions allow forcing test failures and checking against expected exceptions.
+ *
  * @author acostescu
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "JSUnit", scriptingName = "jsunit")
@@ -418,7 +423,7 @@ public class JSUnitAssertFunctions implements IReturnedTypesProvider
 	 * jsunit.fail("test", null, "Fail"); // 2nd param is not used in Servoy, params 3 and 1 get merged to form a message. The result is the same as in the line above.
 	 *
 	 * @param message The test description/message. This is usually the only parameter specified when calling this method.
-	 * 
+	 *
 	 * @param instanceOfCallStack an internal JSUnit call stack. Use null for this if you want to get to the next optional parameter. Usually not specified.
 	 *
 	 */
@@ -435,7 +440,7 @@ public class JSUnitAssertFunctions implements IReturnedTypesProvider
 	 * jsunit.fail("test", null, "Fail"); // 2nd param is not used in Servoy, params 3 and 1 get merged to form a message. The result is the same as in the line above.
 	 *
 	 * @param message The test description/message. This is usually the only parameter specified when calling this method.
-	 * 
+	 *
 	 * @param instanceOfCallStack an internal JSUnit call stack. Use null for this if you want to get to the next optional parameter. Usually not specified.
 	 *
 	 * @param userMessage a user message. Usually not specified.

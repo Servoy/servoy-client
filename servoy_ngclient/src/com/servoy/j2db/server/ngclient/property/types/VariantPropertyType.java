@@ -51,6 +51,10 @@ public class VariantPropertyType extends DefaultPropertyType<String>
 	public static final VariantPropertyType INSTANCE = new VariantPropertyType();
 	public static final String TYPE_NAME = "variant";
 
+	private VariantPropertyType()
+	{
+	}
+
 	@Override
 	public String fromJSON(Object newJSONValue, String previousSabloValue, PropertyDescription pd, IBrowserConverterContext dataConverterContext,
 		ValueReference<Boolean> returnValueAdjustedIncommingValue)

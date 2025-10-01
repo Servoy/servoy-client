@@ -300,6 +300,8 @@ public class NGCustomJSONArrayType<SabloT, SabloWT> extends CustomJSONArrayType<
 				{
 					dps.addAll(Arrays.asList(entryDPs.dataProviderIDs));
 					recordLinked |= entryDPs.recordLinked;
+					// TODO do also add relations from TargetDataLinks here!! Maybe as part of SVY-18622?
+					// or maybe replace this method with a "hasRecordDataLinks(...)" if that is the only info that is needed by the callers
 				}
 			}
 		}

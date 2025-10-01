@@ -37,9 +37,9 @@ public abstract class AbstractScriptProvider extends AbstractBase
 	 * @param elementId
 	 * @param uuid
 	 */
-	public AbstractScriptProvider(int type, ISupportChilds parent, int elementId, UUID uuid)
+	public AbstractScriptProvider(int type, ISupportChilds parent, UUID uuid)
 	{
-		super(type, parent, elementId, uuid);
+		super(type, parent, uuid);
 	}
 
 	/*
@@ -89,7 +89,7 @@ public abstract class AbstractScriptProvider extends AbstractBase
 	 */
 	public void updateName(IValidateName validator, String arg) throws RepositoryException
 	{
-		validator.checkName(arg, getID(), new ValidatorSearchContext(getParent(), type), false);
+		validator.checkName(arg, getUUID(), new ValidatorSearchContext(getParent(), type), false);
 		String declaration = getTypedProperty(StaticContentSpecLoader.PROPERTY_DECLARATION);
 		if (declaration != null)
 		{

@@ -16,8 +16,6 @@
  */
 package com.servoy.j2db.query;
 
-import java.util.concurrent.atomic.AtomicLong;
-
 import com.servoy.base.query.BaseQueryTable;
 import com.servoy.j2db.util.Immutable;
 import com.servoy.j2db.util.serialize.IWriteReplaceExtended;
@@ -32,8 +30,6 @@ import com.servoy.j2db.util.visitor.IVisitor;
  */
 public class QueryTable extends BaseQueryTable implements IQueryElement, Immutable, IWriteReplaceExtended
 {
-	private static AtomicLong aliasCounter = new AtomicLong(0);
-
 	/**
 	 * @param name table name as used in sql, may be quoted
 	 */
@@ -85,13 +81,6 @@ public class QueryTable extends BaseQueryTable implements IQueryElement, Immutab
 
 	public void acceptVisitor(IVisitor visitor)
 	{
-	}
-
-
-	@Override
-	protected long getNextAliasCounter()
-	{
-		return aliasCounter.incrementAndGet();
 	}
 
 	///////// serialization ////////////////

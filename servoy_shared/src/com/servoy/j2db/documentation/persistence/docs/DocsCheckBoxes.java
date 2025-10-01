@@ -26,7 +26,9 @@ import com.servoy.j2db.persistence.IRepository;
  * Dummy class for use in the documentation generator.
  *
  * @author rgansevles
+ * @deprecated
  */
+@Deprecated
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "CheckBoxes", scriptingName = "CheckBoxes", displayType = Field.CHECKS, realClass = Field.class, typeCode = IRepository.FIELDS)
 @ServoyClientSupport(mc = true, wc = true, sc = true)
 public class DocsCheckBoxes extends BaseDocsField

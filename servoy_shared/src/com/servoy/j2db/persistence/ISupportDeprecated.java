@@ -21,8 +21,8 @@ import com.servoy.base.scripting.annotations.ServoyClientSupport;
 
 
 /**
- * 
  * Deprecated interface for persists that support it.
+ *
  * @author gboros
  */
 @ServoyClientSupport(mc = true, wc = true, sc = true)
@@ -30,15 +30,17 @@ public interface ISupportDeprecated
 {
 	/**
 	 * Sets the deprecate info for this element
-	 * 
+	 *
 	 * @param deprecatedInfo the deprecate info for this element
 	 */
 	public void setDeprecated(String deprecatedInfo);
 
 	/**
-	 * Gets the deprecate info for this element
-	 * 
-	 * @return the deprecate info for this element or null if it is not deprecated
+	 * Gets the deprecation info for this element.
+	 *
+	 * @sample "not used anymore, replaced with ..."
+	 *
+	 * @return the deprecation info for this object or null if it is not deprecated
 	 */
 	public String getDeprecated();
 }

@@ -23,10 +23,11 @@ import com.servoy.j2db.solutionmodel.ISMCalendar;
 
 /**
  * Solution model calendar field component.
- * 
+ *
  * @author rgansevles
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
+@Deprecated
 public class JSCalendar extends JSField implements ISMCalendar
 {
 	public JSCalendar(IJSParent< ? > parent, Field field, IApplication application, boolean isNew)

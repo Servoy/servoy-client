@@ -113,9 +113,9 @@ public class FormController extends BasicFormController
 			return form.getScriptMethods(sort);
 		}
 
-		public ScriptMethod getScriptMethod(int methodId)
+		public ScriptMethod getScriptMethod(String methodNameOrUUID)
 		{
-			return form.getScriptMethod(methodId);
+			return form.getScriptMethod(methodNameOrUUID);
 		}
 
 		/**
@@ -432,17 +432,16 @@ public class FormController extends BasicFormController
 
 			IDataRenderer dr = application.getDataRenderFactory().getEmptyDataRenderer(ComponentFactory.getWebID(form, part), part.toString(), application,
 				(part.getPartType() == Part.BODY));
-			dr.initDragNDrop(this, form.getPartStartYPos(part.getID()));
 			dataRenderers[part.getPartType()] = dr;
 			dr.setName(part.toString());
 			part_panels.put(part, dr);
 
 			if (part.getPartType() == Part.BODY)
 			{
-				int onRenderMethodID = form.getOnRenderMethodID();
-				if (onRenderMethodID > 0)
+				String onRenderMethodUUID = form.getOnRenderMethodID();
+				if (onRenderMethodUUID != null)
 				{
-					dr.getOnRenderComponent().getRenderEventExecutor().setRenderCallback(Integer.toString(onRenderMethodID),
+					dr.getOnRenderComponent().getRenderEventExecutor().setRenderCallback(onRenderMethodUUID,
 						Utils.parseJSExpressions(form.getFlattenedMethodArguments("onRenderMethodID")));
 					dr.getOnRenderComponent().getRenderEventExecutor().setRenderScriptExecuter(getScriptExecuter());
 				}
@@ -459,10 +458,10 @@ public class FormController extends BasicFormController
 			IDataRenderer dr = application.getDataRenderFactory().getEmptyDataRenderer(ComponentFactory.getWebID(form, bodyPart), bodyPart.toString(),
 				application, true);
 
-			int onRenderMethodID = form.getOnRenderMethodID();
-			if (onRenderMethodID > 0)
+			String onRenderMethodUUID = form.getOnRenderMethodID();
+			if (onRenderMethodUUID != null)
 			{
-				dr.getOnRenderComponent().getRenderEventExecutor().setRenderCallback(Integer.toString(onRenderMethodID),
+				dr.getOnRenderComponent().getRenderEventExecutor().setRenderCallback(onRenderMethodUUID,
 					Utils.parseJSExpressions(form.getFlattenedMethodArguments("onRenderMethodID")));
 				dr.getOnRenderComponent().getRenderEventExecutor().setRenderScriptExecuter(getScriptExecuter());
 			}
@@ -761,7 +760,7 @@ public class FormController extends BasicFormController
 				if (!dataRenderer.stopUIEditing(looseFocus)) return false;
 			}
 		}
-		if (looseFocus && form.getOnRecordEditStopMethodID() != 0)
+		if (looseFocus && form.getOnRecordEditStopMethodID() != null)
 		{
 			//allow beans to store there data via method
 			IRecordInternal[] records = getApplication().getFoundSetManager().getEditRecordList().getUnmarkedEditedRecords(formModel, this);
@@ -913,6 +912,7 @@ public class FormController extends BasicFormController
 				containerImpl.setReadOnly(false);
 			}
 			view.stop();
+			view.destroy();
 			view = null;
 
 			deleteRenderers();
@@ -968,18 +968,19 @@ public class FormController extends BasicFormController
 			ISupportNavigator navigatorSupport = fm.getCurrentContainer();
 			if (navigatorSupport != null)
 			{
-				int form_id = form.getNavigatorID();
-				if (form_id > 0)
+				String formNavigatorUUID = form.getNavigatorID();
+				if (formNavigatorUUID != null && !Form.NAVIGATOR_IGNORE.equals(formNavigatorUUID) && !Form.NAVIGATOR_NONE.equals(formNavigatorUUID))
 				{
 					FormController currentFC = navigatorSupport.getNavigator();
-					if (currentFC == null || currentFC.getForm().getID() != form_id)//is already there
+					if (currentFC == null || !Utils.equalObjects(currentFC.getForm().getUUID().toString(), formNavigatorUUID))//is already there
 					{
 						try
 						{
-							Form sliderDef = application.getFlattenedSolution().getForm(form_id);
+							Form sliderDef = application.getFlattenedSolution().getForm(formNavigatorUUID);
 							if (sliderDef != null)
 							{
-								if (sliderDef.getID() != form_id && sliderDef.getNavigatorID() >= 0) return;//safety a slider Form CANNOT HAVE A SLIDER
+								if (!sliderDef.getUUID().toString().equals(formNavigatorUUID) &&
+									(sliderDef.getNavigatorID() == null || Utils.getAsUUID(sliderDef.getNavigatorID(), false) != null)) return;//safety a slider Form CANNOT HAVE A SLIDER
 
 								FormController nav = fm.getFormController(sliderDef.getName(), navigatorSupport);
 								ControllerUndoManager cum = null;
@@ -1010,7 +1011,7 @@ public class FormController extends BasicFormController
 					else
 					{
 						// Try to lease it extra so it will be added to last used screens.
-						Form sliderDef = application.getFlattenedSolution().getForm(form_id);
+						Form sliderDef = application.getFlattenedSolution().getForm(formNavigatorUUID);
 						if (sliderDef != null)
 						{
 							fm.leaseFormPanel(sliderDef.getName());
@@ -1018,7 +1019,7 @@ public class FormController extends BasicFormController
 						}
 					}
 				}
-				else if (form_id != Form.NAVIGATOR_IGNORE)//if is ignore leave previous,if not remove
+				else if (!Form.NAVIGATOR_IGNORE.equals(formNavigatorUUID))//if is ignore leave previous,if not remove
 				{
 					FormController old_nav = navigatorSupport.setNavigator(null);
 					if (old_nav != null) old_nav.notifyVisible(false, invokeLaterRunnables, true);
@@ -1182,9 +1183,9 @@ public class FormController extends BasicFormController
 					IScriptable scriptObject = ((IScriptableProvider)src).getScriptObject();
 					if (scriptObject != null)
 					{
+						Context.enter();
 						try
 						{
-							Context.enter();
 							JavaMembers jm = ScriptObjectRegistry.getJavaMembers(scriptObject.getClass(), ScriptableObject.getTopLevelScope(formScope));
 							thisObject = new NativeJavaObject(formScope, scriptObject, jm);
 
@@ -1254,7 +1255,7 @@ public class FormController extends BasicFormController
 
 	public void selectNextRecord()
 	{
-		if (form.getOnNextRecordCmdMethodID() == 0)
+		if (form.getOnNextRecordCmdMethodID() == null)
 		{
 			if ((application.getFoundSetManager().getEditRecordList().stopEditing(false) & (ISaveConstants.STOPPED + ISaveConstants.AUTO_SAVE_BLOCKED)) == 0)
 			{
@@ -1291,10 +1292,10 @@ public class FormController extends BasicFormController
 
 	public void selectPrevRecord()
 	{
-		if (form.getOnPreviousRecordCmdMethodID() == 0)
+		if (form.getOnPreviousRecordCmdMethodID() == null)
 		{
-			int edittingStoppedFlag = application.getFoundSetManager().getEditRecordList().stopEditing(false);
-			if (ISaveConstants.STOPPED != edittingStoppedFlag && ISaveConstants.AUTO_SAVE_BLOCKED != edittingStoppedFlag)
+			int editingStoppedFlag = application.getFoundSetManager().getEditRecordList().stopEditing(false);
+			if (ISaveConstants.STOPPED != editingStoppedFlag && ISaveConstants.AUTO_SAVE_BLOCKED != editingStoppedFlag)
 			{
 				return;
 			}

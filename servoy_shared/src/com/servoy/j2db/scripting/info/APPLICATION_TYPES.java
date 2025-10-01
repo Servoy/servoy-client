@@ -20,6 +20,22 @@ import com.servoy.base.persistence.constants.IBaseApplicationTypes;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.IPrefixedConstantsObject;
 
+/**
+ * <p>Constants are defined to represent different application types, each assigned a numeric value. These constants enable applications to identify and handle specific client environments dynamically. The constants include:</p>
+ * <ul>
+ *   <li><b>HEADLESS_CLIENT</b>: Represents a headless client.</li>
+ *   <li><b>MOBILE_CLIENT</b>: Represents a mobile client.</li>
+ *   <li><b>NG_CLIENT</b>: Represents an NG client.</li>
+ * </ul>
+ *
+ * <h2>Key Points</h2>
+ * <ul>
+ *   <li><b>Type</b>: All constants are of type <code>Number</code>.</li>
+ *   <li><b>Usage</b>: These constants can be used in conditional logic to execute code tailored for the respective application type.</li>
+ * </ul>
+ *
+ * <p>These constants provide a structured approach to managing diverse application environments, ensuring that applications can adapt their behavior based on the client type dynamically and efficiently.</p>
+ */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
 public class APPLICATION_TYPES implements IPrefixedConstantsObject, IBaseApplicationTypes
 {

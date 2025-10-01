@@ -21,8 +21,8 @@ import com.servoy.j2db.ui.scripting.RuntimeScriptLabel;
 import com.servoy.j2db.util.IDelegate;
 
 /**
- * A web label that holds a invisible bean.  
- * 
+ * A web label that holds a invisible bean.
+ *
  * @author jcompagner
  *
  */
@@ -39,7 +39,6 @@ public class WebBeanHolder extends WebBaseLabel implements IDelegate
 	{
 		super(application, scriptable, id, "");
 		this.bean = bean;
-		setOutputMarkupPlaceholderTag(true);
 	}
 
 	/**

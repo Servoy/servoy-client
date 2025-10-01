@@ -394,6 +394,8 @@ public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends Custo
 				{
 					dps.addAll(Arrays.asList(entryDPs.dataProviderIDs));
 					recordLinked |= entryDPs.recordLinked;
+					// TODO do also add relations from TargetDataLinks here!! Maybe as part of SVY-18622?
+					// or maybe replace this method with a "hasRecordDataLinks(...)" if that is the only info that is needed by the callers
 				}
 			}
 		}
@@ -465,6 +467,11 @@ public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends Custo
 	public Object toDesignValue(Object javaValue, PropertyDescription pd)
 	{
 		return javaValue;
+	}
+
+	public static String getValueKey()
+	{
+		return VALUE;
 	}
 
 }

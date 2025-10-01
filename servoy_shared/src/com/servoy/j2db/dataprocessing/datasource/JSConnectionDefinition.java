@@ -32,6 +32,27 @@ import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IDestroyable;
 
 /**
+ * <p>
+ * The <code>JSConnectionDefinition</code> provides a mechanism for creating and managing client-specific
+ * database server connections at runtime in the Servoy environment. It is accessed through
+ * <code>datasources.db.myserver.defineClientConnection()</code> and allows configuration of database
+ * connections tailored to the current client session.
+ * </p>
+ *
+ * <p>
+ * This class enables setting properties such as <code>username</code> and <code>password</code> for authentication
+ * and allows additional connection properties to be defined as key-value pairs. These configurations can be
+ * dynamically registered to a server, ensuring that all subsequent connections to the database for that client
+ * use the specified settings.
+ * </p>
+ *
+ * <p>
+ * Key functionalities include the ability to retrieve or modify connection details like the username, password,
+ * and custom properties. The connection definition can be registered with the server using the <code>create</code>
+ * method, or unregistered and destroyed with the <code>destroy</code> method, ensuring flexibility in managing
+ * runtime database interactions.
+ * </p>
+ *
  * @author jcompagner
  * @since 2021.06
  */

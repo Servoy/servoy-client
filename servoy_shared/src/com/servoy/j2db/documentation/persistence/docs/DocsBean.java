@@ -28,8 +28,10 @@ import com.servoy.j2db.persistence.IRepository;
  * Dummy class for use in the documentation generator.
  *
  * @author acostache
+ * @deprecated
  *
  */
+@Deprecated
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "Bean", scriptingName = "Bean", realClass = Bean.class, typeCode = IRepository.BEANS)
 @ServoyClientSupport(mc = true, wc = true, sc = true)
 public class DocsBean extends Bean implements IBaseDocsComponent
@@ -39,7 +41,7 @@ public class DocsBean extends Bean implements IBaseDocsComponent
 
 	DocsBean()
 	{
-		super(null, 0, null);
+		super(null, null);
 	}
 
 	@ServoyClientSupport(mc = false, wc = true, sc = true)

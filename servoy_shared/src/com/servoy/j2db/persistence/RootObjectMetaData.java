@@ -25,7 +25,6 @@ public class RootObjectMetaData extends MetaData implements ISupportName, Serial
 {
 	private static final long serialVersionUID = 1L;
 
-	private int rootObjectId;
 	private final UUID rootObjectUuid;
 	private String name;
 	private final int objectTypeId;
@@ -33,9 +32,8 @@ public class RootObjectMetaData extends MetaData implements ISupportName, Serial
 	private int latestRelease;
 	private boolean isChanged;
 
-	public RootObjectMetaData(int rootObjectId, UUID rootObjectUuid, String name, int objectTypeId, int activeRelease, int latestRelease)
+	public RootObjectMetaData(UUID rootObjectUuid, String name, int objectTypeId, int activeRelease, int latestRelease)
 	{
-		this.rootObjectId = rootObjectId;
 		this.rootObjectUuid = rootObjectUuid;
 		this.name = name;
 		this.objectTypeId = objectTypeId;
@@ -54,11 +52,6 @@ public class RootObjectMetaData extends MetaData implements ISupportName, Serial
 		return rootObjectUuid;
 	}
 
-	public int getRootObjectId()
-	{
-		return rootObjectId;
-	}
-
 	public int getObjectTypeId()
 	{
 		return objectTypeId;
@@ -72,12 +65,6 @@ public class RootObjectMetaData extends MetaData implements ISupportName, Serial
 	public int getActiveRelease()
 	{
 		return activeRelease;
-	}
-
-	// need this to set the correct id when a solution is commited from outside
-	public void setRootObjectId(int rootObjectId)
-	{
-		this.rootObjectId = rootObjectId;
 	}
 
 	public void setName(String name)

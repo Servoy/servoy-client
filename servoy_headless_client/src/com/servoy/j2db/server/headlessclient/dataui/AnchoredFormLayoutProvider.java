@@ -17,15 +17,15 @@
 package com.servoy.j2db.server.headlessclient.dataui;
 
 import com.servoy.j2db.IServiceProvider;
+import com.servoy.j2db.ISupportNavigator;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.Solution;
-import com.servoy.j2db.server.headlessclient.dataui.TemplateGenerator.TextualStyle;
 import com.servoy.j2db.util.OrientationApplier;
 
 /**
  * Layout provider for web client that enables anchoring of components.
- * 
+ *
  * @author gerzse
  */
 @SuppressWarnings("nls")
@@ -62,7 +62,7 @@ public class AnchoredFormLayoutProvider extends AbstractFormLayoutProvider
 			partStyle.setProperty("right", "0px");
 		}
 
-		int top = f.getPartStartYPos(part.getID());
+		int top = f.getPartStartYPos(part.getUUID().toString());
 		if (part.getPartType() <= Part.BODY)
 		{
 			partStyle.setProperty("top", (top - spaceUsedOnlyInPrintAbove) + "px");
@@ -83,7 +83,7 @@ public class AnchoredFormLayoutProvider extends AbstractFormLayoutProvider
 	{
 		if (orientation.equals(OrientationApplier.RTL)) navigatorStyle.setProperty("right", "0px");
 		else navigatorStyle.setProperty("left", "0px");
-		navigatorStyle.setProperty("width", WebDefaultRecordNavigator.DEFAULT_WIDTH + "px");
+		navigatorStyle.setProperty("width", ISupportNavigator.DEFAULT_NAVIGATOR_WIDTH + "px");
 
 		navigatorStyle.setProperty("top", "0px");
 		navigatorStyle.setProperty("bottom", "0px");

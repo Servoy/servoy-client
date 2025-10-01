@@ -27,8 +27,12 @@ public class InformixTemplate extends ServerTemplateDefinition
 {
 	public InformixTemplate()
 	{
-		super(new ServerConfig("new_informix", "sa", "",
-			"jdbc:informix-sqli://<server_host>:<port>:informixserver=<informix_server_name>;database=<database_name>", null, "com.informix.jdbc.IfxDriver",
-			null, null, true, false, null, null));
+		super(new ServerConfig.Builder()
+			.setServerName("new_informix")
+			.setUserName("sa")
+			.setPassword("")
+			.setServerUrl("jdbc:informix-sqli://<server_host>:<port>:informixserver=<informix_server_name>;database=<database_name>")
+			.setDriver("com.informix.jdbc.IfxDriver")
+			.build());
 	}
 }

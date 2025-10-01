@@ -22,6 +22,11 @@ import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.scripting.IPrefixedConstantsObject;
 
 /**
+ * The <code>JSPartWithConstants</code> class extends <code>JSPart</code> and adds support for prefixed constants through
+ * the <code>IPrefixedConstantsObject</code> interface. Should not be instantiated directly,
+ * as its constructor exists solely to meet interface requirements. The class provides a <code>getPrefix</code> method that
+ * returns the name of the <code>JSPart</code> class, enabling consistent handling of prefixed constants.
+ *
  * @author rgansevles
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, extendsComponent = "JSBase", publicName = "JSPart", scriptingName = "JSPart")

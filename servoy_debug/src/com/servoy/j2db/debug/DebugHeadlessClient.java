@@ -25,15 +25,11 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import javax.servlet.ServletRequest;
-import javax.servlet.http.HttpServletRequest;
-
 import org.eclipse.dltk.rhino.dbgp.DBGPDebugger;
 import org.mozilla.javascript.RhinoException;
 
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.IApplication;
-import com.servoy.j2db.IDebugWebClient;
 import com.servoy.j2db.IDesignerCallback;
 import com.servoy.j2db.IFormController;
 import com.servoy.j2db.IFormManagerInternal;
@@ -58,16 +54,15 @@ import com.servoy.j2db.util.ILogLevel;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.Settings;
 
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
+
 /**
  * Headless client when running from developer.
  * @author acostescu
  */
 public class DebugHeadlessClient extends HeadlessClient implements IDebugHeadlessClient
 {
-	//This is needed for mobile client launch with switch to service option .
-	// switching to service in developer causes a required refresh in a separate thread triggered by activeSolutionChanged
-	// , meanwhile after setActiveSolution is called the mobileClientDelegate opens the browser which causes a get to the service solution which is not fully loaded and debuggable
-	public static Object activeSolutionRefreshLock = new Object();
 
 	public static class DebugWebFormManager extends WebFormManager implements DebugUtils.DebugUpdateFormSupport
 	{
@@ -81,7 +76,6 @@ public class DebugHeadlessClient extends HeadlessClient implements IDebugHeadles
 		protected void makeSolutionSettings(Solution s)
 		{
 			IApplication app = getApplication();
-			if (app instanceof IDebugWebClient) ((IDebugWebClient)app).onSolutionOpen();
 			super.makeSolutionSettings(s);
 		}
 
@@ -176,65 +170,39 @@ public class DebugHeadlessClient extends HeadlessClient implements IDebugHeadles
 	@Override
 	protected void loadSolution(SolutionMetaData solutionMeta) throws RepositoryException
 	{
-		synchronized (activeSolutionRefreshLock)
+		if (!isShutDown())
 		{
-			if (!isShutDown())
+			// ignore given always load the active.
+			if (getSolution() != null)
 			{
-				// ignore given always load the active.
-				if (getSolution() != null)
-				{
-					closeSolution(true, null);
-				}
-				if (solution != null)
-				{
-					super.loadSolution(solution);
-				}
+				closeSolution(true, null);
+			}
+			if (solution != null)
+			{
+				super.loadSolution(solution);
 			}
 		}
 	}
 
 	public void loadDebugSolution() throws RepositoryException
 	{
-		synchronized (activeSolutionRefreshLock)
+		if (solution != null)
 		{
-			if (solution != null)
-			{
-				super.loadSolution(solution);
-				// now make sure all runnables are being executed
-				updateUI(1);
-			}
+			super.loadSolution(solution);
+			// now make sure all runnables are being executed
+			updateUI(1);
 		}
 	}
 
-	@Override
-	public void shutDown(boolean force)
-	{
-		synchronized (activeSolutionRefreshLock)
-		{
-			super.shutDown(force);
-		}
-	}
-
-	@Override
-	public boolean closeSolution(boolean force, Object[] args)
-	{
-		synchronized (activeSolutionRefreshLock)
-		{
-			return super.closeSolution(force, args);
-		}
-	}
 
 	public void setCurrent(Solution s)
 	{
 		SolutionMetaData solutionMeta = (s == null) ? null : s.getSolutionMetaData();
 
-		synchronized (activeSolutionRefreshLock)
+		solution = solutionMeta;
+		if (isSolutionLoaded() && (solutionMeta != null && !getSolution().getName().equals(solutionMeta.getName()) || solutionMeta == null))
 		{
-			solution = solutionMeta;
-			if (isSolutionLoaded() && (solutionMeta != null && !getSolution().getName().equals(solutionMeta.getName()) || solutionMeta == null))
-			{
-				closeSolution(true, null);
-			}
+			closeSolution(true, null);
 		}
 	}
 
@@ -330,6 +298,21 @@ public class DebugHeadlessClient extends HeadlessClient implements IDebugHeadles
 		else
 		{
 			Debug.error("No debugger found, for msg report: " + message);
+		}
+	}
+
+	@Override
+	public void assertCondition(boolean condition, String message)
+	{
+		errorToDebugger(message, null);
+		super.assertCondition(condition, message);
+		if (!condition)
+		{
+			DBGPDebugger debugger = getDebugger();
+			if (debugger != null)
+			{
+				debugger.getStackManager().sendSuspend(message);
+			}
 		}
 	}
 

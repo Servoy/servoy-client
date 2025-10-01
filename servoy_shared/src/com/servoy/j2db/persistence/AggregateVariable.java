@@ -45,9 +45,9 @@ public class AggregateVariable extends AbstractBase implements IColumn, ISupport
 	/**
 	 * Constructor I
 	 */
-	AggregateVariable(ISupportChilds parent, int element_id, UUID uuid)
+	AggregateVariable(ISupportChilds parent, UUID uuid)
 	{
-		super(IRepository.AGGREGATEVARIABLES, parent, element_id, uuid);
+		super(IRepository.AGGREGATEVARIABLES, parent, uuid);
 	}
 
 	/*
@@ -95,7 +95,7 @@ public class AggregateVariable extends AbstractBase implements IColumn, ISupport
 			TableNode node = (TableNode)getParent();
 			throw new RepositoryException(ServoyException.InternalCodes.TABLE_NOT_FOUND, new Object[] { node.getTableName() });
 		}
-		validator.checkName(arg, getID(), new ValidatorSearchContext(table, IRepository.AGGREGATEVARIABLES), true);
+		validator.checkName(arg, getUUID(), new ValidatorSearchContext(table, IRepository.AGGREGATEVARIABLES), true);
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_NAME, arg);
 		getRootObject().getChangeHandler().fireIPersistChanged(this);
 	}

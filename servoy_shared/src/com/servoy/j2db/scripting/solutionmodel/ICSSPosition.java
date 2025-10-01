@@ -26,6 +26,10 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 
 
 /**
+ * The <code>CSSPosition</code> interface in the Servoy environment provides methods for managing and manipulating CSS position properties such as <code>left</code>, <code>right</code>, <code>top</code>, <code>bottom</code>, <code>width</code>, and <code>height</code>.
+ * It allows both getting and setting these properties in pixels or percentages, with chaining methods for streamlined updates.
+ * The interface supports use cases in Servoy NG Client only.
+ *
  * @author jcompagner
  *
  */
@@ -40,6 +44,7 @@ public interface ICSSPosition
 	 * @sample
 	 * var left = comp.cssPosition.left;
 	 *
+	 * @return The left CSS position as a string, in pixels or percentage.
 	 */
 	@JSGetter
 	String getLeft();
@@ -53,6 +58,7 @@ public interface ICSSPosition
 	 * @sample
 	 * comp.cssPosition.right
 	 *
+	 * @return The right CSS position as a string, in pixels or percentage.
 	 */
 	@JSGetter
 	String getRight();
@@ -66,6 +72,7 @@ public interface ICSSPosition
 	 * @sample
 	 * comp.cssPosition.top
 	 *
+	 * @return The top CSS position as a string, in pixels or percentage.
 	 */
 	@JSGetter
 	String getTop();
@@ -79,6 +86,7 @@ public interface ICSSPosition
 	 * @sample
 	 * comp.cssPosition.bottom
 	 *
+	 * @return The bottom CSS position as a string, in pixels or percentage.
 	 */
 	@JSGetter
 	String getBottom();
@@ -106,6 +114,7 @@ public interface ICSSPosition
 	 * @sample
 	 * comp.cssPosition.height
 	 *
+	 * @return The height CSS position as a string, in pixels or percentage.
 	 */
 	@JSGetter
 	String getHeight();

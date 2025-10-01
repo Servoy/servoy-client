@@ -52,7 +52,7 @@ public interface ILabel extends IStandardLabel, ISupportSecuritySettings, ISuppo
 	/**
 	 * @param bs
 	 */
-	public void setRolloverIcon(int rollOverMediaId);
+	public void setRolloverIcon(String rollOverMediaId);
 
 	/**
 	 * @param rotation
@@ -64,9 +64,9 @@ public interface ILabel extends IStandardLabel, ISupportSecuritySettings, ISuppo
 	 */
 	public void setFocusPainted(boolean showFocus);
 
-	public void setMediaIcon(int mediaId);
+	public void setMediaIcon(String mediaId);
 
-	public int getMediaIcon();
+	public String getMediaIcon();
 
 	/**
 	 * @param mode (capitalize | uppercase | lowercase | none)

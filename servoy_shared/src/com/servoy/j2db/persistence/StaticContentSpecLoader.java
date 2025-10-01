@@ -81,107 +81,111 @@ public class StaticContentSpecLoader implements IContentSpecConstants
 	public static final TypedProperty<Integer> PROPERTY_ADDEMPTYVALUE = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_ADDEMPTYVALUE);
 	public static final TypedProperty<Integer> PROPERTY_ANCHORS = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_ANCHORS);
 	public static final TypedProperty<Integer> PROPERTY_BLOBID = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_BLOBID);
-	public static final TypedProperty<Integer> PROPERTY_CONTAINSFORMID = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_CONTAINSFORMID);
+	public static final TypedProperty<String> PROPERTY_CONTAINSFORMID = new TypedProperty<String>(IContentSpecConstants.PROPERTY_CONTAINSFORMID);
 	public static final TypedProperty<String> PROPERTY_DEPRECATED = new TypedProperty<String>(IContentSpecConstants.PROPERTY_DEPRECATED);
 	public static final TypedProperty<Integer> PROPERTY_DISPLAYTYPE = new TypedProperty<Integer>(IContentSpecConstantsBase.PROPERTY_DISPLAYTYPE);
-	public static final TypedProperty<Integer> PROPERTY_EXTENDSFORMID = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_EXTENDSFORMID);
-	public static final TypedProperty<Integer> PROPERTY_EXTENDSID = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_EXTENDSID);
-	public static final TypedProperty<Integer> PROPERTY_FALLBACKVALUELISTID = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_FALLBACKVALUELISTID);
-	public static final TypedProperty<Integer> PROPERTY_FIRSTFORMID = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_FIRSTFORMID);
+	public static final TypedProperty<String> PROPERTY_EXTENDSFORMID = new TypedProperty<String>(IContentSpecConstants.PROPERTY_EXTENDSFORMID);
+	public static final TypedProperty<String> PROPERTY_EXTENDSID = new TypedProperty<String>(IContentSpecConstants.PROPERTY_EXTENDSID);
+	public static final TypedProperty<String> PROPERTY_FALLBACKVALUELISTID = new TypedProperty<String>(IContentSpecConstants.PROPERTY_FALLBACKVALUELISTID);
+	public static final TypedProperty<String> PROPERTY_FIRSTFORMID = new TypedProperty<String>(IContentSpecConstants.PROPERTY_FIRSTFORMID);
 	public static final TypedProperty<Integer> PROPERTY_FORMINDEX = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_FORMINDEX);
 	public static final TypedProperty<Integer> PROPERTY_HEIGHT = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_HEIGHT);
 	public static final TypedProperty<Integer> PROPERTY_HORIZONTALALIGNMENT = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_HORIZONTALALIGNMENT);
-	public static final TypedProperty<Integer> PROPERTY_IMAGEMEDIAID = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_IMAGEMEDIAID);
+	public static final TypedProperty<String> PROPERTY_IMAGEMEDIAID = new TypedProperty<String>(IContentSpecConstants.PROPERTY_IMAGEMEDIAID);
 	public static final TypedProperty<Integer> PROPERTY_JOINTYPE = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_JOINTYPE);
 	public static final TypedProperty<Integer> PROPERTY_LINENUMBEROFFSET = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_LINENUMBEROFFSET);
 	public static final TypedProperty<Integer> PROPERTY_LINESIZE = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_LINESIZE);
-	public static final TypedProperty<Integer> PROPERTY_LOGINFORMID = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_LOGINFORMID);
+	public static final TypedProperty<String> PROPERTY_LOGINFORMID = new TypedProperty<String>(IContentSpecConstants.PROPERTY_LOGINFORMID);
 	public static final TypedProperty<Integer> PROPERTY_MEDIAOPTIONS = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_MEDIAOPTIONS);
-	public static final TypedProperty<Integer> PROPERTY_NAVIGATORID = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_NAVIGATORID);
-	public static final TypedProperty<Integer> PROPERTY_ONACTIONMETHODID = new TypedProperty<Integer>(IContentSpecConstantsBase.PROPERTY_ONACTIONMETHODID);
-	public static final TypedProperty<Integer> PROPERTY_ONAFTERCREATEMETHODID = new TypedProperty<Integer>(
+	public static final TypedProperty<String> PROPERTY_NAVIGATORID = new TypedProperty<String>(IContentSpecConstants.PROPERTY_NAVIGATORID);
+	public static final TypedProperty<String> PROPERTY_ONACTIONMETHODID = new TypedProperty<String>(IContentSpecConstantsBase.PROPERTY_ONACTIONMETHODID);
+	public static final TypedProperty<String> PROPERTY_ONAFTERCREATEMETHODID = new TypedProperty<String>(
 		IContentSpecConstants.PROPERTY_ONAFTERCREATEMETHODID);
-	public static final TypedProperty<Integer> PROPERTY_ONAFTERDELETEMETHODID = new TypedProperty<Integer>(
+	public static final TypedProperty<String> PROPERTY_ONAFTERDELETEMETHODID = new TypedProperty<String>(
 		IContentSpecConstants.PROPERTY_ONAFTERDELETEMETHODID);
-	public static final TypedProperty<Integer> PROPERTY_ONAFTERFINDMETHODID = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_ONAFTERFINDMETHODID);
-	public static final TypedProperty<Integer> PROPERTY_ONAFTERINSERTMETHODID = new TypedProperty<Integer>(
+	public static final TypedProperty<String> PROPERTY_ONAFTERFINDMETHODID = new TypedProperty<String>(IContentSpecConstants.PROPERTY_ONAFTERFINDMETHODID);
+	public static final TypedProperty<String> PROPERTY_ONAFTERINSERTMETHODID = new TypedProperty<String>(
 		IContentSpecConstants.PROPERTY_ONAFTERINSERTMETHODID);
-	public static final TypedProperty<Integer> PROPERTY_ONAFTERSEARCHMETHODID = new TypedProperty<Integer>(
+	public static final TypedProperty<String> PROPERTY_ONAFTERSEARCHMETHODID = new TypedProperty<String>(
 		IContentSpecConstants.PROPERTY_ONAFTERSEARCHMETHODID);
-	public static final TypedProperty<Integer> PROPERTY_ONAFTERUPDATEMETHODID = new TypedProperty<Integer>(
+	public static final TypedProperty<String> PROPERTY_ONAFTERUPDATEMETHODID = new TypedProperty<String>(
 		IContentSpecConstants.PROPERTY_ONAFTERUPDATEMETHODID);
-	public static final TypedProperty<Integer> PROPERTY_ONFOUNDSETLOADMETHODID = new TypedProperty<Integer>(
+	public static final TypedProperty<String> PROPERTY_ONFOUNDSETLOADMETHODID = new TypedProperty<String>(
 		IContentSpecConstants.PROPERTY_ONFOUNDSETLOADMETHODID);
-	public static final TypedProperty<Integer> PROPERTY_ONFOUNDSETNEXTCHUNKMETHODID = new TypedProperty<Integer>(
+	public static final TypedProperty<String> PROPERTY_ONFOUNDSETNEXTCHUNKMETHODID = new TypedProperty<String>(
 		IContentSpecConstants.PROPERTY_ONFOUNDSETNEXTCHUNKMETHODID);
-	public static final TypedProperty<Integer> PROPERTY_ONCLOSEMETHODID = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_ONCLOSEMETHODID);
-	public static final TypedProperty<Integer> PROPERTY_ONCREATEMETHODID = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_ONCREATEMETHODID);
-	public static final TypedProperty<Integer> PROPERTY_ONDATABROADCASTMETHODID = new TypedProperty<Integer>(
+	public static final TypedProperty<String> PROPERTY_ONFOUNDSETBEFORESELECTIONCHANGEMETHODID = new TypedProperty<String>(
+		IContentSpecConstants.PROPERTY_ONFOUNDSETBEFORESELECTIONCHANGEMETHODID);
+	public static final TypedProperty<String> PROPERTY_ONCLOSEMETHODID = new TypedProperty<String>(IContentSpecConstants.PROPERTY_ONCLOSEMETHODID);
+	public static final TypedProperty<String> PROPERTY_ONCREATEMETHODID = new TypedProperty<String>(IContentSpecConstants.PROPERTY_ONCREATEMETHODID);
+	public static final TypedProperty<String> PROPERTY_ONDATABROADCASTMETHODID = new TypedProperty<String>(
 		IContentSpecConstants.PROPERTY_ONDATABROADCASTMETHODID);
-	public static final TypedProperty<Integer> PROPERTY_ONDATACHANGEMETHODID = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_ONDATACHANGEMETHODID);
-	public static final TypedProperty<Integer> PROPERTY_ONDELETEALLRECORDSCMDMETHODID = new TypedProperty<Integer>(
+	public static final TypedProperty<String> PROPERTY_ONDATACHANGEMETHODID = new TypedProperty<String>(IContentSpecConstants.PROPERTY_ONDATACHANGEMETHODID);
+	public static final TypedProperty<String> PROPERTY_ONDELETEALLRECORDSCMDMETHODID = new TypedProperty<String>(
 		IContentSpecConstants.PROPERTY_ONDELETEALLRECORDSCMDMETHODID);
-	public static final TypedProperty<Integer> PROPERTY_ONDELETEMETHODID = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_ONDELETEMETHODID);
-	public static final TypedProperty<Integer> PROPERTY_ONDELETERECORDCMDMETHODID = new TypedProperty<Integer>(
+	public static final TypedProperty<String> PROPERTY_ONDELETEMETHODID = new TypedProperty<String>(IContentSpecConstants.PROPERTY_ONDELETEMETHODID);
+	public static final TypedProperty<String> PROPERTY_ONDELETERECORDCMDMETHODID = new TypedProperty<String>(
 		IContentSpecConstants.PROPERTY_ONDELETERECORDCMDMETHODID);
-	public static final TypedProperty<Integer> PROPERTY_ONDOUBLECLICKMETHODID = new TypedProperty<Integer>(
+	public static final TypedProperty<String> PROPERTY_ONDOUBLECLICKMETHODID = new TypedProperty<String>(
 		IContentSpecConstants.PROPERTY_ONDOUBLECLICKMETHODID);
-	public static final TypedProperty<Integer> PROPERTY_ONDRAGENDMETHODID = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_ONDRAGENDMETHODID);
-	public static final TypedProperty<Integer> PROPERTY_ONDRAGMETHODID = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_ONDRAGMETHODID);
-	public static final TypedProperty<Integer> PROPERTY_ONDRAGOVERMETHODID = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_ONDRAGOVERMETHODID);
-	public static final TypedProperty<Integer> PROPERTY_ONDROPMETHODID = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_ONDROPMETHODID);
-	public static final TypedProperty<Integer> PROPERTY_ONDUPLICATERECORDCMDMETHODID = new TypedProperty<Integer>(
+	public static final TypedProperty<String> PROPERTY_ONDRAGENDMETHODID = new TypedProperty<String>(IContentSpecConstants.PROPERTY_ONDRAGENDMETHODID);
+	public static final TypedProperty<String> PROPERTY_ONDRAGMETHODID = new TypedProperty<String>(IContentSpecConstants.PROPERTY_ONDRAGMETHODID);
+	public static final TypedProperty<String> PROPERTY_ONDRAGOVERMETHODID = new TypedProperty<String>(IContentSpecConstants.PROPERTY_ONDRAGOVERMETHODID);
+	public static final TypedProperty<String> PROPERTY_ONDROPMETHODID = new TypedProperty<String>(IContentSpecConstants.PROPERTY_ONDROPMETHODID);
+	public static final TypedProperty<String> PROPERTY_ONDUPLICATERECORDCMDMETHODID = new TypedProperty<String>(
 		IContentSpecConstants.PROPERTY_ONDUPLICATERECORDCMDMETHODID);
-	public static final TypedProperty<Integer> PROPERTY_ONELEMENTFOCUSGAINEDMETHODID = new TypedProperty<Integer>(
+	public static final TypedProperty<String> PROPERTY_ONELEMENTFOCUSGAINEDMETHODID = new TypedProperty<String>(
 		IContentSpecConstants.PROPERTY_ONELEMENTFOCUSGAINEDMETHODID);
-	public static final TypedProperty<Integer> PROPERTY_ONELEMENTFOCUSLOSTMETHODID = new TypedProperty<Integer>(
+	public static final TypedProperty<String> PROPERTY_ONELEMENTFOCUSLOSTMETHODID = new TypedProperty<String>(
 		IContentSpecConstants.PROPERTY_ONELEMENTFOCUSLOSTMETHODID);
-	public static final TypedProperty<Integer> PROPERTY_ONERRORMETHODID = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_ONERRORMETHODID);
-	public static final TypedProperty<Integer> PROPERTY_ONFINDCMDMETHODID = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_ONFINDCMDMETHODID);
-	public static final TypedProperty<Integer> PROPERTY_ONFINDMETHODID = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_ONFINDMETHODID);
-	public static final TypedProperty<Integer> PROPERTY_ONFOCUSGAINEDMETHODID = new TypedProperty<Integer>(
+	public static final TypedProperty<String> PROPERTY_ONERRORMETHODID = new TypedProperty<String>(IContentSpecConstants.PROPERTY_ONERRORMETHODID);
+	public static final TypedProperty<String> PROPERTY_ONFINDCMDMETHODID = new TypedProperty<String>(IContentSpecConstants.PROPERTY_ONFINDCMDMETHODID);
+	public static final TypedProperty<String> PROPERTY_ONFINDMETHODID = new TypedProperty<String>(IContentSpecConstants.PROPERTY_ONFINDMETHODID);
+	public static final TypedProperty<String> PROPERTY_ONFOCUSGAINEDMETHODID = new TypedProperty<String>(
 		IContentSpecConstants.PROPERTY_ONFOCUSGAINEDMETHODID);
-	public static final TypedProperty<Integer> PROPERTY_ONFOCUSLOSTMETHODID = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_ONFOCUSLOSTMETHODID);
-	public static final TypedProperty<Integer> PROPERTY_ONHIDEMETHODID = new TypedProperty<Integer>(IContentSpecConstantsBase.PROPERTY_ONHIDEMETHODID);
-	public static final TypedProperty<Integer> PROPERTY_ONBEFOREHIDEMETHODID = new TypedProperty<Integer>(
+	public static final TypedProperty<String> PROPERTY_ONFOCUSLOSTMETHODID = new TypedProperty<String>(IContentSpecConstants.PROPERTY_ONFOCUSLOSTMETHODID);
+	public static final TypedProperty<String> PROPERTY_ONHIDEMETHODID = new TypedProperty<String>(IContentSpecConstantsBase.PROPERTY_ONHIDEMETHODID);
+	public static final TypedProperty<String> PROPERTY_ONBEFOREHIDEMETHODID = new TypedProperty<String>(
 		IContentSpecConstantsBase.PROPERTY_ONBEFOREHIDEMETHODID);
-	public static final TypedProperty<Integer> PROPERTY_ONINITMETHODID = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_ONINITMETHODID);
-	public static final TypedProperty<Integer> PROPERTY_ONINSERTMETHODID = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_ONINSERTMETHODID);
-	public static final TypedProperty<Integer> PROPERTY_ONINVERTRECORDSCMDMETHODID = new TypedProperty<Integer>(
+	public static final TypedProperty<String> PROPERTY_ONINITMETHODID = new TypedProperty<String>(IContentSpecConstants.PROPERTY_ONINITMETHODID);
+	public static final TypedProperty<String> PROPERTY_ONINSERTMETHODID = new TypedProperty<String>(IContentSpecConstants.PROPERTY_ONINSERTMETHODID);
+	public static final TypedProperty<String> PROPERTY_ONINVERTRECORDSCMDMETHODID = new TypedProperty<String>(
 		IContentSpecConstants.PROPERTY_ONINVERTRECORDSCMDMETHODID);
-	public static final TypedProperty<Integer> PROPERTY_ONLOADMETHODID = new TypedProperty<Integer>(IContentSpecConstantsBase.PROPERTY_ONLOADMETHODID);
-	public static final TypedProperty<Integer> PROPERTY_ONNEWRECORDCMDMETHODID = new TypedProperty<Integer>(
+	public static final TypedProperty<String> PROPERTY_ONLOADMETHODID = new TypedProperty<String>(IContentSpecConstantsBase.PROPERTY_ONLOADMETHODID);
+	public static final TypedProperty<String> PROPERTY_ONNEWRECORDCMDMETHODID = new TypedProperty<String>(
 		IContentSpecConstants.PROPERTY_ONNEWRECORDCMDMETHODID);
-	public static final TypedProperty<Integer> PROPERTY_ONNEXTRECORDCMDMETHODID = new TypedProperty<Integer>(
+	public static final TypedProperty<String> PROPERTY_ONNEXTRECORDCMDMETHODID = new TypedProperty<String>(
 		IContentSpecConstants.PROPERTY_ONNEXTRECORDCMDMETHODID);
-	public static final TypedProperty<Integer> PROPERTY_ONOMITRECORDCMDMETHODID = new TypedProperty<Integer>(
+	public static final TypedProperty<String> PROPERTY_ONOMITRECORDCMDMETHODID = new TypedProperty<String>(
 		IContentSpecConstants.PROPERTY_ONOMITRECORDCMDMETHODID);
-	public static final TypedProperty<Integer> PROPERTY_ONOPENMETHODID = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_ONOPENMETHODID);
-	public static final TypedProperty<Integer> PROPERTY_ONPREVIOUSRECORDCMDMETHODID = new TypedProperty<Integer>(
+	public static final TypedProperty<String> PROPERTY_ONOPENMETHODID = new TypedProperty<String>(IContentSpecConstants.PROPERTY_ONOPENMETHODID);
+	public static final TypedProperty<String> PROPERTY_ONPREVIOUSRECORDCMDMETHODID = new TypedProperty<String>(
 		IContentSpecConstants.PROPERTY_ONPREVIOUSRECORDCMDMETHODID);
-	public static final TypedProperty<Integer> PROPERTY_ONPRINTPREVIEWCMDMETHODID = new TypedProperty<Integer>(
+	public static final TypedProperty<String> PROPERTY_ONPRINTPREVIEWCMDMETHODID = new TypedProperty<String>(
 		IContentSpecConstants.PROPERTY_ONPRINTPREVIEWCMDMETHODID);
-	public static final TypedProperty<Integer> PROPERTY_ONRECORDEDITSTARTMETHODID = new TypedProperty<Integer>(
+	public static final TypedProperty<String> PROPERTY_ONRECORDEDITSTARTMETHODID = new TypedProperty<String>(
 		IContentSpecConstants.PROPERTY_ONRECORDEDITSTARTMETHODID);
-	public static final TypedProperty<Integer> PROPERTY_ONRECORDEDITSTOPMETHODID = new TypedProperty<Integer>(
+	public static final TypedProperty<String> PROPERTY_ONRECORDEDITSTOPMETHODID = new TypedProperty<String>(
 		IContentSpecConstants.PROPERTY_ONRECORDEDITSTOPMETHODID);
-	public static final TypedProperty<Integer> PROPERTY_ONRECORDSELECTIONMETHODID = new TypedProperty<Integer>(
+	public static final TypedProperty<String> PROPERTY_ONRECORDSELECTIONMETHODID = new TypedProperty<String>(
 		IContentSpecConstantsBase.PROPERTY_ONRECORDSELECTIONMETHODID);
-	public static final TypedProperty<Integer> PROPERTY_ONRENDERMETHODID = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_ONRENDERMETHODID);
-	public static final TypedProperty<Integer> PROPERTY_ONRESIZEMETHODID = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_ONRESIZEMETHODID);
-	public static final TypedProperty<Integer> PROPERTY_ONRIGHTCLICKMETHODID = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_ONRIGHTCLICKMETHODID);
-	public static final TypedProperty<Integer> PROPERTY_ONSEARCHCMDMETHODID = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_ONSEARCHCMDMETHODID);
-	public static final TypedProperty<Integer> PROPERTY_ONSEARCHMETHODID = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_ONSEARCHMETHODID);
-	public static final TypedProperty<Integer> PROPERTY_ONSHOWALLRECORDSCMDMETHODID = new TypedProperty<Integer>(
+	public static final TypedProperty<String> PROPERTY_ONBEFORERECORDSELECTIONMETHODID = new TypedProperty<String>(
+		IContentSpecConstantsBase.PROPERTY_ONBEFORERECORDSELECTIONMETHODID);
+	public static final TypedProperty<String> PROPERTY_ONRENDERMETHODID = new TypedProperty<String>(IContentSpecConstants.PROPERTY_ONRENDERMETHODID);
+	public static final TypedProperty<String> PROPERTY_ONRESIZEMETHODID = new TypedProperty<String>(IContentSpecConstants.PROPERTY_ONRESIZEMETHODID);
+	public static final TypedProperty<String> PROPERTY_ONRIGHTCLICKMETHODID = new TypedProperty<String>(IContentSpecConstants.PROPERTY_ONRIGHTCLICKMETHODID);
+	public static final TypedProperty<String> PROPERTY_ONSEARCHCMDMETHODID = new TypedProperty<String>(IContentSpecConstants.PROPERTY_ONSEARCHCMDMETHODID);
+	public static final TypedProperty<String> PROPERTY_ONSEARCHMETHODID = new TypedProperty<String>(IContentSpecConstants.PROPERTY_ONSEARCHMETHODID);
+	public static final TypedProperty<String> PROPERTY_ONSHOWALLRECORDSCMDMETHODID = new TypedProperty<String>(
 		IContentSpecConstants.PROPERTY_ONSHOWALLRECORDSCMDMETHODID);
-	public static final TypedProperty<Integer> PROPERTY_ONSHOWMETHODID = new TypedProperty<Integer>(IContentSpecConstantsBase.PROPERTY_ONSHOWMETHODID);
-	public static final TypedProperty<Integer> PROPERTY_ONSHOWOMITTEDRECORDSCMDMETHODID = new TypedProperty<Integer>(
+	public static final TypedProperty<String> PROPERTY_ONSHOWMETHODID = new TypedProperty<String>(IContentSpecConstantsBase.PROPERTY_ONSHOWMETHODID);
+	public static final TypedProperty<String> PROPERTY_ONSHOWOMITTEDRECORDSCMDMETHODID = new TypedProperty<String>(
 		IContentSpecConstants.PROPERTY_ONSHOWOMITTEDRECORDSCMDMETHODID);
-	public static final TypedProperty<Integer> PROPERTY_ONSORTCMDMETHODID = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_ONSORTCMDMETHODID);
-	public static final TypedProperty<Integer> PROPERTY_ONTABCHANGEMETHODID = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_ONTABCHANGEMETHODID);
-	public static final TypedProperty<Integer> PROPERTY_ONCHANGEMETHODID = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_ONCHANGEMETHODID);
-	public static final TypedProperty<Integer> PROPERTY_ONUNLOADMETHODID = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_ONUNLOADMETHODID);
-	public static final TypedProperty<Integer> PROPERTY_ONUPDATEMETHODID = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_ONUPDATEMETHODID);
+	public static final TypedProperty<String> PROPERTY_ONSORTCMDMETHODID = new TypedProperty<String>(IContentSpecConstants.PROPERTY_ONSORTCMDMETHODID);
+	public static final TypedProperty<String> PROPERTY_ONTABCHANGEMETHODID = new TypedProperty<String>(IContentSpecConstants.PROPERTY_ONTABCHANGEMETHODID);
+	public static final TypedProperty<String> PROPERTY_ONCHANGEMETHODID = new TypedProperty<String>(IContentSpecConstants.PROPERTY_ONCHANGEMETHODID);
+	public static final TypedProperty<String> PROPERTY_ONUNLOADMETHODID = new TypedProperty<String>(IContentSpecConstants.PROPERTY_ONUNLOADMETHODID);
+	public static final TypedProperty<String> PROPERTY_ONUPDATEMETHODID = new TypedProperty<String>(IContentSpecConstants.PROPERTY_ONUPDATEMETHODID);
 	public static final TypedProperty<Integer> PROPERTY_OPERATOR = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_OPERATOR);
 	public static final TypedProperty<Integer> PROPERTY_PAGEBREAKAFTEROCCURRENCE = new TypedProperty<Integer>(
 		IContentSpecConstants.PROPERTY_PAGEBREAKAFTEROCCURRENCE);
@@ -191,7 +195,7 @@ public class StaticContentSpecLoader implements IContentSpecConstants
 	public static final TypedProperty<Integer> PROPERTY_RESOURCETYPE = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_RESOURCETYPE);
 	public static final TypedProperty<Integer> PROPERTY_RETURNDATAPROVIDERS = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_RETURNDATAPROVIDERS);
 	public static final TypedProperty<Integer> PROPERTY_ROLLOVERCURSOR = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_ROLLOVERCURSOR);
-	public static final TypedProperty<Integer> PROPERTY_ROLLOVERIMAGEMEDIAID = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_ROLLOVERIMAGEMEDIAID);
+	public static final TypedProperty<String> PROPERTY_ROLLOVERIMAGEMEDIAID = new TypedProperty<String>(IContentSpecConstants.PROPERTY_ROLLOVERIMAGEMEDIAID);
 	public static final TypedProperty<Integer> PROPERTY_ROTATION = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_ROTATION);
 	public static final TypedProperty<Integer> PROPERTY_ROUNDEDRADIUS = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_ROUNDEDRADIUS);
 	public static final TypedProperty<Integer> PROPERTY_ROWHEIGHT = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_ROWHEIGHT);
@@ -203,7 +207,7 @@ public class StaticContentSpecLoader implements IContentSpecConstants
 	public static final TypedProperty<Integer> PROPERTY_TABSEQ = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_TABSEQ);
 	public static final TypedProperty<Integer> PROPERTY_TEXTORIENTATION = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_TEXTORIENTATION);
 	public static final TypedProperty<Integer> PROPERTY_TYPE = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_TYPE);
-	public static final TypedProperty<Integer> PROPERTY_VALUELISTID = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_VALUELISTID);
+	public static final TypedProperty<String> PROPERTY_VALUELISTID = new TypedProperty<String>(IContentSpecConstants.PROPERTY_VALUELISTID);
 	public static final TypedProperty<Integer> PROPERTY_VALUELISTTYPE = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_VALUELISTTYPE);
 	public static final TypedProperty<Integer> PROPERTY_VARIABLETYPE = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_VARIABLETYPE);
 	public static final TypedProperty<Integer> PROPERTY_VERTICALALIGNMENT = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_VERTICALALIGNMENT);
@@ -264,8 +268,9 @@ public class StaticContentSpecLoader implements IContentSpecConstants
 	public static final TypedProperty<String> PROPERTY_SCOPENAME = new TypedProperty<String>(IContentSpecConstants.PROPERTY_SCOPENAME);
 	public static final TypedProperty<String> PROPERTY_SEPARATOR = new TypedProperty<String>(IContentSpecConstants.PROPERTY_SEPARATOR);
 	public static final TypedProperty<String> PROPERTY_SORTOPTIONS = new TypedProperty<String>(IContentSpecConstants.PROPERTY_SORTOPTIONS);
-	public static final TypedProperty<Integer> PROPERTY_STYLESHEET = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_STYLESHEET);
+	public static final TypedProperty<String> PROPERTY_STYLESHEET = new TypedProperty<String>(IContentSpecConstants.PROPERTY_STYLESHEET);
 	public static final TypedProperty<String> PROPERTY_STYLECLASS = new TypedProperty<String>(IContentSpecConstants.PROPERTY_STYLECLASS);
+	public static final TypedProperty<String> PROPERTY_ICONSTYLECLASS = new TypedProperty<String>(IContentSpecConstants.PROPERTY_ICONSTYLECLASS);
 	public static final TypedProperty<String> PROPERTY_STYLENAME = new TypedProperty<String>(IContentSpecConstants.PROPERTY_STYLENAME);
 	public static final TypedProperty<String> PROPERTY_STYLE = new TypedProperty<String>(IContentSpecConstants.PROPERTY_STYLE);
 	public static final TypedProperty<String> PROPERTY_TAGTYPE = new TypedProperty<String>(IContentSpecConstants.PROPERTY_TAGTYPE);
@@ -277,7 +282,7 @@ public class StaticContentSpecLoader implements IContentSpecConstants
 	//public static final TypedProperty<JSONObject> PROPERTY_JSON = new TypedProperty<JSONObject>(IContentSpecConstants.PROPERTY_JSON);
 	public static final TypedProperty<JSONObject> PROPERTY_JSON = new TypedProperty<JSONObject>(IContentSpecConstants.PROPERTY_JSON);
 	public static final TypedProperty<String> PROPERTY_TYPENAME = new TypedProperty<String>(IContentSpecConstants.PROPERTY_TYPENAME);
-	public static final TypedProperty<Integer> PROPERTY_ONELEMENTDATACHANGEMETHODID = new TypedProperty<Integer>(
+	public static final TypedProperty<String> PROPERTY_ONELEMENTDATACHANGEMETHODID = new TypedProperty<String>(
 		IContentSpecConstants.PROPERTY_ONELEMENTDATACHANGEMETHODID);
 	public static final TypedProperty<CSSPosition> PROPERTY_CSS_POSITION = new TypedProperty<CSSPosition>(IContentSpecConstants.PROPERTY_CSS_POSITION);
 	public static final TypedProperty<Integer> PROPERTY_VALUELIST_REALVALUE_TYPE = new TypedProperty<Integer>(
@@ -305,11 +310,13 @@ public class StaticContentSpecLoader implements IContentSpecConstants
 	public static final TypedProperty<Integer> PROPERTY_SOLUTIONTYPE = new TypedProperty<Integer>("solutionType"); //$NON-NLS-1$;
 	private static final TypedProperty<String> PROPERTY_PROTECTIONPASSWORD = new TypedProperty<String>("protectionPassword"); //$NON-NLS-1$;
 	public static final TypedProperty<String> PROPERTY_VERSION = new TypedProperty<String>("version"); //$NON-NLS-1$;
-	public static final TypedProperty<Integer> PROPERTY_ONVALIDATEMETHODID = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_ONVALIDATEMETHODID);
-	public static final TypedProperty<Integer> PROPERTY_ONAUTOSAVEDFAILEDMETHODID = new TypedProperty<Integer>(
+	public static final TypedProperty<String> PROPERTY_ONVALIDATEMETHODID = new TypedProperty<String>(IContentSpecConstants.PROPERTY_ONVALIDATEMETHODID);
+	public static final TypedProperty<String> PROPERTY_ONAUTOSAVEDFAILEDMETHODID = new TypedProperty<String>(
 		IContentSpecConstants.PROPERTY_ONAUTOSAVEDFAILEDMETHODID);
-	public static final TypedProperty<Integer> PROPERTY_ONBEFORELOGINMETHODID = new TypedProperty<Integer>(
+	public static final TypedProperty<String> PROPERTY_ONBEFORELOGINMETHODID = new TypedProperty<String>(
 		IContentSpecConstants.PROPERTY_ONBEFORELOGINMETHODID);
+	public static final TypedProperty<JSONObject> PROPERTY_PERMISSIONS = new TypedProperty<JSONObject>(IContentSpecConstants.PROPERTY_PERMISSIONS);
+	public static final TypedProperty<JSONObject> PROPERTY_EVENTTYPES = new TypedProperty<JSONObject>(IContentSpecConstants.PROPERTY_EVENTTYPES);
 
 	private static HashMap<Integer, ContentSpec> csMap = new HashMap<Integer, ContentSpec>();
 
@@ -976,7 +983,40 @@ public class StaticContentSpecLoader implements IContentSpecConstants
 //			cs.new Element(472, IRepository.LAYOUTCONTAINERS, PROPERTY_SIZE.getPropertyName(), IRepository.DIMENSION);
 
 		}
+		if (old_repository_version < 58)
+		{
+			//2024.09 properties here
+			cs.new Element(474, IRepository.MENUS, PROPERTY_NAME.getPropertyName(), IRepository.STRING);
+			cs.new Element(475, IRepository.MENUS, PROPERTY_COMMENT.getPropertyName(), IRepository.STRING);
+			cs.new Element(476, IRepository.MENUS, PROPERTY_ENCAPSULATION.getPropertyName(), IRepository.INTEGER);
+			cs.new Element(477, IRepository.MENUS, PROPERTY_STYLECLASS.getPropertyName(), IRepository.STRING);
+			cs.new Element(478, IRepository.MENUS, PROPERTY_CUSTOMPROPERTIES.getPropertyName(), IRepository.STRING);
 
+			cs.new Element(479, IRepository.MENU_ITEMS, PROPERTY_NAME.getPropertyName(), IRepository.STRING);
+			cs.new Element(480, IRepository.MENU_ITEMS, PROPERTY_TEXT.getPropertyName(), IRepository.STRING);
+			cs.new Element(481, IRepository.MENU_ITEMS, PROPERTY_TOOLTIPTEXT.getPropertyName(), IRepository.STRING);
+			cs.new Element(482, IRepository.MENU_ITEMS, PROPERTY_STYLECLASS.getPropertyName(), IRepository.STRING);
+			cs.new Element(483, IRepository.MENU_ITEMS, PROPERTY_ICONSTYLECLASS.getPropertyName(), IRepository.STRING);
+			cs.new Element(484, IRepository.MENU_ITEMS, PROPERTY_CUSTOMPROPERTIES.getPropertyName(), IRepository.STRING);
+			cs.new Element(485, IRepository.MENU_ITEMS, PROPERTY_ENABLED.getPropertyName(), IRepository.BOOLEAN, Boolean.TRUE);
+			cs.new Element(486, IRepository.MENU_ITEMS, PROPERTY_PERMISSIONS.getPropertyName(), IRepository.JSON, null);
+		}
+		if (old_repository_version < 59)
+		{
+			//2024.12 properties here
+			cs.new Element(487, IRepository.TABLENODES, PROPERTY_ONFOUNDSETBEFORESELECTIONCHANGEMETHODID.getPropertyName(), IRepository.ELEMENTS);
+		}
+		if (old_repository_version < 60)
+		{
+			//2025.03 properties here
+			cs.new Element(488, IRepository.FORMS, PROPERTY_ONBEFORERECORDSELECTIONMETHODID.getPropertyName(), IRepository.ELEMENTS);
+			cs.new Element(489, IRepository.SOLUTIONS, PROPERTY_EVENTTYPES.getPropertyName(), IRepository.JSON, null);
+		}
+		if (old_repository_version < 61)
+		{
+			//2025.06 properties here
+			cs.new Element(490, IRepository.CSSPOS_LAYOUTCONTAINERS, PROPERTY_FORMINDEX.getPropertyName(), IRepository.INTEGER);
+		}
 		//##add property adds here
 		return cs;
 	}

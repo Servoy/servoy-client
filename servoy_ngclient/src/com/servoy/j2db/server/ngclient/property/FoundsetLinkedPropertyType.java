@@ -29,6 +29,7 @@ import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IConvertedPropertyType;
 import org.sablo.specification.property.IPropertyType;
 import org.sablo.specification.property.IPropertyWithClientSideConversions;
+import org.sablo.specification.property.IPropertyWithAttachDependencies;
 import org.sablo.specification.property.ISupportsGranularUpdates;
 import org.sablo.util.ValueReference;
 import org.sablo.websocket.utils.JSONUtils;
@@ -77,7 +78,8 @@ public class FoundsetLinkedPropertyType<YF, YT> implements IYieldingType<Foundse
 	IWrapperDataLinkedType<YF, FoundsetLinkedTypeSabloValue<YF, YT>>, IFormElementToSabloComponent<YF, FoundsetLinkedTypeSabloValue<YF, YT>>,
 	IConvertedPropertyType<FoundsetLinkedTypeSabloValue<YF, YT>>, IFindModeAwareType<YF, FoundsetLinkedTypeSabloValue<YF, YT>>,
 	ISabloComponentToRhino<FoundsetLinkedTypeSabloValue<YF, YT>>, IRhinoToSabloComponent<FoundsetLinkedTypeSabloValue<YF, YT>>,
-	ISupportsGranularUpdates<FoundsetLinkedTypeSabloValue<YF, YT>>, IPropertyWithClientSideConversions<FoundsetLinkedTypeSabloValue<YF, YT>>
+	ISupportsGranularUpdates<FoundsetLinkedTypeSabloValue<YF, YT>>, IPropertyWithClientSideConversions<FoundsetLinkedTypeSabloValue<YF, YT>>,
+	IPropertyWithAttachDependencies<FoundsetLinkedTypeSabloValue<YF, YT>>
 {
 
 	protected static final String SINGLE_VALUE = "sv"; //$NON-NLS-1$
@@ -146,9 +148,9 @@ public class FoundsetLinkedPropertyType<YF, YT> implements IYieldingType<Foundse
 	}
 
 	@Override
-	public boolean isPrimitive()
+	public boolean isBuiltinType()
 	{
-		return wrappedType.isPrimitive();
+		return wrappedType.isBuiltinType();
 	}
 
 	@Override
@@ -332,6 +334,28 @@ public class FoundsetLinkedPropertyType<YF, YT> implements IYieldingType<Foundse
 		JSONUtils.addKeyIfPresent(w, keyToAddTo);
 		w.value(CONVERSION_NAME);
 		return true;
+	}
+
+	@Override
+	public String[] getDependencies(PropertyDescription pd)
+	{
+		FoundsetLinkedConfig flc = ((FoundsetLinkedConfig)pd.getConfig());
+		String[] wrappedTypeDependencies = null;
+		if (flc != null && wrappedType instanceof IPropertyWithAttachDependencies wrappedTypeWithDeps)
+			wrappedTypeDependencies = wrappedTypeWithDeps.getDependencies(flc.getWrappedPropertyDescription());
+
+		String[] dependencies = null;
+		if (flc != null)
+		{
+			dependencies = new String[1 + (wrappedTypeDependencies != null ? wrappedTypeDependencies.length : 0)];
+			dependencies[0] = flc.forFoundset;
+			if (wrappedTypeDependencies != null)
+			{
+				for (int i = wrappedTypeDependencies.length - 1; i >= 0; i--)
+					dependencies[i + 1] = wrappedTypeDependencies[i];
+			}
+		}
+		return dependencies;
 	}
 
 }

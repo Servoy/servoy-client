@@ -17,8 +17,8 @@
 package com.servoy.j2db.dataprocessing;
 
 /**
- * Constants used in stopEditting to give the status of the save.
- * 
+ * Constants used in stopEditing to give the status of the save.
+ *
  * @author jcompagner,jblok
  */
 public interface ISaveConstants
@@ -29,7 +29,7 @@ public interface ISaveConstants
 	public static final int STOPPED = 1;
 
 	/**
-	 * Stop edit was blocked by autosave false flag. 
+	 * Stop edit was blocked by autosave false flag.
 	 */
 	public static final int AUTO_SAVE_BLOCKED = 2;
 

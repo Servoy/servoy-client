@@ -27,6 +27,12 @@ public class InMemoryTemplate extends ServerTemplateDefinition
 {
 	public InMemoryTemplate()
 	{
-		super(new ServerConfig("new_inmem", "sa", "", "jdbc:hsqldb:mem:.", null, "org.hsqldb.jdbcDriver", null, null, true, false, null, null));
+		super(new ServerConfig.Builder()
+			.setServerName("new_inmem")
+			.setUserName("sa")
+			.setPassword("")
+			.setServerUrl("jdbc:hsqldb:mem:.")
+			.setDriver("org.hsqldb.jdbcDriver")
+			.build());
 	}
 }

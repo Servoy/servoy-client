@@ -21,8 +21,8 @@ import static com.servoy.j2db.persistence.IRepository.SOLUTIONS;
 import static com.servoy.j2db.server.ngclient.MediaResourcesServlet.FLATTENED_SOLUTION_ACCESS;
 import static com.servoy.j2db.server.ngclient.WebsocketSessionFactory.CLIENT_ENDPOINT;
 import static com.servoy.j2db.util.Utils.getAsBoolean;
+import static jakarta.servlet.http.HttpServletResponse.SC_SERVICE_UNAVAILABLE;
 import static java.util.stream.Collectors.joining;
-import static javax.servlet.http.HttpServletResponse.SC_SERVICE_UNAVAILABLE;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
@@ -32,12 +32,6 @@ import java.io.Writer;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
-
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
@@ -56,11 +50,20 @@ import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.scripting.StartupArguments;
 import com.servoy.j2db.server.headlessclient.util.HCUtils;
+import com.servoy.j2db.server.ngclient.auth.StatelessLoginUtils.OAuthDeeplinkRequestWrapper;
+import com.servoy.j2db.server.ngclient.auth.SvyID;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.server.shared.IApplicationServer;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.Settings;
+import com.servoy.j2db.util.UUID;
+
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 /**
  * @author jcompagner
@@ -71,21 +74,21 @@ public class AngularIndexPageWriter
 {
 	public static final String SOLUTIONS_PATH = "/solution/";
 
-	public static void writeStartupJs(HttpServletRequest request, HttpServletResponse response, String solutionName)
-		throws IOException, ServletException
-	{
-		if (request.getCharacterEncoding() == null) request.setCharacterEncoding("UTF8");
-		String uri = request.getRequestURI();
-		String clientnr = getClientNr(uri, request);
-		Pair<FlattenedSolution, Boolean> pair = getFlattenedSolution(solutionName, clientnr, request, response);
-		StringBuilder sb = new StringBuilder();
-		generateStartupData(request, pair.getLeft(), sb);
-		response.setCharacterEncoding("UTF-8");
-		response.setContentType("application/javascript");
-		response.setContentLengthLong(sb.length());
-		response.getWriter().write(sb.toString());
-		if (pair.getRight().booleanValue()) pair.getLeft().close(null);
-	}
+//	public static void writeStartupJs(HttpServletRequest request, HttpServletResponse response, String solutionName)
+//		throws IOException, ServletException
+//	{
+//		if (request.getCharacterEncoding() == null) request.setCharacterEncoding("UTF8");
+//		String uri = request.getRequestURI();
+//		Integer clientnr = getClientNr(uri, request);
+//		Pair<FlattenedSolution, Boolean> pair = getFlattenedSolution(solutionName, clientnr, request, response);
+//		StringBuilder sb = new StringBuilder();
+//		generateStartupData(request, pair.getLeft(), sb);
+//		response.setCharacterEncoding("UTF-8");
+//		response.setContentType("application/javascript");
+//		response.setContentLengthLong(sb.length());
+//		response.getWriter().write(sb.toString());
+//		if (pair.getRight().booleanValue()) pair.getLeft().close(null);
+//	}
 
 
 	/**
@@ -100,21 +103,29 @@ public class AngularIndexPageWriter
 		json.put("pathName", request.getContextPath() + "/solution/" + fs.getName() + "/");
 
 		Map<String, String[]> parameterMap = request.getParameterMap();
-		if (parameterMap.containsKey(StatelessLoginHandler.USERNAME) || parameterMap.containsKey(StatelessLoginHandler.ID_TOKEN) ||
-			parameterMap.containsKey(StatelessLoginHandler.PASSWORD))
+		if (parameterMap.containsKey(SvyID.USERNAME) || parameterMap.containsKey(StatelessLoginHandler.ID_TOKEN) ||
+			parameterMap.containsKey(StatelessLoginHandler.PASSWORD) || parameterMap.containsKey("svy_remove_id_token"))
 		{
 			parameterMap = new HashMap<>(request.getParameterMap());
-			parameterMap.remove(StatelessLoginHandler.USERNAME);
+			parameterMap.remove(SvyID.USERNAME);
 			parameterMap.remove(StatelessLoginHandler.PASSWORD);
-			parameterMap.remove(StatelessLoginHandler.REMEMBER);
+			parameterMap.remove(SvyID.REMEMBER);
+			HttpSession httpSession = request.getSession(false);
 			if (!parameterMap.containsKey(StartupArguments.PARAM_KEY_METHOD) && !parameterMap.containsKey("m") ||
-				request.getSession().getAttribute(StatelessLoginHandler.ID_TOKEN) != null &&
-					request.getSession().getAttribute(StatelessLoginHandler.ID_TOKEN).equals(parameterMap.get(StatelessLoginHandler.ID_TOKEN)))
+				httpSession != null && httpSession.getAttribute(StatelessLoginHandler.ID_TOKEN) != null &&
+					httpSession.getAttribute(StatelessLoginHandler.ID_TOKEN).equals(parameterMap.get(StatelessLoginHandler.ID_TOKEN)))
 			{
 				parameterMap.remove(StatelessLoginHandler.ID_TOKEN);
 			}
+			if (parameterMap.containsKey("svy_remove_id_token"))
+			{
+				parameterMap.remove("id_token");
+				parameterMap.remove("svy_remove_id_token");
+			}
 		}
-		json.put("querystring", StringEscapeUtils.escapeJson(HTTPUtils.generateQueryString(parameterMap, request.getCharacterEncoding())));
+		Boolean outputQueryString = Boolean.valueOf(Settings.getInstance().getProperty("servoy.ngclient.output.querystring.for.url.rewrite", "false"));
+		if (outputQueryString.booleanValue() || request instanceof OAuthDeeplinkRequestWrapper)
+			json.put("querystring", StringEscapeUtils.escapeJson(HTTPUtils.generateQueryString(parameterMap, request.getCharacterEncoding())));
 
 		String ipaddr = request.getHeader("X-Forwarded-For"); // in case there is a forwarding proxy
 		if (ipaddr == null)
@@ -151,7 +162,7 @@ public class AngularIndexPageWriter
 		if (request.getCharacterEncoding() == null) request.setCharacterEncoding("UTF8");
 		HTTPUtils.setNoCacheHeaders(response);
 		String uri = request.getRequestURI();
-		String clientnr = getClientNr(uri, request);
+		Integer clientnr = getClientNr(uri, request);
 		Pair<FlattenedSolution, Boolean> pair = getFlattenedSolution(solutionName, clientnr, request, response);
 		FlattenedSolution fs = pair.getLeft();
 		if (fs != null)
@@ -168,6 +179,7 @@ public class AngularIndexPageWriter
 			if (contentSecurityPolicyNonce != null)
 			{
 				indexHtml = indexHtml.replace("<script ", "<script nonce='" + contentSecurityPolicyNonce + '\'');
+				indexHtml = indexHtml.replace("<app-root>", "<app-root ngCspNonce='" + contentSecurityPolicyNonce + "\'>");
 			}
 
 			String titleText = fs.getSolution().getTitleText();
@@ -221,19 +233,6 @@ public class AngularIndexPageWriter
 			sb.append(" type='application/javascript'>");
 			generateStartupData(request, fs, sb);
 			sb.append("</script>");
-//			sb.append("src=\"solution/");
-//			sb.append(solutionName);
-//			sb.append('/');
-//			sb.append(clientnr);
-//			sb.append("/main/startup.js?");
-//			Map<String, String[]> parameterMap = request.getParameterMap();
-//			if (request.getSession().getAttribute("id_token") != null)
-//			{
-//				parameterMap = new HashMap<>(request.getParameterMap());
-//				parameterMap.put("id_token", new String[] { (String)request.getSession().getAttribute("id_token") });
-//			}
-//			sb.append(HTTPUtils.generateQueryString(parameterMap, request.getCharacterEncoding()));
-//			sb.append("\"></script>");
 			indexHtml = indexHtml.replace("<base href=\"/\">", sb.toString());
 
 			String requestLanguage = request.getHeader("accept-language");
@@ -252,14 +251,14 @@ public class AngularIndexPageWriter
 		return;
 	}
 
-	static Pair<FlattenedSolution, Boolean> getFlattenedSolution(String solutionName, String clientnr, HttpServletRequest request,
+	public static Pair<FlattenedSolution, Boolean> getFlattenedSolution(String solutionName, Integer clientnr, HttpServletRequest request,
 		HttpServletResponse response)
 	{
 		INGClientWebsocketSession wsSession = null;
 		HttpSession httpSession = request.getSession(false);
 		if (clientnr != null && httpSession != null)
 		{
-			wsSession = (INGClientWebsocketSession)WebsocketSessionManager.getSession(CLIENT_ENDPOINT, httpSession, Integer.parseInt(clientnr));
+			wsSession = (INGClientWebsocketSession)WebsocketSessionManager.getSession(CLIENT_ENDPOINT, httpSession, clientnr.intValue());
 		}
 		FlattenedSolution fs = null;
 		boolean closeFS = false;
@@ -343,12 +342,19 @@ public class AngularIndexPageWriter
 	 * Get the clientnr from parameter or an url /solutions/<solutionname>/<clientnr>/
 	 *
 	 */
-	public static String getClientNr(String uri, ServletRequest request)
+	public static Integer getClientNr(String uri, ServletRequest request)
 	{
 		String clientnr = request.getParameter("clientnr");
 		if (clientnr != null)
 		{
-			return clientnr;
+			try
+			{
+				return Integer.valueOf(clientnr);
+			}
+			catch (Exception e)
+			{
+				return null;
+			}
 		}
 
 
@@ -358,7 +364,13 @@ public class AngularIndexPageWriter
 			String[] parts = uri.substring(solutionIndex + SOLUTIONS_PATH.length()).split("/");
 			if (parts.length >= 2 && parts[1].matches("[0-9]+"))
 			{
-				return parts[1];
+				try
+				{
+					return Integer.valueOf(clientnr);
+				}
+				catch (Exception e)
+				{
+				}
 			}
 		}
 		return null;
@@ -367,13 +379,13 @@ public class AngularIndexPageWriter
 	public static String getSolutionDefaultMessage(Solution solution, Locale locale, String key)
 	{
 		// removed the cache, if this gets called more often we may add it again
-		return getSolutionDefaultMessageNotCached(solution.getID(), locale, key);
+		return getSolutionDefaultMessageNotCached(solution.getUUID(), locale, key);
 	}
 
-	public static String getSolutionDefaultMessageNotCached(int solutionId, Locale locale, String key)
+	public static String getSolutionDefaultMessageNotCached(UUID solutionUUID, Locale locale, String key)
 	{
 		MessagesResourceBundle messagesResourceBundle = new MessagesResourceBundle(null /* application */, locale == null ? Locale.ENGLISH : locale,
-			null /* columnNameFilter */, null /* columnValueFilter */, solutionId);
+			null /* columnNameFilter */, null /* columnValueFilter */, solutionUUID);
 		return messagesResourceBundle.getString(key);
 	}
 
@@ -401,7 +413,7 @@ public class AngularIndexPageWriter
 	 *
 	 * Only when configured and when the browser is a modern browser that supports Content-Security-Policy level 3.
 	 */
-	private static ContentSecurityPolicyConfig getContentSecurityPolicyConfig(HttpServletRequest request)
+	public static ContentSecurityPolicyConfig getContentSecurityPolicyConfig(HttpServletRequest request)
 	{
 		Settings settings = Settings.getInstance();
 		if (!getAsBoolean(settings.getProperty("servoy.ngclient.setContentSecurityPolicyHeader", "true")))
@@ -430,6 +442,7 @@ public class AngularIndexPageWriter
 		setDirectiveOverride(contentSecurityPolicyConfig, "img-src", settings);
 		setDirectiveOverride(contentSecurityPolicyConfig, "font-src", settings);
 		setDirectiveOverride(contentSecurityPolicyConfig, "form-action", settings);
+		setDirectiveOverride(contentSecurityPolicyConfig, "style-src-attr", settings);
 
 		return contentSecurityPolicyConfig;
 

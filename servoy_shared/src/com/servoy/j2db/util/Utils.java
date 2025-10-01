@@ -120,10 +120,10 @@ import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.FormElementGroup;
 import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.persistence.IFlattenedPersistWrapper;
-import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.ISupportBounds;
+import com.servoy.j2db.persistence.ISupportFormElement;
 import com.servoy.j2db.scripting.IScriptable;
 import com.servoy.j2db.scripting.IScriptableProvider;
 import com.servoy.j2db.ui.runtime.HasRuntimeClientProperty;
@@ -154,6 +154,11 @@ public final class Utils
 	public static final int PLATFORM_MAC = 2;
 	public static final int PLATFORM_LINUX = 3;
 
+	//Client architecture
+	public static final int ARCH_OTHER = 0;
+	public static final int ARCH_X64 = 1;
+	public static final int ARCH_ARM64 = 2;
+
 
 	public static boolean isInheritedFormElement(Object element, IPersist context)
 	{
@@ -172,7 +177,7 @@ public final class Utils
 		}
 		if (element instanceof FormElementGroup)
 		{
-			Iterator<IFormElement> elements = ((FormElementGroup)element).getElements();
+			Iterator<ISupportFormElement> elements = ((FormElementGroup)element).getElements();
 			while (elements.hasNext())
 			{
 				if (isInheritedFormElement(elements.next(), context))
@@ -468,6 +473,22 @@ public final class Utils
 		arraycopy(array, beginIndex, res, 0, endIndex - beginIndex);
 		return res;
 	}
+
+	/**
+	 * Int array lookup function, optimal for small arrays (like pk indexes)
+	 */
+	public static boolean isInArray(int[] ints, int i)
+	{
+		for (int el : ints)
+		{
+			if (el == i)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
 
 	/*
 	 * _____________________________________________________________ Declaration of attributes
@@ -1948,7 +1969,7 @@ public final class Utils
 	 * Hashes the given string with the PKCS/PBKDF2 algoritme see http://en.wikipedia.org/wiki/PBKDF2 for more information
 	 *
 	 * @param textString The string to hash
-	 * @param iterations Number of hash iterations to be done (should be higher then 1000)
+	 * @param iterations Number of hash iterations to be done (should be higher then 10000)
 	 * @return the hash of the string
 	 */
 	@SuppressWarnings("nls")
@@ -1956,17 +1977,17 @@ public final class Utils
 	{
 		try
 		{
-			SecureRandom sr = SecureRandom.getInstance("SHA1PRNG");
+			SecureRandom sr = SecureRandom.getInstanceStrong();
 			byte[] salt = new byte[8];
 			sr.nextBytes(salt);
-			PBKDF2Parameters p = new PBKDF2Parameters("HmacSHA1", "ISO-8859-1", salt, iterations);
+			PBKDF2Parameters p = new PBKDF2Parameters("HmacSHA256", "ISO-8859-1", salt, iterations);
 			PBKDF2Engine e = new PBKDF2Engine(p);
 			p.setDerivedKey(e.deriveKey(textString));
 			return new PBKDF2HexFormatter().toString(p);
 		}
 		catch (NoSuchAlgorithmException e)
 		{
-			Debug.error("No SHA1 algorime found under the name SHA1PRNG", e);
+			Debug.error("No SHA256 algorime found under for strong instance", e);
 		}
 		return null;
 	}
@@ -1981,17 +2002,27 @@ public final class Utils
 		return false;
 	}
 
+	@SuppressWarnings("nls")
 	public static boolean validatePBKDF2Hash(String password, String hash)
 	{
-		PBKDF2Parameters p = new PBKDF2Parameters();
-		p.setHashAlgorithm("HmacSHA1");
-		p.setHashCharset("ISO-8859-1");
-		if (new PBKDF2HexFormatter().fromString(p, hash))
+		if (hash == null || password == null) return false;
+		if (hash.length() > 65)
 		{
-			return false;
+			// this is SHA256
+			PBKDF2Parameters p = new PBKDF2Parameters();
+			p.setHashAlgorithm("HmacSHA256");
+			p.setHashCharset("ISO-8859-1");
+			PBKDF2Engine e = new PBKDF2Engine(p);
+			return !new PBKDF2HexFormatter().fromString(p, hash) && e.verifyKey(password);
 		}
-		PBKDF2Engine e = new PBKDF2Engine(p);
-		return e.verifyKey(password);
+		else
+		{
+			PBKDF2Parameters p = new PBKDF2Parameters();
+			p.setHashAlgorithm("HmacSHA1");
+			p.setHashCharset("ISO-8859-1");
+			PBKDF2Engine e = new PBKDF2Engine(p);
+			return !new PBKDF2HexFormatter().fromString(p, hash) && e.verifyKey(password);
+		}
 	}
 
 
@@ -2888,6 +2919,11 @@ public final class Utils
 		return getPlatform() == PLATFORM_LINUX;
 	}
 
+	public static boolean isArmArchitecture()
+	{
+		return getArchitecture() == ARCH_ARM64;
+	}
+
 	public static boolean isValidEmailAddress(String email)
 	{
 		return (email != null
@@ -2911,6 +2947,24 @@ public final class Utils
 		}
 		return ok;
 	}
+
+	public static int getArchitecture()
+	{
+		return getArchitecture(System.getProperty("os.arch")); //$NON-NLS-1$
+	}
+
+	@SuppressWarnings("nls")
+	public static int getArchitecture(String osarch)
+	{
+		if (osarch != null)
+		{
+			String lc = osarch.toLowerCase();
+			if (lc.contains("arm64") || lc.contains("aarch64")) return ARCH_ARM64;
+			if (lc.contains("x86") || lc.contains("amd64") || lc.contains("x86_64")) return ARCH_X64;
+		}
+		return ARCH_OTHER;
+	}
+
 
 	public static int getPlatform()
 	{

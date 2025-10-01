@@ -46,6 +46,7 @@ import com.servoy.j2db.solutionmodel.ISMTabPanel;
  */
 @ServoyClientSupport(mc = false, wc = true, sc = true)
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, extendsComponent = "JSComponent")
+@Deprecated
 public class JSTabPanel extends JSComponent<TabPanel> implements IJSParent<TabPanel>, ISMTabPanel, IConstantsObject
 {
 	private final IApplication application;
@@ -345,11 +346,11 @@ public class JSTabPanel extends JSComponent<TabPanel> implements IJSParent<TabPa
 		ScriptMethod scriptMethod = JSForm.getScriptMethod(function, application.getFlattenedSolution());
 		if (scriptMethod != null)
 		{
-			getBaseComponent(true).setOnTabChangeMethodID(scriptMethod.getID());
+			getBaseComponent(true).setOnTabChangeMethodID(scriptMethod.getUUID().toString());
 		}
 		else
 		{
-			getBaseComponent(true).setOnTabChangeMethodID(0);
+			getBaseComponent(true).setOnTabChangeMethodID(null);
 		}
 	}
 

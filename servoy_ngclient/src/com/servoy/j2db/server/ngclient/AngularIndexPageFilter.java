@@ -23,25 +23,28 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 
-import javax.servlet.DispatcherType;
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.annotation.WebFilter;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.text.StringEscapeUtils;
 import org.sablo.security.ContentSecurityPolicyConfig;
 import org.sablo.websocket.WebsocketSessionManager;
 
+import com.servoy.j2db.server.ngclient.auth.CloudStatelessAccessManager;
+import com.servoy.j2db.server.ngclient.auth.OAuthHandler;
+import com.servoy.j2db.server.ngclient.auth.StatelessLoginUtils;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
+
+import jakarta.servlet.DispatcherType;
+import jakarta.servlet.Filter;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.FilterConfig;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
+import jakarta.servlet.annotation.WebFilter;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 /**
  * @author jcompagner
@@ -70,7 +73,7 @@ public class AngularIndexPageFilter implements Filter
 		{
 			throw new ServletException(e);
 		}
-		StatelessLoginHandler.init();
+		StatelessLoginHandler.init(filterConfig.getServletContext());
 //		if (indexPage == null) throw new ServletException("Couldn't read 'WEB-INF/angular-index.html' from the context to get the angular index page");
 	}
 
@@ -81,48 +84,65 @@ public class AngularIndexPageFilter implements Filter
 		HttpServletResponse response = (HttpServletResponse)servletResponse;
 		String requestURI = request.getRequestURI();
 		String solutionName = getSolutionNameFromURI(requestURI);
-		if (("GET".equalsIgnoreCase(request.getMethod()) ||
-			"POST".equalsIgnoreCase(request.getMethod()) && request.getParameter(StatelessLoginHandler.USERNAME) != null) &&
-			solutionName != null)
+		if (("GET".equalsIgnoreCase(request.getMethod()) || "POST".equalsIgnoreCase(request.getMethod())) && solutionName != null)
 		{
 
-			if ((requestURI.endsWith("/") || requestURI.endsWith("/" + solutionName) || requestURI.toLowerCase().endsWith("/index.html")))
+			if ((requestURI.endsWith("/") || requestURI.endsWith("/" + solutionName) || requestURI.toLowerCase().endsWith("/index.html")) ||
+				requestURI.contains("/svy_oauth/"))
 			{
-				String clientnr = AngularIndexPageWriter.getClientNr(requestURI, request);
+				Integer clientnr = AngularIndexPageWriter.getClientNr(requestURI, request);
 				INGClientWebsocketSession wsSession = null;
 				HttpSession httpSession = request.getSession(false);
 				if (clientnr != null && httpSession != null)
 				{
-					wsSession = (INGClientWebsocketSession)WebsocketSessionManager.getSession(CLIENT_ENDPOINT, httpSession, Integer.parseInt(clientnr));
+					wsSession = (INGClientWebsocketSession)WebsocketSessionManager.getSession(CLIENT_ENDPOINT, httpSession, clientnr.intValue());
 				}
 				if (AngularIndexPageWriter.handleMaintenanceMode(request, response, wsSession))
 				{
 					return;
 				}
-				HttpSession session = request.getSession();
-
+				HttpServletRequest req = request;
 				try
 				{
-					Pair<Boolean, String> showLogin = StatelessLoginHandler.mustAuthenticate(request, response, solutionName);
+					Pair<Boolean, String> showLogin = null;
+					if (requestURI.contains("/svy_oauth/"))
+					{
+						showLogin = OAuthHandler.handleOauth(request, response);
+						if (Boolean.FALSE.equals(showLogin.getLeft()) && showLogin.getRight() == null) return;
+					}
+					else
+					{
+						showLogin = StatelessLoginHandler.mustAuthenticate(request, response, solutionName);
+					}
+
 					if (showLogin.getLeft().booleanValue())
 					{
-						StatelessLoginHandler.writeLoginPage(request, response, solutionName);
+						StatelessLoginHandler.writeLoginPage(request, response, solutionName, showLogin.getRight());
 						return;
 					}
 					if (showLogin.getRight() != null)
 					{
+						HttpSession session = request.getSession(); // we know we are logged in so we can make a session now
 						session.setAttribute(StatelessLoginHandler.ID_TOKEN, showLogin.getRight());
+
+						//could be oauth + deeplink (need to wrap the request to add the parameters)
+						req = StatelessLoginUtils.checkForPossibleSavedDeeplink(request);
 					}
 				}
 				catch (Exception e)
 				{
-					Debug.error(e.getMessage());
+					Debug.error(e);
 					return;
 				}
 
+
 				ContentSecurityPolicyConfig contentSecurityPolicyConfig = addcontentSecurityPolicyHeader(request, response, false); // for NG2 remove the unsafe-eval
-				if (this.indexPage != null) AngularIndexPageWriter.writeIndexPage(this.indexPage, request, response, solutionName,
-					contentSecurityPolicyConfig == null ? null : contentSecurityPolicyConfig.getNonce());
+				if (this.indexPage != null)
+				{
+					request.getSession(); // now really make a session, we know we are going to render the index page to start a client.
+					AngularIndexPageWriter.writeIndexPage(this.indexPage, req, response, solutionName,
+						contentSecurityPolicyConfig == null ? null : contentSecurityPolicyConfig.getNonce());
+				}
 				else
 				{
 					response.setCharacterEncoding("UTF-8");
@@ -136,15 +156,15 @@ public class AngularIndexPageFilter implements Filter
 				}
 				return;
 			}
-			else if (solutionName != null && StatelessLoginHandler.handlePossibleCloudRequest(request, response, solutionName))
+			else if (solutionName != null && CloudStatelessAccessManager.handlePossibleCloudRequest(request, response, solutionName, this.indexPage))
 			{
 				return;
 			}
-			else if (requestURI.toLowerCase().endsWith("/startup.js"))
-			{
-				AngularIndexPageWriter.writeStartupJs(request, (HttpServletResponse)servletResponse, solutionName);
-				return;
-			}
+//			else if (requestURI.toLowerCase().endsWith("/startup.js"))
+//			{
+//				AngularIndexPageWriter.writeStartupJs(request, (HttpServletResponse)servletResponse, solutionName);
+//				return;
+//			}
 			else if (AngularIndexPageWriter.handleDeeplink(request, (HttpServletResponse)servletResponse))
 			{
 				return;

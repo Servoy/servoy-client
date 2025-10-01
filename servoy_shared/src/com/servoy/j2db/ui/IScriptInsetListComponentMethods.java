@@ -21,8 +21,9 @@ import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
 
 /**
- * Documentation class for inset list from mobile client.
- * 
+ * The <code>IScriptInsetListComponentMethods</code> interface provides scripting support for inset lists in Servoy's mobile client,
+ * extending <code>IScriptPortalComponentMethods</code>.
+ *
  * @author lvostinar
  *
  */

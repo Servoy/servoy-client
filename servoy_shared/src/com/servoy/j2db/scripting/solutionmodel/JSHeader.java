@@ -33,7 +33,20 @@ import com.servoy.j2db.solutionmodel.ISMHeader;
 import com.servoy.j2db.util.Utils;
 
 /**
- * Solution model header object on form.
+ * The <code>JSHeader</code> class represents the header part of a form within a solution model, enabling
+ * the creation and management of header-specific components.
+ *
+ * ## Core Features
+ * The class supports the addition of key header elements, such as text labels and navigation buttons.
+ * Developers can create left and right buttons on the header, each associated with specific text and methods
+ * to handle events. Header text labels can also be defined, providing customizable titles or descriptions for the form.
+ *
+ * Sticky behavior is a critical feature of the <code>JSHeader</code>, enabling the header to remain fixed at the top
+ * of the view and preventing it from scrolling out of sight. This property can be toggled using the <code>sticky</code> attribute.
+ *
+ * Additional methods allow for retrieving and removing existing header components. For example, buttons and text labels
+ * can be dynamically located based on their properties, ensuring precise control over the header's layout and behavior.
+ * Components are marked with specific mobile properties, facilitating their identification and management within the solution model.
  *
  * @author rgansevles
  */

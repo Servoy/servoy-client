@@ -45,6 +45,7 @@ import java.util.StringTokenizer;
 import java.util.concurrent.ConcurrentMap;
 
 import org.mozilla.javascript.NativeObject;
+import org.mozilla.javascript.NativePromise;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Wrapper;
 import org.mozilla.javascript.annotations.JSFunction;
@@ -83,30 +84,36 @@ import com.servoy.j2db.query.QueryDelete;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.query.QueryTable;
 import com.servoy.j2db.query.QueryUpdate;
-import com.servoy.j2db.querybuilder.impl.QBAggregate;
 import com.servoy.j2db.querybuilder.impl.QBAggregates;
 import com.servoy.j2db.querybuilder.impl.QBCase;
 import com.servoy.j2db.querybuilder.impl.QBCaseWhen;
 import com.servoy.j2db.querybuilder.impl.QBColumn;
+import com.servoy.j2db.querybuilder.impl.QBColumnComparable;
 import com.servoy.j2db.querybuilder.impl.QBColumns;
 import com.servoy.j2db.querybuilder.impl.QBCondition;
-import com.servoy.j2db.querybuilder.impl.QBFunction;
+import com.servoy.j2db.querybuilder.impl.QBCountAggregate;
+import com.servoy.j2db.querybuilder.impl.QBDatetimeColumn;
 import com.servoy.j2db.querybuilder.impl.QBFunctions;
+import com.servoy.j2db.querybuilder.impl.QBGenericColumn;
 import com.servoy.j2db.querybuilder.impl.QBGroupBy;
+import com.servoy.j2db.querybuilder.impl.QBIntegerColumn;
 import com.servoy.j2db.querybuilder.impl.QBJoin;
 import com.servoy.j2db.querybuilder.impl.QBJoins;
 import com.servoy.j2db.querybuilder.impl.QBLogicalCondition;
+import com.servoy.j2db.querybuilder.impl.QBMediaColumn;
+import com.servoy.j2db.querybuilder.impl.QBNumberColumn;
 import com.servoy.j2db.querybuilder.impl.QBParameter;
 import com.servoy.j2db.querybuilder.impl.QBParameters;
 import com.servoy.j2db.querybuilder.impl.QBPart;
 import com.servoy.j2db.querybuilder.impl.QBResult;
-import com.servoy.j2db.querybuilder.impl.QBSearchedCaseExpression;
 import com.servoy.j2db.querybuilder.impl.QBSelect;
 import com.servoy.j2db.querybuilder.impl.QBSort;
 import com.servoy.j2db.querybuilder.impl.QBSorts;
 import com.servoy.j2db.querybuilder.impl.QBTableClause;
+import com.servoy.j2db.querybuilder.impl.QBTextColumn;
 import com.servoy.j2db.querybuilder.impl.QBWhereCondition;
 import com.servoy.j2db.querybuilder.impl.QUERY_COLUMN_TYPES;
+import com.servoy.j2db.scripting.Deferred;
 import com.servoy.j2db.scripting.IReturnedTypesProvider;
 import com.servoy.j2db.scripting.IScriptable;
 import com.servoy.j2db.scripting.ScriptObjectRegistry;
@@ -121,7 +128,48 @@ import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 
 /**
- * Scriptable database manager object
+ * <p>The <code>Database Manager</code> offers extensive tools for managing datasources, queries,
+ * records, and transactions, enabling the creation of efficient and scalable data-driven
+ * applications. It supports interaction with both in-memory and database-bound datasources,
+ * advanced query construction, and record management.</p>
+ *
+ * <p>The system allows dynamic creation of datasources using <code>createDataSourceByQuery</code>,
+ * which populates datasources with query results while enabling reuse if the data structure
+ * remains consistent. Developers can specify or infer column types and remove unused
+ * datasources using <code>removeDataSource</code> to optimize resource usage. Query handling
+ * is further enhanced with the <code>QBSelect</code> object, enabling the programmatic
+ * construction of complex queries. The manager also supports <code>ViewFoundSets</code>,
+ * which create filtered, read-only views of database tables suitable for custom data
+ * presentation and aggregation.</p>
+ *
+ * <p>Record management is facilitated by functions like <code>saveData</code> for committing
+ * changes, <code>validate</code> for enforcing data constraints, and <code>mergeRecords</code>
+ * for resolving duplicate records by merging their associated data. Unsaved changes can be
+ * reverted with <code>revertEditedRecords</code>, and the system tracks edited, new, or
+ * unsaved records using functions like <code>getEditedRecords</code>. Developers can ensure
+ * data integrity by starting transactions with <code>startTransaction</code> and rolling
+ * back changes using <code>rollbackTransaction</code> if necessary.</p>
+ *
+ * <p>Table filters enable the restriction of data access through both column-based and
+ * query-based conditions. Filters can be dynamically applied, updated, or removed using
+ * <code>setTableFilters</code> and <code>removeTableFilterParam</code>. The manager provides
+ * utilities like <code>getTable</code> to retrieve schema details, <code>getTableCount</code>
+ * to determine record counts, and <code>getTableFilterParams</code> to inspect active filters.</p>
+ *
+ * <p>Lock management is supported through <code>hasLocks</code> to check acquired locks
+ * and <code>releaseAllLocks</code> to release them, ensuring safe multi-user interactions.
+ * To reflect external data changes, cached records can be refreshed using
+ * <code>refreshRecordFromDatabase</code>.</p>
+ *
+ * <p>Validation tools ensure that records conform to constraints such as column lengths
+ * and non-null requirements through the <code>validate</code> function. Performance
+ * optimization is achieved with <code>recalculate</code> to refresh derived values and
+ * <code>flushCalculations</code> to clear unnecessary data in memory, reducing resource
+ * overhead.</p>
+ *
+ * <p>These capabilities provide developers with a comprehensive framework for building
+ * robust and customizable database-driven solutions.</p>
+ *
  * @author jblok
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "Database Manager", scriptingName = "databaseManager")
@@ -133,11 +181,14 @@ public class JSDatabaseManager implements IJSDatabaseManager
 		{
 			public Class< ? >[] getAllReturnedTypes()
 			{
-				return new Class< ? >[] { COLUMNTYPE.class, SQL_ACTION_TYPES.class, JSColumn.class, JSDataSet.class, JSFoundSetUpdater.class, JSRecordMarker.class, JSRecordMarkers.class, Record.class, FoundSet.class, JSTable.class, //
-					QBSelect.class, QBAggregate.class, QBCase.class, QBCaseWhen.class, QBColumn.class, QBColumns.class, QBCondition.class, //
-					QBFunction.class, QBGroupBy.class, QBJoin.class, QBJoins.class, QBLogicalCondition.class, QBWhereCondition.class, QBResult.class, //
-					QBSearchedCaseExpression.class, QBSort.class, QBSorts.class, QBTableClause.class, QBPart.class, QBParameter.class, QBParameters.class, //
-					QBFunctions.class, QBAggregates.class, QUERY_COLUMN_TYPES.class, ViewFoundSet.class, ViewRecord.class, JSTableFilter.class };
+				return new Class< ? >[] { COLUMNTYPE.class, SQL_ACTION_TYPES.class, JSColumn.class, JSDataSet.class, JSFoundSetUpdater.class, //
+					JSRecordMarker.class, JSRecordMarkers.class, Record.class, FoundSet.class, JSTable.class, //
+					QBSelect.class, QBCountAggregate.class, QBCase.class, QBCaseWhen.class, //
+					QBColumn.class, QBGenericColumn.class, QBDatetimeColumn.class, QBIntegerColumn.class, QBMediaColumn.class, QBNumberColumn.class, QBTextColumn.class, QBColumnComparable.class, //
+					QBColumns.class, QBCondition.class, QBGroupBy.class, QBJoin.class, QBJoins.class, QBLogicalCondition.class, QBWhereCondition.class, QBResult.class, //
+					QBSort.class, QBSorts.class, QBTableClause.class, QBPart.class, QBParameter.class, QBParameters.class, //
+					QBFunctions.class, QBAggregates.class, QUERY_COLUMN_TYPES.class, ViewFoundSet.class, ViewRecord.class, JSTableFilter.class, MenuFoundSet.class, MenuItemRecord.class, //
+					IJSBaseRecord.class, IJSBaseSQLRecord.class, IJSBaseFoundSet.class, IJSBaseSQLFoundSet.class };
 			}
 		});
 	}
@@ -387,7 +438,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 
 		JSTableFilter tableFilter = createTableFilterInternal(query);
 		application.getFoundSetManager().setTableFilters(filterName, tableFilter.getTable().getServerName(),
-			asList(new TableFilterRequest(tableFilter.getTable(), tableFilter.getTableFilterdefinition(), false)), false);
+			asList(new TableFilterRequest(tableFilter.getTable(), tableFilter.getTableFilterdefinition(), false)), false, true);
 		return true;
 	}
 
@@ -555,13 +606,13 @@ public class JSDatabaseManager implements IJSDatabaseManager
 			IFoundSetManagerInternal foundSetManager = application.getFoundSetManager();
 			for (String serverName : js_getServerNames())
 			{
-				foundSetManager.setTableFilters(filterName, serverName, tableFilterRequests.remove(serverName), true);
+				foundSetManager.setTableFilters(filterName, serverName, tableFilterRequests.remove(serverName), true, true);
 			}
 
 			for (Entry<String, List<TableFilterRequest>> entry : tableFilterRequests.entrySet())
 			{
 				// filter on a server that is not in server proxies (yet)
-				foundSetManager.setTableFilters(filterName, entry.getKey(), entry.getValue(), true);
+				foundSetManager.setTableFilters(filterName, entry.getKey(), entry.getValue(), true, true);
 			}
 		}
 		catch (Exception ex)
@@ -584,7 +635,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 			if (tableFilter != null)
 			{
 				application.getFoundSetManager().setTableFilters(filterName, serverName,
-					asList(new TableFilterRequest(tableFilter.getTable(), tableFilter.getTableFilterdefinition(), false)), false);
+					asList(new TableFilterRequest(tableFilter.getTable(), tableFilter.getTableFilterdefinition(), false)), false, true);
 				return true;
 			}
 		}
@@ -679,7 +730,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 
 		try
 		{
-			application.getFoundSetManager().setTableFilters(filterName, serverName, null, true);
+			application.getFoundSetManager().setTableFilters(filterName, serverName, null, true, true);
 			return true;
 		}
 		catch (Exception ex)
@@ -921,7 +972,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 					if (join == null)
 					{
 						join = application.getFoundSetManager().getSQLGenerator().createJoin(application.getFlattenedSolution(), relation, oldTable,
-							new QueryTable(ft.getSQLName(), ft.getDataSource(), ft.getCatalog(), ft.getSchema()), true, fs_old);
+							ft.queryTable(), true, fs_old);
 						sql.addJoin(join);
 					}
 
@@ -1022,9 +1073,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 			for (int i = 0; i < dpnames.length; i++)
 			{
 				IDataProvider dp = application.getFlattenedSolution().getDataProviderForTable(table, dpnames[i]);
-				dptypes[i] = dp == null ? ColumnType.getInstance(0, 0, 0)
-					: ColumnType.getInstance(dp instanceof Column ? ((Column)dp).getType() : dp.getDataProviderType(), dp.getLength(),
-						dp instanceof Column ? ((Column)dp).getScale() : 0);
+				dptypes[i] = (dp instanceof Column column) ? column.getColumnType() : ColumnType.getInstance(0, 0, 0);
 				if (getInOneQuery)
 				{
 					// only columns and data we can get from the foundset (calculations only when stored)
@@ -1811,6 +1860,124 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	}
 
 	/**
+	 * Performs an async sql query with a query builder object.
+	 * Will resolve the promise if query is executed without exception or will reject the promise with the exception.
+	 *
+	 * @sample
+	 * // use the query from a foundset and add a condition
+	 * /** @type {QBSelect<db:/example_data/orders>} *&#47;
+	 * var q = foundset.getQuery()
+	 * q.where.add(q.joins.orders_to_order_details.columns.discount.eq(2))
+	 * var maxReturnedRows = 10;//useful to limit number of rows
+	 * databaseManager.getDataSetByQueryAsync(q, true, maxReturnedRows).then(function(jsDataset) {
+	 * 		// do something with the dataset
+	 *  }, function(error) {
+	 *      // handle error
+	 *  });
+	 *
+	 * @param query QBSelect query.
+	 * @param useTableFilters use table filters.
+	 * @param max_returned_rows The maximum number of rows returned by the query.
+	 *
+	 * @return The promise that will receive the result.
+	 */
+	@JSFunction
+	public NativePromise getDataSetByQueryAsync(QBSelect query, Boolean useTableFilters, Number max_returned_rows)
+	{
+		Deferred deferred = new Deferred(application);
+		application.getScheduledExecutor().execute(() -> {
+			try
+			{
+				JSDataSet dataSet = js_getDataSetByQuery(query, useTableFilters, max_returned_rows);
+				deferred.resolve(dataSet);
+			}
+			catch (Exception e)
+			{
+				deferred.reject(getRejectReason(e));
+			}
+		});
+		return deferred.getPromise();
+	}
+
+	/**
+	 * Performs an async sql query with a query builder object. Will use existing table filters if available.
+	 * Will resolve the promise if query is executed without exception or will reject the promise with the exception.
+	 *
+	 * @sample
+	 * // use the query from a foundset and add a condition
+	 * /** @type {QBSelect<db:/example_data/orders>} *&#47;
+	 * var q = foundset.getQuery()
+	 * q.where.add(q.joins.orders_to_order_details.columns.discount.eq(2))
+	 * var maxReturnedRows = 10;//useful to limit number of rows
+	 * databaseManager.getDataSetByQueryAsync(q, maxReturnedRows).then(function(jsDataset) {
+	 * 		// do something with the dataset
+	 *  }, function(error) {
+	 *      // handle error
+	 *  });
+	 *
+	 * @param query QBSelect query.
+	 * @param max_returned_rows The maximum number of rows returned by the query.
+	 *
+	 * @return The promise that will receive the result.
+	 */
+	@JSFunction
+	public NativePromise getDataSetByQueryAsync(QBSelect query, Number max_returned_rows)
+	{
+		return getDataSetByQueryAsync(query, Boolean.TRUE, max_returned_rows);
+	}
+
+	/**
+	 * Performs an async sql query with an sql query on a specified server.
+	 * Will resolve the promise with dataset result if query is executed without exception or will reject the promise with the exception.
+	 * Using this variation of getDataSetByQueryAsync will ignore any table filter on the involved tables.
+	 *
+	 * @sample
+	 * var maxReturnedRows = 10;//useful to limit number of rows
+	 * databaseManager.getDataSetByQueryAsync(databaseManager.getDataSourceServerName(controller.getDataSource()), 'select c1,c2,c3 from test_table where start_date = ?', new Array(new Date()), maxReturnedRows).then(function(jsDataset) {
+	 * 		// do something with the dataset
+	 *  }, function(error) {
+	 *      // handle error
+	 *  });
+	 *
+	 * @param server_name The name of the server where the query should be executed.
+	 * @param sql_query The custom sql, must start with 'select', 'call', 'with' or 'declare'.
+	 * @param arguments Specified arguments or null if there are no arguments.
+	 * @param max_returned_rows The maximum number of rows returned by the query.
+	 *
+	 * @return The promise that will receive the result.
+	 */
+	@JSFunction
+	public NativePromise getDataSetByQueryAsync(String server_name, String sql_query, Object[] arguments, Number max_returned_rows)
+	{
+		Deferred deferred = new Deferred(application);
+		application.getScheduledExecutor().execute(() -> {
+			try
+			{
+				JSDataSet dataSet = js_getDataSetByQuery(server_name, sql_query, arguments, max_returned_rows);
+				deferred.resolve(dataSet);
+			}
+			catch (Exception e)
+			{
+				deferred.reject(getRejectReason(e));
+			}
+		});
+		return deferred.getPromise();
+	}
+
+	private Object getRejectReason(Exception e)
+	{
+		if (e instanceof ServoyException)
+		{
+			return e;
+		}
+		else if (e.getCause() instanceof ServoyException)
+		{
+			return e.getCause();
+		}
+		return e.getMessage();
+	}
+
+	/**
 	 * @deprecated As of release 3.5, replaced by {@link plugins.rawSQL#executeStoredProcedure(String, String, Object[], int[], int)}.
 	 */
 	@Deprecated
@@ -1863,7 +2030,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 *
 	 * @return the foundset count
 	 */
-	@JSSignature(arguments = { FoundSet.class })
+	@JSSignature(arguments = { IJSBaseFoundSet.class })
 	public int js_getFoundSetCount(Object foundset) throws ServoyException
 	{
 		application.checkAuthorized();
@@ -2060,7 +2227,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	}
 
 	/**
-	 * Returns an array of edited records with outstanding (unsaved) data.
+	 * Returns an array of edited or deleted records with outstanding (unsaved) data.
 	 *
 	 * This is different form JSRecord.isEditing() because this call actually checks if there are changes between the current
 	 * record data and the stored data in the database. If there are no changes then the record is removed from the edited records
@@ -2070,8 +2237,8 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * NOTE2: The fields focus may be lost in user interface in order to determine the edits.
 	 *
 	 * @sample
-	 * //This method can be used to loop through all outstanding changes,
-	 * //the application.output line contains all the changed data, their tablename and primary key
+	 * // This method can be used to loop through all outstanding changes,
+	 * // the application.output line contains all the changed data, their tablename and primary key
 	 * var editr = databaseManager.getEditedRecords()
 	 * for (x=0;x<editr.length;x++)
 	 * {
@@ -2086,12 +2253,12 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * 	}
 	 * 	application.output('Table: '+tableSQLName +', PKs: '+ pkvals.join(',') +' ('+pkrec +')');
 	 * 	// Get a dataset with outstanding changes on a record
-	 * 	for( var i = 1 ; i <= ds.getMaxRowIndex() ; i++ )
+	 * 	for (var i = 1; i <= ds.getMaxRowIndex(); i++)
 	 * 	{
 	 * 		application.output('Column: '+ ds.getValue(i,1) +', oldValue: '+ ds.getValue(i,2) +', newValue: '+ ds.getValue(i,3));
 	 * 	}
 	 * }
-	 * //in most cases you will want to set autoSave back on now
+	 * // in most cases you will want to set autoSave back on now
 	 * databaseManager.setAutoSave(true);
 	 *
 	 * @return Array of outstanding/unsaved JSRecords.
@@ -2102,16 +2269,16 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	}
 
 	/**
-	 * Returns an array of edited records with outstanding (unsaved) data.
+	 * Returns an array of edited or deleted records with outstanding (unsaved) data.
 	 *
 	 * NOTE: To return a dataset of outstanding (unsaved) edited data for each record, see JSRecord.getChangedData();
 	 * NOTE2: The fields focus may be lost in user interface in order to determine the edits.
 	 *
 	 * @sample
-	 * //This method can be used to loop through all outstanding changes in a foundset,
-	 * //the application.output line contains all the changed data, their tablename and primary key
+	 * // This method can be used to loop through all outstanding changes in a foundset,
+	 * // the application.output line contains all the changed data, their tablename and primary key
 	 * var editr = databaseManager.getEditedRecords(foundset)
-	 * for (x=0;x<editr.length;x++)
+	 * for (x=0; x<editr.length; x++)
 	 * {
 	 * 	var ds = editr[x].getChangedData();
 	 * 	var jstable = databaseManager.getTable(editr[x]);
@@ -2124,12 +2291,12 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * 	}
 	 * 	application.output('Table: '+tableSQLName +', PKs: '+ pkvals.join(',') +' ('+pkrec +')');
 	 * 	// Get a dataset with outstanding changes on a record
-	 * 	for( var i = 1 ; i <= ds.getMaxRowIndex() ; i++ )
+	 * 	for (var i = 1; i <= ds.getMaxRowIndex(); i++ )
 	 * 	{
 	 * 		application.output('Column: '+ ds.getValue(i,1) +', oldValue: '+ ds.getValue(i,2) +', newValue: '+ ds.getValue(i,3));
 	 * 	}
 	 * }
-	 * databaseManager.saveData(foundset);//save all records from foundset
+	 * databaseManager.saveData(foundset);// save all records from foundset
 	 *
 	 * @param foundset return edited records in the foundset only.
 	 *
@@ -2141,7 +2308,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	}
 
 	/**
-	 * Returns an array of edited records with outstanding (unsaved) data.
+	 * Returns an array of edited or deleted records with outstanding (unsaved) data.
 	 *
 	 * @sample
 	 * // This method can be used to loop through all outstanding changes for a specific datasource.
@@ -2186,7 +2353,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	}
 
 	/**
-	 * Returns an array of edited records with outstanding (unsaved) data for a datasource with a filter.
+	 * Returns an array of edited or deleted records with outstanding (unsaved) data for a datasource with a filter.
 	 *
 	 * @sample
 	 * // This method can be used to loop through all outstanding changes for a specific datasource.
@@ -2298,13 +2465,13 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	public String js_getSQL(Object foundsetOrQBSelect, boolean includeFilters) throws ServoyException
 	{
 		application.checkAuthorized();
-		if (foundsetOrQBSelect instanceof IFoundSetScriptMethods)
+		if (foundsetOrQBSelect instanceof IJSBaseSQLFoundSet sqlFoundset)
 		{
-			return ((IFoundSetScriptMethods)foundsetOrQBSelect).getSQL(includeFilters);
+			return sqlFoundset.getSQL(includeFilters);
 		}
-		if (foundsetOrQBSelect instanceof QBSelect)
+		if (foundsetOrQBSelect instanceof QBSelect qbSelect)
 		{
-			return ((QBSelect)foundsetOrQBSelect).getSQL(includeFilters);
+			return qbSelect.getSQL(includeFilters);
 
 		}
 		return null;
@@ -2346,13 +2513,13 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	public Object[] js_getSQLParameters(Object foundsetOrQBSelect, boolean includeFilters) throws ServoyException
 	{
 		application.checkAuthorized();
-		if (foundsetOrQBSelect instanceof IFoundSetScriptMethods)
+		if (foundsetOrQBSelect instanceof IJSBaseSQLFoundSet sqlFoundset)
 		{
-			return ((IFoundSetScriptMethods)foundsetOrQBSelect).getSQLParameters(includeFilters);
+			return sqlFoundset.getSQLParameters(includeFilters);
 		}
-		if (foundsetOrQBSelect instanceof QBSelect)
+		if (foundsetOrQBSelect instanceof QBSelect qbSelect)
 		{
-			return ((QBSelect)foundsetOrQBSelect).getSQLParameters(includeFilters);
+			return qbSelect.getSQLParameters(includeFilters);
 		}
 		return null;
 	}
@@ -2484,11 +2651,6 @@ public class JSDatabaseManager implements IJSDatabaseManager
 						dataSet = fsm.getDataServer().performQuery(fsm.getApplication().getClientID(), sheet.getServerName(), fsm.getTransactionID(sheet),
 							sqlSelect, null, fsm.getTableFilterParams(sheet.getServerName(), sqlSelect), false, 0, -1, IDataServer.FOUNDSET_LOAD_QUERY,
 							trackingInfo);
-					}
-					catch (RemoteException e)
-					{
-						Debug.error(e);
-						return new Object[0];
 					}
 					catch (ServoyException e)
 					{
@@ -2826,9 +2988,9 @@ public class JSDatabaseManager implements IJSDatabaseManager
 							{
 								if (mainTableForeignType.equalsIgnoreCase(c.getColumnInfo().getForeignType()))
 								{
-									//update table set foreigntypecolumn = combinedDestinationRecordPK where foreigntypecolumn = sourceRecordPK
+									// update table set foreigntypecolumn = combinedDestinationRecordPK where foreigntypecolumn = sourceRecordPK
 
-									QueryTable qTable = new QueryTable(table.getSQLName(), table.getDataSource(), table.getCatalog(), table.getSchema());
+									QueryTable qTable = table.queryTable();
 									QueryUpdate qUpdate = new QueryUpdate(qTable);
 
 									QueryColumn qc = c.queryColumn(qTable);
@@ -2852,7 +3014,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 
 				IDataSet pks = new BufferedDataSet();
 				pks.addRow(new Object[] { sourceRecordPK });
-				QueryTable qTable = new QueryTable(mainTable.getSQLName(), mainTable.getDataSource(), mainTable.getCatalog(), mainTable.getSchema());
+				QueryTable qTable = mainTable.queryTable();
 				QueryDelete qDelete = new QueryDelete(qTable);
 				ISQLCondition condition = new CompareCondition(IBaseSQLCondition.EQUALS_OPERATOR, pkc.queryColumn(qTable), sourceRecordPK);
 				qDelete.setCondition(condition);
@@ -3019,15 +3181,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 			return false;
 		}
 
-		try
-		{
-			pds.switchServer(sourceName, destinationName);
-		}
-		catch (RemoteException e)
-		{
-			Debug.error(e);
-			return false;
-		}
+		pds.switchServer(sourceName, destinationName);
 
 		((FoundSetManager)application.getFoundSetManager()).flushCachedDatabaseData(null); // flush all
 		((FoundSetManager)application.getFoundSetManager()).registerClientTables(sourceName); // register existing used tables to server
@@ -3081,6 +3235,8 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * @param customObject The extra customObject that is passed on the the validation methods.
 	 *
 	 * @throws ServoyException
+	 *
+	 *  @return a JSRecordMarkers object containing validation problems, or null if no validation issues were found.
 	 */
 	@JSFunction
 	public JSRecordMarkers validate(IJSRecord record, Object customObject) throws ServoyException
@@ -3091,8 +3247,9 @@ public class JSDatabaseManager implements IJSDatabaseManager
 
 	/**
 	 * Saves all outstanding (unsaved) data and exits the current record.
-	 * <br>
+	 * <br/>
 	 * Optionally, by specifying a record or foundset, can save a single record or all records from foundset instead of all the data.
+	 * You can call saveData for a record or foundset inside a Table Event (save all will not work), and that will only save the records that are currently not being saved (to avoid infinite cycles).
 	 * Since Servoy 8.3 saveData with null parameter does not call saveData() as fallback, it just returns false.
 	 * <p>
 	 * <b>NOTE</b>: The fields focus may be lost in user interface in order to determine the edits.
@@ -3100,7 +3257,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * 		 If first saveData() is called with no arguments, all saveData() from table events are returning immediately with true value and records will be saved as part of first save.
 	 *       If first saveData() is called with record(s) as arguments, saveData() from table event will try to save record(s) from arguments that are different than those in first call.
 	 *       saveData() with no arguments inside table events will always return true without saving anything.
-	 * <p>
+	 * </p>
 	 * <b>NOTE</b>: When saveData() is called within a transaction, records after a record that fails with some sql-exception will not be saved, but moved to the failed records.
 	 *       record.exception.getErrorCode() will return ServoyException.MUST_ROLLBACK for these records.
 	 *
@@ -3155,17 +3312,16 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	@JSFunction
 	public boolean saveData(IJSFoundSet foundset) throws ServoyException
 	{
-		application.checkAuthorized();
+		return saveData(application, foundset);
+	}
+
+	public static boolean saveData(IApplication iApplication, IJSFoundSet foundset) throws ServoyException
+	{
+		iApplication.checkAuthorized();
 		if (foundset != null)
 		{
-			EditRecordList editRecordList = application.getFoundSetManager().getEditRecordList();
-			IRecordInternal[] failedRecords = editRecordList.getFailedRecords((IFoundSetInternal)foundset);
-			for (IRecordInternal record : failedRecords)
-			{
-				editRecordList.startEditing(record, false);
-			}
-			IRecord[] editedRecords = editRecordList.getEditedRecords((IFoundSetInternal)foundset);
-			return editRecordList.stopEditing(true, asList(editedRecords)) == ISaveConstants.STOPPED;
+			EditRecordList editRecordList = iApplication.getFoundSetManager().getEditRecordList();
+			return editRecordList.stopEditing(true, (FoundSet)foundset) == ISaveConstants.STOPPED;
 		}
 		return false;
 	}
@@ -3182,39 +3338,24 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	@JSFunction
 	public boolean saveData(IJSRecord record) throws ServoyException
 	{
-		application.checkAuthorized();
+		return saveData(application, record);
+	}
+
+	public static boolean saveData(IApplication iApplication, IJSRecord record) throws ServoyException
+	{
+		iApplication.checkAuthorized();
 		if (record != null)
 		{
-			EditRecordList editRecordList = application.getFoundSetManager().getEditRecordList();
+			EditRecordList editRecordList = iApplication.getFoundSetManager().getEditRecordList();
 			IRecordInternal[] failedRecords = editRecordList.getFailedRecords();
 			if (asList(failedRecords).contains(record))
 			{
 				editRecordList.startEditing((IRecordInternal)record, false);
 			}
-			return editRecordList.stopEditing(true, (IRecord)record) == ISaveConstants.STOPPED;
+			return editRecordList.stopEditing(true, (IRecordInternal)record) == ISaveConstants.STOPPED;
 		}
 		return false;
 	}
-
-//	/**
-//	 * @clonedesc saveData()
-//	 *
-//	 * @sampleas saveData()
-//	 *
-//	 * @param record The JSRecord to save.
-//	 *
-//	 * @return true if the save was done without an error.
-//	 */
-//	@JSFunction
-//	public boolean saveData(ViewRecord record) throws ServoyException
-//	{
-//		checkAuthorized();
-//		if (record != null)
-//		{
-//			return ((ViewFoundSet)record.getParentFoundSet()).save(record) == ISaveConstants.STOPPED;
-//		}
-//		return false;
-//	}
 
 	/**
 	 * @clonedesc saveData()
@@ -3247,11 +3388,10 @@ public class JSDatabaseManager implements IJSDatabaseManager
 				}
 			}
 
-			return editRecordList.stopEditing(true, asList(records)) == ISaveConstants.STOPPED;
+			return editRecordList.stopEditing(true, null, asList(records)) == ISaveConstants.STOPPED;
 		}
 		return false;
 	}
-
 
 	/**
 	 * Returns a foundset object for a specified datasource or server and tablename.
@@ -3544,10 +3684,10 @@ public class JSDatabaseManager implements IJSDatabaseManager
 			Table table = (Table)server.getTable(tableName);
 			if (table == null) return null;
 
-			int columnInfoID = table.getColumnInfoID(columnName);
-			if (columnInfoID == -1) return null;
+			UUID columnInfoUUID = table.getColumnInfoID(columnName);
+			if (columnInfoUUID == null) return null;
 
-			return application.getDataServer().getNextSequence(serverName, tableName, columnName, columnInfoID, serverName);
+			return application.getDataServer().getNextSequence(serverName, tableName, columnName, columnInfoUUID, serverName);
 		}
 		catch (Exception e)
 		{
@@ -3584,6 +3724,8 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * 	var serverNames = databaseManager.getDataModelClonesFrom('myServerName');
 	 *
 	 * @param serverName
+	 *
+	 * @return A list of names of all database servers that have the property DataModelCloneFrom set to the specified server name, or null if an error occurs or no such servers exist.
 	 */
 	@JSFunction
 	public String[] getDataModelClonesFrom(String serverName) throws ServoyException
@@ -3828,8 +3970,6 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * If you want to avoid round trips to the server or avoid the possibility of blocking other clients
 	 * because of your pending changes, you can use databaseManager.setAutoSave(false/true) and databaseManager.rollbackEditedRecords().
 	 *
-	 * startTransaction, commit/rollbackTransacton() does support rollback of record deletes which autoSave = false doesn't support.
-	 *
 	 * @sample
 	 * // starts a database transaction
 	 * databaseManager.startTransaction()
@@ -3892,7 +4032,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * Enable/disable the automatic prefetching of related foundsets for sibling records.
 	 * <p>
 	 * For example, when orders from a record in a customer foundset are retrieved, already the orders of a few sibling records are also prefetched.
-	 * By default this prefetch is enabled for SmartClient but is disabled for all serverbased clients like NGClient and HeadlessClient.
+	 * By default this prefetch is disabled.
 	 * Because server based client are close enough to the database that they can fetch the siblings themselfs
 	 * <p>
 	 *
@@ -3913,16 +4053,13 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	}
 
 	/**
-	 * Set autosave, if false then no saves will happen by the ui (not including deletes!).
+	 * Set autosave, if false then no saves or deletes will happen by the ui.
 	 * Until you call databaseManager.saveData() or setAutoSave(true)
-	 *
-	 * If you also want to be able to rollback deletes then you have to use databaseManager.startTransaction().
-	 * Because even if autosave is false deletes of records will be done.
-	 *
+	 *	 *
 	 * @sample
-	 * //Rollbacks in mem the records that were edited and not yet saved. Best used in combination with autosave false.
+	 * // Rollbacks in mem the records that were edited or deleted and not yet saved. Best used in combination with autosave false.
 	 * databaseManager.setAutoSave(false)
-	 * //Now let users input data
+	 * // Now let users input data
 	 *
 	 * //On save or cancel, when data has been entered:
 	 * if (cancel) databaseManager.rollbackEditedRecords()
@@ -3947,12 +4084,12 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * Returns true or false if autosave is enabled or disabled.
 	 *
 	 * @sample
-	 * //Set autosave, if false then no saves will happen by the ui (not including deletes!). Until you call saveData or setAutoSave(true)
-	 * //Rollbacks in mem the records that were edited and not yet saved. Best used in combination with autosave false.
+	 * // Set autosave, if false then no saves or deletes will happen by the ui. Until you call saveData or setAutoSave(true)
+	 * // Rollbacks in mem the records that were edited and not yet saved. Best used in combination with autosave false.
 	 * databaseManager.setAutoSave(false)
-	 * //Now let users input data
+	 * // Now let users input data
 	 *
-	 * //On save or cancel, when data has been entered:
+	 * // On save or cancel, when data has been entered:
 	 * if (cancel) databaseManager.rollbackEditedRecords()
 	 * databaseManager.setAutoSave(true)
 	 *
@@ -3983,17 +4120,16 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * Rolls back in memory edited records that are outstanding (not saved).
 	 * Can specify a record or foundset as parameter to rollback.
 	 * Best used in combination with the function databaseManager.setAutoSave()
-	 * This does not include deletes, they do not honor the autosafe false flag so they cant be rollbacked by this call.
 	 *
 	 * @deprecated  As of release 6.1, renamed to {@link #revertEditedRecords()}.
 	 *
 	 * @sample
-	 * //Set autosave, if false then no saves will happen by the ui (not including deletes!). Until you call saveData or setAutoSave(true)
-	 * //Rollbacks in mem the records that were edited and not yet saved. Best used in combination with autosave false.
+	 * // Set autosave, if false then no saves or deletes will happen by the ui. Until you call saveData or setAutoSave(true)
+	 * // Rollbacks in mem the records that were edited and not yet saved. Best used in combination with autosave false.
 	 * databaseManager.setAutoSave(false)
-	 * //Now let users input data
+	 * // Now let users input data
 	 *
-	 * //On save or cancel, when data has been entered:
+	 * // On save or cancel, when data has been entered:
 	 * if (cancel) databaseManager.rollbackEditedRecords()
 	 * //databaseManager.rollbackEditedRecords(foundset); // rollback all records from foundset
 	 * //databaseManager.rollbackEditedRecords(foundset.getSelectedRecord()); // rollback only one record
@@ -4039,12 +4175,10 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * Reverts outstanding (not saved) in memory changes from edited records.
 	 * Can specify a record or foundset as parameter to rollback.
 	 * Best used in combination with the function databaseManager.setAutoSave()
-	 * This does not include deletes, they do not honor the autosafe false flag so they cant be rollbacked by this call.
-	 *
 	 *
 	 * @sample
-	 * //Set autosave, if false then no saves will happen by the ui (not including deletes!). Until you call saveData or setAutoSave(true)
-	 * //reverts in mem the records that were edited and not yet saved. Best used in combination with autosave false.
+	 * // Set autosave, if false then no saves or deletes will happen by the ui. Until you call saveData or setAutoSave(true)
+	 * // reverts in mem the records that were edited and not yet saved. Best used in combination with autosave false.
 	 * databaseManager.setAutoSave(false)
 	 * //Now let users input data
 	 *
@@ -4069,13 +4203,19 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 */
 	public void js_revertEditedRecords(IFoundSetInternal foundset) throws ServoyException
 	{
-		application.checkAuthorized();
+		revertEditedRecords(application, foundset);
+	}
+
+	public static void revertEditedRecords(IApplication iApplication, IFoundSetInternal foundset) throws ServoyException
+	{
+		iApplication.checkAuthorized();
 		if (foundset != null)
 		{
-			List<IRecordInternal> records = new ArrayList<IRecordInternal>();
-			records.addAll(asList(application.getFoundSetManager().getEditRecordList().getEditedRecords(foundset)));
-			records.addAll(asList(application.getFoundSetManager().getEditRecordList().getFailedRecords(foundset)));
-			if (records.size() > 0) application.getFoundSetManager().getEditRecordList().rollbackRecords(records);
+			List<IRecordInternal> records = new ArrayList<>();
+			records.addAll(asList(iApplication.getFoundSetManager().getEditRecordList().getEditedRecords(foundset)));
+			records.addAll(asList(iApplication.getFoundSetManager().getEditRecordList().getFailedRecords(foundset)));
+			// if records is empty we still need to call rollbackRecords() in case of delete queries for the foundset
+			iApplication.getFoundSetManager().getEditRecordList().rollbackRecords(records, true, foundset);
 		}
 	}
 
@@ -4092,11 +4232,9 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	public void js_revertEditedRecords(IRecordInternal record) throws ServoyException
 	{
 		application.checkAuthorized();
-		if (record != null)
+		if (record instanceof IJSRecord)
 		{
-			List<IRecordInternal> records = new ArrayList<IRecordInternal>();
-			records.add(record);
-			application.getFoundSetManager().getEditRecordList().rollbackRecords(records);
+			((IJSRecord)record).revertChanges();
 		}
 	}
 
@@ -4310,27 +4448,23 @@ public class JSDatabaseManager implements IJSDatabaseManager
 		else
 		{
 			EditRecordList el = application.getFoundSetManager().getEditRecordList();
-			// fist test quickly for this foundset only.
-			IRecordInternal[] editedRecords = el.getEditedRecords(foundset, true);
-			for (IRecordInternal editedRecord : editedRecords)
+			// first test quickly for this foundset only.
+			for (IRecordInternal editedRecord : el.getEditedRecords(foundset, true))
 			{
-				IRecordInternal record = editedRecord;
-				if (record.getRawData() != null && !record.existInDataSource())
+				if (editedRecord.getRawData() != null && !editedRecord.existInDataSource())
 				{
 					return true;
 				}
 			}
 			// if not found then look if other foundsets had record(s) that are new that also are in this foundset.
 			String ds = foundset.getDataSource();
-			editedRecords = el.getEditedRecords();
-			for (IRecordInternal editedRecord : editedRecords)
+			for (IRecordInternal editedRecord : el.getEditedRecords())
 			{
-				IRecordInternal record = editedRecord;
-				if (record.getRawData() != null && !record.existInDataSource())
+				if (editedRecord.getRawData() != null && !editedRecord.existInDataSource())
 				{
-					if (record.getParentFoundSet().getDataSource().equals(ds))
+					if (editedRecord.getParentFoundSet().getDataSource().equals(ds))
 					{
-						if (foundset.getRecord(record.getPK()) != null)
+						if (foundset.getRecord(editedRecord.getPK()) != null)
 						{
 							return true;
 						}
@@ -4651,6 +4785,8 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * @sample databaseManager.removeDataSource(uri);
 	 *
 	 * @param uri
+	 *
+	 *  @return true if the data source was successfully removed; false otherwise.
 	 */
 	public boolean js_removeDataSource(String uri)
 	{

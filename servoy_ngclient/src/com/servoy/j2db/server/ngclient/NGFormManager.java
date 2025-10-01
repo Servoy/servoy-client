@@ -30,6 +30,7 @@ import java.util.concurrent.ConcurrentMap;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.NativeJavaObject;
+import org.sablo.services.server.FormServiceHandler;
 import org.sablo.websocket.CurrentWindow;
 
 import com.servoy.j2db.BasicFormController;
@@ -38,6 +39,7 @@ import com.servoy.j2db.ClientState;
 import com.servoy.j2db.IBasicMainContainer;
 import com.servoy.j2db.IFormController;
 import com.servoy.j2db.IModeManager;
+import com.servoy.j2db.IRunnableWithEventLevel;
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.Messages;
@@ -75,9 +77,8 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 
 	private final int maxForms;
 
-	/**
-	 * @param application
-	 */
+	private Object tenantValue;
+
 	public NGFormManager(INGApplication application)
 	{
 		super(application);
@@ -139,7 +140,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 			{
 				for (Solution module : modules)
 				{
-					if (module.getFirstFormID() > 0)
+					if (module.getFirstFormID() != null)
 					{
 						first = application.getFlattenedSolution().getForm(module.getFirstFormID());
 						firstFormCanBeInstantiated = application.getFlattenedSolution().formCanBeInstantiated(first);
@@ -164,7 +165,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 		{
 			application.getModeManager().setMode(IModeManager.EDIT_MODE);//start in browse mode
 		}
-		boolean showLoginForm = (solution.getLoginFormID() > 0 && solution.getMustAuthenticate() && application.getUserUID() == null);
+		boolean showLoginForm = (solution.getLoginFormID() != null && solution.getMustAuthenticate() && application.getUserUID() == null);
 		if (application.getUserUID() == null)
 		{
 			ScriptMethod onBeforeLogin = application.getFlattenedSolution().getScriptMethod(solution.getOnBeforeLoginMethodID());
@@ -192,7 +193,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 				}
 			}
 		}
-		if (solution.getLoginFormID() > 0 && solution.getMustAuthenticate() && application.getUserUID() == null)
+		if (solution.getLoginFormID() != null && solution.getMustAuthenticate() && application.getUserUID() == null)
 		{
 			Form login = application.getFlattenedSolution().getForm(solution.getLoginFormID());
 			if (application.getFlattenedSolution().formCanBeInstantiated(login) && loginForm == null)
@@ -208,7 +209,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 			return;
 		}
 		IBasicMainContainer currentContainer = getCurrentContainer();
-		if (solution.getLoginFormID() > 0 && solution.getMustAuthenticate() && application.getUserUID() != null && loginForm != null)
+		if (solution.getLoginFormID() != null && solution.getMustAuthenticate() && application.getUserUID() != null && loginForm != null)
 		{
 			if (currentContainer.getController() != null && loginForm.getName().equals(currentContainer.getController().getForm().getName()))
 			{
@@ -217,7 +218,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 			}
 			loginForm = null;//clear and continue
 		}
-
+		if (tenantValue != null) application.getFoundSetManager().setTenantValue(solution, tenantValue);
 		ScriptMethod sm = application.getFlattenedSolution().getScriptMethod(solution.getOnOpenMethodID());
 
 		Object[] solutionOpenMethodArgs = null;
@@ -481,7 +482,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 				(rw.getType() == JSWindow.MODAL_DIALOG || rw.getType() == JSWindow.DIALOG)))
 			{
 				Debug.warn("Trying to show a form " + formName + " when a login form " + loginForm.getName() + "  is shown, this is not allowed "); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-				return null;//not allowed to leave here...or show anything else than login form
+				return null; // not allowed to leave here... or show anything else than login form
 			}
 		}
 
@@ -549,22 +550,48 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 				if (application.getSolution() == null) return null;
 
 				setCurrentControllerJS(fp);
-				//add to history
+				// add to history
 				getHistory(container).add(fp.getName());
 
-				container.setController(fp);
+				List<Runnable> switchOnClientAndSendInitialDataRunnables = new ArrayList<Runnable>();
+				container.setController(fp, switchOnClientAndSendInitialDataRunnables);
 
-				//show panel as main
+				// show panel as main
 				List<Runnable> invokeLaterRunnables = new ArrayList<Runnable>();
 				fp.notifyVisible(true, invokeLaterRunnables, true);
 
-				String titleText = title;
-				if (titleText == null) titleText = f.getTitleText();
-				if (titleText == null || titleText.equals("")) titleText = fp.getName(); //$NON-NLS-1$
-				if (NO_TITLE_TEXT.equals(titleText)) titleText = ""; //$NON-NLS-1$
-				container.setTitle(titleText);
-
 				fp.getFormUI().setParentWindowName(container.getContainerName());
+
+				INGClientWindow clientWindow = NGClientWindow.getCurrentWindow();
+
+				// as this will send the updateController call to client (initial data) if needed, we do it after visibility runnables are done; so that we show the state after onShow instead of doing this earlier and then sending any UI changes that happen in onShow later to client
+				// see BIG COMMENT in NGFormServiceHandler.executeMethod('formvisibility'); - here we have a similar thing, but the main form is changed,
+				// not the tab of a tabpanel or some other visibility of a custom component;
+				invokeLaterRunnables.add(new IRunnableWithEventLevel()
+				{
+					public void run()
+					{
+						switchOnClientAndSendInitialDataRunnables.forEach((r) -> r.run());
+
+						String titleText = title;
+						if (titleText == null) titleText = f.getTitleText();
+						if (titleText == null || titleText.equals("")) titleText = fp.getName(); //$NON-NLS-1$
+						if (NO_TITLE_TEXT.equals(titleText)) titleText = ""; //$NON-NLS-1$
+						container.setTitle(titleText);
+
+						INGClientWebsocketSession session;
+						if (clientWindow != null && (session = clientWindow.getSession()) != null && session.isValid()) // as this executes later, make sure everything is still in an ok state
+						{
+							session.getSabloService().setExpectFormToShowOnClient(false);
+						}
+					}
+
+					public int getEventLevel()
+					{
+						return FormServiceHandler.EVENT_LEVEL_INITIAL_FORM_DATA_REQUEST;
+					}
+				});
+				if (clientWindow != null) clientWindow.getSession().getSabloService().setExpectFormToShowOnClient(true);
 
 				if (invokeLaterRunnables.size() > 0) wrapInShowLoadingIndicator(invokeLaterRunnables);
 				Utils.invokeLater(application, invokeLaterRunnables);
@@ -584,7 +611,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 		return null;
 	}
 
-	private void wrapInShowLoadingIndicator(List<Runnable> invokeLaterRunnables)
+	protected void wrapInShowLoadingIndicator(List<Runnable> invokeLaterRunnables)
 	{
 		invokeLaterRunnables.add(0, () -> {
 			getApplication().getWebsocketSession().getClientService("$sabloLoadingIndicator").executeAsyncNowServiceCall("showLoading", null); //$NON-NLS-1$ //$NON-NLS-2$
@@ -626,7 +653,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 		}
 		thisWindow.setInitialBounds(bounds.x, bounds.y, bounds.width, bounds.height);
 		thisWindow.showTextToolbar(showTextToolbar);
-		thisWindow.setTitle(title);
+		thisWindow.setTitle(thisWindow.getTitle() != null ? thisWindow.getTitle() : title);
 		thisWindow.setResizable(resizeble);
 
 		thisWindow.oldShow(formName, closeAll, legacyV3Behavior);
@@ -655,7 +682,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 		}
 		thisWindow.setInitialBounds(bounds.x, bounds.y, bounds.width, bounds.height);
 		thisWindow.showTextToolbar(showTextToolbar);
-		thisWindow.setTitle(windowTitle);
+		thisWindow.setTitle(thisWindow.getTitle() != null ? thisWindow.getTitle() : windowTitle);
 		thisWindow.setResizable(resizeble);
 
 		thisWindow.oldShow(formName, true, false); // last two params are really not relevant for windows
@@ -766,5 +793,11 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 			return readonly;
 
 		}
+	}
+
+	@Override
+	public void setTenantValue(Object value)
+	{
+		this.tenantValue = value;
 	}
 }

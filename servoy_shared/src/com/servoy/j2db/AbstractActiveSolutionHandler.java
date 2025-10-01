@@ -64,7 +64,7 @@ public abstract class AbstractActiveSolutionHandler implements IActiveSolutionHa
 
 	protected Solution loadSolution(RootObjectMetaData solutionDef) throws RemoteException, RepositoryException
 	{
-		return (Solution)getRepository().getActiveRootObject(solutionDef.getRootObjectId());
+		return (Solution)getRepository().getActiveRootObject(solutionDef.getRootObjectUuid());
 	}
 
 	public Solution[] loadLoginSolutionAndModules(SolutionMetaData mainSolutionDef) throws RepositoryException, RemoteException

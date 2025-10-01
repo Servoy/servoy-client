@@ -28,8 +28,10 @@ import com.servoy.j2db.persistence.Portal;
  * Dummy class for use in the documentation generator.
  *
  * @author acostache
+ * @deprecated
  *
  */
+@Deprecated
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "Portal", scriptingName = "Portal", realClass = Portal.class, typeCode = IRepository.PORTALS)
 @ServoyClientSupport(mc = false, wc = true, sc = true)
 public class DocsPortal extends Portal implements IBaseDocsComponent
@@ -39,7 +41,7 @@ public class DocsPortal extends Portal implements IBaseDocsComponent
 
 	DocsPortal()
 	{
-		super(null, 0, null);
+		super(null, null);
 	}
 
 	@Override

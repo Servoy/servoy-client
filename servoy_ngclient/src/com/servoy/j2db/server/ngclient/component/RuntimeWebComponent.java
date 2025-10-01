@@ -71,6 +71,7 @@ import com.servoy.j2db.server.ngclient.property.types.ValueListPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.ValueListTypeSabloValue;
 import com.servoy.j2db.server.ngclient.scripting.WebComponentFunction;
 import com.servoy.j2db.server.ngclient.scripting.WebServiceScriptable;
+import com.servoy.j2db.ui.runtime.IBaseRuntimeComponent;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.Utils;
 
@@ -79,7 +80,7 @@ import com.servoy.j2db.util.Utils;
  *
  */
 @SuppressWarnings("nls")
-public class RuntimeWebComponent implements Scriptable, IInstanceOf, IRefreshValueList
+public class RuntimeWebComponent implements IBaseRuntimeComponent, Scriptable, IInstanceOf, IRefreshValueList
 {
 	/**
 	 *  a constanst set on the current context that a server side script is executing
@@ -96,6 +97,8 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf, IRefreshVal
 	private final WebObjectSpecification webComponentSpec;
 	private Scriptable parentScope;
 	private Scriptable scopeObject;
+
+	private final Map<String, Function> setterFunctions;
 
 	public RuntimeWebComponent(WebFormComponent component, WebObjectSpecification webComponentSpec)
 	{
@@ -130,10 +133,30 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf, IRefreshVal
 		{
 			scopeObject = WebServiceScriptable.compileServerScript(serverScript, this, component.getDataConverterContext().getApplication(), component);
 			apiObject = (Scriptable)scopeObject.get("api", scopeObject);
+
+			Object setters = scopeObject.get("setters", scopeObject);
+			if (setters instanceof Scriptable scriptable)
+			{
+				setterFunctions = new HashMap<>();
+
+				Object[] ids = scriptable.getIds();
+				for (Object id : ids)
+				{
+					if (id instanceof String propName && propName.startsWith("set") && scriptable.get(propName, scriptable) instanceof Function getterFunction)
+					{
+						propName = Character.toLowerCase(propName.charAt(3)) + propName.substring(4);
+						setterFunctions.put(propName, getterFunction);
+					}
+				}
+			}
+			else
+			{
+				setterFunctions = null;
+			}
 			// add also the handlers object
+			Context context = Context.enter();
 			try
 			{
-				Context context = Context.enter();
 				Scriptable handlerObject = context.newObject(scopeObject);
 				scopeObject.put("handlers", scopeObject, handlerObject);
 				Set<String> handlers = component.getSpecification().getHandlers().keySet();
@@ -178,6 +201,10 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf, IRefreshVal
 			{
 				Context.exit();
 			}
+		}
+		else
+		{
+			setterFunctions = null;
 		}
 
 		if (webComponentSpec != null)
@@ -331,7 +358,10 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf, IRefreshVal
 		{
 			PropertyDescription pd = webComponentSpec.getProperties().get(realName);
 			if (WebFormComponent.isDesignOnlyProperty(pd)) return Scriptable.NOT_FOUND;
-			return NGConversions.INSTANCE.convertSabloComponentToRhinoValue(component.getProperty(realName), pd, component, start);
+			Object value = component.getProperty(realName);
+			// special case for visibility should always return true for a null value (value not set)
+			if (value == null && pd.getType() instanceof VisiblePropertyType) return Boolean.TRUE;
+			return NGConversions.INSTANCE.convertSabloComponentToRhinoValue(value, pd, component, start);
 		}
 		if ("getFormName".equals(name))
 		{
@@ -509,7 +539,25 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf, IRefreshVal
 			else previousVal = component.getProperty(realName);
 			Object val = NGConversions.INSTANCE.convertRhinoToSabloComponentValue(value, previousVal, pd, component);
 
-			if (val != previousVal) component.setProperty(realName, val);
+			if (val != previousVal)
+			{
+				if (setterFunctions != null && setterFunctions.remove(name) instanceof Function propertySetter)
+				{
+					try
+					{
+						Context cx = Context.getCurrentContext();
+						propertySetter.call(cx, start, start, new Object[] { value });
+					}
+					finally
+					{
+						setterFunctions.put(name, propertySetter);
+					}
+				}
+				else
+				{
+					component.setProperty(realName, val);
+				}
+			}
 
 			if (pd != null && pd.getType() instanceof VisiblePropertyType)
 			{
@@ -540,6 +588,23 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf, IRefreshVal
 							}
 						}
 					}
+				}
+				if (val != previousVal && val instanceof Boolean isVisible)
+				{
+					List<Runnable> invokeLaterRunnables = new ArrayList<Runnable>();
+					invokeLaterRunnables.add(() -> {
+						WebObjectFunctionDefinition function = null;
+						if (isVisible == null || isVisible.booleanValue())
+							function = RuntimeWebComponent.this.getComponent().getSpecification().getInternalApiFunction("onShow");
+						else
+							function = RuntimeWebComponent.this.getComponent().getSpecification().getInternalApiFunction("onHide");
+						if (function != null)
+						{
+							RuntimeWebComponent.this.executeScopeFunction(function, new Object[0]);
+						}
+					});
+					component.notifyVisible(isVisible.booleanValue(), invokeLaterRunnables, new HashSet<>());
+					Utils.invokeLater(component.getDataConverterContext().getApplication(), invokeLaterRunnables);
 				}
 			}
 		}
@@ -781,4 +846,23 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf, IRefreshVal
 		return "Component: " + component;
 	}
 
+
+	public boolean setCustomTypePropertyUsingSetter(Scriptable scriptable, String name, Object value)
+	{
+
+		if (setterFunctions != null && setterFunctions.remove(name) instanceof Function propertySetter)
+		{
+			Context cx = Context.getCurrentContext();
+			try
+			{
+				propertySetter.call(cx, scriptable, scriptable, new Object[] { scriptable, value });
+				return true;
+			}
+			finally
+			{
+				setterFunctions.put(name, propertySetter);
+			}
+		}
+		return false;
+	}
 }

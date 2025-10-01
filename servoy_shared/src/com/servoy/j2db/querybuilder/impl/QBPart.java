@@ -26,10 +26,20 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 
 
 /**
+ * <p>The <code>QBPart</code> class serves as a generic SQL component within the
+ * <code>QBSelect</code> framework. It provides foundational support for query construction by
+ * linking to parent and root query elements.</p>
+ *
+ * <p>By referencing the parent table clause or root query, <code>QBPart</code> integrates
+ * into larger query structures, supporting complex scenarios in SQL execution.</p>
+ *
+ * <p>For further details on query construction and execution, refer to the
+ * <a href="https://docs.servoy.com/reference/servoycore/dev-api/database-manager/qbselect">QBSelect documentation</a>.</p>
+ *
  * @author rgansevles
  *
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "QBPart")
+@ServoyDocumented(category = ServoyDocumented.RUNTIME)
 public abstract class QBPart implements IQueryBuilderPart, IJavaScriptType
 {
 	private final QBSelect root;
@@ -54,7 +64,7 @@ public abstract class QBPart implements IQueryBuilderPart, IJavaScriptType
 	 * 	query.where.add(query.joins.person_to_parent.joins.person_to_parent.columns.name.eq('john'))
 	 * 	foundset.loadRecords(query)
 	 */
-	@JSReadonlyProperty
+	@JSReadonlyProperty(debuggerRepresentation = "Query parent part")
 	public QBTableClause getParent()
 	{
 		return parent;
@@ -77,7 +87,7 @@ public abstract class QBPart implements IQueryBuilderPart, IJavaScriptType
 	 *
 	 * 	foundset.loadRecords(query)
 	 */
-	@JSReadonlyProperty
+	@JSReadonlyProperty(debuggerRepresentation = "Query root part")
 	public QBSelect getRoot()
 	{
 		return root;

@@ -18,6 +18,7 @@
 package com.servoy.j2db.server.ngclient.property.types;
 
 import java.util.HashMap;
+import java.util.Set;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -27,6 +28,7 @@ import org.sablo.IWebObjectContext;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IConvertedPropertyType;
+import org.sablo.specification.property.IPropertyWithAttachDependencies;
 import org.sablo.specification.property.types.DefaultPropertyType;
 import org.sablo.util.ValueReference;
 import org.sablo.websocket.utils.JSONUtils;
@@ -48,7 +50,8 @@ import com.servoy.j2db.util.ServoyJSONObject;
  */
 public class FindModePropertyType extends DefaultPropertyType<FindModeSabloValue>
 	implements IConvertedPropertyType<FindModeSabloValue>, IFormElementDefaultValueToSabloComponent<JSONObject, FindModeSabloValue>,
-	ISabloComponentToRhino<FindModeSabloValue>, IRhinoToSabloComponent<FindModeSabloValue>, IFormElementToTemplateJSON<String, FindModeSabloValue>
+	ISabloComponentToRhino<FindModeSabloValue>, IRhinoToSabloComponent<FindModeSabloValue>, IFormElementToTemplateJSON<String, FindModeSabloValue>,
+	IPropertyWithAttachDependencies<FindModeSabloValue>
 {
 
 	public static final FindModePropertyType INSTANCE = new FindModePropertyType();
@@ -146,4 +149,13 @@ public class FindModePropertyType extends DefaultPropertyType<FindModeSabloValue
 		writer.value(Boolean.FALSE);
 		return writer;
 	}
+
+	@Override
+	public String[] getDependencies(PropertyDescription pd)
+	{
+		Set<String> propertiesThatWillBeAlteredByThisOne = ((FindModeConfig)pd.getConfig()).configPropertiesNames();
+		return propertiesThatWillBeAlteredByThisOne.isEmpty() ? null
+			: propertiesThatWillBeAlteredByThisOne.toArray(new String[propertiesThatWillBeAlteredByThisOne.size()]);
+	}
+
 }

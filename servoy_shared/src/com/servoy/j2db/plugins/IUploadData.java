@@ -17,14 +17,13 @@
 package com.servoy.j2db.plugins;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 
 /**
  * Container object holding the data of the uploaded files.
  *
  * NOTE: don't implement directly, this interface can change.
- * 
+ *
  * @author jcompagner
  * @since 5.1
  * @see IMediaUploadCallback
@@ -33,20 +32,20 @@ public interface IUploadData
 {
 	/**
 	 * If this data maps to a file it will return the real file system file, null otherwise.
-	 *   
+	 *
 	 * @return File object
 	 */
 	File getFile();
 
 	/**
 	 * The contents of this uploaded data.
-	 * @return a byte array with the contents of the uploaded data 
+	 * @return a byte array with the contents of the uploaded data
 	 */
 	byte[] getBytes();
 
 	/**
 	 * The name of the file on the users machine.
-	 * 
+	 *
 	 * @return the name of the file
 	 */
 	String getName();
@@ -61,7 +60,7 @@ public interface IUploadData
 	 * An inputStream on the data
 	 * @return the inputStream on the data
 	 */
-	InputStream getInputStream() throws IOException;
+	InputStream getInputStream();
 
 	/**
 	 * @return the last modified date/time as a long

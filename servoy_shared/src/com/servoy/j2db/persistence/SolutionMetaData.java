@@ -46,12 +46,12 @@ public class SolutionMetaData extends RootObjectMetaData
 	public static final int NG_MODULE = 2048;
 	public static final int SERVICE = 4096;
 
-	public static final String[] solutionTypeNames = { "Normal", "Module", "Web Client", "Smart Client", "Login", "Authenticator", "Pre-import hook module", "Post-import hook module", "Mobile", "Mobile shared module", "NG Client", "NG Module", "Service" };//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$ //$NON-NLS-8$ //$NON-NLS-9$ //$NON-NLS-10$ //$NON-NLS-11$ //$NON-NLS-12$ //$NON-NLS-13$
-	public static final int[] solutionTypes = { SOLUTION, MODULE, WEB_CLIENT_ONLY, SMART_CLIENT_ONLY, LOGIN_SOLUTION, AUTHENTICATOR, PRE_IMPORT_HOOK, POST_IMPORT_HOOK, MOBILE, MOBILE_MODULE, NG_CLIENT_ONLY, NG_MODULE, SERVICE };
+	public static final String[] solutionTypeNames = { "Module", "Login", "Authenticator", "Pre-import hook module", "Post-import hook module", "Mobile", "Mobile shared module", "NG Client", "NG Module", "Service" };//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$ //$NON-NLS-8$ //$NON-NLS-9$ //$NON-NLS-10$
+	public static final int[] solutionTypes = { MODULE, LOGIN_SOLUTION, AUTHENTICATOR, PRE_IMPORT_HOOK, POST_IMPORT_HOOK, MOBILE, MOBILE_MODULE, NG_CLIENT_ONLY, NG_MODULE, SERVICE };
 
 	// this list does not contain the deprecated types
-	public static final String[] currentSolutionTypeNames = { "Normal", "Module", "Pre-import hook module", "Post-import hook module", "NG Client", "NG Module", "Service" };//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$
-	public static final int[] currentSolutionTypes = { SOLUTION, MODULE, PRE_IMPORT_HOOK, POST_IMPORT_HOOK, NG_CLIENT_ONLY, NG_MODULE, SERVICE };
+	public static final String[] currentSolutionTypeNames = { "Module", "Pre-import hook module", "Post-import hook module", "NG Client", "NG Module", "Service" };//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$
+	public static final int[] currentSolutionTypes = { MODULE, PRE_IMPORT_HOOK, POST_IMPORT_HOOK, NG_CLIENT_ONLY, NG_MODULE, SERVICE };
 
 	private int solutionType;
 
@@ -62,9 +62,9 @@ public class SolutionMetaData extends RootObjectMetaData
 
 	private transient int fileVersion = AbstractRepository.repository_version;
 
-	public SolutionMetaData(int rootObjectId, UUID rootObjectUuid, String name, int objectTypeId, int activeRelease, int latestRelease)
+	public SolutionMetaData(UUID rootObjectUuid, String name, int objectTypeId, int activeRelease, int latestRelease)
 	{
-		super(rootObjectId, rootObjectUuid, name, objectTypeId, activeRelease, latestRelease);
+		super(rootObjectUuid, name, objectTypeId, activeRelease, latestRelease);
 		solutionType = SolutionMetaData.SOLUTION;
 		if (ApplicationServerRegistry.exists()) protectionPassword = ApplicationServerRegistry.get().calculateProtectionPassword(this, null);
 	}

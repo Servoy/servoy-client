@@ -16,11 +16,12 @@
 */
 package com.servoy.j2db.persistence;
 
+import com.servoy.j2db.util.UUID;
 
 /**
  * @author jcompagner
  */
 public interface IValidateName
 {
-	public void checkName(String nameToCheck, int skip_element_id, ValidatorSearchContext searchContext, boolean sqlRelated) throws RepositoryException;
+	public void checkName(String nameToCheck, UUID skip_element_uuid, ValidatorSearchContext searchContext, boolean sqlRelated) throws RepositoryException;
 }

@@ -33,27 +33,27 @@ public interface IBaseField extends IBaseFieldCommon
 	/**
 	 * @clonedesc com.servoy.base.solutionmodel.IBaseSMField#getValuelist()
 	 */
-	int getValuelistID();
+	String getValuelistID();
 
-	void setValuelistID(int arg);
+	void setValuelistID(String arg);
 
-	int getOnActionMethodID();
+	String getOnActionMethodID();
 
-	void setOnActionMethodID(int arg);
+	void setOnActionMethodID(String arg);
 
 	/**
 	 * @clonedesc com.servoy.base.solutionmodel.IBaseSMField#getOnDataChange()
 	 *
 	 */
-	int getOnDataChangeMethodID();
+	String getOnDataChangeMethodID();
 
-	void setOnDataChangeMethodID(int arg);
-
-	@ServoyClientSupport(ng = false, mc = false, wc = true, sc = true)
-	void setOnRenderMethodID(int arg);
+	void setOnDataChangeMethodID(String arg);
 
 	@ServoyClientSupport(ng = false, mc = false, wc = true, sc = true)
-	int getOnRenderMethodID();
+	void setOnRenderMethodID(String arg);
+
+	@ServoyClientSupport(ng = false, mc = false, wc = true, sc = true)
+	String getOnRenderMethodID();
 
 
 }

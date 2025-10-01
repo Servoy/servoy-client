@@ -21,7 +21,6 @@ import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Method;
-import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -214,6 +213,8 @@ public class RepositoryHelper
 				return "relation"; //$NON-NLS-1$
 			case IRepository.VALUELISTS :
 				return "valuelist"; //$NON-NLS-1$
+			case IRepository.MENUS :
+				return "menu"; //$NON-NLS-1$
 			case IRepository.MEDIA :
 				return "media"; //$NON-NLS-1$
 			default :
@@ -223,13 +224,13 @@ public class RepositoryHelper
 		}
 	}
 
-	public List<RootObjectReference> getActiveSolutionModuleMetaDatas(int solutionId) throws RepositoryException
+	public List<RootObjectReference> getActiveSolutionModuleMetaDatas(UUID solutionUUID) throws RepositoryException
 	{
 		Map<UUID, RootObjectReference> referencedModules = new LinkedHashMap<UUID, RootObjectReference>();
 		// get the main solution;
 		try
 		{
-			Solution sol = (Solution)developerRepository.getActiveRootObject(solutionId);
+			Solution sol = (Solution)developerRepository.getActiveRootObject(solutionUUID);
 			if (sol != null)
 			{
 				referencedModules.put(sol.getUUID(),
@@ -253,59 +254,52 @@ public class RepositoryHelper
 		{
 			while (tk.hasMoreTokens())
 			{
-				try
+				String moduleDescriptor = tk.nextToken();
+				SolutionMetaData metaData;
+				int releaseNumber = 0;
+				int i = moduleDescriptor.indexOf(':');
+				String name;
+				UUID uuid;
+				if (i != -1)
 				{
-					String moduleDescriptor = tk.nextToken();
-					SolutionMetaData metaData;
-					int releaseNumber = 0;
-					int i = moduleDescriptor.indexOf(':');
-					String name;
-					UUID uuid;
-					if (i != -1)
-					{
-						releaseNumber = Integer.parseInt(moduleDescriptor.substring(i + 1));
-						moduleDescriptor = moduleDescriptor.substring(0, i);
-					}
+					releaseNumber = Integer.parseInt(moduleDescriptor.substring(i + 1));
+					moduleDescriptor = moduleDescriptor.substring(0, i);
+				}
 
-					if (moduleDescriptor.indexOf('-') != -1)
+				if (moduleDescriptor.indexOf('-') != -1)
+				{
+					// A uuid reference.
+					uuid = UUID.fromString(moduleDescriptor);
+					metaData = (SolutionMetaData)developerRepository.getRootObjectMetaData(uuid);
+					if (metaData == null)
 					{
-						// A uuid reference.
-						uuid = UUID.fromString(moduleDescriptor);
-						metaData = (SolutionMetaData)developerRepository.getRootObjectMetaData(uuid);
-						if (metaData == null)
-						{
-							continue;
-						}
-						name = metaData.getName();
+						continue;
+					}
+					name = metaData.getName();
+				}
+				else
+				{
+					// A module name; for backwards compatibility.
+					name = moduleDescriptor;
+					metaData = (SolutionMetaData)developerRepository.getRootObjectMetaData(name, IRepository.SOLUTIONS);
+					if (metaData == null)
+					{
+						continue;
+					}
+					uuid = metaData.getRootObjectUuid();
+				}
+				if (referencedModules.get(uuid) == null && (loadImportHooks || !SolutionMetaData.isImportHook(metaData)))
+				{
+					referencedModules.put(uuid, new RootObjectReference(name, uuid, metaData, releaseNumber));
+					Solution sol = (Solution)developerRepository.getRootObject(metaData.getRootObjectUuid(), releaseNumber);
+					if (sol != null)
+					{
+						loadObjectMetaDatas(sol.getModulesNames(), referencedModules, loadImportHooks);
 					}
 					else
 					{
-						// A module name; for backwards compatibility.
-						name = moduleDescriptor;
-						metaData = (SolutionMetaData)developerRepository.getRootObjectMetaData(name, IRepository.SOLUTIONS);
-						if (metaData == null)
-						{
-							continue;
-						}
-						uuid = metaData.getRootObjectUuid();
+						throw new RepositoryException("Solution with uuid " + uuid + " and name " + name + " was not found.");
 					}
-					if (referencedModules.get(uuid) == null && (loadImportHooks || !SolutionMetaData.isImportHook(metaData)))
-					{
-						referencedModules.put(uuid, new RootObjectReference(name, uuid, metaData, releaseNumber));
-						Solution sol = (Solution)developerRepository.getRootObject(metaData.getRootObjectId(), releaseNumber);
-						if (sol != null)
-						{
-							loadObjectMetaDatas(sol.getModulesNames(), referencedModules, loadImportHooks);
-						}
-						else
-						{
-							throw new RepositoryException("Solution with uuid " + uuid + " and name " + name + " was not found.");
-						}
-					}
-				}
-				catch (RemoteException e)
-				{
-					throw new RepositoryException(e);
 				}
 			}
 		}
@@ -491,7 +485,8 @@ public class RepositoryHelper
 		{
 			return true;
 		}
-		if (name.equals("formIndex") && WebComponent.class.isAssignableFrom(persistClass) && persist.getParent() instanceof LayoutContainer) //$NON-NLS-1$
+		if (name.equals("formIndex") && WebComponent.class.isAssignableFrom(persistClass) && persist.getParent() instanceof LayoutContainer lc && //$NON-NLS-1$
+			!"csspositioncontainer".equals(lc.getSpecName())) //$NON-NLS-1$
 		{
 			return true;
 		}
@@ -547,12 +542,14 @@ public class RepositoryHelper
 		return false;
 	}
 
+	@SuppressWarnings("nls")
 	public static boolean shouldShow(String name, Element element, Class< ? > persistClass, int displayType)
 	{
 		if (element == null)
 		{
 			// no content spec (example: form.width), some properties are set via another property.
-			if (Form.class.isAssignableFrom(persistClass) && ("width".equals(name) || "height".equals(name))) //$NON-NLS-1$ //$NON-NLS-2$
+			if (Form.class.isAssignableFrom(persistClass) &&
+				("width".equals(name) || "height".equals(name) || "useMinWidth".equals(name) || "useMinHeight".equals(name))) //$NON-NLS-1$ //$NON-NLS-2$
 			{
 				return true;
 			}
@@ -570,11 +567,11 @@ public class RepositoryHelper
 		{
 			return false;
 		}
-		if (name.equals("locked")) //$NON-NLS-1$
+		if (name.equals("locked"))
 		{
 			return false;
 		}
-		if (name.equals("beanClassName")) //$NON-NLS-1$
+		if (name.equals("beanClassName"))
 		{
 			return false;
 		}
@@ -582,12 +579,12 @@ public class RepositoryHelper
 		{
 			return false;
 		}
-		if (name.equals("relationName") && //$NON-NLS-1$
+		if (name.equals("relationName") &&
 			!(DocsInsetList.class.isAssignableFrom(persistClass) || Portal.class.isAssignableFrom(persistClass) || Tab.class.isAssignableFrom(persistClass)))
 		{
 			return false;
 		}
-		if (name.equals("selectedTabColor")) //$NON-NLS-1$
+		if (name.equals("selectedTabColor"))
 		{
 			return false;//not correctly impl by sun //TODO
 		}
@@ -733,6 +730,10 @@ public class RepositoryHelper
 		{
 			return false;
 		}
+		if (Form.class.isAssignableFrom(persistClass) && "name".equals(name))
+		{
+			return false;
+		}
 		return true;
 	}
 
@@ -754,23 +755,6 @@ public class RepositoryHelper
 			return true;
 		}
 
-		// there is no style support for labels & text fields on mobile client
-		if (name.equals(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName()))
-		{
-			if (GraphicalComponent.class.isAssignableFrom(persistClass))
-			{
-				return !isButton;
-			}
-			if (Field.class.isAssignableFrom(persistClass))
-			{
-				return displayType != Field.CHECKS && displayType != Field.RADIOS && displayType != Field.COMBOBOX && displayType >= 0;
-			}
-			if (Part.class.isAssignableFrom(persistClass))
-			{
-				return false;
-			}
-			return true;
-		}
 
 		if (name.equals(StaticContentSpecLoader.PROPERTY_VALUELISTID.getPropertyName()) && Field.class.isAssignableFrom(persistClass) &&
 			(displayType == Field.TEXT_FIELD || displayType == Field.TEXT_AREA || displayType == Field.PASSWORD))
@@ -783,9 +767,20 @@ public class RepositoryHelper
 
 	public static String getDisplayName(String displayName, Class< ? > persistClass)
 	{
-		if (displayName.equals("extendsID") && Form.class.isAssignableFrom(persistClass)) //$NON-NLS-1$
+		if (persistClass != null && Form.class.isAssignableFrom(persistClass))
 		{
-			return "extendsForm"; //$NON-NLS-1$
+			if (displayName.equals("extendsID")) //$NON-NLS-1$
+			{
+				return "extendsForm"; //$NON-NLS-1$
+			}
+			if (displayName.equals("height")) //$NON-NLS-1$
+			{
+				return "minHeight"; //$NON-NLS-1$
+			}
+			if (displayName.equals("width")) //$NON-NLS-1$
+			{
+				return "minWidth"; //$NON-NLS-1$
+			}
 		}
 		if (displayName.endsWith("CmdMethodID")) //$NON-NLS-1$
 		{

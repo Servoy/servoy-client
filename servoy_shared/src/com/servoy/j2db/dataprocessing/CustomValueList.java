@@ -244,7 +244,7 @@ public class CustomValueList extends OptimizedDefaultListModel implements IValue
 				{
 					super.addElement(""); //$NON-NLS-1$
 				}
-				StringTokenizer tk = new StringTokenizer(values.trim(), "\r\n"); //$NON-NLS-1$
+				StringTokenizer tk = new StringTokenizer(values, "\r\n"); //$NON-NLS-1$
 				while (tk.hasMoreTokens())
 				{
 					String line = tk.nextToken();
@@ -408,7 +408,7 @@ public class CustomValueList extends OptimizedDefaultListModel implements IValue
 					else
 					{
 						// if we have real values all display values should be strings
-						o = (o != null) ? o.toString() : null;
+						o = (o != null) ? convertToString(o, format == null ? null : format.getDisplayFormat(), application) : null;
 					}
 					super.addElement(o);
 				}

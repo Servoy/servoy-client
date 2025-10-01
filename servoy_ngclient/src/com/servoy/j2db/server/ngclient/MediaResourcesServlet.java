@@ -18,30 +18,28 @@
 package com.servoy.j2db.server.ngclient;
 
 import java.awt.Dimension;
+import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletOutputStream;
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.fileupload.FileUploadBase.FileSizeLimitExceededException;
-import org.apache.commons.fileupload.FileUploadException;
-import org.apache.commons.fileupload.disk.DiskFileItem;
-import org.apache.commons.fileupload.disk.DiskFileItemFactory;
-import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.commons.fileupload2.core.DiskFileItem;
+import org.apache.commons.fileupload2.core.DiskFileItemFactory;
+import org.apache.commons.fileupload2.core.DiskFileItemFactory.Builder;
+import org.apache.commons.fileupload2.core.FileUploadException;
+import org.apache.commons.fileupload2.core.FileUploadFileCountLimitException;
+import org.apache.commons.fileupload2.jakarta.servlet6.JakartaServletDiskFileUpload;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.sablo.util.HTTPUtils;
 
 import com.servoy.j2db.AbstractActiveSolutionHandler;
@@ -61,9 +59,15 @@ import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.server.shared.IApplicationServer;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ImageLoader;
-import com.servoy.j2db.util.MimeTypes;
 import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.Utils;
+
+import jakarta.servlet.ServletConfig;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletOutputStream;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * Supported resources URLs:<br><br>
@@ -102,7 +106,7 @@ public class MediaResourcesServlet extends AbstractMediaResourceServlet
 		super.init(context);
 		try
 		{
-			tempDir = (File)context.getServletContext().getAttribute("javax.servlet.context.tempdir");
+			tempDir = (File)context.getServletContext().getAttribute("jakarta.servlet.context.tempdir");
 			if (tempDir != null)
 			{
 				tempDir = new File(tempDir, DYNAMIC_DATA_ACCESS);
@@ -144,56 +148,59 @@ public class MediaResourcesServlet extends AbstractMediaResourceServlet
 		boolean found = false;
 
 		String path = req.getPathInfo();
-		if (path.startsWith("/")) path = path.substring(1);
-		String[] paths = path.split("/");
-		String clientnr = req.getParameter("clientnr");
-
-		if (paths.length > 1)
+		if (path != null)
 		{
-			String accessType = paths[0];
-			switch (accessType)
+			if (path.startsWith("/")) path = path.substring(1);
+			String[] paths = path.split("/");
+			Integer clientnr = AngularIndexPageWriter.getClientNr(req.getRequestURI(), req);
+
+			if (paths.length > 1)
 			{
-				case FLATTENED_SOLUTION_ACCESS :
-					if (paths.length >= 3)
-					{
-						StringBuffer mediaName = new StringBuffer();
-						for (int i = 2; i < paths.length - 1; i++)
-							mediaName.append(paths[i]).append('/');
-						mediaName.append(paths[paths.length - 1]);
-
-						if (clientnr == null) found = sendFlattenedSolutionBasedMedia(req, resp, paths[1], mediaName.toString());
-						else found = sendClientFlattenedSolutionBasedMedia(req, resp, Integer.parseInt(clientnr), mediaName.toString());
-					}
-					break;
-
-				case DYNAMIC_DATA_ACCESS :
-					if (paths.length == 2) found = sendDynamicData(req, resp, paths[1], Integer.parseInt(clientnr));
-					break;
-
-				default :
-					break;
-			}
-		}
-		else if ("servoy_blobloader".equals(path))
-		{
-			String encrypted = req.getParameter("blob");
-			try
-			{
-				IApplication client = null;
-				if (clientnr != null && (client = getClient(req, Integer.parseInt(clientnr))) != null)
+				String accessType = paths[0];
+				switch (accessType)
 				{
-					String decrypt = client.getFlattenedSolution().getEncryptionHandler().decryptString(encrypted);
-					found = sendData(resp, MediaURLStreamHandler.getBlobLoaderMedia(client, decrypt),
-						MediaURLStreamHandler.getBlobLoaderMimeType(decrypt), MediaURLStreamHandler.getBlobLoaderFileName(decrypt), null);
-				}
+					case FLATTENED_SOLUTION_ACCESS :
+						if (paths.length >= 3)
+						{
+							StringBuffer mediaName = new StringBuffer();
+							for (int i = 2; i < paths.length - 1; i++)
+								mediaName.append(paths[i]).append('/');
+							mediaName.append(paths[paths.length - 1]);
 
+							if (clientnr == null) found = sendFlattenedSolutionBasedMedia(req, resp, paths[1], mediaName.toString());
+							else found = sendClientFlattenedSolutionBasedMedia(req, resp, clientnr.intValue(), mediaName.toString());
+						}
+						break;
+
+					case DYNAMIC_DATA_ACCESS :
+						if (paths.length == 2 && clientnr != null) found = sendDynamicData(req, resp, paths[1], clientnr.intValue());
+						break;
+
+					default :
+						break;
+				}
 			}
-			catch (Exception e)
+			else if ("servoy_blobloader".equals(path))
 			{
-				Debug.error("could not decrypt blobloader: " + encrypted);
+				String encrypted = req.getParameter("blob");
+				try
+				{
+					IApplication client = null;
+					if (clientnr != null && (client = getClient(req, clientnr.intValue())) != null)
+					{
+						String decrypt = client.getFlattenedSolution().getEncryptionHandler().decryptString(encrypted);
+						byte[] data = MediaURLStreamHandler.getBlobLoaderMedia(client, decrypt);
+						found = sendData(resp, new ByteArrayInputStream(data),
+							MediaURLStreamHandler.getBlobLoaderMimeType(decrypt), MediaURLStreamHandler.getBlobLoaderFileName(decrypt), null, data.length);
+					}
+
+				}
+				catch (Exception e)
+				{
+					Debug.error("could not decrypt blobloader: " + encrypted);
+				}
 			}
 		}
-
 		if (!found) resp.sendError(HttpServletResponse.SC_NOT_FOUND);
 	}
 
@@ -208,7 +215,8 @@ public class MediaResourcesServlet extends AbstractMediaResourceServlet
 				mediaInfo.touch();
 				if (HTTPUtils.checkAndSetUnmodified(request, response, mediaInfo.getLastModifiedTimeStamp())) return true;
 
-				return sendData(response, mediaInfo.getData(), mediaInfo.getContentType(), mediaInfo.getFileName(), mediaInfo.getContentDisposition());
+				return sendData(response, mediaInfo.getInputStream(), mediaInfo.getContentType(), mediaInfo.getFileName(), mediaInfo.getContentDisposition(),
+					mediaInfo.getContentLength());
 			}
 
 		}
@@ -312,8 +320,11 @@ public class MediaResourcesServlet extends AbstractMediaResourceServlet
 		// cache resources on client until changed
 		if (HTTPUtils.checkAndSetUnmodified(request, response, media.getLastModifiedTime() != -1 ? media.getLastModifiedTime() : fs.getLastModifiedTime()))
 			return true;
-		return sendData(response, media.getName().endsWith(".less") ? LessCompiler.compileSolutionLessFile(media, fs).getBytes("UTF-8") : media.getMediaData(),
-			media.getName().endsWith(".less") ? "text/css" : media.getMimeType(), media.getName(), null);
+		byte[] data = media.getName().endsWith(".less") ? LessCompiler.compileSolutionLessFile(media, fs).getBytes("UTF-8")
+			: media.getMediaData();
+		return sendData(response,
+			new ByteArrayInputStream(data),
+			media.getName().endsWith(".less") ? "text/css" : media.getMimeType(), media.getName(), null, data.length);
 	}
 
 	private boolean sendClientFlattenedSolutionBasedMedia(HttpServletRequest request, HttpServletResponse response, int clientnr, String mediaName)
@@ -332,25 +343,23 @@ public class MediaResourcesServlet extends AbstractMediaResourceServlet
 		return false;
 	}
 
-	private boolean sendData(HttpServletResponse resp, byte[] mediaData, String contentType, String fileName, String contentDisposition) throws IOException
+	private boolean sendData(HttpServletResponse resp, InputStream inputStream, String contentType, String fileName, String contentDisposition,
+		int contentLength)
+		throws IOException
 	{
 		boolean dataWasSent = false;
-		if (mediaData != null && mediaData.length > 0)
+		if (inputStream != null)
 		{
-			String ct = contentType;
-			if (ct == null)
-			{
-				ct = MimeTypes.getContentType(mediaData, fileName);
-			}
-			if (ct != null) resp.setContentType(ct);
-			resp.setContentLength(mediaData.length);
+			if (contentType != null) resp.setContentType(contentType);
+			resp.setContentLength(contentLength >= 0 ? contentLength : inputStream.available());
 			if (fileName != null)
 			{
-				resp.setHeader("Content-disposition", (contentDisposition == null ? "attachment" : contentDisposition) + "; filename=\"" + fileName +
-					"\"; filename*=UTF-8''" + Rfc5987Util.encode(fileName, "UTF8") + "");
+				resp.setHeader("Content-disposition",
+					sanitizeHeader((contentDisposition == null ? "attachment" : contentDisposition) + "; filename=\"" + fileName +
+						"\"; filename*=UTF-8''" + Rfc5987Util.encode(fileName, "UTF8") + ""));
 			}
 			ServletOutputStream outputStream = resp.getOutputStream();
-			outputStream.write(mediaData);
+			IOUtils.copy(inputStream, outputStream);
 			outputStream.flush();
 			dataWasSent = true;
 		}
@@ -389,15 +398,28 @@ public class MediaResourcesServlet extends AbstractMediaResourceServlet
 							}
 						}
 						int tempFileThreshold = Utils.getAsInteger(settings.getProperty("servoy.ng_web_client.tempfile.threshold", "50"), false) * 1000;
-						DiskFileItemFactory diskFileItemFactory = new DiskFileItemFactory(tempFileThreshold, fileUploadDir);
-						diskFileItemFactory.setFileCleaningTracker(FILE_CLEANING_TRACKER);
-						ServletFileUpload upload = new ServletFileUpload(diskFileItemFactory);
-						upload.setHeaderEncoding(reqEncoding);
-						long maxUpload = Utils.getAsLong(settings.getProperty("servoy.webclient.maxuploadsize", "0"), false);
-						if (maxUpload > 0) upload.setFileSizeMax(maxUpload * 1000);
+
+						Builder builder = DiskFileItemFactory.builder().setFileCleaningTracker(FILE_CLEANING_TRACKER)
+							.setBufferSize(tempFileThreshold);
+						if (fileUploadDir != null)
+						{
+							builder.setPath(fileUploadDir.toPath());
+						}
+						DiskFileItemFactory diskFileItemFactory = builder.get();
+						JakartaServletDiskFileUpload upload = new JakartaServletDiskFileUpload(diskFileItemFactory);
+						upload.setHeaderCharset(Charset.forName(reqEncoding, null));
+
+						Long runtimeMaxSize = (Long)wsSession.getClient().getRuntimeProperties().get("servoy.runtime.maxuploadfilesize");
+						long maxUpload = runtimeMaxSize != null ? runtimeMaxSize.longValue() : 0;
+						if (maxUpload == 0) // there is no runtime max set get the property
+						{
+							maxUpload = Utils.getAsLong(settings.getProperty("servoy.webclient.maxuploadsize", "0"), false);
+						}
+						if (maxUpload > 0) upload.setFileSizeMax(maxUpload * 1024);
+
 						final List<FileUploadData> aFileUploadData = new ArrayList<FileUploadData>();
-						List<FileItem> formFields = new ArrayList<>();
-						for (FileItem item : upload.parseRequest(req))
+						List<DiskFileItem> formFields = new ArrayList<>();
+						for (DiskFileItem item : upload.parseRequest(req))
 						{
 							if (item.isFormField())
 							{
@@ -405,14 +427,14 @@ public class MediaResourcesServlet extends AbstractMediaResourceServlet
 							}
 							else
 							{
-								String encoding = StringUtils.defaultString(req.getCharacterEncoding(), "UTF-8");
+								String encoding = Objects.toString(req.getCharacterEncoding(), "UTF-8");
 
 								JSMap<String, String> fieldsMap = new JSMap<>();
-								for (FileItem fileItem : formFields)
+								for (DiskFileItem fileItem : formFields)
 								{
 									try
 									{
-										fieldsMap.put(fileItem.getFieldName(), fileItem.getString(encoding));
+										fieldsMap.put(fileItem.getFieldName(), fileItem.getString(Charset.forName(encoding, null)));
 									}
 									catch (UnsupportedEncodingException e)
 									{
@@ -452,15 +474,15 @@ public class MediaResourcesServlet extends AbstractMediaResourceServlet
 						}
 					}
 				}
-				catch (FileSizeLimitExceededException ex)
+				catch (FileUploadFileCountLimitException ex)
 				{
 					res.setStatus(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE);
 					if (wsSession != null) res.getWriter().print(
-						wsSession.getClient().getI18NMessage("servoy.filechooser.sizeExceeded", new Object[] { ex.getPermittedSize() / 1000 + "KB" }));
+						wsSession.getClient().getI18NMessage("servoy.filechooser.sizeExceeded", new Object[] { ex.getPermitted() / 1024 + "KB" }));
 				}
 				catch (FileUploadException ex)
 				{
-					ex.printStackTrace();
+					Debug.error(ex);
 					throw new ServletException(ex.toString());
 				}
 			}
@@ -473,6 +495,7 @@ public class MediaResourcesServlet extends AbstractMediaResourceServlet
 
 		private final String name;
 		private final String fileName;
+		private final File file;
 		private final String contentType;
 		private final String contentDisposition;
 		private final long modifiedTimeStamp;
@@ -486,6 +509,7 @@ public class MediaResourcesServlet extends AbstractMediaResourceServlet
 			this.fileName = fileName;
 			this.contentType = contentType;
 			this.contentDisposition = contentDisposition;
+			this.file = null;
 			modifiedTimeStamp = accessedTimeStamp = System.currentTimeMillis();
 			this.mediaSize = ImageLoader.getSize(data);
 			if (data.length < MAX_DATA_SIZE_FOR_IN_MEMORY)
@@ -504,6 +528,18 @@ public class MediaResourcesServlet extends AbstractMediaResourceServlet
 					Debug.error("Cannot save dynamic data to servlet temp dir!");
 				}
 			}
+		}
+
+		MediaInfo(String name, File file, String contentType, String contentDisposition)
+		{
+			this.name = name;
+			this.fileName = file.getName();
+			this.file = file;
+			this.contentType = contentType;
+			this.contentDisposition = contentDisposition;
+			modifiedTimeStamp = accessedTimeStamp = System.currentTimeMillis();
+			this.mediaSize = null;
+			this.data = null;
 		}
 
 		public String getName()
@@ -536,13 +572,34 @@ public class MediaResourcesServlet extends AbstractMediaResourceServlet
 			return mediaSize;
 		}
 
-		public byte[] getData()
+		public InputStream getInputStream()
 		{
 			if (data == null)
 			{
-				return Utils.readFile(new File(MediaResourcesServlet.tempDir, name), -1);
+				try
+				{
+					if (file != null)
+					{
+						return new BufferedInputStream(new FileInputStream(file));
+					}
+					return new BufferedInputStream(new FileInputStream(new File(MediaResourcesServlet.tempDir, name)));
+				}
+				catch (FileNotFoundException ex)
+				{
+					Debug.error(ex);
+				}
+				return new ByteArrayInputStream(new byte[0]);
 			}
-			return data;
+			return new ByteArrayInputStream(data);
+		}
+
+		public int getContentLength()
+		{
+			if (data != null)
+			{
+				return data.length;
+			}
+			return -1;
 		}
 
 		public void touch()
@@ -592,9 +649,9 @@ public class MediaResourcesServlet extends AbstractMediaResourceServlet
 
 	private static final class FileUploadData implements IUploadData
 	{
-		private final FileItem item;
+		private final DiskFileItem item;
 
-		private FileUploadData(FileItem item)
+		private FileUploadData(DiskFileItem item)
 		{
 			this.item = item;
 		}
@@ -620,7 +677,15 @@ public class MediaResourcesServlet extends AbstractMediaResourceServlet
 
 		public byte[] getBytes()
 		{
-			return item.get();
+			try
+			{
+				return item.get();
+			}
+			catch (IOException e)
+			{
+				Debug.error(e);
+			}
+			return null;
 		}
 
 		/**
@@ -628,19 +693,22 @@ public class MediaResourcesServlet extends AbstractMediaResourceServlet
 		 */
 		public File getFile()
 		{
-			if (item instanceof DiskFileItem)
-			{
-				return ((DiskFileItem)item).getStoreLocation();
-			}
-			return null;
+			return item.getPath().toFile();
 		}
 
 		/*
 		 * @see com.servoy.j2db.plugins.IUploadData#getInputStream()
 		 */
-		public InputStream getInputStream() throws IOException
+		public InputStream getInputStream()
 		{
-			return item.getInputStream();
+			try
+			{
+				return item.getInputStream();
+			}
+			catch (IOException e)
+			{
+				return null;
+			}
 		}
 
 		@Override
@@ -648,5 +716,10 @@ public class MediaResourcesServlet extends AbstractMediaResourceServlet
 		{
 			return System.currentTimeMillis();
 		}
+	}
+
+	private static String sanitizeHeader(String headerValue)
+	{
+		return headerValue.replaceAll("[\n\r]+", " ");
 	}
 }

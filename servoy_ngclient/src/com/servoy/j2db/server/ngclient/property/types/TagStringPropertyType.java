@@ -29,7 +29,6 @@ import org.mozilla.javascript.Scriptable;
 import org.sablo.BaseWebObject;
 import org.sablo.IWebObjectContext;
 import org.sablo.specification.PropertyDescription;
-import org.sablo.specification.WebObjectSpecification.PushToServerEnum;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IConvertedPropertyType;
 import org.sablo.specification.property.types.DefaultPropertyType;
@@ -38,6 +37,7 @@ import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.base.util.ITagResolver;
 import com.servoy.j2db.FlattenedSolution;
+import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
@@ -196,9 +196,7 @@ public class TagStringPropertyType extends DefaultPropertyType<BasicTagStringTyp
 		// just some static string
 		{
 			String staticValue = newDesignValue;
-			// only convert html if it is not allowed to be pushed (input fields shouldn't convert the html)
-			// very likely tagstrings are put on labels which are in reject, but to be sure
-			if (htmlParsingAllowed && propertyDescription.getPushToServer() == PushToServerEnum.reject && HtmlUtils.startsWithHtml(staticValue)) // htmlParsingAllowed is a security feature so that browsers cannot change tagStrings to something that is then able to execute random server-side javascript
+			if (htmlParsingAllowed && HtmlUtils.startsWithHtml(staticValue)) // htmlParsingAllowed is a security feature so that browsers cannot change tagStrings to something that is then able to execute random server-side javascript
 			{
 				staticValue = HTMLTagsConverter.convert(staticValue, component.getDataConverterContext(), false);
 			}
@@ -267,6 +265,11 @@ public class TagStringPropertyType extends DefaultPropertyType<BasicTagStringTyp
 	@Override
 	public TargetDataLinks getDataLinks(String formElementValue, PropertyDescription pd, FlattenedSolution flattenedSolution, final INGFormElement formElement)
 	{
+		return getDataLinksStatic(formElementValue, flattenedSolution, formElement.getForm());
+	}
+
+	public static TargetDataLinks getDataLinksStatic(String formElementValue, FlattenedSolution flattenedSolution, Form form)
+	{
 		final Set<String> dataProviders = new HashSet<>();
 		final boolean recordDP[] = new boolean[1];
 		List<Relation> relations = new ArrayList<Relation>();
@@ -290,6 +293,8 @@ public class TagStringPropertyType extends DefaultPropertyType<BasicTagStringTyp
 						if (relationSequence != null && relationSequence.length > 0)
 						{
 							// only one sequence is supported, do we need multiple?
+							// TODO Yes! we might need multiple relation sequences if we monitor multiple DPs that are on different relations; we have SVY-18622 for that
+
 							relations.clear();
 							relations.addAll(Arrays.asList(relationSequence));
 							recordDP[0] = true;
@@ -298,7 +303,7 @@ public class TagStringPropertyType extends DefaultPropertyType<BasicTagStringTyp
 				}
 				dataProviders.add(dp);
 				// TODO Can't it be something special like record count or current record which are special cases and could still not depend on record...?
-				recordDP[0] = recordDP[0] || (!ScopesUtils.isVariableScope(dp) && formElement.getForm().getScriptVariable(dp) == null);
+				recordDP[0] = recordDP[0] || (!ScopesUtils.isVariableScope(dp) && form.getScriptVariable(dp) == null);
 
 				return dp;
 			}
@@ -314,7 +319,7 @@ public class TagStringPropertyType extends DefaultPropertyType<BasicTagStringTyp
 		WebFormComponent component, DataAdapterList dataAdapterList)
 	{
 		return createNewTagStringTypeSabloValue(formElementValue, dataAdapterList, true, true, pd, component,
-			((IContextProvider)component).getDataConverterContext().getApplication(), true);
+			component.getDataConverterContext().getApplication(), true);
 	}
 
 	@Override
@@ -367,4 +372,5 @@ public class TagStringPropertyType extends DefaultPropertyType<BasicTagStringTyp
 		}
 		return value;
 	}
+
 }

@@ -126,17 +126,17 @@ public class LFAwareSortableHeaderRenderer extends DefaultTableCellRenderer impl
 				setVerticalAlignment(style_valign);
 			}
 
-			int mediaId = gc.getImageMediaID();
-			if (mediaId > 0)
+			String mediaUUID = gc.getImageMediaID();
+			if (mediaUUID != null)
 			{
 				Icon icon = null;
 				if (gc.getMediaOptions() != 1)
 				{
-					icon = new MyImageIcon(app, this, ComponentFactory.loadIcon(app.getFlattenedSolution(), new Integer(mediaId)), gc.getMediaOptions());
+					icon = new MyImageIcon(app, this, ComponentFactory.loadIcon(app.getFlattenedSolution(), mediaUUID), gc.getMediaOptions());
 				}
 				else
 				{
-					icon = ImageLoader.getIcon(ComponentFactory.loadIcon(app.getFlattenedSolution(), new Integer(mediaId)), 0, 0, true);
+					icon = ImageLoader.getIcon(ComponentFactory.loadIcon(app.getFlattenedSolution(), mediaUUID), 0, 0, true);
 				}
 				if (icon != null) setIcon(icon);
 			}
@@ -154,7 +154,7 @@ public class LFAwareSortableHeaderRenderer extends DefaultTableCellRenderer impl
 	@Override
 	public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
 	{
-		if (gc != null && gc.getImageMediaID() == 0)
+		if (gc != null && gc.getImageMediaID() == null)
 		{
 			if (!parentTable.getCurrentSortColumn().keySet().contains(new Integer(columnIndex)) || !parentTable.shouldDisplaySortIcons())
 			{
@@ -175,9 +175,9 @@ public class LFAwareSortableHeaderRenderer extends DefaultTableCellRenderer impl
 		if (lfAwareRenderer != null)
 		{
 			Component lfComponent = lfAwareRenderer.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-			if (defaultFgColor == null) defaultFgColor = ((JLabel)lfComponent).getForeground();
-			if (defaultBgColor == null) defaultBgColor = ((JLabel)lfComponent).getBackground();
-			if (defaultFont == null) defaultFont = ((JLabel)lfComponent).getFont();
+			if (defaultFgColor == null) defaultFgColor = lfComponent.getForeground();
+			if (defaultBgColor == null) defaultBgColor = lfComponent.getBackground();
+			if (defaultFont == null) defaultFont = lfComponent.getFont();
 			if (lfComponent instanceof JLabel)
 			{
 				if (defaultBorder == null) defaultBorder = ((JLabel)lfComponent).getBorder();
@@ -299,10 +299,10 @@ public class LFAwareSortableHeaderRenderer extends DefaultTableCellRenderer impl
 		return null;
 	}
 
-	public int getOnActionMethodID()
+	public String getOnActionMethodID()
 	{
 		if (gc != null) return gc.getOnActionMethodID();
-		return 0;
+		return null;
 	}
 
 	public List<Object> getFlattenedMethodArguments(String methodKey)

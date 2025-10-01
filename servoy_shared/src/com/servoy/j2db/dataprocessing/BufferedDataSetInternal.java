@@ -80,7 +80,7 @@ public class BufferedDataSetInternal
 			else
 			{
 				// invalid, leave untouched
-				Debug.error("Could not convert pk datatset for table " + table.getDataSource() + ", pk row size mismatch: " +
+				Debug.error("Could not convert pk dataset for table " + table.getDataSource() + ", pk row size mismatch: " +
 					(row == null ? "null" : String.valueOf(row.length)) + "/" + rowIdentColumns.size());
 				return pks;
 			}

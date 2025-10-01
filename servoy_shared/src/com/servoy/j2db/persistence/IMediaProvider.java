@@ -20,7 +20,7 @@ package com.servoy.j2db.persistence;
 import java.util.Iterator;
 
 /**
- * 
+ *
  * Interface for media providers.
  * @author gboros
  *
@@ -28,8 +28,6 @@ import java.util.Iterator;
 public interface IMediaProvider
 {
 	public Iterator<Media> getMedias(boolean sort);
-
-	public Media getMedia(int media_id);
 
 	public Media getMedia(String name);
 

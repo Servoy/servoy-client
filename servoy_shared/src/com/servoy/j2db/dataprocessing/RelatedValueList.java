@@ -38,7 +38,6 @@ import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.query.IQuerySelectValue;
 import com.servoy.j2db.query.ISQLTableJoin;
 import com.servoy.j2db.query.QuerySelect;
-import com.servoy.j2db.query.QueryTable;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.SafeArrayList;
@@ -467,8 +466,7 @@ public class RelatedValueList extends DBValueList implements IFoundSetEventListe
 		{
 			foreignTable = fs.getTable(relations[i].getForeignDataSource());
 			ISQLTableJoin join = foundSetManager.getSQLGenerator().createJoin(application.getFlattenedSolution(), relations[i], lastTable,
-				new QueryTable(foreignTable.getSQLName(), foreignTable.getDataSource(), foreignTable.getCatalog(), foreignTable.getSchema()), true,
-				scopesScopeProvider);
+				foreignTable.queryTable(), true, scopesScopeProvider);
 			select.addJoin(join);
 			lastTable = join.getForeignTable();
 		}
@@ -483,15 +481,15 @@ public class RelatedValueList extends DBValueList implements IFoundSetEventListe
 		ArrayList<IQuerySelectValue> columns = new ArrayList<>();
 		if ((total & 1) != 0)
 		{
-			columns.add(getQuerySelectValue(foreignTable, lastTable, valueList.getDataProviderID1()));
+			columns.add(getQueryColumn(foreignTable, lastTable, valueList.getDataProviderID1()));
 		}
 		if ((total & 2) != 0)
 		{
-			columns.add(getQuerySelectValue(foreignTable, lastTable, valueList.getDataProviderID2()));
+			columns.add(getQueryColumn(foreignTable, lastTable, valueList.getDataProviderID2()));
 		}
 		if ((total & 4) != 0)
 		{
-			columns.add(getQuerySelectValue(foreignTable, lastTable, valueList.getDataProviderID3()));
+			columns.add(getQueryColumn(foreignTable, lastTable, valueList.getDataProviderID3()));
 		}
 		select.setColumns(columns);
 		select.setDistinct(false); // not allowed in all situations
@@ -505,20 +503,23 @@ public class RelatedValueList extends DBValueList implements IFoundSetEventListe
 		Relation[] relations = application.getFlattenedSolution().getRelationSequence(valueList.getRelationName());
 		if (relations != null && relations.length > 0)
 		{
-			List<IDataProvider> dataProviders = new ArrayList<IDataProvider>();
+			List<IDataProvider> dataProviders = new ArrayList<>();
 			for (Relation relation : relations)
 			{
-				try
+				if (Relation.isValid(relation, application.getFlattenedSolution()))
 				{
-					IDataProvider[] currentDPS = relation.getPrimaryDataProviders(application.getFlattenedSolution());
-					if (currentDPS != null && currentDPS.length > 0)
+					try
 					{
-						dataProviders.addAll(Arrays.asList(currentDPS));
+						IDataProvider[] currentDPS = relation.getPrimaryDataProviders(application.getFlattenedSolution());
+						if (currentDPS != null && currentDPS.length > 0)
+						{
+							dataProviders.addAll(Arrays.asList(currentDPS));
+						}
 					}
-				}
-				catch (RepositoryException e)
-				{
-					Debug.error(e);
+					catch (RepositoryException e)
+					{
+						Debug.error(e);
+					}
 				}
 			}
 			if (this.fallbackValueList != null)

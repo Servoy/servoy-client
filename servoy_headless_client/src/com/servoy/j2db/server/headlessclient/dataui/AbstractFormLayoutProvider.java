@@ -16,24 +16,21 @@
  */
 package com.servoy.j2db.server.headlessclient.dataui;
 
+import java.awt.Insets;
 import java.util.Iterator;
 import java.util.Locale;
 
 import javax.swing.border.Border;
 
-import org.apache.wicket.ResourceReference;
-import org.xhtmlrenderer.css.constants.CSSName;
-
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.IForm;
 import com.servoy.j2db.IServiceProvider;
+import com.servoy.j2db.ISupportNavigator;
 import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.ISupportScrollbars;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.Solution;
-import com.servoy.j2db.server.headlessclient.dataui.TemplateGenerator.TextualCSS;
-import com.servoy.j2db.server.headlessclient.dataui.TemplateGenerator.TextualStyle;
 import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.IStyleRule;
 import com.servoy.j2db.util.IStyleSheet;
@@ -42,16 +39,22 @@ import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.ServoyStyleSheet;
 import com.servoy.j2db.util.Settings;
-import com.servoy.j2db.util.Utils;
 
 /**
  * Generic superclass of available layout providers for web client. Holds the common
  * functionality.
- * 
+ *
  * @author gerzse
  */
 public abstract class AbstractFormLayoutProvider implements IFormLayoutProvider
 {
+	public static final Insets DEFAULT_LABEL_PADDING = new Insets(0, 0, 0, 0);
+	public static final Insets DEFAULT_BUTTON_PADDING = new Insets(0, 0, 0, 0);
+	public static final Insets DEFAULT_FIELD_PADDING = new Insets(1, 1, 1, 1);
+	public static final Insets DEFAULT_BUTTON_BORDER_SIZE = new Insets(1, 1, 1, 1);
+	public static final Insets DEFAULT_FIELD_BORDER_SIZE = new Insets(2, 2, 2, 2);
+
+
 	private final Solution solution;
 	protected final Form f;
 	private final String formInstanceName;
@@ -63,7 +66,7 @@ public abstract class AbstractFormLayoutProvider implements IFormLayoutProvider
 	int viewType;
 	private final IServiceProvider sp;
 	private IStyleRule style = null;
-	private boolean hasImage = false;
+	private final boolean hasImage = false;
 
 	public AbstractFormLayoutProvider(IServiceProvider sp, Solution solution, Form f, String formInstanceName)
 	{
@@ -86,7 +89,7 @@ public abstract class AbstractFormLayoutProvider implements IFormLayoutProvider
 		}
 		if ((viewType == IForm.RECORD_VIEW || viewType == IForm.LOCKED_RECORD_VIEW) && f.getNavigatorID() == Form.NAVIGATOR_DEFAULT)
 		{
-			defaultNavigatorShift = WebDefaultRecordNavigator.DEFAULT_WIDTH;
+			defaultNavigatorShift = ISupportNavigator.DEFAULT_NAVIGATOR_WIDTH;
 		}
 
 		// Initially get the border from the form and the background color from the body part.
@@ -129,55 +132,6 @@ public abstract class AbstractFormLayoutProvider implements IFormLayoutProvider
 
 	public void renderOpenFormHTML(StringBuffer html, TextualCSS css)
 	{
-		html.append("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n"); //$NON-NLS-1$ 
-		html.append("<!-- Servoy webclient page Copyright "); //$NON-NLS-1$ 
-		html.append(Utils.formatTime(System.currentTimeMillis(), "yyyy")); //$NON-NLS-1$ 
-		html.append(" Servoy -->\n"); //$NON-NLS-1$ 
-		html.append("<html xmlns:servoy>\n"); //$NON-NLS-1$ 
-		html.append("<head>\n"); //$NON-NLS-1$ 
-		html.append("<title>"); //$NON-NLS-1$ 
-		html.append((f.getTitleText() != null ? TemplateGenerator.getSafeText(f.getTitleText()) : getFormInstanceName()));
-		html.append(" - Servoy"); //$NON-NLS-1$ 
-		html.append("</title>\n"); //$NON-NLS-1$ 
-		html.append("<servoy:head>\n"); //$NON-NLS-1$ 
-		html.append("</servoy:head>\n"); //$NON-NLS-1$ 
-		html.append("</head>\n"); //$NON-NLS-1$ 
-		html.append("<body id='servoy_page'>\n"); //$NON-NLS-1$ 
-		html.append("<form id='servoy_dataform'>\n"); //$NON-NLS-1$ 
-		html.append("<servoy:panel>\n"); //$NON-NLS-1$
-
-		String buildFormID = buildFormID();
-
-		html.append("<div servoy:id='servoywebform' id='"); //$NON-NLS-1$ 
-		html.append(buildFormID);
-		html.append("'" + TemplateGenerator.getCssClassForElement(f, new boolean[] { false }, "servoywebform") + "'>\n"); //$NON-NLS-1$ 		
-
-		// following two divs are here only because a bug in IE7 made divs that were anchored on all sides break iframe behavior (so dialogs)
-		html.append("<div id='sfw_"); //$NON-NLS-1$
-		html.append(buildFormID);
-		html.append("' style='position: absolute; height: 0px; right: 0px; left: 0px;'/>"); //$NON-NLS-1$ 
-		html.append("<div id='sfh_"); //$NON-NLS-1$
-		html.append(buildFormID);
-		html.append("' style='position: absolute; bottom: 0px; top: 0px; width: 0px;'/>"); //$NON-NLS-1$ 
-		// the 2 divs above are used to keep track of the form's size when browser resizes		
-
-		// Put CSS properties for background color and border (if any).
-		TextualStyle formStyle = css.addStyle("#" + buildFormID()); //$NON-NLS-1$ 
-		if (style != null && style.getValue(CSSName.BACKGROUND_COLOR.toString()) != null && !f.getTransparent())
-		{
-			formStyle.setProperty(CSSName.BACKGROUND_COLOR.toString(), style.getValues(CSSName.BACKGROUND_COLOR.toString()), true);
-		}
-		if (border != null)
-		{
-			String type = ComponentFactoryHelper.createBorderString(border);
-			ComponentFactoryHelper.createBorderCSSProperties(type, formStyle);
-		}
-		else if (style != null)
-		{
-			copyBorderAttributes(style, formStyle);
-		}
-		hasImage = addBackgroundImageAttributeIfExists(style, formStyle);
-		fillFormLayoutCSS(formStyle);
 	}
 
 	private void copyBorderAttributes(IStyleRule source, TextualStyle destination)
@@ -220,30 +174,31 @@ public abstract class AbstractFormLayoutProvider implements IFormLayoutProvider
 
 	public void renderCloseFormHTML(StringBuffer html)
 	{
-		html.append("</div>\n"); //close form div //$NON-NLS-1$ 
-		html.append("</servoy:panel>\n"); //$NON-NLS-1$ 
-		html.append("</form>\n"); //$NON-NLS-1$ 
-		html.append("</body>\n"); //$NON-NLS-1$ 
-		html.append("</html>\n"); //$NON-NLS-1$ 
+		html.append("</div>\n"); //close form div //$NON-NLS-1$
+		html.append("</servoy:panel>\n"); //$NON-NLS-1$
+		html.append("</form>\n"); //$NON-NLS-1$
+		html.append("</body>\n"); //$NON-NLS-1$
+		html.append("</html>\n"); //$NON-NLS-1$
 	}
 
 	public void renderOpenPartHTML(StringBuffer html, TextualCSS css, Part part)
 	{
 		if (part.getPartType() == Part.BODY)
 		{
-			html.append("<div servoy:id='View'>\n"); //$NON-NLS-1$ 
+			html.append("<div servoy:id='View'>\n"); //$NON-NLS-1$
 			renderNavigator(html, part);
 		}
 
 		String partID = ComponentFactory.getWebID(f, part);
-		html.append("<div servoy:id='"); //$NON-NLS-1$ 
-		html.append(partID);//Part.getDisplayName(part.getPartType()));		
-		html.append("' id='"); //$NON-NLS-1$ 
+		html.append("<div servoy:id='"); //$NON-NLS-1$
+		html.append(partID);//Part.getDisplayName(part.getPartType()));
+		html.append("' id='"); //$NON-NLS-1$
 		html.append(partID);
 		String userDefinedClass = "";
-		if ("true".equals(Settings.getInstance().getProperty("servoy.webclient.pushClassToHTMLElement", "false"))) userDefinedClass = (part.getStyleClass() == null
-			? "" : part.getStyleClass());
-		html.append("' class='formpart " + userDefinedClass + "'>\n"); //$NON-NLS-1$ 
+		if ("true".equals(Settings.getInstance().getProperty("servoy.webclient.pushClassToHTMLElement", "false")))
+			userDefinedClass = (part.getStyleClass() == null
+				? "" : part.getStyleClass());
+		html.append("' class='formpart " + userDefinedClass + "'>\n"); //$NON-NLS-1$
 
 		TextualStyle partStyle = css.addStyle('#' + partID);
 		fillPartStyle(partStyle, part);
@@ -254,18 +209,12 @@ public abstract class AbstractFormLayoutProvider implements IFormLayoutProvider
 		html.append("</div>\n"); //close part div //$NON-NLS-1$
 		if (part.getPartType() == Part.BODY)
 		{
-			html.append("</div>\n"); //close view div //$NON-NLS-1$ 
+			html.append("</div>\n"); //close view div //$NON-NLS-1$
 		}
 	}
 
 	public void renderOpenTableViewHTML(StringBuffer html, TextualCSS css, Part part)
 	{
-		TextualStyle wrapperStyle = new TextualStyle();
-		fillPartStyle(wrapperStyle, part);
-
-		html.append("<div servoy:id='View' "); //$NON-NLS-1$
-		html.append(StripHTMLTagsConverter.convertMediaReferences(wrapperStyle.toString(), solution.getName(), new ResourceReference("media"), "", false).toString());
-		html.append(">\n"); //$NON-NLS-1$ 
 	}
 
 	public void renderCloseTableViewHTML(StringBuffer html)
@@ -290,7 +239,7 @@ public abstract class AbstractFormLayoutProvider implements IFormLayoutProvider
 		}
 		else
 		{
-			partStyle.setProperty("overflow", "hidden"); //$NON-NLS-1$ //$NON-NLS-2$ 
+			partStyle.setProperty("overflow", "hidden"); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 
 		int spaceUsedOnlyInPrintAbove = 0;
@@ -301,7 +250,7 @@ public abstract class AbstractFormLayoutProvider implements IFormLayoutProvider
 			Part otherPart = allParts.next();
 			if (Part.rendersOnlyInPrint(otherPart.getPartType()))
 			{
-				int otherPartHeight = otherPart.getHeight() - f.getPartStartYPos(otherPart.getID());
+				int otherPartHeight = otherPart.getHeight() - f.getPartStartYPos(otherPart.getUUID().toString());
 				if (part.getPartType() > otherPart.getPartType()) spaceUsedOnlyInPrintAbove += otherPartHeight;
 				if (part.getPartType() < otherPart.getPartType()) spaceUsedOnlyInPrintBelow += otherPartHeight;
 			}
@@ -337,7 +286,7 @@ public abstract class AbstractFormLayoutProvider implements IFormLayoutProvider
 
 			html.append("<div servoy:id='default_navigator' "); //$NON-NLS-1$
 			html.append(navigatorStyle.toString());
-			html.append("></div>"); //$NON-NLS-1$ 
+			html.append("></div>"); //$NON-NLS-1$
 		}
 	}
 
@@ -360,7 +309,7 @@ public abstract class AbstractFormLayoutProvider implements IFormLayoutProvider
 			}
 			else if (part.getBackground() != null && !f.getTransparent())
 			{
-				partStyle.setProperty("background-color", PersistHelper.createColorString(part.getBackground())); //$NON-NLS-1$ 
+				partStyle.setProperty("background-color", PersistHelper.createColorString(part.getBackground())); //$NON-NLS-1$
 			}
 		}
 	}
@@ -370,7 +319,7 @@ public abstract class AbstractFormLayoutProvider implements IFormLayoutProvider
 		if (horizontal)
 		{
 			String overflowX = "auto"; //$NON-NLS-1$
-			if ((scrollBars & ISupportScrollbars.HORIZONTAL_SCROLLBAR_NEVER) == ISupportScrollbars.HORIZONTAL_SCROLLBAR_NEVER) overflowX = "hidden"; //$NON-NLS-1$ 
+			if ((scrollBars & ISupportScrollbars.HORIZONTAL_SCROLLBAR_NEVER) == ISupportScrollbars.HORIZONTAL_SCROLLBAR_NEVER) overflowX = "hidden"; //$NON-NLS-1$
 			else if ((scrollBars & ISupportScrollbars.HORIZONTAL_SCROLLBAR_ALWAYS) == ISupportScrollbars.HORIZONTAL_SCROLLBAR_ALWAYS) overflowX = "scroll"; //$NON-NLS-1$
 			return overflowX;
 		}

@@ -46,7 +46,7 @@ public abstract class JSGraphicalComponent extends JSComponent<GraphicalComponen
 
 	/**
 	 * @clonedesc com.servoy.base.persistence.IBaseGraphicalComponentCommon#getDataProviderID()
-	 * 
+	 *
 	 * @sample
 	 * // Normally the dataprovider is specified when a component is created.
 	 * var field = form.newField('parent_table_text', JSField.TEXT_FIELD, 10, 40, 100, 20);
@@ -67,7 +67,7 @@ public abstract class JSGraphicalComponent extends JSComponent<GraphicalComponen
 
 	/**
 	 * @clonedesc com.servoy.base.persistence.IBaseGraphicalComponentCommon#getText()
-	 * 
+	 *
 	 * @sample
 	 * // In general the text is specified when creating the component.
 	 * var label = form.newLabel('Initial text', 10, 10, 100, 20);
@@ -88,9 +88,9 @@ public abstract class JSGraphicalComponent extends JSComponent<GraphicalComponen
 
 	/**
 	 * @clonedesc com.servoy.base.persistence.IBaseGraphicalComponentCommon#getDisplaysTags()
-	 * 
+	 *
 	 * @sample
-	 * var label = form.newLabel('You are viewing record no. %%parent_table_id%%. You are running on server %%serverURL%%.', 
+	 * var label = form.newLabel('You are viewing record no. %%parent_table_id%%. You are running on server %%serverURL%%.',
 	 *					10, 10, 600, 100);
 	 * label.displaysTags = true;
 	 */
@@ -109,8 +109,8 @@ public abstract class JSGraphicalComponent extends JSComponent<GraphicalComponen
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.GraphicalComponent#getHorizontalAlignment()
-	 * 
-	 * @sample 
+	 *
+	 * @sample
 	 * var leftAlignedLabel = form.newLabel('LEFT', 10, 10, 300, 20);
 	 * leftAlignedLabel.horizontalAlignment = SM_ALIGNMENT.LEFT;
 	 * var hCenteredLabel = form.newLabel('CENTER', 10, 40, 300, 20);
@@ -134,7 +134,7 @@ public abstract class JSGraphicalComponent extends JSComponent<GraphicalComponen
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.GraphicalComponent#getImageMediaID()
-	 * 
+	 *
 	 * @sample
 	 * var ballBytes = plugins.file.readFile('d:/ball.jpg');
 	 * var ballImage = solutionModel.newMedia('ball.jpg', ballBytes);
@@ -169,17 +169,17 @@ public abstract class JSGraphicalComponent extends JSComponent<GraphicalComponen
 	{
 		if (media == null)
 		{
-			getBaseComponent(true).setImageMediaID(0);
+			getBaseComponent(true).setImageMediaID(null);
 		}
 		else
 		{
-			getBaseComponent(true).setImageMediaID(media.getMedia().getID());
+			getBaseComponent(true).setImageMediaID(media.getMedia().getUUID().toString());
 		}
 	}
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.GraphicalComponent#getLabelFor()
-	 * 
+	 *
 	 * @sample
 	 * var labelOne = form.newLabel('Label One', 10, 10, 100, 20);
 	 * var fieldOne = form.newField('parent_table_id', JSField.TEXT_FIELD, 120, 10, 100, 20);
@@ -201,7 +201,7 @@ public abstract class JSGraphicalComponent extends JSComponent<GraphicalComponen
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.GraphicalComponent#getMargin()
-	 * 
+	 *
 	 * @sample
 	 * var label = form.newLabel('Label', 10, 10, 150, 150);
 	 * label.background = 'yellow';
@@ -233,15 +233,15 @@ public abstract class JSGraphicalComponent extends JSComponent<GraphicalComponen
 	 * // Put the big image in several small labels, with different media options.
 	 * var smallLabelWithBigImageReduceKeepAspect = form.newLabel('', 10, 10, 50, 50);
 	 * smallLabelWithBigImageReduceKeepAspect.imageMedia = bigImage;
-	 * smallLabelWithBigImageReduceKeepAspect.background = 'yellow';	
+	 * smallLabelWithBigImageReduceKeepAspect.background = 'yellow';
 	 * smallLabelWithBigImageReduceKeepAspect.mediaOptions = SM_MEDIAOPTION.REDUCE | SM_MEDIAOPTION.KEEPASPECT;
 	 * var smallLabelWithBigImageReduceNoAspect = form.newLabel('', 70, 10, 50, 50);
 	 * smallLabelWithBigImageReduceNoAspect.imageMedia = bigImage;
-	 * smallLabelWithBigImageReduceNoAspect.background = 'yellow';	
+	 * smallLabelWithBigImageReduceNoAspect.background = 'yellow';
 	 * smallLabelWithBigImageReduceNoAspect.mediaOptions = SM_MEDIAOPTION.REDUCE;
 	 * var smallLabelWithBigImageCrop = form.newLabel('', 130, 10, 50, 50);
 	 * smallLabelWithBigImageCrop.imageMedia = bigImage;
-	 * smallLabelWithBigImageCrop.background = 'yellow';	
+	 * smallLabelWithBigImageCrop.background = 'yellow';
 	 * smallLabelWithBigImageCrop.mediaOptions = SM_MEDIAOPTION.CROP;
 	 * // Put the small image in several big labels, with different media options.
 	 * var bigLabelWithSmallImageEnlargeKeepAspect = form.newLabel('', 10, 70, 200, 100);
@@ -273,7 +273,7 @@ public abstract class JSGraphicalComponent extends JSComponent<GraphicalComponen
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.GraphicalComponent#getMnemonic()
-	 * 
+	 *
 	 * @sample
 	 * var m = form.newMethod('function onClick() { application.output("I was clicked."); }');
 	 * var btn = form.newButton('I am a button', 10, 40, 200, 20, m);
@@ -301,7 +301,7 @@ public abstract class JSGraphicalComponent extends JSComponent<GraphicalComponen
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.GraphicalComponent#getRolloverCursor()
 	 *
-	 * @sample 
+	 * @sample
 	 * var label = form.newLabel('Move the mouse over me', 10, 10, 200, 200);
 	 * label.rolloverCursor = SM_CURSOR.HAND_CURSOR;
 	 */
@@ -321,7 +321,7 @@ public abstract class JSGraphicalComponent extends JSComponent<GraphicalComponen
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.GraphicalComponent#getRolloverImageMediaID()
-	 * 
+	 *
 	 * @sample
 	 * var ballBytes = plugins.file.readFile('d:/ball.jpg');
 	 * var ballImage = solutionModel.newMedia('ball.jpg', ballBytes);
@@ -349,17 +349,17 @@ public abstract class JSGraphicalComponent extends JSComponent<GraphicalComponen
 	{
 		if (media == null)
 		{
-			getBaseComponent(true).setRolloverImageMediaID(0);
+			getBaseComponent(true).setRolloverImageMediaID(null);
 		}
 		else
 		{
-			getBaseComponent(true).setRolloverImageMediaID(((JSMedia)media).getMedia().getID());
+			getBaseComponent(true).setRolloverImageMediaID(((JSMedia)media).getMedia().getUUID().toString());
 		}
 	}
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.GraphicalComponent#getRotation()
-	 * 
+	 *
 	 * @sample
 	 * var m = form.newMethod('function onClick() { application.output("I was clicked."); }');
 	 * var label = form.newLabel('I am a label', 10, 10, 200, 200, m);
@@ -383,7 +383,7 @@ public abstract class JSGraphicalComponent extends JSComponent<GraphicalComponen
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.GraphicalComponent#getShowClick()
-	 * 
+	 *
 	 * @sample
 	 * // Create a form method.
 	 * var m = form.newMethod('function onClick() { application.output("I was clicked."); }');
@@ -414,7 +414,7 @@ public abstract class JSGraphicalComponent extends JSComponent<GraphicalComponen
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.GraphicalComponent#getShowFocus()
-	 * 
+	 *
 	 * @sample
 	 * var m = form.newMethod('function onClick() { application.output("I was clicked."); }');
 	 * var label = form.newLabel('I am a label', 10, 10, 200, 20, m);
@@ -445,7 +445,7 @@ public abstract class JSGraphicalComponent extends JSComponent<GraphicalComponen
 	 * var fieldOne = form.newField('parent_table_id', JSField.TEXT_FIELD, 10, 10, 100, 20);
 	 * var fieldTwo = form.newField('parent_table_text', JSField.TEXT_FIELD, 10, 40, 100, 20);
 	 * var fieldThree = form.newField('parent_table_id', JSField.TEXT_FIELD, 10, 70, 100, 20);
-	 * // Set the third field come before the first in the tab sequence, and remove the 
+	 * // Set the third field come before the first in the tab sequence, and remove the
 	 * // second field from the tab sequence.
 	 * fieldOne.tabSeq = 2;
 	 * fieldTwo.tabSeq = SM_DEFAULTS.IGNORE;
@@ -485,7 +485,7 @@ public abstract class JSGraphicalComponent extends JSComponent<GraphicalComponen
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.GraphicalComponent#getVerticalAlignment()
 	 *
-	 * @sample 
+	 * @sample
 	 * var topAlignedLabel = form.newLabel('TOP', 400, 10, 50, 300);
 	 * topAlignedLabel.verticalAlignment = SM_ALIGNMENT.TOP;
 	 * var vCenterAlignedLabel = form.newLabel('CENTER', 460, 10, 50, 300);
@@ -509,7 +509,7 @@ public abstract class JSGraphicalComponent extends JSComponent<GraphicalComponen
 
 	/**
 	 * @clonedesc com.servoy.base.persistence.IBaseGraphicalComponentCommon#getFormat()
-	 * 
+	 *
 	 * @sample
 	 * var label = form.newLabel('', 10, 10, 100, 100);
 	 * label.format = '$#.00';
@@ -537,16 +537,16 @@ public abstract class JSGraphicalComponent extends JSComponent<GraphicalComponen
 		ScriptMethod scriptMethod = JSForm.getScriptMethod(function, application.getFlattenedSolution());
 		if (scriptMethod != null)
 		{
-			getBaseComponent(true).setOnActionMethodID(scriptMethod.getID());
+			getBaseComponent(true).setOnActionMethodID(scriptMethod.getUUID().toString());
 		}
 		else
 		{
-			getBaseComponent(true).setOnActionMethodID(0);
+			getBaseComponent(true).setOnActionMethodID(null);
 		}
 	}
 
 	/**
-	 * @deprecated As of release 4.1, replaced by setOnDoubleClick(JSMethod). 
+	 * @deprecated As of release 4.1, replaced by setOnDoubleClick(JSMethod).
 	 */
 	@Deprecated
 	public void js_setOnDoubleClickMethod(Function function)
@@ -554,11 +554,11 @@ public abstract class JSGraphicalComponent extends JSComponent<GraphicalComponen
 		ScriptMethod scriptMethod = JSForm.getScriptMethod(function, application.getFlattenedSolution());
 		if (scriptMethod != null)
 		{
-			getBaseComponent(true).setOnDoubleClickMethodID(scriptMethod.getID());
+			getBaseComponent(true).setOnDoubleClickMethodID(scriptMethod.getUUID().toString());
 		}
 		else
 		{
-			getBaseComponent(true).setOnDoubleClickMethodID(0);
+			getBaseComponent(true).setOnDoubleClickMethodID(null);
 		}
 	}
 
@@ -571,11 +571,11 @@ public abstract class JSGraphicalComponent extends JSComponent<GraphicalComponen
 		ScriptMethod scriptMethod = JSForm.getScriptMethod(function, application.getFlattenedSolution());
 		if (scriptMethod != null)
 		{
-			getBaseComponent(true).setOnRightClickMethodID(scriptMethod.getID());
+			getBaseComponent(true).setOnRightClickMethodID(scriptMethod.getUUID().toString());
 		}
 		else
 		{
-			getBaseComponent(true).setOnRightClickMethodID(0);
+			getBaseComponent(true).setOnRightClickMethodID(null);
 		}
 	}
 
@@ -598,7 +598,7 @@ public abstract class JSGraphicalComponent extends JSComponent<GraphicalComponen
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.GraphicalComponent#getOnDoubleClickMethodID()
-	 * 
+	 *
 	 * @sampleas getOnAction()
 	 */
 	@Override
@@ -617,7 +617,7 @@ public abstract class JSGraphicalComponent extends JSComponent<GraphicalComponen
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.GraphicalComponent#getOnRenderMethodID()
-	 * 
+	 *
 	 * @sample
 	 * label.onRender = form.newMethod('function onRender(event) { event.getElement().bgcolor = \'#00ff00\' }');
 	 */
@@ -637,7 +637,7 @@ public abstract class JSGraphicalComponent extends JSComponent<GraphicalComponen
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.GraphicalComponent#getOnRightClickMethodID()
-	 * 
+	 *
 	 * @sampleas getOnAction()
 	 */
 	@Override

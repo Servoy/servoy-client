@@ -66,13 +66,13 @@ public class APP_UI_PROPERTY implements IPrefixedConstantsObject
 	public static final String TYPE_AHEAD_SHOW_POPUP_ON_FOCUS_GAIN = IApplication.TYPE_AHEAD_SHOW_POPUP_ON_FOCUS_GAIN;
 
 	/**
-	 * Property that can be set using application.putClientProperty() or element.putClientProperty(). It is used only in Smart Client and Titanium Client.
+	 * Property that can be set using application.putClientProperty() or element.putClientProperty(). It is used only in Titanium Client.
 	 *
 	 * If set on application it will affect all COMBOBOX fields. If set on an element it will affect only that COMBOBOX element/field (with priority over the application property).
 	 * Value can be true/false/null.
 	 *
 	 * If set to true, the affected COMBOBOX will show the pop-up when gaining focus (either from user input or API).
-	 * DEFAULT: true for Smart Client and false for Titanium Client (to be more compatible with NGClient).
+	 * DEFAULT: false for Titanium Client (to be more compatible with NGClient).
 	 *
 	 * @sample
 	 * // make all COMBOBOX fields not show the pop-up when gaining focus
@@ -100,7 +100,8 @@ public class APP_UI_PROPERTY implements IPrefixedConstantsObject
 	public static final String COMBOBOX_ENABLE_FILTER = IApplication.COMBOBOX_ENABLE_FILTER;
 
 	/**
-	 * Property that can be set using application.putClientProperty() or element.putClientProperty(). It is used only in Smart Client.
+	 * Legacy Smart Client property, do not use anymore.
+	 * Property that can be set using application.putClientProperty() or element.putClientProperty().
 	 *
 	 * If set on application it will affect all date formatted fields. If set on an element it will affect only that date formatted element/field (with priority over the application property).
 	 * Value can be true/false/null.
@@ -114,6 +115,7 @@ public class APP_UI_PROPERTY implements IPrefixedConstantsObject
 	 * // make one date formatted field use add instead of roll - overrides the application property set
 	 * forms.someForm.elements.typeAheadElement.putClientProperty(APP_UI_PROPERTY.DATE_FORMATTERS_ROLL_INSTEAD_OF_ADD, false);
 	 */
+	@Deprecated
 	@ServoyClientSupport(ng = false, wc = false, sc = true)
 	public static final String DATE_FORMATTERS_ROLL_INSTEAD_OF_ADD = IApplication.DATE_FORMATTERS_ROLL_INSTEAD_OF_ADD;
 
@@ -224,6 +226,7 @@ public class APP_UI_PROPERTY implements IPrefixedConstantsObject
 	 * @sample
 	 * application.putClientProperty(APP_UI_PROPERTY.TABLEVIEW_WC_DEFAULT_SCROLLABLE, true)
 	 */
+	@Deprecated
 	@ServoyClientSupport(ng = false, wc = true, sc = false)
 	public static final String TABLEVIEW_WC_DEFAULT_SCROLLABLE = IApplication.TABLEVIEW_WC_DEFAULT_SCROLLABLE;
 
@@ -239,6 +242,7 @@ public class APP_UI_PROPERTY implements IPrefixedConstantsObject
 	 * @sample
 	 * application.putClientProperty(APP_UI_PROPERTY.TABLEVIEW_WC_SCROLLABLE_KEEP_LOADED_ROWS, true)
 	 */
+	@Deprecated
 	@ServoyClientSupport(ng = false, wc = true, sc = false)
 	public static final String TABLEVIEW_WC_SCROLLABLE_KEEP_LOADED_ROWS = IApplication.TABLEVIEW_WC_SCROLLABLE_KEEP_LOADED_ROWS;
 
@@ -292,6 +296,7 @@ public class APP_UI_PROPERTY implements IPrefixedConstantsObject
 	public static final String NG_BLOCK_DUPLICATE_EVENTS = IApplication.BLOCK_DUPLICATE_EVENTS;
 
 	/**
+	 * Legacy Web Client property, do not use anymore.
 	 * Property that can be set using application.putClientProperty().
 	 *
 	 * If set to true, you can change selection in webclient tableview using up/down keys
@@ -303,6 +308,7 @@ public class APP_UI_PROPERTY implements IPrefixedConstantsObject
 	 * @sample
 	 * application.putClientProperty(APP_UI_PROPERTY.TABLEVIEW_WC_USE_KEY_NAVIGATION, false)
 	 */
+	@Deprecated
 	@ServoyClientSupport(ng = false, wc = true, sc = false)
 	public static final String TABLEVIEW_WC_USE_KEY_NAVIGATION = IApplication.TABLEVIEW_WC_USE_KEY_NAVIGATION;
 
@@ -369,7 +375,7 @@ public class APP_UI_PROPERTY implements IPrefixedConstantsObject
 	 * For example,
 	 * * <pre>
 	 *     if (foundset.find()) {
-	 *      founset.myleftouterjoinrelation.myfield = 'someval';
+	 *      foundset.myleftouterjoinrelation.myfield = 'someval';
 	 *      foundset.search();
 	 *     }
 	 * </pre>

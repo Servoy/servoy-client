@@ -17,9 +17,6 @@
 package com.servoy.j2db.dataprocessing;
 
 
-import java.rmi.Remote;
-import java.rmi.RemoteException;
-
 import com.servoy.j2db.scripting.StartupArguments;
 
 /**
@@ -27,38 +24,37 @@ import com.servoy.j2db.scripting.StartupArguments;
  *
  * @author jblok
  */
-public interface IClient extends Remote
+public interface IClient
 {
-	public void alert(String msg) throws RemoteException;
+	public void alert(String msg);
 
-	public boolean isAlive() throws RemoteException;
+	public boolean isAlive();
 
-	public void shutDown() throws RemoteException;
+	public void shutDown();
 
-	public void closeSolution() throws RemoteException;
+	public void closeSolution();
 
 	/**
 	 * called when the databases are modified outside servoy, when server_name and table_name are null all is flushed
 	 *
 	 * @param server_name
 	 * @param table_name
-	 * @throws RemoteException
 	 */
-	public void flushCachedDatabaseData(String dataSource) throws RemoteException;
+	public void flushCachedDatabaseData(String dataSource);
 
 	//rowData is not null when insert
-	public void notifyDataChange(String server_name, String table_name, IDataSet pks, int action, Object[] insertColumnData) throws RemoteException;
+	public void notifyDataChange(String server_name, String table_name, IDataSet pks, int action, Object[] insertColumnData);
 
-	public void activateSolutionMethod(String globalMethodName, StartupArguments argumentsScope) throws RemoteException;
+	public void activateSolutionMethod(String globalMethodName, StartupArguments argumentsScope);
 
 
 	/**
 	 * Get a status line for the client to be displayed on the admin page; only when the client supports this.
 	 */
-	String getClientStatusLine() throws RemoteException;
+	String getClientStatusLine();
 
 	/**
 	 * Return the last date and time when a user has physically accessed the application
 	 */
-	long getLastAccessedTime() throws RemoteException;
+	long getLastAccessedTime();
 }

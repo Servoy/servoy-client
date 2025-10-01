@@ -234,23 +234,25 @@ public class XMLScriptObjectAdapter implements ITypedScriptObject
 		String sample = getSample(methodName, argTypes, csp);
 		boolean moreDetailsWereAdded = false;
 
+		extendedTooltip = HtmlUtils.applyDescriptionMagic(extendedTooltip);
+
 		if (sample != null)
 		{
-			if (!moreDetailsWereAdded) extendedTooltip += "\n";
+			if (!moreDetailsWereAdded) extendedTooltip += "<br/>";
 			moreDetailsWereAdded = true;
-			extendedTooltip += "\n<i>" + Text.processTags(HtmlUtils.escapeMarkup(sample).toString(), resolver).toString() + "</i>";
+			extendedTooltip += "<br/><b>@sample</b><pre><i>" + Text.processTags(HtmlUtils.escapeMarkup(sample).toString(), resolver).toString() + "</i></pre>";
 		}
 		if (parameters != null)
 		{
-			if (!moreDetailsWereAdded) extendedTooltip += "\n";
+			if (!moreDetailsWereAdded) extendedTooltip += "<br/>";
 			moreDetailsWereAdded = true;
-			extendedTooltip += "\n";
+			extendedTooltip += "<br/>";
 			String description;
 			for (IParameter parameter : parameters)
 			{
 				description = parameter.getDescription();
-				extendedTooltip = extendedTooltip + "\n <b>@param</b> {" + parameter.getType() + "} " + parameter.getName() + " " +
-					(description != null ? description : "");
+				extendedTooltip = extendedTooltip + "<br/> <b>@param</b> {" + parameter.getType() + "} " + parameter.getName() + " " +
+					(description != null ? HtmlUtils.applyDescriptionMagic(description) : "");
 			}
 		}
 		if (returnType != null)
@@ -258,10 +260,10 @@ public class XMLScriptObjectAdapter implements ITypedScriptObject
 			IFunctionDocumentation fdoc = objDoc.getFunction(methodName, argTypes);
 			if (fdoc == null || fdoc.getType() == IFunctionDocumentation.TYPE_FUNCTION)
 			{
-				if (!moreDetailsWereAdded) extendedTooltip += "\n";
+				if (!moreDetailsWereAdded) extendedTooltip += "<br/>";
 				moreDetailsWereAdded = true;
-				extendedTooltip = extendedTooltip + "\n <b>@return</b> {" + getReturnTypeString(returnType) + "} ";
-				if (returnDescription != null) extendedTooltip += returnDescription;
+				extendedTooltip = extendedTooltip + "<br/> <b>@return</b> {" + getReturnTypeString(returnType) + "} ";
+				if (returnDescription != null) extendedTooltip += HtmlUtils.applyDescriptionMagic(returnDescription);
 			}
 		}
 

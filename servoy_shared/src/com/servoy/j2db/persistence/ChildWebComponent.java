@@ -31,7 +31,6 @@ import org.sablo.specification.property.types.PointPropertyType;
 import org.sablo.specification.property.types.StringPropertyType;
 import org.sablo.specification.property.types.TypesRegistry;
 
-import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.ServoyJSONObject;
 import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
@@ -76,14 +75,13 @@ public class ChildWebComponent extends WebComponent implements IChildWebObject
 	public static ChildWebComponent createNewInstance(IBasicWebObject webObject, PropertyDescription childPd, String jsonKey, int index, boolean isNew,
 		UUID uuid)
 	{
-		Pair<Integer, UUID> idAndUUID = WebObjectImpl.getNewIdAndUUID(webObject);
-		return new ChildWebComponent(webObject, idAndUUID.getLeft().intValue(), uuid != null ? uuid : idAndUUID.getRight(), jsonKey, index, isNew, childPd);
+		return new ChildWebComponent(webObject, uuid != null ? uuid : UUID.randomUUID(), jsonKey, index, isNew, childPd);
 	}
 
-	private ChildWebComponent(IBasicWebObject parent, int element_id, UUID uuid, String jsonKey, int index, boolean isNew,
+	private ChildWebComponent(IBasicWebObject parent, UUID uuid, String jsonKey, int index, boolean isNew,
 		PropertyDescription pdAsChildComponent)
 	{
-		super(parent, element_id, uuid);
+		super(parent, uuid);
 
 		this.jsonKey = jsonKey;
 		this.index = index;

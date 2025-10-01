@@ -74,9 +74,9 @@ public class WebComponent extends BaseComponent implements IWebComponent
 
 	protected transient WebObjectBasicImpl webObjectImpl;
 
-	protected WebComponent(ISupportChilds parent, int element_id, UUID uuid)
+	protected WebComponent(ISupportChilds parent, UUID uuid)
 	{
-		super(IRepository.WEBCOMPONENTS, parent, element_id, uuid);
+		super(IRepository.WEBCOMPONENTS, parent, uuid);
 		webObjectImpl = createWebObjectImpl();
 	}
 
@@ -127,7 +127,7 @@ public class WebComponent extends BaseComponent implements IWebComponent
 	@Override
 	public void updateJSON()
 	{
-		webObjectImpl.updateJSONFromPersistMappedPropeties();
+		webObjectImpl.updateJSONFromPersistMappedProperties();
 	}
 
 	@Override
@@ -235,7 +235,7 @@ public class WebComponent extends BaseComponent implements IWebComponent
 		JSONObject x = webObjectImpl.getJson();
 		try
 		{
-			return x == null ? x : new ServoyJSONObject(x, ServoyJSONObject.getNames(x), true, true);
+			return x == null ? x : new ServoyJSONObject(x, ServoyJSONObject.getNames(x), false, true);
 		}
 		catch (JSONException e)
 		{
@@ -377,7 +377,7 @@ public class WebComponent extends BaseComponent implements IWebComponent
 	}
 
 	@Override
-	public void setExtendsID(int arg)
+	public void setExtendsID(String arg)
 	{
 		super.setExtendsID(arg);
 		webObjectImpl.reload(true);
@@ -432,6 +432,6 @@ public class WebComponent extends BaseComponent implements IWebComponent
 	@Override
 	public String toString()
 	{
-		return getClass().getSimpleName() + " -> " + webObjectImpl.toString(); //$NON-NLS-1$
+		return webObjectImpl.toString();
 	}
 }

@@ -17,8 +17,6 @@
 
 package com.servoy.j2db.server.headlessclient.dataui;
 
-import org.apache.wicket.ResourceReference;
-
 import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.ISupportWebBounds;
@@ -32,8 +30,6 @@ public interface IImageDisplay extends IComponent, ISupportWebBounds
 {
 	public MediaResource getIcon();
 
-	public ResourceReference getIconReference();
-
 	public Media getMedia();
 
 	public int getMediaOptions();
@@ -41,8 +37,6 @@ public interface IImageDisplay extends IComponent, ISupportWebBounds
 	public String getIconUrl();
 
 	public String getTextUrl();
-
-	public ResourceReference getRolloverIconReference();
 
 	public Media getRolloverMedia();
 

@@ -20,7 +20,6 @@ package com.servoy.j2db.scripting.solutionmodel;
 import java.awt.Dimension;
 import java.awt.Point;
 
-import org.mozilla.javascript.annotations.JSFunction;
 import org.mozilla.javascript.annotations.JSGetter;
 import org.mozilla.javascript.annotations.JSSetter;
 
@@ -36,13 +35,33 @@ import com.servoy.j2db.scripting.IJavaScriptType;
 import com.servoy.j2db.util.PersistHelper;
 
 /**
- * @author lvostinar
+ * <p>The <b>JSLayoutContainer</b> is a JavaScript object designed to facilitate the management and manipulation
+ * of layout containers in the Solution Model. It supports both hierarchical navigation and dynamic creation
+ * of containers, offering extensive control over layout structures. This object is particularly useful for
+ * building responsive designs and managing nested layouts efficiently.</p>
  *
+ * <p>The container's properties allow users to define dimensions, positions, and appearance attributes.
+ * For example, height, <code>x</code>, and <code>y</code> coordinates control spatial placement, while
+ * <code>cssClasses</code> and <code>tagType</code> customize the HTML output. Identifiers such as
+ * <code>elementId</code>, <code>name</code>, <code>packageName</code>, and <code>specName</code> ensure clear
+ * referencing and seamless integration with layout specifications.</p>
+ *
+ * <p>The methods provided enable comprehensive interaction with components and containers. Users can add,
+ * retrieve, or remove components through functions like <code>newWebComponent(type)</code> or
+ * <code>getComponent(name)</code>. Attribute management is also supported, allowing customization with
+ * methods like <code>putAttribute(key, value)</code>. Additionally, hierarchical navigation is made simple
+ * with functions such as <code>findLayoutContainer(name)</code> and <code>getLayoutContainers()</code>, which
+ * aid in accessing or organizing nested structures dynamically.</p>
+ *
+ * <p>These features collectively make the <b>JSLayoutContainer</b> a robust tool for developing adaptable
+ * and scalable form layouts.</p>
+ *
+ * @author lvostinar
  */
 @SuppressWarnings("nls")
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "JSLayoutContainer")
 @ServoyClientSupport(mc = false, wc = false, sc = false, ng = true)
-public class JSLayoutContainer extends JSBaseContainer<LayoutContainer> implements IJavaScriptType
+public class JSLayoutContainer extends JSBaseContainer<LayoutContainer> implements IJavaScriptType, IBaseLayoutContainer
 {
 	private LayoutContainer layoutContainer;
 	private final IJSParent< ? > parent;
@@ -57,7 +76,7 @@ public class JSLayoutContainer extends JSBaseContainer<LayoutContainer> implemen
 		this.application = application;
 	}
 
-	private LayoutContainer getLayoutContainer()
+	public LayoutContainer getLayoutContainer()
 	{
 		if (!isCopy)
 		{
@@ -82,6 +101,11 @@ public class JSLayoutContainer extends JSBaseContainer<LayoutContainer> implemen
 	public IJSParent< ? > getJSParent()
 	{
 		return parent;
+	}
+
+	public IApplication getApplication()
+	{
+		return application;
 	}
 
 	@Override
@@ -120,7 +144,7 @@ public class JSLayoutContainer extends JSBaseContainer<LayoutContainer> implemen
 	/**
 	 * returns the layouts spec name
 	 *
-	 * @return String
+	 * @return The specification name of the layout container.
 	 */
 	@JSGetter
 	public String getSpecName()
@@ -143,7 +167,7 @@ public class JSLayoutContainer extends JSBaseContainer<LayoutContainer> implemen
 	/**
 	 * returns the layouts package name
 	 *
-	 * @return String
+	 * @return The package name associated with the layout container.
 	 */
 	@JSGetter
 	public String getPackageName()
@@ -156,6 +180,8 @@ public class JSLayoutContainer extends JSBaseContainer<LayoutContainer> implemen
 	 *
 	 * @sample
 	 * layoutContainer.tagType = 'span';
+	 *
+	 * @return The tag type (e.g., 'div', 'span') of the layout container.
 	 */
 	@JSGetter
 	public String getTagType()
@@ -175,6 +201,8 @@ public class JSLayoutContainer extends JSBaseContainer<LayoutContainer> implemen
 	 *
 	 * @sample
 	 * layoutContainer.elementId = 'rowCol';
+	 *
+	 * @return The unique element ID of the layout container.
 	 */
 	@JSGetter
 	public String getElementId()
@@ -190,61 +218,13 @@ public class JSLayoutContainer extends JSBaseContainer<LayoutContainer> implemen
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.persistence.LayoutContainer#getCssClasses()
-	 *
-	 * @sample
-	 * layoutContainer.cssClasses = 'myContainer';
-	 */
-	@JSGetter
-	public String getCssClasses()
-	{
-		return getLayoutContainer().getCssClasses();
-	}
-
-	@JSSetter
-	public void setCssClasses(String cssClasses)
-	{
-		checkModification();
-		getLayoutContainer().setCssClasses(cssClasses);
-	}
-
-	/**
-	 * @clonedesc com.servoy.j2db.persistence.LayoutContainer#getAttribute()
-	 *
-	 * @param name the attributes name
-	 *
-	 * @sample
-	 * layoutContainer.getAttribute('class');
-	 */
-	@JSFunction
-	public String getAttribute(String name)
-	{
-		return getLayoutContainer().getAttribute(name);
-	}
-
-	/**
-	 * @clonedesc com.servoy.j2db.persistence.LayoutContainer#putAttribute()
-	 *
-	 * @sample
-	 * layoutContainer.putAttribute('class','container fluid');
-	 *
-	 * @param key
-	 * @param value
-	 */
-	@JSFunction
-	public void putAttribute(String name, String value)
-	{
-		checkModification();
-		getLayoutContainer().putAttribute(name, value);
-	}
-
-	/**
 	 * @clonedesc com.servoy.j2db.persistence.LayoutContainer#getStyle()
 	 *
 	 * @sample
 	 * layoutContainer.style = "background-color:red";
 	 */
 	@JSGetter
+	@Deprecated
 	public String getStyle()
 	{
 		return getLayoutContainer().getStyle();
@@ -262,6 +242,8 @@ public class JSLayoutContainer extends JSBaseContainer<LayoutContainer> implemen
 	 *
 	 * @sample
 	 * layoutContainer.name = 'col1';
+	 *
+	 * @return The name of the layout container.
 	 */
 	@JSGetter
 	public String getName()
@@ -280,6 +262,8 @@ public class JSLayoutContainer extends JSBaseContainer<LayoutContainer> implemen
 	 *
 	 * @sample
 	 * layoutContainer.x = 100;;
+	 *
+	 * @return The X-coordinate of the layout container's position.
 	 */
 	@JSGetter
 	public int getX()
@@ -299,6 +283,8 @@ public class JSLayoutContainer extends JSBaseContainer<LayoutContainer> implemen
 	 *
 	 * @sample
 	 * layoutContainer.y = 100;;
+	 *
+	 * @return The Y-coordinate of the layout container's position.
 	 */
 	@JSGetter
 	public int getY()
@@ -318,6 +304,8 @@ public class JSLayoutContainer extends JSBaseContainer<LayoutContainer> implemen
 	 *
 	 * @sample
 	 * layoutContainer.height = 300;
+	 *
+	 * @return The height of the layout container.
 	 */
 	@JSGetter
 	public int getHeight()
@@ -338,6 +326,8 @@ public class JSLayoutContainer extends JSBaseContainer<LayoutContainer> implemen
 	 * @deprecated
 	 * @sample
 	 * layoutContainer.width = 300;
+	 *
+	 * @return The width of the layout container.
 	 */
 	@Deprecated
 	@JSGetter
@@ -351,19 +341,6 @@ public class JSLayoutContainer extends JSBaseContainer<LayoutContainer> implemen
 	{
 		checkModification();
 		getLayoutContainer().setSize(new Dimension(width, getLayoutContainer().getSize().height));
-	}
-
-	/**
-	 * Remove a layout container (with all its children) from hierarchy.
-	 *
-	 * @sample
-	 * layoutContainer.remove();
-	 */
-	@JSFunction
-	public void remove()
-	{
-		checkModification();
-		parent.getSupportChild().removeChild(getLayoutContainer());
 	}
 
 	@Override

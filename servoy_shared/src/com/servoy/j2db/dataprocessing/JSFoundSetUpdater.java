@@ -17,6 +17,7 @@
 package com.servoy.j2db.dataprocessing;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.mozilla.javascript.Scriptable;
@@ -38,7 +39,24 @@ import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.ServoyException;
 
 /**
- * Scriptable Foundsetupdater object
+ * <p><b>JSFoundSetUpdater</b> is a utility class designed to perform efficient updates on a foundset,
+ * enabling streamlined data modification in applications. By leveraging its methods, developers can iterate
+ * through records, assign new values to specific columns, and apply updates either to the entire foundset
+ * or selected subsets of records. This tool enhances performance by minimizing database interaction overhead
+ * and allowing bulk updates directly in the database when possible.</p>
+ *
+ * <p>The updater supports three primary use cases:</p>
+ * <ul>
+ *   <li>Applying a single SQL statement to update all records in the foundset.</li>
+ *   <li>Updating specific records within the foundset.</li>
+ *   <li>Iterating safely through records to apply custom logic.</li>
+ * </ul>
+ *
+ * <p>It ensures precise control over data changes while bypassing triggers like table events or modification
+ * column updates for direct database operations. With features like resettable iterators and support for
+ * both individual and batch updates, <b>JSFoundSetUpdater</b> offers a flexible and powerful approach to
+ * managing foundset modifications.</p>
+ *
  * @author jblok
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
@@ -170,8 +188,10 @@ public class JSFoundSetUpdater implements IReturnedTypesProvider, IJavaScriptTyp
 			throw new ApplicationException(ServoyException.NO_MODIFY_ACCESS, new Object[] { foundset.getTable().getName() });
 		}
 		// first stop all edits, 'force' stop the edit by saying that it is a javascript stop
-		if (application.getFoundSetManager().getEditRecordList().stopEditing(true) != ISaveConstants.STOPPED) return false;
-
+		IRecordInternal[] editedRecords = application.getFoundSetManager().getEditRecordList().getEditedRecords(foundset.getDataSource(), null, true);
+		if (editedRecords.length > 0 &&
+			application.getFoundSetManager().getEditRecordList().stopEditing(true, foundset, Arrays.asList(editedRecords)) != ISaveConstants.STOPPED)
+			return false;
 		try
 		{
 			QuerySelect sqlParts;

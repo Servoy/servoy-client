@@ -27,7 +27,12 @@ import com.servoy.j2db.ui.ISupportOnRenderCallback;
 import com.servoy.j2db.ui.RenderableWrapper;
 
 /**
- * JSRenderEvent, used as argument to render callbacks.
+ * The <code>JSRenderEvent</code> class represents rendering callbacks for UI elements, providing context about the rendering process.
+ * It includes methods to retrieve the rendered element, its associated record, and additional state such as focus, selection, and index.
+ *
+ * The rendered element is accessed through <code>getRenderable</code>, returning a scriptable representation of the UI element.
+ * Developers can obtain the record tied to the rendered element, although it may be null in certain cases like table view modes.
+ * State information includes whether the element has focus, its selection status, and its record index, enabling dynamic adjustments during rendering.
  *
  * @author gboros
  */

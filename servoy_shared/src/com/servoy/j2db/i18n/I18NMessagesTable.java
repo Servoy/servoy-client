@@ -29,6 +29,7 @@ import com.servoy.j2db.persistence.IServerInternal;
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.IValidateName;
 import com.servoy.j2db.persistence.RepositoryException;
+import com.servoy.j2db.query.ColumnType;
 import com.servoy.j2db.util.Debug;
 
 /**
@@ -46,19 +47,19 @@ public class I18NMessagesTable
 		ITable table = server.createNewTable(validator, tablename);
 		if (primaryKeySequenceType == ColumnInfo.UUID_GENERATOR)
 		{
-			Column column = table.createNewColumn(validator, "message_id", IColumnTypes.TEXT, 36);
+			Column column = table.createNewColumn(validator, "message_id", ColumnType.getInstance(IColumnTypes.TEXT, 36, 0));
 			column.setDatabasePK(true);
 			column.setSequenceType(primaryKeySequenceType);
 			column.setFlag(IBaseColumn.UUID_COLUMN, true);
 		}
 		else
 		{
-			Column column = table.createNewColumn(validator, "message_id", Types.INTEGER, 0, 0, false, true);
+			Column column = table.createNewColumn(validator, "message_id", ColumnType.getInstance(Types.INTEGER, 0, 0), false, true);
 			column.setSequenceType(primaryKeySequenceType);
 		}
-		table.createNewColumn(validator, "message_key", Types.VARCHAR, 150, 0, false);
-		Column messageLanguage = table.createNewColumn(validator, "message_language", Types.VARCHAR, 150, 0, true);
-		table.createNewColumn(validator, "message_value", Types.VARCHAR, 2000, 0, true);
+		table.createNewColumn(validator, "message_key", ColumnType.getInstance(Types.VARCHAR, 150, 0), false);
+		Column messageLanguage = table.createNewColumn(validator, "message_language", ColumnType.getInstance(Types.VARCHAR, 150, 0), true);
+		table.createNewColumn(validator, "message_value", ColumnType.getInstance(Types.VARCHAR, 2000, 0), true);
 		server.syncTableObjWithDB(table, false, false);
 
 		try

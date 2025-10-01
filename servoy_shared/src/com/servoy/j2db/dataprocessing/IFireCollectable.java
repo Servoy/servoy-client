@@ -16,14 +16,48 @@
 */
 package com.servoy.j2db.dataprocessing;
 
-import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 /**
  * @author jcompagner
- *
  */
 public interface IFireCollectable
 {
-	void completeFire(Map<IRecord, List<String>> entries);
+
+	/**
+	 * Make sure that the Set<String> are never null! They should always contain at least 1 String (dataprovider).
+	 * See {@link FireCollector}.
+	 */
+	default void completeFire(Map<IRecord, Set<String>> entries)
+	{
+		int start = Integer.MAX_VALUE;
+		int end = -1;
+		Set<String> dataproviders = null;
+		for (Entry<IRecord, Set<String>> entry : entries.entrySet())
+		{
+			int index = getRecordIndex(entry.getKey());
+			if (index != -1 && start > index)
+			{
+				start = index;
+			}
+			if (end < index)
+			{
+				end = index;
+			}
+			if (dataproviders == null) dataproviders = entry.getValue();
+			else dataproviders.addAll(entry.getValue());
+		}
+		if (start != Integer.MAX_VALUE && end != -1)
+		{
+			fireFoundSetEvent(start, end, FoundSetEvent.CHANGE_UPDATE, dataproviders);
+		}
+	}
+
+	// this is a duplicate of the one in IFoundset; it's needed by the "default" method above
+	public int getRecordIndex(IRecord record);
+
+	void fireFoundSetEvent(int firstRow, int lastRow, int changeType, Set<String> dataproviders);
+
 }

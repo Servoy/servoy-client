@@ -19,12 +19,12 @@ package com.servoy.j2db.persistence;
 
 /**
  * Interface to handle elements the same which are dataproviders.
- * 
+ *
  * @author jblok
  */
 public interface ISupportDataProviderID
 {
 	public String getDataProviderID();
 
-	public int getValuelistID();
+	public String getValuelistID();
 }

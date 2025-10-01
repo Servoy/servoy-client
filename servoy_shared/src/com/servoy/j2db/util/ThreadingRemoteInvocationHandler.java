@@ -32,7 +32,7 @@ import com.servoy.j2db.persistence.RepositoryException;
  *
  * @since 6.1
  */
-public class ThreadingRemoteInvocationHandler<T extends Remote> extends AbstractRemoteInvocationHandler<T>
+public class ThreadingRemoteInvocationHandler<T> extends AbstractRemoteInvocationHandler<T>
 {
 	private static final ExecutorService threadPool = Executors.newCachedThreadPool();
 
@@ -51,7 +51,7 @@ public class ThreadingRemoteInvocationHandler<T extends Remote> extends Abstract
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <T extends Remote> T createThreadingRemoteInvocationHandler(T obj, Class< ? >[] interfaces)
+	public static <T> T createThreadingRemoteInvocationHandler(T obj, Class< ? >[] interfaces)
 	{
 		if (obj == null)
 		{
@@ -98,6 +98,11 @@ public class ThreadingRemoteInvocationHandler<T extends Remote> extends Abstract
 			threadPool.execute(methodRunner);
 			try
 			{
+				if (Thread.currentThread().isInterrupted())
+				{
+					Debug.error("Thread is already interrupted so the ThreadingRemoteInvocationHandler, clearing this interrupted status");
+					Thread.interrupted();
+				}
 				methodRunner.wait();
 			}
 			catch (InterruptedException e)

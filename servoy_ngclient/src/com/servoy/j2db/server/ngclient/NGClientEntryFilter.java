@@ -1,7 +1,6 @@
 package com.servoy.j2db.server.ngclient;
 
 import static com.servoy.j2db.persistence.IRepository.SOLUTIONS;
-import static com.servoy.j2db.server.ngclient.AngularIndexPageWriter.addcontentSecurityPolicyHeader;
 import static com.servoy.j2db.server.ngclient.MediaResourcesServlet.FLATTENED_SOLUTION_ACCESS;
 import static com.servoy.j2db.server.ngclient.WebsocketSessionFactory.CLIENT_ENDPOINT;
 import static com.servoy.j2db.util.Utils.getAsBoolean;
@@ -27,24 +26,12 @@ import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.servlet.DispatcherType;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.annotation.WebFilter;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
 import org.json.JSONObject;
 import org.sablo.IContributionEntryFilter;
 import org.sablo.IndexPageEnhancer;
 import org.sablo.WebEntry;
-import org.sablo.security.ContentSecurityPolicyConfig;
 import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.util.HTTPUtils;
 import org.sablo.websocket.IWebsocketSessionFactory;
@@ -68,7 +55,17 @@ import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.server.shared.IApplicationServer;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Settings;
-import com.servoy.j2db.util.Utils;
+
+import jakarta.servlet.DispatcherType;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.FilterConfig;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
+import jakarta.servlet.annotation.WebFilter;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 /**
  * Filter and entrypoint for webapp
@@ -309,12 +306,12 @@ public class NGClientEntryFilter extends WebEntry
 							response.sendRedirect(uri.toString());
 							return;
 						}
-						String clientnr = AngularIndexPageWriter.getClientNr(uri, request);
+						Integer clientnr = AngularIndexPageWriter.getClientNr(uri, request);
 						INGClientWebsocketSession wsSession = null;
 						HttpSession httpSession = request.getSession(false);
 						if (clientnr != null && httpSession != null)
 						{
-							wsSession = (INGClientWebsocketSession)WebsocketSessionManager.getSession(CLIENT_ENDPOINT, httpSession, Integer.parseInt(clientnr));
+							wsSession = (INGClientWebsocketSession)WebsocketSessionManager.getSession(CLIENT_ENDPOINT, httpSession, clientnr.intValue());
 						}
 						FlattenedSolution fs = null;
 						boolean closeFS = false;
@@ -382,10 +379,10 @@ public class NGClientEntryFilter extends WebEntry
 								addManifest(fs, extraMeta);
 								addHeadIndexContributions(fs, extraMeta);
 
-								ContentSecurityPolicyConfig contentSecurityPolicyConfig = addcontentSecurityPolicyHeader(request, response, true);
+								//ContentSecurityPolicyConfig contentSecurityPolicyConfig = addcontentSecurityPolicyHeader(request, response, true);
 								super.doFilter(servletRequest, servletResponse, filterChain, asList(SERVOY_CSS),
 									new ArrayList<String>(getFormScriptReferences(fs)), extraMeta, variableSubstitution,
-									contentSecurityPolicyConfig == null ? null : contentSecurityPolicyConfig.getNonce());
+									null/* contentSecurityPolicyConfig == null ? null : contentSecurityPolicyConfig.getNonce() */);
 								return;
 							}
 							finally
@@ -472,7 +469,7 @@ public class NGClientEntryFilter extends WebEntry
 					if (form.isResponsiveLayout())
 					{
 						FormLayoutStructureGenerator.generateLayout(form, formName, fs, writer,
-							design ? new DesignProperties(Utils.getAsInteger(request.getParameter("cont"))) : null);
+							design ? new DesignProperties(request.getParameter("cont")) : null);
 					}
 					else
 					{
@@ -511,7 +508,7 @@ public class NGClientEntryFilter extends WebEntry
 			PrintWriter writer = response.getWriter();
 
 			String solutionName = getSolutionNameFromURI(uri);
-			String clientnr = AngularIndexPageWriter.getClientNr(uri, request);
+			Integer clientnr = AngularIndexPageWriter.getClientNr(uri, request);
 
 			Map<String, Object> variableSubstitution = getSubstitutions(request, solutionName, clientnr, fs);
 
@@ -621,7 +618,8 @@ public class NGClientEntryFilter extends WebEntry
 	 * @return
 	 * @throws ServletException
 	 */
-	private Map<String, Object> getSubstitutions(HttpServletRequest request, String solutionName, String clientnr, FlattenedSolution fs) throws ServletException
+	private Map<String, Object> getSubstitutions(HttpServletRequest request, String solutionName, Integer clientnr, FlattenedSolution fs)
+		throws ServletException
 	{
 		Map<String, Object> variableSubstitution = new HashMap<>();
 

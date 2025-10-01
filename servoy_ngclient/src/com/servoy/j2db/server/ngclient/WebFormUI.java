@@ -41,6 +41,8 @@ import org.sablo.specification.property.types.VisiblePropertyType;
 import org.sablo.websocket.CurrentWindow;
 import org.sablo.websocket.IWindow;
 import org.sablo.websocket.utils.JSONUtils.IToJSONConverter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.IApplication;
@@ -109,6 +111,10 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 		}).collect(Collectors.toMap(data -> (String)data[0], data -> (PropertyDescription)data[1]))).build();
 	// @formatter:on
 
+	private static final long REASONABLE_IGNORE_MSGS_FROM_CLIENT_AFTER_HIDE_INTERVAL = 3000;
+
+	protected static final Logger log = LoggerFactory.getLogger(WebFormUI.class.getCanonicalName());
+
 	private final IWebFormController formController;
 
 	private Object parentContainerOrWindowName;
@@ -121,10 +127,15 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 	private Map<String, RuntimeWebGroup> groups;
 	private Map<WebFormComponent, FormComponentCache> fcc;
 	private int changing = 0;
+	private long lastHideTimestampMs = 0;
 
 	public WebFormUI(IWebFormController formController)
 	{
 		super(formController.getName(), FORM_SPEC);
+
+		if (log.isDebugEnabled())
+			log.debug("WebFormUI created for form: '" + formController.getName() + "'");
+
 		this.formController = formController;
 		setVisible(false);
 		setEnabled(true);
@@ -512,7 +523,7 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 	 */
 	private void initContainerScopeIfNeeded(IWebFormController fc)
 	{
-		if (fc.getForm().isResponsiveLayout())
+		if (fc.getForm().isResponsiveLayout() || fc.getForm().containsResponsiveLayout())
 		{
 			FormScope formScope = fc.getFormScope();
 			ContainersScope containersScope = new ContainersScope(fc);
@@ -563,11 +574,14 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 	@Override
 	public void destroy()
 	{
-		if (dataAdapterList != null) dataAdapterList.destroy();
 		clearComponents();
+		if (dataAdapterList != null) dataAdapterList.destroy();
 		cleanupListeners();
 		IWindow window = CurrentWindow.safeGet();
 		if (window != null) window.unregisterContainer(this);
+
+		if (log.isDebugEnabled())
+			log.debug("WebFormUI destroyed for form: '" + formController.getName() + "'");
 	}
 
 	@Override
@@ -696,6 +710,36 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 	public void setComponentVisible(boolean visible)
 	{
 		setVisible(visible);
+	}
+
+	@Override
+	public boolean setProperty(String propertyName, Object propertyValue)
+	{
+		if ("visible".equals(propertyName))
+		{
+			Object oldPropertyValue = getProperty("visible");
+			boolean oldVisible = oldPropertyValue instanceof Boolean ? ((Boolean)oldPropertyValue).booleanValue() : false;
+
+			boolean dirty = super.setProperty(propertyName, propertyValue);
+
+			boolean newVisible = (propertyValue instanceof Boolean ? ((Boolean)propertyValue).booleanValue() : false);
+			if (!newVisible && oldVisible)
+				lastHideTimestampMs = System.currentTimeMillis();
+			return dirty;
+		}
+		else return super.setProperty(propertyName, propertyValue);
+	}
+
+	@Override
+	protected boolean shouldPrintWarningMessageOnIllegalChangeFromClient(String nameOfPropertyThatBlocksTheClientSentChange)
+	{
+		// for example if on a textfield I set onDataChange handler and onFocusLost handler, but in onDataChange I show another main form
+		// then the onFocusLost which was already sent by client will arrive on server when the form was already hidden; we want
+		// to silently ignore that instead of generating an warning message in the log file
+		if ("visible".equals(nameOfPropertyThatBlocksTheClientSentChange))
+			return (System.currentTimeMillis() - lastHideTimestampMs) > REASONABLE_IGNORE_MSGS_FROM_CLIENT_AFTER_HIDE_INTERVAL;
+
+		return true;
 	}
 
 	@Override

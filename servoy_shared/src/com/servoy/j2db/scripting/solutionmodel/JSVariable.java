@@ -30,6 +30,23 @@ import com.servoy.j2db.solutionmodel.ISMVariable;
 import com.servoy.j2db.util.UUID;
 
 /**
+ * <code>JSVariable</code> represents script variables in the Solution Model.
+ * It allows defining variables with specific types, default values, and scope,
+ * offering flexibility for use in forms, global contexts, and dynamic scenarios.
+ * Variables can be configured with types like <code>TEXT</code>, <code>INTEGER</code>, <code>NUMBER</code>, <code>DATETIME</code>, or <code>MEDIA</code>.
+ *
+ * <h2>Functionality</h2>
+ * <p>JSVariable provides constants for specifying the variable type.
+ * Properties like <code>defaultValue</code>, <code>name</code>, and <code>variableType</code> allow precise control over the variable's configuration.
+ * The <code>defaultValue</code> property can accept expressions such as dates, numbers, or text, enabling dynamic initialization.
+ * Methods like <code>getScopeName</code> and <code>getUUID</code> facilitate metadata access, such as identifying the variable's scope or its unique identifier.</p>
+ *
+ * <p>Examples demonstrate how to create variables dynamically, assign default values, and use them in various scopes.
+ * Variables can also be modified to change their type or default behavior.</p>
+ *
+ * <p>Variables can alternatively be created and managed using the
+ * <a href="https://docs.servoy.com/reference/servoy-developer/object-editors/variable-editor">Variable Editor</a>.</p>
+ *
  * @author jcompagner
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
@@ -101,6 +118,8 @@ public class JSVariable implements IConstantsObject, ISMVariable
 	 * var mediaVar = solutionModel.newGlobalVariable('globals', 'gMedia', JSVariable.MEDIA);
 	 * mediaVar.defaultValue = 'new Array(1, 2, 3, 4)';
 	 * application.output(scopes.globals.gMedia); // Prints out the array with four elements.
+	 *
+	 * @return The default value of the variable.
 	 */
 	@JSGetter
 	public String getDefaultValue()
@@ -126,6 +145,8 @@ public class JSVariable implements IConstantsObject, ISMVariable
 	 * // The next two lines will print the same output.
 	 * application.output(scopes.globals[gVar.name]);
 	 * application.output(scopes.globals.anotherName);
+	 *
+	 * @return The name of the variable.
 	 */
 	@JSGetter
 	public String getName()
@@ -158,6 +179,8 @@ public class JSVariable implements IConstantsObject, ISMVariable
 	 * var globalVariables = solutionModel.getGlobalVariables();
 	 * for (var i in globalVariables)
 	 * 	application.output(globalVariables[i].name + ' is defined in scope ' + globalVariables[i].getScopeName());
+	 *
+	 * @return The scope name in which the variable is defined.
 	 */
 	@JSFunction
 	public String getScopeName()
@@ -173,6 +196,8 @@ public class JSVariable implements IConstantsObject, ISMVariable
 	 * scopes.globals.gtext = 'some text';
 	 * g.variableType = JSVariable.DATETIME;
 	 * scopes.globals.gtext = 'another text'; // This will raise an error now, because the variable is not longer of type text.
+	 *
+	 * @return The type of the variable (e.g., TEXT, NUMBER, DATETIME).
 	 */
 	@JSGetter
 	public int getVariableType()
@@ -195,6 +220,8 @@ public class JSVariable implements IConstantsObject, ISMVariable
 	 * @sample
 	 * var dateVar = solutionModel.newGlobalVariable('globals', 'gDate', JSVariable.DATETIME);
 	 * application.output(dateVar.getUUID().toString());
+	 *
+	 * @return The unique identifier (UUID) of the variable.
 	 */
 	@JSFunction
 	public UUID getUUID()

@@ -122,4 +122,5 @@ public class RelationPropertyType extends DefaultPropertyType<String>
 		}
 		return (String)rhinoValue;
 	}
+
 }

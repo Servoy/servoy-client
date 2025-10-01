@@ -198,7 +198,7 @@ public abstract class NGUtils
 
 	public static WebObjectSpecification[] getAllWebServiceSpecificationsThatCanBeAddedToJavaPluginsList(SpecProviderState servicesSpecProviderState)
 	{
-		return getAllWebServiceSpecificationsExcept(servicesSpecProviderState, new String[] { "sablo", "servoyservices", "servoydefaultservices" });
+		return getAllWebServiceSpecificationsExcept(servicesSpecProviderState, new String[] { "sablo", "servoyservices" });
 	}
 
 	/**

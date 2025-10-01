@@ -22,7 +22,6 @@ import java.awt.print.PageFormat;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.UnsupportedEncodingException;
 import java.rmi.RemoteException;
 import java.sql.Types;
 import java.util.ArrayList;
@@ -35,19 +34,9 @@ import java.util.StringTokenizer;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.locks.ReentrantLock;
 
-import javax.servlet.ServletRequest;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-import javax.servlet.http.HttpSessionActivationListener;
-import javax.servlet.http.HttpSessionBindingEvent;
-import javax.servlet.http.HttpSessionEvent;
 import javax.swing.SwingUtilities;
 
-import org.apache.wicket.Application;
 import org.apache.wicket.Component;
-import org.apache.wicket.MarkupContainer;
-import org.apache.wicket.Session;
-import org.apache.wicket.protocol.http.WicketFilter;
 import org.mozilla.javascript.Scriptable;
 
 import com.servoy.j2db.ApplicationException;
@@ -80,6 +69,7 @@ import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.plugins.IClientPluginAccess;
 import com.servoy.j2db.scripting.FormScope;
+import com.servoy.j2db.scripting.JSBlobLoaderBuilder;
 import com.servoy.j2db.server.headlessclient.dataui.WebDataRendererFactory;
 import com.servoy.j2db.server.headlessclient.dataui.WebItemFactory;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
@@ -102,6 +92,13 @@ import com.servoy.j2db.util.ServoyScheduledExecutor;
 import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.Utils;
 
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpSessionActivationListener;
+import jakarta.servlet.http.HttpSessionBindingEvent;
+import jakarta.servlet.http.HttpSessionEvent;
+
 /**
  * A client which can be used in a jsp page or inside the org.apache.wicket framework as webclient
  *
@@ -111,10 +108,6 @@ public class SessionClient extends AbstractApplication implements ISessionClient
 {
 	protected transient IDataRendererFactory<org.apache.wicket.Component> dataRendererFactory;
 	protected transient ItemFactory itemFactory;
-
-	//just for the cases there is no org.apache.wicket running
-	private static WebClientsApplication wicket_app = new WebClientsApplication();
-	private static Session wicket_session = null;
 
 	protected transient HttpSession session;
 
@@ -387,42 +380,6 @@ public class SessionClient extends AbstractApplication implements ISessionClient
 		return shuttingDown || super.isShutDown();
 	}
 
-	static void onDestroy()
-	{
-		try
-		{
-			if (wicket_app != null)
-			{
-				WebClientsApplication tmp = wicket_app;
-				wicket_app = null;
-				WicketFilter wicketFilter = tmp.getWicketFilter();
-				if (wicketFilter != null)
-				{
-					wicketFilter.destroy();
-				}
-				if (Application.exists() && Application.get() == tmp)
-				{
-					Application.unset();
-				}
-
-
-				if (Session.exists() && Session.get() == wicket_session)
-				{
-					Session.unset();
-				}
-			}
-			else
-			{
-				wicket_app = null;
-				wicket_session = null;
-			}
-		}
-		catch (Exception e)
-		{
-			Debug.error("on destroy", e);
-		}
-	}
-
 	/**
 	 * This method sets the service provider to this if needed. Will return the previous provider that should be set back later.
 	 *
@@ -430,29 +387,6 @@ public class SessionClient extends AbstractApplication implements ISessionClient
 	 */
 	protected IServiceProvider testThreadLocals()
 	{
-		if (wicket_app != null)
-		{
-			if (!Application.exists())
-			{
-				Application.set(wicket_app);
-			}
-			if (ApplicationServerRegistry.get() != null)
-			{
-				if (!Session.exists())
-				{
-					synchronized (wicket_app)
-					{
-						if (wicket_session == null)
-						{
-							wicket_app.fakeInit();
-							wicket_session = wicket_app.newSession(new EmptyRequest(), null);
-						}
-					}
-					Session.set(wicket_session);
-				}
-			}
-		}
-
 		IServiceProvider provider = J2DBGlobals.getThreadServiceProvider();
 		if (provider != this)
 		{
@@ -592,34 +526,10 @@ public class SessionClient extends AbstractApplication implements ISessionClient
 		return retval;
 	}
 
-	public WebClientsApplication getFakeApplication()
-	{
-		synchronized (wicket_app)
-		{
-			if (wicket_session == null)
-			{
-				wicket_app.fakeInit();
-				wicket_session = wicket_app.newSession(new EmptyRequest(), null);
-			}
-		}
-		return wicket_app;
-	}
-
 	protected void unsetThreadLocals(IServiceProvider prev)
 	{
 		if (J2DBGlobals.getServiceProvider() != prev)
 		{
-			if (Application.exists() && Application.get() == wicket_app)
-			{
-				Application.unset();
-			}
-			if (Session.exists() && Session.get() == wicket_session)
-			{
-				// make sure the 2 thread locals are just empty lists.
-				Session.get().getDirtyObjectsList().clear();
-				Session.get().getTouchedPages().clear();
-				Session.unset();
-			}
 			J2DBGlobals.setServiceProvider(prev);
 		}
 	}
@@ -804,17 +714,6 @@ public class SessionClient extends AbstractApplication implements ISessionClient
 	public synchronized int setDataProviderValues(String contextName, HttpServletRequest request_data)
 	{
 		int retval = 0;
-		if (request_data.getCharacterEncoding() == null)
-		{
-			try
-			{
-				request_data.setCharacterEncoding(wicket_app.getRequestCycleSettings().getResponseRequestEncoding());
-			}
-			catch (UnsupportedEncodingException e)
-			{
-				Debug.log(e);
-			}
-		}
 		IServiceProvider prev = testThreadLocals();
 		try
 		{
@@ -991,6 +890,12 @@ public class SessionClient extends AbstractApplication implements ISessionClient
 	public Object generateBrowserFunction(String functionString)
 	{
 		return functionString;
+	}
+
+	@Override
+	public JSBlobLoaderBuilder createUrlBlobloaderBuilder(String dataprovider)
+	{
+		return null;
 	}
 
 	@Override
@@ -1326,7 +1231,7 @@ public class SessionClient extends AbstractApplication implements ISessionClient
 	/*
 	 * (non-Javadoc)
 	 *
-	 * @see javax.servlet.http.HttpSessionActivationListener#sessionDidActivate(javax.servlet.http.HttpSessionEvent)
+	 * @see jakarta.servlet.http.HttpSessionActivationListener#sessionDidActivate(jakarta.servlet.http.HttpSessionEvent)
 	 */
 	@Override
 	public void sessionDidActivate(HttpSessionEvent arg0)
@@ -1336,7 +1241,7 @@ public class SessionClient extends AbstractApplication implements ISessionClient
 	/*
 	 * (non-Javadoc)
 	 *
-	 * @see javax.servlet.http.HttpSessionActivationListener#sessionWillPassivate(javax.servlet.http.HttpSessionEvent)
+	 * @see jakarta.servlet.http.HttpSessionActivationListener#sessionWillPassivate(jakarta.servlet.http.HttpSessionEvent)
 	 */
 	@Override
 	public void sessionWillPassivate(HttpSessionEvent arg0)
@@ -1349,12 +1254,8 @@ public class SessionClient extends AbstractApplication implements ISessionClient
 	{
 		if (component instanceof Component)
 		{
-			MarkupContainer parent = ((Component)component).getParent();
-			while (!(parent instanceof WebForm))
-			{
-				parent = parent.getParent();
-			}
-			return ((WebForm)parent).getController().getName();
+			WebForm parent = ((Component)component).findParent(WebForm.class);
+			return parent.getController().getName();
 		}
 		return ""; //$NON-NLS-1$
 	}

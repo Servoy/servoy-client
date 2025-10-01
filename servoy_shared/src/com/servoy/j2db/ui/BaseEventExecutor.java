@@ -184,7 +184,8 @@ public abstract class BaseEventExecutor implements IEventExecutor
 			String formElementChangeCommand = getFormElementChangeCommand();
 			if (formElementChangeCommand != null)
 			{
-				Object o = fireEventCommand(EventType.dataChange, formElementChangeCommand, new Object[] { oldVal, newVal }, changeArgs, saveData, display, false,
+				Object o = fireEventCommand(EventType.dataChange, formElementChangeCommand, new Object[] { oldVal, newVal }, changeArgs, saveData, display,
+					false,
 					MODIFIERS_UNSPECIFIED, true);
 				display.setValueValid(!Boolean.FALSE.equals(o) && !(o instanceof String && ((String)o).length() > 0), oldVal);
 			}
@@ -333,9 +334,9 @@ public abstract class BaseEventExecutor implements IEventExecutor
 		if (actionListener != null)
 		{
 			FormController fc = actionListener.getFormController();
-			if (fc != null && fc.getForm().getOnElementDataChangeMethodID() > 0)
+			if (fc != null && Utils.getAsUUID(fc.getForm().getOnElementDataChangeMethodID(), false) != null)
 			{
-				return Integer.toString(fc.getForm().getOnElementDataChangeMethodID());
+				return fc.getForm().getOnElementDataChangeMethodID();
 			}
 
 		}

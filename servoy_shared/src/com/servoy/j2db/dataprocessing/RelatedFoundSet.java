@@ -16,13 +16,13 @@
  */
 package com.servoy.j2db.dataprocessing;
 
+import static java.util.Arrays.stream;
 
 import static com.servoy.j2db.query.AbstractBaseQuery.deepClone;
 import static java.util.Arrays.stream;
 
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectOutputStream;
-import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -325,11 +325,6 @@ public abstract class RelatedFoundSet extends FoundSet
 			{
 				testException(clientID, re);
 				throw re;
-			}
-			catch (RemoteException e)
-			{
-				testException(clientID, e.getCause());
-				throw new RepositoryException(e);
 			}
 		}
 
@@ -802,13 +797,13 @@ public abstract class RelatedFoundSet extends FoundSet
 				if (remove)
 				{
 					retval = false;
-					//row is not longer part of this related foundset, so remove in myself
+					// row is not longer part of this related foundset, so remove in myself
 					for (int ii = pks.getRowCount() - 1; ii >= 0; ii--)
 					{
 						Object[] pk = pks.getRow(ii);
 						if (RowManager.createPKHashKey(pk).equals(pkHash))
 						{
-							removeRecordInternal(ii);//does fireIntervalRemoved(this,ii,ii);
+							removeRecordInternal(ii); // does fireIntervalRemoved(this, ii, ii);
 							break;
 						}
 					}

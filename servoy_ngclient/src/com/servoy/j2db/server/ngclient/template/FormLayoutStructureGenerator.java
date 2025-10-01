@@ -64,16 +64,16 @@ public class FormLayoutStructureGenerator
 {
 	public static class DesignProperties
 	{
-		int mainContainer;
+		String mainContainerUUID;
 
-		public DesignProperties(int mainContainer)
+		public DesignProperties(String mainContainerUUID)
 		{
-			this.mainContainer = mainContainer;
+			this.mainContainerUUID = mainContainerUUID;
 		}
 
 		public DesignProperties()
 		{
-			this.mainContainer = -1;
+			this.mainContainerUUID = null;
 		}
 	}
 
@@ -145,7 +145,7 @@ public class FormLayoutStructureGenerator
 				writer.print("'");
 
 				ngClass.put("svy-layoutcontainer", true);
-				if (!(container.getAncestor(IRepository.FORMS).getID() == form.getID()))//is this inherited?
+				if (!Utils.equalObjects(container.getAncestor(IRepository.FORMS).getUUID(), form.getUUID()))//is this inherited?
 				{
 					ngClass.put("inheritedElement", true);
 				}
@@ -156,7 +156,7 @@ public class FormLayoutStructureGenerator
 					designClass = isEvenLayoutContainer(container) ? "customDivDesignOdd" : "customDivDesignEven";
 				}
 				highSet = true;
-				if (design.mainContainer != container.getID())
+				if (!container.getUUID().toString().equals(design.mainContainerUUID))
 				{
 					ngClass.put(designClass, "<showWireframe<");//added <> tokens so that we can remove quotes around the values so that angular will evaluate at runtime
 				}
@@ -350,7 +350,7 @@ public class FormLayoutStructureGenerator
 
 	public static boolean hasSameDesignClassAsParent(LayoutContainer container, WebLayoutSpecification spec)
 	{
-		ISupportChilds realParent = container.getExtendsID() > 0 ? PersistHelper.getRealParent(container) : container.getParent();
+		ISupportChilds realParent = container.getExtendsID() != null ? PersistHelper.getRealParent(container) : container.getParent();
 		if (realParent instanceof LayoutContainer)
 		{
 			LayoutContainer parent = (LayoutContainer)realParent;

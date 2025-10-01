@@ -60,7 +60,7 @@ public class TabPanelTest extends AbstractSolutionTest
 	protected void fillTestSolution() throws ServoyException
 	{
 		Form f1 = solution.createNewForm(validator, null, "f1", null, false, new Dimension(600, 400));
-		f1.setNavigatorID(-1);
+		f1.setNavigatorID(Form.NAVIGATOR_NONE);
 		Form f2 = solution.createNewForm(validator, null, "f2", null, false, new Dimension(600, 400));
 		Form f3 = solution.createNewForm(validator, null, "f3", null, false, new Dimension(600, 400));
 		Form f4 = solution.createNewForm(validator, null, "f4", null, false, new Dimension(600, 400));

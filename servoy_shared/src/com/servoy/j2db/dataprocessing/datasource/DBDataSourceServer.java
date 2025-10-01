@@ -37,7 +37,13 @@ import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.Debug;
 
 /**
- * Scope for datasources.db.myserver.
+ * <code>DBDataSourceServer</code> provides runtime access to a database server within Servoy applications,
+ * accessible via <code>datasources.db.&lt;server_name&gt;</code>. This object enables interaction with
+ * database servers, including the ability to define client-specific connections, retrieve server names,
+ * and access tables within the server.
+ *
+ * For further details on configuring connections, refer to the
+ * <a href="https://docs.servoy.com/reference/servoycore/dev-api/datasources/jsconnectiondefinition">JSConnectionDefinition</a> documentation.
  *
  * @author rgansevles
  *
@@ -152,7 +158,7 @@ public class DBDataSourceServer extends DefaultJavaScope implements LazyInitScop
 				return tableNames != null ? tableNames.toArray(new String[tableNames.size()]) : new String[] { };
 			}
 		}
-		catch (RemoteException | RepositoryException e)
+		catch (RepositoryException e)
 		{
 			Debug.error(e);
 		}
@@ -178,10 +184,6 @@ public class DBDataSourceServer extends DefaultJavaScope implements LazyInitScop
 				return new DBDataSourceServer(application, server.getConfig().getDataModelCloneFrom());
 			}
 		}
-		catch (RemoteException e)
-		{
-			Debug.error(e);
-		}
 		catch (RepositoryException e)
 		{
 			Debug.error(e);
@@ -190,9 +192,9 @@ public class DBDataSourceServer extends DefaultJavaScope implements LazyInitScop
 	}
 
 	/**
-	 * Define a client connection for this server, you can configure this DB Server to create connections for this client that are configured by this JSConnection.
-	 * All interaction with the database will go over a connection coming from a specific client pool with that is created for tihs client.
-	 * Things like username,password or connection properties can be adjusted.
+	 * Define a client connection for this server, you can configure the Database Server to create connections for current client using properties of this JSConnectionDefinition.
+	 * All interaction with the database will go over a connection coming from a specific client pool with that is created for this client.
+	 * Things like username, password or connection properties can be adjusted.
 	 *
 	 * @sample
 	 * var conncetionDefinition = datasources.db.example_data.defineClientConnection().setProperty('key', 'value').create();
@@ -212,7 +214,7 @@ public class DBDataSourceServer extends DefaultJavaScope implements LazyInitScop
 				return new JSConnectionDefinition(server, application.getClientID());
 			}
 		}
-		catch (RemoteException | RepositoryException e)
+		catch (RepositoryException e)
 		{
 			Debug.error("Can't define a client connection definiton for " + serverName, e); //$NON-NLS-1$
 		}

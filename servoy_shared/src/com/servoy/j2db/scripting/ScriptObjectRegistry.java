@@ -221,13 +221,15 @@ public class ScriptObjectRegistry
 			return null;
 		}
 		Object key = scope;
+		Scriptable realScope = scope;
 		if (scope == null)
 		{
 			key = NULL_SCOPE;
 		}
 		else
 		{
-			key = ScriptableObject.getTopLevelScope(scope);
+			realScope = ScriptableObject.getTopLevelScope(scope);
+			key = realScope;
 		}
 		Map<Class< ? >, JavaMembers> map = javaMembersCache.get(key);
 		if (map == null)
@@ -238,18 +240,18 @@ public class ScriptObjectRegistry
 		JavaMembers jm = map.get(clss);
 		if (jm == null)
 		{
+			Context.enter();
 			try
 			{
-				Context.enter();
 				InstanceJavaMembers ijm;
 				if (clss != DataException.class)
 				{
-					ijm = new InstanceJavaMembers(scope, clss);
+					ijm = new InstanceJavaMembers(realScope, clss);
 				}
 				else
 				{
 					// ugly workaround to hide the existence of an inherited deprecated method isServoyException (it was tested for existence in JS) and constants
-					ijm = new InstanceJavaMembers(scope, clss)
+					ijm = new InstanceJavaMembers(realScope, clss)
 					{
 						@Override
 						protected void reflectField(Scriptable scope, Field field)
@@ -261,11 +263,6 @@ public class ScriptObjectRegistry
 							}
 						}
 
-						/*
-						 * (non-Javadoc)
-						 *
-						 * @see com.servoy.j2db.scripting.InstanceJavaMembers#isJsMethod(java.lang.String)
-						 */
 						@Override
 						protected boolean isJsMethod(Method method, Class< ? > originalClass)
 						{
@@ -278,21 +275,24 @@ public class ScriptObjectRegistry
 				if (ijm.getFieldIds(false).size() == 0 && ijm.getMethodIds(false).size() == 0 && ijm.getFieldIds(true).size() == 0 &&
 					!ReferenceOnlyInJS.class.isAssignableFrom(clss))
 				{
-					jm = new JavaMembers(scope, clss);
+					jm = new JavaMembers(realScope, clss);
 				}
-				else
+				else if (realScope != null)
 				{
-					if (scope != null)
-					{
-						InstanceJavaMembers.registerClass(scope, clss, ijm);
-					}
+					InstanceJavaMembers.registerClass(realScope, clss, ijm);
 				}
 				map.put(clss, jm);
 			}
 			catch (Throwable e)
 			{
-				// this is throwable to not let the smart client not start when a (plugin) class can;'t be found
-				Debug.error("Error creating java members returning null", e); //$NON-NLS-1$
+				// don't report anything if this exception is a null pointer and the scope is null
+				// this is because its called very likely from the deloper/typecreator that doesn't have a scope
+				// ignore it then if a JavaMember can't be created..
+				if (!(e instanceof NullPointerException && realScope == null))
+				{
+					// this is throwable to not let the smart client not start when a (plugin) class can;'t be found
+					Debug.error("Error creating java members returning null", e); //$NON-NLS-1$
+				}
 			}
 			finally
 			{

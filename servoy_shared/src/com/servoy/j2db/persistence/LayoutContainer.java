@@ -34,6 +34,11 @@ import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.UUID;
 
 /**
+ * Layout containers are used to lay out your form's contents in case of advanced/responsive forms.<br/>
+ * It can contain other layout containers (that it allows) and/or components.<br/><br/>
+ *
+ * There are multiple types of layout containers that have very different behavior; custom layout packages can be installed into solutions - just as component packages - from the Servoy Package Manager.
+ *
  * @author lvostinar
  *
  */
@@ -43,14 +48,14 @@ public class LayoutContainer extends AbstractContainer implements ISupportBounds
 
 	private static final long serialVersionUID = 1L;
 
-	protected LayoutContainer(ISupportChilds parent, int element_id, UUID uuid)
+	protected LayoutContainer(ISupportChilds parent, UUID uuid)
 	{
-		this(IRepository.LAYOUTCONTAINERS, parent, element_id, uuid);
+		this(IRepository.LAYOUTCONTAINERS, parent, uuid);
 	}
 
-	protected LayoutContainer(int type, ISupportChilds parent, int element_id, UUID uuid)
+	protected LayoutContainer(int type, ISupportChilds parent, UUID uuid)
 	{
-		super(type, parent, element_id, uuid);
+		super(type, parent, uuid);
 	}
 
 	/**

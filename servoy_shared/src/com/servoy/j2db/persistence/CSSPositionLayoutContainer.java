@@ -24,7 +24,7 @@ import com.servoy.j2db.util.UUID;
  * @since 2022.09
  *
  */
-public class CSSPositionLayoutContainer extends LayoutContainer implements ISupportCSSPosition
+public class CSSPositionLayoutContainer extends LayoutContainer implements ISupportCSSPosition, ISupportFormElement
 {
 
 	/**
@@ -32,9 +32,9 @@ public class CSSPositionLayoutContainer extends LayoutContainer implements ISupp
 	 * @param element_id
 	 * @param uuid
 	 */
-	protected CSSPositionLayoutContainer(ISupportChilds parent, int element_id, UUID uuid)
+	protected CSSPositionLayoutContainer(ISupportChilds parent, UUID uuid)
 	{
-		super(IRepository.CSSPOS_LAYOUTCONTAINERS, parent, element_id, uuid);
+		super(IRepository.CSSPOS_LAYOUTCONTAINERS, parent, uuid);
 	}
 
 
@@ -49,5 +49,76 @@ public class CSSPositionLayoutContainer extends LayoutContainer implements ISupp
 	public void setCssPosition(CSSPosition arg)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_CSS_POSITION, arg);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.persistence.ISupportFormIndex#setFormIndex(int)
+	 */
+	@Override
+	public void setFormIndex(int arg)
+	{
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_FORMINDEX, arg);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.persistence.ISupportFormIndex#getFormIndex()
+	 */
+	@Override
+	public int getFormIndex()
+	{
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_FORMINDEX).intValue();
+	}
+
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.persistence.ISupportFormIndexAndGroupID#getGroupID()
+	 */
+	@Override
+	public String getGroupID()
+	{
+		return null;
+	}
+
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.persistence.ISupportFormIndexAndGroupID#setGroupID(java.lang.String)
+	 */
+	@Override
+	public void setGroupID(String arg)
+	{
+	}
+
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.persistence.ISupportFormElement#getVisible()
+	 */
+	@Override
+	public boolean getVisible()
+	{
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.persistence.ISupportFormElement#getEnabled()
+	 */
+	@Override
+	public boolean getEnabled()
+	{
+		// TODO Auto-generated method stub
+		return false;
 	}
 }

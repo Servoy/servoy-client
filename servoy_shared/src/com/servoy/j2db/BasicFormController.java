@@ -58,13 +58,13 @@ import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.dataprocessing.IFoundSetListener;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.ISaveConstants;
+import com.servoy.j2db.dataprocessing.ISelectionChangeListener;
 import com.servoy.j2db.dataprocessing.ISwingFoundSet;
 import com.servoy.j2db.dataprocessing.JSDataSet;
 import com.servoy.j2db.dataprocessing.RelatedFoundSet;
 import com.servoy.j2db.dataprocessing.SortColumn;
 import com.servoy.j2db.dataprocessing.ViewFoundSet;
 import com.servoy.j2db.documentation.ServoyDocumented;
-import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.ArgumentType;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IDataProvider;
@@ -75,6 +75,7 @@ import com.servoy.j2db.persistence.MethodTemplate;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.RepositoryHelper;
 import com.servoy.j2db.persistence.ScriptMethod;
+import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.persistence.StaticContentSpecLoader.TypedProperty;
 import com.servoy.j2db.querybuilder.IQueryBuilder;
@@ -95,6 +96,8 @@ import com.servoy.j2db.scripting.ScriptEngine;
 import com.servoy.j2db.scripting.ScriptObjectRegistry;
 import com.servoy.j2db.scripting.SelectedRecordScope;
 import com.servoy.j2db.scripting.SolutionScope;
+import com.servoy.j2db.scripting.info.EVENTS_AGGREGATION_TYPE;
+import com.servoy.j2db.scripting.info.EventType;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.runtime.IRuntimeComponent;
 import com.servoy.j2db.util.Debug;
@@ -106,11 +109,26 @@ import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 
 /**
+ * The <code>BasicFormController</code> manages GUI-based application forms, providing methods for data handling, UI interactions,
+ * and lifecycle event handling.
+ *
+ * ## Functionality
+ * The controller initializes with an application instance, form, and instance name, facilitating operations like loading data,
+ * managing UI elements, and executing lifecycle events. It supports find mode, validation, and state transitions for forms.
+ * Core functionalities include handling on-load, on-show, on-hide, and record-level events like edit, selection, and deletion.
+ *
+ * Advanced features allow printing, sorting, data manipulation, and integration with JavaScript for form customization.
+ * The class includes methods for managing the form's found set, handling changes in record states, and supporting shared data sets.
+ * It also provides utilities for design-time property management, preferred printer configuration, and generating XML data for printing.
+ *
+ * Additionally, the controller incorporates error handling, supports scoped execution of JavaScript functions,
+ * and ensures form integrity during lifecycle transitions such as initialization, destruction, and unloading.
+ *
  * @author jcompagner
  *
  */
 public abstract class BasicFormController
-	implements IFoundSetListener, IFoundSetEventListener, IFormController, ListSelectionListener, TableModelListener, IPrepareForSave
+	implements IFoundSetListener, IFoundSetEventListener, IFormController, ListSelectionListener, TableModelListener, IPrepareForSave, ISelectionChangeListener
 {
 	private static final int PIN_VISIBLE = 1; // 1 is higher prio then 2
 	private static final int PIN_HIDDEN = 2;
@@ -192,6 +210,7 @@ public abstract class BasicFormController
 					((ISwingFoundSet)formModel).getSelectionModel().removeListSelectionListener(this);
 					((ISwingFoundSet)formModel).getSelectionModel().removeFormController(this);
 					((ISwingFoundSet)formModel).removeTableModelListener(this);
+					((ISwingFoundSet)formModel).removeSelectionChangeListener(this);
 					if (formModel instanceof FoundSet) ((FoundSet)formModel).flushAllCachedItems();//to make sure all data is gc'ed
 				}
 				catch (Exception ex)
@@ -215,6 +234,7 @@ public abstract class BasicFormController
 				((ISwingFoundSet)formModel).getSelectionModel().addListSelectionListener(this);
 				((ISwingFoundSet)formModel).getSelectionModel().addFormController(this);
 				((ISwingFoundSet)formModel).addTableModelListener(this);
+				((ISwingFoundSet)formModel).addSelectionChangeListener(this);
 				if (view != null) //it may not yet exist
 				{
 					view.setModel(formModel);
@@ -312,7 +332,7 @@ public abstract class BasicFormController
 
 	public void notifyResized()
 	{
-		if (form.getOnResizeMethodID() > 0)
+		if (form.getOnResizeMethodID() != null)
 		{
 			executeOnResize();
 		}
@@ -344,6 +364,7 @@ public abstract class BasicFormController
 			((ISwingFoundSet)formModel).getSelectionModel().addListSelectionListener(this);
 			((ISwingFoundSet)formModel).getSelectionModel().addFormController(this);
 			((ISwingFoundSet)formModel).addTableModelListener(this);
+			((ISwingFoundSet)formModel).addSelectionChangeListener(this);
 			if (view != null)
 			{
 				view.setModel(formModel);
@@ -438,6 +459,7 @@ public abstract class BasicFormController
 				((ISwingFoundSet)formModel).getSelectionModel().removeListSelectionListener(this);
 				((ISwingFoundSet)formModel).getSelectionModel().removeFormController(this);
 				((ISwingFoundSet)formModel).removeTableModelListener(this);
+				((ISwingFoundSet)formModel).removeSelectionChangeListener(this);
 			}
 
 			if (view != null)
@@ -446,6 +468,53 @@ public abstract class BasicFormController
 			}
 		}
 
+		Map<String, Object> eventMethods = getForm().getCustomEventsMethods();
+		for (String eventName : eventMethods.keySet())
+		{
+			EventType eventType = application.getFlattenedSolution().getEventType(eventName);
+			if (eventType != null)
+			{
+				Object eventUUID = eventMethods.get(eventName);
+				Function function = null;
+				if (eventUUID != null)
+				{
+					ScriptMethod scriptMethod = getApplication().getFlattenedSolution().getScriptMethod(eventUUID.toString());
+					if (scriptMethod != null)
+					{
+						if (scriptMethod.getParent() instanceof Form)
+						{
+							function = getFormScope().getFunctionByName(scriptMethod.getName());
+						}
+						// is it a global method
+						else if (scriptMethod.getParent() instanceof Solution)
+						{
+							if (getApplication().getScriptEngine().getScopesScope()
+								.getGlobalScope(scriptMethod.getScopeName()) instanceof GlobalScope globalScope)
+							{
+								function = globalScope.getFunctionByName(scriptMethod.getName());
+							}
+						}
+						else if (getFormModel() instanceof Scriptable foundsetScope)
+						{
+							Object scopeMethod = foundsetScope.getPrototype().get(scriptMethod.getName(), foundsetScope);
+							if (scopeMethod instanceof Function)
+								function = (Function)scopeMethod;
+						}
+					}
+				}
+				if (function != null)
+				{
+					if (visible)
+					{
+						application.getEventsManager().addListener(eventType, function, IExecutingEnviroment.TOPLEVEL_FORMS + '.' + getName());
+					}
+					else
+					{
+						application.getEventsManager().removeListener(eventType, function, IExecutingEnviroment.TOPLEVEL_FORMS + '.' + getName());
+					}
+				}
+			}
+		}
 		// visibility changed; update selectionMode if necessary
 		pinSelectionModeIfNecessary();
 		return true;
@@ -465,6 +534,15 @@ public abstract class BasicFormController
 		//		{
 		valueChanged(null);//fire value chance because selection does not fire
 		//		}
+	}
+
+	@Override
+	public boolean selectionChange(IRecordInternal[] oldSelection, IRecordInternal[] newSelection)
+	{
+		return !Boolean.FALSE.equals(executeFormMethod(StaticContentSpecLoader.PROPERTY_ONBEFORERECORDSELECTIONMETHODID,
+			new Object[] { oldSelection, newSelection, getJSEvent(formScope,
+				RepositoryHelper.getDisplayName(StaticContentSpecLoader.PROPERTY_ONBEFORERECORDSELECTIONMETHODID.getPropertyName(), Form.class)) },
+			Boolean.TRUE, false, true));
 	}
 
 	public void valueChanged(ListSelectionEvent e)
@@ -636,28 +714,25 @@ public abstract class BasicFormController
 		if (!didOnload)
 		{
 			didOnload = true;
-			if (form.getOnLoadMethodID() > 0)
+			// Set this boolean on true while executing the onload so that
+			// an onload method won't trigger the notify visible before it is finished itself.
+			executingOnLoad = true;
+			try
 			{
-				// Set this boolean on true while executing the onload so that
-				// an onload method won't trigger the notify visible before it is finished itself.
-				executingOnLoad = true;
-				try
-				{
-					Object[] args = new Object[] { getJSEvent(formScope,
-						RepositoryHelper.getDisplayName(StaticContentSpecLoader.PROPERTY_ONLOADMETHODID.getPropertyName(), Form.class)) };
-					executeFormMethod(StaticContentSpecLoader.PROPERTY_ONLOADMETHODID, args, Boolean.FALSE, true, false /* foundset is not yet initialized */);
-				}
-				finally
-				{
-					executingOnLoad = false;
-				}
+				Object[] args = new Object[] { getJSEvent(formScope,
+					RepositoryHelper.getDisplayName(StaticContentSpecLoader.PROPERTY_ONLOADMETHODID.getPropertyName(), Form.class)) };
+				executeFormMethod(StaticContentSpecLoader.PROPERTY_ONLOADMETHODID, args, Boolean.FALSE, true, false /* foundset is not yet initialized */);
+			}
+			finally
+			{
+				executingOnLoad = false;
 			}
 		}
 	}
 
 	private void executeOnShowMethod()
 	{
-		if (!executingOnLoad && form.getOnShowMethodID() > 0)
+		if (!executingOnLoad)
 		{
 			Object[] args = new Object[] { Boolean.valueOf(!didOnShowOnce), getJSEvent(formScope,
 				RepositoryHelper.getDisplayName(StaticContentSpecLoader.PROPERTY_ONSHOWMETHODID.getPropertyName(), Form.class)) };//isFirstTime
@@ -687,12 +762,11 @@ public abstract class BasicFormController
 			if (canHide)
 			{
 				// if we can still hide, call the solution onBeforeHide (if present) to check if the solution allows hide for the form
-				return form.getOnBeforeHideMethodID() == 0 ||
-					!Boolean.FALSE.equals(executeFormMethod(StaticContentSpecLoader.PROPERTY_ONBEFOREHIDEMETHODID,
-						new Object[] { getJSEvent(formScope,
-							RepositoryHelper.getDisplayName(StaticContentSpecLoader.PROPERTY_ONBEFOREHIDEMETHODID.getPropertyName(),
-								Form.class))
-						}, null, true, true));
+				return !Boolean.FALSE.equals(executeFormMethod(StaticContentSpecLoader.PROPERTY_ONBEFOREHIDEMETHODID,
+					new Object[] { getJSEvent(formScope,
+						RepositoryHelper.getDisplayName(StaticContentSpecLoader.PROPERTY_ONBEFOREHIDEMETHODID.getPropertyName(),
+							Form.class))
+					}, null, true, true));
 			}
 			else
 			{
@@ -710,23 +784,13 @@ public abstract class BasicFormController
 	 */
 	private boolean executeOnHideMethod()
 	{
-		return form.getOnHideMethodID() == 0 ||
+		return form.getOnHideMethodID() == null ||
 			!Boolean.FALSE.equals(executeFormMethod(StaticContentSpecLoader.PROPERTY_ONHIDEMETHODID, new Object[] { getJSEvent(formScope,
 				RepositoryHelper.getDisplayName(StaticContentSpecLoader.PROPERTY_ONHIDEMETHODID.getPropertyName(), Form.class)) }, null, true, true));
 	}
 
 	protected void executeOnRecordSelect()
 	{
-		if (form.getTitleText() != null && this == application.getFormManager().getCurrentForm())
-		{
-			// If a dialog is active over the main window, then don't update the application title.
-			if (application.getFormManager().isCurrentTheMainContainer())
-			{
-				String title = form.getTitleText();
-				if (title == null || title.equals("")) title = getName(); //$NON-NLS-1$
-				application.setTitle(title);
-			}
-		}
 		if (getUndoManager() != null) getUndoManager().discardAllEdits();
 		if (isFormVisible)//this is added because many onrecordSelect actions are display dependent (in that case you only want the visible forms to be set) or data action which are likely on the same table so obsolete any way.
 		{
@@ -776,11 +840,11 @@ public abstract class BasicFormController
 		return currentFormExecutingFunctionCount.get() > 0;
 	}
 
-	public Object executeFormMethod(TypedProperty<Integer> methodProperty, Object[] args, Boolean testFindMode, boolean saveData, boolean allowFoundsetMethods)
+	public Object executeFormMethod(TypedProperty<String> methodProperty, Object[] args, Boolean testFindMode, boolean saveData, boolean allowFoundsetMethods)
 	{
 		Object ret = null;
-		Integer id = ((Integer)form.getProperty(methodProperty.getPropertyName()));
-		if (id.intValue() > 0 && formScope != null)
+		String uuid = ((String)form.getProperty(methodProperty.getPropertyName()));
+		if (uuid != null && formScope != null)
 		{
 			FormExecutionState formExecutionState = null;
 			if (getFormUI() instanceof ISupportFormExecutionState)
@@ -795,7 +859,7 @@ public abstract class BasicFormController
 				Scriptable scope = formScope;
 
 				// try form method
-				sName = formScope.getFunctionName(id);
+				sName = formScope.getFunctionName(Utils.getAsUUID(uuid, false));
 				if (sName != null)
 				{
 					function = formScope.getFunctionByName(sName);
@@ -804,14 +868,14 @@ public abstract class BasicFormController
 				if (!(function instanceof Function))
 				{
 					// try global method
-					ScriptMethod scriptMethod = application.getFlattenedSolution().getScriptMethod(id.intValue());
+					ScriptMethod scriptMethod = application.getFlattenedSolution().getScriptMethod(uuid);
 					if (scriptMethod != null)
 					{
 						GlobalScope globalScope = application.getScriptEngine().getScopesScope().getGlobalScope(scriptMethod.getScopeName());
 						if (globalScope != null)
 						{
 							scope = globalScope;
-							sName = globalScope.getFunctionName(id);
+							sName = globalScope.getFunctionName(Utils.getAsUUID(uuid, false));
 							if (sName != null)
 							{
 								function = globalScope.getFunctionByName(sName);
@@ -849,6 +913,13 @@ public abstract class BasicFormController
 				}
 			}
 		}
+		EventType eventType = EventType.getDefaultEvents().get(RepositoryHelper.getDisplayName(methodProperty.getPropertyName(), Form.class));
+		if (eventType != null)
+		{
+			application.getEventsManager().fireListeners(eventType, IExecutingEnviroment.TOPLEVEL_FORMS + '.' + getName(),
+				Utils.arrayMerge(args, Utils.parseJSExpressions(form.getFlattenedMethodArguments(methodProperty.getPropertyName()))),
+				EVENTS_AGGREGATION_TYPE.RETURN_VALUE_BOOLEAN);
+		}
 		return ret;
 	}
 
@@ -879,13 +950,13 @@ public abstract class BasicFormController
 		{
 //			this.requestFocus();
 			String name = cmd;
-			int id = Utils.getAsInteger(cmd);
-			if (id > 0)
+			UUID uuid = Utils.getAsUUID(cmd, false);
+			if (uuid != null)
 			{
-				name = formScope.getFunctionName(new Integer(id));
+				name = formScope.getFunctionName(uuid);
 			}
 
-			if (id <= 0 && ScopesUtils.isVariableScope(name))
+			if (uuid == null && ScopesUtils.isVariableScope(name))
 			{
 				application.reportError(application.getI18NMessage("servoy.formPanel.error.executingMethod", new Object[] { name }), ex); //$NON-NLS-1$
 			}
@@ -910,15 +981,15 @@ public abstract class BasicFormController
 		Scriptable scope = formScope;
 
 		String name = cmd;
-		int id = Utils.getAsInteger(cmd);
-		if (id > 0)
+		UUID uuid = Utils.getAsUUID(cmd, false);
+		if (uuid != null)
 		{
-			name = formScope.getFunctionName(new Integer(id));
+			name = formScope.getFunctionName(uuid);
 		}
 
 		Pair<String, String> nameScope = ScopesUtils.getVariableScope(name);
 		boolean global = nameScope != null && nameScope.getLeft() != null;
-		if (id <= 0 && global)
+		if (uuid == null && global)
 		{
 			name = nameScope.getRight();
 		}
@@ -927,10 +998,10 @@ public abstract class BasicFormController
 			function = formScope.getFunctionByName(name);
 		}
 
-		if (allowFoundsetMethods && !global && function == null && formModel instanceof FoundSet) // TODO foundset methods for ViewFoundSet?
+		if (allowFoundsetMethods && uuid != null && !global && function == null && formModel instanceof FoundSet) // TODO foundset methods for ViewFoundSet?
 		{
 			// try foundset method
-			ScriptMethod scriptMethod = application.getFlattenedSolution().getScriptMethod(id);
+			ScriptMethod scriptMethod = application.getFlattenedSolution().getScriptMethod(uuid.toString());
 			if (scriptMethod != null)
 			{
 				name = scriptMethod.getName();
@@ -945,9 +1016,9 @@ public abstract class BasicFormController
 		if (function == null || function == Scriptable.NOT_FOUND)
 		{
 			GlobalScope globalScope = null;
-			if (id > 0)
+			if (uuid != null)
 			{
-				ScriptMethod scriptMethod = application.getFlattenedSolution().getScriptMethod(id);
+				ScriptMethod scriptMethod = application.getFlattenedSolution().getScriptMethod(uuid.toString());
 				if (scriptMethod != null)
 				{
 					globalScope = application.getScriptEngine().getScopesScope().getGlobalScope(scriptMethod.getScopeName());
@@ -960,9 +1031,9 @@ public abstract class BasicFormController
 			if (globalScope != null)
 			{
 				scope = globalScope;
-				if (id > 0)
+				if (uuid != null)
 				{
-					name = globalScope.getFunctionName(new Integer(id));
+					name = globalScope.getFunctionName(uuid);
 				}
 				function = globalScope.getFunctionByName(name);
 			}
@@ -1150,7 +1221,10 @@ public abstract class BasicFormController
 	public void destroy()
 	{
 		SolutionScope solScope = application.getScriptEngine().getSolutionScope();
-		((CreationalPrototype)solScope.get("forms", solScope)).removeFormPanel(this); //$NON-NLS-1$
+		if (!solScope.isDestroyed())
+		{
+			((CreationalPrototype)solScope.get("forms", solScope)).removeFormPanel(this); //$NON-NLS-1$
+		}
 
 		if (scriptableForm != null)
 		{
@@ -1168,13 +1242,11 @@ public abstract class BasicFormController
 
 	public void unload()
 	{
-		if (form.getOnUnLoadMethodID() > 0)
-		{
-			executeFormMethod(StaticContentSpecLoader.PROPERTY_ONUNLOADMETHODID,
-				new Object[] { getJSEvent(formScope,
-					RepositoryHelper.getDisplayName(StaticContentSpecLoader.PROPERTY_ONUNLOADMETHODID.getPropertyName(), Form.class)) },
-				Boolean.TRUE, true, true);
-		}
+		executeFormMethod(StaticContentSpecLoader.PROPERTY_ONUNLOADMETHODID,
+			new Object[] { getJSEvent(formScope,
+				RepositoryHelper.getDisplayName(StaticContentSpecLoader.PROPERTY_ONUNLOADMETHODID.getPropertyName(), Form.class)) },
+			Boolean.TRUE, true, true);
+
 		application.getFoundSetManager().getEditRecordList().removePrepareForSave(this);
 		((FoundSetManager)application.getFoundSetManager()).removeFoundSetListener(this);
 
@@ -1184,6 +1256,7 @@ public abstract class BasicFormController
 			((ISwingFoundSet)formModel).getSelectionModel().removeFormController(this);
 			//			formModel.removeEditListener(this);
 			((ISwingFoundSet)formModel).removeTableModelListener(this);
+			((ISwingFoundSet)formModel).removeSelectionChangeListener(this);
 			if (formModel instanceof FoundSet) ((FoundSet)formModel).flushAllCachedItems();//to make sure all data is gc'ed
 		}
 		setFormModelInternal(null);
@@ -1964,7 +2037,7 @@ public abstract class BasicFormController
 
 	public void find()
 	{
-		if (form.getOnFindCmdMethodID() == 0)
+		if (form.getOnFindCmdMethodID() == null)
 		{
 			try
 			{
@@ -1984,7 +2057,7 @@ public abstract class BasicFormController
 
 	public void printPreview()//called by cmd
 	{
-		if (form.getOnPrintPreviewCmdMethodID() == 0)
+		if (form.getOnPrintPreviewCmdMethodID() == null)
 		{
 			PrinterJob printerJob = null;//if null it uses the javaxp.printing PrinterJob.getPrinterJob();
 			printPreview(true, false, 100, printerJob);
@@ -1997,7 +2070,7 @@ public abstract class BasicFormController
 
 	public int performFind(final boolean clear, final boolean reduce, final boolean showDialogOnNoResults)
 	{
-		if (form.getOnSearchCmdMethodID() <= 0) //'-none-' has no meaning for onSearchCMD
+		if (form.getOnSearchCmdMethodID() == null) //'-none-' has no meaning for onSearchCMD
 		{
 			try
 			{
@@ -2032,7 +2105,7 @@ public abstract class BasicFormController
 
 	public void loadAllRecords()
 	{
-		if (form.getOnShowAllRecordsCmdMethodID() == 0)
+		if (form.getOnShowAllRecordsCmdMethodID() == null)
 		{
 			try
 			{
@@ -2083,7 +2156,7 @@ public abstract class BasicFormController
 
 	public void showSortDialog()//this one is called by the cmd
 	{
-		if (form.getOnSortCmdMethodID() == 0)
+		if (form.getOnSortCmdMethodID() == null)
 		{
 			showSortDialog(null);
 		}
@@ -2095,7 +2168,7 @@ public abstract class BasicFormController
 
 	public void showOmittedRecords()
 	{
-		if (form.getOnShowOmittedRecordsCmdMethodID() == 0)
+		if (form.getOnShowOmittedRecordsCmdMethodID() == null)
 		{
 			try
 			{
@@ -2114,7 +2187,7 @@ public abstract class BasicFormController
 
 	public void invertRecords()
 	{
-		if (form.getOnInvertRecordsCmdMethodID() == 0)
+		if (form.getOnInvertRecordsCmdMethodID() == null)
 		{
 			try
 			{
@@ -2133,7 +2206,7 @@ public abstract class BasicFormController
 
 	public void omitRecord()
 	{
-		if (form.getOnOmitRecordCmdMethodID() == 0)
+		if (form.getOnOmitRecordCmdMethodID() == null)
 		{
 			try
 			{
@@ -2152,7 +2225,7 @@ public abstract class BasicFormController
 
 	public boolean deleteRecord()
 	{
-		if ((formModel != null && formModel.isInFindMode()) || form.getOnDeleteRecordCmdMethodID() == 0)
+		if ((formModel != null && formModel.isInFindMode()) || form.getOnDeleteRecordCmdMethodID() == null)
 		{
 			try
 			{
@@ -2169,7 +2242,7 @@ public abstract class BasicFormController
 
 	public void newRecord()
 	{
-		if ((formModel != null && formModel.isInFindMode()) || form.getOnNewRecordCmdMethodID() == 0)
+		if ((formModel != null && formModel.isInFindMode()) || form.getOnNewRecordCmdMethodID() == null)
 		{
 			try
 			{
@@ -2189,7 +2262,7 @@ public abstract class BasicFormController
 
 	public void duplicateRecord()
 	{
-		if ((formModel != null && formModel.isInFindMode()) || form.getOnDuplicateRecordCmdMethodID() == 0)
+		if ((formModel != null && formModel.isInFindMode()) || form.getOnDuplicateRecordCmdMethodID() == null)
 		{
 			try
 			{
@@ -2208,7 +2281,7 @@ public abstract class BasicFormController
 
 	public boolean deleteAllRecords()
 	{
-		if (form.getOnDeleteAllRecordsCmdMethodID() == 0)
+		if (form.getOnDeleteAllRecordsCmdMethodID() == null)
 		{
 			int but = JOptionPane.showConfirmDialog((Component)getFormUI(), application.getI18NMessage("servoy.formPanel.deleteall.warning"), //$NON-NLS-1$
 				application.getI18NMessage("servoy.formPanel.deleteall.text"), JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE); //$NON-NLS-1$
@@ -2230,7 +2303,6 @@ public abstract class BasicFormController
 		}
 		return false;
 	}
-
 
 	protected boolean deleteAllRecordsImpl() throws ServoyException
 	{
@@ -2269,11 +2341,11 @@ public abstract class BasicFormController
 		return false;
 	}
 
-	protected boolean omitRecordImpl() throws ServoyException
+	protected boolean omitRecordImpl()
 	{
 		if (formModel != null && formModel.getTable() == null || !(formModel instanceof FoundSet))
 		{
-			getApplication().reportJSWarning("ommit fails because of an invalid table on form " + getName());
+			getApplication().reportJSWarning("omit fails because of an invalid table on form " + getName());
 			return false;
 		}
 		checkInitialized();
@@ -2499,7 +2571,7 @@ public abstract class BasicFormController
 
 	public Map<String, Object> getDesignProperties()
 	{
-		Map<String, Object> designProperties = ((AbstractBase)getForm()).getMergedCustomDesignTimeProperties();
+		Map<String, Object> designProperties = getForm().getMergedCustomDesignTimeProperties();
 		Map<String, Object> parsedMap = new JSMap<>();
 
 		designProperties.entrySet().forEach(entry -> {
@@ -2518,11 +2590,16 @@ public abstract class BasicFormController
 		this.pageFormat = pageFormat;
 	}
 
-	//Place holder class for the JavaScript FromController obj, all javascript calls must be delegated to the FormController
-	//It's a pity that this class can't be a inner class, prohibit by JS calling structure(delegation would then not needed)
+	/**
+	 * <p>The controller represents a runtime form instance (<code>FormController</code>) and provides methods for manipulating forms programmatically.</p>
+	 * <p>It includes properties like <code>enabled</code>, <code>readOnly</code>, and <code>view</code> to control form behavior and appearance, and a variety of methods to manage data, set focus, and control the form’s user interface dynamically.</p>
+	 * <p>Functions like <code>find()</code> and <code>search()</code> enable advanced data querying capabilities.</p>
+	 * <p>All javascript calls must be delegated to the FormController</p>
+	 */
 	@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "controller", scriptingName = "controller")
 	public static class JSForm implements IJSController
 	{
+		//It's a pity that this class can't be a inner class, prohibit by JS calling structure(delegation would then not needed)
 		private BasicFormController formController;
 
 		public JSForm()//required by JS lib, but never called by us.
@@ -3668,14 +3745,17 @@ public abstract class BasicFormController
 		 * Gets or sets the enabled state of a form; also known as "grayed-out".
 		 *
 		 * Notes:
-		 * -A disabled element(s) cannot be selected by clicking the form.
-		 * -The disabled "grayed" color is dependent on the LAF set in the Servoy Smart Client Application Preferences.
+		 * <ul>
+		 *   <li>A disabled element(s) cannot be selected by clicking the form.</li>
+		 * </ul>
 		 *
 		 * @sample
 		 * //gets the enabled state of the form
 		 * var state = %%prefix%%controller.enabled;
 		 * //enables the form for input
 		 * %%prefix%%controller.enabled = true;
+		 *
+		 * @return true if the form is enabled (not grayed-out), false otherwise.
 		 */
 		@JSGetter
 		public boolean getEnabled()
@@ -3701,6 +3781,8 @@ public abstract class BasicFormController
 		 * var state = %%prefix%%controller.readOnly;
 		 * //sets the read-only state of the form
 		 * %%prefix%%controller.readOnly = true
+		 *
+		 * @return true if the form is read-only (not editable), false otherwise.
 		 */
 		public boolean js_getReadOnly()
 		{
@@ -3724,6 +3806,8 @@ public abstract class BasicFormController
 		 * 	columnDateDataProvider = '31-12-2010|dd-MM-yyyy'
 		 * 	%%prefix%%controller.search()
 		 * }
+		 *
+		 * @return true if the find mode was successfully entered, false otherwise.
 		 */
 		public boolean js_find() throws ServoyException
 		{
@@ -3736,6 +3820,8 @@ public abstract class BasicFormController
 		 * @sample
 		 * var recordCount = %%prefix%%controller.search();
 		 * //var recordCount = %%prefix%%controller.search(false,false); //to extend foundset
+		 *
+		 * @return the number of records found matching the search criteria.
 		 */
 		public int js_search() throws ServoyException
 		{
@@ -4273,6 +4359,8 @@ public abstract class BasicFormController
 		 * %%prefix%%controller.view = JSForm.RECORD_VIEW;
 		 * //sets the form to List view
 		 * %%prefix%%controller.view = JSForm.LIST_VIEW;
+		 *
+		 * @return the current view type of the form as an integer (e.g., RECORD_VIEW, LIST_VIEW).
 		 */
 		public int js_getView()
 		{
@@ -4698,6 +4786,8 @@ public abstract class BasicFormController
 		 * var prop = forms.orders.controller.getDesignTimeProperty('myprop')
 		 *
 		 * @param key the property name
+		 *
+		 * @return the value of the specified design-time property, or null if the property is not set.
 		 */
 		public Object js_getDesignTimeProperty(String key)
 		{
@@ -4709,6 +4799,8 @@ public abstract class BasicFormController
 		 *
 		 * @sample
 		 * var prop = fforms.orders.controller.getDesignProperties()
+		 *
+		 * @return a map containing all design-time properties of the form.
 		 */
 		@JSFunction
 		public Map<String, Object> getDesignProperties()

@@ -36,30 +36,16 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
-
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpSession;
-import javax.servlet.http.HttpSessionContext;
-import javax.websocket.CloseReason;
-import javax.websocket.EncodeException;
-import javax.websocket.Extension;
-import javax.websocket.MessageHandler;
-import javax.websocket.MessageHandler.Partial;
-import javax.websocket.MessageHandler.Whole;
-import javax.websocket.RemoteEndpoint.Async;
-import javax.websocket.RemoteEndpoint.Basic;
-import javax.websocket.Session;
-import javax.websocket.WebSocketContainer;
 
 import org.apache.commons.io.FilenameUtils;
 import org.junit.After;
@@ -101,6 +87,7 @@ import com.servoy.j2db.scripting.ScriptEngine;
 import com.servoy.j2db.server.ngclient.DefaultComponentPropertiesProvider;
 import com.servoy.j2db.server.ngclient.FormElementHelper;
 import com.servoy.j2db.server.ngclient.INGClientWindow;
+import com.servoy.j2db.server.ngclient.INGFormElement;
 import com.servoy.j2db.server.ngclient.NGClient;
 import com.servoy.j2db.server.ngclient.NGClientWebsocketSession;
 import com.servoy.j2db.server.ngclient.NGClientWindow;
@@ -112,6 +99,19 @@ import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
+
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.http.HttpSession;
+import jakarta.websocket.CloseReason;
+import jakarta.websocket.EncodeException;
+import jakarta.websocket.Extension;
+import jakarta.websocket.MessageHandler;
+import jakarta.websocket.MessageHandler.Partial;
+import jakarta.websocket.MessageHandler.Whole;
+import jakarta.websocket.RemoteEndpoint.Async;
+import jakarta.websocket.RemoteEndpoint.Basic;
+import jakarta.websocket.Session;
+import jakarta.websocket.WebSocketContainer;
 
 
 /**
@@ -170,6 +170,12 @@ public abstract class AbstractSolutionTest extends Log4JToConsoleTest
 		public Collection<Procedure> getProcedures() throws RepositoryException, RemoteException
 		{
 			return Collections.emptySet();
+		}
+
+		@Override
+		public Procedure getProcedure(String name, Object[] args)
+		{
+			return null;
 		}
 
 		public List<ColumnName> getTenantColumns() throws RepositoryException, RemoteException
@@ -256,13 +262,15 @@ public abstract class AbstractSolutionTest extends Log4JToConsoleTest
 	protected IValidateName validator = new IValidateName()
 	{
 		@Override
-		public void checkName(String nameToCheck, int skip_element_id, ValidatorSearchContext searchContext, boolean sqlRelated) throws RepositoryException
+		public void checkName(String nameToCheck, UUID skip_element_uuid, ValidatorSearchContext searchContext, boolean sqlRelated) throws RepositoryException
 		{
 		}
 	};
 	protected Solution solution;
 	protected TestNGClient client;
 	protected TestNGClientEndpoint endpoint;
+	protected final Map<String, Map<String, String>> relationNamesAsSentToClient = new HashMap<>();
+
 
 	public AbstractSolutionTest()
 	{
@@ -445,7 +453,7 @@ public abstract class AbstractSolutionTest extends Log4JToConsoleTest
 		{
 			ApplicationServerRegistry.setApplicationServerSingleton(new TestApplicationServer(tr));
 			UUID uuid = UUID.randomUUID();
-			final RootObjectMetaData metadata = tr.createRootObjectMetaData(tr.getElementIdForUUID(uuid), uuid, "Test", IRepository.SOLUTIONS, 1, 1);
+			final RootObjectMetaData metadata = tr.createRootObjectMetaData(uuid, "Test", IRepository.SOLUTIONS, 1, 1);
 
 			solution = (Solution)tr.createRootObject(metadata);
 			tr.cacheRootObject(solution);
@@ -469,6 +477,18 @@ public abstract class AbstractSolutionTest extends Log4JToConsoleTest
 				{
 					return new NGClientWindow(this, windowNr, windowName)
 					{
+						@Override
+						public String registerAllowedRelation(String relationName, INGFormElement element)
+						{
+							String result = super.registerAllowedRelation(relationName, element);
+							if (!relationNamesAsSentToClient.containsKey(relationName))
+							{
+								relationNamesAsSentToClient.put(relationName, new HashMap<>());
+							}
+							relationNamesAsSentToClient.get(relationName).put(element.getName(), result);
+							return result;
+						}
+
 						@Override
 						public long getLastPingTime()
 						{
@@ -647,11 +667,6 @@ public abstract class AbstractSolutionTest extends Log4JToConsoleTest
 			return 0;
 		}
 
-		@Override
-		public HttpSessionContext getSessionContext()
-		{
-			return null;
-		}
 
 		@Override
 		public Object getAttribute(String name)
@@ -659,22 +674,11 @@ public abstract class AbstractSolutionTest extends Log4JToConsoleTest
 			return attributes.get(name);
 		}
 
-		@Override
-		public Object getValue(String name)
-		{
-			return null;
-		}
 
 		@Override
 		public Enumeration<String> getAttributeNames()
 		{
 			return Collections.enumeration(attributes.keySet());
-		}
-
-		@Override
-		public String[] getValueNames()
-		{
-			return null;
 		}
 
 		@Override
@@ -684,19 +688,9 @@ public abstract class AbstractSolutionTest extends Log4JToConsoleTest
 		}
 
 		@Override
-		public void putValue(String name, Object value)
-		{
-		}
-
-		@Override
 		public void removeAttribute(String name)
 		{
 			attributes.remove(name);
-		}
-
-		@Override
-		public void removeValue(String name)
-		{
 		}
 
 		@Override
@@ -884,7 +878,7 @@ public abstract class AbstractSolutionTest extends Log4JToConsoleTest
 
 	public static class TestBasic implements Basic
 	{
-		Queue<String> sentTexts = new LinkedList<String>();
+		LinkedList<String> sentTexts = new LinkedList<String>();
 
 		@Override
 		public void setBatchingAllowed(boolean arg0) throws IOException
@@ -924,9 +918,9 @@ public abstract class AbstractSolutionTest extends Log4JToConsoleTest
 			sentTexts.add(arg0);
 		}
 
-		public Queue<String> getAndClearSentTextMessages()
+		public LinkedList<String> getAndClearSentTextMessages()
 		{
-			Queue<String> tmp = sentTexts;
+			LinkedList<String> tmp = sentTexts;
 			sentTexts = new LinkedList<String>();
 			return tmp;
 		}

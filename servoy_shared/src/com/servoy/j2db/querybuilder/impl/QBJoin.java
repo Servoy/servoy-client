@@ -42,6 +42,19 @@ import com.servoy.j2db.scripting.IConstantsObject;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 
 /**
+ * <p>The <code>QBJoin</code> class simplifies the process of creating and managing SQL joins within
+ * the <code>QBSelect</code> query builder framework. It provides tools to handle complex relationships
+ * between tables, enabling construction of queries with various join types, such as
+ * <code>LEFT OUTER JOIN</code> or <code>INNER JOIN</code>. By leveraging the class, developers can
+ * define join conditions and access columns from related tables for select or where clauses.</p>
+ *
+ * <p>The class supports dynamic query building with its integration of parent and root query references,
+ * ensuring flexibility and scalability in query design. It also allows for annotating joins with comments,
+ * aiding in query documentation and readability.</p>
+ *
+ * <p>For further details on constructing and executing queries, refer to the
+ * <a href="https://docs.servoy.com/reference/servoycore/dev-api/database-manager/qbselect">QBSelect documentation</a>.</p>
+ *
  * @author rgansevles
  *
  */
@@ -75,7 +88,7 @@ public class QBJoin extends QBTableClause implements IQueryBuilderJoin, IConstan
 	/**
 	 * Returns the join type, one of {@link IQueryBuilderJoin#LEFT_OUTER_JOIN}, {@link IQueryBuilderJoin#INNER_JOIN}, {@link IQueryBuilderJoin#RIGHT_OUTER_JOIN}, {@link IQueryBuilderJoin#FULL_JOIN}
 	 *
-	 * @return joinType.
+	 * @return the join type, one of IQueryBuilderJoin
 	 */
 	@JSGetter
 	public int getJoinType()
@@ -95,6 +108,8 @@ public class QBJoin extends QBTableClause implements IQueryBuilderJoin, IConstan
 	 * var query = datasources.db.example_data.orders.createSelect();
 	 * query.result.add(query.joins.orders_to_orderlines.columns.price)
 	 * query.joins.orders_to_orderlines.comment = 'Join comment'
+	 *
+	 * @return the comment of the join.
 	 */
 	@JSGetter
 	public String getComment()
@@ -121,8 +136,10 @@ public class QBJoin extends QBTableClause implements IQueryBuilderJoin, IConstan
 	 *
 	 * query.where.add(join2.columns.name.eq('john'))
 	 * foundset.loadRecords(query)
+	 *
+	 * @return the logical condition for the join.
 	 */
-	@JSReadonlyProperty
+	@JSReadonlyProperty(debuggerRepresentation = "Query join on clause")
 	public QBLogicalCondition on()
 	{
 		if (on == null)
@@ -162,41 +179,51 @@ public class QBJoin extends QBTableClause implements IQueryBuilderJoin, IConstan
 
 
 	@Override
-	protected QBColumn createColumn(String name) throws RepositoryException
+	protected QBColumn createColumn(String name, boolean throwOnError) throws RepositoryException
 	{
 		ITableReference foreignTableReference = join.getForeignTableReference();
-		if (foreignTableReference instanceof TableExpression)
+		if (foreignTableReference instanceof TableExpression tableExpression)
 		{
 
-			ITable joinTable = getRoot().getTable(foreignTableReference.getTable().getDataSource());
+			ITable joinTable = getRoot().getTable(tableExpression.getTable().getDataSource());
 			if (joinTable == null)
 			{
-				throw new RepositoryException("Cannot find column '" + name + "' in data source '" + foreignTableReference.getTable().getDataSource() + "'");
+				if (throwOnError)
+				{
+					throw new RepositoryException("Cannot find column '" + name + "' in data source '" + tableExpression.getTable().getDataSource() + "'");
+				}
+				return null;
 			}
 
 			Column col = joinTable.getColumn(name);
 			if (col == null)
 			{
-				throw new RepositoryException("Cannot find column '" + name + "' in data source '" + foreignTableReference.getTable().getDataSource() + "'");
+				if (throwOnError)
+				{
+					throw new RepositoryException("Cannot find column '" + name + "' in data source '" + tableExpression.getTable().getDataSource() + "'");
+				}
+				return null;
 			}
 
-			return new QBColumn(getRoot(), this,
-				new QueryColumn(getQueryTable(), col.getID(), col.getSQLName(), col.getType(), col.getLength(), col.getScale(), col.getNativeTypename(),
-					col.getFlags(), false));
+			return new QBColumnImpl(getRoot(), this, col.queryColumn(getQueryTable()));
 		}
-		else if (foreignTableReference instanceof DerivedTable)
+		if (foreignTableReference instanceof DerivedTable derivedTable)
 		{
-			QuerySelect query = ((DerivedTable)foreignTableReference).getQuery();
+			QuerySelect query = derivedTable.getQuery();
 			for (IQuerySelectValue qcol : query.getColumns())
 			{
 				if (name.equals(qcol.getAliasOrName()) || name.equals(generateNormalizedNonReservedOSName(qcol.getColumnName())))
 				{
-					return new QBColumn(getRoot(), this, new QueryColumn(foreignTableReference.getTable(), generateNormalizedNonReservedOSName(name)));
+					return new QBColumnImpl(getRoot(), this, new QueryColumn(derivedTable.getTable(), generateNormalizedNonReservedOSName(name)));
 				}
 			}
 		}
 
-		throw new RepositoryException("Cannot find column '" + name + "' in source '" + foreignTableReference + "'");
+		if (throwOnError)
+		{
+			throw new RepositoryException("Cannot find column '" + name + "' in source '" + foreignTableReference + "'");
+		}
+		return null;
 	}
 
 

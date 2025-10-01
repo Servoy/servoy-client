@@ -32,10 +32,24 @@ import com.servoy.j2db.querybuilder.IQueryBuilderCondition;
 import com.servoy.j2db.util.Pair;
 
 /**
+ * <p>The <code>QBCase</code> class is a utility for constructing SQL <code>CASE</code> expressions
+ * within a <code>QBSelect</code> query. It allows for dynamic conditional logic by specifying
+ * <code>WHEN</code> clauses and an optional <code>ELSE</code> clause to handle unmatched conditions.
+ * This enables advanced query customizations, such as transforming values or applying conditional
+ * calculations.</p>
+ *
+ * <p>The <code>when</code> method adds conditions to the <code>CASE</code> expression, while the
+ * <code>else</code> method sets the default value for cases where no conditions are satisfied. The
+ * <code>parent</code> and <code>root</code> properties provide access to the query's parent table
+ * clause or the root query, allowing seamless integration with other query builder components.</p>
+ *
+ * <p>For more information about constructing and executing queries, refer to
+ * <a href="https://docs.servoy.com/reference/servoycore/dev-api/database-manager/qbselect">QBSelect</a> section of this documentation.</p>
+ *
  * @author rgansevles
  *
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "QBCase")
+@ServoyDocumented(category = ServoyDocumented.RUNTIME)
 public class QBCase extends QBPart implements IQueryBuilderCase
 {
 	private final List<Pair<QBCondition, Object>> whenThen = new ArrayList<>();
@@ -51,6 +65,8 @@ public class QBCase extends QBPart implements IQueryBuilderCase
 	 * @param condition The condition.
 	 *
 	 * @sampleas com.servoy.j2db.querybuilder.impl.QBSelect#js_case()
+	 *
+	 * @return A QBCaseWhen instance, allowing you to specify the then value for the provided when condition.
 	 */
 	@JSFunction
 	public QBCaseWhen when(IQueryBuilderCondition condition)
@@ -64,8 +80,10 @@ public class QBCase extends QBPart implements IQueryBuilderCase
 	 * @param value The value.
 	 *
 	 * @sampleas com.servoy.j2db.querybuilder.impl.QBSelect#js_case()
+	 *
+	 * @return A QBColumn that defines the value to return if none of the when clauses are satisfied.
 	 */
-	public QBSearchedCaseExpression jsFunction_else(Object value)
+	public QBGenericColumnBase jsFunction_else(Object value)
 	{
 		return qelse(value);
 	}
@@ -75,14 +93,14 @@ public class QBCase extends QBPart implements IQueryBuilderCase
 	 */
 	@Deprecated
 	@JSFunction
-	public QBSearchedCaseExpression elseValue(Object value)
+	public QBGenericColumnBase elseValue(Object value)
 	{
 		return qelse(value);
 	}
 
-	public QBSearchedCaseExpression qelse(Object value)
+	public QBGenericColumnBase qelse(Object value)
 	{
-		return new QBSearchedCaseExpression(getRoot(), getParent(), buildSearchedCaseExpression(getRoot(), whenThen, value));
+		return new QBColumnImpl(getRoot(), getParent(), buildSearchedCaseExpression(getRoot(), whenThen, value));
 	}
 
 	QBCase withWhenThen(IQueryBuilderCondition whenCondition, Object thenValue)
@@ -98,5 +116,11 @@ public class QBCase extends QBPart implements IQueryBuilderCase
 			.collect(toList());
 
 		return new QuerySearchedCaseExpression(qWhenThen, root.createOperand(elseValue, null, 0), null);
+	}
+
+	@Override
+	public String toString()
+	{
+		return "QBCase(Helper class for creating case expressions)";
 	}
 }

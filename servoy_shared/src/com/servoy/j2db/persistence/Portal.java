@@ -38,9 +38,9 @@ public class Portal extends BaseComponent implements ISupportFormElements, ISupp
 	/**
 	 * Constructor I
 	 */
-	protected Portal(ISupportChilds parent, int element_id, UUID uuid)
+	protected Portal(ISupportChilds parent, UUID uuid)
 	{
-		super(IRepository.PORTALS, parent, element_id, uuid);
+		super(IRepository.PORTALS, parent, uuid);
 	}
 
 	/*
@@ -431,13 +431,13 @@ public class Portal extends BaseComponent implements ISupportFormElements, ISupp
 	 * The method that is triggered when (non Design Mode) dragging occurs.
 	 */
 	@ServoyClientSupport(ng = false, wc = true, sc = true)
-	public int getOnDragMethodID()
+	public String getOnDragMethodID()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONDRAGMETHODID).intValue();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONDRAGMETHODID);
 	}
 
 	@ServoyClientSupport(ng = false, wc = true, sc = true)
-	public void setOnDragMethodID(int arg)
+	public void setOnDragMethodID(String arg)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONDRAGMETHODID, arg);
 	}
@@ -446,13 +446,13 @@ public class Portal extends BaseComponent implements ISupportFormElements, ISupp
 	 * The method that is triggered when (non Design Mode) dragging end occurs.
 	 */
 	@ServoyClientSupport(ng = false, wc = true, sc = true)
-	public int getOnDragEndMethodID()
+	public String getOnDragEndMethodID()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONDRAGENDMETHODID).intValue();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONDRAGENDMETHODID);
 	}
 
 	@ServoyClientSupport(ng = false, wc = true, sc = true)
-	public void setOnDragEndMethodID(int arg)
+	public void setOnDragEndMethodID(String arg)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONDRAGENDMETHODID, arg);
 	}
@@ -461,13 +461,13 @@ public class Portal extends BaseComponent implements ISupportFormElements, ISupp
 	 * The method that is triggered when (non Design Mode) dragging over a component occurs.
 	 */
 	@ServoyClientSupport(ng = false, wc = true, sc = true)
-	public int getOnDragOverMethodID()
+	public String getOnDragOverMethodID()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONDRAGOVERMETHODID).intValue();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONDRAGOVERMETHODID);
 	}
 
 	@ServoyClientSupport(ng = false, wc = true, sc = true)
-	public void setOnDragOverMethodID(int arg)
+	public void setOnDragOverMethodID(String arg)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONDRAGOVERMETHODID, arg);
 	}
@@ -476,19 +476,19 @@ public class Portal extends BaseComponent implements ISupportFormElements, ISupp
 	 * The method that is triggered when (non Design Mode) dropping occurs.
 	 */
 	@ServoyClientSupport(ng = false, wc = true, sc = true)
-	public int getOnDropMethodID()
+	public String getOnDropMethodID()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONDROPMETHODID).intValue();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONDROPMETHODID);
 	}
 
 	@ServoyClientSupport(ng = false, wc = true, sc = true)
-	public void setOnDropMethodID(int arg)
+	public void setOnDropMethodID(String arg)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONDROPMETHODID, arg);
 	}
 
 	@ServoyClientSupport(ng = false, wc = true, sc = true)
-	public void setOnRenderMethodID(int arg)
+	public void setOnRenderMethodID(String arg)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONRENDERMETHODID, arg);
 	}
@@ -497,9 +497,9 @@ public class Portal extends BaseComponent implements ISupportFormElements, ISupp
 	 * The method that is executed when the component is rendered.
 	 */
 	@ServoyClientSupport(ng = false, wc = true, sc = true)
-	public int getOnRenderMethodID()
+	public String getOnRenderMethodID()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONRENDERMETHODID).intValue();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONRENDERMETHODID);
 	}
 
 	public boolean isMobileInsetList()

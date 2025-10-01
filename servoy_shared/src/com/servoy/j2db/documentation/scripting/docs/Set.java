@@ -22,8 +22,9 @@ import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
 
 /**
- * Dummy class for listing methods for JavaScript types in a manner that
- * suits our documentation generator.
+ * The Set object lets you store unique values of any type, whether primitive values or object references.
+ *
+ * For more information see: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Set">Set (MDN)</a>.
  *
  * @author jcompagner
  */
@@ -77,6 +78,8 @@ public class Set
 	 * @sample var success = set.delete(key);
 	 *
 	 * @param value
+	 *
+	 * @return True if the specified element was successfully removed from the Set; false otherwise.
 	 */
 	@JSFunction
 	public boolean delete(Object value)
@@ -116,6 +119,8 @@ public class Set
 	 * @sample var containsKey = set.has(key);
 	 *
 	 * @param key
+	 *
+	 * @return True if the Set contains an element with the specified key; false otherwise.
 	 *
 	 */
 	public boolean js_has(Object key)

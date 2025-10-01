@@ -17,7 +17,6 @@
 package com.servoy.j2db.smart.dataui;
 
 
-import java.applet.Applet;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Graphics;
@@ -37,6 +36,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.swing.JComponent;
 import javax.swing.JList;
@@ -160,7 +160,8 @@ public class DataRenderer extends StyledEnablePanel implements ListCellRenderer,
 		{
 			this.yOffset = clientDesignYOffset;
 			Form form = formController.getForm();
-			if (form.getOnDragMethodID() > 0 || form.getOnDragEndMethodID() > 0 || form.getOnDragOverMethodID() > 0 || form.getOnDropMethodID() > 0)
+			if (form.getOnDragMethodID() != null || form.getOnDragEndMethodID() != null || form.getOnDragOverMethodID() != null ||
+				form.getOnDropMethodID() != null)
 			{
 				this.dragNdropController = formController;
 				// remove drag&drop from children as it is handled by the data renderer
@@ -234,14 +235,6 @@ public class DataRenderer extends StyledEnablePanel implements ListCellRenderer,
 			dataAdapterList.destroy();
 			dataAdapterList = null;
 		}
-		Component[] comps = getComponents();
-		for (Component element : comps)
-		{
-			if (element instanceof Applet)
-			{
-				((Applet)element).destroy();
-			}
-		}
 		removeAll();
 	}
 
@@ -278,23 +271,6 @@ public class DataRenderer extends StyledEnablePanel implements ListCellRenderer,
 			//we just forward the call
 			dataAdapterList.notifyVisible(b, invokeLaterRunnables);
 		}
-		Component[] comps = getComponents();
-		for (Component element : comps)
-		{
-			if (element instanceof Applet)
-			{
-				if (b)
-				{
-					((Applet)element).setVisible(true);
-					((Applet)element).start();
-				}
-				else
-				{
-					((Applet)element).stop();
-					((Applet)element).setVisible(false);
-				}
-			}
-		}
 	}
 
 	private final HashSet<IDisplay> globalFields = new HashSet<IDisplay>();
@@ -307,10 +283,8 @@ public class DataRenderer extends StyledEnablePanel implements ListCellRenderer,
 
 		//make it really fields only
 		HashMap<IPersist, IDisplay> f = new HashMap<IPersist, IDisplay>();
-		Iterator<Map.Entry<IPersist, IDisplay>> it = fieldComponents.entrySet().iterator();
-		while (it.hasNext())
+		for (Entry<IPersist, IDisplay> element : fieldComponents.entrySet())
 		{
-			Map.Entry<IPersist, IDisplay> element = it.next();
 			if (element.getValue() instanceof IDisplayData)
 			{
 				String id = ((IDisplayData)element.getValue()).getDataProviderID();
@@ -482,7 +456,8 @@ public class DataRenderer extends StyledEnablePanel implements ListCellRenderer,
 								val,
 								strRowBGColorProvider,
 								Utils.arrayMerge((new Object[] { new Integer(index), new Boolean(isSelected), null, null, Boolean.FALSE }),
-									Utils.parseJSExpressions(rowBGColorArgs)), null);
+									Utils.parseJSExpressions(rowBGColorArgs)),
+								null);
 						}
 						else
 						{
@@ -728,11 +703,11 @@ public class DataRenderer extends StyledEnablePanel implements ListCellRenderer,
 	public int onDrag(JSDNDEvent event)
 	{
 		Form form = dragNdropController.getForm();
-		int onDragID = form.getOnDragMethodID();
+		String onDragUUID = form.getOnDragMethodID();
 
-		if (onDragID > 0)
+		if (onDragUUID != null)
 		{
-			Object dragReturn = dragNdropController.executeFunction(Integer.toString(onDragID), new Object[] { event }, false, null, false, "onDragMethodID"); //$NON-NLS-1$
+			Object dragReturn = dragNdropController.executeFunction(onDragUUID, new Object[] { event }, false, null, false, "onDragMethodID"); //$NON-NLS-1$
 			if (dragReturn instanceof Number) return ((Number)dragReturn).intValue();
 		}
 
@@ -742,26 +717,26 @@ public class DataRenderer extends StyledEnablePanel implements ListCellRenderer,
 	public boolean onDragOver(JSDNDEvent event)
 	{
 		Form form = dragNdropController.getForm();
-		int onDragOverID = form.getOnDragOverMethodID();
+		String onDragOverUUID = form.getOnDragOverMethodID();
 
-		if (onDragOverID > 0)
+		if (onDragOverUUID != null)
 		{
-			Object dragOverReturn = dragNdropController.executeFunction(Integer.toString(onDragOverID), new Object[] { event }, false, null, false,
+			Object dragOverReturn = dragNdropController.executeFunction(onDragOverUUID, new Object[] { event }, false, null, false,
 				"onDragOverMethodID"); //$NON-NLS-1$
 			if (dragOverReturn instanceof Boolean) return ((Boolean)dragOverReturn).booleanValue();
 		}
 
-		return form.getOnDropMethodID() > 0;
+		return form.getOnDropMethodID() != null;
 	}
 
 	public boolean onDrop(JSDNDEvent event)
 	{
 		Form form = dragNdropController.getForm();
-		int onDropID = form.getOnDropMethodID();
+		String onDropUUID = form.getOnDropMethodID();
 
-		if (onDropID > 0)
+		if (onDropUUID != null)
 		{
-			Object dropHappened = dragNdropController.executeFunction(Integer.toString(onDropID), new Object[] { event }, false, null, false, "onDropMethodID"); //$NON-NLS-1$
+			Object dropHappened = dragNdropController.executeFunction(onDropUUID, new Object[] { event }, false, null, false, "onDropMethodID"); //$NON-NLS-1$
 			if (dropHappened instanceof Boolean) return ((Boolean)dropHappened).booleanValue();
 		}
 		return false;
@@ -770,11 +745,11 @@ public class DataRenderer extends StyledEnablePanel implements ListCellRenderer,
 	public void onDragEnd(JSDNDEvent event)
 	{
 		Form form = dragNdropController.getForm();
-		int onDragEndID = form.getOnDragEndMethodID();
+		String onDragEndUUID = form.getOnDragEndMethodID();
 
-		if (onDragEndID > 0)
+		if (onDragEndUUID != null)
 		{
-			dragNdropController.executeFunction(Integer.toString(onDragEndID), new Object[] { event }, false, null, false, "onDragEndMethodID"); //$NON-NLS-1$
+			dragNdropController.executeFunction(onDragEndUUID, new Object[] { event }, false, null, false, "onDragEndMethodID"); //$NON-NLS-1$
 		}
 	}
 

@@ -60,9 +60,9 @@ public class GraphicalComponent extends BaseComponent
 	/**
 	 * Constructor I
 	 */
-	protected GraphicalComponent(ISupportChilds parent, int element_id, UUID uuid)
+	protected GraphicalComponent(ISupportChilds parent, UUID uuid)
 	{
-		super(IRepository.GRAPHICALCOMPONENTS, parent, element_id, uuid);
+		super(IRepository.GRAPHICALCOMPONENTS, parent, uuid);
 	}
 
 	/*
@@ -203,20 +203,20 @@ public class GraphicalComponent extends BaseComponent
 	 *
 	 * @param arg the rolloverImage
 	 */
-	public void setRolloverImageMediaID(int arg)
+	public void setRolloverImageMediaID(String uuid)
 	{
-		setTypedProperty(StaticContentSpecLoader.PROPERTY_ROLLOVERIMAGEMEDIAID, arg);
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ROLLOVERIMAGEMEDIAID, uuid);
 	}
 
 	/**
 	 * The roll over image Media object used. It will only work if a property image is also used.
 	 * When the mouse is moved over the component, this image Media will be displayed.
 	 * When the mouse is moved out of the component, whatever text or image was being initially
-	 * displayed will be restored. Note that roll over image is not supported in Smart client for list view and tableview forms.
+	 * displayed will be restored.
 	 */
-	public int getRolloverImageMediaID()
+	public String getRolloverImageMediaID()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ROLLOVERIMAGEMEDIAID).intValue();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ROLLOVERIMAGEMEDIAID);
 	}
 
 	/**
@@ -224,22 +224,22 @@ public class GraphicalComponent extends BaseComponent
 	 *
 	 * @param arg the Image
 	 */
-	public void setImageMediaID(int arg)
+	public void setImageMediaID(String uuid)
 	{
-		setTypedProperty(StaticContentSpecLoader.PROPERTY_IMAGEMEDIAID, arg);
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_IMAGEMEDIAID, uuid);
 	}
 
 	/**
 	 * The image Media object that should be displayed inside the component.
 	 */
-	public int getImageMediaID()
+	public String getImageMediaID()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_IMAGEMEDIAID).intValue();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_IMAGEMEDIAID);
 	}
 
-	public void setOnActionMethodID(int arg)
+	public void setOnActionMethodID(String uuid)
 	{
-		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONACTIONMETHODID, arg);
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONACTIONMETHODID, uuid);
 	}
 
 	/**
@@ -248,14 +248,14 @@ public class GraphicalComponent extends BaseComponent
 	 * @templateparam JSEvent event the event that triggered the action
 	 * @templateaddtodo
 	 */
-	public int getOnActionMethodID()
+	public String getOnActionMethodID()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONACTIONMETHODID).intValue();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONACTIONMETHODID);
 	}
 
-	public void setOnDoubleClickMethodID(int arg)
+	public void setOnDoubleClickMethodID(String uuid)
 	{
-		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONDOUBLECLICKMETHODID, arg);
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONDOUBLECLICKMETHODID, uuid);
 	}
 
 	/**
@@ -266,14 +266,14 @@ public class GraphicalComponent extends BaseComponent
 	 * @templateparam JSEvent event the event that triggered the action
 	 * @templateaddtodo
 	 */
-	public int getOnDoubleClickMethodID()
+	public String getOnDoubleClickMethodID()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONDOUBLECLICKMETHODID).intValue();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONDOUBLECLICKMETHODID);
 	}
 
-	public void setOnRightClickMethodID(int arg)
+	public void setOnRightClickMethodID(String uuid)
 	{
-		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONRIGHTCLICKMETHODID, arg);
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONRIGHTCLICKMETHODID, uuid);
 	}
 
 	/**
@@ -284,30 +284,30 @@ public class GraphicalComponent extends BaseComponent
 	 * @templateparam JSEvent event the event that triggered the action
 	 * @templateaddtodo
 	 */
-	public int getOnRightClickMethodID()
+	public String getOnRightClickMethodID()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONRIGHTCLICKMETHODID).intValue();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONRIGHTCLICKMETHODID);
 	}
 
 	@ServoyClientSupport(ng = false, wc = true, sc = true)
-	public void setOnRenderMethodID(int arg)
+	public void setOnRenderMethodID(String uuid)
 	{
-		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONRENDERMETHODID, arg);
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONRENDERMETHODID, uuid);
 	}
 
 	/**
 	 * The method that is executed when the component is rendered.
 	 */
 	@ServoyClientSupport(ng = false, wc = true, sc = true)
-	public int getOnRenderMethodID()
+	public String getOnRenderMethodID()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONRENDERMETHODID).intValue();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONRENDERMETHODID);
 	}
 
 	@Deprecated
-	public int getValuelistID()
+	public String getValuelistID()
 	{
-		return 0;
+		return null;
 	}
 
 	public Insets getMargin()
@@ -430,7 +430,7 @@ public class GraphicalComponent extends BaseComponent
 
 	/**
 	 * The cursor that is shown as the mouse is rolled over the component.
-	 * Possible options are DEFAULT and HAND. Note that roll over cursor is not supported in Smart client for list view and tableview forms.
+	 * Possible options are DEFAULT and HAND.
 	 */
 	public int getRolloverCursor()
 	{
@@ -439,7 +439,7 @@ public class GraphicalComponent extends BaseComponent
 
 	public int getTabSeq()
 	{
-		if (getOnActionMethodID() == 0) return -1;
+		if (getOnActionMethodID() == null) return -1;
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_TABSEQ).intValue();
 	}
 

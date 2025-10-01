@@ -25,6 +25,7 @@ import com.servoy.j2db.dataprocessing.IClientHost;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
+import com.servoy.j2db.util.UUID;
 
 /**
  * Only entry point to access the application server from a client.
@@ -57,21 +58,21 @@ public interface IApplicationServer extends Remote
 
 	/**
 	 * Retrieve an client id, if user_uid and password is correct for use in Servoy team provider.
-	 * 
+	 *
 	 * @param user_uid
-	 * @param password 
+	 * @param password
 	 * @return the client_id or null if not ok
 	 */
 	public String getClientID(String user_uid, String password) throws RemoteException;
 
 	/**
 	 * Get the update sequences of the active solutions.
-	 * 
+	 *
 	 * @param rootObjectIds the solution ids
 	 * @return the update seqences of the specified solution
 	 * @throws RemoteException
 	 * @throws RepositoryException
 	 */
-	public long[] getActiveRootObjectsLastModified(int[] rootObjectIds) throws RemoteException, RepositoryException;
+	public long[] getActiveRootObjectsLastModified(UUID[] rootObjectUUIDs) throws RemoteException, RepositoryException;
 
 }

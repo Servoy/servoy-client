@@ -17,23 +17,44 @@
 package com.servoy.j2db.scripting;
 
 import java.util.Arrays;
+import java.util.Map;
 
 import org.mozilla.javascript.Wrapper;
+import org.mozilla.javascript.annotations.JSFunction;
 
+import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
 
 /**
- * JSEvent, used as first argument to user-event callbacks.
- * 
+ * The <code>JSEvent</code> object serves as the primary argument for user-event callbacks, encapsulating key details about
+ * application-triggered events. It provides information such as event type, source element or form, position, and any
+ * associated data, enabling developers to handle interactions dynamically and efficiently. Constants like <code>ACTION</code>,
+ * <code>DATACHANGE</code>, and <code>DOUBLECLICK</code> help identify specific event types, while methods such as
+ * <code>getType()</code>, <code>getSource()</code>, and <code>getElementName()</code> give precise context for each event.
+ *
+ * <p>
+ * In addition to identifying event origins and types, the object supports positional data with methods like <code>getX()</code>
+ * and <code>getY()</code>, and tracks the timing of occurrences using <code>getTimestamp()</code>. It also features a
+ * <code>data</code> property to carry event-specific payloads, enhancing customization options. This makes <code>JSEvent</code>
+ * a flexible and powerful tool for implementing responsive, user-driven functionality in applications.
+ * </p>
+ *
  * @author rgansevles
- * 
+ *
  * @since 5.0
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "JSEvent")
 public class JSEvent extends JSBaseEvent
 {
+	private boolean propagationStopped = false;
+
 	@Override
 	public String toString()
+	{
+		return toString("JSEvent", null); //$NON-NLS-1$
+	}
+
+	public String toString(String className, Map< ? , ? > extraProperties)
 	{
 		Object dataToString = data;
 		if (dataToString == this) dataToString = "this"; //$NON-NLS-1$
@@ -46,8 +67,23 @@ public class JSEvent extends JSBaseEvent
 		{
 			eName = "<no name>"; //$NON-NLS-1$
 		}
-		return "JSEvent(type = " + type + ", source = " + ((source instanceof Wrapper) ? ((Wrapper)source).unwrap() : source) + ", formName = " + formName + ", elementName = " + eName + ", timestamp = " + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
-			timestamp + ",modifiers = " + modifiers + ",x =" + x + ",y = " + y + ",data = " + dataToString + ')'; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		StringBuilder extraPropsString = new StringBuilder();
+		if (extraProperties != null && !extraProperties.isEmpty())
+		{
+			extraPropsString.append(", "); //$NON-NLS-1$
+			boolean first = true;
+			for (Map.Entry< ? , ? > entry : extraProperties.entrySet())
+			{
+				if (!first) extraPropsString.append(", "); //$NON-NLS-1$
+				extraPropsString.append(entry.getKey()).append("=").append(entry.getValue()); //$NON-NLS-1$
+				first = false;
+			}
+		}
+
+		return className + "(type = " + type + ", source = " + ((source instanceof Wrapper) ? ((Wrapper)source).unwrap() : source) + ", formName = " + //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+			formName +
+			", elementName = " + eName + ", timestamp = " + //$NON-NLS-1$ //$NON-NLS-2$
+			timestamp + ",modifiers = " + modifiers + ",x =" + x + ",y = " + y + ",data = " + dataToString + extraPropsString.toString() + ')'; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 	}
 
 	/**
@@ -56,5 +92,23 @@ public class JSEvent extends JSBaseEvent
 	public String getPrefix()
 	{
 		return "JSEvent"; //$NON-NLS-1$
+	}
+
+	/**
+	 * stopPropagation is used in case of multiple event listeners (added via application.addEventListener). When application.fireEventListeners is called you can use this api to stop executing further listeners.
+	 *
+	 * @sample event.stopPropagation()
+	 *
+	 */
+	@JSFunction
+	@ServoyClientSupport(ng = true, wc = true, sc = true, mc = false)
+	public void stopPropagation()
+	{
+		propagationStopped = true;
+	}
+
+	public boolean isPropagationStopped()
+	{
+		return propagationStopped;
 	}
 }

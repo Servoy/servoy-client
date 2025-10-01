@@ -24,17 +24,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.servlet.DispatcherType;
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.annotation.WebFilter;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.commons.io.IOUtils;
 import org.sablo.util.HTTPUtils;
 
@@ -48,6 +37,17 @@ import com.servoy.j2db.server.shared.IApplicationServerSingleton;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.Utils;
+
+import jakarta.servlet.DispatcherType;
+import jakarta.servlet.Filter;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.FilterConfig;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
+import jakarta.servlet.annotation.WebFilter;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * Provides an entry page that lists all available ng client solutions on the app. server.
@@ -73,7 +73,7 @@ public class SelectNGSolutionFilter implements Filter
 				if (uri.equals("/servoy-ngclient"))
 				{
 					// html contents
-					((HttpServletResponse)servletResponse).setContentType("text/html");
+					servletResponse.setContentType("text/html");
 
 					PrintWriter w = servletResponse.getWriter();
 					addNeededJSAndCSS(getClass().getResource("solution_list.html"), w);
@@ -89,7 +89,7 @@ public class SelectNGSolutionFilter implements Filter
 					List<Solution> ngCompatibleSolutions = new ArrayList<Solution>();
 					if (as.isDeveloperStartup())
 					{
-						Solution active = as.getDebugClientHandler().getDebugSmartClient().getCurrent();
+						Solution active = as.getDebugClientHandler().getDebugNGClient().getSolution();
 						if ((((SolutionMetaData)active.getMetaData()).getSolutionType() & (SolutionMetaData.SOLUTION | SolutionMetaData.NG_CLIENT_ONLY)) != 0)
 							ngCompatibleSolutions.add(active);
 					}
@@ -104,7 +104,7 @@ public class SelectNGSolutionFilter implements Filter
 								solutionType = ((SolutionMetaData)element).getSolutionType();
 								if ((solutionType & (SolutionMetaData.SOLUTION | SolutionMetaData.NG_CLIENT_ONLY)) > 0)
 								{
-									Solution solution = (Solution)as.getLocalRepository().getActiveRootObject(element.getRootObjectId());
+									Solution solution = (Solution)as.getLocalRepository().getActiveRootObject(element.getRootObjectUuid());
 									if (solution != null)
 									{
 										ngCompatibleSolutions.add(solution);
@@ -120,7 +120,7 @@ public class SelectNGSolutionFilter implements Filter
 
 					// now generate the js containing these solutions
 
-					((HttpServletResponse)servletResponse).setContentType("text/javascript");
+					servletResponse.setContentType("text/javascript");
 
 					PrintWriter w = servletResponse.getWriter();
 					w.println("angular.module('solutionsListModule', []).value('$solutionsList', {");

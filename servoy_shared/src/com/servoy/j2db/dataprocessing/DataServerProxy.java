@@ -37,6 +37,7 @@ import com.servoy.j2db.query.ISQLUpdate;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ServoyException;
+import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.xmlxport.ColumnInfoDef;
 
 /**
@@ -57,7 +58,7 @@ public class DataServerProxy implements IDataServer
 		this.clientId = clientId;
 	}
 
-	public void switchServer(String sourceName, String destinationName) throws RemoteException
+	public void switchServer(String sourceName, String destinationName)
 	{
 		// move broadcast filters, if any
 		BroadcastFilter[] broadcastFilters = ds.getBroadcastFilters(clientId, sourceName);
@@ -116,45 +117,45 @@ public class DataServerProxy implements IDataServer
 	}
 
 	public ISQLStatement createSQLStatement(int action, String serverName, String tableName, Object[] pkColumnData, String tid, String sql,
-		Object[] questiondata) throws RemoteException, RepositoryException
+		Object[] questiondata) throws RepositoryException
 	{
 		return ds.createSQLStatement(action, getMappedServerName(serverName), tableName, pkColumnData, tid, sql, questiondata);
 	}
 
 	public ISQLStatement createSQLStatement(int action, String server_name, String tableName, Object[] pkColumnData, String tid, ISQLUpdate sqlUpdate,
-		ArrayList<TableFilter> filters) throws RemoteException, RepositoryException
+		ArrayList<TableFilter> filters) throws RepositoryException
 	{
 		return ds.createSQLStatement(action, getMappedServerName(server_name), tableName, pkColumnData, tid, sqlUpdate, filters);
 	}
 
 	public Blob getBlob(String _ignoredClientId, String serverName, ISQLSelect blobSelect, ArrayList<TableFilter> filters, String tid)
-		throws RepositoryException, RemoteException
+		throws RepositoryException
 	{
 		return ds.getBlob(clientId, getMappedServerName(serverName), blobSelect, filters, tid);
 	}
 
-	public Object getNextSequence(String serverName, String tableName, String columnName, int columnInfoID, String columnInfoServer)
-		throws RepositoryException, RemoteException
+	public Object getNextSequence(String serverName, String tableName, String columnName, UUID columnInfoUUID, String columnInfoServer)
+		throws RepositoryException
 	{
-		return ds.getNextSequence(getMappedServerName(serverName), tableName, columnName, columnInfoID, columnInfoServer);
+		return ds.getNextSequence(getMappedServerName(serverName), tableName, columnName, columnInfoUUID, columnInfoServer);
 	}
 
 	public IDataSet performCustomQuery(String _ignoredClientId, String serverName, String driverTableName, String transaction_id, ISQLSelect sqlSelect,
-		ArrayList<TableFilter> filters, int startRow, int rowsToRetrieve) throws ServoyException, RemoteException
+		ArrayList<TableFilter> filters, int startRow, int rowsToRetrieve) throws ServoyException
 	{
 		return ds.performCustomQuery(clientId, getMappedServerName(serverName), driverTableName, transaction_id, sqlSelect, filters, startRow, rowsToRetrieve);
 	}
 
 	public IDataSet performQuery(String _ignoredClientId, String serverName, String transaction_id, ISQLSelect sqlSelect, ColumnType[] resultTypes,
 		ArrayList<TableFilter> filters,
-		boolean distinctInMemory, int startRow, int rowsToRetrieve, boolean updateIdleTimestamp) throws ServoyException, RemoteException
+		boolean distinctInMemory, int startRow, int rowsToRetrieve, boolean updateIdleTimestamp) throws ServoyException
 	{
 		return ds.performQuery(clientId, getMappedServerName(serverName), transaction_id, sqlSelect, resultTypes, filters, distinctInMemory, startRow,
 			rowsToRetrieve, updateIdleTimestamp);
 	}
 
 	public IDataSet performQuery(String _ignoredClientId, String serverName, String driverTableName, String transaction_id, String sql, Object[] questiondata,
-		int startRow, int rowsToRetrieve, boolean updateIdleTimestamp) throws ServoyException, RemoteException
+		int startRow, int rowsToRetrieve, boolean updateIdleTimestamp) throws ServoyException
 	{
 		return ds.performQuery(clientId, getMappedServerName(serverName), driverTableName, transaction_id, sql, questiondata, startRow, rowsToRetrieve,
 			updateIdleTimestamp);
@@ -162,21 +163,21 @@ public class DataServerProxy implements IDataServer
 
 	public IDataSet performQuery(String _ignoredClientId, String serverName, String transaction_id, ISQLSelect sqlSelect, ColumnType[] resultTypes,
 		ArrayList<TableFilter> filters,
-		boolean distinctInMemory, int startRow, int rowsToRetrieve) throws ServoyException, RemoteException
+		boolean distinctInMemory, int startRow, int rowsToRetrieve) throws ServoyException
 	{
 		return ds.performQuery(clientId, getMappedServerName(serverName), transaction_id, sqlSelect, resultTypes, filters, distinctInMemory, startRow,
 			rowsToRetrieve);
 	}
 
 	public IDataSet performQuery(String _ignoredClientId, String serverName, String driverTableName, String transaction_id, String sql, Object[] questiondata,
-		int startRow, int rowsToRetrieve) throws ServoyException, RemoteException
+		int startRow, int rowsToRetrieve) throws ServoyException
 	{
 		return ds.performQuery(clientId, getMappedServerName(serverName), driverTableName, transaction_id, sql, questiondata,
 			startRow, rowsToRetrieve);
 	}
 
 	public IDataSet performQuery(String _ignoredClientId, String serverName, String transaction_id, ISQLSelect sqlSelect, ColumnType[] resultTypes,
-		ArrayList<TableFilter> filters, boolean distinctInMemory, int startRow, int rowsToRetrieve, int type) throws ServoyException, RemoteException
+		ArrayList<TableFilter> filters, boolean distinctInMemory, int startRow, int rowsToRetrieve, int type) throws ServoyException
 	{
 		return ds.performQuery(clientId, getMappedServerName(serverName), transaction_id, sqlSelect, resultTypes, filters, distinctInMemory, startRow,
 			rowsToRetrieve, type);
@@ -184,7 +185,7 @@ public class DataServerProxy implements IDataServer
 
 	public IDataSet performQuery(String _ignoredClientId, String server_name, String transaction_id, ISQLSelect sqlSelect, ColumnType[] resultTypes,
 		ArrayList<TableFilter> filters,
-		boolean distinctInMemory, int startRow, int rowsToRetrieve, int type, ITrackingSQLStatement trackingInfo) throws ServoyException, RemoteException
+		boolean distinctInMemory, int startRow, int rowsToRetrieve, int type, ITrackingSQLStatement trackingInfo) throws ServoyException
 	{
 		long time = System.currentTimeMillis();
 		try
@@ -206,18 +207,18 @@ public class DataServerProxy implements IDataServer
 	 * @see com.servoy.j2db.dataprocessing.IDataServer#performQuery(com.servoy.j2db.dataprocessing.QueryData[])
 	 */
 	public IDataSet[] performQuery(String _ignoredClientId, String server_name, String transaction_id, QueryData[] array)
-		throws ServoyException, RemoteException
+		throws ServoyException
 	{
 		return ds.performQuery(clientId, getMappedServerName(server_name), transaction_id, array);
 	}
 
 	public IDataSet performQuery(String _ignoredClientId, String serverName, String driverTableName, String transaction_id, String sql, Object[] questiondata,
-		int startRow, int rowsToRetrieve, int type) throws ServoyException, RemoteException
+		int startRow, int rowsToRetrieve, int type) throws ServoyException
 	{
 		return ds.performQuery(clientId, getMappedServerName(serverName), driverTableName, transaction_id, sql, questiondata, startRow, rowsToRetrieve, type);
 	}
 
-	public Object[] performUpdates(String _ignoredClientId, ISQLStatement[] statements) throws ServoyException, RemoteException
+	public Object[] performUpdates(String _ignoredClientId, ISQLStatement[] statements) throws ServoyException
 	{
 		List<Runnable> resetServernames = new ArrayList<>(statements.length);
 		for (ISQLStatement element : statements)
@@ -236,30 +237,30 @@ public class DataServerProxy implements IDataServer
 		}
 	}
 
-	public String startTransaction(String _ignoredClientId, String serverName) throws RepositoryException, RemoteException
+	public String startTransaction(String _ignoredClientId, String serverName) throws RepositoryException
 	{
 		return ds.startTransaction(clientId, getMappedServerName(serverName));
 	}
 
-	public boolean endTransactions(String _ignoredClientId, String[] transaction_id, boolean commit) throws RepositoryException, RemoteException
+	public boolean endTransactions(String _ignoredClientId, String[] transaction_id, boolean commit) throws RepositoryException
 	{
 		return ds.endTransactions(clientId, transaction_id, commit);
 	}
 
 	public IDataSet acquireLocks(String _ignoredClientId, String serverName, String table_name, Set<Object> pkhashkeys, QuerySelect lockSelect,
 		String transaction_id,
-		ArrayList<TableFilter> filters, int chunkSize) throws RemoteException, RepositoryException
+		ArrayList<TableFilter> filters, int chunkSize) throws RepositoryException
 	{
 		return ds.acquireLocks(clientId, getMappedServerName(serverName), table_name, pkhashkeys, lockSelect, transaction_id, filters, chunkSize);
 	}
 
 	public boolean releaseLocks(String _ignoredClientId, String serverName, String table_name, Set<Object> pkhashkeys)
-		throws RemoteException, RepositoryException
+		throws RepositoryException
 	{
 		return ds.releaseLocks(clientId, getMappedServerName(serverName), table_name, pkhashkeys);
 	}
 
-	public void addClientAsTableUser(String _ignoredClientId, String serverName, String table_name) throws RemoteException, RepositoryException
+	public void addClientAsTableUser(String _ignoredClientId, String serverName, String table_name) throws RepositoryException
 	{
 		ds.addClientAsTableUser(clientId, getMappedServerName(serverName), table_name);
 	}
@@ -283,19 +284,19 @@ public class DataServerProxy implements IDataServer
 	}
 
 	@Override
-	public void setBroadcastFilters(String _ignoredClientId, String serverName, BroadcastFilter[] broadcastFilters) throws RemoteException
+	public void setBroadcastFilters(String _ignoredClientId, String serverName, BroadcastFilter[] broadcastFilters)
 	{
 		ds.setBroadcastFilters(clientId, getMappedServerName(serverName), broadcastFilters);
 	}
 
 	@Override
-	public BroadcastFilter[] getBroadcastFilters(String _ignoredClientId, String serverName) throws RemoteException
+	public BroadcastFilter[] getBroadcastFilters(String _ignoredClientId, String serverName)
 	{
 		return ds.getBroadcastFilters(clientId, getMappedServerName(serverName));
 	}
 
 	@Override
-	public void clearBroadcastFilters(String _ignoredClientId) throws RemoteException
+	public void clearBroadcastFilters(String _ignoredClientId)
 	{
 		ds.clearBroadcastFilters(clientId);
 	}
@@ -305,42 +306,42 @@ public class DataServerProxy implements IDataServer
 	 *
 	 * @param msg
 	 */
-	public void logMessage(String msg) throws RemoteException
+	public void logMessage(String msg)
 	{
 		ds.logMessage(msg);
 	}
 
 	public InsertResult insertDataSet(String _ignoredClientId, IDataSet set, String dataSource, String serverName, String tableName, String tid,
-		ColumnType[] columnTypes, String[] pkNames, HashMap<String, ColumnInfoDef> columnInfoDefinitions) throws ServoyException, RemoteException
+		ColumnType[] columnTypes, String[] pkNames, HashMap<String, ColumnInfoDef> columnInfoDefinitions) throws ServoyException
 	{
 		return ds.insertDataSet(clientId, set, dataSource, getMappedServerName(serverName), tableName, tid, columnTypes, pkNames, columnInfoDefinitions);
 	}
 
 	public ITable insertQueryResult(String _ignoredClientId, String queryServerName, String queryTid, ISQLSelect sqlSelect, ArrayList<TableFilter> filters,
 		boolean distinctInMemory, int startRow, int rowsToRetrieve, int type, String dataSource, String targetServerName, String targetTableName,
-		String targetTid, ColumnType[] columnTypes, String[] pkNames) throws ServoyException, RemoteException
+		String targetTid, ColumnType[] columnTypes, String[] pkNames) throws ServoyException
 	{
 		return ds.insertQueryResult(clientId, getMappedServerName(queryServerName), queryTid, sqlSelect, filters, distinctInMemory, startRow, rowsToRetrieve,
 			type, dataSource, getMappedServerName(targetServerName), targetTableName, targetTid, columnTypes, pkNames);
 	}
 
-	public void dropTemporaryTable(String _ignoredClientId, String serverName, String tableName) throws RemoteException, RepositoryException
+	public void dropTemporaryTable(String _ignoredClientId, String serverName, String tableName) throws RepositoryException
 	{
 		ds.dropTemporaryTable(clientId, getMappedServerName(serverName), tableName);
 	}
 
-	public boolean isInServerMaintenanceMode() throws RemoteException
+	public boolean isInServerMaintenanceMode()
 	{
 		return ds.isInServerMaintenanceMode();
 	}
 
-	public void setServerMaintenanceMode(boolean maintenanceMode) throws RemoteException
+	public void setServerMaintenanceMode(boolean maintenanceMode)
 	{
 		ds.setServerMaintenanceMode(maintenanceMode);
 	}
 
 	public QuerySet getSQLQuerySet(String serverName, ISQLQuery sqlQuery, ArrayList<TableFilter> filters, int startRow, int rowsToRetrieve,
-		boolean forceQualifyColumns, boolean disableUseArrayForIn) throws RepositoryException, RemoteException
+		boolean forceQualifyColumns, boolean disableUseArrayForIn) throws RepositoryException
 	{
 		return ds.getSQLQuerySet(serverName, sqlQuery, filters, startRow, rowsToRetrieve, forceQualifyColumns, disableUseArrayForIn);
 	}
@@ -348,7 +349,7 @@ public class DataServerProxy implements IDataServer
 
 	@Override
 	public IDataSet[] executeProcedure(String _ignoredClientId, String serverName, String tid, Procedure procedure, Object[] arguments)
-		throws RepositoryException, RemoteException
+		throws RepositoryException
 	{
 		return ds.executeProcedure(clientId, getMappedServerName(serverName), tid, procedure, arguments);
 	}

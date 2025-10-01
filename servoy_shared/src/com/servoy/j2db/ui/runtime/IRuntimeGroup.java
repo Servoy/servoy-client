@@ -21,6 +21,9 @@ import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
 
 /**
+ * The <code>IRuntimeGroup</code> interface provides scripting support for runtime group elements in Servoy,
+ * extending <code>HasRuntimeReadOnly</code> and <code>IRuntimeComponent</code> for read-only and component functionalities.
+ *
  * @author acostache
  *
  */

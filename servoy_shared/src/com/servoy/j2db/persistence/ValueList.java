@@ -28,7 +28,11 @@ import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 
 /**
- * A value list
+ * A <b>value list</b> is an object from the data layer that is used by the UI (components) to provide selection lists and translations of
+ * internal values to display values.<br/>
+ * Value lists can be static, meaning their contents do not change, or dynamic, where they can be updated or modified over time.<br/><br/>
+ *
+ * They can be used for example in components such as dropdown menus, radio button groups or checkbox lists.
  *
  * @author jblok
  */
@@ -44,9 +48,9 @@ public class ValueList extends AbstractBase
 	/**
 	 * Constructor I
 	 */
-	ValueList(ISupportChilds parent, int element_id, UUID uuid)
+	ValueList(ISupportChilds parent, UUID uuid)
 	{
-		super(IRepository.VALUELISTS, parent, element_id, uuid);
+		super(IRepository.VALUELISTS, parent, uuid);
 	}
 
 /*
@@ -70,7 +74,7 @@ public class ValueList extends AbstractBase
 
 	public void updateName(IValidateName validator, String arg) throws RepositoryException
 	{
-		validator.checkName(arg, getID(), new ValidatorSearchContext(IRepository.VALUELISTS), false);
+		validator.checkName(arg, getUUID(), new ValidatorSearchContext(IRepository.VALUELISTS), false);
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_NAME, arg);
 		getRootObject().getChangeHandler().fireIPersistChanged(this);
 	}
@@ -104,7 +108,17 @@ public class ValueList extends AbstractBase
 	}
 
 	/**
-	 * The type of the valuelist. Can be either custom values or database values.
+	 * The type of the valuelist.<br/>
+	 * Can be one of:
+	 * <ul>
+	 *   <li>custom values</li>
+	 *   <li>global method</li>
+	 *   <li>database values</li>
+	 *     <ul>
+	 *       <li>table based</li>
+	 *       <li>relation based</li>
+	 *     </ul>
+	 * </ul>
 	 */
 	public int getValueListType()
 	{
@@ -135,6 +149,8 @@ public class ValueList extends AbstractBase
 
 	/**
 	 * The name of the relation that is used for loading data from the database.
+	 *
+	 * @sample "orders_to_order_details"
 	 */
 	public String getRelationName()
 	{
@@ -194,10 +210,20 @@ public class ValueList extends AbstractBase
 	}
 
 	/**
-	 * A string with the elements in the valuelist. The elements
-	 * can be separated by linefeeds (custom1
-	 * custom2), optional with realvalues ((custom1|1
-	 * custom2|2)).
+	 * A string with the elements in the valuelist. The elements can be separated by line feeds:<br/>
+	 * custom1<br/>
+	 * custom2<br/><br/>
+	 *
+	 * Elements can optionally have real values:<br/>
+	 * custom1|1<br/>
+	 * custom2|2<br/><br/>
+	 *
+	 * The (custom) values can be given via a global scope method instead, if the valuelist type is of global method type...
+	 *
+	 * @sample
+	 * Yes|1
+	 * No|2
+	 * Don't know|3
 	 */
 	public String getCustomValues()
 	{
@@ -217,6 +243,8 @@ public class ValueList extends AbstractBase
 	/**
 	 * Compact representation of the names of the server and table that
 	 * are used for loading the data from the database.
+	 *
+	 * @sample "example_data.customers"
 	 */
 	public String getDataSource()
 	{
@@ -305,9 +333,10 @@ public class ValueList extends AbstractBase
 	}
 
 	/**
-	 * This is the dataprovider selected in the fist list of dataproviders when a table or related valuelist is selected.
-	 * This dataprovide can be marked as a display and/or return value
+	 * This is the dataprovider selected in the first list of dataproviders, when a table or related valuelist is selected.<br/>
+	 * This dataprovider can be marked as a display and/or a return value.
 	 *
+	 * @sample "companyname"
 	 * @return Returns a String
 	 */
 	public String getDataProviderID1()
@@ -316,8 +345,8 @@ public class ValueList extends AbstractBase
 	}
 
 	/**
-	 * This is the dataprovider selected in the second list of dataproviders when a table or related valuelist is selected.
-	 * This dataprovide can be marked as a display and/or return value
+	 * This is the dataprovider selected in the first list of dataproviders, when a table or related valuelist is selected.<br/>
+	 * This dataprovider can be marked as a display and/or a return value.
 	 *
 	 * @param dataProviderID1 The dataProviderID1 to set
 	 */
@@ -328,9 +357,10 @@ public class ValueList extends AbstractBase
 	}
 
 	/**
-	 * This is the dataprovider selected in the last list of dataproviders when a table or related valuelist is selected.
-	 * This dataprovide can be marked as a display and/or return value
+	 * This is the dataprovider selected in the second list of dataproviders, when a table or related valuelist is selected.<br/>
+	 * This dataprovider can be marked as a display and/or a return value.
 	 *
+	 * @sample "customerid"
 	 * @return Returns a String
 	 */
 	public String getDataProviderID2()
@@ -339,8 +369,8 @@ public class ValueList extends AbstractBase
 	}
 
 	/**
-	 * This is the dataprovider selected in the last list of dataproviders when a table or related valuelist is selected.
-	 * This dataprovide can be marked as a display and/or return value
+	 * This is the dataprovider selected in the second list of dataproviders, when a table or related valuelist is selected.<br/>
+	 * This dataprovider can be marked as a display and/or a return value.
 	 *
 	 * @param dataProviderID2 The dataProviderID2 to set
 	 */
@@ -351,9 +381,10 @@ public class ValueList extends AbstractBase
 	}
 
 	/**
-	 * This is the dataprovider selected in the last list of dataproviders when a table or related valuelist is selected.
-	 * This dataprovide can be marked as a display and/or return value
+	 * This is the dataprovider selected in the third list of dataproviders, when a table or related valuelist is selected.<br/>
+	 * This dataprovider can be marked as a display and/or a return value.
 	 *
+	 * @sample "contactname"
 	 * @return Returns a String
 	 */
 	public String getDataProviderID3()
@@ -362,8 +393,8 @@ public class ValueList extends AbstractBase
 	}
 
 	/**
-	 * This is the dataprovider selected in the last list of dataproviders when a table or related valuelist is selected.
-	 * This dataprovide can be marked as a display and/or return value
+	 * This is the dataprovider selected in the third list of dataproviders, when a table or related valuelist is selected.<br/>
+	 * This dataprovider can be marked as a display and/or a return value.
 	 *
 	 * @param dataProviderID3 The dataProviderID3 to set
 	 */
@@ -377,6 +408,8 @@ public class ValueList extends AbstractBase
 	 * A String representing the separator that should be used when multiple
 	 * display dataproviders are set, when the value list has the type set to
 	 * database values.
+	 *
+	 * @sample " / "
 	 */
 	public String getSeparator()
 	{
@@ -399,6 +432,8 @@ public class ValueList extends AbstractBase
 	/**
 	 * Sort options that are applied when the valuelist loads its data
 	 * from the database.
+	 *
+	 * @sample "companyname asc"
 	 */
 	public String getSortOptions()
 	{
@@ -520,17 +555,18 @@ public class ValueList extends AbstractBase
 	}
 
 	/**
-	 *  If the valuelist only displays the "active" values that a user can choose, but you still need to be able to show also old values, then a fallback valuelist should be set.
-	 *  So that there is a backup list for getting a display value for a real value that is not in the normal valuelist anymore.
+	 * If the valuelist only displays the "active" values that a user can choose, but you still need to be able to show also old values, then a fallback valuelist should be set.<br/>
+	 * It works as a backup list for getting a display value for a real value that is not in this normal/main valuelist anymore.
 	 *
+	 * @sample "customers_and_company_name"
 	 * @return the valueback valuelist id.
 	 */
-	public int getFallbackValueListID()
+	public String getFallbackValueListID()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_FALLBACKVALUELISTID).intValue();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_FALLBACKVALUELISTID);
 	}
 
-	public void setFallbackValueListID(int id)
+	public void setFallbackValueListID(String id)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_FALLBACKVALUELISTID, id);
 	}
@@ -542,11 +578,13 @@ public class ValueList extends AbstractBase
 	}
 
 	/**
-	 * The encapsulation mode of this Valuelist. The following can be used:
+	 * The encapsulation mode of this Valuelist. The following can be used:<br/>
+	 * <ul>
+	 *   <li>Public (available in both scripting and designer from any module)</li>
+	 *   <li>Module Scope - available in both scripting and designer but only in the same module.</li>
+	 * </ul>
 	 *
-	 * - Public (available in both scripting and designer from any module)
-	 * - Module Scope - available in both scripting and designer but only in the same module.
-	 *
+	 * @sample "Public"
 	 * @return the encapsulation mode/level of the persist.
 	 */
 	@Override
@@ -584,7 +622,9 @@ public class ValueList extends AbstractBase
 	}
 
 	/**
-	 * The type of the display value if this is a global or custom valuelist, servoy needs to know this for formatting purposes
+	 * The type of the display value if this is a global or custom valuelist, servoy needs to know this for formatting purposes.
+	 *
+	 * @sample "TEXT"
 	 */
 	public int getDisplayValueType()
 	{
@@ -603,6 +643,8 @@ public class ValueList extends AbstractBase
 
 	/**
 	 * The type of the real value if this is a global or custom valuelist, servoy needs to know this so it can check if the types match on the record it is binded to.
+	 *
+	 * @sample "TEXT"
 	 */
 	public int getRealValueType()
 	{
@@ -610,11 +652,12 @@ public class ValueList extends AbstractBase
 	}
 
 	/**
-	 * A property special for NGClient and GlobalValuelist to only query the global valuelist when it is needed.
-	 * This flag has to be set both on valuelist and in component spec, on the valuelist property.
+	 * A property, specific for NG & Titanium clients with GlobalValuelist - it helps to query/call the global valuelist method only when it is needed.<br/><br/>
+	 * This flag has to be set both on the valuelist and in component specification (.spec file), on the valuelist property, in order for it to work correctly (so the
+	 * developer decides if a valuelist provides this option, and the component decides if it uses this feature or not).<br/><br/>
 	 *
-	 * IMPORTANT: Usage of real & display values is not fully supported with lazy loading. Don't set lazy load if your method returns both real and display values
-	 * This is because very likely we do need directly the display value for the given real to dispaly its value..
+	 * IMPORTANT: Usage of real & display values is not fully supported with lazy loading. Don't set lazy load if your method returns both real and display values.
+	 * This limitation is in place because, very likely in that case, we do need directly the display value for the current component's data (real value) in order to display it in UI...
 	 */
 	@ServoyClientSupport(ng = true, mc = false, wc = false, sc = false)
 	public boolean getLazyLoading()
@@ -633,4 +676,5 @@ public class ValueList extends AbstractBase
 	{
 		putCustomProperty(new String[] { IContentSpecConstants.PROPERTY_LAZY_LOADING }, Boolean.valueOf(arg));
 	}
+
 }

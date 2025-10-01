@@ -23,7 +23,7 @@ import java.util.List;
  *
  * @author jblok
  */
-public interface IRecordInternal extends IRecord, IRowChangeListener
+public interface IRecordInternal extends IRecord, IRowChangeListener, IDeleteTrigger
 {
 	public Row getRawData();
 
@@ -49,4 +49,10 @@ public interface IRecordInternal extends IRecord, IRowChangeListener
 	public void setRecordMarkers(JSRecordMarkers object);
 
 	public JSRecordMarkers getRecordMarkers();
+
+	/**
+	 * returns a key whose equals matches the logic of equals of the record,
+	 * so record1.equals(record2) must match record1.getKey().equals(record2.getKey())
+	 */
+	Object getKey();
 }

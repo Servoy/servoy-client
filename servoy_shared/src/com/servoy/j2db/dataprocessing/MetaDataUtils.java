@@ -41,7 +41,6 @@ import com.servoy.j2db.query.QueryColumn;
 import com.servoy.j2db.query.QueryDelete;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.query.QuerySort;
-import com.servoy.j2db.query.QueryTable;
 import com.servoy.j2db.query.SortOptions;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.util.ServoyException;
@@ -137,7 +136,7 @@ public class MetaDataUtils
 		json.put("rows", jsonRows);
 
 		// toString
-		return json.toString(true);
+		return json.toString(false);
 	}
 
 	/**
@@ -154,7 +153,7 @@ public class MetaDataUtils
 			return null;
 		}
 
-		ServoyJSONObject json = new ServoyJSONObject(data, true);
+		ServoyJSONObject json = new ServoyJSONObject(data, false);
 		JSONArray jsonColumns = (JSONArray)json.get("columns");
 
 		String[] columnNames = new String[jsonColumns.length()];
@@ -166,7 +165,8 @@ public class MetaDataUtils
 
 			columnNames[c] = jsonColumn.getString("name");
 			JSONArray typeArray = new JSONArray(jsonColumn.getString("type"));
-			columnTypes[c] = ColumnType.getInstance(typeArray.getInt(0), typeArray.getInt(1), typeArray.getInt(2));
+			columnTypes[c] = ColumnType.getInstance(typeArray.getInt(0), typeArray.getInt(1), typeArray.getInt(2),
+				typeArray.length() >= 4 ? typeArray.getInt(3) : 0);
 		}
 
 		List<Object[]> rows = new ArrayList<Object[]>();
@@ -231,7 +231,7 @@ public class MetaDataUtils
 
 	public static QuerySelect createTableMetadataQuery(ITable table, LinkedHashMap<Column, QueryColumn> queryColumns)
 	{
-		QuerySelect query = new QuerySelect(new QueryTable(table.getSQLName(), table.getDataSource(), table.getCatalog(), table.getSchema()));
+		QuerySelect query = new QuerySelect(table.queryTable());
 		LinkedHashMap<Column, QueryColumn> qColumns = queryColumns == null ? new LinkedHashMap<Column, QueryColumn>() : queryColumns; // LinkedHashMap to keep order for column names
 		Iterator<Column> columns = table.getColumnsSortedByName();
 		while (columns.hasNext())
@@ -286,8 +286,8 @@ public class MetaDataUtils
 
 		// delete existing data
 		ApplicationServerRegistry.get().getDataServer().performUpdates(ApplicationServerRegistry.get().getClientId(),
-			new ISQLStatement[] { new SQLStatement(IDataServer.META_DATA_QUERY, table.getServerName(), table.getName(), null, //
-				new QueryDelete(new QueryTable(table.getSQLName(), table.getDataSource(), table.getCatalog(), table.getSchema()))) // delete entire table
+			new ISQLStatement[] { new SQLStatement(IDataServer.META_DATA_QUERY, table.getServerName(), table.getName(), null,
+				new QueryDelete(table.queryTable())) // delete entire table
 			});
 		// insert the data
 		ApplicationServerRegistry.get().getDataServer().insertDataSet(ApplicationServerRegistry.get().getClientId(), dataSet, table.getDataSource(),

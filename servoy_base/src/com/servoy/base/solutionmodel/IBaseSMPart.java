@@ -72,6 +72,7 @@ public interface IBaseSMPart
 	 * var leadingGrandSummary = form.newPart(JSPart.LEADING_GRAND_SUMMARY, 120);
 	 */
 	@ServoyClientSupport(ng = false, mc = false, wc = true, sc = true)
+	@Deprecated
 	public static final int LEADING_GRAND_SUMMARY = IPartConstants.LEADING_GRAND_SUMMARY;
 	/**
 	 * Constant use for specifying the type of form parts.
@@ -85,6 +86,7 @@ public interface IBaseSMPart
 	 * var leadingSubsummary = form.newPart(JSPart.LEADING_SUBSUMMARY, 160);
 	 */
 	@ServoyClientSupport(ng = false, mc = false, wc = true, sc = true)
+	@Deprecated
 	public static final int LEADING_SUBSUMMARY = IPartConstants.LEADING_SUBSUMMARY;
 	/**
 	 * Constant use for specifying the type of form parts.
@@ -96,6 +98,7 @@ public interface IBaseSMPart
 	 * var titleFooter = form.newPart(JSPart.TITLE_FOOTER, 500);
 	 */
 	@ServoyClientSupport(ng = false, mc = false, wc = true, sc = true)
+	@Deprecated
 	public static final int TITLE_FOOTER = IPartConstants.TITLE_FOOTER;
 	/**
 	 * Constant use for specifying the type of form parts.
@@ -111,6 +114,7 @@ public interface IBaseSMPart
 	 * var titleHeader = form.newPart(JSPart.TITLE_HEADER, 40);
 	 */
 	@ServoyClientSupport(mc = false, wc = true, sc = true)
+	@Deprecated
 	public static final int TITLE_HEADER = IPartConstants.TITLE_HEADER;
 	/**
 	 * Constant use for specifying the type of form parts.
@@ -122,6 +126,7 @@ public interface IBaseSMPart
 	 * var trailingGrandSummary = form.newPart(JSPart.TRAILING_GRAND_SUMMARY, 400);
 	 */
 	@ServoyClientSupport(ng = false, mc = false, wc = true, sc = true)
+	@Deprecated
 	public static final int TRAILING_GRAND_SUMMARY = IPartConstants.TRAILING_GRAND_SUMMARY;
 	/**
 	 * Constant use for specifying the type of form parts.
@@ -135,6 +140,7 @@ public interface IBaseSMPart
 	 * var trailingSubsummary = form.newPart(JSPart.TRAILING_SUBSUMMARY, 360);
 	 */
 	@ServoyClientSupport(ng = false, mc = false, wc = true, sc = true)
+	@Deprecated
 	public static final int TRAILING_SUBSUMMARY = IPartConstants.TRAILING_SUBSUMMARY;
 
 	/**

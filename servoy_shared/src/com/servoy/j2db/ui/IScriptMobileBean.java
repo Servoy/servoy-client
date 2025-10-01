@@ -25,6 +25,9 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.ui.runtime.IRuntimeComponent;
 
 /**
+ * The <code>IScriptMobileBean</code> interface provides scripting support for mobile bean components in Servoy,
+ * enabling management of <code>text</code> (deprecated) and <code>innerHTML</code> properties for customizing displayed content.
+ *
  * @author gboros
  *
  */
@@ -34,14 +37,14 @@ public interface IScriptMobileBean extends IRuntimeComponent
 {
 	/**
 	 * Gets or sets the text that is displayed on the bean
-	 * 
+	 *
 	 * @sample
 	 * //gets the text of the element
 	 * var my_text = %%prefix%%%%elementName%%.text;
 	 *
 	 * //sets the text of the element
 	 * %%prefix%%%%elementName%%.text = my_text + 'is cool';
-	 * 
+	 *
 	 * @deprecated by innerHTML property
 	 */
 	@JSGetter
@@ -55,7 +58,7 @@ public interface IScriptMobileBean extends IRuntimeComponent
 
 	/**
 	 * Gets or sets the innerHTML that is displayed on the bean's div
-	 * 
+	 *
 	 * @sample
 	 * //gets the innerHTML of the element
 	 * var my_bean_innerHTML = %%prefix%%%%elementName%%.innerHTML;

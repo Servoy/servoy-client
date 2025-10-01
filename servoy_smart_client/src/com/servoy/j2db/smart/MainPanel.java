@@ -168,7 +168,7 @@ public class MainPanel extends JPanel implements ISupportNavigator, IMainContain
 			}
 		}
 		tableFormPanel.removeAll();
-		// in order for the loading label not to be removed during solution loading 
+		// in order for the loading label not to be removed during solution loading
 		if (loadingLabel != null)
 		{
 			tableFormPanel.add(loadingLabel, LOADING_LABEL);
@@ -266,6 +266,11 @@ public class MainPanel extends JPanel implements ISupportNavigator, IMainContain
 		{
 			add(f.getFormUI(), f.getName());
 		}
+	}
+
+	public void setController(IFormController f, List<Runnable> invokeLaterRunnables)
+	{
+		setController(f);
 	}
 
 	public FormController getController()

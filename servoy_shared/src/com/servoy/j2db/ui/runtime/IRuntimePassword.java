@@ -19,8 +19,9 @@ package com.servoy.j2db.ui.runtime;
 import com.servoy.j2db.documentation.ServoyDocumented;
 
 /**
- * Interface for RuntimePassword component.
- * 
+ * The <code>IRuntimePassword</code> interface provides scripting support for runtime password components in Servoy,
+ * extending <code>IRuntimeInputComponent</code> and <code>HasRuntimePlaceholder</code> for input and placeholder functionalities.
+ *
  *  @author lvostinar
  *  @since 6.1
  */

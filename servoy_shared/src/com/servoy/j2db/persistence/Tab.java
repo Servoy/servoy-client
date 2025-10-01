@@ -27,10 +27,28 @@ import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.UUID;
 
 /**
- * One Tab from a tabpanel
+ * <p>The <code>Tab</code> class represents a tab within a tab panel in the Servoy environment. It allows for defining and managing various properties
+ * of the tab, including its <code>name</code>, <code>text</code>, and <code>tooltip</code>, as well as its visual aspects such as <code>foreground</code>
+ * and <code>background</code> colors. The class also provides functionality for managing the location and size of the tab, with default values if not set.
+ * The tab can be associated with a form through the <code>containsFormID</code> property and can reference a related form via the <code>relationName</code>
+ * property.</p>
+ *
+ * <p>One of the key features of the <code>Tab</code> class is its ability to manage a variety of configuration properties, such as whether the tab uses a
+ * new form instance or whether it is locked. It also supports advanced features like setting and retrieving the <code>mnemonic</code> for tab switching,
+ * and defining groupings through the <code>groupID</code> property. The class also provides methods for cloning a tab, copying essential properties like
+ * its size and location.</p>
+ *
+ * <p>For visual representation, the tab can have an associated <code>imageMediaID</code>, defining which image file is used for the tab's icon. Additionally,
+ * it supports legacy features such as background and foreground color management, though the background color feature is deprecated. The <code>Tab</code> class
+ * provides detailed metadata and configuration options for tab panels, enabling flexible UI design and control.</p>
+ *
+ * <p>In essence, the <code>Tab</code> class is crucial for managing the presentation and behavior of tabs within the Servoy environment, offering control
+ * over layout, style, and functionality.</p>
  *
  * @author jblok
+ * @deprecated
  */
+@Deprecated
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME, typeCode = IRepository.TABS)
 @ServoyClientSupport(mc = false, wc = true, sc = true)
 public class Tab extends AbstractBase
@@ -44,9 +62,9 @@ public class Tab extends AbstractBase
 	/**
 	 * Constructor I
 	 */
-	Tab(ISupportChilds parent, int element_id, UUID uuid)
+	Tab(ISupportChilds parent, UUID uuid)
 	{
-		super(IRepository.TABS, parent, element_id, uuid);
+		super(IRepository.TABS, parent, uuid);
 	}
 
 	/*
@@ -66,7 +84,7 @@ public class Tab extends AbstractBase
 	{
 		if (arg != null)
 		{
-			validator.checkName(arg, getID(), new ValidatorSearchContext(getParent(), IRepository.TABS), false);
+			validator.checkName(arg, getUUID(), new ValidatorSearchContext(getParent(), IRepository.TABS), false);
 		}
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_NAME, arg);
 	}
@@ -101,7 +119,7 @@ public class Tab extends AbstractBase
 	 *
 	 * @param arg the containsFormID
 	 */
-	public void setContainsFormID(int arg)
+	public void setContainsFormID(String arg)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_CONTAINSFORMID, arg);
 	}
@@ -109,9 +127,9 @@ public class Tab extends AbstractBase
 	/**
 	 * @clonedesc com.servoy.base.solutionmodel.IBaseSMTab#getContainsForm()
 	 */
-	public int getContainsFormID()
+	public String getContainsFormID()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_CONTAINSFORMID).intValue();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_CONTAINSFORMID);
 	}
 
 	/**
@@ -159,7 +177,7 @@ public class Tab extends AbstractBase
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_TOOLTIPTEXT);
 	}
 
-	public void setImageMediaID(int arg)
+	public void setImageMediaID(String arg)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_IMAGEMEDIAID, arg);
 	}
@@ -167,9 +185,9 @@ public class Tab extends AbstractBase
 	/**
 	 * The name of the image Media file used.
 	 */
-	public int getImageMediaID()
+	public String getImageMediaID()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_IMAGEMEDIAID).intValue();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_IMAGEMEDIAID);
 	}
 
 
@@ -289,12 +307,12 @@ public class Tab extends AbstractBase
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_USENEWFORMINSTANCE, useNewFormInstance);
 	}
 
-	public int getExtendsID()
+	public String getExtendsID()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_EXTENDSID).intValue();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_EXTENDSID);
 	}
 
-	public void setExtendsID(int arg)
+	public void setExtendsID(String arg)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_EXTENDSID, arg);
 	}

@@ -471,7 +471,7 @@ public abstract class AbstractScriptLabel extends JLabel implements ISkinnable, 
 
 	public String getParameterValue(String param)
 	{
-		// TODO catch the submit of a html that is displayed. 
+		// TODO catch the submit of a html that is displayed.
 		return null;
 	}
 
@@ -575,20 +575,20 @@ public abstract class AbstractScriptLabel extends JLabel implements ISkinnable, 
 		return super.getDisabledIcon();
 	}
 
-	public int getMediaIcon()
+	public String getMediaIcon()
 	{
-		return mediaId;
+		return mediaUUID;
 	}
 
-	private int mediaId;
+	private String mediaUUID;
 
-	public void setMediaIcon(int mediaId)
+	public void setMediaIcon(String mediaUUID)
 	{
-		this.mediaId = mediaId;
+		this.mediaUUID = mediaUUID;
 		try
 		{
-			setIcon(ComponentFactory.loadIcon(application.getFlattenedSolution(), new Integer(mediaId)));
-			Media media = application.getFlattenedSolution().getMedia(mediaId);
+			setIcon(ComponentFactory.loadIcon(application.getFlattenedSolution(), mediaUUID));
+			Media media = application.getFlattenedSolution().getMedia(mediaUUID);
 			if (media != null) text_url = MediaURLStreamHandler.MEDIA_URL_DEF + media.getName();
 		}
 		catch (Exception ex)
@@ -780,11 +780,11 @@ public abstract class AbstractScriptLabel extends JLabel implements ISkinnable, 
 	/**
 	 * @see com.servoy.j2db.ui.ILabel#setRolloverIcon(int)
 	 */
-	public void setRolloverIcon(int rollOverMediaId)
+	public void setRolloverIcon(String rollOverMediaUUID)
 	{
 		try
 		{
-			setRolloverIcon(ComponentFactory.loadIcon(application.getFlattenedSolution(), new Integer(rollOverMediaId)));
+			setRolloverIcon(ComponentFactory.loadIcon(application.getFlattenedSolution(), rollOverMediaUUID));
 		}
 		catch (Exception ex)
 		{
@@ -862,7 +862,7 @@ public abstract class AbstractScriptLabel extends JLabel implements ISkinnable, 
 
 				/*
 				 * (non-Javadoc)
-				 * 
+				 *
 				 * @see java.awt.event.MouseAdapter#mouseEntered(java.awt.event.MouseEvent)
 				 */
 				@Override
@@ -873,7 +873,7 @@ public abstract class AbstractScriptLabel extends JLabel implements ISkinnable, 
 
 				/*
 				 * (non-Javadoc)
-				 * 
+				 *
 				 * @see java.awt.event.MouseAdapter#mouseExited(java.awt.event.MouseEvent)
 				 */
 				@Override

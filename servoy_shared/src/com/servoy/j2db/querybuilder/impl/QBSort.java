@@ -24,16 +24,25 @@ import com.servoy.j2db.querybuilder.IQueryBuilderSort;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 
 /**
+ * <p>The <code>QBSort</code> class provides a wrapper for defining SQL sort conditions within the
+ * <code>QBSelect</code> framework. It allows for flexible and precise specification of sorting rules,
+ * integrating seamlessly with parent and root query references. Main functions include configuring
+ * ascending (<code>asc</code>) and descending (<code>desc</code>) sort orders, supporting diverse
+ * query components.</p>
+ *
+ * <p>For additional details on query construction and execution, refer to the
+ * <a href="https://docs.servoy.com/reference/servoycore/dev-api/database-manager/qbselect">QBSelect documentation</a>.</p>
+ *
  * @author rgansevles
  *
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "QBSort")
+@ServoyDocumented(category = ServoyDocumented.RUNTIME)
 public class QBSort extends QBPart implements IQueryBuilderSort
 {
 	private final boolean ascending;
-	private final QBColumn queryBuilderColumn;
+	private final QBColumnImpl queryBuilderColumn;
 
-	public QBSort(QBSelect parent, QBColumn queryBuilderColumn, boolean ascending)
+	public QBSort(QBSelect parent, QBColumnImpl queryBuilderColumn, boolean ascending)
 	{
 		super(parent, parent);
 		this.queryBuilderColumn = queryBuilderColumn;
@@ -41,7 +50,7 @@ public class QBSort extends QBPart implements IQueryBuilderSort
 	}
 
 	@Override
-	@JSReadonlyProperty
+	@JSReadonlyProperty(debuggerRepresentation = "Query parent part")
 	public QBSelect getParent()
 	{
 		return (QBSelect)super.getParent();

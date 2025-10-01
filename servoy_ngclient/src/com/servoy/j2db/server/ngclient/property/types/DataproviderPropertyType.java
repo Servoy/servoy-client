@@ -25,6 +25,7 @@ import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IConvertedPropertyType;
 import org.sablo.specification.property.IPropertyConverterForBrowserWithDynamicClientType;
+import org.sablo.specification.property.IPropertyWithAttachDependencies;
 import org.sablo.specification.property.types.DefaultPropertyType;
 import org.sablo.util.ValueReference;
 import org.sablo.websocket.utils.JSONUtils;
@@ -32,6 +33,7 @@ import org.sablo.websocket.utils.JSONUtils.IJSONStringWithClientSideType;
 
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.persistence.Form;
+import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.FormElementContext;
@@ -55,13 +57,16 @@ public class DataproviderPropertyType extends DefaultPropertyType<DataproviderTy
 	implements IFormElementToSabloComponent<String, DataproviderTypeSabloValue>, IConvertedPropertyType<DataproviderTypeSabloValue>,
 	ISupportTemplateValue<String>, ISabloComponentToRhino<DataproviderTypeSabloValue>, IRhinoToSabloComponent<DataproviderTypeSabloValue>,
 	IDataLinkedType<String, DataproviderTypeSabloValue>, IFindModeAwareType<String, DataproviderTypeSabloValue>,
-	ICanBeLinkedToFoundset<String, DataproviderTypeSabloValue>, IPropertyConverterForBrowserWithDynamicClientType<DataproviderTypeSabloValue>
+	ICanBeLinkedToFoundset<String, DataproviderTypeSabloValue>, IPropertyConverterForBrowserWithDynamicClientType<DataproviderTypeSabloValue>,
+	IPropertyWithAttachDependencies<DataproviderTypeSabloValue>
 {
 
 	public static final DataproviderPropertyType INSTANCE = new DataproviderPropertyType();
 	public static final String TYPE_NAME = "dataprovider"; //$NON-NLS-1$
 
-	protected DataproviderPropertyType()
+	private String[] dependencies;
+
+	private DataproviderPropertyType()
 	{
 	}
 
@@ -104,18 +109,29 @@ public class DataproviderPropertyType extends DefaultPropertyType<DataproviderTy
 	@Override
 	public TargetDataLinks getDataLinks(String formElementValue, PropertyDescription pd, FlattenedSolution flattenedSolution, INGFormElement formElement)
 	{
-		return getDataLinks(formElementValue, formElement.getForm());
+		return getDataLinks(formElementValue, formElement.getForm(), flattenedSolution);
 	}
 
-	protected TargetDataLinks getDataLinks(String formElementValue, Form form)
+	protected TargetDataLinks getDataLinks(String formElementValue, Form form, FlattenedSolution flattenedSolution)
 	{
 		// formElementValue is the data provider id string here
 		if (formElementValue == null) return TargetDataLinks.NOT_LINKED_TO_DATA;
 
 		// not linked for globals or form variables; linked for the rest - the rest should mean record based dataprovider
 		boolean recordDP = !ScopesUtils.isVariableScope(formElementValue) && (form == null || form.getScriptVariable(formElementValue) == null);
+		Relation[] relationSequence = null;
+		if (recordDP)
+		{
+			// check if this is a related
+			int index = formElementValue.lastIndexOf('.');
+			if (index > 0 && index < formElementValue.length() - 1) //check if is related value request
+			{
+				String partName = formElementValue.substring(0, index);
+				relationSequence = flattenedSolution.getRelationSequence(partName);
+			}
+		}
 		// TODO - if it's global relation only, then record based constructor param should be false
-		return new TargetDataLinks(new String[] { formElementValue }, recordDP);
+		return new TargetDataLinks(new String[] { formElementValue }, recordDP, relationSequence);
 	}
 
 
@@ -149,7 +165,6 @@ public class DataproviderPropertyType extends DefaultPropertyType<DataproviderTy
 	{
 		if (sabloValue != null)
 		{
-
 			IJSONStringWithClientSideType jsonValue = sabloValue.toJSON(dataConverterContext);
 
 			writer.value(jsonValue);
@@ -222,15 +237,22 @@ public class DataproviderPropertyType extends DefaultPropertyType<DataproviderTy
 	@Override
 	public boolean isFindModeAware(String formElementValue, PropertyDescription pd, FlattenedSolution flattenedSolution, FormElement formElement)
 	{
-		return isFindModeAware(formElementValue, formElement.getForm());
+		return isFindModeAware(formElementValue, formElement.getForm(), flattenedSolution);
 	}
 
-	protected boolean isFindModeAware(String formElementValue, Form form)
+	protected boolean isFindModeAware(String formElementValue, Form form, FlattenedSolution flattenedSolution)
 	{
 		if (formElementValue == null) return false;
 
-		TargetDataLinks dataLinks = getDataLinks(formElementValue, form);
+		TargetDataLinks dataLinks = getDataLinks(formElementValue, form, flattenedSolution);
 		return dataLinks.recordLinked;
+	}
+
+	@Override
+	public String[] getDependencies(PropertyDescription pd)
+	{
+		String dtpn = ((DataproviderConfig)pd.getConfig()).getDisplayTagsPropertyName();
+		return dtpn != null ? new String[] { dtpn } : null;
 	}
 
 }

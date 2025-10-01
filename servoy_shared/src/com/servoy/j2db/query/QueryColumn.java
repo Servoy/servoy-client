@@ -16,8 +16,10 @@
  */
 package com.servoy.j2db.query;
 
+import com.servoy.base.query.BaseColumnType;
 import com.servoy.base.query.BaseQueryColumn;
 import com.servoy.base.query.BaseQueryTable;
+import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.serialize.IWriteReplaceExtended;
 import com.servoy.j2db.util.serialize.ReplacedObject;
 import com.servoy.j2db.util.visitor.IVisitor;
@@ -31,36 +33,44 @@ import com.servoy.j2db.util.visitor.IVisitor;
  */
 public final class QueryColumn extends BaseQueryColumn implements IWriteReplaceExtended, IQuerySelectValue
 {
-	public QueryColumn(BaseQueryTable table, int id, String name, ColumnType columnType, String nativeTypename, int flags, boolean identity)
+	protected UUID uuid = UUID.randomUUID(); // uuid of this column, known on the server, may be used to lookup name and columnType
+
+	public QueryColumn(BaseQueryTable table, String name, BaseColumnType columnType, String nativeTypename, int flags, boolean identity)
 	{
-		super(table, id, name, columnType, nativeTypename, flags, identity);
+		super(table, name, columnType, nativeTypename, flags, identity);
 	}
 
-	public QueryColumn(BaseQueryTable table, int id, String name, String alias, ColumnType columnType, String nativeTypename, int flags, boolean identity)
+	public QueryColumn(BaseQueryTable table, String name, String alias, BaseColumnType columnType, String nativeTypename, int flags,
+		boolean identity)
 	{
-		super(table, id, name, alias, columnType, nativeTypename, flags, identity);
+		super(table, name, alias, columnType, nativeTypename, flags, identity);
 	}
 
-	public QueryColumn(BaseQueryTable table, int id, String name, int sqlType, int length, int scale, String nativeTypename, int flags, boolean identity)
+	public QueryColumn(BaseQueryTable table, UUID uuid, String name, BaseColumnType columnType, String nativeTypename, int flags, boolean identity)
 	{
-		this(table, id, name, ColumnType.getInstance(sqlType, length, scale), nativeTypename, flags, identity);
+		super(table, name, columnType, nativeTypename, flags, identity);
+		this.uuid = uuid;
 	}
 
-	public QueryColumn(BaseQueryTable table, int id, String name, int sqlType, int length, int scale, String nativeTypename, int flags)
+	public QueryColumn(BaseQueryTable table, String name, BaseColumnType columnType, String nativeTypename, int flags)
 	{
-		this(table, id, name, ColumnType.getInstance(sqlType, length, scale), nativeTypename, flags, false);
+		this(table, name, columnType, nativeTypename, flags, false);
+	}
+
+	public QueryColumn(BaseQueryTable table, String name, int sqlType, int length, int scale, String nativeTypename, int flags)
+	{
+		this(table, name, ColumnType.getInstance(sqlType, length, scale), nativeTypename, flags, false);
 	}
 
 	public QueryColumn(BaseQueryTable table, String name)
 	{
-		this(table, -1, name, ColumnType.DUMMY, null, 0, false);
+		this(table, name, ColumnType.UNKNOWN, null, 0, false);
 	}
 
 	@Override
-	public IQuerySelectValue asAlias(String newAlias)
+	public QueryColumn asAlias(String newAlias)
 	{
-		return new QueryColumn(table, id, name, newAlias, ColumnType.getInstance(columnType.getSqlType(), columnType.getLength(), columnType.getScale()),
-			nativeTypename, getFlags(), identity);
+		return new QueryColumn(table, name, newAlias, columnType, nativeTypename, getFlags(), identity);
 	}
 
 	@Override
@@ -89,52 +99,30 @@ public final class QueryColumn extends BaseQueryColumn implements IWriteReplaceE
 	public ReplacedObject writeReplace(boolean full)
 	{
 		// Note: when this serialized structure changes, make sure that old data (maybe saved as serialized xml) can still be deserialized!
-		if (id == -1 || full)
-		{
-			// server id not known, must serialize complete info
-			return new ReplacedObject(
-				AbstractBaseQuery.QUERY_SERIALIZE_DOMAIN,
-				getClass(),
-				new Object[] { table, name, new int[] { columnType.getSqlType(), columnType.getLength(), columnType.getScale(), identity ? 1
-					: 0, flags }, alias, nativeTypename });
-		}
-		else
-		{
-			// server id known, just serialize id and table, the server will update
-			return new ReplacedObject(AbstractBaseQuery.QUERY_SERIALIZE_DOMAIN, getClass(), new Object[] { table, new Integer(id), alias });
-		}
+		// server id not known, must serialize complete info
+		return new ReplacedObject(
+			AbstractBaseQuery.QUERY_SERIALIZE_DOMAIN,
+			getClass(),
+			new Object[] { table, name, new int[] { columnType.getSqlType(), columnType.getLength(), columnType.getScale(), identity ? 1
+				: 0, flags, columnType.getSubType() }, alias, nativeTypename });
 	}
 
 	public QueryColumn(ReplacedObject s)
 	{
 		Object[] members = (Object[])s.getObject();
-		if (members[1] instanceof Integer)
-		{
-			// just the id and table are serialized, optionally alias, the server must update the fields
-			int i = 0;
-			table = (QueryTable)members[i++];
-			id = ((Integer)members[i++]).intValue();
-			alias = i < members.length ? (String)members[i++] : null;
-			name = null;
-			columnType = null;
-			nativeTypename = null;
-			identity = false;
-			flags = 0;
-		}
-		else
-		{
-			// all fields are serialized
-			int i = 0;
-			table = (QueryTable)members[i++];
-			name = (String)members[i++];
-			int[] numbers = (int[])members[i++];
-			columnType = ColumnType.getInstance(numbers[0], numbers[1], numbers[2]);
-			identity = numbers[3] == 1;
-			flags = numbers.length < 5 ? 0 : numbers[4]; // was added later, some old stored QueryColumns may not have this
-			alias = i < members.length ? (String)members[i++] : null;
-			nativeTypename = i < members.length ? (String)members[i++] : null;
-			id = -1;
-		}
+		// all fields are serialized
+		int i = 0;
+		table = (QueryTable)members[i++];
+		name = (String)members[i++];
+		int[] numbers = (int[])members[i++];
+		identity = numbers[3] == 1;
+		flags = numbers.length < 5 ? 0 : numbers[4]; // was added later, some old stored QueryColumns may not have this
+		int subType = numbers.length < 6 ? 0 : numbers[5]; // was added later, some old stored QueryColumns may not have this
+		alias = i < members.length ? (String)members[i++] : null;
+		nativeTypename = i < members.length ? (String)members[i++] : null;
+
+		columnType = ColumnType.getInstance(numbers[0], numbers[1], numbers[2], subType);
+		uuid = null;
 	}
 
 	/**
@@ -146,12 +134,32 @@ public final class QueryColumn extends BaseQueryColumn implements IWriteReplaceE
 	 * @param scale
 	 * @param identity
 	 */
-	public void update(String name, int sqlType, int length, int scale, String nativeTypename, int flags, boolean identity)
+	public void update(String name, ColumnType columnType, String nativeTypename, int flags, boolean identity)
 	{
 		this.name = name;
-		this.columnType = ColumnType.getInstance(sqlType, length, scale);
+		this.columnType = columnType;
 		this.nativeTypename = nativeTypename;
 		this.flags = flags;
 		this.identity = identity;
+	}
+
+	public UUID getUUID()
+	{
+		return uuid;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.base.query.BaseQueryColumn#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (super.equals(obj))
+		{
+			return uuid != null && uuid.equals(((QueryColumn)obj).uuid);
+		}
+		return false;
 	}
 }

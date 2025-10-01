@@ -34,7 +34,7 @@ public interface ITabPanel extends IComponent, IScriptableProvider, IDisplayRela
 
 	IFormLookupPanel createFormLookupPanel(String name, String relationName, String formName);
 
-	void addTab(String text, int iconMediaId, IFormLookupPanel flp, String tooltip);
+	void addTab(String text, String iconMediaUUID, IFormLookupPanel flp, String tooltip);
 
 	void setTabForegroundAt(int index, Color fg);
 

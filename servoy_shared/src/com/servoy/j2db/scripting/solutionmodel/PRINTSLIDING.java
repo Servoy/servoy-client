@@ -24,6 +24,7 @@ import com.servoy.j2db.solutionmodel.ISMPrintSliding;
  * @author jcompagner
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
+@Deprecated
 public class PRINTSLIDING implements ISMPrintSliding, IPrefixedConstantsObject
 {
 

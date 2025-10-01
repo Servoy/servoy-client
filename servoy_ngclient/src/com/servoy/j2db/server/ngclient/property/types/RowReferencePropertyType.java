@@ -29,10 +29,8 @@ import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
-import com.servoy.j2db.server.ngclient.property.FoundsetTypeSabloValue;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
 import com.servoy.j2db.server.ngclient.scripting.WebBaseFunction;
-import com.servoy.j2db.util.Pair;
 
 /**
  * This property type is meant as a way to send records from client side scripting to server side scripting of webcomponents or services.
@@ -95,8 +93,7 @@ public class RowReferencePropertyType extends DefaultPropertyType<String> implem
 				IRecordInternal record = null;
 				if (args != null && args.length == 1 && args[0] instanceof IFoundSetInternal)
 				{
-					Pair<String, Integer> splitHashAndIndex = FoundsetTypeSabloValue.splitPKHashAndIndex(webComponentValue);
-					int recordIndex = ((IFoundSetInternal)args[0]).getRecordIndex(splitHashAndIndex.getLeft(), splitHashAndIndex.getRight().intValue());
+					int recordIndex = ((IFoundSetInternal)args[0]).getRecordIndex(webComponentValue, 0);
 					if (recordIndex != -1) record = ((IFoundSetInternal)args[0]).getRecord(recordIndex);
 				}
 				return record;

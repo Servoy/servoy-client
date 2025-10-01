@@ -299,4 +299,5 @@ public interface IXMLImportUserChannel extends InfoChannel
 	public boolean compactSolutions();
 
 	public boolean allowImportEmptySolution();
+
 }

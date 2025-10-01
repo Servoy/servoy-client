@@ -21,6 +21,11 @@ import com.servoy.j2db.scripting.IPrefixedConstantsObject;
 import com.servoy.j2db.solutionmodel.ISMScrollbar;
 
 /**
+ * The <code>SCROLLBAR</code> class implements <code>ISMScrollbar</code> and <code>IPrefixedConstantsObject</code>
+ * to provide constants related to scrollbars in a solution model. It includes a <code>getPrefix</code> method that
+ * returns the prefix <code>"SM_SCROLLBAR"</code> for identifying related constants and overrides the <code>toString</code>
+ * method to provide a descriptive name.
+ *
  * @author jcompagner
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)

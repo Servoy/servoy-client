@@ -64,4 +64,14 @@ public interface HasRuntimeStyleClass
 	 */
 	@JSFunction
 	public void hasStyleClass(String styleName);
+
+	/**
+	 * Return style classes of the element.
+	 *
+	 * @sample
+	 *  %%prefix%%%%elementName%%.getStyleClasses();
+	 *
+	 */
+	@JSFunction
+	public String[] getStyleClasses();
 }

@@ -17,6 +17,8 @@
 package com.servoy.j2db.dataprocessing;
 
 
+import static com.servoy.j2db.util.Utils.stream;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -24,6 +26,7 @@ import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.stream.Stream;
 
 import com.servoy.base.persistence.IBaseColumn;
 import com.servoy.j2db.Messages;
@@ -33,6 +36,7 @@ import com.servoy.j2db.dataprocessing.ValueFactory.DbIdentValue;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.SortedList;
 import com.servoy.j2db.util.StringComparator;
@@ -60,12 +64,22 @@ public class Row
 
 	private final Map<String, Object> unstoredCalcCache; // dataProviderID -> Value
 	private boolean existInDB;
+	private boolean flaggedForDeletion;
 	private String pkHashKey;
 	private final WeakHashMap<IRowChangeListener, Object> listeners;
 
 	private static Object dummy = new Object();
+	private static final IRowChangeListener[] EMPTY_LISTENERS = new IRowChangeListener[0];
 
 	private final ConcurrentMap<String, Thread> calculatingThreads = new ConcurrentHashMap<>(4);
+
+	void unregister(IRowChangeListener r)
+	{
+		synchronized (listeners)
+		{
+			listeners.remove(r);
+		}
+	}
 
 	void register(IRowChangeListener r)
 	{
@@ -80,24 +94,31 @@ public class Row
 	{
 		synchronized (listeners)
 		{
-			return listeners.size() != 0;
+			return !listeners.isEmpty();
+		}
+	}
+
+	private IRowChangeListener[] getRowListeners()
+	{
+		synchronized (listeners)
+		{
+			// Cannot use listeners.size() here because some keys may have been removed from the WeakHashMap
+			return listeners.keySet().toArray(EMPTY_LISTENERS);
 		}
 	}
 
 	void fireNotifyChange(String name, Object value, FireCollector collector)
 	{
 		ModificationEvent e = new ModificationEvent(name, value, this);
-		Object[] array;
-		synchronized (listeners)
+		for (IRowChangeListener listener : getRowListeners())
 		{
-			array = listeners.keySet().toArray();
+			listener.notifyChange(e, collector);
 		}
+	}
 
-		for (Object element2 : array)
-		{
-			IRowChangeListener element = (IRowChangeListener)element2;
-			element.notifyChange(e, collector);
-		}
+	public Stream<IRecordInternal> getRegisterdRecords()
+	{
+		return stream(getRowListeners()).filter(IRecordInternal.class::isInstance).map(IRecordInternal.class::cast);
 	}
 
 	Row(RowManager parent, Object[] columndata, Map<String, Object> cc, boolean existInDB)
@@ -189,6 +210,21 @@ public class Row
 	public boolean existInDB()
 	{
 		return existInDB;
+	}
+
+	public void flagForDeletion()
+	{
+		flaggedForDeletion = true;
+	}
+
+	public void clearFlagForDeletion()
+	{
+		flaggedForDeletion = false;
+	}
+
+	public boolean isFlaggedForDeletion()
+	{
+		return flaggedForDeletion;
 	}
 
 	public boolean containsCalculation(String id)
@@ -509,18 +545,15 @@ public class Row
 		return;
 	}
 
-	//this makes it possible to validate the state before it is processed again due to some listner being fired
+	// this makes it possible to validate the state before it is processed again due to some listener being fired
 	void flagExistInDB()
 	{
-		if (!isRemoving)
+		existInDB = true;
+		synchronized (this)
 		{
-			existInDB = true;
-			synchronized (this)
-			{
-				oldValues = null;//dump any old shit
-			}
-			softReferenceAllByteArrays();
+			oldValues = null; // dump any old shit
 		}
+		softReferenceAllByteArrays();
 	}
 
 	void clearExistInDB()
@@ -627,7 +660,7 @@ public class Row
 		return parent.lockedByMyself(this);
 	}
 
-	void rollbackFromDB() throws Exception
+	void rollbackFromDB() throws ServoyException
 	{
 		parent.rollbackFromDB(this, true, ROLLBACK_MODE.OVERWRITE_CHANGES);
 	}
@@ -889,21 +922,11 @@ public class Row
 		}
 	}
 
-	private boolean isRemoving = false;
-
 	public void remove()
 	{
-		isRemoving = true;
-		Object[] array;
-		synchronized (listeners)
+		for (IRowChangeListener listener : getRowListeners())
 		{
-			array = listeners.keySet().toArray();
-		}
-
-		for (Object element2 : array)
-		{
-			IRowChangeListener element = (IRowChangeListener)element2;
-			element.rowRemoved();
+			listener.rowRemoved();
 		}
 	}
 }

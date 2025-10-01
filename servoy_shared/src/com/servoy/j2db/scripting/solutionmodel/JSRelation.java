@@ -44,6 +44,27 @@ import com.servoy.j2db.util.ScopesUtils;
 import com.servoy.j2db.util.UUID;
 
 /**
+ * <code>JSRelation</code> provides a model for defining and managing relations between primary and foreign data sources,
+ * supporting operations such as joins, sorting, and criteria management.
+ * It includes constants, properties, and methods to facilitate the creation, modification, and use of relational data structures.
+ *
+ * <h2>Functionality</h2>
+ * <p>JSRelation offers constants to define join types (<code>FULL_JOIN</code>, <code>INNER_JOIN</code>, <code>LEFT_OUTER_JOIN</code>, and <code>RIGHT_OUTER_JOIN</code>)
+ * used in database relations. These constants influence how tables are joined during operations like sorting and querying.
+ * Properties such as <code>allowCreationRelatedRecords</code> and <code>deleteRelatedRecords</code> provide control over cascading actions
+ * like record creation or deletion across related data sets.
+ * Other attributes like <code>foreignDataSource</code>, <code>primaryDataSource</code>, and <code>initialSort</code>
+ * allow fine-tuning of the relational setup, enabling flexibility across multiple databases or data views.</p>
+ *
+ * <p>The methods provided, such as <code>getRelationItems</code> and <code>getUUID</code>, allow querying and identifying relations,
+ * while methods like <code>newRelationItem</code> and <code>removeRelationItem</code> enable dynamic modification of relation criteria.
+ * For example, relations can be defined between specific columns or modified to add or remove criteria dynamically during runtime.</p>
+ *
+ * <p>JSRelation supports a robust configuration system with detailed examples, showcasing the integration of parent-child relations and control over operations
+ * such as cascading deletions, dynamic key assignments, and data source management.</p>
+ *
+ * For details please refer to the <a href="https://docs.servoy.com/reference/servoycore/object-model/solution/relation">Relation</a> section of this documentation</p>
+ *
  * @author jcompagner
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
@@ -247,6 +268,8 @@ public class JSRelation implements IJSParent<Relation>, IConstantsObject, ISMRel
 	 * @sample
 	 * var relation = solutionModel.newRelation('parentToChild', 'db:/example_data/parent_table', 'db:/example_data/child_table', JSRelation.INNER_JOIN);
 	 * relation.allowCreationRelatedRecords = true;
+	 *
+	 * @return true if related records can be created, false otherwise.
 	 */
 	@JSGetter
 	public boolean getAllowCreationRelatedRecords()
@@ -267,6 +290,8 @@ public class JSRelation implements IJSParent<Relation>, IConstantsObject, ISMRel
 	 * @sample
 	 * var relation = solutionModel.newRelation('parentToChild', 'db:/example_data/parent_table', 'db:/example_data/child_table', JSRelation.INNER_JOIN);
 	 * relation.allowParentDeleteWhenHavingRelatedRecords = false;
+	 *
+	 * @return true if parent records can be deleted when having related records, false otherwise.
 	 */
 	@JSGetter
 	public boolean getAllowParentDeleteWhenHavingRelatedRecords()
@@ -287,6 +312,8 @@ public class JSRelation implements IJSParent<Relation>, IConstantsObject, ISMRel
 	 * @sample
 	 * var relation = solutionModel.newRelation('parentToChild', 'db:/example_data/parent_table', 'db:/example_data/child_table', JSRelation.INNER_JOIN);
 	 * relation.deleteRelatedRecords = true;
+	 *
+	 * @return true if related records are deleted when the parent record is deleted, false otherwise.
 	 */
 	@JSGetter
 	public boolean getDeleteRelatedRecords()
@@ -327,6 +354,8 @@ public class JSRelation implements IJSParent<Relation>, IConstantsObject, ISMRel
 	 * @clonedesc com.servoy.j2db.persistence.Relation#getForeignDataSource()
 	 *
 	 * @sampleas com.servoy.j2db.scripting.solutionmodel.JSRelation#getPrimaryDataSource()
+	 *
+	 * @return the data source URI of the foreign table.
 	 */
 	@JSGetter
 	public String getForeignDataSource()
@@ -359,6 +388,8 @@ public class JSRelation implements IJSParent<Relation>, IConstantsObject, ISMRel
 	 * @sample
 	 * var relation = solutionModel.newRelation('parentToChild', 'db:/example_data/parent_table', 'db:/example_data/child_table', JSRelation.INNER_JOIN);
 	 * relation.initialSort = 'another_child_table_text asc';
+	 *
+	 * @return the initial sort string for the relation.
 	 */
 	@JSGetter
 	public String getInitialSort()
@@ -377,6 +408,8 @@ public class JSRelation implements IJSParent<Relation>, IConstantsObject, ISMRel
 	 * @clonedesc com.servoy.j2db.persistence.Relation#getJoinType()
 	 *
 	 * @sampleas com.servoy.j2db.solutionmodel.ISMRelation#INNER_JOIN
+	 *
+	 * @return the join type for the relation, represented as an integer.
 	 */
 	@JSGetter
 	public int getJoinType()
@@ -399,6 +432,8 @@ public class JSRelation implements IJSParent<Relation>, IConstantsObject, ISMRel
 	 * relation.name = 'anotherName';
 	 * var firstTab = tabs.newTab('firstTab', 'Child Form', childForm, relation);
 	 * firstTab.relationName = relation.name;
+	 *
+	 * @return the name of the relation.
 	 */
 	@JSGetter
 	public String getName()
@@ -431,6 +466,8 @@ public class JSRelation implements IJSParent<Relation>, IConstantsObject, ISMRel
 	 * relation.primaryServerName = 'user_data';
 	 * relation.foreignTableName = 'another_child_table';
 	 * relation.foreignServerName = 'user_data';
+	 *
+	 * @return the name of the server where the primary table is located.
 	 */
 	@Deprecated
 	public String js_getPrimaryServerName()
@@ -453,6 +490,8 @@ public class JSRelation implements IJSParent<Relation>, IConstantsObject, ISMRel
 	 * @clonedesc com.servoy.j2db.solutionmodel.ISMRelation#getPrimaryDataSource()
 	 *
 	 * @sampleas com.servoy.j2db.solutionmodel.ISMRelation#getForeignDataSource()
+	 *
+	 * @return the data source URI of the primary table.
 	 */
 	@JSGetter
 	public String getPrimaryDataSource()
@@ -513,6 +552,8 @@ public class JSRelation implements IJSParent<Relation>, IConstantsObject, ISMRel
 	 * @sample
 	 * var relation = solutionModel.newRelation('parentToChild', 'db:/example_data/parent_table', 'db:/example_data/child_table', JSRelation.INNER_JOIN);
 	 * application.output(relation.getUUID().toString())
+	 *
+	 * @return the UUID of the relation object.
 	 */
 	@JSFunction
 	public UUID getUUID()

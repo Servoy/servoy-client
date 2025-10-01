@@ -16,7 +16,6 @@
  */
 package com.servoy.j2db;
 
-import java.rmi.RemoteException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -69,19 +68,19 @@ public class ClientRepository implements IRepository, IDelegate<IRepository>
 		return t;
 	}
 
-	public String[] getServerNames(boolean sort) throws RemoteException, RepositoryException
+	public String[] getServerNames(boolean sort) throws RepositoryException
 	{
 		if (repository == null) return new String[0];
 		return repository.getServerNames(sort);
 	}
 
-	public IServer getServer(String name) throws RemoteException, RepositoryException
+	public IServer getServer(String name) throws RepositoryException
 	{
 		if (repository == null) return null;
 		return repository.getServer(name);
 	}
 
-	public String[] getDuplicateServerNames(String name) throws RemoteException, RepositoryException
+	public String[] getDuplicateServerNames(String name) throws RepositoryException
 	{
 		String[] result = null;
 		if (repository != null)
@@ -99,70 +98,64 @@ public class ClientRepository implements IRepository, IDelegate<IRepository>
 		return result;
 	}
 
-	public ConcurrentMap<String, IServer> getServerProxies(RootObjectMetaData[] metas) throws RemoteException, RepositoryException
+	public ConcurrentMap<String, IServer> getServerProxies(RootObjectMetaData[] metas) throws RepositoryException
 	{
 		if (repository == null) return new ConcurrentHashMap<String, IServer>();
 		return repository.getServerProxies(metas);
 	}
 
-	public RootObjectMetaData getRootObjectMetaData(int rootObjectId) throws RemoteException, RepositoryException
-	{
-		if (repository == null) return null;
-		return repository.getRootObjectMetaData(rootObjectId);
-	}
-
-	public RootObjectMetaData getRootObjectMetaData(UUID uuid) throws RemoteException, RepositoryException
+	public RootObjectMetaData getRootObjectMetaData(UUID uuid) throws RepositoryException
 	{
 		if (repository == null) return null;
 		return repository.getRootObjectMetaData(uuid);
 	}
 
-	public RootObjectMetaData getRootObjectMetaData(String name, int objectTypeId) throws RemoteException, RepositoryException
+	public RootObjectMetaData getRootObjectMetaData(String name, int objectTypeId) throws RepositoryException
 	{
 		if (repository == null) return null;
 		return repository.getRootObjectMetaData(name, objectTypeId);
 	}
 
-	public RootObjectMetaData[] getRootObjectMetaDatas() throws RemoteException, RepositoryException
+	public RootObjectMetaData[] getRootObjectMetaDatas() throws RepositoryException
 	{
 		if (repository == null) return new RootObjectMetaData[0];
 		return repository.getRootObjectMetaDatas();
 	}
 
-	public RootObjectMetaData[] getRootObjectMetaDatasForType(int objectTypeId) throws RemoteException, RepositoryException
+	public RootObjectMetaData[] getRootObjectMetaDatasForType(int objectTypeId) throws RepositoryException
 	{
 		if (repository == null) return new RootObjectMetaData[0];
 		return repository.getRootObjectMetaDatasForType(objectTypeId);
 	}
 
-	public IRootObject getActiveRootObject(int id) throws RemoteException, RepositoryException
+	public IRootObject getActiveRootObject(UUID uuid) throws RepositoryException
 	{
 		if (repository == null) return null;
-		return updateRepository(repository.getActiveRootObject(id));
+		return updateRepository(repository.getActiveRootObject(uuid));
 	}
 
-	public IRootObject getActiveRootObject(String name, int objectTypeId) throws RemoteException, RepositoryException
+	public IRootObject getActiveRootObject(String name, int objectTypeId) throws RepositoryException
 	{
 		if (repository == null) return null;
 		return updateRepository(repository.getActiveRootObject(name, objectTypeId));
 	}
 
-	public long[] getActiveRootObjectsLastModified(int[] rootObjectIds) throws RemoteException, RepositoryException
+	public long[] getActiveRootObjectsLastModified(UUID[] rootObjectUUIDs) throws RepositoryException
 	{
 		if (repository == null) return new long[0];
-		return repository.getActiveRootObjectsLastModified(rootObjectIds);
+		return repository.getActiveRootObjectsLastModified(rootObjectUUIDs);
 	}
 
-	public byte[] getMediaBlob(int blob_id) throws RemoteException, RepositoryException
+	public byte[] getMediaBlob(int blob_id) throws RepositoryException
 	{
 		if (repository == null) return new byte[0];
 		return repository.getMediaBlob(blob_id);
 	}
 
-	public List<RootObjectReference> getActiveSolutionModuleMetaDatas(int solutionId) throws RemoteException, RepositoryException
+	public List<RootObjectReference> getActiveSolutionModuleMetaDatas(UUID solutionUUID) throws RepositoryException
 	{
 		if (repository == null) return Collections.<RootObjectReference> emptyList();
-		return repository.getActiveSolutionModuleMetaDatas(solutionId);
+		return repository.getActiveSolutionModuleMetaDatas(solutionUUID);
 	}
 
 }

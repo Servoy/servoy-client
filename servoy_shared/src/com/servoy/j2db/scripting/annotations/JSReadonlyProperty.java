@@ -25,13 +25,18 @@ import java.lang.annotation.Target;
 
 /**
  * An annotation that marks a Java method as a read-only javascript property.
- * 
+ *
  * @author rgansevles
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
-public @interface JSReadonlyProperty
-{
+public @interface JSReadonlyProperty {
+
 	String property() default "";
+
+	/**
+	 * When non-empty, this property function is not called in developer, but the representation string is returned instead
+	 */
+	String debuggerRepresentation() default "";
 }

@@ -28,6 +28,7 @@ import com.servoy.j2db.persistence.IColumn;
 import com.servoy.j2db.persistence.IScriptProvider;
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.RepositoryException;
+import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.query.ColumnType;
 import com.servoy.j2db.query.IQueryElement;
 import com.servoy.j2db.query.QuerySelect;
@@ -162,7 +163,8 @@ public interface IFoundSetManagerInternal extends IFoundSetManager, IDatabaseMan
 	public DataproviderTableFilterdefinition createDataproviderTableFilterdefinition(ITable table, String dataprovider, String operator, Object val)
 		throws ServoyException;
 
-	public void setTableFilters(String filterName, String serverName, List<TableFilterRequest> tableFilterRequests, boolean removeOld) throws ServoyException;
+	public void setTableFilters(String filterName, String serverName, List<TableFilterRequest> tableFilterRequests, boolean removeOld, boolean fire)
+		throws ServoyException;
 
 	public boolean updateTableFilterParam(String serverName, String filterName, ITable table, TableFilterdefinition tableFilterdefinition);
 
@@ -217,6 +219,14 @@ public interface IFoundSetManagerInternal extends IFoundSetManager, IDatabaseMan
 	 */
 	public boolean unregisterViewFoundSet(String datasource);
 
+	public void registerRelatedMenuFoundSet(MenuFoundSet foundset);
+
+	/**
+	 * @param relatedFoundSet
+	 */
+	public void unregisterRelatedMenuFoundSet(MenuFoundSet relatedFoundSet);
+
+
 	public RowManager getRowManager(String dataSource) throws ServoyException;
 
 	/**
@@ -240,5 +250,9 @@ public interface IFoundSetManagerInternal extends IFoundSetManager, IDatabaseMan
 	public JSRecordMarkers validateRecord(IRecordInternal record, Object state);
 
 	public SortOptions getSortOptions(IColumn column);
+
+	public void setTenantValue(Solution solution, Object value);
+
+	public Object[] getTenantValue();
 
 }

@@ -31,6 +31,20 @@ import com.servoy.j2db.util.MimeTypes;
 import com.servoy.j2db.util.UUID;
 
 /**
+ * <p><code>JSMedia</code> is a media wrapper designed for managing media content within solutions. It enables manipulation of media properties such as content bytes, MIME types, and metadata through a set of defined properties and methods.</p>
+ *
+ * <p>The <code>bytes</code> property represents the content of the media as a byte array. This allows direct modification of the media content while retaining its original name. For example, users can read image files, replace their content, and verify changes programmatically. The <code>mimeType</code> property specifies the type of media, such as 'image/jpg' or 'image/png'. It can be updated alongside the content to reflect new media formats without altering the media’s name.</p>
+ *
+ * <p>JSMedia provides several methods for interacting with media objects:</p>
+ * <ul>
+ *   <li><b><code>getAsString()</code></b>: Converts the byte content into a UTF-8 encoded string, returning <code>null</code> if the conversion fails or if the byte content is unavailable.</li>
+ *   <li><b><code>getName()</code></b>: Retrieves the name of the media object, ensuring that changes to content or MIME type do not affect the original name.</li>
+ *   <li><b><code>getUUID()</code></b>: Returns a unique identifier (UUID) for the media, allowing for precise identification.</li>
+ *   <li><b><code>setAsString(string)</code></b>: Updates the media’s byte content using a UTF-8 encoded string, enabling quick modifications with string inputs.</li>
+ * </ul>
+ *
+ * <p>For more comprehensive information, refer to the <a href="https://docs.servoy.com/reference/servoy-developer/solution-explorer/all-solutions/active-solution/media">media</a> section of this documentation.</p>
+ *
  * @author jcompagner
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
@@ -69,6 +83,8 @@ public class JSMedia implements IJavaScriptType, ISMMedia
 	 * @clonedesc com.servoy.j2db.persistence.Media#getMimeType()
 	 *
 	 * @sampleas getBytes()
+	 *
+	 * @return The MIME type of this Media object.
 	 */
 	@JSGetter
 	public String getMimeType()
@@ -109,6 +125,8 @@ public class JSMedia implements IJavaScriptType, ISMMedia
 	 * application.output('image name after change: ' + ballImage.getName()); // The name remains unchanged. Only the content (bytes) are changed.
 	 * application.output('image mime type: ' + ballImage.mimeType);
 	 * application.output('image size: ' + ballImage.bytes.length);
+	 *
+	 * @return A byte array holding the content of the Media object.
 	 */
 	@JSGetter
 	public byte[] getBytes()
@@ -131,7 +149,8 @@ public class JSMedia implements IJavaScriptType, ISMMedia
 	/**
 	 * Returns this media's bytes a a String converting it with the UTF-8 Charset.
 	 * Returns null if it couldn't convert it or the bytes where null.
-	 * @return
+	 *
+	 * @return This media's bytes as a string converted with the UTF-8 charset, or null if conversion is not possible or bytes are null.
 	 */
 	@JSFunction
 	public String getAsString()
@@ -157,6 +176,8 @@ public class JSMedia implements IJavaScriptType, ISMMedia
 	 * @sample
 	 * var ballImg = plugins.file.readFile('d:/ball.jpg');
 	 * application.output(ballImg.getUUID().toString());
+	 *
+	 * @return The UUID of this Media object.
 	 */
 	@JSFunction
 	public UUID getUUID()

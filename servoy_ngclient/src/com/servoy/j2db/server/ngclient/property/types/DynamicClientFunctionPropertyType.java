@@ -66,7 +66,7 @@ public class DynamicClientFunctionPropertyType implements IClassPropertyType<Bro
 	}
 
 	@Override
-	public boolean isPrimitive()
+	public boolean isBuiltinType()
 	{
 		return false;
 	}

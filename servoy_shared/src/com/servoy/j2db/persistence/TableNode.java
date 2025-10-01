@@ -30,7 +30,20 @@ import com.servoy.j2db.util.ServoyJSONObject;
 import com.servoy.j2db.util.UUID;
 
 /**
- * This class is a repository node for storing scriptcalculations under, because jaleman said that there easily are 300-1000 calcs in a solution
+ * <p>The <code>Table</code> object supports defining table-level events such as <code>onCreate</code>,
+ * <code>onUpdate</code>, and <code>onDelete</code>. These methods can control operations by allowing or
+ * preventing actions based on custom logic. For instance, <code>onValidate</code> can validate a record
+ * before insertion, while <code>onAfterInsert</code> is triggered post-insertion for additional operations.</p>
+ *
+ * <p>Additionally, events like <code>onSearch</code> and <code>onFind</code> enable customization of
+ * foundset searches. Events such as <code>onFoundSetLoad</code> and <code>onFoundsetNextChunk</code> are
+ * useful for managing in-memory or view-based datasets.</p>
+ *
+ * <p>The <code>columns</code> property allows for detailed configuration and interaction with the database
+ * schema.</p>
+ *
+ * <p>For a broader understanding of database-level features and capabilities, refer to the
+ * <a href="https://docs.servoy.com/reference/servoy-developer/solution-explorer/resources/database-servers/database-server">Database Server</a> documentation.</p>
  *
  * @author jblok
  */
@@ -45,9 +58,9 @@ public class TableNode extends AbstractBase implements ISupportChilds
 /*
  * _____________________________________________________________ Declaration and definition of constructors
  */
-	TableNode(ISupportChilds parent, int element_id, UUID uuid)
+	TableNode(ISupportChilds parent, UUID uuid)
 	{
-		super(IRepository.TABLENODES, parent, element_id, uuid);
+		super(IRepository.TABLENODES, parent, uuid);
 	}
 
 	/*
@@ -65,7 +78,7 @@ public class TableNode extends AbstractBase implements ISupportChilds
 
 		//check if name is in use
 		ValidatorSearchContext ft = new ValidatorSearchContext(table, IRepository.SCRIPTCALCULATIONS);
-		validator.checkName(name, 0, ft, false);
+		validator.checkName(name, null, ft, false);
 
 		ScriptCalculation obj = (ScriptCalculation)getRootObject().getChangeHandler().createNewObject(this, IRepository.SCRIPTCALCULATIONS);
 		//set all the required properties
@@ -83,7 +96,7 @@ public class TableNode extends AbstractBase implements ISupportChilds
 
 		//check if name is in use
 		ValidatorSearchContext ft = new ValidatorSearchContext(this, IRepository.METHODS);
-		validator.checkName(name, 0, ft, false);
+		validator.checkName(name, null, ft, false);
 
 		ScriptMethod obj = (ScriptMethod)getRootObject().getChangeHandler().createNewObject(this, IRepository.METHODS);
 		//set all the required properties
@@ -111,7 +124,7 @@ public class TableNode extends AbstractBase implements ISupportChilds
 
 		//check if name is in use
 		ValidatorSearchContext ft = new ValidatorSearchContext(table, IRepository.AGGREGATEVARIABLES);
-		validator.checkName(name, 0, ft, true);
+		validator.checkName(name, null, ft, true);
 
 		AggregateVariable obj = (AggregateVariable)getRootObject().getChangeHandler().createNewObject(this, IRepository.AGGREGATEVARIABLES);
 		//set all the required properties
@@ -126,11 +139,6 @@ public class TableNode extends AbstractBase implements ISupportChilds
 	public Iterator<ScriptMethod> getFoundsetMethods(boolean sort)
 	{
 		return Solution.getScriptMethods(getAllObjectsAsList(), null, sort);
-	}
-
-	public ScriptMethod getFoundsetMethod(int methodId)
-	{
-		return AbstractBase.selectById(getFoundsetMethods(false), methodId);
 	}
 
 /*
@@ -253,14 +261,14 @@ public class TableNode extends AbstractBase implements ISupportChilds
 	 * if (record.mynumber < 10) recordMarkers.report("mynumber must be greater then 10", "mynumber", LOGGINGLEVEL.ERROR);
 	 *
 	 */
-	public int getOnValidateMethodID()
+	public String getOnValidateMethodID()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONVALIDATEMETHODID).intValue();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONVALIDATEMETHODID);
 	}
 
-	public void setOnValidateMethodID(int arg)
+	public void setOnValidateMethodID(String uuid)
 	{
-		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONVALIDATEMETHODID, arg);
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONVALIDATEMETHODID, uuid);
 	}
 
 	/**
@@ -277,14 +285,14 @@ public class TableNode extends AbstractBase implements ISupportChilds
 	 * @templatecode
 	 * return databaseManager.createEmptyDataSet();
 	 */
-	public int getOnFoundsetNextChunkMethodID()
+	public String getOnFoundsetNextChunkMethodID()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONFOUNDSETNEXTCHUNKMETHODID).intValue();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONFOUNDSETNEXTCHUNKMETHODID);
 	}
 
-	public void setOnFoundsetNextChunkMethodID(int arg)
+	public void setOnFoundsetNextChunkMethodID(String uuid)
 	{
-		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONFOUNDSETNEXTCHUNKMETHODID, arg);
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONFOUNDSETNEXTCHUNKMETHODID, uuid);
 	}
 
 	/**
@@ -293,7 +301,7 @@ public class TableNode extends AbstractBase implements ISupportChilds
 	 * @templatedescription
 	 * Record pre-insert trigger
 	 * Validate the record to be inserted.
-	 * When false is returned or a validaton error is added to the recordMarkers the record will not be inserted in the database.
+	 * When false is returned or a validation error is added to the recordMarkers the record will not be inserted in the database.
 	 * When an exception is thrown the record will also not be inserted in the database but it will be added to databaseManager.getFailedRecords(),
 	 * the thrown exception can be retrieved via record.exception.getValue().
 	 * @templatename onRecordInsert
@@ -313,14 +321,14 @@ public class TableNode extends AbstractBase implements ISupportChilds
 	 * // return boolean to indicate success
 	 * return valid;
 	 */
-	public int getOnInsertMethodID()
+	public String getOnInsertMethodID()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONINSERTMETHODID).intValue();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONINSERTMETHODID);
 	}
 
-	public void setOnInsertMethodID(int arg)
+	public void setOnInsertMethodID(String uuid)
 	{
-		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONINSERTMETHODID, arg);
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONINSERTMETHODID, uuid);
 	}
 
 	/**
@@ -329,7 +337,7 @@ public class TableNode extends AbstractBase implements ISupportChilds
 	 * @templatedescription
 	 * Record pre-update trigger
 	 * Validate the record to be updated.
-	 * When false is returned or a validaton error is added to the recordMarkers the record will not be updated in the database.
+	 * When false is returned or a validation error is added to the recordMarkers the record will not be updated in the database.
 	 * When an exception is thrown the record will also not be updated in the database but it will be added to databaseManager.getFailedRecords(),
 	 * the thrown exception can be retrieved via record.exception.getValue().
 	 * @templatename onRecordUpdate
@@ -349,14 +357,14 @@ public class TableNode extends AbstractBase implements ISupportChilds
 	 * // return boolean to indicate success
 	 * return valid;
 	 */
-	public int getOnUpdateMethodID()
+	public String getOnUpdateMethodID()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONUPDATEMETHODID).intValue();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONUPDATEMETHODID);
 	}
 
-	public void setOnUpdateMethodID(int arg)
+	public void setOnUpdateMethodID(String uuid)
 	{
-		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONUPDATEMETHODID, arg);
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONUPDATEMETHODID, uuid);
 	}
 
 	/**
@@ -383,14 +391,42 @@ public class TableNode extends AbstractBase implements ISupportChilds
 	 * // return boolean to indicate success
 	 * return true
 	 */
-	public int getOnDeleteMethodID()
+	public String getOnDeleteMethodID()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONDELETEMETHODID).intValue();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONDELETEMETHODID);
 	}
 
-	public void setOnDeleteMethodID(int arg)
+	public void setOnDeleteMethodID(String uuid)
 	{
-		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONDELETEMETHODID, arg);
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONDELETEMETHODID, uuid);
+	}
+
+	/**
+	 * A method that is executed before a foundset selection change operation. The method can cancel the selection change operation by returning false.
+	 *
+	 * @templatedescription
+	 * Foundset pre-selection change trigger
+	 * Can be used to validate the record to be not selected.
+	 * When false is returned the selection will not bechanged.
+	 * @templatename onFoundSetSelectionChange
+	 * @templatetype Boolean
+	 * @templateparam JSRecord<${dataSource}>|Array<JSRecord<${dataSource}>> oldSelection array with selected records
+	 * @templateparam JSRecord<${dataSource}>|Array<JSRecord<${dataSource}>> newSelection array with records that will become selected
+	 * @templateaddtodo
+	 * @templatecode
+	 *
+	 * var valid = true;
+	 * // test if it is valid.
+	 * return valid;
+	 */
+	public String getOnFoundSetBeforeSelectionChangeMethodID()
+	{
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONFOUNDSETBEFORESELECTIONCHANGEMETHODID);
+	}
+
+	public void setOnFoundSetBeforeSelectionChangeMethodID(String uuid)
+	{
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONFOUNDSETBEFORESELECTIONCHANGEMETHODID, uuid);
 	}
 
 	/**
@@ -401,14 +437,14 @@ public class TableNode extends AbstractBase implements ISupportChilds
 	 * @templateparam JSRecord<${dataSource}> record record that is inserted
 	 * @templateaddtodo
 	 */
-	public int getOnAfterInsertMethodID()
+	public String getOnAfterInsertMethodID()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONAFTERINSERTMETHODID).intValue();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONAFTERINSERTMETHODID);
 	}
 
-	public void setOnAfterInsertMethodID(int arg)
+	public void setOnAfterInsertMethodID(String uuid)
 	{
-		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONAFTERINSERTMETHODID, arg);
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONAFTERINSERTMETHODID, uuid);
 	}
 
 	/**
@@ -419,14 +455,14 @@ public class TableNode extends AbstractBase implements ISupportChilds
 	 * @templateparam JSRecord<${dataSource}> record record that is updated
 	 * @templateaddtodo
 	 */
-	public int getOnAfterUpdateMethodID()
+	public String getOnAfterUpdateMethodID()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONAFTERUPDATEMETHODID).intValue();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONAFTERUPDATEMETHODID);
 	}
 
-	public void setOnAfterUpdateMethodID(int arg)
+	public void setOnAfterUpdateMethodID(String uuid)
 	{
-		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONAFTERUPDATEMETHODID, arg);
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONAFTERUPDATEMETHODID, uuid);
 	}
 
 	/**
@@ -437,14 +473,14 @@ public class TableNode extends AbstractBase implements ISupportChilds
 	 * @templateparam JSRecord<${dataSource}> record record that is deleted
 	 * @templateaddtodo
 	 */
-	public int getOnAfterDeleteMethodID()
+	public String getOnAfterDeleteMethodID()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONAFTERDELETEMETHODID).intValue();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONAFTERDELETEMETHODID);
 	}
 
-	public void setOnAfterDeleteMethodID(int arg)
+	public void setOnAfterDeleteMethodID(String uuid)
 	{
-		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONAFTERDELETEMETHODID, arg);
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONAFTERDELETEMETHODID, uuid);
 	}
 
 	/**
@@ -461,14 +497,14 @@ public class TableNode extends AbstractBase implements ISupportChilds
 	 * // return true so that the record can be created
 	 * return true
 	 */
-	public int getOnCreateMethodID()
+	public String getOnCreateMethodID()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONCREATEMETHODID).intValue();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONCREATEMETHODID);
 	}
 
-	public void setOnCreateMethodID(int arg)
+	public void setOnCreateMethodID(String uuid)
 	{
-		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONCREATEMETHODID, arg);
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONCREATEMETHODID, uuid);
 	}
 
 	/**
@@ -485,14 +521,14 @@ public class TableNode extends AbstractBase implements ISupportChilds
 	 * // return true so that it will go into find mode.
 	 * return true
 	 */
-	public int getOnFindMethodID()
+	public String getOnFindMethodID()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONFINDMETHODID).intValue();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONFINDMETHODID);
 	}
 
-	public void setOnFindMethodID(int arg)
+	public void setOnFindMethodID(String uuid)
 	{
-		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONFINDMETHODID, arg);
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONFINDMETHODID, uuid);
 	}
 
 	/**
@@ -504,14 +540,14 @@ public class TableNode extends AbstractBase implements ISupportChilds
 	 * @templateaddtodo
 	 * @templatecode
 	 */
-	public int getOnAfterFindMethodID()
+	public String getOnAfterFindMethodID()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONAFTERFINDMETHODID).intValue();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONAFTERFINDMETHODID);
 	}
 
-	public void setOnAfterFindMethodID(int arg)
+	public void setOnAfterFindMethodID(String uuid)
 	{
-		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONAFTERFINDMETHODID, arg);
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONAFTERFINDMETHODID, uuid);
 	}
 
 	/**
@@ -530,14 +566,14 @@ public class TableNode extends AbstractBase implements ISupportChilds
 	 * // return true so that the search will go on.
 	 * return true
 	 */
-	public int getOnSearchMethodID()
+	public String getOnSearchMethodID()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONSEARCHMETHODID).intValue();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONSEARCHMETHODID);
 	}
 
-	public void setOnSearchMethodID(int arg)
+	public void setOnSearchMethodID(String uuid)
 	{
-		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONSEARCHMETHODID, arg);
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONSEARCHMETHODID, uuid);
 	}
 
 	/**
@@ -548,14 +584,14 @@ public class TableNode extends AbstractBase implements ISupportChilds
 	 * @templateaddtodo
 	 * @templatecode
 	 */
-	public int getOnAfterSearchMethodID()
+	public String getOnAfterSearchMethodID()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONAFTERSEARCHMETHODID).intValue();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONAFTERSEARCHMETHODID);
 	}
 
-	public void setOnAfterSearchMethodID(int arg)
+	public void setOnAfterSearchMethodID(String uuid)
 	{
-		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONAFTERSEARCHMETHODID, arg);
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONAFTERSEARCHMETHODID, uuid);
 	}
 
 	/**
@@ -566,14 +602,14 @@ public class TableNode extends AbstractBase implements ISupportChilds
 	 * @templateparam JSRecord<${dataSource}> record record that is created
 	 * @templateaddtodo
 	 */
-	public int getOnAfterCreateMethodID()
+	public String getOnAfterCreateMethodID()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONAFTERCREATEMETHODID).intValue();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONAFTERCREATEMETHODID);
 	}
 
-	public void setOnAfterCreateMethodID(int arg)
+	public void setOnAfterCreateMethodID(String uuid)
 	{
-		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONAFTERCREATEMETHODID, arg);
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONAFTERCREATEMETHODID, uuid);
 	}
 
 	/**
@@ -584,14 +620,14 @@ public class TableNode extends AbstractBase implements ISupportChilds
 	 * @templateparam String memOrViewName The in memory or view foundset table name that is touched.
 	 * @templateaddtodo
 	 */
-	public int getOnFoundSetLoadMethodID()
+	public String getOnFoundSetLoadMethodID()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONFOUNDSETLOADMETHODID).intValue();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONFOUNDSETLOADMETHODID);
 	}
 
-	public void setOnFoundSetLoadMethodID(int arg)
+	public void setOnFoundSetLoadMethodID(String uuid)
 	{
-		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONFOUNDSETLOADMETHODID, arg);
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONFOUNDSETLOADMETHODID, uuid);
 	}
 
 	public boolean getImplicitSecurityNoRights()

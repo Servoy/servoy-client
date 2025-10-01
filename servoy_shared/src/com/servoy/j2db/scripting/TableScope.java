@@ -97,13 +97,18 @@ public class TableScope extends LazyCompilationScope
 	public Scriptable getPrototype()
 	{
 		Object[] array = getThreadLocalArray();
-		return (Scriptable)array[0];
+		if (array[0] != null)
+		{
+			return (Scriptable)array[0];
+		}
+		return super.getPrototype();
 	}
 
 	@Override
 	public void setPrototype(Scriptable prototype)
 	{
 		getThreadLocalArray()[0] = prototype;
+		super.setPrototype(prototype);
 	}
 
 	/**

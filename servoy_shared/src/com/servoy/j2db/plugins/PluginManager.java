@@ -66,6 +66,7 @@ public class PluginManager extends JarManager implements IPluginManagerInternal,
 
 	// ---instance vars
 	protected final Object[] initLock = new Object[1];//when filled with an Object the init is completed
+	private final static Object pluginsReadLock = new Object();
 
 	// ---plugin instances
 	protected Map<String, IClientPlugin> loadedClientPlugins; //contains all instances of client plugins, (name -> instance)
@@ -91,10 +92,7 @@ public class PluginManager extends JarManager implements IPluginManagerInternal,
 		super();
 		this.parentClassLoader = lafLoader;
 		pluginsDir = new File(pluginDirAsString);
-		if (pluginExtensions.size() == 0 && this.pluginsDir.isDirectory())
-		{
-			readDir(pluginsDir, pluginExtensions, supportLibExtensions, null, false);
-		}
+		this.readPlugins();
 	}
 
 	public PluginManager(List<ExtensionResource> pluginUrls, List<ExtensionResource> supportLibUrls, ClassLoader lafLoader)
@@ -253,7 +251,7 @@ public class PluginManager extends JarManager implements IPluginManagerInternal,
 
 		if (notProcessedMap.size() > 0)
 		{
-			String errorWarningMessage = "Some plugins don't follow the ServiceLoader setup, please make sure that those plugins are updated, this will be mandatory in the new future, see  https://wiki.servoy.com/display/DOCS/Creating+Client+Plugins#CreatingClientPlugins-EntryPoints, the plugins: " +
+			String errorWarningMessage = "Some plugins don't follow the ServiceLoader setup, please make sure that those plugins are updated, this is mandatory to have, see  https://docs.servoy.com/reference/extension-dev/serverside#entry-points, the plugins: " +
 				notProcessedMap.stream().map(t -> t.jarFileName).collect(Collectors.joining(", "));
 			Debug.warn(
 				errorWarningMessage);
@@ -749,10 +747,7 @@ public class PluginManager extends JarManager implements IPluginManagerInternal,
 		{
 			try
 			{
-				if (pluginExtensions.size() == 0 && pluginsDir.isDirectory())
-				{
-					readDir(pluginsDir, pluginExtensions, supportLibExtensions, null, false);
-				}
+				this.readPlugins();
 
 				List<URL> allUrls = new ArrayList<URL>(supportLibExtensions.size() + pluginExtensions.size());
 				for (ExtensionResource ext : supportLibExtensions)
@@ -773,6 +768,17 @@ public class PluginManager extends JarManager implements IPluginManagerInternal,
 			}
 		}
 		return _pluginsClassLoader;
+	}
+
+	private void readPlugins()
+	{
+		synchronized (pluginsReadLock)
+		{
+			if (pluginExtensions.size() == 0 && pluginsDir.isDirectory())
+			{
+				readDir(pluginsDir, pluginExtensions, supportLibExtensions, null, false);
+			}
+		}
 	}
 
 	@Override

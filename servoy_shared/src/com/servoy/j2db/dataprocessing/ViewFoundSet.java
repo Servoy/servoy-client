@@ -26,7 +26,6 @@ import static com.servoy.j2db.util.Utils.stream;
 import static java.util.Arrays.asList;
 
 import java.lang.ref.WeakReference;
-import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -58,9 +57,9 @@ import org.mozilla.javascript.SymbolScriptable;
 import org.mozilla.javascript.Undefined;
 import org.mozilla.javascript.annotations.JSFunction;
 import org.mozilla.javascript.annotations.JSGetter;
+import org.mozilla.javascript.annotations.JSSetter;
 
 import com.servoy.base.persistence.IBaseColumn;
-import com.servoy.base.query.BaseColumnType;
 import com.servoy.base.query.BaseQueryTable;
 import com.servoy.base.query.IBaseSQLCondition;
 import com.servoy.j2db.IApplication;
@@ -102,11 +101,50 @@ import com.servoy.j2db.util.model.AlwaysRowSelectedSelectionModel;
 import com.servoy.j2db.util.visitor.SearchVisitor;
 
 /**
+ * <p>A <b>View Foundset Datasource</b> is a virtual table that loads data at runtime, often based on a <b>QBSelect</b> query object.
+ * It is useful for combining datasets from multiple tables, improving performance compared to standard relations, valuelists, or aggregates.</p>
+ *
+ * <h2>Creating View Foundset Datasources</h2>
+ * <p>View Foundset Datasources can be created in two ways:</p>
+ * <ol>
+ *   <li><b>Solution Explorer</b>: Accessed via <i>Datasources -> View foundsets -> Create view foundset</i> in the Solution Explorer context menu.
+ *       This opens the <a href="https://docs.servoy.com/reference/servoy-developer/object-editors/table-editor">Table Editor</a> for defining the datasource structure.</li>
+ *   <li><b>Runtime Creation</b>: Created via <code>databaseManager.getViewFoundSet(String name, QBSelect query)</code>. This returns a <code>ViewFoundSet</code>
+ *       object with essential operations like <code>getSize()</code>, <code>getRecord()</code>, and <code>loadAllRecords()</code>, but it doesn’t support <code>find()</code> or <code>search()</code>.</li>
+ * </ol>
+ *
+ * <h2>Data Broadcast and Monitoring Changes</h2>
+ * <p>View Foundsets do not listen for databroadcast changes by default but can be enabled using
+ *    <code>viewfoundset.enableDatabroadcastFor(QBTableClause queryTable, int flags)</code>. Available flags include:</p>
+ * <ul>
+ *   <li><a href="https://docs.servoy.com/reference/servoycore/dev-api/database-manager/viewfoundset#monitor_columns"><b>MONITOR_COLUMNS</b></a>: Tracks changes in specific columns.</li>
+ *   <li><a href="https://docs.servoy.com/reference/servoycore/dev-api/database-manager/viewfoundset#monitor_join_conditions"><b>MONITOR_JOIN_CONDITIONS</b></a>: Listens for changes in join conditions.</li>
+ *   <li><a href="https://docs.servoy.com/reference/servoycore/dev-api/database-manager/viewfoundset#monitor_where_conditions"><b>MONITOR_WHERE_CONDITIONS</b></a>: Tracks updates to WHERE clause columns.</li>
+ *   <li><a href="https://docs.servoy.com/reference/servoycore/dev-api/database-manager/viewfoundset#monitor_insert"><b>MONITOR_INSERT</b></a>: Monitors inserts, triggering a full query update.</li>
+ *   <li><a href="https://docs.servoy.com/reference/servoycore/dev-api/database-manager/viewfoundset#monitor_deletes"><b>MONITOR_DELETES</b></a>: Tracks deletions, updating records as needed.</li>
+ *   <li><a href="https://docs.servoy.com/reference/servoycore/dev-api/database-manager/viewfoundset#monitor_deletes_for_primary_table"><b>MONITOR_DELETES_FOR_PRIMARY_TABLE</b></a>: Monitors primary table deletions more efficiently.</li>
+ *   <li><a href="https://docs.servoy.com/reference/servoycore/dev-api/database-manager/viewfoundset#monitor_aggregates"><b>MONITOR_AGGREGATES</b></a>: Observes changes impacting aggregates in the query.</li>
+ * </ul>
+ *
+ * <h2>Editable View Foundsets</h2>
+ * <p>A <b>View Foundset</b> can be made editable with <code>save()</code> if the primary key (PK) is included in the <code>QBSelect</code>.
+ * Data updates pause databroadcast refreshes until the records are committed.</p>
+ *
+ * <h2>Commands Summary</h2>
+ * <ul>
+ *   <li><i>Create view foundset datasource</i>: Opens the <a href="https://docs.servoy.com/reference/servoy-developer/object-editors/table-editor">Table Editor</a>.</li>
+ *   <li><i>Edit table/view</i>: Edits the View Foundset structure via the <a href="https://docs.servoy.com/reference/servoy-developer/object-editors/table-editor">Table Editor</a>.</li>
+ *   <li><i>Delete View Foundset</i>: Deletes the View Foundset.</li>
+ *   <li><i>Rename View Foundset</i>: Renames the View Foundset.</li>
+ * </ul>
+ *
+ * <p>For more details, refer to the <a href="https://docs.servoy.com/guides/develop/application-design/data-modeling/view-datasource">View Foundset Datasource</a> documentation in the <b>Data modeling</b> section.</p>
+ *
  * @author jcompagner
  * @since 8.4
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "ViewFoundSet", scriptingName = "ViewFoundSet")
-public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, IFoundSetScriptMethods, IConstantsObject, SymbolScriptable
+@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "ViewFoundSet", scriptingName = "ViewFoundSet", extendsComponent = "JSBaseSQLFoundSet")
+public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, IJSBaseSQLFoundSet, IConstantsObject, SymbolScriptable
 {
 
 	/**
@@ -203,6 +241,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	private final IFoundSetManagerInternal manager;
 
 	private final List<IFoundSetEventListener> foundSetEventListeners = new ArrayList<>(3);
+	private final List<ISelectionChangeListener> selectionChangeListeners = new ArrayList<ISelectionChangeListener>();
 	// this is just a list to keep hard references to the RowListeners we give the RowManager (that is kept weak in there)
 	private final List<IRowListener> rowListeners = new ArrayList<>(3);
 
@@ -372,6 +411,8 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	 *
 	 * @sample
 	 * solutionModel.getForm("x").dataSource  = viewFoundSet.getDataSource();
+	 *
+	 * @return the datasource string representing the ViewFoundSet, typically in the format "view:<name>".
 	 */
 	@Override
 	@JSFunction
@@ -480,14 +521,45 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 		}
 	}
 
+	public void addSelectionChangeListener(ISelectionChangeListener l)
+	{
+		synchronized (selectionChangeListeners)
+		{
+			if (!selectionChangeListeners.contains(l))
+			{
+				selectionChangeListeners.add(l);
+			}
+		}
+	}
+
+	public void removeSelectionChangeListener(ISelectionChangeListener l)
+	{
+		synchronized (selectionChangeListeners)
+		{
+			selectionChangeListeners.remove(l);
+		}
+	}
+
+	private boolean executeSelectionListeners(IRecordInternal[] oldSelection, IRecordInternal[] newSelection)
+	{
+		for (ISelectionChangeListener listener : selectionChangeListeners)
+		{
+			if (!listener.selectionChange(oldSelection, newSelection))
+			{
+				return false;
+			}
+		}
+		return true;
+	}
+
 	@Override
 	public Object forEach(IRecordCallback callback)
 	{
 		FoundSetIterator foundsetIterator = new FoundSetIterator();
 		Scriptable scriptableFoundset = null;
+		Context.enter();
 		try
 		{
-			Context.enter();
 			scriptableFoundset = (Scriptable)Context.javaToJS(this, this.getFoundSetManager().getApplication().getScriptEngine().getSolutionScope());
 		}
 		finally
@@ -715,6 +787,8 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	 * 	 *
 	 * @param record The ViewRecord to validate
 	 * @param customObject An extra customObject to give to the validate method.
+	 *
+	 * @return a `JSRecordMarkers` object indicating validation problems for the given record with the provided custom context, or `null` if no issues are found.
 	 */
 	@JSFunction
 	public JSRecordMarkers validate(ViewRecord record, Object customObject)
@@ -972,7 +1046,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 					}
 				}
 			}
-			catch (ServoyException | RemoteException e)
+			catch (ServoyException e)
 			{
 				Debug.error(e);
 			}
@@ -1021,10 +1095,11 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	/**
 	 * This will reload the current set of ViewRecords in this foundset, resetting the chunk size back to the start (default 200).
 	 * All edited records will be discarded! So this can be seen as a full clean up of this ViewFoundSet.
+	 *
+	 * @return true if the records were successfully reloaded.
 	 */
 	@Override
-	@JSFunction
-	public void loadAllRecords() throws ServoyException
+	public boolean js_loadAllRecords() throws ServoyException
 	{
 		currentChunkSize = chunkSize;
 		if (editedRecords.size() > 0)
@@ -1040,48 +1115,50 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 			failedRecords.clear();
 		}
 		loadAllRecordsImpl();
+		return true;
+	}
+
+
+	@Override
+	public void loadAllRecords() throws ServoyException
+	{
+		js_loadAllRecords();
+
 	}
 
 	private void loadAllRecordsImpl() throws ServoyException
 	{
 		String serverName = getDataSourceServerName(select.getTable().getDataSource());
 		String transaction_id = manager.getTransactionID(serverName);
-		try
+		IDataSet ds = manager.getApplication().getDataServer().performQuery(manager.getApplication().getClientID(), serverName, transaction_id, select,
+			null, manager.getTableFilterParams(serverName, select), select.isUnique(), 0, currentChunkSize, IDataServer.FOUNDSET_LOAD_QUERY);
+		refresh = false;
+		int currentSize = records.size();
+		List<ViewRecord> old = records;
+		records = new ArrayList<>(ds.getRowCount());
+		pkByDatasourceCache.clear();
+
+		String[] colNames = columnNames.values().toArray(new String[columnNames.size()]);
+
+		try (FireCollector fireCollector = getFireCollector())
 		{
-			IDataSet ds = manager.getApplication().getDataServer().performQuery(manager.getApplication().getClientID(), serverName, transaction_id, select,
-				null, manager.getTableFilterParams(serverName, select), select.isUnique(), 0, currentChunkSize, IDataServer.FOUNDSET_LOAD_QUERY);
-			refresh = false;
-			int currentSize = records.size();
-			List<ViewRecord> old = records;
-			records = new ArrayList<>(ds.getRowCount());
-			pkByDatasourceCache.clear();
-
-			String[] colNames = columnNames.values().toArray(new String[columnNames.size()]);
-
-			try (FireCollector fireCollector = getFireCollector())
+			for (int i = 0; i < ds.getRowCount(); i++)
 			{
-				for (int i = 0; i < ds.getRowCount(); i++)
+				Object[] rowData = ds.getRow(i);
+				if (i < currentSize)
 				{
-					Object[] rowData = ds.getRow(i);
-					if (i < currentSize)
-					{
-						ViewRecord current = old.get(i);
-						records.add(current);
-						current.updateValues(colNames, rowData);
-					}
-					else
-					{
-						records.add(new ViewRecord(colNames, rowData, this));
-					}
+					ViewRecord current = old.get(i);
+					records.add(current);
+					current.updateValues(colNames, rowData);
+				}
+				else
+				{
+					records.add(new ViewRecord(colNames, rowData, this));
 				}
 			}
-			hasMore = ds.hadMoreRows();
-			fireDifference(currentSize, records.size());
 		}
-		catch (RemoteException e)
-		{
-			throw new RepositoryException(e);
-		}
+		hasMore = ds.hadMoreRows();
+		fireDifference(currentSize, records.size());
 	}
 
 	@Override
@@ -1137,10 +1214,18 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	}
 
 	@Override
-	public void setSelectedIndex(int selectedRow)
+	public boolean setSelectedIndex(int selectedRow)
 	{
 		if (selectionModel == null) createSelectionModel();
+		if (getSelectedIndex() >= 0 && selectedRow >= 0)
+		{
+			if (!executeSelectionListeners(getSelectedRecords(), new IRecordInternal[] { getRecord(selectedRow) }))
+			{
+				return false;
+			}
+		}
 		selectionModel.setSelectedRow(selectedRow);
+		return true;
 	}
 
 	protected void setMultiSelectInternal(boolean isMultiSelect)
@@ -1203,12 +1288,15 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	}
 
 	@Override
-	@JSGetter
+	@JSSetter
 	public void setMultiSelect(boolean multiSelect)
 	{
 		if (multiSelectPinnedForm == null) setMultiSelectInternal(multiSelect); // if a form is currently overriding this, ignore js call
 	}
 
+	/**
+	 * @return `true` if the ViewFoundSet supports selecting multiple records; `false` if only single selection is allowed.
+	 */
 	@Override
 	@JSGetter
 	public boolean isMultiSelect()
@@ -1218,10 +1306,18 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	}
 
 	@Override
-	public void setSelectedIndexes(int[] indexes)
+	public boolean setSelectedIndexes(int[] indexes)
 	{
 		if (selectionModel == null) createSelectionModel();
+		if (getSelectedIndex() >= 0)
+		{
+			if (!executeSelectionListeners(getSelectedRecords(), getRecords(indexes)))
+			{
+				return false;
+			}
+		}
 		selectionModel.setSelectedRows(indexes);
+		return true;
 	}
 
 	@Override
@@ -1231,6 +1327,9 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 		return selectionModel.getSelectedRows();
 	}
 
+	/**
+	 * @return the currently selected `ViewRecord`, or `null` if no record is selected.
+	 */
 	@JSFunction
 	public ViewRecord getSelectedRecord()
 	{
@@ -1249,9 +1348,14 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	@JSFunction
 	public ViewRecord[] getSelectedRecords()
 	{
-		int[] selectedIndexes = getSelectedIndexes();
-		List<ViewRecord> selectedRecords = new ArrayList<ViewRecord>(selectedIndexes.length);
-		for (int index : selectedIndexes)
+		return getRecords(getSelectedIndexes());
+	}
+
+	private ViewRecord[] getRecords(int[] indexes)
+	{
+		if (indexes == null) return new ViewRecord[0];
+		List<ViewRecord> selectedRecords = new ArrayList<ViewRecord>(indexes.length);
+		for (int index : indexes)
 		{
 			ViewRecord record = getRecord(index);
 			if (record != null)
@@ -1262,7 +1366,6 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 
 		return selectedRecords.toArray(new ViewRecord[selectedRecords.size()]);
 	}
-
 
 	@Override
 	public String getSort()
@@ -1301,7 +1404,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	}
 
 	@Override
-	public ISQLSelect getQuerySelectForReading()
+	public QuerySelect getQuerySelectForReading()
 	{
 		return select;
 	}
@@ -1405,37 +1508,10 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	}
 
 	@Override
-	public void completeFire(Map<IRecord, List<String>> entries)
-	{
-		int start = Integer.MAX_VALUE;
-		int end = -1;
-		List<String> dataproviders = null;
-		for (Entry<IRecord, List<String>> entry : entries.entrySet())
-		{
-			int index = getRecordIndex(entry.getKey());
-			if (index != -1 && start > index)
-			{
-				start = index;
-			}
-			if (end < index)
-			{
-				end = index;
-			}
-			if (dataproviders == null) dataproviders = entry.getValue();
-			else dataproviders.addAll(entry.getValue());
-		}
-		if (start != Integer.MAX_VALUE && end != -1)
-		{
-			fireFoundSetEvent(start, end, FoundSetEvent.CHANGE_UPDATE, dataproviders);
-		}
-	}
-
-	@Override
 	public SQLSheet getSQLSheet()
 	{
 		return null;
 	}
-
 
 	/*
 	 * (non-Javadoc)
@@ -1774,12 +1850,10 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 								if (column != null)
 								{
 									String colname = getColunmName(col, qCol);
-									newCol = table.createNewColumn(DummyValidator.INSTANCE, colname, column.getType(), column.getLength(), column.getScale(),
-										column.getAllowNull());
+									newCol = table.createNewColumn(DummyValidator.INSTANCE, colname, column.getColumnType());
 									if (column.getColumnInfo() != null)
 									{
-										DatabaseUtils.createNewColumnInfo(
-											manager.getApplication().getFlattenedSolution().getPersistFactory().getNewElementID(null), newCol, false);
+										DatabaseUtils.createNewColumnInfo(newCol, false);
 										newCol.getColumnInfo().copyFrom(column.getColumnInfo());
 									}
 								}
@@ -1789,7 +1863,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 						if (newCol == null)
 						{
 							// existing database column not found, create column on the fly
-							BaseColumnType columnType = col.getColumnType();
+							ColumnType columnType = ColumnType.toColumnType(col.getColumnType());
 							if (columnType == null)
 							{
 								columnType = ColumnType.getColumnType(IColumnTypes.TEXT);
@@ -1797,8 +1871,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 
 							String colname = getColunmName(col, qCol);
 
-							table.createNewColumn(DummyValidator.INSTANCE, colname, columnType.getSqlType(), columnType.getLength(), columnType.getScale(),
-								true);
+							table.createNewColumn(DummyValidator.INSTANCE, colname, columnType, true);
 						}
 					}
 				}
@@ -1909,7 +1982,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	}
 
 	@Override
-	public void deleteAllInternal() throws ServoyException
+	public void deleteAllInternal(IDeleteTrigger deleteTrigger) throws ServoyException
 	{
 		throw new UnsupportedOperationException("Can't delete records  from a View Foundset of datasource " + this.datasource);
 	}
@@ -2041,7 +2114,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 		fireFoundSetEvent(new FoundSetEvent(this, FoundSetEvent.CONTENTS_CHANGED, changeType, firstRow, lastRow));
 	}
 
-	protected final void fireFoundSetEvent(int firstRow, int lastRow, int changeType, List<String> dataproviders)
+	public final void fireFoundSetEvent(int firstRow, int lastRow, int changeType, Set<String> dataproviders)
 	{
 		fireFoundSetEvent(new FoundSetEvent(this, FoundSetEvent.CONTENTS_CHANGED, changeType, firstRow, lastRow, dataproviders));
 	}
@@ -2607,23 +2680,6 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 			name = DataSourceUtils.getViewDataSourceName(datasource);
 		}
 		return name;
-	}
-
-	/**
-	 * Get the record index. Will return -1 if the record can't be found.
-	 *
-	 * @sample var index = %%prefix%%foundset.getRecordIndex(record);
-	 *
-	 * @param record Record
-	 *
-	 * @return int index.
-	 */
-	@JSFunction
-	public int getRecordIndex(ViewRecord record)
-	{
-		int recordIndex = getRecordIndex((IRecord)record);
-		if (recordIndex == -1) return -1;
-		return recordIndex + 1;
 	}
 
 	/**

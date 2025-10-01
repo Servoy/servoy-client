@@ -22,7 +22,7 @@ import org.mozilla.javascript.annotations.JSSetter;
 
 /**
  * Runtime property interface for mnemonic.
- * 
+ *
  * @author rgansevles
  *
  * @since 6.1
@@ -30,21 +30,20 @@ import org.mozilla.javascript.annotations.JSSetter;
 public interface HasRuntimeMnemonic
 {
 	/**
-	 * Gets or sets the specified character(s) - typically an underlined letter- used with/without the modifier key(s) for the label, button or image. 
-	 * 
-	 * Modifiers key values: 
-	 * 1 SHIFT 
-	 * 2 CTRL 
+	 * Gets or sets the specified character(s) - typically an underlined letter- used with/without the modifier key(s) for the label, button or image.
+	 *
+	 * Modifiers key values:
+	 * 1 SHIFT
+	 * 2 CTRL
 	 * 4 Meta/CMD (Macintosh)
-	 * 8 ALT(Windows, Unix); OPTION (Macintosh) 
-	 * 
+	 * 8 ALT(Windows, Unix); OPTION (Macintosh)
+	 *
 	 * NOTE: A mnemonic is usually a single key used with/without the CTRL, CMD, SHIFT, ALT, or OPTION key(s) to activate a menu item or command - depending, in part on whether the menmonic applies in a command line or graphic interface. For one description, you can refer to this web page: http://msdn.microsoft.com/en-us/library/bb158536.aspx or perform a search in a web browser search engine using the criteria "mnemonic".
-	 * NOTE2: Mnemonic is only supported in Smart Client.
-	 * 
+	 *
 	 * @sample
 	 * //gets the mnemonic of the element
 	 * var my_mnemoic = %%prefix%%%%elementName%%.mnemonic;
-	 * 
+	 *
 	 * //sets the mnemonic of the element
 	 * %%prefix%%%%elementName%%.mnemonic = 'f';
 	 */

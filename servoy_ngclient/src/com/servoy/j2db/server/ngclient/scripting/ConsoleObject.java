@@ -28,7 +28,17 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.util.Utils;
 
 /**
- * Support for console logging in the serverside logic of web objects.
+ * <p>The <code>ConsoleObject</code> class enables server-side console logging for custom web
+ * components or services in Servoy NG client applications. It mimics the browser-side
+ * <code>console</code> object, providing methods to log messages, warnings, and errors, which are
+ * particularly useful for debugging and monitoring application behavior.</p>
+ *
+ * <p>The <code>error</code> method reports errors, including stack traces when available, ensuring
+ * comprehensive logging. Alongside <code>log</code> and <code>warn</code>, these methods adapt
+ * their behavior based on the application type. For debug clients, messages are sent to the
+ * debugger, while for other applications, messages are reported using the standard JavaScript
+ * reporting mechanisms.</p>
+ *
  * @author gganea@servoy.com
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "Console", scriptingName = "console")

@@ -36,7 +36,7 @@ public class FlattenedPortal extends Portal implements IFlattenedPersistWrapper<
 
 	public FlattenedPortal(Portal portal)
 	{
-		super(portal.getParent(), portal.getID(), portal.getUUID());
+		super(portal.getParent(), portal.getUUID());
 		this.portal = portal;
 		fill();
 	}

@@ -17,7 +17,6 @@
 
 package com.servoy.base.query;
 
-
 /**
  * Quedry column for mobile and regular clients.
  *
@@ -32,23 +31,21 @@ public class BaseQueryColumn implements IBaseQuerySelectValue
 	protected transient BaseColumnType columnType;
 	protected int flags;
 	protected transient boolean identity;
-	protected int id; // id of this column, known on the server, may be used to lookup name and columnType
 	protected String nativeTypename;
 
-	public BaseQueryColumn(BaseQueryTable table, int id, String name, BaseColumnType columnType, String nativeTypename, int flags, boolean identity)
+	public BaseQueryColumn(BaseQueryTable table, String name, BaseColumnType columnType, String nativeTypename, int flags, boolean identity)
 	{
-		this(table, id, name, null, columnType, nativeTypename, flags, identity);
+		this(table, name, null, columnType, nativeTypename, flags, identity);
 	}
 
-	public BaseQueryColumn(BaseQueryTable table, int id, String name, String alias, BaseColumnType columnType, String nativeTypename, int flags,
+	public BaseQueryColumn(BaseQueryTable table, String name, String alias, BaseColumnType columnType, String nativeTypename, int flags,
 		boolean identity)
 	{
-		if (table == null || (id == -1 && name == null))
+		if (table == null || name == null)
 		{
 			throw new IllegalArgumentException("Null table or column argument"); //$NON-NLS-1$
 		}
 		this.table = table;
-		this.id = id;
 		this.name = name;
 		this.alias = alias;
 		this.columnType = columnType;
@@ -83,11 +80,6 @@ public class BaseQueryColumn implements IBaseQuerySelectValue
 	public BaseQueryTable getTable()
 	{
 		return table;
-	}
-
-	public int getId()
-	{
-		return id;
 	}
 
 	public BaseQueryColumn getColumn()
@@ -159,18 +151,14 @@ public class BaseQueryColumn implements IBaseQuerySelectValue
 			if (other.alias != null) return false;
 		}
 		else if (!this.alias.equals(other.alias)) return false;
-		if (this.table == null)
-		{
-			if (other.table != null) return false;
-		}
-		else if (!this.table.equals(other.table)) return false;
-		return id != -1 && this.id == other.id;
+		if (this.table != other.table) return false; // do not use equals here for, different table instances are not the same
+		return true;
 	}
 
 	@Override
 	public String toString()
 	{
-		StringBuilder sb = new StringBuilder(table.toString()).append('.').append(id).append('=');
+		StringBuilder sb = new StringBuilder(table.toString()).append('.');
 		sb.append((name == null) ? "?" : name); //$NON-NLS-1$
 		if (alias != null) sb.append(" AS ").append(alias); //$NON-NLS-1$
 		if (name != null)

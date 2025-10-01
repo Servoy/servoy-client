@@ -21,9 +21,9 @@ import com.servoy.j2db.scripting.FormScope;
 import com.servoy.j2db.ui.runtime.IRuntimeSplitPane;
 
 /**
- * Scripting interface for RuntimeSplitPane.
- * Combines (deprecated) script methods and java api ({@link IRuntimeSplitPane});
- * 
+ * The <code>IScriptSplitPaneMethods</code> is a scripting interface for RuntimeSplitPane.
+ * Combines (deprecated) script methods and java api ({@link IRuntimeSplitPane}).
+ *
  * @author gboros
  *
  */
@@ -33,23 +33,23 @@ public interface IScriptSplitPaneMethods extends IRuntimeSplitPane, IScriptTabPa
 
 	/**
 	 * Set a relationless or related form as left panel.
-	 * 
+	 *
 	 * @sample %%prefix%%%%elementName%%.setLeftForm(forms.orders);
 	 *
 	 * @param form the specified form or form name you wish to add as left panel
-	 * 
+	 *
 	 * @return a boolean value indicating if tab was successfully added
 	 */
 	public boolean js_setLeftForm(Object form);
 
 	/**
 	 * Set a relationless or related form as left panel.
-	 * 
+	 *
 	 * @sample %%prefix%%%%elementName%%.setLeftForm(forms.orders,'orders_to_order_details');
 	 *
 	 * @param form the specified form or form name you wish to add as left panel
 	 * @param relation the relation name or a related foundset or null for relationless
-	 * 
+	 *
 	 * @return a boolean value indicating if tab was successfully added
 	 */
 	public boolean js_setLeftForm(Object form, Object relation);
@@ -57,41 +57,41 @@ public interface IScriptSplitPaneMethods extends IRuntimeSplitPane, IScriptTabPa
 
 	/**
 	 * Returns the left form of the split pane.
-	 * 
+	 *
 	 * @sample var leftForm = %%prefix%%%%elementName%%.getLeftForm();
-	 * 
+	 *
 	 * @return left form of the split pane
 	 */
 	public FormScope js_getLeftForm();
 
 	/**
 	 * Set a relationless or related form as right panel.
-	 * 
+	 *
 	 * @sample %%prefix%%%%elementName%%.setRightForm(forms.orders);
 	 *
 	 * @param form the specified form or form name you wish to add as right panel
-	 * 
+	 *
 	 * @return a boolean value indicating if tab was successfully added
 	 */
 	public boolean js_setRightForm(Object form);
 
 	/**
 	 * Set a relationless or related form as right panel.
-	 * 
+	 *
 	 * @sample %%prefix%%%%elementName%%.setRightForm(forms.orders,'orders_to_order_details');
 	 *
 	 * @param form the specified form or form name you wish to add as right panel
 	 * @param relation the relation name or a related foundset or null for relationless
-	 * 
+	 *
 	 * @return a boolean value indicating if tab was successfully added
 	 */
 	public boolean js_setRightForm(Object form, Object relation);
 
 	/**
 	 * Returns the right form of the split pane.
-	 * 
+	 *
 	 * @sample var rightForm = %%prefix%%%%elementName%%.getRightForm();
-	 * 
+	 *
 	 * @return right form of the split pane
 	 */
 	public FormScope js_getRightForm();

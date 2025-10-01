@@ -44,7 +44,7 @@ import com.servoy.j2db.util.Debug;
 
 /**
  * The manager handling cmds, executing them and enables disables!
- * 
+ *
  * @author jblok
  */
 public class CmdManager implements ICmdManagerInternal, PropertyChangeListener, IHandleUndoRedo
@@ -128,7 +128,7 @@ public class CmdManager implements ICmdManagerInternal, PropertyChangeListener, 
 		{
 			final IRepository repository = (IRepository)evt.getNewValue();
 
-			Action cmdnewsolution = actions.get("cmdnewsolution"); //$NON-NLS-1$ 
+			Action cmdnewsolution = actions.get("cmdnewsolution"); //$NON-NLS-1$
 			if (cmdnewsolution != null) cmdnewsolution.setEnabled(repository != null);
 
 			if (autoOpenSolutionSelectDialog)
@@ -177,7 +177,7 @@ public class CmdManager implements ICmdManagerInternal, PropertyChangeListener, 
 			Action cmdsolutionsettings = actions.get("cmdsolutionsettings"); //$NON-NLS-1$
 			if (cmdsolutionsettings != null) cmdsolutionsettings.setEnabled(solution != null);
 
-//			Action cmdprint = (Action) actions.get("cmdprint"); 
+//			Action cmdprint = (Action) actions.get("cmdprint");
 //			if (cmdprint != null) cmdprint.setEnabled(enable);
 
 			//TODO:could be optimized by using fast method getFormCount
@@ -239,7 +239,7 @@ public class CmdManager implements ICmdManagerInternal, PropertyChangeListener, 
 
 	protected void ableFormRelatedActions(boolean enable)
 	{
-//		Action menuwindowaction = (Action) actions.get("menuwindowaction"); 
+//		Action menuwindowaction = (Action) actions.get("menuwindowaction");
 //		if (menuwindowaction != null) menuwindowaction.setEnabled(enable);
 
 		Action menumethodsaction = actions.get("menumethodsaction"); //$NON-NLS-1$
@@ -316,7 +316,7 @@ public class CmdManager implements ICmdManagerInternal, PropertyChangeListener, 
 		{
 			for (IForm f : visibleRootFormsInFind)
 			{
-				if (!(f instanceof FormController) || ((FormController)f).getForm() == null || ((FormController)f).getForm().getOnSearchCmdMethodID() >= 0)
+				if (!(f instanceof FormController) || ((FormController)f).getForm() == null || ((FormController)f).getForm().getOnSearchCmdMethodID() != null)
 				{
 					shouldPerform = true;
 					break;
@@ -417,7 +417,7 @@ public class CmdManager implements ICmdManagerInternal, PropertyChangeListener, 
 			{
 				public void run()
 				{
-//					//save any outstanding change,THIS ALSO DOES UI UPDATES IN 'saveData'!!!! 
+//					//save any outstanding change,THIS ALSO DOES UI UPDATES IN 'saveData'!!!!
 //					FormManager fm = application.getFormManager();
 //					if (fm != null)
 //					{
@@ -532,7 +532,7 @@ public class CmdManager implements ICmdManagerInternal, PropertyChangeListener, 
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.cmd.ICmdManager#refresh()
 	 */
 	public void i18nRefresh()

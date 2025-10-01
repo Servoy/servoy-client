@@ -51,7 +51,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -88,7 +87,6 @@ import javax.swing.event.AncestorEvent;
 import javax.swing.event.AncestorListener;
 import javax.swing.text.html.CSS;
 
-import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.mozilla.javascript.JavaMembers;
 import org.mozilla.javascript.NativeJavaObject;
 import org.mozilla.javascript.Scriptable;
@@ -120,6 +118,7 @@ import com.servoy.j2db.dataprocessing.SortColumn;
 import com.servoy.j2db.dataui.IServoyAwareBean;
 import com.servoy.j2db.dnd.DRAGNDROP;
 import com.servoy.j2db.gui.FormDialog;
+import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.FormElementGroup;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.Table;
@@ -750,8 +749,8 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 					((DataRenderer)dataRenderers[FormController.FORM_EDITOR]).setShowSelection(false);
 					((RecordView)view).setCellRenderer((DataRenderer)dataRenderers[FormController.FORM_EDITOR]);
 				}
-				int form_id = fp.getForm().getNavigatorID();
-				if (form_id == 0)
+				String form_uuid = fp.getForm().getNavigatorID();
+				if (form_uuid == Form.NAVIGATOR_DEFAULT)
 				{
 					StyledEnablePanel slider = ((RecordView)view).getSliderComponent();
 					if (bgColor != null) slider.setBackground(bgColor);
@@ -962,16 +961,6 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 					}
 				}
 			}
-			else if (dr instanceof WebMarkupContainer)
-			{
-				comps = new Object[((WebMarkupContainer)dr).size()];
-				Iterator< ? > it = ((WebMarkupContainer)dr).iterator();
-				int j = 0;
-				while (it.hasNext())
-				{
-					comps[j++] = it.next();
-				}
-			}
 
 			counter = registerComponentsToScope(fs, es, counter, comps, compsRenderer, (Component)controller, hmChildrenJavaMembers);
 		}
@@ -1122,7 +1111,7 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 			Component child = component.getComponent(i);
 			if (child instanceof JTable)
 			{
-				((JTable)child).repaint();
+				child.repaint();
 			}
 			else if (child instanceof JComponent)
 			{
@@ -2186,10 +2175,8 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 			Map<JComponent, int[][]> selectedComponents = selectionHandler.getSelection(this);
 			if (selectedComponents.size() > 0)
 			{
-				Iterator<Entry<JComponent, int[][]>> iterator = selectedComponents.entrySet().iterator();
-				while (iterator.hasNext())
+				for (Entry<JComponent, int[][]> entry : selectedComponents.entrySet())
 				{
-					Entry<JComponent, int[][]> entry = iterator.next();
 					JComponent selectedComponent = entry.getKey();
 					int[][] positions = entry.getValue();
 					g.setColor(Color.black);
@@ -2304,12 +2291,10 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 							!(canMove instanceof Number && ((Number)canMove).intValue() == DRAGNDROP.NONE))
 						{
 							Map<JComponent, Rectangle> toUpdate = new HashMap<JComponent, Rectangle>(selectedComponents.size());
-							Iterator<JComponent> iterator = selectedComponents.keySet().iterator();
 							int panelWidth = getWidth();
 							int panelHeight = getHeight();
-							while (iterator.hasNext())
+							for (JComponent selectedComponent : selectedComponents.keySet())
 							{
-								JComponent selectedComponent = iterator.next();
 								Rectangle current = selectedComponent.getBounds();
 								int x = current.x + (e.getX() - lastMousePosition.x);
 								int y = current.y + (e.getY() - lastMousePosition.y);
@@ -2324,10 +2309,8 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 							}
 							if (toUpdate.size() > 0)
 							{
-								Iterator<Entry<JComponent, Rectangle>> it = toUpdate.entrySet().iterator();
-								while (it.hasNext())
+								for (Entry<JComponent, Rectangle> entry : toUpdate.entrySet())
 								{
-									Entry<JComponent, Rectangle> entry = it.next();
 									addSelectedComponent(entry.getKey(), entry.getValue());
 								}
 								moved = true;

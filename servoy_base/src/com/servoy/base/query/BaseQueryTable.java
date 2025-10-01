@@ -17,6 +17,7 @@
 
 package com.servoy.base.query;
 
+import static com.servoy.base.query.BaseAbstractBaseQuery.generateAlias;
 
 /**
  * Query table for mobile and regular clients.
@@ -26,8 +27,6 @@ package com.servoy.base.query;
  */
 public class BaseQueryTable implements IBaseQueryElement
 {
-	private static long aliasCounter = 0l;
-
 	protected String name;
 	protected String dataSource;
 	protected String alias;
@@ -70,38 +69,6 @@ public class BaseQueryTable implements IBaseQueryElement
 		this.isComplete = true;
 	}
 
-	protected String generateAlias(String name)
-	{
-		// Skip anything but letters and digits
-		StringBuilder aliasBuf = new StringBuilder();
-		if (name != null)
-		{
-			char[] chars = name.toCharArray();
-			for (char element : chars)
-			{
-				if (Character.isLetterOrDigit(element))
-				{
-					aliasBuf.append(element);
-				}
-			}
-		}
-
-		// generate next counter
-		long n = getNextAliasCounter() & 0x7fffffffffffffffL;
-
-		if (aliasBuf.length() == 0) // weird table name
-		{
-			return "T_" + n; //$NON-NLS-1$
-		}
-
-		aliasBuf.append(n);
-		return aliasBuf.toString();
-	}
-
-	protected long getNextAliasCounter()
-	{
-		return ++aliasCounter;
-	}
 
 	/**
 	 * QueryTable with all fields, only for internal use.
@@ -246,20 +213,27 @@ public class BaseQueryTable implements IBaseQueryElement
 	public String toString()
 	{
 		StringBuilder sb = new StringBuilder();
-		if (catalogName != null)
+//		if (catalogName != null)
+//		{
+//			sb.append(catalogName).append(':');
+//		}
+//		if (schemaName != null)
+//		{
+//			sb.append(schemaName).append(':');
+//		}
+
+		if (dataSource != null)
 		{
-			sb.append(catalogName).append(':');
+			sb.append('<').append(dataSource).append('>');
 		}
-		if (schemaName != null)
+		else
 		{
-			sb.append(schemaName).append(':');
+			sb.append(name);
 		}
-		sb.append(name);
-		if (dataSource != null) sb.append('<').append(dataSource).append('>');
-		if (alias != null)
-		{
-			sb.append('#').append(alias);
-		}
+//		if (alias != null)
+//		{
+//			sb.append('#').append(alias);
+//		}
 		return sb.toString();
 	}
 }

@@ -60,6 +60,7 @@ import com.servoy.j2db.server.ngclient.property.FoundsetLinkedTypeSabloValue;
 import com.servoy.j2db.server.ngclient.property.types.DataproviderPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
+import com.servoy.j2db.server.ngclient.property.types.UpdateableCSSPosition;
 import com.servoy.j2db.server.ngclient.property.types.ValueListTypeSabloValue;
 import com.servoy.j2db.server.ngclient.template.FormTemplateGenerator;
 import com.servoy.j2db.ui.runtime.IRuntimeComponent;
@@ -210,7 +211,7 @@ public class RuntimeLegacyComponent implements Scriptable, IInstanceOf
 			return putCallable;
 		}
 
-		if ("addStyleClass".equals(name) || "removeStyleClass".equals(name) || "hasStyleClass".equals(name))
+		if ("addStyleClass".equals(name) || "removeStyleClass".equals(name) || "hasStyleClass".equals(name) || "getStyleClasses".equals(name))
 		{
 			final String nameFinal = name;
 			return new Callable()
@@ -255,7 +256,18 @@ public class RuntimeLegacyComponent implements Scriptable, IInstanceOf
 								}
 								else styleClass = styleClass.replaceAll("(?<!\\S)\\b" + Pattern.quote(args[0].toString()) + "\\b(?!\\S)", "");
 							}
-							component.setProperty(propertyName, styleClass);
+							component.setProperty(propertyName, styleClass.replaceAll("\\s{2,}", " ").trim());
+						}
+						else if ("getStyleClasses".equals(nameFinal))
+						{
+							if (styleClass != null && styleClass.length() > 0)
+							{
+								return styleClass.split("\\s+");
+							}
+							else
+							{
+								return new String[0];
+							}
 						}
 					}
 					return null;
@@ -352,7 +364,7 @@ public class RuntimeLegacyComponent implements Scriptable, IInstanceOf
 		return value;
 	}
 
-	private boolean inServerSideScript()
+	public static boolean inServerSideScript()
 	{
 		return Context.getCurrentContext() != null && Context.getCurrentContext().getThreadLocal(RuntimeWebComponent.SERVER_SIDE_SCRIPT_EXECUTE) != null;
 	}
@@ -398,7 +410,7 @@ public class RuntimeLegacyComponent implements Scriptable, IInstanceOf
 			String newName = generatePropertyName(name);
 			if (webComponentSpec.getProperty(newName) != null) return true;
 		}
-		if ("addStyleClass".equals(name) || "removeStyleClass".equals(name) || "hasStyleClass".equals(name))
+		if ("addStyleClass".equals(name) || "removeStyleClass".equals(name) || "hasStyleClass".equals(name) || "getStyleClasses".equals(name))
 		{
 			if (webComponentSpec.getProperty(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName()) != null) return true;
 		}
@@ -443,7 +455,8 @@ public class RuntimeLegacyComponent implements Scriptable, IInstanceOf
 
 		if (val != previousVal) component.setProperty(name, val);
 		// always force size & location push as that maybe different on the client (if form anchored or table columns were changed as width or location)
-		if ("size".equals(name) || "location".equals(name))
+		// always force clientProperty push as it is a hashmap of properies, and an entry can be changed
+		if ("size".equals(name) || "location".equals(name) || "clientProperty".equals(name))
 		{
 			component.markPropertyAsChangedByRef(name);
 		}
@@ -614,6 +627,30 @@ public class RuntimeLegacyComponent implements Scriptable, IInstanceOf
 //				scriptable.put(StaticContentSpecLoader.PROPERTY_ANCHORS.getPropertyName(), null, Integer.valueOf(IAnchorConstants.DEFAULT));
 //			}
 			scriptable.put(propertyName, null, value);
+
+			if (component.getFormElement().getForm().getUseCssPosition().booleanValue())
+			{
+				// update cssPostion for LegacyComponent
+				if ("location".equals(propertyName) || "size".equals(propertyName))
+				{
+					UpdateableCSSPosition updateableCSSPosition = (UpdateableCSSPosition)((ISabloComponentToRhino)component
+						.getPropertyDescription("cssPosition")
+						.getType()).toRhinoValue(component.getProperty("cssPosition"), component.getPropertyDescription("cssPosition"), component, scriptable);
+					if (updateableCSSPosition != null)
+					{
+						if ("location".equals(propertyName))
+						{
+							updateableCSSPosition.setLeft(args[0].toString());
+							updateableCSSPosition.setTop(args[1].toString());
+						}
+						else
+						{
+							updateableCSSPosition.setWidth(args[0].toString());
+							updateableCSSPosition.setHeight(args[1].toString());
+						}
+					}
+				}
+			}
 			return null;
 		}
 	}
@@ -637,7 +674,7 @@ public class RuntimeLegacyComponent implements Scriptable, IInstanceOf
 				int partStartY = 0;
 				if (p != null)
 				{
-					partStartY = f.getPartStartYPos(p.getID());
+					partStartY = f.getPartStartYPos(p.getUUID().toString());
 				}
 				return Integer.valueOf(partStartY + y);
 			}

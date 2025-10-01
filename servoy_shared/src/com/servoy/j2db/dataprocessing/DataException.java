@@ -22,6 +22,20 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.util.ServoyException;
 
 /**
+ * <p>
+ * The <code>DataException</code> is a specialized subclass of <code>ServoyException</code> designed to handle
+ * SQL-related errors in the Servoy environment. It provides detailed methods for inspecting the root causes
+ * of database issues, exposing properties such as the SQL query, SQL state, vendor error code, and associated
+ * parameters.
+ * </p>
+ * <p>
+ * The class includes methods to retrieve the chained exception messages from underlying SQL errors, along with
+ * scripting-friendly accessors like <code>js_getSQL</code>, <code>js_getSQLState</code>, and
+ * <code>js_getVendorErrorCode</code>. These methods ensure integration into client-side logic.
+ * Additionally, the exception can capture and return the parameters of the offending SQL query, providing
+ * further insight for error resolution.
+ * </p>
+ *
  * @author jblok
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
@@ -121,7 +135,9 @@ public class DataException extends ServoyException
 	@Override
 	public String getMessage()
 	{
-		return super.getMessage() + '\n' + msg;
+		String message = super.getMessage() + '\n' + msg;
+		if (sql != null) message += "\nSQL: " + sql; //$NON-NLS-1$
+		return message;
 	}
 
 	public String getSQL()

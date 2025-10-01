@@ -45,9 +45,9 @@ public class FlattenedForm extends Form implements IFlattenedPersistWrapper<Form
 	private final Map<UUID, IPersist> extendsMap = new HashMap<>();
 	private final Map<String, Object> allProperties = new HashMap<>();
 
-	public static final Comparator<IFormElement> FORM_INDEX_WITH_HIERARCHY_COMPARATOR = new Comparator<IFormElement>()
+	public static final Comparator<ISupportFormElement> FORM_INDEX_WITH_HIERARCHY_COMPARATOR = new Comparator<ISupportFormElement>()
 	{
-		public int compare(IFormElement element1, IFormElement element2)
+		public int compare(ISupportFormElement element1, ISupportFormElement element2)
 		{
 			Form form1 = getFormIndexContext(element1);
 			Form form2 = getFormIndexContext(element2);
@@ -76,7 +76,7 @@ public class FlattenedForm extends Form implements IFlattenedPersistWrapper<Form
 	 */
 	public FlattenedForm(FlattenedSolution flattenedSolution, Form form)
 	{
-		super(form.getParent(), form.getID(), form.getUUID());
+		super(form.getParent(), form.getUUID());
 		this.flattenedSolution = flattenedSolution;
 		this.form = form;
 		fill();
@@ -106,7 +106,7 @@ public class FlattenedForm extends Form implements IFlattenedPersistWrapper<Form
 	}
 
 	@Override
-	public void setExtendsID(int arg)
+	public void setExtendsID(String arg)
 	{
 		// override the Form.setExtendsID so that the persist fire is not happening
 		// and the extends form is not get right aways.
@@ -117,7 +117,7 @@ public class FlattenedForm extends Form implements IFlattenedPersistWrapper<Form
 	public Form getExtendsForm()
 	{
 		// if the extends form is asked for now look it up if there is one
-		if (getExtendsID() > 0)
+		if (getExtendsID() != null)
 		{
 			return flattenedSolution.getForm(getExtendsID());
 		}
@@ -140,14 +140,20 @@ public class FlattenedForm extends Form implements IFlattenedPersistWrapper<Form
 		// the first method based on its name is added.
 		Set<String> methods = new HashSet<String>(64);
 		Set<String> variables = new HashSet<String>(64);
-		List<Integer> existingIDs = new ArrayList<Integer>();
+		List<String> existingIDs = new ArrayList<String>();
 		//first fill in the map to be sure is complete, can we improve this ?
+		boolean responsiveLayout = false;
 		for (Form f : allForms)
 		{
-			boolean responsiveLayout = f.isResponsiveLayout();
+			responsiveLayout = responsiveLayout || f.isResponsiveLayout() || f.containsResponsiveLayout();
+			if (responsiveLayout) break;
+		}
+		for (Form f : allForms)
+		{
 			for (IPersist persist : f.getAllObjectsAsList())
 			{
-				if (persist instanceof ISupportExtendsID && ((ISupportExtendsID)persist).getExtendsID() > 0 && responsiveLayout)
+				if (persist instanceof ISupportExtendsID && ((ISupportExtendsID)persist).getExtendsID() != null &&
+					responsiveLayout)
 				{
 					IPersist p = PersistHelper.getSuperPersist((ISupportExtendsID)persist);
 					if (p != null)
@@ -159,16 +165,16 @@ public class FlattenedForm extends Form implements IFlattenedPersistWrapper<Form
 		}
 		for (Form f : allForms)
 		{
-			boolean responsiveLayout = f.isResponsiveLayout();
 			for (IPersist persist : f.getAllObjectsAsList())
 			{
-				if (persist instanceof ISupportExtendsID && ((ISupportExtendsID)persist).getExtendsID() > 0 && responsiveLayout)
+				if (persist instanceof ISupportExtendsID && ((ISupportExtendsID)persist).getExtendsID() != null &&
+					responsiveLayout)
 				{
 					IPersist p = PersistHelper.getSuperPersist((ISupportExtendsID)persist);
 					if (p != null && !p.getParent().getUUID().equals(getUUID()))
 					{
 						IPersist topPersist = p;
-						while (((ISupportExtendsID)topPersist).getExtendsID() > 0)
+						while (((ISupportExtendsID)topPersist).getExtendsID() != null)
 						{
 							IPersist superPersist = PersistHelper.getSuperPersist((ISupportExtendsID)topPersist);
 							if (superPersist != null)
@@ -186,8 +192,8 @@ public class FlattenedForm extends Form implements IFlattenedPersistWrapper<Form
 					}
 				}
 				IPersist ip = extendsMap.containsKey(persist.getUUID()) ? extendsMap.get(persist.getUUID()) : persist;
-				Integer extendsID = (ip instanceof ISupportExtendsID) ? new Integer(((ISupportExtendsID)ip).getExtendsID()) : Integer.valueOf(-1);
-				if (!existingIDs.contains(new Integer(ip.getID())) && !existingIDs.contains(extendsID))
+				String extendsID = (ip instanceof ISupportExtendsID) ? ((ISupportExtendsID)ip).getExtendsID() : null;
+				if (!existingIDs.contains(ip.getUUID().toString()) && (extendsID == null || !existingIDs.contains(extendsID)))
 				{
 					if (ip instanceof ISupportExtendsID && PersistHelper.isOverrideOrphanElement((ISupportExtendsID)ip))
 					{
@@ -246,7 +252,7 @@ public class FlattenedForm extends Form implements IFlattenedPersistWrapper<Form
 					while (it.hasNext())
 					{
 						Part temp = it.next();
-						if (temp.getID() == part.getExtendsID() || temp.getExtendsID() == part.getExtendsID())
+						if (temp.getUUID().toString().equals(part.getExtendsID()) || part.getExtendsID().equals(temp.getExtendsID()))
 						{
 							parentPart = temp;
 							break;
@@ -280,7 +286,7 @@ public class FlattenedForm extends Form implements IFlattenedPersistWrapper<Form
 	}
 
 	@Override
-	public Iterator<IFormElement> getFormElementsSortedByFormIndex()
+	public Iterator<ISupportFormElement> getFormElementsSortedByFormIndex()
 	{
 		return new FormTypeIterator(getAllObjectsAsList(), FORM_INDEX_WITH_HIERARCHY_COMPARATOR);
 	}
@@ -301,30 +307,30 @@ public class FlattenedForm extends Form implements IFlattenedPersistWrapper<Form
 		Form superForm = form1.getExtendsForm();
 		while (superForm != null)
 		{
-			if (superForm.getID() == form2.getID()) return true;
+			if (superForm.getUUID().equals(form2.getUUID())) return true;
 			superForm = superForm.getExtendsForm();
 		}
 		return false;
 	}
 
-	private static Form getFormIndexContext(IFormElement element)
+	private static Form getFormIndexContext(ISupportFormElement element)
 	{
 		if (element instanceof IFlattenedPersistWrapper)
 		{
-			element = (IFormElement)((IFlattenedPersistWrapper)element).getWrappedPersist();
+			element = (ISupportFormElement)((IFlattenedPersistWrapper)element).getWrappedPersist();
 		}
-		if (element.getFormIndex() == 0 || element.getExtendsID() <= 0)
+		if (element.getFormIndex() == 0 || element.getExtendsID() == null)
 		{
 			return (Form)element.getAncestor(IRepository.FORMS);
 		}
-		IFormElement currentElement = element;
+		ISupportFormElement currentElement = element;
 		while (currentElement != null)
 		{
 			if (((AbstractBase)currentElement).hasProperty(StaticContentSpecLoader.PROPERTY_FORMINDEX.getPropertyName()))
 			{
 				return (Form)currentElement.getParent();
 			}
-			currentElement = (IFormElement)PersistHelper.getSuperPersist(currentElement);
+			currentElement = (ISupportFormElement)PersistHelper.getSuperPersist(currentElement);
 		}
 		return (Form)element.getAncestor(IRepository.FORMS);
 	}

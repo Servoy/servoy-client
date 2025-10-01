@@ -26,8 +26,10 @@ import com.servoy.j2db.persistence.IRepository;
  * Dummy class for use in the documentation generator.
  *
  * @author acostache
+ * @deprecated
  *
  */
+@Deprecated
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "Image", realClass = GraphicalComponent.class, typeCode = IRepository.GRAPHICALCOMPONENTS)
 @ServoyClientSupport(mc = false, wc = true, sc = true)
 public class DocsImage extends BaseDocsGraphicalComponent

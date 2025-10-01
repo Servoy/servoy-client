@@ -25,12 +25,12 @@ import java.util.HashSet;
 import java.util.Set;
 
 /** Base invocation handler on remote interfaces.
- * 
+ *
  * @author rgansevles
  *
  * @since 6.1
  */
-public abstract class AbstractRemoteInvocationHandler<T extends Remote> implements InvocationHandler, IDelegate<T>
+public abstract class AbstractRemoteInvocationHandler<T> implements InvocationHandler, IDelegate<T>
 {
 	private final T remote;
 
@@ -68,17 +68,23 @@ public abstract class AbstractRemoteInvocationHandler<T extends Remote> implemen
 	/**
 	 * @param method
 	 * @param args
-	 * @throws Throwable 
+	 * @throws Throwable
 	 */
 	protected Object invokeMethod(Method method, Object[] args) throws Throwable
 	{
+		ClassLoader savedCl = Thread.currentThread().getContextClassLoader();
 		try
 		{
+			Thread.currentThread().setContextClassLoader(remote.getClass().getClassLoader());
 			return method.invoke(remote, args);
 		}
 		catch (InvocationTargetException e)
 		{
 			throw e.getCause();
+		}
+		finally
+		{
+			Thread.currentThread().setContextClassLoader(savedCl);
 		}
 	}
 }

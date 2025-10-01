@@ -618,24 +618,24 @@ public class ComponentFactoryHelper
 
 	public static void addPortalOnRenderCallback(Portal portal, RenderEventExecutor renderEventExecutor, IPersist obj, IScriptExecuter se)
 	{
-		int onRenderMethodID = 0;
+		String onRenderMethodUUID = null;
 		AbstractBase onRenderPersist = null;
 		if (obj instanceof Field)
 		{
-			onRenderMethodID = ((Field)obj).getOnRenderMethodID();
+			onRenderMethodUUID = ((Field)obj).getOnRenderMethodID();
 			onRenderPersist = ((Field)obj);
 		}
 		else if (obj instanceof GraphicalComponent)
 		{
-			onRenderMethodID = ((GraphicalComponent)obj).getOnRenderMethodID();
+			onRenderMethodUUID = ((GraphicalComponent)obj).getOnRenderMethodID();
 			onRenderPersist = ((GraphicalComponent)obj);
 		}
-		if (onRenderMethodID <= 0)
+		if (onRenderMethodUUID == null)
 		{
-			onRenderMethodID = portal.getOnRenderMethodID();
+			onRenderMethodUUID = portal.getOnRenderMethodID();
 			onRenderPersist = portal;
 		}
-		if (onRenderMethodID > 0) renderEventExecutor.setRenderCallback(Integer.toString(onRenderMethodID),
+		if (onRenderMethodUUID != null) renderEventExecutor.setRenderCallback(onRenderMethodUUID,
 			Utils.parseJSExpressions(onRenderPersist.getFlattenedMethodArguments("onRenderMethodID"))); //$NON-NLS-1$
 		else renderEventExecutor.setRenderCallback(null, null);
 

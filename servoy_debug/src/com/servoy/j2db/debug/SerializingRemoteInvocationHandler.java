@@ -18,6 +18,7 @@
 package com.servoy.j2db.debug;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
@@ -32,8 +33,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import org.apache.wicket.util.io.ByteArrayOutputStream;
-
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.util.AbstractRemoteInvocationHandler;
 import com.servoy.j2db.util.Debug;
@@ -47,7 +46,7 @@ import com.servoy.j2db.util.Debug;
  * @since 6.0
  *
  */
-public class SerializingRemoteInvocationHandler<T extends Remote> extends AbstractRemoteInvocationHandler<T>
+public class SerializingRemoteInvocationHandler<T> extends AbstractRemoteInvocationHandler<T>
 {
 	private final IApplication application;
 
@@ -67,7 +66,7 @@ public class SerializingRemoteInvocationHandler<T extends Remote> extends Abstra
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <T extends Remote> T createSerializingSerializingInvocationHandler(IApplication application, T obj, Class< ? >[] interfaces)
+	public static <T> T createSerializingSerializingInvocationHandler(IApplication application, T obj, Class< ? >[] interfaces)
 	{
 		if (obj == null)
 		{

@@ -66,9 +66,9 @@ public class PerformanceData
 		PerformanceTiming startedTimingPerClientForThisInstance = startedTimingPerClientForThisInstanceTL.get();
 		if (startedTimingPerClientForThisInstance == null)
 		{
-			Long parentId = getID();
+			PerformanceTiming parentTiming = this instanceof PerformanceTiming ? (PerformanceTiming)this : null;
 			PerformanceTiming sharedTopTimingOfClient = sharedTopTimingOfClientTL.get();
-			if (parentId == null && sharedTopTimingOfClient != null && "sql".equals(contextId)) //$NON-NLS-1$
+			if (getID() == null && sharedTopTimingOfClient != null && "sql".equals(contextId)) //$NON-NLS-1$
 			{
 				PerformanceTiming methodCallCurrentlyRunning = sharedTopTimingOfClient;
 				PerformanceTiming[] startedActions = methodCallCurrentlyRunning.getStartedActions(); // startedActions can only be max size 1 on PerformanceTiming instances; see javadoc
@@ -77,9 +77,10 @@ public class PerformanceData
 					methodCallCurrentlyRunning = startedActions[0];
 					startedActions = methodCallCurrentlyRunning.getStartedActions();
 				}
-				parentId = methodCallCurrentlyRunning.getID();
+				parentTiming = methodCallCurrentlyRunning;
 			}
-			startedTimingPerClientForThisInstance = new PerformanceTiming(action, type, parentId, customObject, start_ms, clientUUID, registry, log, contextId,
+			startedTimingPerClientForThisInstance = new PerformanceTiming(action, type, parentTiming, customObject, start_ms, clientUUID, registry, log,
+				contextId,
 				this.aggregator);
 			startedTimingPerClientForThisInstanceTL.set(startedTimingPerClientForThisInstance);
 			startedTimings.put(startedTimingPerClientForThisInstance.getID(), startedTimingPerClientForThisInstance);
@@ -159,9 +160,9 @@ public class PerformanceData
 		}
 		if (timingThatEnded != null)
 		{
-			if (log != null && log.isInfoEnabled())
+			if (log != null && log.isTraceEnabled())
 			{
-				log.info(
+				log.trace(
 					timingThatEnded.getID() + "|" + timingThatEnded.getParentID() + '|' + timingThatEnded.getClientUUID() + '|' + timingThatEnded.getAction() +
 						'|' +
 						timingThatEnded.getRunningTimeMS() + '|' + timingThatEnded.getIntervalTimeMS() + '|' + timingThatEnded.getTypeString() + '|' +

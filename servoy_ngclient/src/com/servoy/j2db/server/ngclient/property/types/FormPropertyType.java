@@ -153,7 +153,7 @@ public class FormPropertyType extends DefaultPropertyType<Object>
 		}
 		else if (sabloValue instanceof FormScope)
 		{
-			formName = ((FormScope)sabloValue).getFormController().getName();
+			formName = ((FormScope)sabloValue).getScopeName();
 		}
 		else
 		{
@@ -220,11 +220,7 @@ public class FormPropertyType extends DefaultPropertyType<Object>
 		FlattenedSolution fs = formElementContext.getFlattenedSolution();
 
 		Form form = null;
-		if (formElementValue instanceof Integer)
-		{
-			form = fs.getForm(((Integer)formElementValue).intValue());
-		}
-		else if (formElementValue instanceof String || formElementValue instanceof UUID)
+		if (formElementValue instanceof String || formElementValue instanceof UUID)
 		{
 			form = fs.getForm(formElementValue.toString());
 			if (form == null)
@@ -275,4 +271,5 @@ public class FormPropertyType extends DefaultPropertyType<Object>
 
 		return null;
 	}
+
 }

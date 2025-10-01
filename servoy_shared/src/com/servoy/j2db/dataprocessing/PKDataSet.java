@@ -25,7 +25,6 @@ import com.servoy.j2db.query.Placeholder;
 import com.servoy.j2db.query.TablePlaceholderKey;
 import com.servoy.j2db.util.IDelegate;
 import com.servoy.j2db.util.SortedList;
-import com.servoy.j2db.util.Utils;
 
 /**
  * Data set optimized for PKs.
@@ -147,7 +146,7 @@ public class PKDataSet implements IDataSet, IDelegate<IDataSet>
 			DynamicPkValuesArray dynArray = getDynamicPkValuesArray();
 			if (dynArray != null)
 			{
-				dynArray.getPKs().addRow(pk); // index does not matter
+				dynArray.addPk(pk);
 			}
 		}
 	}
@@ -248,10 +247,10 @@ public class PKDataSet implements IDataSet, IDelegate<IDataSet>
 		{
 			Placeholder placeholder = pksAndRecordsHolder.getQuerySelectForReading().getPlaceholder(
 				new TablePlaceholderKey(pksAndRecordsHolder.getQuerySelectForReading().getTable(), SQLGenerator.PLACEHOLDER_FOUNDSET_PKS));
-			Object value = placeholder.getValue();
-			if (value instanceof DynamicPkValuesArray)
+			Object value = placeholder.getRawValue();
+			if (value instanceof DynamicPkValuesArray dynamicPkValuesArray)
 			{
-				return (DynamicPkValuesArray)value;
+				return dynamicPkValuesArray;
 			}
 		}
 		return null;
@@ -274,14 +273,7 @@ public class PKDataSet implements IDataSet, IDelegate<IDataSet>
 			DynamicPkValuesArray dynArray = getDynamicPkValuesArray();
 			if (dynArray != null)
 			{
-				IDataSet ds = dynArray.getPKs();
-				for (int i = ds.getRowCount() - 1; i >= 0; i--)
-				{
-					if (Utils.equalObjects(pk, ds.getRow(i)))
-					{
-						ds.removeRow(i);
-					}
-				}
+				dynArray.removePk(pk);
 			}
 		}
 	}
@@ -319,16 +311,9 @@ public class PKDataSet implements IDataSet, IDelegate<IDataSet>
 				if (oldpk != null)
 				{
 					// updated pk, remove old one
-					IDataSet ds = dynArray.getPKs();
-					for (int i = ds.getRowCount() - 1; i >= 0; i--)
-					{
-						if (Utils.equalObjects(oldpk, ds.getRow(i)))
-						{
-							ds.removeRow(i);
-						}
-					}
+					dynArray.removePk(oldpk);
 				}
-				dynArray.getPKs().addRow(pk); // index does not matter
+				dynArray.addPk(pk);
 			}
 		}
 	}

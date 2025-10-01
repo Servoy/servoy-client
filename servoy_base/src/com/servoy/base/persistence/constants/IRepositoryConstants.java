@@ -77,4 +77,6 @@ public interface IRepositoryConstants
 	public static final int JSON = 49;
 	public static final int CSSPOSITION = 50;
 	public static final int CSSPOS_LAYOUTCONTAINERS = 51;
+	public static final int MENUS = 52;
+	public static final int MENU_ITEMS = 53;
 }

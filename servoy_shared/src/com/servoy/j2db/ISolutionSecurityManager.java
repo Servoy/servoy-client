@@ -24,6 +24,7 @@ import java.util.Set;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.ServoyException;
+import com.servoy.j2db.util.UUID;
 
 /**
  * Interface that gives the general solution security functionality (allows the solution to use the user/security functionality without altering it).
@@ -49,6 +50,6 @@ public interface ISolutionSecurityManager extends Remote
 	 * @throws RepositoryException
 	 * @throws RemoteException
 	 */
-	public Pair<Map<Object, Integer>, Set<Object>> getSecurityAccess(String clientId, int[] solution_id, int[] releaseNumber, String[] groups)
+	public Pair<Map<Object, Integer>, Set<Object>> getSecurityAccess(String clientId, UUID[] solution_uuid, int[] releaseNumber, String[] groups)
 		throws RemoteException, ServoyException;
 }

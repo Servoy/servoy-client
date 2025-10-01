@@ -30,6 +30,7 @@ import org.sablo.IWebObjectContext;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IConvertedPropertyType;
+import org.sablo.specification.property.IPropertyWithAttachDependencies;
 import org.sablo.specification.property.IPropertyWithClientSideConversions;
 import org.sablo.specification.property.IPushToServerSpecialType;
 import org.sablo.specification.property.ISupportsGranularUpdates;
@@ -51,6 +52,7 @@ import com.servoy.j2db.scripting.DefaultScope;
 import com.servoy.j2db.scripting.solutionmodel.JSValueList;
 import com.servoy.j2db.scripting.solutionmodel.JSWebComponent;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
+import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.INGApplication;
 import com.servoy.j2db.server.ngclient.INGFormElement;
@@ -81,13 +83,14 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 	implements IConvertedPropertyType<ValueListTypeSabloValue>, IFormElementToSabloComponent<Object, ValueListTypeSabloValue>, ISupportTemplateValue<Object>,
 	IDataLinkedType<Object, ValueListTypeSabloValue>, IRhinoToSabloComponent<ValueListTypeSabloValue>, ISabloComponentToRhino<ValueListTypeSabloValue>,
 	IPushToServerSpecialType, IRhinoDesignConverter, II18NPropertyType<ValueListTypeSabloValue>, ICanBeLinkedToFoundset<Object, ValueListTypeSabloValue>,
-	ISupportsGranularUpdates<ValueListTypeSabloValue>, IPropertyWithClientSideConversions<ValueListTypeSabloValue>, IDesignerDefaultWriter
+	ISupportsGranularUpdates<ValueListTypeSabloValue>, IPropertyWithClientSideConversions<ValueListTypeSabloValue>, IDesignerDefaultWriter,
+	IFindModeAwareType<Object, ValueListTypeSabloValue>, IPropertyWithAttachDependencies<ValueListTypeSabloValue>
 {
 
 	public static final ValueListPropertyType INSTANCE = new ValueListPropertyType();
 	public static final String TYPE_NAME = "valuelist";
 
-	protected ValueListPropertyType()
+	private ValueListPropertyType()
 	{
 	}
 
@@ -105,6 +108,7 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 		int max = Integer.MAX_VALUE;
 		boolean logMax = true;
 		boolean lazyLoading = false;
+		boolean autoResetFilter = true;
 		String configPropertyName = null;
 		if (json != null)
 		{
@@ -118,6 +122,7 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 				{
 					JSONObject tags = json.getJSONObject("tags");
 					if (tags.has("logWhenOverMax")) logMax = tags.getBoolean("logWhenOverMax");
+					if (tags.has("autoResetFilter")) autoResetFilter = tags.optBoolean("autoResetFilter");
 				}
 				catch (JSONException e)
 				{
@@ -126,7 +131,7 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 			}
 			configPropertyName = json.optString("config", null);
 		}
-		return new ValueListConfig(dataprovider, def, max, logMax, lazyLoading, configPropertyName);
+		return new ValueListConfig(dataprovider, def, max, logMax, lazyLoading, configPropertyName, autoResetFilter);
 	}
 
 	@Override
@@ -145,7 +150,10 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 			// currently the only thing that can come from client is a filter request...
 			previousSabloValue.fromJSON((JSONObject)newJSONValue);
 		}
-		else Debug.error("Got a client update for valuelist property, but valuelist is null or value can't be interpreted: " + newJSONValue + ".");
+		else if (newJSONValue != null)
+		{
+			Debug.error("Got a client update for valuelist property, but valuelist is null or value can't be interpreted: " + newJSONValue + ".");
+		}
 
 		return previousSabloValue;
 	}
@@ -529,6 +537,28 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 
 		w.value(TYPE_NAME);
 		return true;
+	}
+
+	@Override
+	public boolean isFindModeAware(Object formElementValue, PropertyDescription pd, FlattenedSolution flattenedSolution, FormElement formElement)
+	{
+		if (formElementValue != null && flattenedSolution != null)
+		{
+			ValueList valuelistPersist = ValueListTypeSabloValue.getValuelistPersist(formElementValue, flattenedSolution);
+
+			if (valuelistPersist != null && valuelistPersist.getFallbackValueListID() != null)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
+	@Override
+	public String[] getDependencies(PropertyDescription pd)
+	{
+		String dpDependency = ((ValueListConfig)pd.getConfig()).getFor();
+		return dpDependency != null ? new String[] { dpDependency } : null;
 	}
 
 }

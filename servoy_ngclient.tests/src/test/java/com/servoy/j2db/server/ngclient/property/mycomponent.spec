@@ -12,7 +12,9 @@
 		"normalArray": "objWith3Keys[]",
 		"normalArrayWithConfig": { "type": "objWith3Keys[]", "elementConfig": {} },
 		"defaultConversionsProp": "object",
-		"stringArray": "string[]"
+		"stringArray": "string[]",
+        "unknownvalue": "mytypeWithUnknownValue",
+        "unknownvaluearray": "mytypeWithUnknownValue[]"
 	},
 	"types": {
 		"mytype007": {
@@ -32,6 +34,9 @@
 			"a": "string",
 			"b": "int",
 			"c": "date"
-		}
+		},
+        "mytypeWithUnknownValue": {
+            "myproperty": "object"
+        }
 	}
 } 

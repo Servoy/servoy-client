@@ -23,7 +23,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 import org.mozilla.javascript.annotations.JSFunction;
 
@@ -32,12 +31,9 @@ import com.servoy.j2db.ApplicationException;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.dataprocessing.BufferedDataSet;
 import com.servoy.j2db.dataprocessing.ClientInfo;
-import com.servoy.j2db.dataprocessing.FoundSetManager.TableFilterRequest;
 import com.servoy.j2db.dataprocessing.IDataSet;
 import com.servoy.j2db.dataprocessing.JSDataSet;
-import com.servoy.j2db.dataprocessing.TableFilter;
 import com.servoy.j2db.documentation.ServoyDocumented;
-import com.servoy.j2db.persistence.ColumnName;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IRepository;
@@ -46,10 +42,10 @@ import com.servoy.j2db.persistence.ISupportName;
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.NameComparator;
 import com.servoy.j2db.persistence.RepositoryException;
-import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.scripting.info.FORMSECURITY;
+import com.servoy.j2db.scripting.info.JSPermission;
 import com.servoy.j2db.scripting.info.TABLESECURITY;
 import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.Debug;
@@ -59,7 +55,29 @@ import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 
 /**
- * JavaScript Object to handle security inside servoy
+ * <p>The <code>security</code> object provides a comprehensive API for managing users, groups, and permissions
+ * in a solution. It includes constants for form and table security and methods to control user access and
+ * permissions programmatically.</p>
+ *
+ * <p>Security constants such as <code>ACCESSIBLE</code>, <code>DELETE</code>, <code>INSERT</code>,
+ * <code>READ</code>, and <code>UPDATE</code> define flags for controlling access to forms and tables. These
+ * constants allow developers to set permissions using datasets and apply them at runtime.</p>
+ *
+ * <p>The API includes methods for managing users, such as <code>createUser</code>, <code>deleteUser</code>,
+ * and <code>changeUserName</code>. Permissions can be assigned or removed with <code>addPermissionToUser</code>
+ * and <code>removePermissionFromUser</code>. Developers can query permissions using methods like
+ * <code>hasPermission</code> or retrieve user-related information with <code>getUserName</code> and
+ * <code>getUserUID</code>.</p>
+ *
+ * <p>Authentication is supported via the <code>authenticate</code> method, which integrates with custom
+ * authenticators or Servoy's built-in system. The API also allows setting and managing tenant values to
+ * filter data access by tenant.</p>
+ *
+ * <p>The <code>security</code> object facilitates dynamic security configurations and provides control
+ * over application access at a granular level.</p>
+ *
+ * <p>For more information, please refer to the overall
+ * <a href="https://docs.servoy.com/guides/develop/security">Security</a> documentation.</p>
  *
  * @author jcompagner,seb,jblok
  */
@@ -72,7 +90,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 		{
 			public Class< ? >[] getAllReturnedTypes()
 			{
-				return new Class< ? >[] { TABLESECURITY.class, FORMSECURITY.class };
+				return new Class< ? >[] { TABLESECURITY.class, FORMSECURITY.class, JSPermission.class };
 			}
 		});
 	}
@@ -129,8 +147,6 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	 */
 	public static final int ACCESSIBLE = IRepository.ACCESSIBLE;
 
-	private static final String TENANT_FILTER = "_svy_tenant_id_table_filter"; //$NON-NLS-1$
-
 	private volatile IApplication application;
 
 
@@ -163,12 +179,13 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 
 	/**
 	 * Set the tenant value for this Client, this value will be used as the value for all tables that have a column marked as a tenant column.
-	 * This results in adding a table filter for that table based on that column and the this value.
+	 * This results in adding a table filter for that table based on that column and the given value, using JSTableFilter.dataBroadcast(true).
 	 *<p>
-	 * This value will be auto filled in for all the columns that are marked as a tenant column. If you give an array of values then the first array value is used for this.
+	 * When creating a new record, this value will be auto filled in for all the columns that are marked as a tenant column. If you give an array of values then the first array value is used for this.
 	 *</p>
 	 *<p>
-	 *  When a tenant value is set the client will only receive databroadcasts from other clients that have no or a common tenant value set
+	 *  When a tenant value is set the client will only receive databroadcasts from other clients that have no or a common tenant value set.
+	 *  If the tenant value is a list then the broadcast will be filtered only if there is single element match between the 2 list, so ['a','b'] will match ['a','c'] but not ['c','d'], the actual data of a recod is ignored for this.
 	 *  Be sure to not access or depend on records having different tenant values, as no databroadcasts will be received for those
 	 *</p>
 	 * @param value a single tenant value or an array of tenant values to filter tables having a column flagged as Tenant column by.
@@ -176,46 +193,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	@JSFunction
 	public void setTenantValue(Object value)
 	{
-		int count = 0;
-		try
-		{
-			// get tenant columns
-			Solution solution = application.getFlattenedSolution().getSolution();
-			for (IServer server : solution.getServerProxies().values())
-			{
-				List<TableFilterRequest> tableFilterRequests = null;
-				for (ColumnName tenantColumn : server.getTenantColumns())
-				{
-					count++;
-					ITable table = server.getTable(tenantColumn.getTableName());
-
-					if (tableFilterRequests == null) tableFilterRequests = new ArrayList<>();
-					if (value != null)
-					{
-						tableFilterRequests.add(new TableFilterRequest(table,
-							application.getFoundSetManager().createDataproviderTableFilterdefinition(table, tenantColumn.getColumnName(), "=", value), //$NON-NLS-1$
-							true));
-					}
-					// else filter will be removed if it exists for this server
-				}
-				if (tableFilterRequests != null)
-				{
-					application.getFoundSetManager().setTableFilters(TENANT_FILTER, server.getName(), tableFilterRequests, true);
-				}
-			}
-		}
-		catch (Exception e)
-		{
-			Debug.error(e);
-		}
-		if (count == 0)
-		{
-			Debug.warn("setTenantValue: No tenant columns found, value is ignored!");
-		}
-		else
-		{
-			Debug.log("setTenantValue: A tenant value was " + (value == null ? "cleared" : "set") + " for " + count + " tenant columns.");
-		}
+		application.getFoundSetManager().setTenantValue(application.getFlattenedSolution().getSolution(), value);
 	}
 
 	/**
@@ -230,11 +208,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	@JSFunction
 	public Object[] getTenantValue()
 	{
-		return application.getFoundSetManager().getTableFilters(TENANT_FILTER).stream()
-			.map(TableFilter::createBroadcastFilter)
-			.filter(Objects::nonNull)
-			.map(bf -> bf.getFilterValue())
-			.findAny().orElse(null);
+		return application.getFoundSetManager().getTenantValue();
 	}
 
 	/**
@@ -1248,12 +1222,12 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 
 	/**
 	 * Logout the current user and close the solution, if the solution requires authentication and user is logged in.
-	 * You can redirect to another solution if needed; if you want to go to a different url, you need to call application.showURL(url) before calling security.logout() (this is only applicable for Web Client).
+	 * You can redirect to another solution if needed; if you want to go to a different url, you need to call application.showURL(url) before calling security.logout().
 	 * An alternative option to close a solution and to open another solution, while keeping the user logged in, is application.closeSolution().
 	 *
 	 * @sample
 	 * //Set the url to go to after logout.
-	 * //application.showURL('http://www.servoy.com', '_self');  //Web Client only
+	 * //application.showURL('http://www.servoy.com', '_self');
 	 * security.logout();
 	 * //security.logout('solution_name');//log out and close current solution and open solution 'solution_name'
 	 * //security.logout('solution_name','global_method_name');//log out, close current solution, open solution 'solution_name' and call global method 'global_method_name' of the newly opened solution
@@ -1261,7 +1235,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	 * //security.logout('solution_name','global_second_method_name',2);
 	 * //security.logout('solution_name', {a: 'my_string_argument', p1: 'param1', p2: 'param2'});//log out, close current solution, open solution 'solution_name', call (login) solution's onOpen with argument 'my_argument' and queryParams p1,p2
 	 * //Note: specifying a solution will not work in the Developer due to debugger dependencies
-	 * //specified solution should be of compatible type with client (normal type or client specific(Smart client only/Web client only) type )
+	 * //specified solution should be of compatible type with client (normal type or client specific type )
 	 *
 	 * @description-mc
 	 * Clears the current credentials that the user specified when doing a sync. When the next sync happens the login form will be shown.

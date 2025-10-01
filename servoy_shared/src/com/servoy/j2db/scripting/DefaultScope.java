@@ -32,6 +32,8 @@ import org.mozilla.javascript.NativeJavaArray;
 import org.mozilla.javascript.NativeObject;
 import org.mozilla.javascript.ScriptRuntime;
 import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.Symbol;
+import org.mozilla.javascript.SymbolScriptable;
 import org.mozilla.javascript.TopLevel;
 import org.mozilla.javascript.WrappedException;
 
@@ -42,7 +44,7 @@ import com.servoy.j2db.util.Utils;
 /**
  * @author jcompagner
  */
-public abstract class DefaultScope implements Scriptable, IDestroyable
+public abstract class DefaultScope implements Scriptable, IDestroyable, SymbolScriptable
 {
 	private volatile Scriptable parent;
 	private volatile Scriptable prototype;
@@ -172,6 +174,33 @@ public abstract class DefaultScope implements Scriptable, IDestroyable
 		if (locked) throw new WrappedException(
 			new RuntimeException(Messages.getString("servoy.javascript.error.lockedForDeleteIndex", new Object[] { new Integer(index) }))); //$NON-NLS-1$
 		allIndex.remove(new Integer(index));
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see org.mozilla.javascript.SymbolScriptable#has(org.mozilla.javascript.Symbol, org.mozilla.javascript.Scriptable)
+	 */
+	@Override
+	public boolean has(Symbol key, Scriptable start)
+	{
+		return false;
+	}
+
+	@Override
+	public Object get(Symbol key, Scriptable start)
+	{
+		return Scriptable.NOT_FOUND;
+	}
+
+	@Override
+	public void put(Symbol key, Scriptable start, Object value)
+	{
+	}
+
+	@Override
+	public void delete(Symbol key)
+	{
 	}
 
 	/**

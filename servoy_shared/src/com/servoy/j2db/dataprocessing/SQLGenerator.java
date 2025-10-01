@@ -26,6 +26,7 @@ import static com.servoy.j2db.persistence.IColumnTypes.MEDIA;
 import static com.servoy.j2db.query.AbstractBaseQuery.acceptVisitor;
 import static com.servoy.j2db.query.AbstractBaseQuery.deepClone;
 import static com.servoy.j2db.query.AndCondition.and;
+import static com.servoy.j2db.query.ColumnType.getColumnType;
 import static com.servoy.j2db.query.OrCondition.or;
 import static com.servoy.j2db.query.QueryFunction.QueryFunctionType.cast;
 import static com.servoy.j2db.query.QueryFunction.QueryFunctionType.castfrom;
@@ -133,6 +134,7 @@ public class SQLGenerator
 	public static final String SERVOY_CONDITION_PREFIX = "SV:"; //$NON-NLS-1$
 	public static final String CONDITION_FILTER = SERVOY_CONDITION_PREFIX + 'F';
 	public static final String CONDITION_OMIT = SERVOY_CONDITION_PREFIX + 'O';
+	public static final String CONDITION_DELETED = SERVOY_CONDITION_PREFIX + 'D';
 	public static final String CONDITION_RELATION = SERVOY_CONDITION_PREFIX + 'R';
 	public static final String CONDITION_SEARCH = SERVOY_CONDITION_PREFIX + 'S';
 	public static final String CONDITION_CLEAR = SERVOY_CONDITION_PREFIX + 'C';
@@ -204,13 +206,13 @@ public class SQLGenerator
 		}
 		else
 		{
-			retval = new QuerySelect(new QueryTable(table.getSQLName(), table.getDataSource(), table.getCatalog(), table.getSchema()));
+			retval = new QuerySelect(table.queryTable());
 		}
 
 		// Example:-select pk1,pk2 from tablename1 where ((fieldname1 like '%abcd%') or ((fieldname2 like '%xyz%')) (retrieve max 200 rows)
 
-		ArrayList<IQuerySelectValue> pkQueryColumns = new ArrayList<IQuerySelectValue>(3);
-		ArrayList<Column> pkColumns = new ArrayList<Column>(3);
+		ArrayList<IQuerySelectValue> pkQueryColumns = new ArrayList<>(3);
+		ArrayList<Column> pkColumns = new ArrayList<>(3);
 		// getPrimaryKeys from table
 		Iterator<Column> pks = table.getRowIdentColumns().iterator();
 
@@ -385,8 +387,7 @@ public class SQLGenerator
 					if (join == null)
 					{
 						ITable foreignTable = application.getFlattenedSolution().getTable(relation.getForeignDataSource());
-						foreignQtable = new QueryTable(foreignTable.getSQLName(), foreignTable.getDataSource(), foreignTable.getCatalog(),
-							foreignTable.getSchema());
+						foreignQtable = foreignTable.queryTable();
 					}
 					else
 					{
@@ -406,7 +407,7 @@ public class SQLGenerator
 				{
 					AggregateVariable aggregate = (AggregateVariable)column;
 					queryColumn = new QueryAggregate(aggregate.getType(), aggregate.getAggregateQuantifier(),
-						new QueryColumn(foreignQtable, -1, aggregate.getColumnNameToAggregate(),
+						new QueryColumn(foreignQtable, aggregate.getColumnNameToAggregate(),
 							aggregate.getDataProviderType(), aggregate.getLength(), 0, null, aggregate.getFlags()),
 						aggregate.getName(), null, false);
 
@@ -423,7 +424,7 @@ public class SQLGenerator
 
 					// if the aggregate has not been selected yet, add it and skip it in the result
 					QueryAggregate skippedAggregate = new QueryAggregate(aggregate.getType(), aggregate.getAggregateQuantifier(),
-						new QueryColumn(foreignQtable, -1, aggregate.getColumnNameToAggregate(), aggregate.getDataProviderType(), aggregate.getLength(), 0,
+						new QueryColumn(foreignQtable, aggregate.getColumnNameToAggregate(), aggregate.getDataProviderType(), aggregate.getLength(), 0,
 							null, aggregate.getFlags()),
 						aggregate.getName(), null, true);
 					if (!columns.contains(skippedAggregate))
@@ -607,23 +608,24 @@ public class SQLGenerator
 		return new QueryJoin(null, queryTable1, queryTable2, joinCondition, INNER_JOIN, false, null);
 	}
 
-	static Object[][] createPKValuesArray(List<Column> pkColumns, IDataSet pks)
+	static Object[][] createPKValuesArray(List<Column> pkColumns, Collection<Object[]> pks)
 	{
 		Object[][] pkValues = new Object[pkColumns.size()][];
 
 		for (int k = 0; k < pkColumns.size(); k++)
 		{
-			pkValues[k] = new Object[pks.getRowCount()];
+			pkValues[k] = new Object[pks.size()];
 		}
 
-		for (int r = 0; r < pks.getRowCount(); r++)
+		int r = 0;
+		for (Object[] row : pks)
 		{
-			Object[] row = pks.getRow(r);
 			for (int k = 0; k < row.length; k++)
 			{
 				Column c = pkColumns.get(k);
 				pkValues[k][r] = c.getAsRightType(row[k]);
 			}
+			r++;
 		}
 		return pkValues;
 	}
@@ -636,8 +638,7 @@ public class SQLGenerator
 	 */
 	static BufferedDataSet createPKValuesDataSet(List<Column> pkColumns, Object[][] pkValues)
 	{
-		List<Object[]> rows = new ArrayList<Object[]>();
-
+		List<Object[]> rows = new ArrayList<>();
 
 		if (pkValues != null && pkValues.length > 0 && pkValues[0] != null)
 		{
@@ -671,7 +672,7 @@ public class SQLGenerator
 			return null;
 		}
 
-		return new SetCondition(operator, pkQuerycolumns, createPKValuesArray(pkColumns, pks),
+		return new SetCondition(operator, pkQuerycolumns, createPKValuesArray(pkColumns, pks.getRows()),
 			(operator & IBaseSQLCondition.OPERATOR_MASK) == IBaseSQLCondition.EQUALS_OPERATOR);
 	}
 
@@ -750,12 +751,14 @@ public class SQLGenerator
 		return "<html><body>" + ds.js_getAsHTML(Boolean.FALSE, Boolean.TRUE, Boolean.TRUE, Boolean.TRUE, Boolean.TRUE) + "</body></html>"; //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
-	private ISQLCondition createConditionFromFindState(FindState s, QuerySelect sqlSelect, IGlobalValueEntry provider, List<IQuerySelectValue> pkQueryColumns)
+	private ISQLCondition createConditionFromFindState(FindState findState, QuerySelect sqlSelect, IGlobalValueEntry provider,
+		List<IQuerySelectValue> pkQueryColumns)
 		throws RepositoryException
 	{
 		ISQLCondition and = null;
 
-		List<RelatedFindState> relatedFindStates = s.createFindStateJoins(sqlSelect, Collections.<IRelation> emptyList(), sqlSelect.getTable(), provider);
+		List<RelatedFindState> relatedFindStates = findState.createFindStateJoins(sqlSelect, Collections.<IRelation> emptyList(), sqlSelect.getTable(),
+			provider);
 		for (int i = 0; relatedFindStates != null && i < relatedFindStates.size(); i++)
 		{
 			RelatedFindState rfs = relatedFindStates.get(i);
@@ -775,10 +778,11 @@ public class SQLGenerator
 				ConverterInfo columnConverterInfo = null;
 				IColumnConverter columnConverter = null;
 				IQuerySelectValue qCol = null;
-				IColumn c = table.getColumn(dataProviderID);
-				if (c != null)
+				Column column = table.getColumn(dataProviderID);
+				IColumn columnOrAggregate = column;
+				if (column != null)
 				{
-					dataProviderType = c.getDataProviderType();
+					dataProviderType = columnOrAggregate.getDataProviderType();
 					columnConverterInfo = sheet.getColumnConverterInfo(dataProviderID);
 					if (columnConverterInfo != null)
 					{
@@ -794,33 +798,33 @@ public class SQLGenerator
 					}
 
 					// a column
-					qCol = ((Column)c).queryColumn(columnTable);
+					qCol = column.queryColumn(columnTable);
 				}
 				else
 				{
 					// not a column, check for aggregates
 					Iterator<AggregateVariable> aggregateVariables = application.getFlattenedSolution().getAggregateVariables(sheet.getTable(), false);
-					while (c == null && aggregateVariables.hasNext())
+					while (columnOrAggregate == null && aggregateVariables.hasNext())
 					{
 						AggregateVariable agg = aggregateVariables.next();
 						if (dataProviderID.equals(agg.getDataProviderID()))
 						{
 							// found aggregate
-							c = agg;
+							columnOrAggregate = agg;
 						}
 					}
 
-					if (c != null)
+					if (columnOrAggregate != null)
 					{
-						dataProviderType = c.getDataProviderType();
+						dataProviderType = columnOrAggregate.getDataProviderType();
 						Map<String, QuerySelect> aggregates = sheet.getAggregates();
 						if (aggregates != null)
 						{
 							QuerySelect aggregateSelect = aggregates.get(dataProviderID);
 							if (aggregateSelect != null)
 							{
-								qCol = ((List<IQuerySelectValue>)AbstractBaseQuery.relinkTable(aggregateSelect.getTable(), columnTable,
-									aggregateSelect.getColumnsClone())).get(0);
+								qCol = AbstractBaseQuery.relinkTable(aggregateSelect.getTable(), columnTable,
+									aggregateSelect.getColumnsClone()).get(0);
 							}
 						}
 					}
@@ -848,11 +852,12 @@ public class SQLGenerator
 					formatString = TagResolver.getDefaultFormatForType(application, dataProviderType);
 				}
 
-				ISQLCondition or = null;
+				ISQLCondition or;
 				if (raw.getClass().isArray())
 				{
 					int length = Array.getLength(raw);
 					Object[] elements = new Object[length];
+
 					for (int e = 0; e < length; e++)
 					{
 						Object obj = Array.get(raw, e);
@@ -862,19 +867,36 @@ public class SQLGenerator
 						}
 						// Have to use getAsRightType twice here, once to parse using format (getAsType(dataProviderType, formatString))
 						// and once to convert for query (getAsType(c.getDataProviderType(), null))
-						Object converted = convertFromObject(application, columnConverter, columnConverterInfo, dataProviderID, c.getDataProviderType(),
-							Column.getAsRightType(dataProviderType, c.getFlags(), obj, formatString, c.getLength(), null, false, false), false);
-						elements[e] = Column.getAsRightType(c.getDataProviderType(), c.getFlags(), converted, null, c.getLength(), null, false, false);
+						Object converted = convertFromObject(application, columnConverter, columnConverterInfo, dataProviderID,
+							getColumnType(columnOrAggregate.getDataProviderType()),
+							Column.getAsRightType(dataProviderType, columnOrAggregate.getFlags(), obj, formatString, columnOrAggregate.getLength(), null, false,
+								false),
+							false);
+						if (columnOrAggregate == column)
+						{
+							elements[e] = column.getAsRightType(converted);
+						}
+						else
+						{
+							elements[e] = Column.getAsRightType(columnOrAggregate.getDataProviderType(), columnOrAggregate.getFlags(), converted, null,
+								columnOrAggregate.getLength(), null, false, false);
+						}
+					}
+					if (column.getColumnType().isArray())
+					{
+						// Use the array as a single value
+						elements = new Object[] { elements };
 					}
 					// where qCol in (e1, e2, ..., en)
 					or = new SetCondition(IBaseSQLCondition.EQUALS_OPERATOR, new IQuerySelectValue[] { qCol }, new Object[][] { elements }, true);
 				}
 				else
 				{
-					final IColumnConverter fColumnConverter = columnConverter;
-					final ConverterInfo fColumnConverterInfo = columnConverterInfo;
-					final int fDataProviderType = c.getDataProviderType();
-					or = (ISQLCondition)BaseSQLGenerator.parseFindExpression(QueryFactory.INSTANCE, raw, qCol, columnTable, dataProviderType, formatString, c,
+					IColumnConverter fColumnConverter = columnConverter;
+					ConverterInfo fColumnConverterInfo = columnConverterInfo;
+					ColumnType fDataProviderType = getColumnType(columnOrAggregate.getDataProviderType());
+					or = (ISQLCondition)BaseSQLGenerator.parseFindExpression(QueryFactory.INSTANCE, raw, qCol, columnTable, dataProviderType, formatString,
+						columnOrAggregate,
 						rfs.getRelations().size() > 0 && relatedNullSearchAddPkCondition(), new IValueConverter()
 						{
 							@Override
@@ -903,7 +925,7 @@ public class SQLGenerator
 				if (or != null)
 				{
 					ISQLCondition condition;
-					if (c instanceof AggregateVariable)
+					if (columnOrAggregate instanceof AggregateVariable)
 					{
 						condition = createExistsCondition(application.getFlattenedSolution(), sqlSelect, or, rfs.getRelations(), columnTable, provider,
 							pkQueryColumns.toArray(new QueryColumn[pkQueryColumns.size()]), setRelationNameComment);
@@ -922,13 +944,13 @@ public class SQLGenerator
 	}
 
 	public static Object convertFromObject(IServiceProvider application, IColumnConverter columnConverter, ConverterInfo columnConverterInfo,
-		String dataProviderID, int columnType, Object obj, boolean throwOnFail)
+		String dataProviderID, ColumnType columnType, Object obj, boolean throwOnFail)
 	{
 		if (columnConverter != null)
 		{
 			try
 			{
-				return columnConverter.convertFromObject(columnConverterInfo.props, columnType, obj);
+				return columnConverter.convertFromObject(columnConverterInfo.props, columnType.getSqlType(), obj);
 			}
 			catch (Exception e)
 			{
@@ -966,9 +988,9 @@ public class SQLGenerator
 		QueryColumn[] innerPkColumns = new QueryColumn[pkQueryColumns.length];
 		for (int p = 0; p < pkQueryColumns.length; p++)
 		{
-			BaseQueryColumn pk = pkQueryColumns[p];
-			innerPkColumns[p] = new QueryColumn(existsSelect.getTable(), pk.getId(), pk.getName(), pk.getColumnType().getSqlType(),
-				pk.getColumnType().getLength(), pk.getColumnType().getScale(), pk.getNativeTypename(), pk.getFlags(), pk.isIdentity());
+			QueryColumn pk = (QueryColumn)pkQueryColumns[p];
+			innerPkColumns[p] = new QueryColumn(existsSelect.getTable(), pk.getUUID(), pk.getName(), pk.getColumnType(), pk.getNativeTypename(), pk.getFlags(),
+				pk.isIdentity());
 
 			// group by on the inner pk, some dbs (hxtt dbf) require that
 			existsSelect.addGroupBy(innerPkColumns[p]);
@@ -981,8 +1003,7 @@ public class SQLGenerator
 		for (IRelation relation : relations)
 		{
 			ITable foreignTable = flattenedSolution.getTable(relation.getForeignDataSource());
-			QueryTable foreignQtable = new QueryTable(foreignTable.getSQLName(), foreignTable.getDataSource(), foreignTable.getCatalog(),
-				foreignTable.getSchema());
+			QueryTable foreignQtable = foreignTable.queryTable();
 			existsSelect.addJoin(createJoin(flattenedSolution, relation, prevTable, foreignQtable, true, provider, setRelationNameComment, relation.getName()));
 
 			prevTable = foreignQtable;
@@ -1008,7 +1029,7 @@ public class SQLGenerator
 
 		// Dynamic PK condition, the special placeholder will be updated when the foundset pk set changes
 		Placeholder placeHolder = new Placeholder(new TablePlaceholderKey(queryTable, SQLGenerator.PLACEHOLDER_FOUNDSET_PKS));
-		placeHolder.setValue(new DynamicPkValuesArray(rowIdentColumns, pks.clone()));
+		placeHolder.setValue(new DynamicPkValuesArray(rowIdentColumns, pks.getRows()));
 		return new SetCondition(IBaseSQLCondition.EQUALS_OPERATOR, pkQueryColumns, placeHolder, true);
 	}
 
@@ -1046,11 +1067,11 @@ public class SQLGenerator
 			for (IBaseSQLCondition condition : iterate(((QuerySelect)sqlSelect).getWhere().getAllConditions()))
 			{
 				boolean skipQuery = false;
-				if (condition instanceof SetCondition && ((SetCondition)condition).isAndCondition())
+				if (condition instanceof SetCondition setCondition && setCondition.isAndCondition())
 				{
 					// check for EQUALS_OPERATOR
-					int ncols = ((SetCondition)condition).getKeys().length;
-					int[] operators = ((SetCondition)condition).getOperators();
+					int ncols = setCondition.getKeys().length;
+					int[] operators = setCondition.getOperators();
 					boolean eqop = true;
 					for (int i = 0; i < ncols; i++)
 					{
@@ -1062,11 +1083,10 @@ public class SQLGenerator
 
 					if (eqop)
 					{
-						Object value = ((SetCondition)condition).getValues();
-						if (value instanceof Placeholder)
+						Object value = setCondition.getValues();
+						if (value instanceof Placeholder placeholder)
 						{
-							Object phval = ((Placeholder)value).getValue();
-							skipQuery = phval instanceof DynamicPkValuesArray && ((DynamicPkValuesArray)phval).getPKs().getRowCount() == 0; // cleared foundset
+							skipQuery = placeholder.getRawValue() instanceof DynamicPkValuesArray dynamicPkValuesArray && dynamicPkValuesArray.isEmpty(); // cleared foundset
 						}
 						else if (value instanceof Object[][])
 						{
@@ -1087,8 +1107,7 @@ public class SQLGenerator
 						IQuerySelectValue col = columns.get(i);
 						columnNames[i] = col.getAliasOrName();
 						BaseColumnType columnType = col.getColumnType();
-						columnTypes[i] = columnType == null ? ColumnType.getInstance(Types.OTHER, 0, 0)
-							: ColumnType.getInstance(columnType.getSqlType(), columnType.getLength(), columnType.getScale());
+						columnTypes[i] = columnType == null ? ColumnType.getInstance(Types.OTHER, 0, 0) : ColumnType.toColumnType(columnType);
 					}
 
 					return BufferedDataSetInternal.createBufferedDataSet(columnNames, columnTypes, new SafeArrayList<Object[]>(0), false);
@@ -1109,7 +1128,7 @@ public class SQLGenerator
 			AggregateVariable aggregate = it.next();
 			QuerySelect sql = new QuerySelect(queryTable);
 			sql.addColumn(new QueryAggregate(aggregate.getType(), aggregate.getAggregateQuantifier(),
-				new QueryColumn(queryTable, -1, aggregate.getColumnNameToAggregate(), aggregate.getDataProviderType(), aggregate.getLength(), 0, null,
+				new QueryColumn(queryTable, aggregate.getColumnNameToAggregate(), aggregate.getDataProviderType(), aggregate.getLength(), 0, null,
 					aggregate.getFlags()),
 				aggregate.getName(), null, false));
 			sheet.addAggregate(aggregate.getDataProviderID(), aggregate.getDataProviderIDToAggregate(), sql);
@@ -1170,7 +1189,7 @@ public class SQLGenerator
 
 		if (cache) cachedDataSourceSQLSheets.put(dataSource, retval);//never remove this line, due to recursive behaviour, register a state when immediately!
 
-		QueryTable queryTable = new QueryTable(table.getSQLName(), table.getDataSource(), table.getCatalog(), table.getSchema());
+		QueryTable queryTable = table.queryTable();
 
 		QuerySelect select = new QuerySelect(queryTable);
 		QueryDelete delete = new QueryDelete(queryTable);
@@ -1264,7 +1283,7 @@ public class SQLGenerator
 			QueryTable foreignQTable = foreignTable.queryTable();
 			QuerySelect relatedSelect = new QuerySelect(foreignQTable);
 
-			List<String> parentRequiredDataProviderIDs = new ArrayList<String>();
+			List<String> parentRequiredDataProviderIDs = new ArrayList<>();
 			Column[] relcols = r.getForeignColumns(fs);
 			for (Column column : relcols)
 			{
@@ -1377,7 +1396,7 @@ public class SQLGenerator
 	 * @param filter
 	 * @return
 	 */
-	public static QueryFilter createTableFiltercondition(BaseQueryTable qTable, Table table, TableFilter filter)
+	public static QueryFilter createTableFiltercondition(BaseQueryTable qTable, ITable table, TableFilter filter)
 	{
 		if (filter.getTableFilterdefinition() == null)
 		{
@@ -1390,21 +1409,21 @@ public class SQLGenerator
 			return null;
 		}
 
-		if (filter.getTableFilterdefinition() instanceof QueryTableFilterdefinition)
+		if (filter.getTableFilterdefinition() instanceof QueryTableFilterdefinition queryTableFilterdefinition)
 		{
-			return createTableFiltercondition(qTable, table, ((QueryTableFilterdefinition)filter.getTableFilterdefinition()).getQuerySelect());
+			return createTableFiltercondition(qTable, table, queryTableFilterdefinition.getQuerySelect());
 		}
 
-		if (filter.getTableFilterdefinition() instanceof DataproviderTableFilterdefinition)
+		if (filter.getTableFilterdefinition() instanceof DataproviderTableFilterdefinition dataproviderTableFilterdefinition)
 		{
-			return createTableFiltercondition(qTable, table, (DataproviderTableFilterdefinition)filter.getTableFilterdefinition());
+			return createTableFiltercondition(qTable, table, dataproviderTableFilterdefinition);
 		}
 
 		throw new IllegalStateException("Unknown table filter definition type: " + filter.getTableFilterdefinition().getClass().getName());
 
 	}
 
-	private static QueryFilter createTableFiltercondition(BaseQueryTable qTable, Table table, QuerySelect filterQuery)
+	private static QueryFilter createTableFiltercondition(BaseQueryTable qTable, ITable table, QuerySelect filterQuery)
 	{
 		QuerySelect filterQueryClone = deepClone(filterQuery);
 		filterQueryClone.relinkTable(filterQueryClone.getTable(), qTable);
@@ -1416,7 +1435,7 @@ public class SQLGenerator
 		return new QueryFilter(filterQueryClone.getJoins(), pkColumns, filterQueryClone.getWhere());
 	}
 
-	public static QueryFilter createTableFiltercondition(BaseQueryTable qTable, Table table, DataproviderTableFilterdefinition filterdefinition)
+	public static QueryFilter createTableFiltercondition(BaseQueryTable qTable, ITable table, DataproviderTableFilterdefinition filterdefinition)
 	{
 		Column c = table.getColumn(filterdefinition.getDataprovider());
 		if (c == null)
@@ -1564,6 +1583,21 @@ public class SQLGenerator
 		return lockSelect;
 	}
 
+	public static Object[][] convertPKValuesForQueryCompare(Object[][] pkValues, int ncolumns)
+	{
+		// values is an array as wide as the columns, each element consists of the values for that column
+		Object[][] values = new Object[ncolumns][];
+		for (int k = 0; k < ncolumns; k++)
+		{
+			values[k] = new Object[pkValues.length];
+			for (int r = 0; r < pkValues.length; r++)
+			{
+				values[k][r] = pkValues[r][k];
+			}
+		}
+		return values;
+	}
+
 	private static ArrayList<IQuerySelectValue> makeQueryColumns(Collection<Column> columns, QueryTable queryTable, QueryInsert insert)
 	{
 		ArrayList<IQuerySelectValue> queryColumns = new ArrayList<>();
@@ -1643,7 +1677,7 @@ public class SQLGenerator
 			column = (Column)aggregee;
 		}
 
-		QuerySelect select = new QuerySelect(new QueryTable(table.getSQLName(), table.getDataSource(), table.getCatalog(), table.getSchema()));
+		QuerySelect select = new QuerySelect(table.queryTable());
 		select.addColumn(new QueryAggregate(aggregateType,
 			(column == null) ? (IQuerySelectValue)new QueryColumnValue(aggregee, "n", aggregee instanceof Integer || QueryAggregate.ASTERIX.equals(aggregee)) //$NON-NLS-1$
 				: column.queryColumn(select.getTable()),
@@ -1719,7 +1753,9 @@ public class SQLGenerator
 		else
 		{
 			likeSelectValue = new QueryFunction(castfrom,
-				new IQuerySelectValue[] { selectValue, new QueryColumnValue("integer", null, true), new QueryColumnValue("string", null, true) }, null); //$NON-NLS-1$ //$NON-NLS-2$
+				new IQuerySelectValue[] { selectValue, new QueryColumnValue(IQueryConstants.TYPE_INTEGER, null,
+					true), new QueryColumnValue(IQueryConstants.TYPE_STRING, null, true) },
+				null);
 		}
 		return new CompareCondition(IBaseSQLCondition.LIKE_OPERATOR, likeSelectValue, value);
 	}

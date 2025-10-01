@@ -17,6 +17,7 @@
 package com.servoy.j2db.scripting;
 
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -49,6 +50,7 @@ import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.ISmartClientApplication;
 import com.servoy.j2db.J2DBGlobals;
+import com.servoy.j2db.MenuManager;
 import com.servoy.j2db.dataprocessing.DataException;
 import com.servoy.j2db.dataprocessing.FoundSet;
 import com.servoy.j2db.dataprocessing.IDataServer;
@@ -125,7 +127,7 @@ public class ScriptEngine implements IScriptSupport
 		public void contextCreated(Context cx)
 		{
 			IServiceProvider sp = J2DBGlobals.getServiceProvider();
-			if (sp instanceof IApplication)
+			if (sp instanceof IApplication && sp.isSolutionLoaded())
 			{
 				IApplication application = (IApplication)sp;
 				cx.setApplicationClassLoader(application.getPluginManager().getClassLoader(), false);
@@ -180,12 +182,14 @@ public class ScriptEngine implements IScriptSupport
 
 	private final JSApplication jsApplication;
 	private final JSUtils jsUtils;
+	private final JSClientUtils jsClientUtils;
 	private final JSSecurity jssec;
 	private final JSDatabaseManager jsdbm;
 	private final JSDataSources jsds;
 	private final JSI18N i18n;
 	private final HistoryProvider historyProvider;
 	private final JSSolutionModel solutionModifier;
+	private final JSEventsManager jsEventsManager;
 
 
 	@SuppressWarnings("nls")
@@ -194,7 +198,9 @@ public class ScriptEngine implements IScriptSupport
 		application = app;
 
 		jsApplication = new JSApplication(application);
+		jsEventsManager = new JSEventsManager(application);
 		jsUtils = new JSUtils(application);
+		jsClientUtils = new JSClientUtils(application);
 		jssec = new JSSecurity(application);
 		jsdbm = new JSDatabaseManager(application);
 		jsds = new JSDataSources(application);
@@ -260,6 +266,15 @@ public class ScriptEngine implements IScriptSupport
 			Scriptable history = new NativeJavaObject(tmpSolutionScope, historyProvider, ijm);
 			tmpSolutionScope.put(IExecutingEnviroment.TOPLEVEL_HISTORY, tmpSolutionScope, history);
 
+			tmpSolutionScope.put(IExecutingEnviroment.TOPLEVEL_MENUS, tmpSolutionScope,
+				new NativeJavaObject(tmpSolutionScope, application.getMenuManager(), new InstanceJavaMembers(tmpSolutionScope, MenuManager.class)));
+
+			tmpSolutionScope.put(IExecutingEnviroment.TOPLEVEL_EVENTTYPES, tmpSolutionScope,
+				application.getEventsManager());
+
+			tmpSolutionScope.put(IExecutingEnviroment.TOPLEVEL_JSPERMISSION, tmpSolutionScope,
+				application.getPermissionManager());
+
 			pluginScope = new PluginScope(tmpSolutionScope, application);
 			tmpSolutionScope.put(IExecutingEnviroment.TOPLEVEL_PLUGINS, tmpSolutionScope, pluginScope);
 
@@ -268,8 +283,16 @@ public class ScriptEngine implements IScriptSupport
 				new NativeJavaObject(tmpSolutionScope, jsApplication, new InstanceJavaMembers(tmpSolutionScope, JSApplication.class)));
 			registerScriptObjectReturnTypes(jsApplication);
 
+			tmpSolutionScope.put(IExecutingEnviroment.TOPLEVEL_EVENTS_MANAGER, tmpSolutionScope,
+				new NativeJavaObject(tmpSolutionScope, jsEventsManager, new InstanceJavaMembers(tmpSolutionScope, JSEventsManager.class)));
+			registerScriptObjectReturnTypes(jsEventsManager);
+
+
 			tmpSolutionScope.put(IExecutingEnviroment.TOPLEVEL_UTILS, tmpSolutionScope,
 				new NativeJavaObject(tmpSolutionScope, jsUtils, new InstanceJavaMembers(tmpSolutionScope, JSUtils.class)));
+
+			tmpSolutionScope.put(IExecutingEnviroment.TOPLEVEL_CLIENTUTILS, tmpSolutionScope,
+				new NativeJavaObject(tmpSolutionScope, jsClientUtils, new InstanceJavaMembers(tmpSolutionScope, JSClientUtils.class)));
 
 			tmpSolutionScope.put(IExecutingEnviroment.TOPLEVEL_SECURITY, tmpSolutionScope,
 				new NativeJavaObject(tmpSolutionScope, jssec, new InstanceJavaMembers(tmpSolutionScope, JSSecurity.class)));
@@ -288,6 +311,8 @@ public class ScriptEngine implements IScriptSupport
 
 			tmpSolutionScope.put(IExecutingEnviroment.TOPLEVEL_I18N, tmpSolutionScope,
 				new NativeJavaObject(tmpSolutionScope, i18n, new InstanceJavaMembers(tmpSolutionScope, JSI18N.class)));
+
+			tmpSolutionScope.put(JSMenuItem.class.getSimpleName(), tmpSolutionScope, new NativeJavaClass(tmpSolutionScope, JSMenuItem.class));
 
 			ScriptObjectRegistry.getJavaMembers(RepositoryException.class, tmpSolutionScope);
 			ScriptObjectRegistry.getJavaMembers(ApplicationException.class, tmpSolutionScope);
@@ -330,7 +355,7 @@ public class ScriptEngine implements IScriptSupport
 	private void registerScriptObjectClass(Class< ? > cls)
 	{
 		IScriptObject scriptObjectForClass = ScriptObjectRegistry.getScriptObjectForClass(cls);
-		application.updateUI(1); // helps SC not freeze and it should not sleep at all, only process UI events if available for max 1 ms
+//		application.updateUI(1); // helps SC not freeze and it should not sleep at all, only process UI events if available for max 1 ms
 
 		if (scriptObjectForClass != null)
 		{
@@ -435,6 +460,7 @@ public class ScriptEngine implements IScriptSupport
 		jsds.destroy();
 		jssec.destroy();
 		jsUtils.destroy();
+		jsClientUtils.destroy();
 		i18n.destroy();
 		historyProvider.destroy();
 		pluginScope.destroy();
@@ -511,7 +537,7 @@ public class ScriptEngine implements IScriptSupport
 							return Collections.<ScriptVariable> emptyList().iterator();
 						}
 
-						public ScriptMethod getScriptMethod(int methodId)
+						public ScriptMethod getScriptMethod(String methodUUID)
 						{
 							return null; // is not used for calculations
 						}
@@ -713,6 +739,10 @@ public class ScriptEngine implements IScriptSupport
 						{
 							wrappedArgs[i] = cx.getWrapFactory().wrap(cx, scope, args[i], args[i].getClass());
 						}
+						else
+						{
+							wrappedArgs[i] = Undefined.instance;
+						}
 					}
 				}
 
@@ -909,6 +939,12 @@ public class ScriptEngine implements IScriptSupport
 		return jsApplication;
 	}
 
+	@Override
+	public JSSecurity getJSSecurity()
+	{
+		return jssec;
+	}
+
 	/**
 	 * @author jcompagner
 	 *
@@ -983,6 +1019,72 @@ public class ScriptEngine implements IScriptSupport
 		return docStripper.matcher(declaration).replaceFirst(replacement);
 	}
 
+	/**
+	 * @param fnOrScript
+	 * @return
+	 */
+	public static String getSourceName(DebuggableScript fnOrScript)
+	{
+		String functionName = fnOrScript.getFunctionName();
+		DebuggableScript parent = fnOrScript.getParent();
+		if (functionName == null)
+		{
+			int[] lineNumbers = fnOrScript.getLineNumbers();
+			if (lineNumbers != null && lineNumbers.length > 0)
+			{
+				Arrays.sort(lineNumbers);
+				functionName = "(anon:" + lineNumbers[0] + ')'; //$NON-NLS-1$
+			}
+			else
+			{
+				functionName = "(anon)"; //$NON-NLS-1$
+			}
+			if (parent != null)
+			{
+				String parentName = parent.getFunctionName();
+				if (parentName != null)
+				{
+					functionName = parentName + '/' + functionName;
+				}
+			}
+		}
+		else if (parent != null)
+		{
+			String parentName = parent.getFunctionName();
+			if (parentName != null)
+			{
+				functionName = parentName + '/' + functionName;
+			}
+			int[] lineNumbers = fnOrScript.getLineNumbers();
+			if (lineNumbers != null && lineNumbers.length > 0)
+			{
+				Arrays.sort(lineNumbers);
+				functionName += ':' + Integer.toString(lineNumbers[0]);
+			}
+		}
+		String sourceName = fnOrScript.getSourceName();
+		if (!sourceName.endsWith(functionName))
+		{
+			int lastIndexOf = sourceName.lastIndexOf(File.separatorChar);
+			if (lastIndexOf > 0)
+			{
+				int lastIndexOf2 = sourceName.lastIndexOf(File.separatorChar, lastIndexOf - 1);
+				if (lastIndexOf2 > 0)
+				{
+					sourceName = sourceName.substring(lastIndexOf2 + 1);
+				}
+				else
+				{
+					sourceName = sourceName.substring(lastIndexOf + 1);
+				}
+				sourceName = sourceName.replace(File.separatorChar, '/');
+			}
+			sourceName += '/' + functionName;
+		}
+		return sourceName;
+	}
+
+
 }
 
 final class ProfilingDebugger implements Debugger
@@ -1004,33 +1106,15 @@ final class ProfilingDebugger implements Debugger
 	@Override
 	public DebugFrame getFrame(Context cx, DebuggableScript fnOrScript)
 	{
-		String functionName = fnOrScript.getFunctionName();
-		if (functionName == null)
-		{
-			int[] lineNumbers = fnOrScript.getLineNumbers();
-			if (lineNumbers != null && lineNumbers.length > 0)
-			{
-				Arrays.sort(lineNumbers);
-				functionName = "(anon:" + lineNumbers[0] + ")"; //$NON-NLS-1$ //$NON-NLS-2$
-			}
-			else
-			{
-				functionName = "(anon)"; //$NON-NLS-1$
-			}
+		String sourceName = ScriptEngine.getSourceName(fnOrScript);
 
-		}
-		String sourceName = fnOrScript.getSourceName();
-		if (!sourceName.endsWith(functionName))
-		{
-			sourceName += '/' + functionName;
-		}
-
-		if (functionName != null && sourceName != null)
+		if (sourceName != null)
 		{
 			return new ProfilingDebugFrame(performanceData, application, sourceName);
 		}
 		return null;
 	}
+
 }
 
 final class ProfilingDebugFrame implements DebugFrame
@@ -1070,6 +1154,7 @@ final class ProfilingDebugFrame implements DebugFrame
 		if (pfId != null)
 		{
 			performanceData.endAction(pfId, application.getClientID());
+			pfId = null;
 		}
 	}
 

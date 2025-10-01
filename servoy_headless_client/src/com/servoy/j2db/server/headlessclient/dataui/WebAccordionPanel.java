@@ -28,28 +28,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.border.Border;
-import javax.swing.border.TitledBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import org.apache.wicket.Component;
-import org.apache.wicket.MarkupContainer;
-import org.apache.wicket.Page;
-import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.behavior.SimpleAttributeModifier;
-import org.apache.wicket.markup.ComponentTag;
-import org.apache.wicket.markup.MarkupStream;
-import org.apache.wicket.markup.html.IHeaderResponse;
-import org.apache.wicket.markup.html.WebMarkupContainer;
-import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.list.Loop;
-import org.apache.wicket.model.AbstractReadOnlyModel;
-import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.Model;
-import org.apache.wicket.version.undo.Change;
-import org.odlabs.wiquery.core.javascript.JsStatement;
-import org.odlabs.wiquery.ui.accordion.Accordion;
-import org.odlabs.wiquery.ui.accordion.AccordionAnimated;
 
 import com.servoy.base.util.ITagResolver;
 import com.servoy.j2db.FormController;
@@ -67,12 +49,7 @@ import com.servoy.j2db.dataprocessing.SortColumn;
 import com.servoy.j2db.dataprocessing.TagResolver;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.persistence.TabPanel;
-import com.servoy.j2db.server.headlessclient.MainPage;
-import com.servoy.j2db.server.headlessclient.TabIndexHelper;
 import com.servoy.j2db.server.headlessclient.WebForm;
-import com.servoy.j2db.server.headlessclient.dataui.WebTabPanel.ServoyTabIcon;
-import com.servoy.j2db.ui.IComponent;
-import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.IFormLookupPanel;
 import com.servoy.j2db.ui.IFormUI;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
@@ -83,8 +60,6 @@ import com.servoy.j2db.ui.ISupportSimulateBoundsProvider;
 import com.servoy.j2db.ui.ISupportWebBounds;
 import com.servoy.j2db.ui.ITabPanel;
 import com.servoy.j2db.ui.scripting.RuntimeAccordionPanel;
-import com.servoy.j2db.util.HtmlUtils;
-import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.Utils;
 
@@ -95,14 +70,13 @@ import com.servoy.j2db.util.Utils;
  * @since 6.1
  *
  */
-public class WebAccordionPanel extends WebMarkupContainer implements ITabPanel, IDisplayRelatedData, IProviderStylePropertyChanges, ISupportSecuritySettings,
+public class WebAccordionPanel extends Component implements ITabPanel, IDisplayRelatedData, IProviderStylePropertyChanges, ISupportSecuritySettings,
 	ISupportWebBounds, ISupportWebTabSeq, ListSelectionListener, IWebFormContainer, ISupportSimulateBoundsProvider
 {
 	private static final long serialVersionUID = 1L;
 
 	private final IApplication application;
 	private WebTabFormLookup currentForm;
-	private Accordion accordion;
 	protected IRecordInternal parentData;
 	private final List<String> allRelationNames = new ArrayList<String>(5);
 	protected final List<WebTabHolder> allTabs = new ArrayList<WebTabHolder>(5);
@@ -120,246 +94,7 @@ public class WebAccordionPanel extends WebMarkupContainer implements ITabPanel, 
 	{
 		super(name);
 		this.application = application;
-
-		setOutputMarkupPlaceholderTag(true);
-		accordion = new Accordion("accordion_" + name)
-		{
-			@Override
-			public JsStatement statement()
-			{
-				JsStatement statement = super.statement();
-				int index = getTabIndex();
-				if (index > 0) // 0 is opened by default
-				{
-					statement = statement.chain("accordion", "'activate'", String.valueOf(index));
-				}
-				return statement;
-			}
-		};
-		add(accordion);
-		// disable animation, see http://forum.jquery.com/topic/jquery-accordion-not-work-on-ie-7
-		accordion.setAnimated(new AccordionAnimated(Boolean.FALSE));
-		accordion.setFillSpace(true);
-		IModel<Integer> tabsModel = new AbstractReadOnlyModel<Integer>()
-		{
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public Integer getObject()
-			{
-				return Integer.valueOf(allTabs.size());
-			}
-		};
-		final boolean useAJAX = Utils.getAsBoolean(application.getRuntimeProperties().get("useAJAX")); //$NON-NLS-1$
-
-		accordion.add(new Loop("tabs", tabsModel) //$NON-NLS-1$
-		{
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			protected void populateItem(final LoopItem item)
-			{
-				item.setRenderBodyOnly(true);
-				final WebTabHolder holder = allTabs.get(item.getIteration());
-				ServoySubmitLink link = new ServoySubmitLink("tablink", useAJAX)//$NON-NLS-1$
-				{
-					@Override
-					public void onClick(AjaxRequestTarget target)
-					{
-						Page page = findPage();
-						if (page != null)
-						{
-							boolean needsRelayout = false;
-							if (currentForm != null && currentForm != holder.getPanel() && currentForm.getFormName().equals(holder.getPanel().getFormName()))
-							{
-								needsRelayout = true;
-							}
-							setActiveTabPanel(holder.getPanel());
-							if (target != null)
-							{
-								if (needsRelayout && page instanceof MainPage && ((MainPage)page).getController() != null)
-								{
-									if (Utils.getAsBoolean(((MainPage)page).getController().getApplication().getRuntimeProperties().get("enableAnchors"))) //$NON-NLS-1$
-									{
-										target.appendJavascript("layoutEntirePage();"); //$NON-NLS-1$
-									}
-								}
-								relinkFormIfNeeded();
-								accordion.activate(target, item.getIteration());
-								WebEventExecutor.generateResponse(target, page);
-							}
-						}
-					}
-
-					@Override
-					protected void disableLink(ComponentTag tag)
-					{
-						// do nothing here
-					}
-				};
-				link.setEnabled(holder.isEnabled() && WebAccordionPanel.this.isEnabled());
-				if (holder.getIcon() != null)
-				{
-					accordion.hideIcons();
-				}
-				if (holder.getTooltip() != null)
-				{
-					link.setMetaData(TooltipAttributeModifier.TOOLTIP_METADATA, holder.getTooltip());
-				}
-				TabIndexHelper.setUpTabIndexAttributeModifier(link, tabSequenceIndex);
-				link.add(TooltipAttributeModifier.INSTANCE);
-
-				String text = holder.getText();
-				if (holder.getDisplayedMnemonic() > 0)
-				{
-					final String mnemonic = Character.toString((char)holder.getDisplayedMnemonic());
-					link.add(new SimpleAttributeModifier("accesskey", mnemonic)); //$NON-NLS-1$
-					if (text != null && text.contains(mnemonic) && !HtmlUtils.hasUsefulHtmlContent(text))
-					{
-						StringBuffer sbBodyText = new StringBuffer(text);
-						int mnemonicIdx = sbBodyText.indexOf(mnemonic);
-						if (mnemonicIdx != -1)
-						{
-							sbBodyText.insert(mnemonicIdx + 1, "</u>"); //$NON-NLS-1$
-							sbBodyText.insert(mnemonicIdx, "<u>"); //$NON-NLS-1$
-							text = sbBodyText.toString();
-						}
-					}
-				}
-
-				Label label = new Label("linktext", new Model<String>(text)); //$NON-NLS-1$
-				label.setEscapeModelStrings(false);
-				if (holder.getIcon() != null)
-				{
-					label.add(new SimpleAttributeModifier("class", "accordionlinkmargin"));
-				}
-				link.add(label);
-				ServoyTabIcon icon = new ServoyTabIcon("icon", holder, scriptable); //$NON-NLS-1$
-				if (holder.getIcon() != null)
-				{
-					icon.add(new StyleAppendingModifier(new Model<String>()
-					{
-						@Override
-						public String getObject()
-						{
-							return "float: left;"; //$NON-NLS-1$
-						}
-					}));
-				}
-				holder.getPanel().getWebForm().add(new StyleAppendingModifier(new Model<String>()
-				{
-					private int getAllPartsHeight()
-					{
-						int height = 0;
-						if (getCurrentForm().getController().getDataRenderers() != null)
-						{
-							IDataRenderer[] renderers = getCurrentForm().getController().getDataRenderers();
-							for (IDataRenderer renderer : renderers)
-							{
-								if (renderer != null)
-								{
-									height += renderer.getSize().height;
-								}
-							}
-						}
-						return height;
-					}
-
-					@Override
-					public String getObject()
-					{
-						String formStyle = "padding: 0px;"; //$NON-NLS-1$
-						if (getBorder() instanceof TitledBorder)
-						{
-							int fsize = 0;
-							int height = getAllPartsHeight();
-							TitledBorder td = (TitledBorder)getBorder();
-							if (td.getTitleFont() != null) fsize = td.getTitleFont().getSize();
-							if (fsize > 11) height = getAllPartsHeight() - (fsize - 11);
-							formStyle += "height: " + height + "px;"; //$NON-NLS-1$ //$NON-NLS-2$
-						}
-						return formStyle;
-					}
-				}));
-				link.add(icon);
-				item.add(link);
-				item.add(new Label("webform", new Model<String>(""))); // temporary add  //$NON-NLS-1$//$NON-NLS-2$
-				label.add(new StyleAppendingModifier(new Model<String>()
-				{
-					private static final long serialVersionUID = 1L;
-
-					@Override
-					public String getObject()
-					{
-						String style = "white-space: nowrap;"; //$NON-NLS-1$
-						if (font != null)
-						{
-							Pair<String, String>[] fontPropetiesPair = PersistHelper.createFontCSSProperties(PersistHelper.createFontString(font));
-							if (fontPropetiesPair != null)
-							{
-								for (Pair<String, String> element : fontPropetiesPair)
-								{
-									if (element == null) continue;
-									style += element.getLeft() + ": " + element.getRight() + ";"; //$NON-NLS-1$ //$NON-NLS-2$
-								}
-							}
-						}
-						if (holder.getForeground() != null)
-						{
-							style += " color:" + PersistHelper.createColorString(holder.getForeground()); //$NON-NLS-1$
-						}
-						else if (foreground != null)
-						{
-							style += " color:" + PersistHelper.createColorString(foreground); //$NON-NLS-1$
-						}
-						return style;
-					}
-				}));
-			}
-		});
-		add(new AbstractServoyDefaultAjaxBehavior()
-		{
-			@Override
-			protected void respond(AjaxRequestTarget target)
-			{
-			}
-
-			@Override
-			public void renderHead(IHeaderResponse response)
-			{
-				super.renderHead(response);
-				// avoid flickering, see also tabpanel
-				response.renderOnDomReadyJavascript("var accordion = document.getElementById('" + WebAccordionPanel.this.getMarkupId() +
-					"');if (accordion){accordion.style.visibility = 'inherit';}");
-			}
-		});
-
-		accordion.add(new StyleAppendingModifier(new Model<String>()
-		{
-			@Override
-			public String getObject()
-			{
-				if (getBorder() instanceof TitledBorder)
-				{
-					return "margin-top: -0.4em;"; //"padding: 6px 0px 0px 0px; margin-top: -8px;"; //$NON-NLS-1$
-				}
-				return ""; //$NON-NLS-1$
-			}
-		}));
-
-		add(new StyleAppendingModifier(new Model<String>()
-		{
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public String getObject()
-			{
-				return "visibility: hidden;"; //$NON-NLS-1$
-			}
-		}));
-		add(StyleAttributeModifierModel.INSTANCE);
 		this.scriptable = scriptable;
-		((ChangesRecorder)scriptable.getChangesRecorder()).setDefaultBorderAndPadding(null, TemplateGenerator.DEFAULT_LABEL_PADDING);
 	}
 
 	public final RuntimeAccordionPanel getScriptObject()
@@ -400,23 +135,6 @@ public class WebAccordionPanel extends WebMarkupContainer implements ITabPanel, 
 					previousIndex = i;
 					break;
 				}
-			}
-
-			if (previousIndex != -1)
-			{
-				final int changedIndex = previousIndex;
-				addStateChange(new Change()
-				{
-					@Override
-					public void undo()
-					{
-						if (allTabs.size() > changedIndex)
-						{
-							WebTabHolder holder = allTabs.get(changedIndex);
-							setActiveTabPanel(holder.getPanel());
-						}
-					}
-				});
 			}
 
 			List<Runnable> invokeLaterRunnables2 = new ArrayList<Runnable>();
@@ -464,7 +182,7 @@ public class WebAccordionPanel extends WebMarkupContainer implements ITabPanel, 
 			int index = getTabIndex();
 			if (index >= 0)
 			{
-				MarkupContainer parent = (MarkupContainer)((MarkupContainer)accordion.get(0)).get(index);
+				Component parent = this;
 				if (parent != null)
 				{
 					if (parent.get(currentForm.getWebForm().getId()) != null)
@@ -522,26 +240,6 @@ public class WebAccordionPanel extends WebMarkupContainer implements ITabPanel, 
 		return getCurrentForm() == formUI;
 	}
 
-	/**
-	 * @see wicket.MarkupContainer#onRender(wicket.markup.MarkupStream)
-	 */
-	@Override
-	protected void onRender(MarkupStream markupStream)
-	{
-		super.onRender(markupStream);
-		getStylePropertyChanges().setRendered();
-	}
-
-	@Override
-	protected void onBeforeRender()
-	{
-		//tab has to be initialized now.. see also MainPage.listview.onBeforRender..
-		initalizeFirstTab();
-		super.onBeforeRender();
-		relinkFormIfNeeded();
-
-	}
-
 	public void initalizeFirstTab()
 	{
 		if (currentForm == null && allTabs.size() > 0)
@@ -564,7 +262,7 @@ public class WebAccordionPanel extends WebMarkupContainer implements ITabPanel, 
 
 	private void relinkFormIfNeeded()
 	{
-		if (currentForm != null && isVisibleInHierarchy() && currentForm.getWebForm().findParent(ITabPanel.class) != this)
+		if (currentForm != null && isVisible() && currentForm.getWebForm().findParent(ITabPanel.class) != this)
 		{
 			addCurrentFormComponent();
 		}
@@ -580,6 +278,7 @@ public class WebAccordionPanel extends WebMarkupContainer implements ITabPanel, 
 		return new WebTabFormLookup(tabname, relationName, formName, this, application);
 	}
 
+	@Override
 	public void setCursor(Cursor cursor)
 	{
 	}
@@ -776,9 +475,9 @@ public class WebAccordionPanel extends WebMarkupContainer implements ITabPanel, 
 		//TODO should deregister related foundsets??
 	}
 
-	public void addTab(String text, int iconMediaId, IFormLookupPanel flp, String tip)
+	public void addTab(String text, String iconMediaUUID, IFormLookupPanel flp, String tip)
 	{
-		byte[] iconData = ComponentFactory.loadIcon(application.getFlattenedSolution(), new Integer(iconMediaId));
+		byte[] iconData = ComponentFactory.loadIcon(application.getFlattenedSolution(), iconMediaUUID);
 		insertTab(text, iconData, flp, tip, allTabs.size());
 	}
 
@@ -991,7 +690,7 @@ public class WebAccordionPanel extends WebMarkupContainer implements ITabPanel, 
 	public void setTabTextAt(int i, String s)
 	{
 		WebTabHolder holder = allTabs.get(i);
-		holder.setText(TemplateGenerator.getSafeText(s));
+		holder.setText(s);
 	}
 
 	/*
@@ -1014,6 +713,7 @@ public class WebAccordionPanel extends WebMarkupContainer implements ITabPanel, 
 		}
 	}
 
+	@Override
 	public void setName(String n)
 	{
 		name = n;
@@ -1021,6 +721,7 @@ public class WebAccordionPanel extends WebMarkupContainer implements ITabPanel, 
 
 	private String name;
 
+	@Override
 	public String getName()
 	{
 		return name;
@@ -1032,11 +733,13 @@ public class WebAccordionPanel extends WebMarkupContainer implements ITabPanel, 
 	 */
 	private Border border;
 
+	@Override
 	public void setBorder(Border border)
 	{
 		this.border = border;
 	}
 
+	@Override
 	public Border getBorder()
 	{
 		return border;
@@ -1046,6 +749,7 @@ public class WebAccordionPanel extends WebMarkupContainer implements ITabPanel, 
 	/*
 	 * opaque---------------------------------------------------
 	 */
+	@Override
 	public void setOpaque(boolean opaque)
 	{
 		this.opaque = opaque;
@@ -1053,6 +757,7 @@ public class WebAccordionPanel extends WebMarkupContainer implements ITabPanel, 
 
 	private boolean opaque;
 
+	@Override
 	public boolean isOpaque()
 	{
 		return opaque;
@@ -1061,6 +766,7 @@ public class WebAccordionPanel extends WebMarkupContainer implements ITabPanel, 
 
 	private String tooltip;
 
+	@Override
 	public void setToolTipText(String tooltip)
 	{
 		this.tooltip = Utils.stringIsEmpty(tooltip) ? null : tooltip;
@@ -1069,6 +775,7 @@ public class WebAccordionPanel extends WebMarkupContainer implements ITabPanel, 
 	/**
 	 * @see com.servoy.j2db.ui.IComponent#getToolTipText()
 	 */
+	@Override
 	public String getToolTipText()
 	{
 		return tooltip;
@@ -1078,6 +785,7 @@ public class WebAccordionPanel extends WebMarkupContainer implements ITabPanel, 
 	/*
 	 * font---------------------------------------------------
 	 */
+	@Override
 	public void setFont(Font font)
 	{
 		this.font = font;
@@ -1085,6 +793,7 @@ public class WebAccordionPanel extends WebMarkupContainer implements ITabPanel, 
 
 	private Font font;
 
+	@Override
 	public Font getFont()
 	{
 		return font;
@@ -1092,11 +801,13 @@ public class WebAccordionPanel extends WebMarkupContainer implements ITabPanel, 
 
 	private Color background;
 
+	@Override
 	public void setBackground(Color cbg)
 	{
 		this.background = cbg;
 	}
 
+	@Override
 	public Color getBackground()
 	{
 		return background;
@@ -1105,11 +816,13 @@ public class WebAccordionPanel extends WebMarkupContainer implements ITabPanel, 
 
 	private Color foreground;
 
+	@Override
 	public void setForeground(Color cfg)
 	{
 		this.foreground = cfg;
 	}
 
+	@Override
 	public Color getForeground()
 	{
 		return foreground;
@@ -1119,6 +832,7 @@ public class WebAccordionPanel extends WebMarkupContainer implements ITabPanel, 
 	/*
 	 * visible---------------------------------------------------
 	 */
+	@Override
 	public void setComponentVisible(boolean visible)
 	{
 		if (viewable)
@@ -1128,27 +842,12 @@ public class WebAccordionPanel extends WebMarkupContainer implements ITabPanel, 
 	}
 
 
+	@Override
 	public void setComponentEnabled(final boolean b)
 	{
 		if (accessible)
 		{
 			super.setEnabled(b);
-			accordion.setDisabled(!b);
-			visitChildren(IComponent.class, new IVisitor<Component>()
-			{
-				public Object component(Component component)
-				{
-					if (component instanceof IComponent)
-					{
-						((IComponent)component).setComponentEnabled(b);
-					}
-					else
-					{
-						component.setEnabled(b);
-					}
-					return CONTINUE_TRAVERSAL;
-				}
-			});
 			getStylePropertyChanges().setChanged();
 		}
 	}
@@ -1189,11 +888,13 @@ public class WebAccordionPanel extends WebMarkupContainer implements ITabPanel, 
 		return getLocation().y;
 	}
 
+	@Override
 	public void setLocation(Point location)
 	{
 		this.location = location;
 	}
 
+	@Override
 	public Point getLocation()
 	{
 		return location;
@@ -1204,6 +905,7 @@ public class WebAccordionPanel extends WebMarkupContainer implements ITabPanel, 
 	 */
 	private Dimension size = new Dimension(0, 0);
 
+	@Override
 	public Dimension getSize()
 	{
 		return size;
@@ -1224,6 +926,7 @@ public class WebAccordionPanel extends WebMarkupContainer implements ITabPanel, 
 	}
 
 
+	@Override
 	public void setSize(Dimension size)
 	{
 		if (this.size != null && currentForm != null && currentForm.isReady())
@@ -1299,21 +1002,6 @@ public class WebAccordionPanel extends WebMarkupContainer implements ITabPanel, 
 	{
 		return findParent(ISupportSimulateBounds.class);
 	}
-
-	@Override
-	protected void onComponentTagBody(MarkupStream markupStream, ComponentTag openTag)
-	{
-		if (getBorder() instanceof TitledBorder)
-		{
-			getResponse().write(WebBaseButton.getTitledBorderOpenMarkup((TitledBorder)getBorder()));
-		}
-		super.onComponentTagBody(markupStream, openTag);
-		if (getBorder() instanceof TitledBorder)
-		{
-			getResponse().write(WebBaseButton.getTitledBorderCloseMarkup());
-		}
-	}
-
 
 	@Override
 	public void uiRecreated()

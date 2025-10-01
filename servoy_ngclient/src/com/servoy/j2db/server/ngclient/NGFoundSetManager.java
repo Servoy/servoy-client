@@ -45,7 +45,6 @@ import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.server.ngclient.property.FoundsetPropertyTypeConfig;
 import com.servoy.j2db.server.ngclient.property.FoundsetTypeSabloValue;
 import com.servoy.j2db.server.ngclient.property.types.FoundsetReferencePropertyTypeOld;
-import com.servoy.j2db.util.Pair;
 
 /**
  * @author gboros
@@ -127,7 +126,7 @@ public class NGFoundSetManager extends FoundSetManager implements IServerService
 						Object o = record.getValue(childrelation);
 						if (o instanceof IFoundSetInternal)
 						{
-							childrelationinfo.put(record.getPKHashKey() + "_" + record.getParentFoundSet().getRecordIndex(record),
+							childrelationinfo.put(record.getPKHashKey(),
 								((IFoundSetInternal)o).getSize());
 						}
 					}
@@ -147,8 +146,7 @@ public class NGFoundSetManager extends FoundSetManager implements IServerService
 			String rowid = args.optString("rowid");
 			String relation = args.optString("relation");
 
-			Pair<String, Integer> splitHashAndIndex = FoundsetTypeSabloValue.splitPKHashAndIndex(rowid);
-			int recordIndex = foundset.getRecordIndex(splitHashAndIndex.getLeft(), splitHashAndIndex.getRight().intValue());
+			int recordIndex = foundset.getRecordIndex(rowid, 0);
 
 			if (recordIndex != -1)
 			{
@@ -173,8 +171,7 @@ public class NGFoundSetManager extends FoundSetManager implements IServerService
 			String dataproviderid = args.optString("dataproviderid");
 			Object value = args.get("value");
 
-			Pair<String, Integer> splitHashAndIndex = FoundsetTypeSabloValue.splitPKHashAndIndex(rowid);
-			int recordIndex = foundset.getRecordIndex(splitHashAndIndex.getLeft(), splitHashAndIndex.getRight().intValue());
+			int recordIndex = foundset.getRecordIndex(rowid, 0);
 
 			if (recordIndex != -1)
 			{
@@ -279,7 +276,7 @@ public class NGFoundSetManager extends FoundSetManager implements IServerService
 		if (foundsetTypeSabloValue == null)
 		{
 			foundsetTypeSabloValue = new FoundsetTypeSabloValue(new JSONObject(), null, null,
-				new FoundsetPropertyTypeConfig(false, false, null, false, 15, false))
+				new FoundsetPropertyTypeConfig(false, false, null, false, 15, false, true))
 			{
 				@Override
 				protected void updateFoundset(IRecordInternal record)

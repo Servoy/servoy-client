@@ -24,24 +24,14 @@ import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 import javax.swing.border.Border;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 import javax.swing.text.Document;
 
-import org.apache.wicket.Page;
-import org.apache.wicket.markup.ComponentTag;
-import org.apache.wicket.markup.MarkupStream;
-import org.apache.wicket.markup.html.form.DropDownChoice;
-import org.apache.wicket.markup.html.form.Form;
-import org.apache.wicket.model.IModel;
-import org.apache.wicket.util.convert.IConverter;
-import org.apache.wicket.util.string.AppendingStringBuffer;
-import org.apache.wicket.validation.IValidationError;
+import org.apache.wicket.Component;
 
 import com.servoy.base.util.ITagResolver;
 import com.servoy.j2db.FormManager;
@@ -56,8 +46,6 @@ import com.servoy.j2db.dataprocessing.IEditListener;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.dataprocessing.SortColumn;
-import com.servoy.j2db.persistence.IColumnTypes;
-import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.server.headlessclient.MainPage;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
@@ -72,9 +60,7 @@ import com.servoy.j2db.ui.ISupportValueList;
 import com.servoy.j2db.ui.ISupportWebBounds;
 import com.servoy.j2db.ui.scripting.RuntimeDataCombobox;
 import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.RoundHalfUpDecimalFormat;
 import com.servoy.j2db.util.ScopesUtils;
-import com.servoy.j2db.util.StateFullSimpleDateFormat;
 import com.servoy.j2db.util.Text;
 import com.servoy.j2db.util.Utils;
 
@@ -84,8 +70,8 @@ import com.servoy.j2db.util.Utils;
  * @author jcompagner
  */
 @SuppressWarnings("nls")
-public class WebDataComboBox extends DropDownChoice implements IFieldComponent, IDisplayData, IDisplayRelatedData, IProviderStylePropertyChanges,
-	ISupportWebBounds, IRightClickListener, ISupportValueList, IFormattingComponent, ISupportSimulateBoundsProvider, ISupportOnRender
+public class WebDataComboBox extends Component implements IFieldComponent, IDisplayData, IDisplayRelatedData, IProviderStylePropertyChanges,
+	ISupportWebBounds, ISupportValueList, IFormattingComponent, ISupportSimulateBoundsProvider, ISupportOnRender
 {
 	private static final long serialVersionUID = 1L;
 
@@ -96,7 +82,6 @@ public class WebDataComboBox extends DropDownChoice implements IFieldComponent, 
 
 //	private String completeFormat;
 //	protected String displayFormat;
-	protected IConverter converter;
 
 	private String inputId;
 //	private Cursor cursor;
@@ -121,7 +106,6 @@ public class WebDataComboBox extends DropDownChoice implements IFieldComponent, 
 		this.valueList = valueList;
 		boolean useAJAX = Utils.getAsBoolean(application.getRuntimeProperties().get("useAJAX")); //$NON-NLS-1$
 		eventExecutor = new WebEventExecutor(this, useAJAX);
-		setOutputMarkupPlaceholderTag(true);
 
 		list = new WebComboModelListModelWrapper(valueList, false, true)
 		{
@@ -258,34 +242,10 @@ public class WebDataComboBox extends DropDownChoice implements IFieldComponent, 
 				list.setSelectedItem(obj);
 			}
 		});
-		setChoices(list);
 
-		setChoiceRenderer(new WebChoiceRenderer(this, list));
-
-		// select tag can't never be editable. Editable flag shouldn't do anything.
-//		add(new AttributeModifier("disabled",true, new Model()
-//		{
-//			public Object getObject(Component component)
-//			{
-//				return (editable ? AttributeModifier.VALUELESS_ATTRIBUTE_REMOVE : AttributeModifier.VALUELESS_ATTRIBUTE_ADD) ;
-//			}
-//		}));
-
-//		add(new AttributeModifier("readonly",true, new Model()
-//		{
-//			private static final long serialVersionUID = 1L;
-//
-//			public Object getObject()
-//			{
-//				return (editable ? AttributeModifier.VALUELESS_ATTRIBUTE_REMOVE : AttributeModifier.VALUELESS_ATTRIBUTE_ADD) ;
-//			}
-//		}));
-		add(new FocusIfInvalidAttributeModifier(this));
-		add(StyleAttributeModifierModel.INSTANCE);
-		add(TooltipAttributeModifier.INSTANCE);
 		this.scriptable = scriptable;
-		((ChangesRecorder)scriptable.getChangesRecorder()).setDefaultBorderAndPadding(TemplateGenerator.DEFAULT_LABEL_PADDING,
-			TemplateGenerator.DEFAULT_LABEL_PADDING);
+		((ChangesRecorder)scriptable.getChangesRecorder()).setDefaultBorderAndPadding(AbstractFormLayoutProvider.DEFAULT_LABEL_PADDING,
+			AbstractFormLayoutProvider.DEFAULT_LABEL_PADDING);
 	}
 
 	public final RuntimeDataCombobox getScriptObject()
@@ -293,86 +253,12 @@ public class WebDataComboBox extends DropDownChoice implements IFieldComponent, 
 		return scriptable;
 	}
 
-	/**
-	 * @see org.apache.wicket.Component#getLocale()
-	 */
-	@Override
-	public Locale getLocale()
-	{
-		return application.getLocale();
-	}
-
-	@Override
-	public void error(IValidationError error)
-	{
-		super.error(error);
-		setValueValid(false, getModelObject());
-	}
-
-	@Override
-	protected boolean isSelected(Object object, int index, String selected)
-	{
-		if (object == null && ("".equals(selected) || selected == getNoSelectionValue())) return true;
-		// WebChoiceRenderer.getRealValue == selected does a toString from the real so object must also do just to string
-		return Utils.equalObjects(object != null ? object.toString() : null, selected);
-	}
 
 	public IStylePropertyChanges getStylePropertyChanges()
 	{
 		return scriptable.getChangesRecorder();
 	}
 
-	@Override
-	protected CharSequence getDefaultChoice(Object selected)
-	{
-		int index = -1;
-		if (selected != getNoSelectionValue())
-		{
-			index = list.realValueIndexOf(selected);
-		}
-		if (index < -1)
-		{
-			StringBuilder buffer = new StringBuilder(32);
-			buffer.append("\n<option selected=\"selected\""); //$NON-NLS-1$
-
-			// Add body of option tag
-			buffer.append(" value=\""); //$NON-NLS-1$
-			buffer.append(selected);
-			buffer.append("\">").append(getChoiceRenderer().getDisplayValue(selected)).append("</option>"); //$NON-NLS-1$ //$NON-NLS-2$
-			return buffer;
-		}
-		return ""; //$NON-NLS-1$
-	}
-
-	@Override
-	public String getModelValue()
-	{
-		Object value = getModelObject();
-		if (value != null)
-		{
-			return super.getModelValue();
-		}
-		else
-		{
-			int index = getChoices().indexOf(null);
-			return getChoiceRenderer().getIdValue(null, index);
-		}
-	}
-
-	@Override
-	protected void appendOptionHtml(AppendingStringBuffer buffer, Object choice, int index, String selected)
-	{
-		Object displayValue = getChoiceRenderer().getDisplayValue(choice);
-		if (IValueList.SEPARATOR.equals(displayValue))
-		{
-			// create a separator
-			buffer.append("\n<optgroup class=\"separator\" label=\" \" ></optgroup>");
-		}
-		else
-		{
-			super.appendOptionHtml(buffer, choice, index, selected);
-		}
-	}
 
 	/*
 	 * _____________________________________________________________ Methods for event handling
@@ -448,8 +334,6 @@ public class WebDataComboBox extends DropDownChoice implements IFieldComponent, 
 			{
 				public void run()
 				{
-					WebEventExecutor.setSelectedIndex(WebDataComboBox.this, null, IEventExecutor.MODIFIERS_UNSPECIFIED);
-
 					eventExecutor.fireChangeCommand(previousValidValue == null ? oldVal : previousValidValue, newVal, false, WebDataComboBox.this);
 
 					//if change cmd is not succeeded also don't call action cmd?
@@ -522,66 +406,6 @@ public class WebDataComboBox extends DropDownChoice implements IFieldComponent, 
 		eventExecutor.setSelectOnEnter(b);
 	}
 
-	//_____________________________________________________________
-
-	@Override
-	protected void onRender(final MarkupStream markupStream)
-	{
-		super.onRender(markupStream);
-		getStylePropertyChanges().setRendered();
-		IModel< ? > model = getInnermostModel();
-		if (model instanceof RecordItemModel)
-		{
-			((RecordItemModel)model).updateRenderedValue(this);
-		}
-	}
-
-	@Override
-	protected void onComponentTag(ComponentTag tag)
-	{
-		super.onComponentTag(tag);
-
-		boolean useAJAX = Utils.getAsBoolean(application.getRuntimeProperties().get("useAJAX")); //$NON-NLS-1$
-		if (useAJAX)
-		{
-			Object oe = scriptable.getClientProperty("ajax.enabled"); //$NON-NLS-1$
-			if (oe != null) useAJAX = Utils.getAsBoolean(oe);
-		}
-		if (!useAJAX)
-		{
-			Form< ? > f = getForm();
-			if (f != null)
-			{
-				if (eventExecutor.hasRightClickCmd())
-				{
-					CharSequence urlr = urlFor(IRightClickListener.INTERFACE);
-					// We need a "return false;" so that the context menu is not displayed in the browser.
-					tag.put("oncontextmenu", f.getJsForInterfaceUrl(urlr) + " return false;"); //$NON-NLS-1$ //$NON-NLS-2$
-				}
-			}
-		}
-	}
-
-	/**
-	 * @see wicket.markup.html.form.FormComponent#getInputName()
-	 */
-	@Override
-	public String getInputName()
-	{
-		if (inputId == null)
-		{
-			Page page = findPage();
-			if (page instanceof MainPage)
-			{
-				inputId = ((MainPage)page).nextInputNameId();
-			}
-			else
-			{
-				return super.getInputName();
-			}
-		}
-		return inputId;
-	}
 
 	public void setNeedEntireState(boolean needEntireState)
 	{
@@ -615,6 +439,7 @@ public class WebDataComboBox extends DropDownChoice implements IFieldComponent, 
 //		this.horizontalAlignment = horizontalAlignment;
 	}
 
+	@Override
 	public void setCursor(Cursor cursor)
 	{
 //		this.cursor = cursor;
@@ -622,7 +447,7 @@ public class WebDataComboBox extends DropDownChoice implements IFieldComponent, 
 
 	public Object getValueObject()
 	{
-		return getDefaultModelObject();
+		return null;
 	}
 
 	public void setValueObject(Object value)
@@ -639,7 +464,7 @@ public class WebDataComboBox extends DropDownChoice implements IFieldComponent, 
 
 	public void refreshValueInList()
 	{
-		Object modelObject = getModelObject();
+		Object modelObject = getValueObject();
 		int realValueIndexOf = list.realValueIndexOf(modelObject);
 		if (realValueIndexOf == -1)
 		{
@@ -780,52 +605,12 @@ public class WebDataComboBox extends DropDownChoice implements IFieldComponent, 
 		return null;
 	}
 
-	@Override
-	public void updateModel()
-	{
-		Object input = getConvertedInput();
-		if (input instanceof Date)
-		{
-			IConverter c = getConverter(Date.class);
-			setModelObject(c.convertToObject(c.convertToString(input, getLocale()), getLocale()));
-		}
-		else
-		{
-			setModelObject(input);
-		}
-	}
-
-	@Override
-	public IConverter getConverter(Class< ? > cls)
-	{
-		if (converter != null) return converter;
-
-		ComponentFormat cf = getScriptObject().getComponentFormat();
-		switch (cf.uiType)
-		{
-			case IColumnTypes.DATETIME :
-				converter = new FormatConverter(this, eventExecutor, new StateFullSimpleDateFormat(cf.parsedFormat.getDisplayFormat(), /* getClientTimeZone() */
-				null, application.getLocale(), true), cf.parsedFormat);
-				break;
-
-			case IColumnTypes.INTEGER :
-			case IColumnTypes.NUMBER :
-				converter = new FormatConverter(this, eventExecutor, new RoundHalfUpDecimalFormat(cf.parsedFormat.getDisplayFormat(), application.getLocale()),
-					cf.parsedFormat);
-				break;
-
-			default :
-				return super.getConverter(cls);
-		}
-		return converter;
-	}
 
 	/*
 	 * format---------------------------------------------------
 	 */
 	public void installFormat(ComponentFormat componentFormat)
 	{
-		converter = null;
 		if (!componentFormat.parsedFormat.isEmpty() && getScriptObject().getComponentFormat().parsedFormat.hasEditFormat())
 		{
 			Debug.log("WARNING Display and Edit formats are not used in browser comboboxes. Such browser controls do not support editing"); //$NON-NLS-1$
@@ -837,6 +622,7 @@ public class WebDataComboBox extends DropDownChoice implements IFieldComponent, 
 	/*
 	 * visible---------------------------------------------------
 	 */
+	@Override
 	public void setComponentVisible(boolean visible)
 	{
 		if (viewable || !visible)
@@ -844,9 +630,8 @@ public class WebDataComboBox extends DropDownChoice implements IFieldComponent, 
 			setVisible(visible);
 			if (labels != null)
 			{
-				for (int i = 0; i < labels.size(); i++)
+				for (ILabel label : labels)
 				{
-					ILabel label = labels.get(i);
 					label.setComponentVisible(visible);
 				}
 			}
@@ -864,6 +649,7 @@ public class WebDataComboBox extends DropDownChoice implements IFieldComponent, 
 		return labels;
 	}
 
+	@Override
 	public void setComponentEnabled(boolean b)
 	{
 		setComponentEnabled(b, true, readOnly);
@@ -878,9 +664,8 @@ public class WebDataComboBox extends DropDownChoice implements IFieldComponent, 
 			getStylePropertyChanges().setChanged();
 			if (labels != null && setLabels)
 			{
-				for (int i = 0; i < labels.size(); i++)
+				for (ILabel label : labels)
 				{
-					ILabel label = labels.get(i);
 					label.setComponentEnabled(b);
 				}
 			}
@@ -979,6 +764,7 @@ public class WebDataComboBox extends DropDownChoice implements IFieldComponent, 
 	private String dataProviderID;
 
 
+	@Override
 	public void setName(String n)
 	{
 		name = n;
@@ -986,6 +772,7 @@ public class WebDataComboBox extends DropDownChoice implements IFieldComponent, 
 
 	private String name;
 
+	@Override
 	public String getName()
 	{
 		return name;
@@ -996,11 +783,13 @@ public class WebDataComboBox extends DropDownChoice implements IFieldComponent, 
 	 */
 	private Border border;
 
+	@Override
 	public void setBorder(Border border)
 	{
 		this.border = border;
 	}
 
+	@Override
 	public Border getBorder()
 	{
 		return border;
@@ -1010,6 +799,7 @@ public class WebDataComboBox extends DropDownChoice implements IFieldComponent, 
 	/*
 	 * opaque---------------------------------------------------
 	 */
+	@Override
 	public void setOpaque(boolean opaque)
 	{
 		this.opaque = opaque;
@@ -1017,6 +807,7 @@ public class WebDataComboBox extends DropDownChoice implements IFieldComponent, 
 
 	private boolean opaque;
 
+	@Override
 	public boolean isOpaque()
 	{
 		return opaque;
@@ -1042,6 +833,7 @@ public class WebDataComboBox extends DropDownChoice implements IFieldComponent, 
 
 	private String tooltip;
 
+	@Override
 	public void setToolTipText(String tooltip)
 	{
 		if (Utils.stringIsEmpty(tooltip))
@@ -1064,18 +856,16 @@ public class WebDataComboBox extends DropDownChoice implements IFieldComponent, 
 	/**
 	 * @see com.servoy.j2db.ui.IComponent#getToolTipText()
 	 */
+	@Override
 	public String getToolTipText()
 	{
-		if (tooltip != null && getInnermostModel() instanceof RecordItemModel)
-		{
-			return Text.processTags(tooltip, resolver);
-		}
 		return tooltip;
 	}
 
 	/*
 	 * font---------------------------------------------------
 	 */
+	@Override
 	public void setFont(Font font)
 	{
 		this.font = font;
@@ -1083,6 +873,7 @@ public class WebDataComboBox extends DropDownChoice implements IFieldComponent, 
 
 	private Font font;
 
+	@Override
 	public Font getFont()
 	{
 		return font;
@@ -1091,11 +882,13 @@ public class WebDataComboBox extends DropDownChoice implements IFieldComponent, 
 
 	private Color background;
 
+	@Override
 	public void setBackground(Color cbg)
 	{
 		this.background = cbg;
 	}
 
+	@Override
 	public Color getBackground()
 	{
 		return background;
@@ -1104,11 +897,13 @@ public class WebDataComboBox extends DropDownChoice implements IFieldComponent, 
 
 	private Color foreground;
 
+	@Override
 	public void setForeground(Color cfg)
 	{
 		this.foreground = cfg;
 	}
 
+	@Override
 	public Color getForeground()
 	{
 		return foreground;
@@ -1129,11 +924,13 @@ public class WebDataComboBox extends DropDownChoice implements IFieldComponent, 
 		return getLocation().y;
 	}
 
+	@Override
 	public Point getLocation()
 	{
 		return location;
 	}
 
+	@Override
 	public void setLocation(Point location)
 	{
 		this.location = location;
@@ -1148,6 +945,7 @@ public class WebDataComboBox extends DropDownChoice implements IFieldComponent, 
 	 */
 	private Dimension size = new Dimension(0, 0);
 
+	@Override
 	public Dimension getSize()
 	{
 		return size;
@@ -1168,6 +966,7 @@ public class WebDataComboBox extends DropDownChoice implements IFieldComponent, 
 	}
 
 
+	@Override
 	public void setSize(Dimension size)
 	{
 		this.size = size;
@@ -1178,28 +977,13 @@ public class WebDataComboBox extends DropDownChoice implements IFieldComponent, 
 		eventExecutor.setRightClickCmd(rightClickCmd, args);
 	}
 
-	public void onRightClick()
-	{
-		Form f = getForm();
-		if (f != null)
-		{
-			// If form validation fails, we don't execute the method.
-			if (f.process()) eventExecutor.onEvent(JSEvent.EventType.rightClick, null, this, IEventExecutor.MODIFIERS_UNSPECIFIED);
-		}
-	}
 
 	@Override
 	public String toString()
 	{
-		return scriptable.toString("value:" + getDefaultModelObjectAsString()); //$NON-NLS-1$
+		return scriptable.toString("value:" + getValueObject()); //$NON-NLS-1$
 	}
 
-	@Override
-	protected void onBeforeRender()
-	{
-		super.onBeforeRender();
-		fireOnRender(false);
-	}
 
 	public void fireOnRender(boolean force)
 	{

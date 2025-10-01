@@ -17,7 +17,6 @@
 
 package com.servoy.j2db.dataprocessing.datasource;
 
-import java.rmi.RemoteException;
 import java.util.Map;
 
 import org.mozilla.javascript.NativeJavaMethod;
@@ -29,7 +28,16 @@ import com.servoy.j2db.scripting.DefaultJavaScope;
 import com.servoy.j2db.util.Debug;
 
 /**
- * In scripting: <pre>datasources.db</pre>
+ * The <code>DBDataSource</code> class provides a utility API to access and manage all currently
+ * available datasources within the Servoy application, including those from all valid servers and tables.
+ * Accessed in scripting through <code>datasources.db</code>, this API facilitates interaction with
+ * database servers, tables, and their associated records and schemas.
+ *
+ * For further reference, see:
+  <ul>
+ * 	<li><a href="https://docs.servoy.com/reference/servoycore/dev-api/datasources/dbdatasourceserver">DBDataSourceServer</a></li>
+ * 	<li><a href="https://docs.servoy.com/reference/servoycore/dev-api/datasources">Datasources</a></li>
+ * </ul>
  *
  * @author rgansevles
  *
@@ -58,10 +66,6 @@ public class DBDataSource extends DefaultJavaScope
 			{
 				put(serverName, this, new DBDataSourceServer(application, serverName));
 			}
-		}
-		catch (RemoteException e)
-		{
-			Debug.error(e);
 		}
 		catch (RepositoryException e)
 		{

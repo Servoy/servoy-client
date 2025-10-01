@@ -33,6 +33,7 @@ import com.servoy.j2db.query.ISQLUpdate;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.util.IDelegate;
 import com.servoy.j2db.util.ServoyException;
+import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.xmlxport.ColumnInfoDef;
 
 /**
@@ -58,19 +59,19 @@ public abstract class AbstractDelegateDataServer implements IDataServer, IDelega
 	}
 
 	@Override
-	public void setBroadcastFilters(String clientId, String serverName, BroadcastFilter[] broadcastFilters) throws RemoteException
+	public void setBroadcastFilters(String clientId, String serverName, BroadcastFilter[] broadcastFilters)
 	{
 		dataserver.setBroadcastFilters(clientId, serverName, broadcastFilters);
 	}
 
 	@Override
-	public BroadcastFilter[] getBroadcastFilters(String clientId, String serverName) throws RemoteException
+	public BroadcastFilter[] getBroadcastFilters(String clientId, String serverName)
 	{
 		return dataserver.getBroadcastFilters(clientId, serverName);
 	}
 
 	@Override
-	public void clearBroadcastFilters(String clientId) throws RemoteException
+	public void clearBroadcastFilters(String clientId)
 	{
 		dataserver.clearBroadcastFilters(clientId);
 	}
@@ -80,7 +81,7 @@ public abstract class AbstractDelegateDataServer implements IDataServer, IDelega
 	 * @throws RemoteException
 	 * @see com.servoy.j2db.dataprocessing.IMaintenanceServer#logMessage(java.lang.String)
 	 */
-	public void logMessage(String msg) throws RemoteException
+	public void logMessage(String msg)
 	{
 		dataserver.logMessage(msg);
 	}
@@ -100,7 +101,7 @@ public abstract class AbstractDelegateDataServer implements IDataServer, IDelega
 	 * @see com.servoy.j2db.dataprocessing.ILockServer#acquireLocks(java.lang.String, java.lang.String, java.lang.String, java.util.Set, com.servoy.j2db.query.QuerySelect, java.lang.String, java.util.ArrayList, int)
 	 */
 	public IDataSet acquireLocks(String client_id, String server_name, String table_name, Set<Object> pkhashkeys, QuerySelect lockSelect, String transaction_id,
-		ArrayList<TableFilter> filters, int chunkSize) throws RemoteException, RepositoryException
+		ArrayList<TableFilter> filters, int chunkSize) throws RepositoryException
 	{
 		return dataserver.acquireLocks(client_id, server_name, table_name, pkhashkeys, lockSelect, transaction_id, filters, chunkSize);
 	}
@@ -110,7 +111,7 @@ public abstract class AbstractDelegateDataServer implements IDataServer, IDelega
 	 * @throws RemoteException
 	 * @see com.servoy.j2db.dataprocessing.IMaintenanceServer#isInServerMaintenanceMode()
 	 */
-	public boolean isInServerMaintenanceMode() throws RemoteException
+	public boolean isInServerMaintenanceMode()
 	{
 		return dataserver.isInServerMaintenanceMode();
 	}
@@ -120,7 +121,7 @@ public abstract class AbstractDelegateDataServer implements IDataServer, IDelega
 	 * @throws RemoteException
 	 * @see com.servoy.j2db.dataprocessing.IMaintenanceServer#setServerMaintenanceMode(boolean)
 	 */
-	public void setServerMaintenanceMode(boolean maintenanceMode) throws RemoteException
+	public void setServerMaintenanceMode(boolean maintenanceMode)
 	{
 		dataserver.setServerMaintenanceMode(maintenanceMode);
 	}
@@ -135,7 +136,7 @@ public abstract class AbstractDelegateDataServer implements IDataServer, IDelega
 	 * @throws RepositoryException
 	 * @see com.servoy.j2db.dataprocessing.ILockServer#releaseLocks(java.lang.String, java.lang.String, java.lang.String, java.util.Set)
 	 */
-	public boolean releaseLocks(String client_id, String server_name, String table_name, Set<Object> pkhashkeys) throws RemoteException, RepositoryException
+	public boolean releaseLocks(String client_id, String server_name, String table_name, Set<Object> pkhashkeys) throws RepositoryException
 	{
 		return dataserver.releaseLocks(client_id, server_name, table_name, pkhashkeys);
 	}
@@ -156,7 +157,7 @@ public abstract class AbstractDelegateDataServer implements IDataServer, IDelega
 	 */
 	public IDataSet performQuery(String client_id, String server_name, String transaction_id, ISQLSelect sqlSelect, ColumnType[] resultTypes,
 		ArrayList<TableFilter> filters,
-		boolean distinctInMemory, int startRow, int rowsToRetrieve) throws ServoyException, RemoteException
+		boolean distinctInMemory, int startRow, int rowsToRetrieve) throws ServoyException
 	{
 		return dataserver.performQuery(client_id, server_name, transaction_id, sqlSelect, resultTypes, filters, distinctInMemory, startRow, rowsToRetrieve);
 	}
@@ -176,7 +177,7 @@ public abstract class AbstractDelegateDataServer implements IDataServer, IDelega
 	 * @see com.servoy.j2db.dataprocessing.IDataServer#performQuery(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.Object[], int, int)
 	 */
 	public IDataSet performQuery(String client_id, String server_name, String driverTableName, String transaction_id, String sql, Object[] questiondata,
-		int startRow, int rowsToRetrieve) throws ServoyException, RemoteException
+		int startRow, int rowsToRetrieve) throws ServoyException
 	{
 		return dataserver.performQuery(client_id, server_name, driverTableName, transaction_id, sql, questiondata, startRow, rowsToRetrieve);
 	}
@@ -198,7 +199,7 @@ public abstract class AbstractDelegateDataServer implements IDataServer, IDelega
 	 */
 	public IDataSet performQuery(String client_id, String server_name, String transaction_id, ISQLSelect sqlSelect, ColumnType[] resultTypes,
 		ArrayList<TableFilter> filters,
-		boolean distinctInMemory, int startRow, int rowsToRetrieve, int type) throws ServoyException, RemoteException
+		boolean distinctInMemory, int startRow, int rowsToRetrieve, int type) throws ServoyException
 	{
 		return dataserver.performQuery(client_id, server_name, transaction_id, sqlSelect, resultTypes, filters, distinctInMemory, startRow, rowsToRetrieve,
 			type);
@@ -222,7 +223,7 @@ public abstract class AbstractDelegateDataServer implements IDataServer, IDelega
 	 */
 	public IDataSet performQuery(String client_id, String server_name, String transaction_id, ISQLSelect sqlSelect, ColumnType[] resultTypes,
 		ArrayList<TableFilter> filters,
-		boolean distinctInMemory, int startRow, int rowsToRetrieve, int type, ITrackingSQLStatement trackingInfo) throws ServoyException, RemoteException
+		boolean distinctInMemory, int startRow, int rowsToRetrieve, int type, ITrackingSQLStatement trackingInfo) throws ServoyException
 	{
 		return dataserver.performQuery(client_id, server_name, transaction_id, sqlSelect, resultTypes, filters, distinctInMemory, startRow, rowsToRetrieve,
 			type, trackingInfo);
@@ -244,7 +245,7 @@ public abstract class AbstractDelegateDataServer implements IDataServer, IDelega
 	 * @see com.servoy.j2db.dataprocessing.IDataServer#performQuery(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.Object[], int, int, int)
 	 */
 	public IDataSet performQuery(String client_id, String server_name, String driverTableName, String transaction_id, String sql, Object[] questiondata,
-		int startRow, int rowsToRetrieve, int type) throws ServoyException, RemoteException
+		int startRow, int rowsToRetrieve, int type) throws ServoyException
 	{
 		return dataserver.performQuery(client_id, server_name, driverTableName, transaction_id, sql, questiondata, startRow, rowsToRetrieve, type);
 	}
@@ -266,7 +267,7 @@ public abstract class AbstractDelegateDataServer implements IDataServer, IDelega
 	 */
 	public IDataSet performQuery(String client_id, String server_name, String transaction_id, ISQLSelect sqlSelect, ColumnType[] resultTypes,
 		ArrayList<TableFilter> filters,
-		boolean distinctInMemory, int startRow, int rowsToRetrieve, boolean updateIdleTimestamp) throws ServoyException, RemoteException
+		boolean distinctInMemory, int startRow, int rowsToRetrieve, boolean updateIdleTimestamp) throws ServoyException
 	{
 		return dataserver.performQuery(client_id, server_name, transaction_id, sqlSelect, resultTypes, filters, distinctInMemory, startRow, rowsToRetrieve,
 			updateIdleTimestamp);
@@ -288,7 +289,7 @@ public abstract class AbstractDelegateDataServer implements IDataServer, IDelega
 	 * @see com.servoy.j2db.dataprocessing.IDataServer#performQuery(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.Object[], int, int, boolean)
 	 */
 	public IDataSet performQuery(String client_id, String server_name, String driverTableName, String transaction_id, String sql, Object[] questiondata,
-		int startRow, int rowsToRetrieve, boolean updateIdleTimestamp) throws ServoyException, RemoteException
+		int startRow, int rowsToRetrieve, boolean updateIdleTimestamp) throws ServoyException
 	{
 		return dataserver.performQuery(client_id, server_name, driverTableName, transaction_id, sql, questiondata, startRow, rowsToRetrieve,
 			updateIdleTimestamp);
@@ -309,7 +310,7 @@ public abstract class AbstractDelegateDataServer implements IDataServer, IDelega
 	 * @see com.servoy.j2db.dataprocessing.IDataServer#performCustomQuery(java.lang.String, java.lang.String, java.lang.String, java.lang.String, com.servoy.j2db.query.ISQLSelect, java.util.ArrayList, int, int)
 	 */
 	public IDataSet performCustomQuery(String client_id, String server_name, String driverTableName, String transaction_id, ISQLSelect sqlSelect,
-		ArrayList<TableFilter> filters, int startRow, int rowsToRetrieve) throws ServoyException, RemoteException
+		ArrayList<TableFilter> filters, int startRow, int rowsToRetrieve) throws ServoyException
 	{
 		return dataserver.performCustomQuery(client_id, server_name, driverTableName, transaction_id, sqlSelect, filters, startRow, rowsToRetrieve);
 	}
@@ -324,7 +325,7 @@ public abstract class AbstractDelegateDataServer implements IDataServer, IDelega
 	 * @throws RemoteException
 	 * @see com.servoy.j2db.dataprocessing.IDataServer#performQuery(java.lang.String, java.lang.String, java.lang.String, com.servoy.j2db.dataprocessing.QueryData[])
 	 */
-	public IDataSet[] performQuery(String client_id, String server_name, String transaction_id, QueryData[] array) throws ServoyException, RemoteException
+	public IDataSet[] performQuery(String client_id, String server_name, String transaction_id, QueryData[] array) throws ServoyException
 	{
 		return dataserver.performQuery(client_id, server_name, transaction_id, array);
 	}
@@ -343,7 +344,7 @@ public abstract class AbstractDelegateDataServer implements IDataServer, IDelega
 	 * @see com.servoy.j2db.dataprocessing.IDataServer#createSQLStatement(int, java.lang.String, java.lang.String, java.lang.Object[], java.lang.String, java.lang.String, java.lang.Object[])
 	 */
 	public ISQLStatement createSQLStatement(int action, String server_name, String tableName, Object[] pkColumnData, String tid, String sql,
-		Object[] questiondata) throws RemoteException, RepositoryException
+		Object[] questiondata) throws RepositoryException
 	{
 		return dataserver.createSQLStatement(action, server_name, tableName, pkColumnData, tid, sql, questiondata);
 	}
@@ -362,7 +363,7 @@ public abstract class AbstractDelegateDataServer implements IDataServer, IDelega
 	 * @see com.servoy.j2db.dataprocessing.IDataServer#createSQLStatement(int, java.lang.String, java.lang.String, java.lang.Object[], java.lang.String, com.servoy.j2db.query.ISQLUpdate, java.util.ArrayList)
 	 */
 	public ISQLStatement createSQLStatement(int action, String server_name, String tableName, Object[] pkColumnData, String tid, ISQLUpdate sqlUpdate,
-		ArrayList<TableFilter> filters) throws RemoteException, RepositoryException
+		ArrayList<TableFilter> filters) throws RepositoryException
 	{
 		return dataserver.createSQLStatement(action, server_name, tableName, pkColumnData, tid, sqlUpdate, filters);
 	}
@@ -398,7 +399,7 @@ public abstract class AbstractDelegateDataServer implements IDataServer, IDelega
 	 * @throws RemoteException
 	 * @see com.servoy.j2db.dataprocessing.IDataServer#performUpdates(java.lang.String, com.servoy.j2db.dataprocessing.ISQLStatement[])
 	 */
-	public Object[] performUpdates(String clientId, ISQLStatement[] statements) throws ServoyException, RemoteException
+	public Object[] performUpdates(String clientId, ISQLStatement[] statements) throws ServoyException
 	{
 		return dataserver.performUpdates(clientId, statements);
 	}
@@ -415,7 +416,7 @@ public abstract class AbstractDelegateDataServer implements IDataServer, IDelega
 	 * @see com.servoy.j2db.dataprocessing.IDataServer#getBlob(java.lang.String, java.lang.String, com.servoy.j2db.query.ISQLSelect, java.util.ArrayList, java.lang.String)
 	 */
 	public Blob getBlob(String clientId, String serverName, ISQLSelect blobSelect, ArrayList<TableFilter> filters, String tid)
-		throws RepositoryException, RemoteException
+		throws RepositoryException
 	{
 		return dataserver.getBlob(clientId, serverName, blobSelect, filters, tid);
 	}
@@ -428,7 +429,7 @@ public abstract class AbstractDelegateDataServer implements IDataServer, IDelega
 	 * @throws RemoteException
 	 * @see com.servoy.j2db.dataprocessing.IDataServer#startTransaction(java.lang.String, java.lang.String)
 	 */
-	public String startTransaction(String clientId, String server_name) throws RepositoryException, RemoteException
+	public String startTransaction(String clientId, String server_name) throws RepositoryException
 	{
 		return dataserver.startTransaction(clientId, server_name);
 	}
@@ -442,7 +443,7 @@ public abstract class AbstractDelegateDataServer implements IDataServer, IDelega
 	 * @throws RemoteException
 	 * @see com.servoy.j2db.dataprocessing.IDataServer#endTransactions(java.lang.String, java.lang.String[], boolean)
 	 */
-	public boolean endTransactions(String client_id, String[] transaction_id, boolean commit) throws RepositoryException, RemoteException
+	public boolean endTransactions(String client_id, String[] transaction_id, boolean commit) throws RepositoryException
 	{
 		return dataserver.endTransactions(client_id, transaction_id, commit);
 	}
@@ -458,10 +459,10 @@ public abstract class AbstractDelegateDataServer implements IDataServer, IDelega
 	 * @throws RemoteException
 	 * @see com.servoy.j2db.dataprocessing.IDataServer#getNextSequence(java.lang.String, java.lang.String, java.lang.String, int, java.lang.String)
 	 */
-	public Object getNextSequence(String serverName, String tableName, String columnName, int columnInfoID, String columnInfoServer)
-		throws RepositoryException, RemoteException
+	public Object getNextSequence(String serverName, String tableName, String columnName, UUID columnInfoUUID, String columnInfoServer)
+		throws RepositoryException
 	{
-		return dataserver.getNextSequence(serverName, tableName, columnName, columnInfoID, columnInfoServer);
+		return dataserver.getNextSequence(serverName, tableName, columnName, columnInfoUUID, columnInfoServer);
 	}
 
 	/**
@@ -480,7 +481,7 @@ public abstract class AbstractDelegateDataServer implements IDataServer, IDelega
 	 * @see com.servoy.j2db.dataprocessing.IDataServer#insertDataSet(java.lang.String, com.servoy.j2db.dataprocessing.IDataSet, java.lang.String, java.lang.String, java.lang.String, java.lang.String, com.servoy.j2db.query.ColumnType[], java.lang.String[], java.util.HashMap)
 	 */
 	public InsertResult insertDataSet(String client_id, IDataSet set, String dataSource, String serverName, String tableName, String tid,
-		ColumnType[] columnTypes, String[] pkNames, HashMap<String, ColumnInfoDef> columnInfoDefinitions) throws ServoyException, RemoteException
+		ColumnType[] columnTypes, String[] pkNames, HashMap<String, ColumnInfoDef> columnInfoDefinitions) throws ServoyException
 	{
 		return dataserver.insertDataSet(client_id, set, dataSource, serverName, tableName, tid, columnTypes, pkNames, columnInfoDefinitions);
 	}
@@ -508,7 +509,7 @@ public abstract class AbstractDelegateDataServer implements IDataServer, IDelega
 	 */
 	public ITable insertQueryResult(String client_id, String queryServerName, String queryTid, ISQLSelect sqlSelect, ArrayList<TableFilter> filters,
 		boolean distinctInMemory, int startRow, int rowsToRetrieve, int type, String dataSource, String targetServerName, String targetTableName,
-		String targetTid, ColumnType[] columnTypes, String[] pkNames) throws ServoyException, RemoteException
+		String targetTid, ColumnType[] columnTypes, String[] pkNames) throws ServoyException
 	{
 		return dataserver.insertQueryResult(client_id, queryServerName, queryTid, sqlSelect, filters, distinctInMemory, startRow, rowsToRetrieve, type,
 			dataSource, targetServerName, targetTableName, targetTid, columnTypes, pkNames);
@@ -522,7 +523,7 @@ public abstract class AbstractDelegateDataServer implements IDataServer, IDelega
 	 * @throws RepositoryException
 	 * @see com.servoy.j2db.dataprocessing.IDataServer#dropTemporaryTable(java.lang.String, java.lang.String, java.lang.String)
 	 */
-	public void dropTemporaryTable(String client_id, String serverName, String tableName) throws RemoteException, RepositoryException
+	public void dropTemporaryTable(String client_id, String serverName, String tableName) throws RepositoryException
 	{
 		dataserver.dropTemporaryTable(client_id, serverName, tableName);
 	}
@@ -535,7 +536,7 @@ public abstract class AbstractDelegateDataServer implements IDataServer, IDelega
 	 * @throws RepositoryException
 	 * @see com.servoy.j2db.dataprocessing.IDataServer#addClientAsTableUser(java.lang.String, java.lang.String, java.lang.String)
 	 */
-	public void addClientAsTableUser(String client_id, String serverName, String tableName) throws RemoteException, RepositoryException
+	public void addClientAsTableUser(String client_id, String serverName, String tableName) throws RepositoryException
 	{
 		dataserver.addClientAsTableUser(client_id, serverName, tableName);
 	}
@@ -554,14 +555,14 @@ public abstract class AbstractDelegateDataServer implements IDataServer, IDelega
 	 * @see com.servoy.j2db.dataprocessing.IDataServer#getSQLQuerySet(java.lang.String, com.servoy.j2db.query.ISQLQuery, java.util.ArrayList, int, int, boolean)
 	 */
 	public QuerySet getSQLQuerySet(String serverName, ISQLQuery sqlQuery, ArrayList<TableFilter> filters, int startRow, int rowsToRetrieve,
-		boolean forceQualifyColumns, boolean disableUseArrayForIn) throws RepositoryException, RemoteException
+		boolean forceQualifyColumns, boolean disableUseArrayForIn) throws RepositoryException
 	{
 		return dataserver.getSQLQuerySet(serverName, sqlQuery, filters, startRow, rowsToRetrieve, forceQualifyColumns, disableUseArrayForIn);
 	}
 
 	@Override
 	public IDataSet[] executeProcedure(String clientId, String server_name, String tid, Procedure procedure, Object[] arguments)
-		throws RepositoryException, RemoteException
+		throws RepositoryException
 	{
 		return dataserver.executeProcedure(clientId, server_name, tid, procedure, arguments);
 	}

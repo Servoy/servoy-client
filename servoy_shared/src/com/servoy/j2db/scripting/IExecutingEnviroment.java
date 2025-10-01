@@ -37,6 +37,7 @@ public interface IExecutingEnviroment
 	public final static String TOPLEVEL_PLUGINS = "plugins"; //$NON-NLS-1$
 	public final static String TOPLEVEL_APPLICATION = "application"; //$NON-NLS-1$
 	public final static String TOPLEVEL_UTILS = "utils"; //$NON-NLS-1$
+	public final static String TOPLEVEL_CLIENTUTILS = "clientutils"; //$NON-NLS-1$
 	public final static String TOPLEVEL_SECURITY = "security"; //$NON-NLS-1$
 	public final static String TOPLEVEL_SOLUTION_MODIFIER = "solutionModel"; //$NON-NLS-1$
 	public final static String TOPLEVEL_DATABASE_MANAGER = "databaseManager"; //$NON-NLS-1$
@@ -46,9 +47,13 @@ public interface IExecutingEnviroment
 	public final static String TOPLEVEL_FORMS = "forms"; //$NON-NLS-1$
 	public final static String TOPLEVEL_JSUNIT = "jsunit"; //$NON-NLS-1$ // IMPORTANT: if you change this, you MUST change it also in Ident.java
 	public final static String TOPLEVEL_SCOPES = ScriptVariable.SCOPES;
+	public final static String TOPLEVEL_MENUS = "menus"; //$NON-NLS-1$
+	public final static String TOPLEVEL_EVENTTYPES = "EventType"; //$NON-NLS-1$
+	public static final String TOPLEVEL_EVENTS_MANAGER = "eventsManager"; //$NON-NLS-1$
+	public final static String TOPLEVEL_JSPERMISSION = "JSPermission"; //$NON-NLS-1$
 
-	public final static String[] TOPLEVEL_KEYWORDS = { TOPLEVEL_HISTORY, TOPLEVEL_PLUGINS, TOPLEVEL_APPLICATION, TOPLEVEL_UTILS, //
-	TOPLEVEL_SECURITY, TOPLEVEL_DATABASE_MANAGER, TOPLEVEL_I18N, TOPLEVEL_SERVOY_EXCEPTION, TOPLEVEL_FORMS, TOPLEVEL_JSUNIT, TOPLEVEL_SCOPES };
+	public final static String[] TOPLEVEL_KEYWORDS = { TOPLEVEL_HISTORY, TOPLEVEL_PLUGINS, TOPLEVEL_APPLICATION, TOPLEVEL_EVENTS_MANAGER, TOPLEVEL_UTILS, TOPLEVEL_CLIENTUTILS, //
+		TOPLEVEL_SECURITY, TOPLEVEL_DATABASE_MANAGER, TOPLEVEL_I18N, TOPLEVEL_SERVOY_EXCEPTION, TOPLEVEL_FORMS, TOPLEVEL_JSUNIT, TOPLEVEL_SCOPES, TOPLEVEL_MENUS };
 
 	/**
 	 * FOR INTERNAL USE ONLY, DO NOT CALL. Get the top level scope
@@ -94,6 +99,14 @@ public interface IExecutingEnviroment
 	 */
 	public JSApplication getJSApplication();
 
+
+	/**
+	 * FOR INTERNAL USE ONLY, DO NOT CALL.
+	 *
+	 * @exclude
+	 */
+	public JSSecurity getJSSecurity();
+
 	/**
 	 * @return the solutionModifier
 	 */
@@ -123,6 +136,4 @@ public interface IExecutingEnviroment
 	 * @return evaluation result
 	 */
 	public Object eval(Scriptable scope, String eval_string);
-
-
 }

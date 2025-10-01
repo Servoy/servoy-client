@@ -22,17 +22,11 @@ import java.util.Set;
 
 /**
  * @author gganea
- *
  */
 public class FindModeConfig
 {
 	private final HashMap<String, Object> forEntries;
 
-	/**
-	 * @param formElementValue
-	 * @param forEntities
-	 * @param baseWebObject
-	 */
 	public FindModeConfig(HashMap<String, Object> forEntities)
 	{
 		this.forEntries = forEntities;
@@ -48,7 +42,10 @@ public class FindModeConfig
 	}
 
 	/**
-	 * @param propertyName
+	 * Tells what is the boolean value that will automatically be set on a property from {@link #configPropertiesNames()} when find mode changes to true.
+	 * When find mode goes back to false, the previous value of that property will be restored.<br/><br/>
+	 *
+	 * TODO the returned value should always be a boolean from JSON.
 	 */
 	public Object getConfiguredPropertyValueOf(String propertyName)
 	{

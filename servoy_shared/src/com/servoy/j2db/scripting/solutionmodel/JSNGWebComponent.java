@@ -84,14 +84,12 @@ public class JSNGWebComponent extends JSWebComponent
 			PropertyDescription pd = propAndName.getLeft();
 			if (pd != null && pd.getType() instanceof IFormComponentType)
 			{
-				IFormComponentRhinoConverter converter = ((IFormComponentType)pd.getType()).getFormComponentRhinoConverter(pd.getName(),
-					webComponent.getProperty(pd.getName()), application, this);
 				// undefined means remove the property
 				Object convertedValue = fromRhinoToDesignValue(Context.getUndefinedValue(), propAndName.getLeft(), application, this, propertyName);
 				webComponent.setProperty(propAndName.getRight(), convertedValue);
 
 			}
-			else if (pd != null) webComponent.clearProperty(propertyName);
+			else if (pd != null) webComponent.clearProperty(propAndName.getRight());
 		}
 		catch (JSONException e)
 		{
@@ -129,9 +127,16 @@ public class JSNGWebComponent extends JSWebComponent
 		if (pd == null && spec.getHandler(name) != null) pd = spec.getHandler(name).getAsPropertyDescription();
 		if (pd == null)
 		{
-			// now try it if it is a more legacy name where the id is stripped from
+			// some new (ng) components wrongly continued the "ID" suffix for props. (or handlers "MethodID") - for example "dataproviderID" or "onActionMethodID"
+			// but we do hide the "ID" part both in developer and in online docs; so ppl. using solution model will probably try to use
+			// the version without the "ID" suffix more and more - and we need to handle that correctly
 			pd = spec.getProperty(name + "ID");
-			if (pd != null) name = name + "ID";
+			if (pd == null && spec.getHandler(name + "MethodID") != null)
+			{
+				name = name + "MethodID";
+				pd = spec.getHandler(name).getAsPropertyDescription();
+			}
+			else if (pd != null) name = name + "ID";
 		}
 		return new Pair<PropertyDescription, String>(pd, name);
 	}
@@ -273,12 +278,12 @@ public class JSNGWebComponent extends JSWebComponent
 	}
 
 	public static Object fromRhinoToDesignValue(Object value, PropertyDescription pd, IApplication application, JSWebComponent webComponent,
-		String propertyName)
+		String fullPropertyNameInCaseOfFormComponent)
 	{
 		Object result = null;
 		if (pd != null && pd.getType() instanceof IFormComponentType)
 		{
-			String firstPart = propertyName;
+			String firstPart = fullPropertyNameInCaseOfFormComponent;
 			int i = firstPart.indexOf('.');
 			if (i > 0)
 			{
@@ -286,7 +291,8 @@ public class JSNGWebComponent extends JSWebComponent
 			}
 			IFormComponentRhinoConverter converter = ((IFormComponentType)pd.getType()).getFormComponentRhinoConverter(firstPart,
 				webComponent.getBaseComponent(true).getProperty(firstPart), application, webComponent);
-			result = converter.setRhinoToDesignValue(firstPart == propertyName ? "" : propertyName.substring(firstPart.length() + 1), value);
+			result = converter.setRhinoToDesignValue(
+				firstPart == fullPropertyNameInCaseOfFormComponent ? "" : fullPropertyNameInCaseOfFormComponent.substring(firstPart.length() + 1), value);
 		}
 		else if (pd != null && pd.getType() instanceof IRhinoDesignConverter)
 		{
@@ -300,12 +306,12 @@ public class JSNGWebComponent extends JSWebComponent
 	}
 
 	public static Object fromDesignToRhinoValue(Object value, PropertyDescription pd, IApplication application, JSWebComponent webComponent,
-		String propertyName)
+		String fullPropertyNameInCaseOfFormComponent)
 	{
 		Object result = value;
 		if (pd != null && pd.getType() instanceof IFormComponentType)
 		{
-			String firstPart = propertyName;
+			String firstPart = fullPropertyNameInCaseOfFormComponent;
 			int i = firstPart.indexOf('.');
 			if (i > 0)
 			{
@@ -313,7 +319,8 @@ public class JSNGWebComponent extends JSWebComponent
 			}
 			IFormComponentRhinoConverter converter = ((IFormComponentType)pd.getType()).getFormComponentRhinoConverter(firstPart, value, application,
 				webComponent);
-			result = converter.getDesignToRhinoValue(firstPart == propertyName ? "" : propertyName.substring(firstPart.length() + 1));
+			result = converter.getDesignToRhinoValue(
+				firstPart == fullPropertyNameInCaseOfFormComponent ? "" : fullPropertyNameInCaseOfFormComponent.substring(firstPart.length() + 1));
 		}
 		else if (pd != null && pd.getType() instanceof IRhinoDesignConverter)
 		{

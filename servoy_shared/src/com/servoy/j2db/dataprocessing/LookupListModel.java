@@ -16,6 +16,10 @@
  */
 package com.servoy.j2db.dataprocessing;
 
+import static com.servoy.j2db.dataprocessing.CustomValueList.processRow;
+import static com.servoy.j2db.query.AbstractBaseQuery.deepClone;
+import static com.servoy.j2db.util.Utils.iterate;
+
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -35,7 +39,6 @@ import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.ValueList;
-import com.servoy.j2db.query.AbstractBaseQuery;
 import com.servoy.j2db.query.CompareCondition;
 import com.servoy.j2db.query.IQuerySelectValue;
 import com.servoy.j2db.query.IQuerySort;
@@ -44,8 +47,6 @@ import com.servoy.j2db.query.QueryFunction;
 import com.servoy.j2db.query.QueryFunction.QueryFunctionType;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.query.QuerySort;
-import com.servoy.j2db.query.QueryTable;
-import com.servoy.j2db.query.SortOptions;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.ScopesUtils;
@@ -79,10 +80,6 @@ public class LookupListModel extends AbstractListModel
 	private List<SortColumn> defaultSort;
 
 	private TableFilter nameFilter;
-
-	private int secondColRedirectIndex = -1;
-	private int thirdColRedirectIndex = -1;
-
 
 	public LookupListModel(IApplication application, LookupValueList lookup)
 	{
@@ -130,73 +127,9 @@ public class LookupListModel extends AbstractListModel
 				return;
 			}
 
-			creationSQLParts = new QuerySelect(new QueryTable(table.getSQLName(), table.getDataSource(), table.getCatalog(), table.getSchema()));
-			creationSQLParts.setDistinct(true);
+			creationSQLParts = DBValueList.createValuelistQuery(application, vl, table);
 
-			ArrayList<IQuerySelectValue> columns = new ArrayList<IQuerySelectValue>();
-			ArrayList<IQuerySort> orderColumns = new ArrayList<IQuerySort>();
-			if ((total & 1) != 0)
-			{
-				if (table.getColumn(vl.getDataProviderID1()) == null)
-				{
-					String msg = "Lookup values with non-column data providers (like unstored calculations) are not supported, could not find column '" +
-						vl.getDataProviderID1() + "' in table '" + table + "'";
-					application.reportJSError(msg, null);
-					throw new RuntimeException(msg);
-				}
-				IQuerySelectValue cSQLName = DBValueList.getQuerySelectValue(table, creationSQLParts.getTable(), vl.getDataProviderID1());
-				columns.add(cSQLName);
-				if ((showValues & 1) != 0)
-				{
-					SortOptions sortOptions = application.getFoundSetManager().getSortOptions(table.getColumn(vl.getDataProviderID1()));
-					orderColumns.add(new QuerySort(cSQLName, true, sortOptions));
-				}
-			}
-			if ((total & 2) != 0)
-			{
-				if (table.getColumn(vl.getDataProviderID2()) == null)
-				{
-					String msg = "Lookup values with non-column data providers (like unstored calculations) are not supported, could not find column '" +
-						vl.getDataProviderID2() + "' in table '" + table + "'";
-					application.reportJSError(msg, null);
-					throw new RuntimeException(msg);
-				}
-				IQuerySelectValue cSQLName = DBValueList.getQuerySelectValue(table, creationSQLParts.getTable(), vl.getDataProviderID2());
-				if ((secondColRedirectIndex = columns.indexOf(cSQLName)) < 0)
-				{
-					columns.add(cSQLName);
-				}
-				if ((showValues & 2) != 0)
-				{
-					SortOptions sortOptions = application.getFoundSetManager().getSortOptions(table.getColumn(vl.getDataProviderID2()));
-					orderColumns.add(new QuerySort(cSQLName, true, sortOptions));
-				}
-			}
-			if ((total & 4) != 0)
-			{
-				if (table.getColumn(vl.getDataProviderID3()) == null)
-				{
-					String msg = "Lookup values with non-column data providers (like unstored calculations) are not supported, could not find column '" +
-						vl.getDataProviderID3() + "' in table '" + table + "'";
-					application.reportJSError(msg, null);
-					throw new RuntimeException(msg);
-				}
-				IQuerySelectValue cSQLName = DBValueList.getQuerySelectValue(table, creationSQLParts.getTable(), vl.getDataProviderID3());
-				if ((thirdColRedirectIndex = columns.indexOf(cSQLName)) < 0)
-				{
-					columns.add(cSQLName);
-				}
-				if ((showValues & 4) != 0)
-				{
-					SortOptions sortOptions = application.getFoundSetManager().getSortOptions(table.getColumn(vl.getDataProviderID3()));
-					orderColumns.add(new QuerySort(cSQLName, true, sortOptions));
-				}
-			}
-
-			creationSQLParts.setColumns(columns);
-			creationSQLParts.setSorts(orderColumns);
-
-			if (vl.getUseTableFilter())//apply name as filter on column valuelist_name
+			if (vl.getUseTableFilter()) // apply name as filter on column valuelist_name
 			{
 				nameFilter = new TableFilter("lookupValuelist.nameFilter", table.getServerName(), table.getName(), table.getSQLName(), DBValueList.NAME_COLUMN, //$NON-NLS-1$
 					IBaseSQLCondition.EQUALS_OPERATOR, vl.getName());
@@ -235,12 +168,12 @@ public class LookupListModel extends AbstractListModel
 				return;
 			}
 
-			creationSQLParts = new QuerySelect(new QueryTable(table.getSQLName(), table.getDataSource(), table.getCatalog(), table.getSchema()));
+			creationSQLParts = new QuerySelect(table.queryTable());
 			creationSQLParts.setDistinct(true);
 
-			ArrayList<IQuerySelectValue> columns = new ArrayList<IQuerySelectValue>();
-			ArrayList<IQuerySort> orderColumns = new ArrayList<IQuerySort>();
-			IQuerySelectValue cSQLName = DBValueList.getQuerySelectValue(table, creationSQLParts.getTable(), dataProviderID);
+			ArrayList<IQuerySelectValue> columns = new ArrayList<>();
+			ArrayList<IQuerySort> orderColumns = new ArrayList<>();
+			IQuerySelectValue cSQLName = DBValueList.getQueryColumn(table, creationSQLParts.getTable(), dataProviderID);
 			columns.add(cSQLName);
 			orderColumns.add(new QuerySort(cSQLName, true, application.getFoundSetManager().getSortOptions(table.getColumn(dataProviderID))));
 
@@ -269,32 +202,6 @@ public class LookupListModel extends AbstractListModel
 	public IValueList getValueList()
 	{
 		return lookup;
-	}
-
-	private ArrayList<IQuerySort> getSortColumnsForQuery(QuerySelect query)
-	{
-		ArrayList<IQuerySort> sortColumnsForQuery = null;
-
-		if (defaultSort != null && defaultSort.size() > 0)
-		{
-			sortColumnsForQuery = new ArrayList<IQuerySort>();
-			ArrayList<IQuerySelectValue> queryColumns = query.getColumns();
-			for (SortColumn sortColumn : defaultSort)
-			{
-				for (IQuerySelectValue column : queryColumns)
-				{
-					if (sortColumn.getName().trim().equalsIgnoreCase(column.getColumnName()))
-					{
-						sortColumnsForQuery.add(new QuerySort(column, sortColumn.getSortOrder() == SortColumn.ASCENDING,
-							application.getFoundSetManager().getSortOptions(sortColumn.getColumn())));
-						break;
-					}
-				}
-			}
-			if (sortColumnsForQuery.size() == 0) sortColumnsForQuery = null;
-		}
-
-		return sortColumnsForQuery;
 	}
 
 	public int getSize()
@@ -363,27 +270,25 @@ public class LookupListModel extends AbstractListModel
 				}
 			}
 		}
-		if (lookup instanceof GlobalMethodValueList)
+		if (lookup instanceof GlobalMethodValueList globalMethodValueList)
 		{
-			GlobalMethodValueList clist = (GlobalMethodValueList)lookup;
 			String fixedFilter = filter == null ? "" : filter;
-			clist.fill(realState, fixedFilter, null);
-			if ("".equals(fixedFilter) && clist.isEmpty())
+			globalMethodValueList.fill(realState, fixedFilter, null);
+			if ("".equals(fixedFilter) && globalMethodValueList.isEmpty())
 			{
-				clist.fill(realState, fixedFilter, alsoFilterOnRealValues ? fixedFilter : realValue);
+				globalMethodValueList.fill(realState, fixedFilter, alsoFilterOnRealValues ? fixedFilter : realValue);
 			}
-			for (int i = 0; i < clist.getSize(); i++)
+			for (int i = 0; i < globalMethodValueList.getSize(); i++)
 			{
-				Object display = clist.getElementAt(i);
+				Object display = globalMethodValueList.getElementAt(i);
 				if (display == null) continue;
 				alDisplay.add(display);
-				alReal.add(clist.getRealElementAt(i));
+				alReal.add(globalMethodValueList.getRealElementAt(i));
 			}
 			hadMoreRows = true;
 		}
-		else if (lookup instanceof CustomValueList)
+		else if (lookup instanceof CustomValueList customValueList)
 		{
-			CustomValueList clist = (CustomValueList)lookup;
 			boolean procentStart = false;
 			if (txt.startsWith("%"))
 			{
@@ -391,19 +296,19 @@ public class LookupListModel extends AbstractListModel
 				txt = txt.substring(1, txt.length());
 			}
 			if (txt.endsWith("%")) txt = txt.substring(0, txt.length() - 1); //$NON-NLS-1$
-			for (int i = 0; i < clist.getSize(); i++)
+			for (int i = 0; i < customValueList.getSize(); i++)
 			{
-				Object display = clist.getElementAt(i);
+				Object display = customValueList.getElementAt(i);
 				if (display == null) continue;
 				if (txt == "" || (procentStart && display.toString().toLowerCase().contains(txt)) ||
 					(!procentStart && display.toString().toLowerCase().startsWith(txt)))
 				{
 					alDisplay.add(display);
-					alReal.add(clist.getRealElementAt(i));
+					alReal.add(customValueList.getRealElementAt(i));
 				}
 				else if (alsoFilterOnRealValues)
 				{
-					Object real = clist.getRealElementAt(i);
+					Object real = customValueList.getRealElementAt(i);
 					if (real != null && ((procentStart && real.toString().toLowerCase().contains(txt)) ||
 						(!procentStart && real.toString().toLowerCase().startsWith(txt))))
 					{
@@ -413,20 +318,20 @@ public class LookupListModel extends AbstractListModel
 				}
 			}
 		}
-		else if (lookup instanceof LookupValueList)
+		else if (lookup instanceof LookupValueList lookupValueList)
 		{
-			if ("".equals(txt) && lookup.getAllowEmptySelection()) //$NON-NLS-1$
+			if ("".equals(txt) && lookupValueList.getAllowEmptySelection()) //$NON-NLS-1$
 			{
 				alReal.add(null);
 				alDisplay.add(""); //$NON-NLS-1$
 			}
-			if (((LookupValueList)lookup).getValueList().getDatabaseValuesType() == IValueListConstants.TABLE_VALUES)
+			if (lookupValueList.getValueList().getDatabaseValuesType() == IValueListConstants.TABLE_VALUES)
 			{
-				fillDBValueListValues(txt, alsoFilterOnRealValues);
+				fillDBValueListValues(lookupValueList.getValueList(), txt, alsoFilterOnRealValues, lookupValueList.getDisplayFormat());
 			}
 			else
 			{
-				fillRelatedValueListValues(realState, txt, alsoFilterOnRealValues);
+				fillRelatedValueListValues(lookupValueList.getValueList(), realState, txt, alsoFilterOnRealValues, lookupValueList.getDisplayFormat());
 			}
 		}
 		else
@@ -436,17 +341,10 @@ public class LookupListModel extends AbstractListModel
 		fireChanges(prevSize);
 	}
 
-	/**
-	 * @param txt
-	 * @throws RemoteException
-	 * @throws Exception
-	 */
-	private void fillRelatedValueListValues(IRecordInternal parentState, String filter, boolean alsoFilterOnRealValues) throws ServoyException
+	private void fillRelatedValueListValues(ValueList valueList, IRecordInternal parentState, String filter, boolean alsoFilterOnRealValues,
+		String[] displayFormat) throws ServoyException
 	{
 		if (parentState == null) return;
-
-		String txt = filter;
-		ValueList valueList = ((LookupValueList)lookup).getValueList();
 
 		Relation[] relations = application.getFlattenedSolution().getRelationSequence(valueList.getRelationName());
 		Pair<QuerySelect, BaseQueryTable> pair = RelatedValueList.createRelatedValuelistQuery(application, valueList, relations, parentState);
@@ -457,216 +355,146 @@ public class LookupListModel extends AbstractListModel
 		QuerySelect select = pair.getLeft();
 		BaseQueryTable qTable = pair.getRight();
 
-		generateWherePart(txt, valueList, select, qTable, alsoFilterOnRealValues);
+		addSearchCondition(select, filter, valueList, qTable, alsoFilterOnRealValues);
 
-		try
+		IFoundSetManagerInternal foundSetManager = application.getFoundSetManager();
+		String transaction_id = foundSetManager.getTransactionID(table.getServerName());
+		ArrayList<TableFilter> tableFilterParams = foundSetManager.getTableFilterParams(table.getServerName(), select);
+		if (nameFilter != null) // apply name as filter on column valuelist_name in creationSQLParts
 		{
-			FoundSetManager foundSetManager = ((FoundSetManager)application.getFoundSetManager());
-			String transaction_id = foundSetManager.getTransactionID(table.getServerName());
-			ArrayList<TableFilter> tableFilterParams = foundSetManager.getTableFilterParams(table.getServerName(), select);
-			if (nameFilter != null) //apply name as filter on column valuelist_name in creationSQLParts
+			if (tableFilterParams == null)
 			{
-				if (tableFilterParams == null)
-				{
-					tableFilterParams = new ArrayList<TableFilter>();
-				}
-				tableFilterParams.add(nameFilter);
+				tableFilterParams = new ArrayList<>();
 			}
+			tableFilterParams.add(nameFilter);
+		}
 
-			SQLStatement trackingInfo = null;
-			if (foundSetManager.getEditRecordList().hasAccess(table, IRepository.TRACKING_VIEWS))
-			{
-				trackingInfo = new SQLStatement(ISQLActionTypes.SELECT_ACTION, table.getServerName(), qTable.getName(), null, null);
-				trackingInfo.setTrackingData(select.getColumnNames(), new Object[][] { }, new Object[][] { }, application.getUserUID(),
-					foundSetManager.getTrackingInfo(), application.getClientID());
-			}
-			IDataSet set = application.getDataServer().performQuery(application.getClientID(), table.getServerName(), transaction_id, select, null,
-				tableFilterParams, true, 0, 100, IDataServer.VALUELIST_QUERY, trackingInfo);
-			String[] displayFormat = (lookup instanceof LookupValueList) ? ((LookupValueList)lookup).getDisplayFormat() : null;
-			for (int i = 0; i < set.getRowCount(); i++)
-			{
-				Object[] row = processRow(set.getRow(i));
-				DisplayString display = CustomValueList.handleDisplayData(valueList, displayFormat, concatShowValues, showValues, row, application);
-				if (display != null)
-				{
-					alDisplay.add(display);
-					alReal.add(CustomValueList.handleRowData(valueList, concatReturnValues, returnValues, row, application));
-				}
-			}
-			hadMoreRows = set.hadMoreRows();
-		}
-		catch (RemoteException e)
+		SQLStatement trackingInfo = null;
+		if (foundSetManager.getEditRecordList().hasAccess(table, IRepository.TRACKING_VIEWS))
 		{
-			throw new RepositoryException(e);
+			trackingInfo = new SQLStatement(ISQLActionTypes.SELECT_ACTION, table.getServerName(), qTable.getName(), null, null);
+			trackingInfo.setTrackingData(select.getColumnNames(), new Object[][] { }, new Object[][] { }, application.getUserUID(),
+				foundSetManager.getTrackingInfo(), application.getClientID());
 		}
+		IDataSet set = application.getDataServer().performQuery(application.getClientID(), table.getServerName(), transaction_id, select, null,
+			tableFilterParams, true, 0, 100, IDataServer.VALUELIST_QUERY, trackingInfo);
+		for (int i = 0; i < set.getRowCount(); i++)
+		{
+			Object[] row = processRow(set.getRow(i), showValues, returnValues);
+			DisplayString display = CustomValueList.handleDisplayData(valueList, displayFormat, concatShowValues, showValues, row, application);
+			if (display != null)
+			{
+				alDisplay.add(display);
+				alReal.add(CustomValueList.handleRowData(valueList, concatReturnValues, returnValues, row, application));
+			}
+		}
+		hadMoreRows = set.hadMoreRows();
 	}
 
-	/**
-	 *  In cases where the user selected the same column in 2 or 3 'Return in dataprovider' or 'Show in field' for a valuelist
-	 *  the query  only does a select with one column name .After the data is received  it reconstructs the rows with the missing duplicate columns
-	 * */
-	public Object[] processRow(Object[] row)
+	private void addSearchCondition(QuerySelect select, String txt, ValueList valueList, BaseQueryTable qTable, boolean alsoFilterOnRealValues)
 	{
-		Object[] ret = row;
-		if (secondColRedirectIndex >= 0 || thirdColRedirectIndex >= 0)
+		if (txt == null || txt.equals(""))
 		{
-			boolean hasFirstDp = (showValues & 1) != 0 || (returnValues & 1) != 0;
-			boolean hasSecondDp = (showValues & 2) != 0 || (returnValues & 2) != 0;
-			boolean hasThirdDp = (showValues & 4) != 0 || (returnValues & 4) != 0;
-
-			ArrayList<Object> arr = new ArrayList<Object>();
-			int srcIdx = 0;
-
-			if (hasFirstDp) arr.add(row[srcIdx++]);
-
-			if (secondColRedirectIndex >= 0)
-			{
-				arr.add(row[secondColRedirectIndex]);
-			}
-			else if (hasSecondDp)
-			{
-				arr.add(row[srcIdx++]);
-			}
-
-			if (thirdColRedirectIndex >= 0)
-			{
-				arr.add(row[thirdColRedirectIndex]);
-			}
-			else if (hasThirdDp)
-			{
-				arr.add(row[srcIdx++]);
-			}
-
-			ret = arr.toArray();
+			return;
 		}
-		return CustomValueList.processRow(ret, showValues, returnValues);
-	}
 
-	/**
-	 * @param txt
-	 * @param valueList
-	 * @param select
-	 * @param qTable
-	 */
-	private boolean generateWherePart(String txt, ValueList valueList, QuerySelect select, BaseQueryTable qTable, boolean alsoFilterOnRealValues)
-	{
-		if (txt != null && !txt.equals("")) //$NON-NLS-1$
+		String[] displayValues = null;
+		String separator = valueList.getSeparator();
+		if (separator != null && !separator.equals("")) //$NON-NLS-1$
 		{
-			String[] displayValues = null;
-			String separator = valueList.getSeparator();
-			if (separator != null && !separator.equals("")) //$NON-NLS-1$
+			if (showValues != 1 && showValues != 2 && showValues != 4)
 			{
-				if (showValues != 1 && showValues != 2 && showValues != 4)
+				// its a combination
+				displayValues = Utils.stringSplit(txt, separator);
+				if (displayValues.length == 1 && displayValues[0].equals(txt.toUpperCase()))
 				{
-					// its a combination
-					displayValues = Utils.stringSplit(txt, separator);
-					if (displayValues.length == 1 && displayValues[0].equals(txt.toUpperCase()))
+					displayValues = null;
+				}
+				else
+				{
+					ArrayList<String> lst = new ArrayList<>();
+					for (String displayValue : displayValues)
 					{
-						displayValues = null;
-					}
-					else
-					{
-						ArrayList<String> lst = new ArrayList<String>();
-						for (String displayValue : displayValues)
+						if (!displayValue.trim().equals("")) //$NON-NLS-1$
 						{
-							if (!displayValue.trim().equals("")) //$NON-NLS-1$
-							{
-								lst.add(displayValue.toUpperCase() + '%');
-							}
+							lst.add(displayValue.toUpperCase() + '%');
 						}
-						displayValues = lst.toArray(new String[lst.size()]);
 					}
+					displayValues = lst.toArray(new String[lst.size()]);
 				}
 			}
-			String likeValue = txt.toUpperCase() + '%';
-			OrCondition overallOr = new OrCondition();
-			if ((showValues & 1) != 0 || (alsoFilterOnRealValues && (returnValues & 1) != 0))
-			{
-				addOrCondition(valueList.getDataProviderID1(), qTable, likeValue, displayValues, overallOr);
-			}
-			if ((showValues & 2) != 0 || (alsoFilterOnRealValues && (returnValues & 2) != 0))
-			{
-				addOrCondition(valueList.getDataProviderID2(), qTable, likeValue, displayValues, overallOr);
-			}
-			if ((showValues & 4) != 0 || (alsoFilterOnRealValues && (returnValues & 4) != 0))
-			{
-				addOrCondition(valueList.getDataProviderID3(), qTable, likeValue, displayValues, overallOr);
-			}
-			select.addCondition(SQLGenerator.CONDITION_SEARCH, overallOr);
-			return true;
 		}
-		return false;
+		String likeValue = txt.toUpperCase() + '%';
+		OrCondition overallOr = new OrCondition();
+		if ((showValues & 1) != 0 || (alsoFilterOnRealValues && (returnValues & 1) != 0))
+		{
+			addOrCondition(valueList.getDataProviderID1(), qTable, likeValue, displayValues, overallOr);
+		}
+		if ((showValues & 2) != 0 || (alsoFilterOnRealValues && (returnValues & 2) != 0))
+		{
+			addOrCondition(valueList.getDataProviderID2(), qTable, likeValue, displayValues, overallOr);
+		}
+		if ((showValues & 4) != 0 || (alsoFilterOnRealValues && (returnValues & 4) != 0))
+		{
+			addOrCondition(valueList.getDataProviderID3(), qTable, likeValue, displayValues, overallOr);
+		}
+
+		select.addCondition(SQLGenerator.CONDITION_SEARCH, overallOr);
 	}
 
 	protected void addOrCondition(String dataProviderId, BaseQueryTable qTable, String likeValue, String[] displayValues, OrCondition overallOr)
 	{
-		IQuerySelectValue querySelect = DBValueList.getQuerySelectValue(table, qTable, dataProviderId);
-		if (displayValues != null)
+		IQuerySelectValue querySelect = DBValueList.getQueryColumn(table, qTable, dataProviderId);
+		for (String displayValue : iterate(displayValues))
 		{
-			for (String displayValue : displayValues)
-			{
-				overallOr.addCondition(SQLGenerator.createLikeCompareCondition(querySelect, table.getColumnType(dataProviderId), displayValue));
-			}
+			overallOr.addCondition(SQLGenerator.createLikeCompareCondition(querySelect, table.getColumnType(dataProviderId), displayValue));
 		}
 		// also just add the complete value, for the possibility that it was a value with a separator.
 		overallOr.addCondition(SQLGenerator.createLikeCompareCondition(querySelect, table.getColumnType(dataProviderId), likeValue));
 	}
 
-	/**
-	 * @param txt
-	 * @throws Exception
-	 * @throws RepositoryException
-	 * @throws RemoteException
-	 */
-	private void fillDBValueListValues(String filter, boolean alsoFilterOnRealValues) throws ServoyException
+	private void fillDBValueListValues(ValueList valueList, String filter, boolean alsoFilterOnRealValues, String[] displayFormat) throws ServoyException
 	{
-		ValueList valueList = ((LookupValueList)lookup).getValueList();
-		QuerySelect sqlParts = AbstractBaseQuery.deepClone(creationSQLParts);
-		if (!generateWherePart(filter, valueList, sqlParts, sqlParts.getTable(), alsoFilterOnRealValues))
+		if (creationSQLParts == null)
 		{
-			ArrayList<IQuerySort> sorts = getSortColumnsForQuery(sqlParts);
-			if (sorts != null) sqlParts.setSorts(sorts);
+			// not initialized properly
+			return;
 		}
 
-		try
+		QuerySelect sqlParts = deepClone(creationSQLParts);
+		addSearchCondition(sqlParts, filter, valueList, sqlParts.getTable(), alsoFilterOnRealValues);
+
+		FoundSetManager foundSetManager = ((FoundSetManager)application.getFoundSetManager());
+		String transaction_id = foundSetManager.getTransactionID(table.getServerName());
+		ArrayList<TableFilter> tableFilterParams = foundSetManager.getTableFilterParams(table.getServerName(), sqlParts);
+		if (nameFilter != null) //apply name as filter on column valuelist_name in creationSQLParts
 		{
-			FoundSetManager foundSetManager = ((FoundSetManager)application.getFoundSetManager());
-			String transaction_id = foundSetManager.getTransactionID(table.getServerName());
-			ArrayList<TableFilter> tableFilterParams = foundSetManager.getTableFilterParams(table.getServerName(), sqlParts);
-			if (nameFilter != null) //apply name as filter on column valuelist_name in creationSQLParts
+			if (tableFilterParams == null)
 			{
-				if (tableFilterParams == null)
-				{
-					tableFilterParams = new ArrayList<TableFilter>();
-				}
-				tableFilterParams.add(nameFilter);
+				tableFilterParams = new ArrayList<>();
 			}
-			SQLStatement trackingInfo = null;
-			if (foundSetManager.getEditRecordList().hasAccess(table, IRepository.TRACKING_VIEWS))
-			{
-				trackingInfo = new SQLStatement(ISQLActionTypes.SELECT_ACTION, table.getServerName(), table.getName(), null, null);
-				trackingInfo.setTrackingData(sqlParts.getColumnNames(), new Object[][] { }, new Object[][] { }, application.getUserUID(),
-					foundSetManager.getTrackingInfo(), application.getClientID());
-			}
-			IDataSet set = application.getDataServer().performQuery(application.getClientID(), table.getServerName(), transaction_id, sqlParts, null,
-				tableFilterParams, !sqlParts.isUnique(), 0, 100, IDataServer.VALUELIST_QUERY, trackingInfo);
-			String[] displayFormat = (lookup instanceof LookupValueList) ? ((LookupValueList)lookup).getDisplayFormat() : null;
-			for (int i = 0; i < set.getRowCount(); i++)
-			{
-				Object[] row = processRow(set.getRow(i));
-				DisplayString display = CustomValueList.handleDisplayData(valueList, displayFormat, concatShowValues, showValues, row, application);
-				if (display != null)
-				{
-					alDisplay.add(display);
-					alReal.add(CustomValueList.handleRowData(valueList, concatReturnValues, returnValues, row, application));
-				}
-			}
-			hadMoreRows = set.hadMoreRows();
+			tableFilterParams.add(nameFilter);
 		}
-		catch (RemoteException e)
+		SQLStatement trackingInfo = null;
+		if (foundSetManager.getEditRecordList().hasAccess(table, IRepository.TRACKING_VIEWS))
 		{
-			throw new RepositoryException(e);
+			trackingInfo = new SQLStatement(ISQLActionTypes.SELECT_ACTION, table.getServerName(), table.getName(), null, null);
+			trackingInfo.setTrackingData(sqlParts.getColumnNames(), new Object[][] { }, new Object[][] { }, application.getUserUID(),
+				foundSetManager.getTrackingInfo(), application.getClientID());
 		}
+		IDataSet set = application.getDataServer().performQuery(application.getClientID(), table.getServerName(), transaction_id, sqlParts, null,
+			tableFilterParams, !sqlParts.isUnique(), 0, 100, IDataServer.VALUELIST_QUERY, trackingInfo);
+		for (int i = 0; i < set.getRowCount(); i++)
+		{
+			Object[] row = processRow(set.getRow(i), showValues, returnValues);
+			DisplayString display = CustomValueList.handleDisplayData(valueList, displayFormat, concatShowValues, showValues, row, application);
+			if (display != null)
+			{
+				alDisplay.add(display);
+				alReal.add(CustomValueList.handleRowData(valueList, concatReturnValues, returnValues, row, application));
+			}
+		}
+		hadMoreRows = set.hadMoreRows();
 	}
 
 	/**
@@ -677,14 +505,19 @@ public class LookupListModel extends AbstractListModel
 	 */
 	private void fillDBColumnValues(String dataProviderID, String txt) throws ServoyException
 	{
-		QuerySelect sqlParts = AbstractBaseQuery.deepClone(creationSQLParts);
+		if (creationSQLParts == null)
+		{
+			// not initialized properly
+			return;
+		}
+		QuerySelect sqlParts = deepClone(creationSQLParts);
 
 		sqlParts.clearCondition(SQLGenerator.CONDITION_SEARCH);
 		if (!"".equals(txt)) //$NON-NLS-1$
 		{
 			sqlParts.setCondition(SQLGenerator.CONDITION_SEARCH,
 				new CompareCondition(IBaseSQLCondition.LIKE_OPERATOR,
-					new QueryFunction(QueryFunctionType.upper, DBValueList.getQuerySelectValue(table, sqlParts.getTable(), dataProviderID), dataProviderID),
+					new QueryFunction(QueryFunctionType.upper, DBValueList.getQueryColumn(table, sqlParts.getTable(), dataProviderID), dataProviderID),
 					txt.toUpperCase() + '%'));
 		}
 		else
@@ -692,43 +525,36 @@ public class LookupListModel extends AbstractListModel
 			sqlParts.clearCondition(SQLGenerator.CONDITION_SEARCH);
 		}
 
-		try
+		IFoundSetManagerInternal foundSetManager = application.getFoundSetManager();
+		String transaction_id = foundSetManager.getTransactionID(table.getServerName());
+		ArrayList<TableFilter> tableFilterParams = foundSetManager.getTableFilterParams(table.getServerName(), sqlParts);
+		if (nameFilter != null) //apply name as filter on column valuelist_name in creationSQLParts
 		{
-			FoundSetManager foundSetManager = ((FoundSetManager)application.getFoundSetManager());
-			String transaction_id = foundSetManager.getTransactionID(table.getServerName());
-			ArrayList<TableFilter> tableFilterParams = foundSetManager.getTableFilterParams(table.getServerName(), sqlParts);
-			if (nameFilter != null) //apply name as filter on column valuelist_name in creationSQLParts
+			if (tableFilterParams == null)
 			{
-				if (tableFilterParams == null)
-				{
-					tableFilterParams = new ArrayList<TableFilter>();
-				}
-				tableFilterParams.add(nameFilter);
+				tableFilterParams = new ArrayList<>();
 			}
+			tableFilterParams.add(nameFilter);
+		}
 
-			SQLStatement trackingInfo = null;
-			if (foundSetManager.getEditRecordList().hasAccess(table, IRepository.TRACKING_VIEWS))
-			{
-				trackingInfo = new SQLStatement(ISQLActionTypes.SELECT_ACTION, table.getServerName(), table.getName(), null, null);
-				trackingInfo.setTrackingData(sqlParts.getColumnNames(), new Object[][] { }, new Object[][] { }, application.getUserUID(),
-					foundSetManager.getTrackingInfo(), application.getClientID());
-			}
-			IDataSet set = application.getDataServer().performQuery(application.getClientID(), table.getServerName(), transaction_id, sqlParts, null,
-				tableFilterParams, !sqlParts.isUnique(), 0, 100, IDataServer.VALUELIST_QUERY, trackingInfo);
-			for (int i = 0; i < set.getRowCount(); i++)
-			{
-				Object[] row = set.getRow(i);
-				if (row[0] != null && !"".equals(row[0])) //$NON-NLS-1$
-				{
-					alReal.add(row[0]);
-				}
-			}
-			hadMoreRows = set.hadMoreRows();
-		}
-		catch (RemoteException e)
+		SQLStatement trackingInfo = null;
+		if (foundSetManager.getEditRecordList().hasAccess(table, IRepository.TRACKING_VIEWS))
 		{
-			throw new RepositoryException(e);
+			trackingInfo = new SQLStatement(ISQLActionTypes.SELECT_ACTION, table.getServerName(), table.getName(), null, null);
+			trackingInfo.setTrackingData(sqlParts.getColumnNames(), new Object[][] { }, new Object[][] { }, application.getUserUID(),
+				foundSetManager.getTrackingInfo(), application.getClientID());
 		}
+		IDataSet set = application.getDataServer().performQuery(application.getClientID(), table.getServerName(), transaction_id, sqlParts, null,
+			tableFilterParams, !sqlParts.isUnique(), 0, 100, IDataServer.VALUELIST_QUERY, trackingInfo);
+		for (int i = 0; i < set.getRowCount(); i++)
+		{
+			Object[] row = set.getRow(i);
+			if (row[0] != null && !"".equals(row[0])) //$NON-NLS-1$
+			{
+				alReal.add(row[0]);
+			}
+		}
+		hadMoreRows = set.hadMoreRows();
 	}
 
 	/**

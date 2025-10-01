@@ -91,7 +91,7 @@ public class PersistFieldInstanceTest extends AbstractSolutionTest
 	protected void fillTestSolution() throws RepositoryException
 	{
 		Form form = solution.createNewForm(validator, null, "test", null, false, new Dimension(600, 400));
-		form.setNavigatorID(-1);
+		form.setNavigatorID(Form.NAVIGATOR_NONE);
 		ValueList valuelist = solution.createNewValueList(validator, "test");
 		valuelist.setValueListType(IValueListConstants.CUSTOM_VALUES);
 		valuelist = solution.createNewValueList(validator, "test_items");
@@ -117,7 +117,7 @@ public class PersistFieldInstanceTest extends AbstractSolutionTest
 		field.setDataProviderID("mycolumn");
 		field.setFormat("#,###.00");
 		field.setDisplayType(Field.TYPE_AHEAD);
-		field.setValuelistID(vl.getID());
+		field.setValuelistID(vl.getUUID().toString());
 
 		WebFormUI formUI = new WebFormUI(client.getFormManager().getForm(form.getName())); // needed for a valuelist property type that searches it's form's table via the webform ui
 		IDataAdapterList dataAdapterList = formUI.getDataAdapterList();
@@ -138,7 +138,7 @@ public class PersistFieldInstanceTest extends AbstractSolutionTest
 		Assert.assertNotNull(form);
 
 		Form tabForm = solution.createNewForm(validator, null, "tabform", null, false, new Dimension(600, 400));
-		tabForm.setNavigatorID(-1);
+		tabForm.setNavigatorID(Form.NAVIGATOR_NONE);
 		DataAdapterList dataAdapterList = new DataAdapterList(new TestFormController(tabForm, client));
 
 		TabPanel tabpanel = form.createNewTabPanel("tabpanel");
@@ -162,7 +162,7 @@ public class PersistFieldInstanceTest extends AbstractSolutionTest
 		DataAdapterList dataAdapterList = new DataAdapterList(new TestFormController(form, client));
 
 		Form tabForm = solution.createNewForm(validator, null, "tabform", null, false, new Dimension(600, 400));
-		tabForm.setNavigatorID(-1);
+		tabForm.setNavigatorID(Form.NAVIGATOR_NONE);
 
 		TabPanel tabpanel = form.createNewTabPanel("tabpanel");
 		tabpanel.createNewTab("tab1", null, tabForm);

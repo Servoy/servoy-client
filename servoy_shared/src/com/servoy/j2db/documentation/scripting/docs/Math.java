@@ -20,9 +20,10 @@ import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
 
 /**
- * Dummy class for listing methods for JavaScript types in a manner that
- * suits our documentation generator.
- * 
+ * Math provides static properties and methods for mathematical constants and functions.<br/><br/>
+ *
+ * For more information see: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math">Math (MDN)</a>.
+ *
  * @author gerzse
  */
 @ServoyDocumented(category = ServoyDocumented.JSLIB, publicName = "Math", scriptingName = "Math")
@@ -33,7 +34,7 @@ public class Math
 	 * Euler's constant and the base of natural logarithms. Approximately 2.718.
 	 *
 	 * @sample Math.E
-	 * 
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Math/E
 	 */
 	public Number js_getsamecase_E()
@@ -49,7 +50,7 @@ public class Math
 	 * Natural logarithm of 10. Approximately 2.302.
 	 *
 	 * @sample Math.LN10
-	 * 
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Math/LN10
 	 */
 	public Number js_getLN10()
@@ -65,7 +66,7 @@ public class Math
 	 * Natural logarithm of 2. Approximately 0.693.
 	 *
 	 * @sample Math.LN2
-	 * 
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Math/LN2
 	 */
 	public Number js_getLN2()
@@ -81,7 +82,7 @@ public class Math
 	 * Base 10 logarithm of E. Approximately 0.434.
 	 *
 	 * @sample Math.LOG10E
-	 * 
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Math/LOG10E
 	 */
 	public Number js_getLOG10E()
@@ -97,7 +98,7 @@ public class Math
 	 * Base 2 logarithm of E. Approximately 1.442.
 	 *
 	 * @sample Math.LOG2E
-	 * 
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Math/LOG2E
 	 */
 	public Number js_getLOG2E()
@@ -113,7 +114,7 @@ public class Math
 	 * Ratio of the circumference of a circle to its diameter. Approximately 3.14159.
 	 *
 	 * @sample Math.PI
-	 * 
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Math/PI
 	 */
 	public Number js_getPI()
@@ -129,7 +130,7 @@ public class Math
 	 * Square root of 1/2. Equivalently, 1 over the square root of 2, approximately 0.707.
 	 *
 	 * @sample Math.SQRT1_2
-	 * 
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Math/SQRT1_2
 	 */
 	public Number js_getSQRT1_2()
@@ -145,7 +146,7 @@ public class Math
 	 * Square root of 2. Approximately 1.414.
 	 *
 	 * @sample Math.SQRT2
-	 * 
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Math/SQRT2
 	 */
 	public Number js_getSQRT2()
@@ -161,9 +162,9 @@ public class Math
 	 * Returns the absolute value of a number.
 	 *
 	 * @sample Math.abs(number)
-	 * 
-	 * @param x 
-	 * 
+	 *
+	 * @param x
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Math/abs
 	 */
 	public Number js_abs(Number x)
@@ -175,9 +176,9 @@ public class Math
 	 * Returns the arccosine (in radians) of a number.
 	 *
 	 * @sample Math.acos(number)
-	 * 
-	 * @param x 
-	 * 
+	 *
+	 * @param x
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Math/acos
 	 */
 	public Number js_acos(Number x)
@@ -189,9 +190,9 @@ public class Math
 	 * Returns the arcsine (in radians) of a number.
 	 *
 	 * @sample Math.asin(number)
-	 * 
-	 * @param x 
-	 * 
+	 *
+	 * @param x
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Math/asin
 	 */
 	public Number js_asin(Number x)
@@ -203,9 +204,9 @@ public class Math
 	 * Returns the arctangent (in radians) of a number.
 	 *
 	 * @sample Math.atan(number)
-	 * 
-	 * @param x 
-	 * 
+	 *
+	 * @param x
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Math/atan
 	 */
 	public Number js_atan(Number x)
@@ -217,10 +218,10 @@ public class Math
 	 * Returns the arctangent of the quotient of its arguments.
 	 *
 	 * @sample Math.atan2(number,number)
-	 * 
-	 * @param y 
-	 * @param x 
-	 * 
+	 *
+	 * @param y
+	 * @param x
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Math/atan2
 	 */
 	public Number js_atan2(Number y, Number x)
@@ -232,9 +233,9 @@ public class Math
 	 * Returns the smallest integer greater than or equal to a number.
 	 *
 	 * @sample Math.ceil(number)
-	 * 
-	 * @param x 
-	 * 
+	 *
+	 * @param x
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Math/ceil
 	 */
 	public Number js_ceil(Number x)
@@ -246,9 +247,9 @@ public class Math
 	 * Returns the cosine of a number.
 	 *
 	 * @sample Math.cos(number)
-	 * 
-	 * @param x 
-	 * 
+	 *
+	 * @param x
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Math/cos
 	 */
 	public Number js_cos(Number x)
@@ -260,9 +261,9 @@ public class Math
 	 * Returns Enumber, where number is the argument, and E is Euler's constant, the base of the natural logarithms.
 	 *
 	 * @sample Math.exp(number)
-	 * 
-	 * @param x 
-	 * 
+	 *
+	 * @param x
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Math/exp
 	 */
 	public Number js_exp(Number x)
@@ -274,9 +275,9 @@ public class Math
 	 * Returns the largest integer less than or equal to a number.
 	 *
 	 * @sample Math.floor(number)
-	 * 
-	 * @param x 
-	 * 
+	 *
+	 * @param x
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Math/floor
 	 */
 	public Number js_floor(Number x)
@@ -288,9 +289,9 @@ public class Math
 	 * Returns the natural logarithm (base E) of a number.
 	 *
 	 * @sample Math.log(number)
-	 * 
-	 * @param x 
-	 * 
+	 *
+	 * @param x
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Math/log
 	 */
 	public Number js_log(Number x)
@@ -302,9 +303,9 @@ public class Math
 	 * Returns the greater of two (or more) numbers.
 	 *
 	 * @sample Math.max(number,number,number)
-	 * 
-	 * @param value 
-	 * 
+	 *
+	 * @param value
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Math/max
 	 */
 	public Number js_max(Number... value)
@@ -316,9 +317,9 @@ public class Math
 	 * Returns the lesser of two (or more) numbers.
 	 *
 	 * @sample Math.min(number,number,number)
-	 * 
-	 * @param value 
-	 * 
+	 *
+	 * @param value
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Math/min
 	 */
 	public Number js_min(Number... value)
@@ -330,10 +331,10 @@ public class Math
 	 * Returns base to the exponent power, that is, base exponent.
 	 *
 	 * @sample Math.pow(number,number)
-	 * 
-	 * @param base 
-	 * @param exponent 
-	 * 
+	 *
+	 * @param base
+	 * @param exponent
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Math/pow
 	 */
 	public Number js_pow(Number base, Number exponent)
@@ -345,7 +346,7 @@ public class Math
 	 * Returns a pseudo-random number between 0 and 1.
 	 *
 	 * @sample Math.random()
-	 * 
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Math/random
 	 */
 	public void js_random()
@@ -356,9 +357,9 @@ public class Math
 	 * Returns the value of a number rounded to the nearest integer.
 	 *
 	 * @sample Math.round(number)
-	 * 
-	 * @param x 
-	 * 
+	 *
+	 * @param x
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Math/round
 	 */
 	public void js_round(Number x)
@@ -369,9 +370,9 @@ public class Math
 	 * Returns the sine of a number.
 	 *
 	 * @sample Math.sin(number)
-	 * 
-	 * @param x 
-	 * 
+	 *
+	 * @param x
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Math/sin
 	 */
 	public void js_sin(Number x)
@@ -382,8 +383,8 @@ public class Math
 	 * Returns the square root of a number.
 	 *
 	 * @sample Math.sqrt(number)
-	 * 
-	 * @param x 
+	 *
+	 * @param x
 	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Math/sqrt
 	 */
@@ -395,9 +396,9 @@ public class Math
 	 * Returns the tangent of a number.
 	 *
 	 * @sample Math.tan(number)
-	 * 
+	 *
 	 * @param x
-	 *  
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Math/tan
 	 */
 	public void js_tan(Number x)

@@ -23,38 +23,19 @@ import java.awt.Font;
 import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.io.IOException;
-import java.util.Locale;
 
 import javax.swing.border.Border;
 
-import org.apache.wicket.AttributeModifier;
-import org.apache.wicket.IResourceListener;
-import org.apache.wicket.Page;
-import org.apache.wicket.Request;
-import org.apache.wicket.RequestCycle;
-import org.apache.wicket.ResourceReference;
-import org.apache.wicket.ajax.IAjaxIndicatorAware;
-import org.apache.wicket.markup.ComponentTag;
-import org.apache.wicket.markup.MarkupStream;
-import org.apache.wicket.markup.html.form.SubmitLink;
-import org.apache.wicket.markup.html.internal.HtmlHeaderContainer;
-import org.apache.wicket.model.Model;
-import org.apache.wicket.util.convert.IConverter;
+import org.apache.wicket.Component;
 
-import com.servoy.base.scripting.api.IJSEvent.EventType;
-import com.servoy.base.util.ITagResolver;
 import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IApplication;
-import com.servoy.j2db.IFormUIInternal;
 import com.servoy.j2db.IMainContainer;
 import com.servoy.j2db.IScriptExecuter;
 import com.servoy.j2db.MediaURLStreamHandler;
 import com.servoy.j2db.persistence.ISupportTextSetup;
 import com.servoy.j2db.persistence.Media;
-import com.servoy.j2db.server.headlessclient.ByteArrayResource;
 import com.servoy.j2db.server.headlessclient.MainPage;
-import com.servoy.j2db.server.headlessclient.WebClientSession;
 import com.servoy.j2db.ui.IAnchoredComponent;
 import com.servoy.j2db.ui.IButton;
 import com.servoy.j2db.ui.IEventExecutor;
@@ -69,10 +50,7 @@ import com.servoy.j2db.ui.ISupportSimulateBounds;
 import com.servoy.j2db.ui.ISupportSimulateBoundsProvider;
 import com.servoy.j2db.ui.ISupportWebBounds;
 import com.servoy.j2db.ui.scripting.AbstractRuntimeBaseComponent;
-import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.HtmlUtils;
-import com.servoy.j2db.util.MimeTypes;
-import com.servoy.j2db.util.Text;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -80,9 +58,9 @@ import com.servoy.j2db.util.Utils;
  *
  * @author jcompagner, jblok
  */
-public class WebBaseSubmitLink extends SubmitLink
-	implements ILabel, IResourceListener, ILatestVersionResourceListener, IProviderStylePropertyChanges, ISupportSecuritySettings, IAjaxIndicatorAware,
-	IDoubleClickListener, IRightClickListener, ISupportWebBounds, IButton, IImageDisplay, IAnchoredComponent, ISupportSimulateBoundsProvider, ISupportOnRender
+public class WebBaseSubmitLink extends Component
+	implements ILabel, IProviderStylePropertyChanges, ISupportSecuritySettings,
+	ISupportWebBounds, IButton, IImageDisplay, IAnchoredComponent, ISupportSimulateBoundsProvider, ISupportOnRender
 {
 	private static final long serialVersionUID = 1L;
 
@@ -96,22 +74,23 @@ public class WebBaseSubmitLink extends SubmitLink
 	private String inputId;
 
 	protected MediaResource icon;
-	private AttributeModifier enabledStyle;
 	private Media media;
 //	private Dimension mediaSize;
 	private Media rolloverMedia;
 	private String iconUrl;
-	private ResourceReference iconReference;
-	private ResourceReference rolloverIconReference;
 	protected final IApplication application;
 	private int anchors = 0;
 	private String text_url;
 	private String rolloverUrl;
 	private final WebEventExecutor eventExecutor;
-	private AttributeModifier rolloverBehavior;
 
 	protected IFieldComponent labelForComponent;
 	private final AbstractRuntimeBaseComponent< ? extends ILabel> scriptable;
+
+	private int rotation = 0;
+
+	private String txt;
+
 
 	public WebBaseSubmitLink(IApplication application, AbstractRuntimeBaseComponent< ? extends ILabel> scriptable, String id)
 	{
@@ -121,30 +100,8 @@ public class WebBaseSubmitLink extends SubmitLink
 		halign = ISupportTextSetup.LEFT; // default horizontal align
 		valign = ISupportTextSetup.CENTER; // default vertical align
 
-		setEscapeModelStrings(false);
-		add(StyleAttributeModifierModel.INSTANCE);
-		add(TooltipAttributeModifier.INSTANCE);
-
-		add(new StyleAppendingModifier(new Model<String>()
-		{
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public String getObject()
-			{
-				if (!isEnabled())
-				{
-					return "cursor: default;"; //$NON-NLS-1$
-				}
-				return null;
-			}
-		}));
-
-		boolean useAJAX = Utils.getAsBoolean(application.getRuntimeProperties().get("useAJAX")); //$NON-NLS-1$
-		eventExecutor = new WebEventExecutor(this, useAJAX);
-		setOutputMarkupPlaceholderTag(true);
+		eventExecutor = new WebEventExecutor(this, true);
 		this.scriptable = scriptable;
-		((ChangesRecorder)scriptable.getChangesRecorder()).setDefaultBorderAndPadding(null, TemplateGenerator.DEFAULT_LABEL_PADDING);
 	}
 
 	public final AbstractRuntimeBaseComponent< ? extends ILabel> getScriptObject()
@@ -153,35 +110,9 @@ public class WebBaseSubmitLink extends SubmitLink
 	}
 
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.apache.wicket.Component#renderHead(org.apache.wicket.markup.html.internal.HtmlHeaderContainer)
-	 */
-	@SuppressWarnings("nls")
-	@Override
-	public void renderHead(HtmlHeaderContainer container)
-	{
-		super.renderHead(container);
-		if (hasHtmlOrImage())
-		{
-			container.getHeaderResponse().renderOnLoadJavascript("Servoy.Utils.setLabelChildHeight('" + getMarkupId() + "', " + valign + ");"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		}
-	}
-
 	protected CharSequence getBodyText()
 	{
-		return StripHTMLTagsConverter.convertBodyText(this, getDefaultModelObjectAsString(), scriptable.trustDataAsHtml(),
-			application.getFlattenedSolution()).getBodyTxt();
-	}
-
-	/**
-	 * @see org.apache.wicket.Component#getLocale()
-	 */
-	@Override
-	public Locale getLocale()
-	{
-		return application.getLocale();
+		return txt;
 	}
 
 	/**
@@ -189,109 +120,9 @@ public class WebBaseSubmitLink extends SubmitLink
 	 */
 	public String getAjaxIndicatorMarkupId()
 	{
-		return WebClientSession.get().hideLoadingIndicator() ? null : "indicator"; //$NON-NLS-1$
+		return "indicator"; //$NON-NLS-1$
 	}
 
-	/**
-	 * @see wicket.markup.html.form.Button#onSubmit()
-	 */
-	@Override
-	public void onSubmit()
-	{
-		eventExecutor.onEvent(EventType.action, null, this, IEventExecutor.MODIFIERS_UNSPECIFIED);
-	}
-
-	/**
-	 * @see wicket.MarkupContainer#onRender(wicket.markup.MarkupStream)
-	 */
-	@Override
-	protected void onRender(MarkupStream markupStream)
-	{
-		super.onRender(markupStream);
-		scriptable.getChangesRecorder().setRendered();
-	}
-
-	/**
-	 * @see wicket.MarkupContainer#onComponentTagBody(wicket.markup.MarkupStream, wicket.markup.ComponentTag)
-	 */
-	@Override
-	protected void onComponentTagBody(MarkupStream markupStream, ComponentTag openTag)
-	{
-		instrumentAndReplaceBody(markupStream, openTag, getDefaultModelObjectAsString());
-	}
-
-	/**
-	 * @see wicket.markup.html.form.FormComponent#getInputName()
-	 */
-	@Override
-	public String getInputName()
-	{
-		if (inputId == null)
-		{
-			Page page = findPage();
-			if (page instanceof MainPage)
-			{
-				inputId = ((MainPage)page).nextInputNameId();
-			}
-			else
-			{
-				return super.getInputName();
-			}
-		}
-		return inputId;
-	}
-
-	/**
-	 * @see wicket.IResourceListener#onResourceRequested()
-	 */
-	public void onResourceRequested()
-	{
-		String mediaName = RequestCycle.get().getRequest().getParameter("media"); //$NON-NLS-1$
-		if (mediaName != null)
-		{
-			Media m;
-			try
-			{
-				m = application.getFlattenedSolution().getMedia(mediaName);
-				byte[] bytes = m.getMediaData();
-				new ByteArrayResource(MimeTypes.getContentType(bytes), bytes, null).onResourceRequested();
-			}
-			catch (Exception ex)
-			{
-				Debug.error("Error serving media: " + mediaName, ex); //$NON-NLS-1$
-			}
-		}
-		else if (getRequest().getParameter(StripHTMLTagsConverter.BLOB_LOADER_PARAM) != null)
-		{
-			String url = StripHTMLTagsConverter.getBlobLoaderUrlPart(getRequest());
-			try
-			{
-				byte[] bytes = MediaURLStreamHandler.getBlobLoaderMedia(application, url);
-				if (bytes != null)
-				{
-					String mime = MediaURLStreamHandler.getBlobLoaderMimeType(url);
-					if (mime == null) mime = MimeTypes.getContentType(bytes);
-					String filename = MediaURLStreamHandler.getBlobLoaderFileName(url);
-					if (size != null)
-					{
-						MediaResource tempIcon = new MediaResource(bytes, mediaOptions);
-						(tempIcon).checkResize(size);
-						bytes = tempIcon.resized;
-					}
-					new ByteArrayResource(mime, bytes, filename).onResourceRequested();
-
-				}
-			}
-			catch (IOException ex)
-			{
-				Debug.error("Error serving blobloader url: " + url, ex); //$NON-NLS-1$
-			}
-		}
-		else
-		{
-			icon.onResourceRequested();
-		}
-	}
 
 	public IStylePropertyChanges getStylePropertyChanges()
 	{
@@ -335,13 +166,8 @@ public class WebBaseSubmitLink extends SubmitLink
 	/**
 	 * @see com.servoy.j2db.ui.ILabel#setRolloverIcon(byte[])
 	 */
-	public void setRolloverIcon(int rolloverMediaId)
+	public void setRolloverIcon(String rolloverMediaUUID)
 	{
-		if ((rolloverMedia = application.getFlattenedSolution().getMedia(rolloverMediaId)) != null)
-		{
-			addRolloverBehaviors();
-			rolloverIconReference = new ResourceReference("media"); //$NON-NLS-1$
-		}
 	}
 
 	/**
@@ -351,10 +177,8 @@ public class WebBaseSubmitLink extends SubmitLink
 	{
 		media = null;
 //		mediaSize = null;
-		iconReference = null;
 		if (bs != null && bs.length != 0)
 		{
-			addEnabledStyleAttributeModifier();
 			icon = new MediaResource(bs, mediaOptions);
 			if (size != null)
 			{
@@ -367,58 +191,21 @@ public class WebBaseSubmitLink extends SubmitLink
 		}
 	}
 
-	private void addRolloverBehaviors()
+	public String getMediaIcon()
 	{
-		if (rolloverBehavior != null) return;
-
-		rolloverBehavior = WebBaseButton.getImageDisplayRolloverBehavior(this);
-		add(rolloverBehavior);
-		add(WebBaseButton.getImageDisplayRolloutBehavior(this));
+		return media != null ? media.getUUID().toString() : null;
 	}
 
-	private void addEnabledStyleAttributeModifier()
-	{
-		if (enabledStyle != null) return;
-
-		enabledStyle = new StyleAppendingModifier(new Model<String>()
-		{
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public String getObject()
-			{
-				return scriptable.isEnabled() ? "" : "filter:alpha(opacity=50);-moz-opacity:.50;opacity:.50;"; //$NON-NLS-1$  //$NON-NLS-2$
-			}
-		});
-		add(enabledStyle);
-	}
-
-	public int getMediaIcon()
-	{
-		return media != null ? media.getID() : 0;
-	}
-
-	public void setMediaIcon(int iconId)
+	public void setMediaIcon(String iconUUID)
 	{
 		this.icon = null;
 		this.iconUrl = null;
-		this.iconReference = null;
 		this.media = null;
-		if ((media = application.getFlattenedSolution().getMedia(iconId)) != null)
+		if ((media = application.getFlattenedSolution().getMedia(iconUUID)) != null)
 		{
-			addEnabledStyleAttributeModifier();
-			iconReference = new ResourceReference("media"); //$NON-NLS-1$
 			text_url = MediaURLStreamHandler.MEDIA_URL_DEF + media.getName();
 		}
-		else if (enabledStyle != null)
-		{
-			remove(enabledStyle);
-			enabledStyle = null;
-		}
-//		mediaSize = null;
 	}
-
-	private int rotation = 0;
 
 	/**
 	 * @see com.servoy.j2db.ui.ILabel#setRotation(int)
@@ -450,15 +237,15 @@ public class WebBaseSubmitLink extends SubmitLink
 
 	public void setText(String txt)
 	{
-		setDefaultModel(new Model<String>(txt));
+		this.txt = txt;
 	}
 
 	public String getText()
 	{
-		Object o = getDefaultModelObject();
-		return o == null ? null : o.toString();
+		return txt;
 	}
 
+	@Override
 	public void setCursor(Cursor cursor)
 	{
 		this.cursor = cursor;
@@ -480,26 +267,6 @@ public class WebBaseSubmitLink extends SubmitLink
 		return margin;
 	}
 
-	@Override
-	public IConverter getConverter(Class< ? > cls)
-	{
-		if (cls.isArray() && cls.getComponentType().toString().equals("byte")) return new IConverter() //$NON-NLS-1$
-		{
-			private static final long serialVersionUID = 1L;
-
-			public Object convertToObject(String value, Locale locale)
-			{
-				return null;
-			}
-
-			public String convertToString(Object value, Locale locale)
-			{
-				return null;
-			}
-		};
-		return StripHTMLTagsConverter.htmlStripper;
-	}
-
 	public void setTextTransform(int mode)
 	{
 		// ignore should be done through css
@@ -508,48 +275,6 @@ public class WebBaseSubmitLink extends SubmitLink
 	public void setImageURL(String textUrl)
 	{
 		this.text_url = textUrl;
-		if (textUrl == null)
-		{
-			icon = null;
-			iconReference = null;
-			iconUrl = null;
-		}
-		else
-		{
-			int index = textUrl.indexOf(MediaURLStreamHandler.MEDIA_URL_DEF);
-			if (index == -1)
-			{
-				icon = null;
-				iconReference = null;
-				iconUrl = textUrl;
-				addEnabledStyleAttributeModifier();
-			}
-			else
-			{
-				String nm = textUrl.substring(index + MediaURLStreamHandler.MEDIA_URL_DEF.length());
-				try
-				{
-					Media m = application.getFlattenedSolution().getMedia(nm);
-					if (m != null)
-					{
-						setMediaIcon(m.getID());
-					}
-					else if (nm.startsWith(MediaURLStreamHandler.MEDIA_URL_BLOBLOADER))
-					{
-						// clear previous images
-						icon = null;
-						iconReference = null;
-						iconUrl = null;
-						addEnabledStyleAttributeModifier();
-
-					}
-				}
-				catch (Exception ex)
-				{
-					Debug.error("Error loading media for url: " + textUrl, ex); //$NON-NLS-1$
-				}
-			}
-		}
 	}
 
 	public String getImageURL()
@@ -565,7 +290,6 @@ public class WebBaseSubmitLink extends SubmitLink
 	public void setRolloverImageURL(String imageUrl)
 	{
 		this.rolloverUrl = imageUrl;
-		rolloverIconReference = null;
 		if (rolloverUrl != null)
 		{
 			int index = imageUrl.indexOf(MediaURLStreamHandler.MEDIA_URL_DEF);
@@ -575,18 +299,19 @@ public class WebBaseSubmitLink extends SubmitLink
 				Media m = application.getFlattenedSolution().getMedia(nm);
 				if (m != null)
 				{
-					setRolloverIcon(m.getID());
+					setRolloverIcon(m.getUUID().toString());
 				}
 			}
 		}
-		addRolloverBehaviors();
 	}
 
 	public byte[] getThumbnailJPGImage(int width, int height)
 	{
-		return WebBaseLabel.getThumbnailJPGImage(width, height, icon, text_url, media != null ? media.getID() : 0, (mediaOptions & 8) == 8, application);
+		return WebBaseLabel.getThumbnailJPGImage(width, height, icon, text_url, media != null ? media.getUUID().toString() : null, (mediaOptions & 8) == 8,
+			application);
 	}
 
+	@Override
 	public void setName(String n)
 	{
 		name = n;
@@ -594,6 +319,7 @@ public class WebBaseSubmitLink extends SubmitLink
 
 	private String name;
 
+	@Override
 	public String getName()
 	{
 		return name;
@@ -605,11 +331,13 @@ public class WebBaseSubmitLink extends SubmitLink
 	 */
 	private Border border;
 
+	@Override
 	public void setBorder(Border border)
 	{
 		this.border = border;
 	}
 
+	@Override
 	public Border getBorder()
 	{
 		return border;
@@ -619,6 +347,7 @@ public class WebBaseSubmitLink extends SubmitLink
 	/*
 	 * opaque---------------------------------------------------
 	 */
+	@Override
 	public void setOpaque(boolean opaque)
 	{
 		this.opaque = opaque;
@@ -626,6 +355,7 @@ public class WebBaseSubmitLink extends SubmitLink
 
 	private boolean opaque;
 
+	@Override
 	public boolean isOpaque()
 	{
 		return opaque;
@@ -644,6 +374,7 @@ public class WebBaseSubmitLink extends SubmitLink
 
 	private String tooltip;
 
+	@Override
 	public void setToolTipText(String tooltip)
 	{
 		if (Utils.stringIsEmpty(tooltip))
@@ -659,13 +390,9 @@ public class WebBaseSubmitLink extends SubmitLink
 	/**
 	 * @see com.servoy.j2db.ui.IComponent#getToolTipText()
 	 */
+	@Override
 	public String getToolTipText()
 	{
-		if (tooltip != null && getDefaultModel() instanceof ITagResolver)
-		{
-			final ITagResolver resolver = (ITagResolver)getDefaultModel();
-			return Text.processTags(tooltip, resolver);
-		}
 		return tooltip;
 	}
 
@@ -673,6 +400,7 @@ public class WebBaseSubmitLink extends SubmitLink
 	/*
 	 * font---------------------------------------------------
 	 */
+	@Override
 	public void setFont(Font font)
 	{
 		this.font = font;
@@ -680,6 +408,7 @@ public class WebBaseSubmitLink extends SubmitLink
 
 	private Font font;
 
+	@Override
 	public Font getFont()
 	{
 		return font;
@@ -692,11 +421,13 @@ public class WebBaseSubmitLink extends SubmitLink
 
 	private Color background;
 
+	@Override
 	public void setBackground(Color cbg)
 	{
 		this.background = cbg;
 	}
 
+	@Override
 	public Color getBackground()
 	{
 		return background;
@@ -709,11 +440,13 @@ public class WebBaseSubmitLink extends SubmitLink
 
 	private Color foreground;
 
+	@Override
 	public void setForeground(Color cfg)
 	{
 		this.foreground = cfg;
 	}
 
+	@Override
 	public Color getForeground()
 	{
 		return foreground;
@@ -722,11 +455,13 @@ public class WebBaseSubmitLink extends SubmitLink
 	/*
 	 * visible---------------------------------------------------
 	 */
+	@Override
 	public void setComponentVisible(boolean visible)
 	{
 		setVisible(visible);
 	}
 
+	@Override
 	public void setComponentEnabled(final boolean b)
 	{
 		if (accessible)
@@ -773,11 +508,13 @@ public class WebBaseSubmitLink extends SubmitLink
 		return getLocation().y;
 	}
 
+	@Override
 	public void setLocation(Point location)
 	{
 		this.location = location;
 	}
 
+	@Override
 	public Point getLocation()
 	{
 		return location;
@@ -794,6 +531,7 @@ public class WebBaseSubmitLink extends SubmitLink
 
 	private int mnemonic;
 
+	@Override
 	public Dimension getSize()
 	{
 		return size;
@@ -801,7 +539,7 @@ public class WebBaseSubmitLink extends SubmitLink
 
 	public int getFontSize()
 	{
-		int fontSize = TemplateGenerator.DEFAULT_FONT_SIZE;
+		int fontSize = 11;
 		Font fnt = getFont();
 		if (fnt != null)
 		{
@@ -828,6 +566,7 @@ public class WebBaseSubmitLink extends SubmitLink
 	}
 
 
+	@Override
 	public void setSize(Dimension size)
 	{
 		this.size = size;
@@ -848,47 +587,6 @@ public class WebBaseSubmitLink extends SubmitLink
 	}
 
 	@Override
-	protected void onComponentTag(final ComponentTag tag)
-	{
-		super.onComponentTag(tag);
-
-		boolean useAJAX = Utils.getAsBoolean(application.getRuntimeProperties().get("useAJAX")); //$NON-NLS-1$
-		if (useAJAX)
-		{
-			Object oe = scriptable.getClientProperty("ajax.enabled"); //$NON-NLS-1$
-			if (oe != null) useAJAX = Utils.getAsBoolean(oe);
-		}
-
-		if (!useAJAX)
-		{
-			if (eventExecutor.hasDoubleClickCmd())
-			{
-				CharSequence urld = urlFor(IDoubleClickListener.INTERFACE);
-				tag.put("ondblclick", getForm().getJsForInterfaceUrl(urld)); //$NON-NLS-1$
-			}
-
-			if (eventExecutor.hasRightClickCmd())
-			{
-				CharSequence urlr = urlFor(IRightClickListener.INTERFACE);
-				// We need a "return false;" so that the context menu is not displayed in the browser.
-				tag.put("oncontextmenu", getForm().getJsForInterfaceUrl(urlr) + " return false;"); //$NON-NLS-1$ //$NON-NLS-2$
-			}
-		}
-	}
-
-	public void onDoubleClick()
-	{
-		// If form validation fails, we don't execute the method.
-		if (getForm().process()) eventExecutor.onEvent(EventType.doubleClick, null, this, IEventExecutor.MODIFIERS_UNSPECIFIED);
-	}
-
-	public void onRightClick()
-	{
-		// If form validation fails, we don't execute the method.
-		if (getForm().process()) eventExecutor.onEvent(EventType.rightClick, null, this, IEventExecutor.MODIFIERS_UNSPECIFIED);
-	}
-
-	@Override
 	public String toString()
 	{
 		return scriptable.toString();
@@ -897,26 +595,6 @@ public class WebBaseSubmitLink extends SubmitLink
 	public IEventExecutor getEventExecutor()
 	{
 		return eventExecutor;
-	}
-
-	protected void instrumentAndReplaceBody(MarkupStream markupStream, ComponentTag openTag, CharSequence bodyText)
-	{
-		boolean hasHtmlOrImage = hasHtmlOrImage();
-
-		String cssid = getCSSId();
-		String cssclass = getCSSClass();
-
-		boolean designMode = false;
-		IFormUIInternal< ? > formui = findParent(IFormUIInternal.class);
-		if (formui != null && formui.isDesignMode())
-		{
-			designMode = true;
-		}
-		int anchor = Utils.getAsBoolean(application.getRuntimeProperties().get("enableAnchors")) ? anchors : 0; //$NON-NLS-1$
-		replaceComponentTagBody(markupStream, openTag,
-			WebBaseButton.instrumentBodyText(bodyText, scriptable.trustDataAsHtml(), halign, valign, hasHtmlOrImage, border, margin, cssid,
-				(char)getDisplayedMnemonic(), getMarkupId(), WebBaseButton.getImageDisplayURL(this), size, false, designMode ? null : cursor, isAnchored(),
-				anchor, cssclass, rotation, scriptable.isEnabled(), openTag));
 	}
 
 	protected boolean isAnchored()
@@ -937,24 +615,11 @@ public class WebBaseSubmitLink extends SubmitLink
 
 	protected boolean hasHtmlOrImage()
 	{
-		if (!HtmlUtils.startsWithHtml(getDefaultModelObject()))
+		if (!HtmlUtils.startsWithHtml(getText()))
 		{
-			return WebBaseButton.getImageDisplayURL(this) != null;
+			return false;
 		}
 		return true;
-	}
-
-	@Override
-	protected void onBeforeRender()
-	{
-		super.onBeforeRender();
-
-		if (getCSSId() != null)
-		{
-			WebCellBasedView wcbw = findParent(WebCellBasedView.class);
-			if (wcbw != null) wcbw.addLabelCssClass(getId());
-		}
-		fireOnRender(false);
 	}
 
 	public void fireOnRender(boolean force)
@@ -981,20 +646,6 @@ public class WebBaseSubmitLink extends SubmitLink
 		return mnemonic;
 	}
 
-	public String getParameterValue(String param)
-	{
-		RequestCycle cycle = RequestCycle.get();
-		if (cycle != null)
-		{
-			Request req = cycle.getRequest();
-			if (req != null)
-			{
-				return req.getParameter(param);
-			}
-		}
-		return null;
-	}
-
 	public Object getLabelFor()
 	{
 		return labelForComponent;
@@ -1008,16 +659,6 @@ public class WebBaseSubmitLink extends SubmitLink
 	public MediaResource getIcon()
 	{
 		return icon;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.server.headlessclient.dataui.IImageDisplay#getIconReference()
-	 */
-	public ResourceReference getIconReference()
-	{
-		return iconReference;
 	}
 
 	/*
@@ -1063,16 +704,6 @@ public class WebBaseSubmitLink extends SubmitLink
 	/*
 	 * (non-Javadoc)
 	 *
-	 * @see com.servoy.j2db.server.headlessclient.dataui.IImageDisplay#getRolloverIconReference()
-	 */
-	public ResourceReference getRolloverIconReference()
-	{
-		return rolloverIconReference;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 *
 	 * @see com.servoy.j2db.server.headlessclient.dataui.IImageDisplay#getRolloverMedia()
 	 */
 	public Media getRolloverMedia()
@@ -1093,6 +724,11 @@ public class WebBaseSubmitLink extends SubmitLink
 	public void setAnchors(int arg)
 	{
 		this.anchors = arg;
+	}
+
+	public String getParameterValue(String param)
+	{
+		return null;
 	}
 
 	public ISupportSimulateBounds getBoundsProvider()

@@ -23,10 +23,11 @@ import com.servoy.j2db.solutionmodel.ISMCombobox;
 
 /**
  * Solution model combobox field component.
- * 
+ *
  * @author rgansevles
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
+@Deprecated
 public class JSCombobox extends JSField implements ISMCombobox
 {
 	public JSCombobox(IJSParent< ? > parent, Field field, IApplication application, boolean isNew)

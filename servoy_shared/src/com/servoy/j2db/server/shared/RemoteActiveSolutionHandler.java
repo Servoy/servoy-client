@@ -43,6 +43,7 @@ import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.UIUtils;
 import com.servoy.j2db.util.UIUtils.ThrowingRunnable;
+import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -54,7 +55,7 @@ public class RemoteActiveSolutionHandler extends LocalActiveSolutionHandler
 {
 	public static final String SMARTCLIENT_SHARED_SOLUTION_DIR_PROPERTY_NAME = "servoy.client.shared_solution_dir"; //$NON-NLS-1$
 
-	private final Map<Integer, Long> loadedActiveSolutionUpdateSequences = new HashMap<Integer, Long>(); //solution_id -> asus
+	private final Map<UUID, Long> loadedActiveSolutionUpdateSequences = new HashMap<UUID, Long>(); //solution_id -> asus
 
 	public RemoteActiveSolutionHandler(IApplicationServer as, IServiceProvider sp)
 	{
@@ -64,10 +65,10 @@ public class RemoteActiveSolutionHandler extends LocalActiveSolutionHandler
 	@Override
 	public Solution[] loadActiveSolutions(final RootObjectMetaData[] solutionDefs) throws RepositoryException, RemoteException
 	{
-		final int[] sol_ids = new int[solutionDefs.length];
-		for (int i = 0; i < sol_ids.length; i++)
+		final UUID[] sol_uuids = new UUID[solutionDefs.length];
+		for (int i = 0; i < sol_uuids.length; i++)
 		{
-			sol_ids[i] = solutionDefs[i].getRootObjectId();
+			sol_uuids[i] = solutionDefs[i].getRootObjectUuid();
 		}
 		final Solution[] retval = new Solution[solutionDefs.length];
 
@@ -79,7 +80,7 @@ public class RemoteActiveSolutionHandler extends LocalActiveSolutionHandler
 			{
 				try
 				{
-					long asus[] = getApplicationServer().getActiveRootObjectsLastModified(sol_ids);
+					long asus[] = getApplicationServer().getActiveRootObjectsLastModified(sol_uuids);
 					ConcurrentMap<String, IServer> sps = getRepository().getServerProxies(solutionDefs);
 					for (int i = 0; i < solutionDefs.length; i++)
 					{
@@ -95,7 +96,7 @@ public class RemoteActiveSolutionHandler extends LocalActiveSolutionHandler
 							{
 								s.setRepository(getRepository()); // transient
 							}
-							loadedActiveSolutionUpdateSequences.put(new Integer(s.getSolutionID()), new Long(asus[i]));
+							loadedActiveSolutionUpdateSequences.put(s.getUUID(), new Long(asus[i]));
 							s.setServerProxies(sps);
 						}
 
@@ -144,12 +145,12 @@ public class RemoteActiveSolutionHandler extends LocalActiveSolutionHandler
 				{
 					try
 					{
-						int[] sol_ids = new int[loginSolutionDefinitions.length];
-						for (int i = 0; i < sol_ids.length; i++)
+						UUID[] sol_uuids = new UUID[loginSolutionDefinitions.length];
+						for (int i = 0; i < sol_uuids.length; i++)
 						{
-							sol_ids[i] = loginSolutionDefinitions[i].getRootObjectId();
+							sol_uuids[i] = loginSolutionDefinitions[i].getRootObjectUuid();
 						}
-						long asus[] = getApplicationServer().getActiveRootObjectsLastModified(sol_ids);
+						long asus[] = getApplicationServer().getActiveRootObjectsLastModified(sol_uuids);
 						ConcurrentMap<String, IServer> sps = getRepository().getServerProxies(loginSolutionDefinitions);
 
 						for (int i = 0; i < loginSolutionDefinitions.length; i++)
@@ -166,7 +167,7 @@ public class RemoteActiveSolutionHandler extends LocalActiveSolutionHandler
 								{
 									s.setRepository(getRepository()); // transient
 								}
-								loadedActiveSolutionUpdateSequences.put(new Integer(s.getSolutionID()), new Long(asus[i]));
+								loadedActiveSolutionUpdateSequences.put(s.getUUID(), new Long(asus[i]));
 								s.setServerProxies(sps);
 							}
 
@@ -196,7 +197,7 @@ public class RemoteActiveSolutionHandler extends LocalActiveSolutionHandler
 	private Solution loadCachedSolution(RootObjectMetaData solutionDef, long lastModified, ConcurrentMap<String, IServer> serverProxies)
 	{
 
-		int solID = solutionDef.getRootObjectId();
+		UUID solUUID = solutionDef.getRootObjectUuid();
 		Solution s = null;
 		//try disk load
 		File file = null;
@@ -221,7 +222,7 @@ public class RemoteActiveSolutionHandler extends LocalActiveSolutionHandler
 				if (stored_asus == lastModified)
 				{
 					Solution fileSolution = (Solution)ois.readObject();
-					if (fileSolution.getSolutionID() == solID)//check if same
+					if (solUUID.equals(fileSolution.getUUID()))//check if same
 					{
 						s = fileSolution;
 						s.setServerProxies(serverProxies);
@@ -283,7 +284,7 @@ public class RemoteActiveSolutionHandler extends LocalActiveSolutionHandler
 			J2DBGlobals.CLIENT_LOCAL_DIR);
 		if (!hiddendir.exists()) hiddendir.mkdirs();
 
-		Long asus = loadedActiveSolutionUpdateSequences.get(new Integer(solution.getSolutionID()));
+		Long asus = loadedActiveSolutionUpdateSequences.get(solution.getUUID());
 		File file = new File(hiddendir, name + ".solution"); //$NON-NLS-1$
 		if (!file.exists() && asus != null && asus.longValue() >= 0)
 		{

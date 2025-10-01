@@ -26,32 +26,36 @@ public interface ISupportScrollbars
 	 * Scrollbar options for the vertical and horizontal scrollbars. Each of the
 	 * vertical and horizontal scrollbars can be configured to display all the time,
 	 * to display only when needed or to never display.
+	 *
+	 * @sample
+	 * horizontal : "when needed"
+	 * vertical : "always"
 	 */
 	public int getScrollbars();
 
 	int SCROLLBARS_WHEN_NEEDED = 0;
 
 	/**
-	 * Used to set the vertical scroll bar policy so that 
+	 * Used to set the vertical scroll bar policy so that
 	 * vertical scrollbars are displayed only when needed.
 	 */
 	int VERTICAL_SCROLLBAR_AS_NEEDED = 1;
 
 	/**
-	 * Used to set the vertical scroll bar policy so that 
+	 * Used to set the vertical scroll bar policy so that
 	 * vertical scrollbars are always displayed.
 	 */
 	int VERTICAL_SCROLLBAR_ALWAYS = 2;
 	int VERTICAL_SCROLLBAR_NEVER = 4;
 
 	/**
-	 * Used to set the horizontal scroll bar policy so that 
+	 * Used to set the horizontal scroll bar policy so that
 	 * horizontal scrollbars are displayed only when needed.
 	 */
 	int HORIZONTAL_SCROLLBAR_AS_NEEDED = 8;
 
 	/**
-	 * Used to set the horizontal scroll bar policy so that 
+	 * Used to set the horizontal scroll bar policy so that
 	 * horizontal scrollbars are always displayed.
 	 */
 	int HORIZONTAL_SCROLLBAR_ALWAYS = 16;

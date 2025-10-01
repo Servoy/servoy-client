@@ -16,47 +16,25 @@
  */
 package com.servoy.j2db.server.headlessclient.dataui;
 
-import java.text.ParseException;
-import java.util.Iterator;
-import java.util.List;
-
 import javax.swing.text.Document;
-
-import org.apache.wicket.Component;
-import org.apache.wicket.Page;
-import org.apache.wicket.markup.ComponentTag;
-import org.apache.wicket.markup.MarkupStream;
-import org.apache.wicket.markup.html.IHeaderContributor;
-import org.apache.wicket.markup.html.IHeaderResponse;
-import org.apache.wicket.model.IComponentInheritedModel;
-import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.IWrapModel;
-import org.apache.wicket.util.convert.IConverter;
-import org.apache.wicket.util.value.IValueMap;
 
 import com.servoy.base.util.ITagResolver;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.component.ComponentFormat;
 import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.dataprocessing.IEditListener;
-import com.servoy.j2db.dataprocessing.TagResolver;
-import com.servoy.j2db.server.headlessclient.MainPage;
-import com.servoy.j2db.server.headlessclient.dataui.StripHTMLTagsConverter.StrippedText;
 import com.servoy.j2db.ui.IDisplayTagText;
 import com.servoy.j2db.ui.scripting.AbstractRuntimeBaseComponent;
 import com.servoy.j2db.ui.scripting.IFormatScriptComponent;
-import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.HtmlUtils;
 import com.servoy.j2db.util.Text;
 import com.servoy.j2db.util.Utils;
-import com.servoy.j2db.util.text.ServoyMaskFormatter;
 
 /**
  * Represents a label in the browser that displays data (has a dataprovider) and on on action event.
  *
  * @author jcompagner
  */
-public class WebDataSubmitLink extends WebBaseSubmitLink implements IDisplayData, IDisplayTagText, IHeaderContributor
+public class WebDataSubmitLink extends WebBaseSubmitLink implements IDisplayData, IDisplayTagText
 {
 	private static final long serialVersionUID = 1L;
 
@@ -70,7 +48,6 @@ public class WebDataSubmitLink extends WebBaseSubmitLink implements IDisplayData
 	private String inputId;
 	private boolean hasHTML;
 
-	private StrippedText strippedText = new StripHTMLTagsConverter.StrippedText();
 	protected ITagResolver resolver;
 	private String bodyText;
 
@@ -86,157 +63,9 @@ public class WebDataSubmitLink extends WebBaseSubmitLink implements IDisplayData
 		//ignore, we don't want a model as created in super class, but data from record
 	}
 
-	@Override
-	protected IModel< ? > initModel()
-	{
-
-		// Search parents for CompoundPropertyModel
-		for (Component current = getParent(); current != null; current = current.getParent())
-		{
-			// Get model
-			IModel< ? > model = current.getDefaultModel();
-
-			if (model instanceof IWrapModel< ? >)
-			{
-				model = ((IWrapModel< ? >)model).getWrappedModel();
-			}
-
-			if (model instanceof IComponentInheritedModel< ? >)
-			{
-				// we turn off versioning as we share the model with another
-				// ct that is the owner of the model (that component
-				// has to decide whether to version or not
-				setVersioned(false);
-
-				// return the shared inherited
-				model = ((IComponentInheritedModel< ? >)model).wrapOnInheritance(this);
-				return model;
-			}
-		}
-
-		// No model for this component!
-		return null;
-	}
-
-	@Override
-	public IConverter getConverter(Class< ? > cls)
-	{
-		return getApplication().getConverterLocator().getConverter(cls);
-	}
-
 	public void setTagResolver(ITagResolver resolver)
 	{
 		this.resolver = resolver;
-	}
-
-	/**
-	 * @see org.apache.wicket.markup.html.link.AbstractLink#onBeforeRender()
-	 */
-	@Override
-	protected void onBeforeRender()
-	{
-		super.onBeforeRender();
-
-		strippedText = new StripHTMLTagsConverter.StrippedText();
-
-		IModel< ? > model = getInnermostModel();
-		hasHTML = false;
-
-		bodyText = null;
-		if (needEntireState && model instanceof RecordItemModel)
-		{
-			if (dataProviderID != null)
-			{
-				Object value = getDefaultModelObject();
-				if (value instanceof byte[])
-				{
-					setIcon((byte[])value);
-					if (model instanceof RecordItemModel)
-					{
-						((RecordItemModel)model).updateRenderedValue(this);
-					}
-					return;
-				}
-				if (icon != null) setIcon(null);
-				if (value instanceof String)
-				{
-					ComponentFormat cf = getComponentFormat();
-					if (cf == null)
-					{
-						bodyText = Text.processTags((String)value, resolver);
-					}
-					else
-					{
-						try
-						{
-							bodyText = Text.processTags(
-								TagResolver.formatObject(value, application.getLocale(), cf.parsedFormat,
-									(cf.parsedFormat.getDisplayFormat() != null ? new ServoyMaskFormatter(cf.parsedFormat.getDisplayFormat(), true) : null)),
-								resolver);
-						}
-						catch (ParseException e)
-						{
-							Debug.error(e);
-						}
-					}
-
-				}
-				else
-				{
-					bodyText = getDefaultModelObjectAsString();
-				}
-			}
-			else
-			{
-				bodyText = Text.processTags(tagText, resolver);
-			}
-		}
-		else
-		{
-			Object modelObject = getDefaultModelObject();
-			if (modelObject instanceof byte[])
-			{
-				setIcon((byte[])modelObject);
-			}
-			else if (icon != null)
-			{
-				setIcon(null);
-			}
-			else
-			{
-				ComponentFormat cf = getComponentFormat();
-				if (cf == null)
-				{
-					bodyText = Text.processTags(getDefaultModelObjectAsString(), resolver);
-				}
-				else
-				{
-					try
-					{
-						bodyText = TagResolver.formatObject(modelObject, application.getLocale(), cf.parsedFormat,
-							(cf.parsedFormat.getDisplayFormat() != null ? new ServoyMaskFormatter(cf.parsedFormat.getDisplayFormat(), true) : null));
-					}
-					catch (ParseException e)
-					{
-						Debug.error(e);
-					}
-				}
-			}
-		}
-		if (HtmlUtils.startsWithHtml(bodyText))
-		{
-			strippedText = StripHTMLTagsConverter.convertBodyText(this, bodyText, getScriptObject().trustDataAsHtml(), application.getFlattenedSolution());
-			hasHTML = true;
-		}
-		else
-		{
-			strippedText.setBodyTxt(bodyText);
-		}
-
-		if (model instanceof RecordItemModel)
-		{
-			((RecordItemModel)model).updateRenderedValue(this);
-		}
 	}
 
 	protected ComponentFormat getComponentFormat()
@@ -248,105 +77,23 @@ public class WebDataSubmitLink extends WebBaseSubmitLink implements IDisplayData
 		return null;
 	}
 
-	/**
-	 * @see org.apache.wicket.markup.html.IHeaderContributor#renderHead(org.apache.wicket.markup.html.IHeaderResponse)
-	 */
-	public void renderHead(IHeaderResponse response)
-	{
-		List<CharSequence> lst = strippedText.getJavascriptUrls();
-		for (int i = 0; i < lst.size(); i++)
-		{
-			response.renderJavascriptReference(lst.get(i).toString());
-		}
-		lst = strippedText.getJavascriptScripts();
-		for (int i = 0; i < lst.size(); i++)
-		{
-			response.renderJavascript(lst.get(i), "js_" + getMarkupId() + lst.get(i).hashCode()); //$NON-NLS-1$
-		}
-		lst = strippedText.getLinkTags();
-		for (int i = 0; i < lst.size(); i++)
-		{
-			response.renderString(lst.get(i));
-		}
-
-		lst = strippedText.getStyles();
-		for (CharSequence style : lst)
-		{
-			response.renderString(CSS_OPEN_TAG + style + CSS_CLOSE_TAG);
-		}
-		IValueMap map = strippedText.getBodyAttributes();
-		if (map != null && map.size() > 0)
-		{
-			String onLoad = null;
-			Iterator<String> iterator = map.keySet().iterator();
-			while (iterator.hasNext())
-			{
-				String attributeName = iterator.next();
-				if (attributeName.equalsIgnoreCase("onload")) //$NON-NLS-1$
-				{
-					onLoad = map.getString(attributeName);
-					iterator.remove();
-					break;
-				}
-			}
-			if (onLoad != null)
-			{
-				response.renderOnLoadJavascript(onLoad);
-			}
-			Page findPage = findPage();
-			if (findPage instanceof MainPage)
-			{
-				((MainPage)findPage).addBodyAttributes(map);
-			}
-		}
-	}
-
-	/**
-	 * @see com.servoy.j2db.server.headlessclient.dataui.WebBaseSubmitLink#onComponentTagBody(wicket.markup.MarkupStream, wicket.markup.ComponentTag)
-	 */
-	@Override
-	protected void onComponentTagBody(MarkupStream markupStream, ComponentTag openTag)
-	{
-		CharSequence bodyText = strippedText.getBodyTxt();
-		instrumentAndReplaceBody(markupStream, openTag, bodyText);
-	}
 
 	@Override
 	protected boolean hasHtmlOrImage()
 	{
-		return hasHTML || super.hasHtmlOrImage() || getDefaultModelObject() instanceof byte[];
+		return hasHTML || super.hasHtmlOrImage();
 	}
 
 	@Override
 	protected CharSequence getBodyText()
 	{
-		return strippedText.getBodyTxt();
+		return null;
 	}
 
-	/**
-	 * @see wicket.markup.html.form.FormComponent#getInputName()
-	 */
-	@Override
-	public String getInputName()
-	{
-		if (inputId == null)
-		{
-			Page page = findPage();
-			if (page instanceof MainPage)
-			{
-				inputId = ((MainPage)page).nextInputNameId();
-			}
-			else
-			{
-				return super.getInputName();
-			}
-		}
-		return inputId;
-	}
 
 	public Object getValueObject()
 	{
-		return getDefaultModelObject();
+		return null;
 	}
 
 	public void setValueObject(Object value)

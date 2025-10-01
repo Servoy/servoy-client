@@ -36,6 +36,7 @@ import org.mozilla.javascript.BaseFunction;
 import org.mozilla.javascript.Callable;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
+import org.mozilla.javascript.NativeArray;
 import org.mozilla.javascript.NativeJavaArray;
 import org.mozilla.javascript.NativeJavaMethod;
 import org.mozilla.javascript.ScriptRuntime;
@@ -67,11 +68,33 @@ import com.servoy.j2db.util.WrappedObjectReference;
 
 
 /**
- * Scriptable dataset wrapper
+ * <p>
+ * A <code>JSDataSet</code> is a runtime object in Servoy designed to work with data organized in rows
+ * and columns. Unlike foundsets, it operates independently of persistent datasources, allowing developers
+ * to create and manipulate temporary datasets dynamically. This flexibility makes it ideal for handling
+ * transient data at runtime without requiring direct database connectivity.
+ * </p>
+ *
+ * <h2>Core Functionality</h2>
+ * <p>
+ * The <code>JSDataSet</code> supports a range of operations for managing data. Developers can add, remove,
+ * and retrieve rows and columns or set specific values within the dataset. For enhanced usability, the object
+ * provides methods to sort rows by column values or through custom comparator functions, enabling advanced
+ * data handling logic. Additionally, the dataset can be exported into formats such as HTML tables or delimited
+ * text, supporting customized data representation and integration with other Servoy features.
+ * </p>
+ *
+ * <p>
+ * Temporary datasources can also be created from datasets, allowing them to be reused in forms, scripts,
+ * or even foundsets. This capability ensures the flow between runtime data generation and persistent
+ * application components. The <code>JSDataSet</code> is particularly effective for scenarios requiring transient
+ * data manipulation, such as on-the-fly calculations or data processing pipelines.
+ * </p>
+ *
  * @author jblok
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "JSDataSet")
-public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, SymbolScriptable, Serializable, IJSDataSet
+public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, SymbolScriptable, Serializable, IJSDataSet, Iterable
 {
 	private static final long serialVersionUID = 1L;
 
@@ -80,7 +103,7 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Symb
 	private static JSDataSet prototype = new JSDataSet();
 
 	private static Callable symbol_iterator = (Context cx, Scriptable scope, Scriptable thisObj, Object[] args) -> {
-		return new IterableES6Iterator(scope, ((JSDataSet)thisObj).set.getRows());
+		return new IterableES6Iterator(scope, (JSDataSet)thisObj);
 	};
 
 	private IDataSetWithIndex set;
@@ -212,6 +235,8 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Symb
 	 * dataset.rowIndex = 1 //sets the rowIndex to the first row (dataset is 1-based)
 	 * //to retrieve the rowIndex of the currently selected row
 	 * var currRow = dataset.rowIndex
+	 *
+	 * @return The current row index, starting from 1, or -1 if no row is selected.
 	 */
 	public int js_getRowIndex()
 	{
@@ -572,6 +597,30 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Symb
 			if (index > 0 && index <= set.getRowCount())
 			{
 				return set.getRow(index - 1);
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Get the row data of a dataset as an Array that can also retrieve data by column name.
+	 *
+	 * @sample
+	 * //assuming the variable dataset contains a dataset
+	 * var dataArray = dataset.getRowObject(1); //puts the contents from the first row of the dataset into an array
+	 * //use dataArray[index] or dataArray.columnName
+	 *
+	 * @param index index of row (1-based).
+	 *
+	 * @return NativeArray array of data.
+	 */
+	public NativeArray js_getRowObject(int index)
+	{
+		if (set != null)
+		{
+			if (index > 0 && index <= set.getRowCount())
+			{
+				return wrapRowObject(set.getRow(index - 1));
 			}
 		}
 		return null;
@@ -1403,7 +1452,7 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Symb
 			{
 				if (set == null || set.getRowIndex() <= 0 || set.getRowIndex() > set.getRowCount())
 				{
-					return null;
+					return Scriptable.NOT_FOUND;
 				}
 				Object[] array = set.getRow(set.getRowIndex() - 1);
 				int index = iindex.intValue();
@@ -1465,7 +1514,7 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Symb
 					return array[index - 1];
 				}
 			}
-			else
+			else if (index >= 0 && index < set.getRowCount())
 			{
 				Object[] array = set.getRow(index);
 				if (array != null)
@@ -1491,7 +1540,7 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Symb
 				}
 			}
 		}
-		return null;
+		return Scriptable.NOT_FOUND;
 	}
 
 	private void makeColumnMap()
@@ -1677,6 +1726,63 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Symb
 	public void delete(Symbol key)
 	{
 
+	}
+
+	private NativeArray wrapRowObject(Object[] data)
+	{
+		if (columnameMap == null)
+		{
+			makeColumnMap();
+		}
+		NativeArray array = new NativeArray(data);
+		for (String name : columnameMap.keySet())
+		{
+			Integer iindex = columnameMap.get(name);
+			if (iindex != null)
+			{
+				int columnIndex = iindex.intValue();
+				if (columnIndex > 0 && columnIndex <= data.length)
+				{
+					array.put(name, array, data[columnIndex - 1]);
+				}
+			}
+		}
+		return array;
+	}
+
+	@Override
+	public Iterator<NativeArray> iterator()
+	{
+		return new JSDataSetIterator();
+	}
+
+	private class JSDataSetIterator implements Iterator<NativeArray>
+	{
+
+		private final Iterator<Object[]> iterator;
+
+		public JSDataSetIterator()
+		{
+			this.iterator = JSDataSet.this.set.getRows().iterator();
+		}
+
+		@Override
+		public boolean hasNext()
+		{
+			return this.iterator.hasNext();
+		}
+
+		@Override
+		public NativeArray next()
+		{
+			return JSDataSet.this.wrapRowObject(this.iterator.next());
+		}
+
+		@Override
+		public void remove()
+		{
+			throw new UnsupportedOperationException();
+		}
 	}
 
 	private class DataModel extends AbstractTableModel

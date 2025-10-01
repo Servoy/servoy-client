@@ -24,11 +24,11 @@ import com.servoy.j2db.persistence.Part;
 
 /**
  * Dummy class for use in the documentation generator.
- * 
+ *
  * @author rgansevles
  */
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "Header", scriptingName = "Header", realClass = Part.class, typeCode = IRepository.PARTS)
-@ServoyClientSupport(mc = true, wc = false, sc = false)
+@ServoyClientSupport(mc = true, wc = false, sc = false, ng = false)
 public class DocsHeader extends BaseDocsPart
 {
 

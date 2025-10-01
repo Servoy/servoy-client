@@ -26,6 +26,7 @@ import com.servoy.j2db.IFormController;
 import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.plugins.ClientPluginAccessProvider;
 import com.servoy.j2db.plugins.IClientPluginAccess;
+import com.servoy.j2db.util.Debug;
 
 /**
  * Function definition, use to retrieve form and method name from a javascript Function object
@@ -38,6 +39,7 @@ public class FunctionDefinition
 {
 	private String contextName; // form name or sopes.scopeName
 	private String methodName;
+	private Function function;
 
 	public FunctionDefinition() // for bean xml serialization
 	{
@@ -128,7 +130,9 @@ public class FunctionDefinition
 
 		if (this.methodName == null)
 		{
-			throw new IllegalArgumentException("Method/Function is not a servoy method"); //$NON-NLS-1$
+			function = f;
+			methodName = ""; //$NON-NLS-1$
+			contextName = ""; //$NON-NLS-1$
 		}
 	}
 
@@ -297,16 +301,54 @@ public class FunctionDefinition
 	@SuppressWarnings("nls")
 	private Object exec(IClientPluginAccess access, Object[] arguments, boolean async)
 	{
-		try
+		if (function != null)
 		{
-			return access.executeMethod(contextName, methodName, arguments, async);
+			IApplication application = ((ClientPluginAccessProvider)access).getApplication();
+			if (async)
+			{
+				application.invokeLater(() -> {
+					try
+					{
+						application.getScriptEngine().executeFunction(function, function.getParentScope(), function.getParentScope(),
+							arguments, false, false);
+					}
+					catch (Exception e)
+					{
+						Debug.error(e);
+					}
+				});
+				return null;
+			}
+			else
+			{
+				Object[] retValue = new Object[1];
+				application.invokeAndWait(() -> {
+					try
+					{
+						retValue[0] = application.getScriptEngine().executeFunction(function, function.getParentScope(), function.getParentScope(),
+							arguments, false, false);
+					}
+					catch (Exception e)
+					{
+						Debug.error(e);
+					}
+				});
+				return retValue[0];
+			}
 		}
-		catch (Exception e)
+		else
 		{
-			access.handleException(
-				"Failed to execute the method of context " + contextName + " and name " + methodName + " on the solution " + access.getSolutionName(), e);
+			try
+			{
+				return access.executeMethod(contextName, methodName, arguments, async);
+			}
+			catch (Exception e)
+			{
+				access.handleException(
+					"Failed to execute the method of context " + contextName + " and name " + methodName + " on the solution " + access.getSolutionName(), e);
+			}
+			return null;
 		}
-		return null;
 	}
 
 

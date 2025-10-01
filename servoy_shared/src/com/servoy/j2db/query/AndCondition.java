@@ -16,6 +16,8 @@
  */
 package com.servoy.j2db.query;
 
+import static com.servoy.j2db.query.BooleanCondition.FALSE_CONDITION;
+import static com.servoy.j2db.query.BooleanCondition.TRUE_CONDITION;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonMap;
 import static java.util.stream.Collectors.toList;
@@ -79,6 +81,7 @@ public final class AndCondition extends AndOrCondition
 		return new OrCondition(nconditions);
 	}
 
+
 	/**
 	 * Combine 2 conditions in an AndCondition.
 	 * @param c1
@@ -87,13 +90,17 @@ public final class AndCondition extends AndOrCondition
 	 */
 	public static ISQLCondition and(ISQLCondition c1, ISQLCondition c2)
 	{
-		if (c1 == null)
+		if (c1 == null || TRUE_CONDITION.equals(c1))
 		{
 			return c2;
 		}
-		if (c2 == null)
+		if (c2 == null || TRUE_CONDITION.equals(c2))
 		{
 			return c1;
+		}
+		if (FALSE_CONDITION.equals(c1) || FALSE_CONDITION.equals(c2))
+		{
+			return FALSE_CONDITION;
 		}
 		AndCondition and = new AndCondition();
 		and.addCondition(c1);

@@ -22,7 +22,7 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.IPrefixedConstantsObject;
 
 /**
- * Script constants for SQL data manipulation actions.
+ * <p>The <code>SQL_ACTION_TYPES</code> class defines script constants for SQL data manipulation actions.</p>
  *
  * @author gerzse
  */

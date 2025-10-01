@@ -20,8 +20,10 @@ import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
 
 /**
- * Dummy class for listing methods for JavaScript types in a manner that
- * suits our documentation generator.
+ * The Object type is used to store various keyed collections and more complex entities.<br/>
+ * Nearly all objects in JavaScript are instances of Object.<br/><br/>
+ *
+ * For more information see: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object">Object (MDN)</a>.
  *
  * @author gerzse
  */
@@ -521,5 +523,27 @@ public class Object
 	public Object js_seal(Object object)
 	{
 		return null;
+	}
+
+	/**
+	 * Sets the prototype of a specified object to another object or null.
+	 *
+	 * @sample
+	 * const obj = {};
+	 * const parent = { foo: 'bar' };
+	 *
+	 * application.output(obj.foo);
+	 * // Expected output: undefined
+	 * Object.setPrototypeOf(obj, parent);
+	 * application.output(obj.foo);
+	 * // Expected output: "bar"
+	 *
+	 * @param obj The object which is to have its prototype set.
+	 * @param prototype The object's new prototype (an object or null).
+	 *
+	 * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/setPrototypeOf
+	 */
+	public void js_setPrototypeOf(Object obj, Object prototype)
+	{
 	}
 }

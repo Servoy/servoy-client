@@ -19,6 +19,7 @@ package com.servoy.j2db.scripting.solutionmodel;
 import java.io.CharArrayReader;
 
 import org.mozilla.javascript.CompilerEnvirons;
+import org.mozilla.javascript.Context;
 import org.mozilla.javascript.EcmaError;
 import org.mozilla.javascript.ErrorReporter;
 import org.mozilla.javascript.EvaluatorException;
@@ -43,6 +44,23 @@ import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.UUID;
 
 /**
+ * The <code>JSMethod</code> scripting wrapper provides tools for managing and interacting with solution model script methods in Servoy.
+ * It includes properties and methods that allow customization of script behavior, source code, and visibility in the client interface.
+ *
+ * <h2>Functionality</h2>
+ * <p>The <code>code</code> property stores the full source code of a method, including its documentation and declaration.
+ * It supports dynamic updates, enabling modifications to method functionality at runtime.
+ * The <code>showInMenu</code> property determines whether a method is displayed in the "Methods" menu of the Servoy Client, allowing developers to manage method visibility.</p>
+ *
+ * <p>Several methods enhance interaction with script methods.
+ * <code>getArguments</code> retrieves an array of arguments set for a method, which is useful for analyzing and reconfiguring parameterized actions.
+ * <code>getName</code> provides the name of the method, while <code>getScopeName</code> returns the associated scope, useful for organizing global or local method interactions.
+ * <code>getUUID</code> returns the universally unique identifier of the method object, aiding in identifying and managing methods programmatically.</p>
+ *
+ * <p>These capabilities make JSMethod a versatile component for customizing and extending script-based behavior in Servoy applications.</p>
+ *
+ * <p>For details read the<a href="https://docs.servoy.com/reference/servoycore/object-model/database-server/table/method">Method</a> section of this documentation</p>
+ *
  * @author jcompagner
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "JSMethod")
@@ -113,6 +131,8 @@ public class JSMethod implements IJavaScriptType, ISMMethod
 	 * @clonedesc com.servoy.j2db.persistence.AbstractScriptProvider#getDeclaration()
 	 *
 	 * @sampleas com.servoy.j2db.solutionmodel.ISMMethod#getShowInMenu()
+	 *
+	 * @return The declaration code of the script method.
 	 */
 	@JSGetter
 	public String getCode()
@@ -174,6 +194,8 @@ public class JSMethod implements IJavaScriptType, ISMMethod
 	 * var methods = solutionModel.getGlobalMethods();
 	 * for (var x in methods)
 	 * 	application.output(methods[x].getName() + ' is defined in scope ' + methods[x].getScopeName());
+	 *
+	 * @return The scope name in which the method is defined.
 	 */
 	@JSFunction
 	public String getScopeName()
@@ -186,6 +208,8 @@ public class JSMethod implements IJavaScriptType, ISMMethod
 	 * @clonedesc com.servoy.j2db.persistence.ScriptMethod#getShowInMenu()
 	 *
 	 * @sampleas com.servoy.j2db.scripting.solutionmodel.JSMethod#getCode()
+	 *
+	 * @return True if the method is shown in the menu; false otherwise.
 	 */
 	@JSGetter
 	public boolean getShowInMenu()
@@ -233,6 +257,8 @@ public class JSMethod implements IJavaScriptType, ISMMethod
 	 * @sample
 	 * var method = form.newMethod('function original() { application.output("Original function."); }');
 	 * application.output(method.getUUID().toString());
+	 *
+	 * @return The UUID of the method object.
 	 */
 	@JSFunction
 	public UUID getUUID()
@@ -265,11 +291,12 @@ public class JSMethod implements IJavaScriptType, ISMMethod
 	static String parseName(String content)
 	{
 		CompilerEnvirons cenv = new CompilerEnvirons();
+		cenv.setLanguageVersion(Context.VERSION_ES6);
 		Parser parser = new Parser(cenv, new JSErrorReporter());
 		try
 		{
 			AstRoot parse = parser.parse(new CharArrayReader(content.toCharArray()), "", 0); //$NON-NLS-1$
-			new IRFactory(cenv, new JSErrorReporter()).transformTree(parse);
+			new IRFactory(cenv, "", content, new JSErrorReporter()).transformTree(parse);
 
 			int functionCount = parse.getFunctionCount();
 			if (functionCount != 1) throw new RuntimeException("Only 1 function is allowed, found: " + functionCount + " when setting code of a method"); //$NON-NLS-1$ //$NON-NLS-2$

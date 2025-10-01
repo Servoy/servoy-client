@@ -18,8 +18,10 @@ package com.servoy.j2db.scripting;
 
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.dltk.rhino.dbgp.ContextualScope;
 import org.mozilla.javascript.Callable;
@@ -32,6 +34,7 @@ import org.mozilla.javascript.Wrapper;
 import com.servoy.base.persistence.IBaseColumn;
 import com.servoy.j2db.ExitScriptException;
 import com.servoy.j2db.FormController.RuntimeSupportScriptProviders;
+import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IFormController;
 import com.servoy.j2db.persistence.AggregateVariable;
 import com.servoy.j2db.persistence.Column;
@@ -45,8 +48,10 @@ import com.servoy.j2db.persistence.ScriptCalculation;
 import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.persistence.Table;
+import com.servoy.j2db.scripting.info.EventType;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IDestroyable;
+import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -86,7 +91,7 @@ public class FormScope extends ScriptVariableScope implements Wrapper, Contextua
 	@Override
 	public String getScopeName()
 	{
-		return _fp.getName();
+		return formName;
 	}
 
 	public void createVars()
@@ -108,20 +113,11 @@ public class FormScope extends ScriptVariableScope implements Wrapper, Contextua
 	{
 		if (extendScopes.length > 0)
 		{
-			for (int i = 0; i < extendScopes.length; i++)
+			for (LazyCompilationScope extendScope : extendScopes)
 			{
-				if (extendScopes[i].getScriptLookup().getScriptMethod(sp.getID()) != null)
+				if (extendScope.getScriptLookup().getScriptMethod(sp.getName()) != null)
 				{
-					if (i + 1 < extendScopes.length)
-					{
-						// the super scope is the next extend scope
-						return extendScopes[i + 1];
-					}
-					else
-					{
-						// if this was the last extendScope then the script doesn't have a super
-						return null;
-					}
+					return extendScope;
 				}
 			}
 			// if not found then the script method resides in the sup (FlattenedForm) itself
@@ -141,14 +137,14 @@ public class FormScope extends ScriptVariableScope implements Wrapper, Contextua
 	}
 
 	@Override
-	public String getFunctionName(Integer id)
+	public String getFunctionName(UUID uuid)
 	{
-		String name = super.getFunctionName(id);
+		String name = super.getFunctionName(uuid);
 		if (name == null)
 		{
 			for (LazyCompilationScope element : extendScopes)
 			{
-				name = element.getFunctionName(id);
+				name = element.getFunctionName(uuid);
 				if (name != null) break;
 			}
 		}
@@ -166,11 +162,39 @@ public class FormScope extends ScriptVariableScope implements Wrapper, Contextua
 	@Override
 	public void reload()
 	{
+		IApplication application = _fp.getApplication();
+		Map<String, Object> eventMethods = _fp.getForm().getCustomEventsMethods();
+		Map<String, EventType> toRegister = new HashMap<>();
+		for (String eventName : eventMethods.keySet())
+		{
+			EventType eventType = application.getFlattenedSolution().getEventType(eventName);
+			if (eventType != null)
+			{
+				Object eventUUID = eventMethods.get(eventName);
+				if (eventUUID != null)
+				{
+					ScriptMethod scriptMethod = application.getFlattenedSolution().getScriptMethod(eventUUID.toString());
+					if (scriptMethod != null && scriptMethod.getParent() instanceof Form)
+					{
+						Function function = getFunctionByName(scriptMethod.getName());
+						application.getEventsManager().removeListener(eventType, function, IExecutingEnviroment.TOPLEVEL_FORMS + '.' + _fp.getName());
+						toRegister.put(scriptMethod.getName(), eventType);
+					}
+				}
+			}
+		}
 		super.reload();
 		for (LazyCompilationScope extendScope : extendScopes)
 		{
 			extendScope.reload();
 		}
+		toRegister.forEach((name, eventType) -> {
+			Function function = getFunctionByName(name);
+			if (function != null)
+			{
+				application.getEventsManager().addListener(eventType, function, IExecutingEnviroment.TOPLEVEL_FORMS + '.' + _fp.getName());
+			}
+		});
 	}
 
 	@Override
@@ -195,7 +219,8 @@ public class FormScope extends ScriptVariableScope implements Wrapper, Contextua
 		if (_fp == null)
 		{
 			Debug.warn("Error accessing a form " + formName + "  that is already destroyed for getting: " + name);
-			throw new ExitScriptException("Form scope already destroyed, throwing ExitScriptException to kill the execution on this scope");
+			throw new ExitScriptException("Form scope already destroyed of form " + formName + " for getting: " + name +
+				", throwing ExitScriptException to kill the execution on this scope");
 		}
 
 		_fp.touch();
@@ -432,7 +457,24 @@ public class FormScope extends ScriptVariableScope implements Wrapper, Contextua
 		@Override
 		protected Scriptable getFunctionSuper(IScriptProvider sp)
 		{
-			return FormScope.this.getFunctionSuper(sp);
+			if (extendScopes.length > 0)
+			{
+				boolean found = false;
+				// find next extend scope that has the method.
+				for (LazyCompilationScope extendScope : extendScopes)
+				{
+					if (extendScope == this)
+					{
+						found = true;
+						continue;
+					}
+					if (found && extendScope.getScriptLookup().getScriptMethod(sp.getName()) != null)
+					{
+						return extendScope;
+					}
+				}
+			}
+			return null;
 		}
 
 		/*
@@ -573,6 +615,7 @@ public class FormScope extends ScriptVariableScope implements Wrapper, Contextua
 		}
 
 	}
+
 }
 
 class FormScopeWrapper implements Callable

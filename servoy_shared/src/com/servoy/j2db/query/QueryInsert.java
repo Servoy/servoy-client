@@ -59,13 +59,13 @@ public class QueryInsert extends AbstractBaseQuery implements ISQLUpdate
 		{
 			if (columns[i].getName().equals(column.getName()))
 			{
-				if (values instanceof Placeholder && ((Placeholder)values).isSet() && ((Placeholder)values).getValue() instanceof Object[])
+				if (values instanceof Placeholder placeholder && placeholder.isSet() && placeholder.getRawValue() instanceof Object[] valuesArray)
 				{
-					((Placeholder)values).setValue(removeItem((Object[])((Placeholder)values).getValue(), i));
+					placeholder.setValue(removeItem(valuesArray, i));
 				}
-				else if (values instanceof Object[])
+				else if (values instanceof Object[] array)
 				{
-					values = removeItem((Object[])values, i);
+					values = removeItem(array, i);
 				}
 				columns = (QueryColumn[])removeItem(columns, i);
 				return true;

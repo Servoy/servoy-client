@@ -357,9 +357,13 @@ public final class Settings extends SortedProperties
 					replacement = System.getenv(keyToSubstitute);
 				}
 
-				if (!Utils.stringIsEmpty(replacement))
+				if (replacement != null)
 				{
 					buffer.append(replacement);
+				}
+				else
+				{
+					buffer.append(START_DELIMITER).append(keyToSubstitute).append(STOP_DELIMITER);
 				}
 			}
 			position = endDelimiterIndex + STOP_DELIMITER_LENGTH;

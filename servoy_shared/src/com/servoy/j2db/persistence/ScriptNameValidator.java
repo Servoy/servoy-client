@@ -23,6 +23,7 @@ import java.util.List;
 
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.keyword.Ident;
 
@@ -46,7 +47,7 @@ public class ScriptNameValidator implements IValidateName
 	/**
 	 * skip_element_id is used in case of a rename
 	 */
-	public void checkName(String nameToCheck, int skip_element_id, ValidatorSearchContext searchContext, boolean sqlRelated) throws RepositoryException
+	public void checkName(String nameToCheck, UUID skip_element_uuid, ValidatorSearchContext searchContext, boolean sqlRelated) throws RepositoryException
 	{
 		List<String> warnings = new ArrayList<>();
 		if (nameToCheck == null || nameToCheck.length() == 0)
@@ -94,7 +95,7 @@ public class ScriptNameValidator implements IValidateName
 				warnings.add(nameToCheck + " is a reserved window object word in the (mobile)browser"); //$NON-NLS-1$
 		}
 
-		Object obj = findDuplicate(nameToCheck, skip_element_id, searchContext);
+		Object obj = findDuplicate(nameToCheck, skip_element_uuid, searchContext);
 		if (obj instanceof ScriptVariable)
 		{
 			if (searchContext.getObject() instanceof Form)
@@ -150,6 +151,10 @@ public class ScriptNameValidator implements IValidateName
 		{
 			warnings.add("The name '" + nameToCheck + "' already exists as a valuelist"); //$NON-NLS-1$ //$NON-NLS-2$
 		}
+		if (obj instanceof Menu)
+		{
+			warnings.add("The name '" + nameToCheck + "' already exists as a menu"); //$NON-NLS-1$ //$NON-NLS-2$
+		}
 		if (obj instanceof IFormElement)
 		{
 			warnings.add("The element '" + nameToCheck + "' already exists on the form"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -165,6 +170,10 @@ public class ScriptNameValidator implements IValidateName
 		if (obj instanceof LayoutContainer)
 		{
 			warnings.add("The layout container '" + nameToCheck + "' already exists on the form"); //$NON-NLS-1$ //$NON-NLS-2$
+		}
+		if (obj instanceof MenuItem)
+		{
+			warnings.add("The menu item '" + nameToCheck + "' already exists"); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 
 		if (!warnings.isEmpty())
@@ -210,7 +219,7 @@ public class ScriptNameValidator implements IValidateName
 		return null;
 	}
 
-	public Object findDuplicate(final String nameToCheck, final int skip_element_id, ValidatorSearchContext searchContext) throws RepositoryException
+	public Object findDuplicate(final String nameToCheck, final UUID skip_element_UUID, ValidatorSearchContext searchContext) throws RepositoryException
 	{
 		if (solutionRoot == null)
 		{
@@ -218,7 +227,7 @@ public class ScriptNameValidator implements IValidateName
 		}
 		if (nameToCheck == null)
 		{
-			Debug.error("Name to check is null for element id " + skip_element_id); //$NON-NLS-1$
+			Debug.error("Name to check is null for element uuid " + skip_element_UUID); //$NON-NLS-1$
 			return null;
 		}
 		if (searchContext == null)
@@ -229,7 +238,7 @@ public class ScriptNameValidator implements IValidateName
 		//Test for script calculations
 		if (searchContext.getObject() instanceof TableNode || searchContext.getObject() instanceof Table)
 		{
-			Object obj = testRelations(nameToCheck, skip_element_id);
+			Object obj = testRelations(nameToCheck, skip_element_UUID);
 			if (obj != null) return obj;
 
 			ITable table;
@@ -243,7 +252,7 @@ public class ScriptNameValidator implements IValidateName
 			}
 
 			// Test table dataproviders
-			obj = testTableProviders(table, nameToCheck, skip_element_id, searchContext.getType() == IRepository.COLUMNS,
+			obj = testTableProviders(table, nameToCheck, skip_element_UUID, searchContext.getType() == IRepository.COLUMNS,
 				searchContext.getType() == IRepository.SCRIPTCALCULATIONS);
 			if (obj != null) return obj;
 
@@ -252,7 +261,7 @@ public class ScriptNameValidator implements IValidateName
 				// Test forms that uses those tables...
 				for (Form f : Utils.iterate(solutionRoot.getForms(table, false)))
 				{
-					obj = testFormScripts(f, nameToCheck, skip_element_id);
+					obj = testFormScripts(f, nameToCheck, skip_element_UUID);
 					if (obj != null) return obj;
 				}
 			}
@@ -260,7 +269,7 @@ public class ScriptNameValidator implements IValidateName
 			List<ScriptMethod> foundsetMethods = solutionRoot.getFoundsetMethods(table, false);
 			for (ScriptMethod scriptMethod : foundsetMethods)
 			{
-				if (nameToCheck.equals(scriptMethod.getName()) && scriptMethod.getID() != skip_element_id)
+				if (nameToCheck.equals(scriptMethod.getName()) && !scriptMethod.getUUID().equals(skip_element_UUID))
 				{
 					return scriptMethod;
 				}
@@ -276,13 +285,13 @@ public class ScriptNameValidator implements IValidateName
 				// search context string is scopeName
 				String scope = (String)searchContext.getObject();
 				ScriptVariable sgv = solutionRoot.getScriptVariable(scope, nameToCheck);
-				if (sgv != null && sgv.getID() != skip_element_id)
+				if (sgv != null && !sgv.getUUID().equals(skip_element_UUID))
 				{
 					return sgv;
 				}
 
 				ScriptMethod sm = solutionRoot.getScriptMethod(scope, nameToCheck);
-				if (sm != null && sm.getID() != skip_element_id)
+				if (sm != null && !sm.getUUID().equals(skip_element_UUID))
 				{
 					return sm;
 				}
@@ -292,7 +301,7 @@ public class ScriptNameValidator implements IValidateName
 		if (searchContext.getType() == IRepository.FORMS)
 		{
 			Form form = solutionRoot.getForm(nameToCheck);
-			if (form != null && form.getID() != skip_element_id)
+			if (form != null && !form.getUUID().equals(skip_element_UUID))
 			{
 				return form;
 			}
@@ -302,7 +311,7 @@ public class ScriptNameValidator implements IValidateName
 		{
 			return ((IPersist)searchContext.getObject()).getAncestor(IRepository.FORMS).acceptVisitor(o -> {
 				if (o instanceof LayoutContainer && nameToCheck.equalsIgnoreCase(((LayoutContainer)o).getName()) &&
-					((LayoutContainer)o).getID() != skip_element_id)
+					!((LayoutContainer)o).getUUID().equals(skip_element_UUID))
 				{
 					return o;
 				}
@@ -312,27 +321,27 @@ public class ScriptNameValidator implements IValidateName
 
 		if (searchContext.getObject() instanceof Form && searchContext.getType() != IRepository.ELEMENTS && searchContext.getType() != IRepository.FORMS)
 		{
-			Object obj = testRelations(nameToCheck, skip_element_id);
+			Object obj = testRelations(nameToCheck, skip_element_UUID);
 			if (obj != null) return obj;
 
 			// It's a form method
 			// First test form scripts
-			obj = testFormScripts((Form)searchContext.getObject(), nameToCheck, skip_element_id);
+			obj = testFormScripts((Form)searchContext.getObject(), nameToCheck, skip_element_UUID);
 			if (obj != null) return obj;
 
 			// It's a form vars
 			// First test formvars
-			obj = testFormVars((Form)searchContext.getObject(), nameToCheck, skip_element_id);
+			obj = testFormVars((Form)searchContext.getObject(), nameToCheck, skip_element_UUID);
 			if (obj != null) return obj;
 
 			// Test table dataproviders
-			obj = testTableProviders(solutionRoot.getTable(((Form)searchContext.getObject()).getDataSource()), nameToCheck, skip_element_id, false, false);
+			obj = testTableProviders(solutionRoot.getTable(((Form)searchContext.getObject()).getDataSource()), nameToCheck, skip_element_UUID, false, false);
 			if (obj != null) return obj;
 		}
 
 		if (searchContext.getType() == IRepository.RELATIONS)
 		{
-			Object obj = testRelations(nameToCheck, skip_element_id);
+			Object obj = testRelations(nameToCheck, skip_element_UUID);
 			if (obj != null) return obj;
 
 			Iterator<Form> forms;
@@ -349,7 +358,7 @@ public class ScriptNameValidator implements IValidateName
 			}
 			for (Form form : Utils.iterate(forms))
 			{
-				obj = testFormScripts(form, nameToCheck, skip_element_id);
+				obj = testFormScripts(form, nameToCheck, skip_element_UUID);
 				if (obj != null) return obj;
 			}
 		}
@@ -357,16 +366,45 @@ public class ScriptNameValidator implements IValidateName
 		if (searchContext.getType() == IRepository.VALUELISTS)
 		{
 			ValueList vl = solutionRoot.getValueList(nameToCheck);
-			if (vl != null && vl.getID() != skip_element_id)
+			if (vl != null && !vl.getUUID().equals(skip_element_UUID))
 			{
 				return vl;
+			}
+		}
+
+		if (searchContext.getType() == IRepository.MENUS)
+		{
+			Menu menu = solutionRoot.getMenu(nameToCheck);
+			if (menu != null && !menu.getUUID().equals(skip_element_UUID))
+			{
+				return menu;
+			}
+		}
+
+		if (searchContext.getType() == IRepository.MENU_ITEMS)
+		{
+			if (searchContext.getObject() instanceof List list && list.size() > 0)
+			{
+				if (list.get(1) != null)
+				{ // this is a menu or a menu item
+					if (list.get(1) instanceof MenuItem menuItem)
+					{
+						if (nameToCheck.equalsIgnoreCase(menuItem.getName()) && !menuItem.getUUID().equals(skip_element_UUID))
+						{
+							return menuItem;
+						}
+
+						return findMenuItemByName(getAncestorMenu(list.get(1)), nameToCheck, skip_element_UUID);
+					}
+					return findMenuItemByName(list.get(1), nameToCheck, skip_element_UUID);
+				}
 			}
 		}
 
 		if (searchContext.getType() == IRepository.MEDIA)
 		{
 			Media media = solutionRoot.getMedia(nameToCheck);
-			if (media != null && media.getID() != skip_element_id)
+			if (media != null && !media.getUUID().equals(skip_element_UUID))
 			{
 				return media;
 			}
@@ -381,7 +419,7 @@ public class ScriptNameValidator implements IValidateName
 			}
 			for (IPersist persist : Utils.iterate(childrenIterator))
 			{
-				if (persist instanceof IFormElement && persist.getID() != skip_element_id)
+				if (persist instanceof IFormElement && !persist.getUUID().equals(skip_element_UUID))
 				{
 					if (persist instanceof ISupportName && nameToCheck.equalsIgnoreCase(((ISupportName)persist).getName()))
 					{
@@ -399,11 +437,64 @@ public class ScriptNameValidator implements IValidateName
 		{
 			for (IPersist persist : Utils.iterate(((ISupportChilds)searchContext.getObject()).getAllObjects()))
 			{
-				if (persist instanceof Tab && nameToCheck.equalsIgnoreCase(((Tab)persist).getName()) && persist.getID() != skip_element_id)
+				if (persist instanceof Tab && nameToCheck.equalsIgnoreCase(((Tab)persist).getName()) && !persist.getUUID().equals(skip_element_UUID))
 				{
 					return persist;
 				}
 			}
+		}
+
+		return null;
+	}
+
+	private MenuItem findMenuItemByName(Object object, String nameToCheck, UUID uuid)
+	{
+		if (object instanceof MenuItem menuItem)
+		{
+			if (nameToCheck.equalsIgnoreCase(menuItem.getName()) && !menuItem.getUUID().equals(uuid))
+			{
+				return menuItem;
+			}
+			Iterator<IPersist> children = menuItem.getAllObjects();
+			while (children.hasNext())
+			{
+				IPersist child = children.next();
+				MenuItem result = findMenuItemByName(child, nameToCheck, uuid);
+				if (result != null)
+				{
+					return result;
+				}
+			}
+		}
+		if (object instanceof Menu menu)
+		{
+			Iterator<IPersist> children = menu.getAllObjects();
+			while (children.hasNext())
+			{
+				IPersist child = children.next();
+
+				MenuItem result = findMenuItemByName(child, nameToCheck, uuid);
+				if (result != null)
+				{
+					return result;
+				}
+			}
+		}
+		return null;
+	}
+
+
+	private Menu getAncestorMenu(Object object)
+	{
+		if (object == null) return null;
+
+		if (object instanceof Menu menu)
+		{
+			return menu;
+		}
+		else if (object instanceof MenuItem menuItem)
+		{
+			return getAncestorMenu(menuItem.getParent());
 		}
 
 		return null;
@@ -418,7 +509,7 @@ public class ScriptNameValidator implements IValidateName
 	 * @param b
 	 * @param b1
 	 */
-	private Object testTableProviders(ITable table, String next, int id, boolean isColumn, boolean isCalculation)
+	private Object testTableProviders(ITable table, String next, UUID uuid, boolean isColumn, boolean isCalculation)
 	{
 		if (table == null) return null;
 		String dataProviderID = null;
@@ -429,7 +520,7 @@ public class ScriptNameValidator implements IValidateName
 			{
 				Debug.warn("Aggregate variable with null dataProviderID/name found in table " + table.getDataSource());
 			}
-			else if (dataProviderID.equals(next) && av.getID() != id)
+			else if (dataProviderID.equals(next) && !av.getUUID().equals(uuid))
 			{
 				return av;
 			}
@@ -438,7 +529,7 @@ public class ScriptNameValidator implements IValidateName
 		{
 			for (Column column : table.getColumns())
 			{
-				if (column.getDataProviderID().equals(next) && column.getID() != id)
+				if (column.getDataProviderID().equals(next) && !Utils.equalObjects(uuid, column.getUUID()))
 				{
 					return column;
 				}
@@ -453,7 +544,7 @@ public class ScriptNameValidator implements IValidateName
 				{
 					Debug.warn("Script calculation with null dataProviderID/name found in table " + table.getDataSource());
 				}
-				else if (dataProviderID.equals(next) && sc.getID() != id)
+				else if (dataProviderID.equals(next) && !sc.getUUID().equals(uuid))
 				{
 					return sc;
 				}
@@ -462,30 +553,30 @@ public class ScriptNameValidator implements IValidateName
 		return null;
 	}
 
-	private Object testRelations(String name, int id)
+	private Object testRelations(String name, UUID uuid)
 	{
 		Relation r = solutionRoot.getRelation(name);
-		if (r != null && r.getID() != id) // relations with mixed name casing are allowed at runtime with solution model but to avoid confusions do not allow names equalIgnoreCase in this case either
+		if (r != null && !r.getUUID().equals(uuid)) // relations with mixed name casing are allowed at runtime with solution model but to avoid confusions do not allow names equalIgnoreCase in this case either
 		{
 			return r;
 		}
 		return null;
 	}
 
-	private Object testFormScripts(Form form, String next, int id)
+	private Object testFormScripts(Form form, String next, UUID uuid)
 	{
 		ScriptMethod sm = form.getScriptMethod(next);
-		if (sm != null && sm.getID() != id)
+		if (sm != null && !sm.getUUID().equals(uuid))
 		{
 			return sm;
 		}
 		return null;
 	}
 
-	private Object testFormVars(Form form, String next, int id)
+	private Object testFormVars(Form form, String next, UUID uuid)
 	{
 		ScriptVariable sm = form.getScriptVariable(next);
-		if (sm != null && sm.getID() != id)
+		if (sm != null && !sm.getUUID().equals(uuid))
 		{
 			return sm;
 		}

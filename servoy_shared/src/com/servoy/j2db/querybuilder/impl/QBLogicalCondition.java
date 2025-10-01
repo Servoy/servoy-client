@@ -31,11 +31,25 @@ import com.servoy.j2db.querybuilder.IQueryBuilderLogicalCondition;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 
 /**
- * Logical clause for a query, conditions can be added by name.
+ * The <code>QBLogicalCondition</code> class represents a logical clause used in building queries within the Servoy environment.
+ * It allows for the dynamic addition and removal of conditions, enabling complex query construction.
+ * The class provides functionality for managing conditions in logical groupings, either through `AND` or `OR` operations,
+ * and conditions can be added by name for easy reference.
+ *
+ * <h2>Features</h2>
+ * <p>Key features of the class include methods like <code>js_add()</code>, which adds conditions to the logical group in a
+ * JavaScript-compatible manner,and <code>add()</code>, which allows for adding conditions programmatically. The <code>conditionnames()</code>
+ * method returns the list of condition names,  * while <code>getCondition()</code> retrieves a specific condition by its name. Conditions can
+ * also be cleared or removed with <code>clear()</code> and <code>remove()</code>, respectively. Additionally, the class includes
+ * a <code>toString()</code> method that provides a string representation of the logical condition.</p>
+ *
+ * <p>Overall, the <code>QBLogicalCondition</code> class is used to manage query conditions in Servoy, offering flexibility
+ * in how logical conditions are structured and manipulated within queries.</p>
+ *
  * @author rgansevles
  *
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "QBLogicalCondition")
+@ServoyDocumented(category = ServoyDocumented.RUNTIME)
 public class QBLogicalCondition extends QBCondition implements IQueryBuilderLogicalCondition
 {
 	private static final String CONDITION_ANONYMOUS = "<anonymous>"; // When no condition name is given
@@ -67,6 +81,8 @@ public class QBLogicalCondition extends QBCondition implements IQueryBuilderLogi
 	 * query.where.add(query.columns.orderdate.isNull)
 	 *
 	 * @param condition the condition to add
+	 *
+	 * @return the updated logical condition with the added condition.
 	 */
 	public QBLogicalCondition js_add(QBCondition condition)
 	{
@@ -95,6 +111,8 @@ public class QBLogicalCondition extends QBCondition implements IQueryBuilderLogi
 	 *
 	 * @param name the name of the condition
 	 * @param condition the condition to add
+	 *
+	 * @return the updated logical condition with the named condition added.
 	 */
 	public QBLogicalCondition js_add(String name, QBCondition condition)
 	{
@@ -115,8 +133,10 @@ public class QBLogicalCondition extends QBCondition implements IQueryBuilderLogi
 	 * {
 	 * 	var subcond = cond.getCondition(cname)
 	 * }
+	 *
+	 * @return an array of strings representing the names of the conditions in the logical condition.
 	 */
-	@JSReadonlyProperty
+	@JSReadonlyProperty(debuggerRepresentation = "Query condition names property")
 	public String[] conditionnames()
 	{
 		AndOrCondition condition = getQueryCondition(false);
@@ -135,6 +155,8 @@ public class QBLogicalCondition extends QBCondition implements IQueryBuilderLogi
 	 * @sample
 	 * var cond = query.getCondition('mycond')
 	 * cond.remove('mysubcond')
+	 *
+	 * @return the updated logical condition with the named condition removed.
 	 */
 	@JSFunction
 	public QBLogicalCondition remove(String name)
@@ -152,6 +174,8 @@ public class QBLogicalCondition extends QBCondition implements IQueryBuilderLogi
 	 * @sample
 	 * var cond = query.getCondition('mycond')
 	 * cond.clear()
+	 *
+	 * @return the cleared logical condition.
 	 */
 	@JSFunction
 	public QBLogicalCondition clear()
@@ -170,6 +194,8 @@ public class QBLogicalCondition extends QBCondition implements IQueryBuilderLogi
 	 * @param name The condition name.
 	 *
 	 * @sampleas conditionnames()
+	 *
+	 * @return the named condition as a new logical condition, or null if the condition does not exist.
 	 */
 	@JSFunction
 	public QBLogicalCondition getCondition(String name)
@@ -191,4 +217,9 @@ public class QBLogicalCondition extends QBCondition implements IQueryBuilderLogi
 		return null;
 	}
 
+	@Override
+	public String toString()
+	{
+		return "QBLogicalCondition " + getQueryCondition().toString();
+	}
 }

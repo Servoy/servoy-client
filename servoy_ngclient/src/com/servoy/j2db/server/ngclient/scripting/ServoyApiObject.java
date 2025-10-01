@@ -18,17 +18,23 @@
 package com.servoy.j2db.server.ngclient.scripting;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.TimeoutException;
 
 import org.mozilla.javascript.IdScriptableObject;
 import org.mozilla.javascript.NativeArray;
 import org.mozilla.javascript.NativeObject;
+import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.annotations.JSFunction;
 import org.sablo.Container;
+import org.sablo.eventthread.IEventDispatcher;
 
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
+import com.servoy.j2db.BasicFormController;
 import com.servoy.j2db.dataprocessing.FoundSet;
 import com.servoy.j2db.dataprocessing.FoundSetManager;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
@@ -41,6 +47,7 @@ import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.querybuilder.impl.QBSelect;
+import com.servoy.j2db.scripting.FormScope;
 import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.server.ngclient.INGApplication;
 import com.servoy.j2db.server.ngclient.IWebFormController;
@@ -56,7 +63,27 @@ import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.Utils;
 
 /**
- * Provides utility methods for web object server side scripting to interact with the Servoy environment.
+ * <p>
+ * The <code>ServoyApiObject</code> provides server-side utility methods to facilitate interactions within
+ * the Servoy environment, primarily for NG and Titanium client components or services. These utilities are
+ * integral to the internal implementation of web objects, enabling seamless data management and dynamic
+ * UI interactions.
+ * </p>
+ *
+ * <p>
+ * The API supports functionalities such as creating foundsets and view foundsets using <code>QBSelect</code>
+ * for flexible data retrieval and filtering. It allows direct manipulation of forms on the server, including
+ * methods to show or hide forms dynamically, ensuring efficient updates without additional client-side round trips.
+ * Session-specific filters can be applied to foundsets, offering dynamic, user-specific data restrictions.
+ * </p>
+ *
+ * <p>
+ * Additional capabilities include performing SQL queries with query builders, generating media URLs from
+ * server-side byte arrays, and creating custom <code>JSEvent</code> instances for event-driven workflows.
+ * Developers can also use utility functions like deep copying of complex objects and creating empty datasets,
+ * enhancing data and object management within the platform.
+ * </p>
+ *
  * @author lvostinar
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "ServoyApi", scriptingName = "servoyApi")
@@ -72,27 +99,28 @@ public class ServoyApiObject
 		this.component = component;
 	}
 
-	@JSFunction
+
 	/**
 	 * Creates a view (read-only) foundset.
 	 * @param name foundset name
 	 * @param query query builder used to get the data for the foundset
-	 * @return the view foundset
+	 * @return The view foundset created based on the specified query.
 	 * @throws ServoyException
 	 */
+	@JSFunction
 	public ViewFoundSet getViewFoundSet(String name, QBSelect query) throws ServoyException
 	{
 		app.checkAuthorized();
 		return app.getFoundSetManager().getViewFoundSet(name, query, false);
 	}
 
-	@JSFunction
 	/**
 	 * Creates a foundset.
 	 * @param query query builder used to get the data for the foundset
-	 * @return the foundset
+	 * @return The foundset created based on the specified query.
 	 * @throws ServoyException
 	 */
+	@JSFunction
 	public FoundSet getFoundSet(QBSelect query) throws ServoyException
 	{
 		app.checkAuthorized();
@@ -151,7 +179,7 @@ public class ServoyApiObject
 				if (parent instanceof IWebFormUI parentUI)
 					parentUI.getDataAdapterList().removeVisibleChildForm(formController, true);
 			}
-			Utils.invokeAndWait(app, invokeLaterRunnables);
+			Utils.invokeLater(app, invokeLaterRunnables);
 			return ret;
 		}
 		return false;
@@ -161,32 +189,58 @@ public class ServoyApiObject
 	 * Show a form directly on the server for instance when a tab will change on the client, so it won't need to do a round trip
 	 * for showing the form through the browser's component.
 	 *
+	 * NOTE: Make sure this isn't called with a form name that can direclty come from the client, because this call allows all forms to be shown!
+	 *
 	 * @sample
 	 * servoyApi.showForm(formToShowName)
 	 *
-	 * @param nameOrUUID the form to show
+	 * @param formNameOrInstance the form to show
 	 * @return true if the form was marked as visible
 	 */
 	@JSFunction
-	public boolean showForm(String nameOrUUID)
+	public boolean showForm(Object formNameOrInstance)
 	{
-		return this.showForm(nameOrUUID, null);
+		return this.showForm(formNameOrInstance, null);
 	}
 
 	/**
 	 * Show a form directly on the server for instance when a tab will change on the client, so it won't need to do a round trip
 	 * for showing the form through the browser's component.
 	 *
+	 * NOTE: Make sure this isn't called with a form name that can direclty come from the client, because this call allows all forms to be shown!
+	 *
 	 * @sample
 	 * servoyApi.showForm(formToShowName)
 	 *
-	 * @param nameOrUUID the form to show
+	 * @param formNameOrInstance the form to show
 	 * @param relationName the parent container
-	 * @return true if the form was marked as visible
+	 * @return true will always return true, this is always a bit later
 	 */
 	@JSFunction
-	public boolean showForm(String nameOrUUID, String relationName)
+	public boolean showForm(Object formNameOrInstance, String relationName)
 	{
+		if (formNameOrInstance == null || "".equals(formNameOrInstance)) //$NON-NLS-1$
+		{
+			return true;
+		}
+		String nameOrUUID = null;
+		if (formNameOrInstance instanceof FormScope formScope)
+		{
+			nameOrUUID = formScope.getScopeName();
+		}
+		else if (formNameOrInstance instanceof BasicFormController formController)
+		{
+			nameOrUUID = formController.getForm().getName();
+		}
+		else
+		{
+			nameOrUUID = formNameOrInstance.toString();
+		}
+		if (nameOrUUID == null || nameOrUUID.isEmpty())
+		{
+			Debug.warn("Cannot show form from Servoy Api showForm because nameOrUUID is null or empty for:" + formNameOrInstance);
+			return false;
+		}
 		String formName = nameOrUUID;
 		Form form = app.getFlattenedSolution().getForm(nameOrUUID);
 		if (form == null)
@@ -197,6 +251,10 @@ public class ServoyApiObject
 				formName = form.getName();
 			}
 		}
+		else
+		{
+			formName = form.getName();
+		}
 		IWebFormController formController = app.getFormManager().getForm(formName, this.component);
 		IWebFormController parentFormController = null;
 		if (this.component != null)
@@ -205,43 +263,49 @@ public class ServoyApiObject
 		}
 		if (formController != null)
 		{
+			if (form == null)
+			{
+				form = formController.getForm();
+			}
 			List<Runnable> invokeLaterRunnables = new ArrayList<Runnable>();
 			boolean ret = formController.notifyVisible(true, invokeLaterRunnables, true);
 			if (ret)
 			{
 				if (parentFormController != null)
 				{
-					IFoundSetInternal parentFs = parentFormController.getFormModel();
-					IRecordInternal selectedRecord = parentFs.getRecord(parentFs.getSelectedIndex());
-					if (selectedRecord != null)
+					if (relationName != null)
 					{
-						try
+						IFoundSetInternal parentFs = parentFormController.getFormModel();
+						IRecordInternal selectedRecord = parentFs.getRecord(parentFs.getSelectedIndex());
+						if (selectedRecord != null)
 						{
-							formController.loadRecords(selectedRecord.getRelatedFoundSet(relationName));
+							try
+							{
+								formController.loadRecords(selectedRecord.getRelatedFoundSet(relationName));
+							}
+							catch (RuntimeException re)
+							{
+								throw new RuntimeException("Can't load records on form " + formController.getName() + ", of parent record: " +
+									selectedRecord + " with relation " + relationName + " for parent form  " + parentFormController + " and bean " +
+									component, re);
+							}
 						}
-						catch (RuntimeException re)
+						else
 						{
-							throw new RuntimeException("Can't load records on form " + formController.getName() + ", of parent record: " +
-								selectedRecord + " with relation " + relationName + " for parent form  " + parentFormController + " and bean " +
-								component, re);
+							// no selected record, then use prototype so we can get global relations
+							try
+							{
+								formController.loadRecords(parentFs.getPrototypeState().getRelatedFoundSet(relationName));
+							}
+							catch (RuntimeException re)
+							{
+								throw new RuntimeException("Can't load records on form " + formController.getName() + ", of parent record: " +
+									selectedRecord + " with relation " + relationName + " for parent form  " + parentFormController + " and bean " +
+									component, re);
+							}
+
 						}
 					}
-					else
-					{
-						// no selected record, then use prototype so we can get global relations
-						try
-						{
-							formController.loadRecords(parentFs.getPrototypeState().getRelatedFoundSet(relationName));
-						}
-						catch (RuntimeException re)
-						{
-							throw new RuntimeException("Can't load records on form " + formController.getName() + ", of parent record: " +
-								selectedRecord + " with relation " + relationName + " for parent form  " + parentFormController + " and bean " +
-								component, re);
-						}
-
-					}
-
 					parentFormController.getFormUI().getDataAdapterList().addVisibleChildForm(formController, relationName, true);
 					if (component != null)
 					{
@@ -250,7 +314,7 @@ public class ServoyApiObject
 				}
 
 			}
-			Utils.invokeAndWait(app, invokeLaterRunnables);
+			Utils.invokeLater(app, invokeLaterRunnables);
 
 			if (ret)
 			{
@@ -259,7 +323,35 @@ public class ServoyApiObject
 			}
 			return ret;
 		}
+		else
+		{
+			Debug.warn("Cannot show form '" + formName + "' from Servoy Api showForm because it is not found in the current solution.");
+		}
 		return false;
+	}
+
+	/**
+	 * Calls showForm delayed with latest form name and relation name from the model.
+	 *
+	 * @sample
+	 * servoyApi.showFormDelayed(model, 'containedForm', 'relationName')
+	 *
+	 * @param model the component model
+	 * @param formNameProperty the name of the property that contains the form name in model
+	 * @param relationNameProperty the name of the property that contains the relation name in model
+	 */
+	@JSFunction
+	public void showFormDelayed(Scriptable model, String formNameProperty, String relationNameProperty)
+	{
+		Utils.invokeLater(app, Arrays.asList(() -> {
+			IWebFormUI formUI = this.component.findParent(IWebFormUI.class);
+			if (component.isVisible() && formUI != null && formUI.getController() != null && formUI.getController().isFormVisible())
+			{
+				Object formName = model.get(formNameProperty, model);
+				Object relation = model.get(relationNameProperty, model);
+				showForm(formName, relation instanceof String ? (String)relation : null);
+			}
+		}));
 	}
 
 	/**
@@ -338,7 +430,7 @@ public class ServoyApiObject
 				return nativeArray;
 			}
 		}
-		Debug.error("cannot return object: " + value + " as NativeObject");
+		Debug.error("cannot return object: " + value + " as NativeObject"); //$NON-NLS-1$ //$NON-NLS-2$
 		return new NativeObject();
 	}
 
@@ -439,6 +531,8 @@ public class ServoyApiObject
 	 * @param filterName a name given to this foundset filter
 	 *
 	 * @see Foundset.js_addFoundSetFilterParam
+	 *
+	 * @return true if the filter parameter was successfully added, false otherwise.
 	 */
 	@JSFunction
 	public boolean addFoundSetFilterParam(FoundSet foundset, QBSelect query, String filterName)
@@ -457,11 +551,65 @@ public class ServoyApiObject
 	@JSFunction
 	public JSEvent createJSEvent()
 	{
+		return createJSEvent(null);
+	}
+
+	/**
+	 * This will create a JSEvent filled with component information and set the type of the event (for example onClick).
+	 *
+	 * @param eventType type of the event
+	 *
+	 * @sample
+	 * var event = servoyApi.createJSEvent('onClick');
+	 *
+	 * @return the jsevent
+	 */
+	@JSFunction
+	public JSEvent createJSEvent(String eventType)
+	{
 		JSEvent event = new JSEvent();
 		event.setTimestamp(new Date());
 		event.setSource(new RuntimeWebComponent(this.component, this.component.getSpecification()));
 		event.setFormName(this.component.findParent(IWebFormUI.class).getController().getName());
 		event.setElementName(this.component.getFormElement().getRawName());
+		if (eventType != null)
+		{
+			event.setType(eventType);
+		}
 		return event;
+	}
+
+	/**
+	 * This can be called by server side code of components or services to suspend the api call that is done from Servoy Scripting.
+	 * So the server side code will block the servoy scripting call but it self does call a async client side function where it waits for some results
+	 * This is handy if the result come in through another call which can't directly be handled  through the websocket message, like a large file upload.
+	 *
+	 * It is very important that when this call is done there is always a {@link #resume()} call done! Else the event thread will not resume the call that triggered this.
+	 */
+	@JSFunction
+	public void suspend()
+	{
+		try
+		{
+			app.getWebsocketSession().getEventDispatcher().suspend(this, IEventDispatcher.EVENT_LEVEL_DEFAULT,
+				IEventDispatcher.NO_TIMEOUT);
+		}
+		catch (CancellationException | TimeoutException e)
+		{
+			Debug.error(e);
+		}
+		return;
+
+	}
+
+	/**
+	 * This needs to be called when {@link #suspend()} is called to resume the servoy scripting call that was suspended.
+	 *
+	 * So this can be called in an serverside call from the client that couldn't really be done directly in a sync call to the client.
+	 */
+	@JSFunction
+	public void resume()
+	{
+		app.getWebsocketSession().getEventDispatcher().resume(this);
 	}
 }

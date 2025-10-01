@@ -37,6 +37,7 @@ import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IConvertedPropertyType;
 import org.sablo.specification.property.ICustomType;
 import org.sablo.specification.property.IPropertyWithClientSideConversions;
+import org.sablo.specification.property.IPropertyWithAttachDependencies;
 import org.sablo.specification.property.IPushToServerSpecialType;
 import org.sablo.specification.property.ISupportsGranularUpdates;
 import org.sablo.specification.property.types.DefaultPropertyType;
@@ -80,7 +81,7 @@ import com.servoy.j2db.util.Utils;
  */
 public class FormComponentPropertyType extends DefaultPropertyType<Object> implements IConvertedPropertyType<Object>, ISabloComponentToRhino<Object>,
 	IFormElementToTemplateJSON<Object, Object>, IFormElementToSabloComponent<Object, Object>, IFormComponentType, IPushToServerSpecialType,
-	ISupportsGranularUpdates<Object>, IPropertyWithClientSideConversions<Object>
+	ISupportsGranularUpdates<Object>, IPropertyWithClientSideConversions<Object>, IPropertyWithAttachDependencies<Object>
 {
 	public static final String SVY_FORM = "svy_form"; //$NON-NLS-1$
 
@@ -152,7 +153,7 @@ public class FormComponentPropertyType extends DefaultPropertyType<Object> imple
 		{
 			Form form = getForm(webComponentValue, fs);
 			if (form == null) return null;
-			// TODO return here a NativeScriptable object that understand the full hiearchy?
+			// TODO return here a NativeScriptable object that understand the full hierarchy?
 			cache = FormElementHelper.INSTANCE.getFormComponentCache(webFormComponent.getFormElement(), pd, (JSONObject)webComponentValue, form, fs);
 		}
 		IWebFormUI formUI = webFormComponent.findParent(IWebFormUI.class);
@@ -218,11 +219,7 @@ public class FormComponentPropertyType extends DefaultPropertyType<Object> imple
 			formId = ((JSONObject)formId).optString(SVY_FORM);
 		}
 		Form form = null;
-		if (formId instanceof Integer)
-		{
-			form = fs.getForm(((Integer)formId).intValue());
-		}
-		else if (formId instanceof String || formId instanceof UUID)
+		if (formId instanceof String || formId instanceof UUID)
 		{
 			// try first by name or uuid (FS caches by both)
 			form = fs.getForm(formId.toString());
@@ -568,6 +565,13 @@ public class FormComponentPropertyType extends DefaultPropertyType<Object> imple
 			// this property will not even send any value client-side; we don't need to send anything here then either
 			return false;
 		}
+	}
+
+	@Override
+	public String[] getDependencies(PropertyDescription pd)
+	{
+		ComponentTypeConfig ctc = ((ComponentTypeConfig)pd.getConfig());
+		return ctc != null ? new String[] { ctc.forFoundset } : null;
 	}
 
 }

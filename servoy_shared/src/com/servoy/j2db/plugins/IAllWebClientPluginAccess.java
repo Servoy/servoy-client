@@ -17,6 +17,8 @@
 
 package com.servoy.j2db.plugins;
 
+import java.io.File;
+
 /**
  * Extended plugin api for all webclient.
  *
@@ -52,6 +54,16 @@ public interface IAllWebClientPluginAccess extends IClientPluginAccess
 		((IWebClientPluginAccess)access).showURL(url, hintDownload ? "_self" : "_blank", null, 0, false);
 	 */
 	public String serveResource(String filename, byte[] array, String mimetype, String contentDisposition);
+
+	/**
+	 * Serve a resource, returns the url under which the resource is served, can be shown with showURL.
+	 *
+	 * @param file
+	 * @param mimetype
+	 * @param contentDisposition
+	 * @return
+	 */
+	public String serveResource(File file, String mimetype, String contentDisposition);
 
 	/**
 	 * Show a url in the browser.

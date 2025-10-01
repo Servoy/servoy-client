@@ -22,6 +22,7 @@ import java.util.List;
 import org.mozilla.javascript.Scriptable;
 
 import com.servoy.j2db.persistence.Relation;
+import com.servoy.j2db.util.ObjectKey;
 import com.servoy.j2db.util.ScopesUtils;
 
 /**
@@ -49,6 +50,12 @@ public class PrototypeState extends Record
 	{
 		isEditing = true;
 		return isEditing;//true is needed for search in navigator
+	}
+
+	@Override
+	public ObjectKey getKey()
+	{
+		return new ObjectKey(parent);
 	}
 
 	@Override

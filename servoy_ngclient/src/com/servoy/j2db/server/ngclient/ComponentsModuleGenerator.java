@@ -21,16 +21,16 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.WebObjectSpecification;
 import org.sablo.specification.WebServiceSpecProvider;
 import org.sablo.util.HTTPUtils;
+
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 
 /**
@@ -79,7 +79,8 @@ public class ComponentsModuleGenerator extends HttpServlet
 		}
 
 		StringBuilder sb = new StringBuilder("angular.module('servoy-components', [ ");
-		generateModules(sb, getAllNames(WebServiceSpecProvider.getSpecProviderState().getAllWebObjectSpecifications(), servicesIncludingOnesServedFromJARSInWarDeployment));
+		generateModules(sb,
+			getAllNames(WebServiceSpecProvider.getSpecProviderState().getAllWebObjectSpecifications(), servicesIncludingOnesServedFromJARSInWarDeployment));
 		generateModules(sb, getAllNames(WebComponentSpecProvider.getSpecProviderState().getAllWebObjectSpecifications(), components));
 		sb.setLength(sb.length() - 1);
 		sb.append("]);");

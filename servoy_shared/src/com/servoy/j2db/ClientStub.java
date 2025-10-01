@@ -17,7 +17,6 @@
 package com.servoy.j2db;
 
 
-import java.rmi.RemoteException;
 import java.util.Stack;
 
 import com.servoy.j2db.dataprocessing.DataServerProxy;
@@ -120,19 +119,18 @@ public class ClientStub implements IClient
 		{
 			public void run()
 			{
-				Runnable r = new Runnable()
+				client.invokeLater(new Runnable()
 				{
 					public void run()
 					{
 						if (client.isShutDown() || !client.isSolutionLoaded()) return;
-						IDataServer dataServer = client.getDataServer();
-						if (dataServer instanceof DataServerProxy)
+						if (client.getDataServer() instanceof DataServerProxy dataServerProxy)
 						{
 							String[] dbServernameTablename = DataSourceUtils.getDBServernameTablename(dataSource);
 							if (dbServernameTablename != null)
 							{
 								// map from real db server to server names from before switch-server
-								for (String srv : ((DataServerProxy)dataServer).getReverseMappedServerNames(dbServernameTablename[0]))
+								for (String srv : dataServerProxy.getReverseMappedServerNames(dbServernameTablename[0]))
 								{
 									((FoundSetManager)client.getFoundSetManager()).flushCachedDatabaseDataFromRemote(
 										DataSourceUtils.createDBTableDataSource(srv, dbServernameTablename[1]));
@@ -143,16 +141,7 @@ public class ClientStub implements IClient
 
 						((FoundSetManager)client.getFoundSetManager()).flushCachedDatabaseDataFromRemote(dataSource);
 					}
-				};
-
-				if (client.isEventDispatchThread())
-				{
-					r.run();
-				}
-				else
-				{
-					client.invokeLater(r);
-				}
+				});
 			}
 		});
 	}
@@ -243,7 +232,7 @@ public class ClientStub implements IClient
 	}
 
 	@Override
-	public String getClientStatusLine() throws RemoteException
+	public String getClientStatusLine()
 	{
 		if (client instanceof IGetStatusLine)
 		{
@@ -253,7 +242,7 @@ public class ClientStub implements IClient
 		return null;
 	}
 
-	public long getLastAccessedTime() throws RemoteException
+	public long getLastAccessedTime()
 	{
 		if (client instanceof IGetLastAccessed)
 		{

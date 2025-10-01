@@ -34,6 +34,7 @@ import com.servoy.j2db.persistence.IScriptProvider;
 import com.servoy.j2db.persistence.ISupportScriptProviders;
 import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -42,7 +43,7 @@ import com.servoy.j2db.util.Utils;
 public abstract class LazyCompilationScope extends DefaultScope implements LazyInitScope
 {
 	protected volatile IExecutingEnviroment scriptEngine;
-	private final Map<Integer, String> idVars; //id -> name (not in the same so it will not be in runtime env)
+	private final Map<UUID, String> idVars; //id -> name (not in the same so it will not be in runtime env)
 	private volatile Scriptable functionParent;//default this
 	private volatile ISupportScriptProviders scriptLookup;
 
@@ -51,7 +52,7 @@ public abstract class LazyCompilationScope extends DefaultScope implements LazyI
 		super(parent);
 		this.scriptLookup = scriptLookup;
 		this.scriptEngine = scriptEngine;
-		idVars = new HashMap<Integer, String>();
+		idVars = new HashMap<UUID, String>();
 		functionParent = this;
 		createScriptProviders(true);
 	}
@@ -82,12 +83,6 @@ public abstract class LazyCompilationScope extends DefaultScope implements LazyI
 		return functionParent;
 	}
 
-	@Override
-	public boolean has(int index, Scriptable start)
-	{
-		return idVars.containsKey(Integer.valueOf(index));
-	}
-
 	public void put(IScriptProvider sm, Object function)
 	{
 		put(sm, function, true);
@@ -106,14 +101,14 @@ public abstract class LazyCompilationScope extends DefaultScope implements LazyI
 		remove(sm.getName());
 
 		allVars.put(sm.getDataProviderID(), function);
-		idVars.put(new Integer(sm.getID()), sm.getDataProviderID());
+		idVars.put(sm.getUUID(), sm.getDataProviderID());
 
 		return true;
 	}
 
 	public Object remove(IScriptProvider sm)
 	{
-		String sName = idVars.remove(new Integer(sm.getID()));
+		String sName = idVars.remove(sm.getUUID());
 		if (sName != null)
 		{
 			Object o = allVars.remove(sName);
@@ -215,9 +210,9 @@ public abstract class LazyCompilationScope extends DefaultScope implements LazyI
 		return array.toArray();
 	}
 
-	public String getFunctionName(Integer id)
+	public String getFunctionName(UUID uuid)
 	{
-		return idVars.get(id);
+		return idVars.get(uuid);
 	}
 
 	public Function getFunctionByName(String name)

@@ -34,7 +34,7 @@ public class BaseDocsGraphicalComponent extends GraphicalComponent implements IB
 
 	BaseDocsGraphicalComponent()
 	{
-		super(null, 0, null);
+		super(null, null);
 	}
 
 	@Override

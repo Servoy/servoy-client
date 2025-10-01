@@ -24,11 +24,9 @@ import com.servoy.j2db.util.UUID;
  */
 public class SimplePersistFactory extends AbstractPersistFactory
 {
-	private int last_element_id;
 
-	public SimplePersistFactory(int startElementId)
+	public SimplePersistFactory()
 	{
-		last_element_id = startElementId;
 	}
 
 	public static Solution createDummyCopy(Solution sol)
@@ -43,7 +41,7 @@ public class SimplePersistFactory extends AbstractPersistFactory
 	 * @see com.servoy.j2db.persistence.AbstractPersistFactory#createRootObject(int)
 	 */
 	@Override
-	protected IPersist createRootObject(int elementId) throws RepositoryException
+	protected IPersist createRootObject(UUID elementUUID) throws RepositoryException
 	{
 		throw new RepositoryException("creating root objects not supported with the SimplePersistFactory"); //$NON-NLS-1$
 	}
@@ -65,39 +63,4 @@ public class SimplePersistFactory extends AbstractPersistFactory
 	{
 		return StaticContentSpecLoader.getContentSpec();
 	}
-
-	/**
-	 * @see com.servoy.j2db.persistence.AbstractPersistFactory#resolveIdForElementUuid(com.servoy.j2db.util.UUID)
-	 */
-	@Override
-	public int resolveIdForElementUuid(UUID id) throws RepositoryException
-	{
-		return getNewElementID(id);
-	}
-
-	/**
-	 * @see com.servoy.j2db.persistence.AbstractPersistFactory#resolveUUIDForElementId(int)
-	 */
-	@Override
-	public UUID resolveUUIDForElementId(int id) throws RepositoryException
-	{
-		synchronized (uuid_element_id_map)
-		{
-			return uuid_element_id_map.getKey(new Integer(id));
-		}
-	}
-
-	/**
-	 * @see com.servoy.j2db.persistence.IPersistFactory#getNewElementID(com.servoy.j2db.util.UUID)
-	 */
-	public int getNewElementID(UUID new_uuid)
-	{
-		synchronized (uuid_element_id_map)
-		{
-			int element_id = ++last_element_id;
-			if (new_uuid != null) uuid_element_id_map.put(new_uuid, new Integer(element_id));
-			return element_id;
-		}
-	}
-
 }

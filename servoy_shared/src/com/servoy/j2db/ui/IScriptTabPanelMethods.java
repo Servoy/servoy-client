@@ -20,9 +20,9 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.ui.runtime.IRuntimeTabPanel;
 
 /**
- * Scripting interface for RuntimeTabPanel.
- * Combines (deprecated) script methods and java api ({@link IRuntimeTabPanel});
- * 
+ * The <code>IScriptTabPanelMethods</code> is a scripting interface for RuntimeTabPanel.
+ * Combines (deprecated) script methods and java api ({@link IRuntimeTabPanel}).
+ *
  * @author rgansevles
  *
  */

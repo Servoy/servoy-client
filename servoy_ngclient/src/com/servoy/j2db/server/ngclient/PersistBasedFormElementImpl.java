@@ -256,10 +256,10 @@ class PersistBasedFormElementImpl
 			putAndConvertProperty("name", tab.getName(), tabMap, fs, tabSpecProperties.getProperty("name"), propertyPath);
 			putAndConvertProperty("mnemonic", tab.getMnemonic(), tabMap, fs, tabSpecProperties.getProperty("mnemonic"), propertyPath);
 			putAndConvertProperty("toolTipText", tab.getToolTipText(), tabMap, fs, tabSpecProperties.getProperty("toolTipText"), propertyPath);
-			int containsFormID = tab.getContainsFormID();
+			String containsFormUUID = tab.getContainsFormID();
 			// TODO should this be resolved way later on?
 			// if solution model then this form can change..
-			Form form = fs.getForm(containsFormID);
+			Form form = fs.getForm(containsFormUUID);
 			if (form != null)
 			{
 				putAndConvertProperty("containsFormId", form.getName(), tabMap, fs, tabSpecProperties.getProperty("containsFormId"), propertyPath);
@@ -268,10 +268,10 @@ class PersistBasedFormElementImpl
 			int orient = ((TabPanel)persist).getTabOrientation();
 			if (orient != TabPanel.SPLIT_HORIZONTAL && orient != TabPanel.SPLIT_VERTICAL)
 			{
-				int tabMediaID = tab.getImageMediaID();
-				if (tabMediaID > 0)
+				String tabMediaUUID = tab.getImageMediaID();
+				if (tabMediaUUID != null)
 				{
-					putAndConvertProperty("imageMediaID", Integer.valueOf(tabMediaID), tabMap, fs, tabSpecProperties.getProperty("imageMediaID"), propertyPath);
+					putAndConvertProperty("imageMediaID", tabMediaUUID, tabMap, fs, tabSpecProperties.getProperty("imageMediaID"), propertyPath);
 				}
 			}
 			tabList.add(tabMap);

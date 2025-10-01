@@ -21,9 +21,12 @@ import static com.servoy.base.util.DataSourceUtilsBase.isCompleteDBbServerTable;
 import static com.servoy.j2db.util.DataSourceUtils.getDBServernameTablename;
 import static com.servoy.j2db.util.DataSourceUtils.getInmemDataSourceName;
 
+import org.mozilla.javascript.Wrapper;
 import org.mozilla.javascript.annotations.JSFunction;
 
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.dataprocessing.IFoundSet;
+import com.servoy.j2db.dataprocessing.IRecord;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.IReturnedTypesProvider;
 import com.servoy.j2db.scripting.ScriptObjectRegistry;
@@ -31,7 +34,25 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 import com.servoy.j2db.util.IDestroyable;
 
 /**
- * In scripting: <pre>datasources</pre>
+ * <p><code>Datasources</code> in Servoy provide a structured way to interact with various
+ * types of data sources, such as database tables, in-memory tables, views, and stored
+ * procedures. These <code>datasources</code> are accessible through the <code>datasources</code>
+ * efficient development.</p>
+ *
+ * <p><code>Datasources</code> include types like <code>DBDataSource</code>,
+ * <code>MemDataSource</code>, <code>ViewDataSource</code>, <code>SPDataSource</code>, and
+ * <code>MenuDataSource</code>, each catering to a specific use case. For example,
+ * <code>db</code> is used for server/table-based data sources, <code>mem</code> for in-memory
+ * tables, and <code>view</code> for view foundset data sources. Stored procedures are managed
+ * under the <code>sp</code> property, with server-side configuration enabling their use. The
+ * <code>menu</code> property handles menu-related datasources.</p>
+ *
+ * <p>For details related to datasources, refer to the specific sections in the Servoy documentation:</p>
+ * <p><a href="https://docs.servoy.com/reference/servoycore/dev-api/datasources/dbdatasourceserver">DBDataSourceServer</a></p>
+ * <p><a href="https://docs.servoy.com/guides/develop/application-design/data-modeling/in-memory-databases#create-in-memory-datasource">
+ * Create In Memory DataSource</a></p>
+ * <p><a href="https://docs.servoy.com/guides/develop/application-design/data-modeling/view-datasource">
+ * View Foundset Datasource</a></p>
  *
  * @author rgansevles
  *
@@ -47,7 +68,7 @@ public class JSDataSources implements IDestroyable
 		{
 			public Class< ? >[] getAllReturnedTypes()
 			{
-				return new Class< ? >[] { DBDataSource.class, MemDataSource.class, JSDataSource.class, JSConnectionDefinition.class, DBDataSourceServer.class, ViewDataSource.class };
+				return new Class< ? >[] { SPDataSource.class, SPDataSourceServer.class, DBDataSource.class, MemDataSource.class, JSDataSource.class, JSConnectionDefinition.class, DBDataSourceServer.class, ViewDataSource.class, MenuDataSource.class };
 			}
 		});
 	}
@@ -62,6 +83,7 @@ public class JSDataSources implements IDestroyable
 	private MemDataSource mem;
 	private ViewDataSource view;
 	private SPDataSource sp;
+	private MenuDataSource menuDataSource;
 
 	/**
 	 * Scope property for server/table based data sources.
@@ -126,6 +148,48 @@ public class JSDataSources implements IDestroyable
 			sp = new SPDataSource(application);
 		}
 		return sp;
+	}
+
+	/**
+	 * Scope property for view foundset data sources.
+	 *
+	 * @sample
+	 * datasources.view['myds']
+	 */
+	@JSReadonlyProperty
+	public MenuDataSource menu()
+	{
+		if (menuDataSource == null)
+		{
+			menuDataSource = new MenuDataSource(application);
+		}
+		return menuDataSource;
+	}
+
+	/**
+	 * Scope getter for a datasource node based on a JSFoundset/JSRecord/ViewFoundset/ViewRecord
+	 *
+	 * @sample
+	 * datasources.get(recordOrFoundset)
+	 *
+	 * @param datasource
+	 *
+	 * @return a JSDataSource based on parameter
+	 */
+	@JSFunction
+	public JSDataSource get(Object recordOrFoundset)
+	{
+		var unwrapped = recordOrFoundset instanceof Wrapper w ? w.unwrap() : recordOrFoundset;
+		String datasource = null;
+		if (unwrapped instanceof IFoundSet fs)
+		{
+			datasource = fs.getDataSource();
+		}
+		else if (unwrapped instanceof IRecord r && r.getParentFoundSet() != null)
+		{
+			datasource = r.getParentFoundSet().getDataSource();
+		}
+		return get(datasource);
 	}
 
 	/**

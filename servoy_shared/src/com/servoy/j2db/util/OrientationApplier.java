@@ -20,8 +20,6 @@ import java.awt.Component;
 import java.awt.ComponentOrientation;
 import java.util.Locale;
 
-import org.apache.wicket.AttributeModifier;
-
 import com.servoy.j2db.persistence.Solution;
 
 /**
@@ -76,22 +74,7 @@ public class OrientationApplier
 	 */
 	public static String getHTMLContainerOrientation(Locale l, int orientation)
 	{
-		String value = AttributeModifier.VALUELESS_ATTRIBUTE_REMOVE;
-
-		switch (orientation)
-		{
-			// case Solution.TEXT_ORIENTATION_DEFAULT: attribute must not be present - so no change
-			case Solution.TEXT_ORIENTATION_LEFT_TO_RIGHT :
-				value = LTR;
-				break;
-			case Solution.TEXT_ORIENTATION_RIGHT_TO_LEFT :
-				value = RTL;
-				break;
-			case Solution.TEXT_ORIENTATION_LOCALE_SPECIFIC :
-				value = (ComponentOrientation.getOrientation(l).isLeftToRight()) ? LTR : RTL;
-				break;
-		}
-		return value;
+		return LTR;
 	}
 
 }

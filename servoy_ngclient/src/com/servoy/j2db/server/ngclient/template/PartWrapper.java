@@ -41,7 +41,7 @@ import com.servoy.j2db.persistence.PositionComparator;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.server.headlessclient.dataui.AbstractFormLayoutProvider;
 import com.servoy.j2db.server.headlessclient.dataui.AnchoredFormLayoutProvider;
-import com.servoy.j2db.server.headlessclient.dataui.TemplateGenerator.TextualStyle;
+import com.servoy.j2db.server.headlessclient.dataui.TextualStyle;
 import com.servoy.j2db.server.ngclient.BodyPortal;
 import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
 import com.servoy.j2db.util.OrientationApplier;
@@ -86,7 +86,7 @@ public class PartWrapper
 						partStyle.setProperty("right", "0px");
 					}
 
-					int top = f.getPartStartYPos(part.getID());
+					int top = f.getPartStartYPos(part.getUUID().toString());
 					partStyle.setProperty("top", (top - spaceUsedOnlyInPrintAbove) + "px");
 					partStyle.setProperty("height", (part.getHeight() - top) + "px");
 				}
@@ -164,7 +164,7 @@ public class PartWrapper
 		}
 
 		List<BaseComponent> baseComponents = new ArrayList<>();
-		int startPos = context.getPartStartYPos(part.getID());
+		int startPos = context.getPartStartYPos(part.getUUID().toString());
 		int endPos = part.getHeight();
 		Comparator< ? super IFormElement> comparator = null;
 		if (context.isResponsiveLayout())

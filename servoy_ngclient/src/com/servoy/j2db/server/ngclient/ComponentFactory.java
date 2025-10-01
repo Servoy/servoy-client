@@ -17,9 +17,16 @@
 
 package com.servoy.j2db.server.ngclient;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Map;
+
 import org.sablo.Container;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebObjectSpecification;
+import org.sablo.specification.property.CustomJSONPropertyType;
+import org.sablo.specification.property.ICustomType;
+import org.sablo.specification.property.IPropertyType;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.persistence.AbstractBase;
@@ -35,7 +42,6 @@ import com.servoy.j2db.server.ngclient.property.types.DataproviderPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.ISupportTemplateValue;
 import com.servoy.j2db.server.ngclient.property.types.NGEnabledSabloValue;
 import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 
 
@@ -141,7 +147,20 @@ public class ComponentFactory
 		}
 
 		boolean foundOnDataChangeInDPConfigFromSpec[] = new boolean[] { false };
-		componentSpec.getProperties(DataproviderPropertyType.INSTANCE, true).forEach((propertyFromSpec) -> {
+
+		Collection<PropertyDescription> properties = new ArrayList<PropertyDescription>();
+		properties.addAll(componentSpec.getProperties(DataproviderPropertyType.INSTANCE, true));
+		Map<String, ICustomType< ? >> declaredCustomObjectTypes = componentSpec.getDeclaredCustomObjectTypes();
+		for (IPropertyType< ? > pt : declaredCustomObjectTypes.values())
+		{
+			if (pt instanceof CustomJSONPropertyType< ? >)
+			{
+				PropertyDescription customJSONSpec = ((CustomJSONPropertyType< ? >)pt).getCustomJSONTypeDefinition();
+				properties.addAll(customJSONSpec.getProperties(DataproviderPropertyType.INSTANCE, true));
+			}
+		}
+
+		properties.forEach((propertyFromSpec) -> {
 			// the property type found here is for a 'dataprovider' property from the spec file of this component
 			Object configOfDPOrFoundsetLinkedDP = propertyFromSpec.getConfig();
 			DataproviderConfig dpConfig;
@@ -150,7 +169,7 @@ public class ComponentFactory
 				dpConfig = (DataproviderConfig)((FoundsetLinkedConfig)configOfDPOrFoundsetLinkedDP).getWrappedConfig();
 			else dpConfig = (DataproviderConfig)configOfDPOrFoundsetLinkedDP;
 
-			if (dpConfig.getOnDataChange() != null && form.getOnElementDataChangeMethodID() > 0)
+			if (dpConfig.getOnDataChange() != null)
 			{
 				foundOnDataChangeInDPConfigFromSpec[0] = true;
 				webComponent.add(dpConfig.getOnDataChange(), form.getOnElementDataChangeMethodID());
@@ -161,55 +180,25 @@ public class ComponentFactory
 		for (String eventName : componentSpec.getHandlers().keySet())
 		{
 			Object eventValue = fe.getPropertyValue(eventName);
-			if (eventValue instanceof String)
+			if (eventValue instanceof String eventValueString)
 			{
-				IPersist function = application.getFlattenedSolution().getScriptMethod((String)eventValue);
-				if (function == null)
-				{
-					function = application.getFlattenedSolution().searchPersist((String)eventValue);
-					if (function == null)
-					{
-						Debug.warn("Script Method of value '" + eventValue + "' for handler " + eventName + " not found trying just the form " + form);
-
-						IPersist child = form.getChild(UUID.fromString((String)eventValue));
-						if (child != null)
-						{
-							Debug.warn("Script Method " + child + " on the form " + form + " with uuid " + child.getUUID());
-							function = child;
-						}
-						else
-						{
-							Debug.warn("Still not found on Form " + form + " Script Method of value '" + eventValue + "' for handler " + eventName);
-						}
-					}
-				}
-				if (function != null)
-				{
-					webComponent.add(eventName, function.getID());
-				}
-				else
-				{
-					Debug.warn("Event handler for " + eventName + " with value '" + eventValue + "' not found (form " + form + ", form element " +
-						formElementName + ")");
-				}
+				webComponent.add(eventName, eventValueString);
 			}
 			else if (eventValue instanceof Number && ((Number)eventValue).intValue() > 0)
 			{
-				webComponent.add(eventName, ((Number)eventValue).intValue());
+				Debug.warn("Event handler for " + eventName + " with value '" + eventValue + "' is a number (form " + form + ", form element " +
+					formElementName + ")");
 			}
-			else if (Utils.equalObjects(eventName, StaticContentSpecLoader.PROPERTY_ONFOCUSGAINEDMETHODID.getPropertyName()) &&
-				(form.getOnElementFocusGainedMethodID() > 0))
+			else if (Utils.equalObjects(eventName, StaticContentSpecLoader.PROPERTY_ONFOCUSGAINEDMETHODID.getPropertyName()))
 			{
 				webComponent.add(eventName, form.getOnElementFocusGainedMethodID());
 			}
-			else if (Utils.equalObjects(eventName, StaticContentSpecLoader.PROPERTY_ONFOCUSLOSTMETHODID.getPropertyName()) &&
-				(form.getOnElementFocusLostMethodID() > 0))
+			else if (Utils.equalObjects(eventName, StaticContentSpecLoader.PROPERTY_ONFOCUSLOSTMETHODID.getPropertyName()))
 			{
 				webComponent.add(eventName, form.getOnElementFocusLostMethodID());
 			}
 			else if (!foundOnDataChangeInDPConfigFromSpec[0] &&
-				Utils.equalObjects(eventName, StaticContentSpecLoader.PROPERTY_ONDATACHANGEMETHODID.getPropertyName()) &&
-				(form.getOnElementDataChangeMethodID() > 0))
+				Utils.equalObjects(eventName, StaticContentSpecLoader.PROPERTY_ONDATACHANGEMETHODID.getPropertyName()))
 			{
 				// legacy behavior - based on hard-coded handler name (of component)
 				webComponent.add(eventName, form.getOnElementDataChangeMethodID());

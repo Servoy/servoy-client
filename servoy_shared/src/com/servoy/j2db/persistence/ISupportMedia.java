@@ -17,16 +17,15 @@
 package com.servoy.j2db.persistence;
 
 
-
 public interface ISupportMedia
 {
 	/**
-	 * Set the Image id.
+	 * Set the Image uuid.
 	 */
-	void setImageMediaID(int arg);
+	void setImageMediaID(String arg);
 
 	/**
-	 * Get the Image id.
+	 * Get the Image uuid.
 	 */
-	int getImageMediaID();
+	String getImageMediaID();
 }

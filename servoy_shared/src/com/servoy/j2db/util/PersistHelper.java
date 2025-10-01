@@ -914,18 +914,18 @@ public class PersistHelper
 		{
 			return ((Form)persist).getExtendsForm();
 		}
-		final int extendsID = persist.getExtendsID();
-		if (extendsID > 0)
+		final String extendsUUID = persist.getExtendsID();
+		if (extendsUUID != null)
 		{
 			try
 			{
-				Form form = (Form)((AbstractBase)persist).getAncestor(IRepository.FORMS);
+				Form form = (Form)persist.getAncestor(IRepository.FORMS);
 				if (form != null)
 				{
 					form = form.getExtendsForm();
 					while (form != null)
 					{
-						IPersist superPersist = form.getSuperPersist(extendsID);
+						IPersist superPersist = form.getSuperPersist(extendsUUID);
 //						IPersist superPersist = (IPersist)form.acceptVisitor(new IPersistVisitor()
 //						{
 //							public Object visit(IPersist o)
@@ -955,23 +955,24 @@ public class PersistHelper
 
 	public static ISupportChilds getRealParent(IPersist persist)
 	{
-		if (persist instanceof ISupportExtendsID && ((ISupportExtendsID)persist).getExtendsID() > 0 && persist.getParent() instanceof Form)
+		if (persist instanceof ISupportExtendsID && ((ISupportExtendsID)persist).getExtendsID() != null && persist.getParent() instanceof Form)
 		{
 			IPersist superPersist = PersistHelper.getSuperPersist((ISupportExtendsID)persist);
 			if (superPersist != null)
 			{
-				ISupportChilds parent = superPersist.getParent();
-				if (parent != null)
+				ISupportChilds realParent = getRealParent(superPersist);
+				if (realParent != null)
 				{
 					// not all overrides are on form level, search everywhere
 					for (IPersist possibleParent : ((Form)persist.getParent()).getFlattenedFormElementsAndLayoutContainers())
 					{
-						if (possibleParent instanceof ISupportExtendsID && ((ISupportExtendsID)possibleParent).getExtendsID() == parent.getID())
+						if (possibleParent instanceof ISupportExtendsID && ((ISupportExtendsID)possibleParent).getExtendsID() != null &&
+							(((ISupportExtendsID)possibleParent).getExtendsID().equals(realParent.getUUID().toString()) ||
+								((ISupportExtendsID)possibleParent).getExtendsID().equals(((ISupportExtendsID)realParent).getExtendsID())))
 						{
 							return (ISupportChilds)possibleParent;
 						}
 					}
-					ISupportChilds realParent = getRealParent(superPersist);
 					if (realParent instanceof Form)
 					{
 						// this really was a form component, not an override
@@ -987,10 +988,6 @@ public class PersistHelper
 	public static boolean isOverrideOrphanElement(ISupportExtendsID persist)
 	{
 		IPersist parentPersist = persist;
-		if (parentPersist instanceof ISupportExtendsID && ((ISupportExtendsID)parentPersist).getExtendsID() == IRepository.UNRESOLVED_ELEMENT)
-		{
-			return true;
-		}
 		while (isOverrideElement(parentPersist))
 		{
 			parentPersist = getSuperPersist(((ISupportExtendsID)parentPersist));
@@ -1007,7 +1004,7 @@ public class PersistHelper
 		if (object instanceof AbstractBase && object instanceof ISupportExtendsID)
 		{
 			return ((AbstractBase)object).hasProperty(StaticContentSpecLoader.PROPERTY_EXTENDSID.getPropertyName()) &&
-				((ISupportExtendsID)object).getExtendsID() > 0;
+				Utils.getAsUUID(((ISupportExtendsID)object).getExtendsID(), false) != null;
 		}
 		return false;
 	}
@@ -1063,7 +1060,7 @@ public class PersistHelper
 		{
 			List<IPersist> children = new ArrayList<IPersist>();
 			List<AbstractBase> parentHierarchy = new ArrayList<AbstractBase>();
-			List<Integer> existingIDs = new ArrayList<Integer>();
+			List<String> existingIDs = new ArrayList<String>();
 			AbstractBase element = parent;
 			while (element != null && !parentHierarchy.contains(element))
 			{
@@ -1075,18 +1072,18 @@ public class PersistHelper
 				for (IPersist child : temp.getAllObjectsAsList())
 				{
 					if (!(child instanceof ISupportExtendsID)) continue;
-					Integer extendsID = new Integer(((ISupportExtendsID)child).getExtendsID());
-					if (!existingIDs.contains(new Integer(child.getID())) && !existingIDs.contains(extendsID))
+					String extendsID = ((ISupportExtendsID)child).getExtendsID();
+					if (!existingIDs.contains(child.getUUID().toString()) && !existingIDs.contains(extendsID))
 					{
 						if (PersistHelper.isOverrideOrphanElement((ISupportExtendsID)child))
 						{
 							// some deleted element
 							continue;
 						}
-						existingIDs.add(child.getID());
+						existingIDs.add(child.getUUID().toString());
 						children.add(child);
 					}
-					if (extendsID.intValue() > 0 && !existingIDs.contains(extendsID))
+					if (extendsID != null && !existingIDs.contains(extendsID))
 					{
 						existingIDs.add(extendsID);
 					}
@@ -1129,7 +1126,7 @@ public class PersistHelper
 		}
 		for (Solution solution : orderedModules)
 		{
-			if (solution.getStyleSheetID() > 0)
+			if (solution.getStyleSheetID() != null)
 			{
 				Media media = fs.getMedia(solution.getStyleSheetID());
 				if (media != null)

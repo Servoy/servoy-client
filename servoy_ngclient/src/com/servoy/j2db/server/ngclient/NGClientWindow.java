@@ -160,6 +160,15 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 		if (callContributions != null) newCallContributions.putAll(callContributions); // probably always null
 
 		IWebFormUI formUI = receiver.findParent(IWebFormUI.class);
+		if (formUI == null)
+		{
+			// for example if an "onDataChange" shows another main form and removes previous from history, then it will be already destroyed here; we can't call "onDataChangeCallback" anymore;
+			// this is not an usual scenario, as "receiver" is part of the UI of a destroyed form; if code would get a destroyed form again and call api on it
+			// then "receiver" would be from the new form's instance UI
+			log.warn("Ignoring invokeAPI of '" + apiFunction.getName() + "' on UI component '" + receiver.getName() + "' ('" + //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+				receiver.getSpecification().getDisplayName() + "') of a form that was destroyed."); //$NON-NLS-1$
+			return null;
+		}
 		IWebFormController form = formUI.getController();
 
 		if (!isDelayedApiCall(apiFunction))
@@ -168,7 +177,8 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 			{
 				log.warn("You are calling a component sync api method (to browser) in form '" + form.getName() +
 					"' before the form is available in browser's DOM. This should be avoided. (Component : " + receiver.getName() + " , api: " +
-					apiFunction.getName() + "). See: https://wiki.servoy.com/pages/viewpage.action?pageId=1869552#Specification(.specfile)-HiddenDivNote");
+					apiFunction.getName() +
+					"). Titanium NG client will try to wait for form load only if it sees that it's in the process of showing a form; if not or if the form will not show after a few seconds, it will just fail/ignore the call. NG client used to show the form in a hidden div just in order to be able to call the API. Both can slow down your solution. The solution's code can be changed, or the component's impl could take advantage of server side impl (if a return value is needed, but that value does not necessarily need the form's UI to be loaded in the browser) + model properties, or, if a return value is not needed or can be delayed to a callback param, use async calls with delayUntilFormLoads.");
 			}
 			touchForm(form.getForm(), form.getName(), false, false);
 			pendingApiCallFormsOnNextResponse.add(formUI); // the form will be on client, make sure we send changes for it as well... if it would be delayed it might not even be present on client for a while, so we will send changes only when it is attached to DOM and has delayed
@@ -225,11 +235,11 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 					{
 						if ("-1".equals(relName))
 						{
-							relName = Integer.toHexString(relation.getID());
+							relName = relation.getName();
 						}
 						else
 						{
-							relName += Integer.toHexString(relation.getID());
+							relName += relation.getName();
 						}
 					}
 				}
@@ -367,15 +377,18 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 				{
 					if (getSession().getClient().isEventDispatchThread() && forceLoad)
 					{
-						try
-						{
-							getSession().getClientService(NGRuntimeWindowManager.WINDOW_SERVICE).executeServiceCall("updateController",
-								new Object[] { realFormName, jsTemplate, realUrl, Boolean.valueOf(forceLoad), htmlTemplate });
-						}
-						catch (IOException e)
-						{
-							Debug.error(e);
-						}
+						// async now instead of sync call; because we just need to send data right away; return value is not needed;
+
+						// and a possible suspend of the event thread if a sync call would be used here messes up with the fix for SVY-19635
+						// that schedules a high eventLevel even on the event thread to execute after a form's onShow handler execution
+						// or if that handler does a component sync call to client - in order to send data and call
+						// session.getSabloService().setExpectFormToShowOnClient(false)... if we used here a sync call here,
+						// then that event would execute too soon if onShow calls a component sync api in it - before the component sync call
+						// is actually sent to client... because it would be suspended by this call before that (if this call would be
+						// sync instead of asyncnow)
+
+						getSession().getClientService(NGRuntimeWindowManager.WINDOW_SERVICE).executeAsyncNowServiceCall("updateController",
+							new Object[] { realFormName, jsTemplate, realUrl, Boolean.valueOf(forceLoad), htmlTemplate }, true);
 					}
 					else
 					{
@@ -436,7 +449,7 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 	public void updateForm(Form form, String name, IFormHTMLAndJSGenerator formTemplateGenerator)
 	{
 		/**
-		 * we should have to  check for hasForm here, because we shouldn't push a recreatedUI form when it is not
+		 * we should have to check for hasForm here, because we shouldn't push a recreatedUI form when it is not
 		 * on the client. Because it could be not visible again and not have all the data, then the next time the touch will
 		 * just fully ignore it.
 		 */
@@ -462,6 +475,7 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 	{
 		getSession().getClientService(NGRuntimeWindowManager.WINDOW_SERVICE).executeAsyncServiceCall("destroyController", new Object[] { name });
 		getClientSideWindowState().formDestroyed(name);
+		clearAllDelayedCallsToForm(name);
 	}
 
 	/**
@@ -526,5 +540,4 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 		if (relationMap != null && relationMap.containsKey(element)) return relationMap.get(element);
 		return uuidRelationName;
 	}
-
 }

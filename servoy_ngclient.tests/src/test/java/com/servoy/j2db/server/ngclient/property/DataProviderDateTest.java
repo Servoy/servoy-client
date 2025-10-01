@@ -22,6 +22,7 @@ import java.awt.print.PageFormat;
 import java.net.URL;
 import java.rmi.Remote;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -53,7 +54,10 @@ import org.sablo.websocket.utils.JSONUtils.IJSONStringWithClientSideType;
 
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.IDataRendererFactory;
+import com.servoy.j2db.IEventsManager;
+import com.servoy.j2db.IMenuManager;
 import com.servoy.j2db.IModeManager;
+import com.servoy.j2db.IPermissionManager;
 import com.servoy.j2db.cmd.ICmdManager;
 import com.servoy.j2db.component.ComponentFormat;
 import com.servoy.j2db.dataprocessing.ClientInfo;
@@ -71,6 +75,7 @@ import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.plugins.IPluginAccess;
 import com.servoy.j2db.plugins.IPluginManager;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
+import com.servoy.j2db.scripting.JSBlobLoaderBuilder;
 import com.servoy.j2db.server.ngclient.IDataAdapterList;
 import com.servoy.j2db.server.ngclient.INGApplication;
 import com.servoy.j2db.server.ngclient.INGClientWebsocketSession;
@@ -559,7 +564,7 @@ public class DataProviderDateTest
 		}
 
 		@Override
-		public Object executeEvent(WebComponent webComponent, String event, int eventId, Object[] args)
+		public Object executeEvent(WebComponent webComponent, String event, String eventId, Object[] args)
 		{
 			return null;
 		}
@@ -816,12 +821,18 @@ public class DataProviderDateTest
 
 	}
 
-	private static class ServiceProvider implements INGApplication
+	public static class ServiceProvider implements INGApplication
 	{
 		@Override
 		public Object generateBrowserFunction(String functionString)
 		{
 			return functionString;
+		}
+
+		@Override
+		public JSBlobLoaderBuilder createUrlBlobloaderBuilder(String dataprovider)
+		{
+			return null;
 		}
 
 		@Override
@@ -1130,8 +1141,9 @@ public class DataProviderDateTest
 		@Override
 		public Map getRuntimeProperties()
 		{
-
-			return null;
+			Map map = new HashMap<>();
+			map.put("NG2", Boolean.TRUE);
+			return map;
 		}
 
 		/*
@@ -2002,8 +2014,7 @@ public class DataProviderDateTest
 		@Override
 		public String registerClientFunction(String code)
 		{
-
-			return null;
+			return code;
 		}
 
 
@@ -2050,5 +2061,64 @@ public class DataProviderDateTest
 
 		}
 
+		/*
+		 * (non-Javadoc)
+		 *
+		 * @see com.servoy.j2db.IApplication#getMenuManager()
+		 */
+		@Override
+		public IMenuManager getMenuManager()
+		{
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		/*
+		 * (non-Javadoc)
+		 *
+		 * @see com.servoy.j2db.INGClientApplication#getBounds(java.lang.String, java.lang.String)
+		 */
+		@Override
+		public JSONObject getBounds(String webComponentID, String subselector)
+		{
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		/*
+		 * (non-Javadoc)
+		 *
+		 * @see com.servoy.j2db.IApplication#getEventsManager()
+		 */
+		@Override
+		public IEventsManager getEventsManager()
+		{
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		/*
+		 * (non-Javadoc)
+		 *
+		 * @see com.servoy.j2db.IApplication#getPermissionManager()
+		 */
+		@Override
+		public IPermissionManager getPermissionManager()
+		{
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		/*
+		 * (non-Javadoc)
+		 *
+		 * @see com.servoy.j2db.INGClientApplication#getUserAgentAndPlatform()
+		 */
+		@Override
+		public JSONObject getUserAgentAndPlatform()
+		{
+			// TODO Auto-generated method stub
+			return null;
+		}
 	}
 }

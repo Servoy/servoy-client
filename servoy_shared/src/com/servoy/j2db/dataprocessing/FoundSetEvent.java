@@ -18,7 +18,7 @@ package com.servoy.j2db.dataprocessing;
 
 
 import java.util.EventObject;
-import java.util.List;
+import java.util.Set;
 
 /**
  * The event object for foundset event listeners
@@ -75,14 +75,14 @@ public class FoundSetEvent extends EventObject
 	private final int changeType;
 	private final int firstRow;
 	private final int lastRow;
-	private final List<String> dataProviders;
+	private final Set<String> dataProviders;
 
 	public FoundSetEvent(IFoundSet source, int type, int changeType, int firstRow, int lastRow)
 	{
 		this(source, type, changeType, firstRow, lastRow, null);
 	}
 
-	public FoundSetEvent(IFoundSet source, int type, int changeType, int firstRow, int lastRow, List<String> dataProviders)
+	public FoundSetEvent(IFoundSet source, int type, int changeType, int firstRow, int lastRow, Set<String> dataProviders)
 	{
 		super(source);
 		this.type = type;
@@ -144,10 +144,7 @@ public class FoundSetEvent extends EventObject
 		return lastRow;
 	}
 
-	/**
-	 * @return the dataProviders
-	 */
-	public List<String> getDataProviders()
+	public Set<String> getDataProviders()
 	{
 		return dataProviders;
 	}

@@ -7,19 +7,17 @@
 	</prerequisites>
 	<parent>
 		<artifactId>servoy-client</artifactId>
-		<version>2024.6.0.3980_rc</version>
+		<version>2025.12.0.4120_rc</version>
 		<groupId>com.servoy</groupId>
 	</parent>
 
-	<groupId>com.servoy</groupId>
-	<version>2024.6.0.3980_rc</version>
 	<artifactId>servoy-doc</artifactId>
 	<packaging>jar</packaging>
 
 	<properties>
 		<workspace_dir>${project.build.directory}/ws</workspace_dir>
 		<servoy-local.url>${project.baseUri}/target/repository/</servoy-local.url>
-		<doc.version>1.6.1</doc.version>
+		<doc.version>1.8.0</doc.version>
 	</properties>
 
 	<build>
@@ -85,7 +83,7 @@
 								</copy>
 								<copy todir="${workspace_dir}/servoy_shared/src">
 									<fileset
-										dir="${project.build.directory}/org.eclipse.dltk.javascript.rhino/src" />
+										dir="${project.build.directory}/org.eclipse.dltk.javascript.rhino/rhino/src/main" />
 								</copy>
 								<mkdir dir="${workspace_dir}/servoy_shared/_doc" />
 							</target>
@@ -140,7 +138,7 @@
 									<type>eclipse-feature</type>
 								</dependency>
 							</dependencies>
-							<executionEnvironment>JavaSE-17</executionEnvironment>
+							<executionEnvironment>JavaSE-21</executionEnvironment>
 						</configuration>
 						<executions>
 							<execution>
@@ -246,6 +244,8 @@
                                         <args>com.servoy.j2db.documentation.persistence.docs</args>
                                         <args>--output-file</args>
                                         <args>/servoy_shared/_doc/servoydoc_design.xml</args>
+                                        <args>--categories</args>
+                                        <args>designtime</args>
                                         <args>--import-projects</args>
                                         <args>true</args>
                                     </applicationsArgs>
@@ -306,6 +306,8 @@
 										<args>com.servoy.j2db.documentation.persistence.docs</args>
 										<args>--output-file</args>
 										<args>/servoy_shared/_doc/servoydoc_design.xml</args>
+                                        <args>--categories</args>
+                                        <args>designtime</args>
 										<args>--import-projects</args>
 										<args>true</args>
 									</applicationsArgs>

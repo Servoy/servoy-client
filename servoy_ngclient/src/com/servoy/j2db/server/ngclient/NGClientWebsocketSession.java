@@ -20,7 +20,6 @@ package com.servoy.j2db.server.ngclient;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -32,7 +31,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
-import org.json.JSONArray;
 import org.json.JSONObject;
 import org.sablo.eventthread.IEventDispatcher;
 import org.sablo.services.client.TypesRegistryService;
@@ -43,7 +41,7 @@ import org.sablo.specification.WebObjectApiFunctionDefinition;
 import org.sablo.specification.WebObjectSpecification;
 import org.sablo.specification.WebObjectSpecificationBuilder;
 import org.sablo.specification.WebServiceSpecProvider;
-import org.sablo.specification.property.types.ObjectPropertyType;
+import org.sablo.specification.property.types.BooleanPropertyType;
 import org.sablo.specification.property.types.StringPropertyType;
 import org.sablo.specification.property.types.TypesRegistry;
 import org.sablo.websocket.BaseWebsocketSession;
@@ -63,13 +61,16 @@ import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.Messages;
 import com.servoy.j2db.dataprocessing.ClientInfo;
 import com.servoy.j2db.persistence.Form;
+import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Solution;
+import com.servoy.j2db.persistence.Solution.AUTHENTICATOR_TYPE;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.scripting.RuntimeWindow;
 import com.servoy.j2db.scripting.StartupArguments;
 import com.servoy.j2db.server.ngclient.INGClientWindow.IFormHTMLAndJSGenerator;
+import com.servoy.j2db.server.ngclient.auth.SvyID;
 import com.servoy.j2db.server.ngclient.eventthread.NGClientWebsocketSessionWindows;
 import com.servoy.j2db.server.ngclient.eventthread.NGEventDispatcher;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
@@ -99,35 +100,32 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 		private WindowServiceSpecification()
 		{
 			super(NGRuntimeWindowManager.WINDOW_SERVICE, "", IPackageReader.WEB_SERVICE, "", null, null, null, null, "", null, null, null);
-			WebObjectApiFunctionDefinition destroy = new WebObjectApiFunctionDefinition("destroyController");
-			destroy.addParameter(new PropertyDescriptionBuilder().withName("name").withType(TypesRegistry.getType(StringPropertyType.TYPE_NAME)).build());
-			destroy.setAsync(true);
-			destroy.setPreDataServiceCall(true);
-			addApiFunction(destroy);
+
+			WebObjectApiFunctionDefinition createFormController = new WebObjectApiFunctionDefinition("updateController");
+			// realFormName, jsTemplate, realUrl, Boolean.valueOf(forceLoad), htmlTemplate
+			createFormController
+				.addParameter(new PropertyDescriptionBuilder().withName("realFormName").withType(TypesRegistry.getType(StringPropertyType.TYPE_NAME)).build());
+			createFormController
+				.addParameter(new PropertyDescriptionBuilder().withName("jsTemplate").withType(TypesRegistry.getType(StringPropertyType.TYPE_NAME)).build());
+			createFormController
+				.addParameter(new PropertyDescriptionBuilder().withName("realUrl").withType(TypesRegistry.getType(StringPropertyType.TYPE_NAME)).build());
+			createFormController.addParameter(new PropertyDescriptionBuilder().withName("forceLoad")
+				.withType(TypesRegistry.getType(BooleanPropertyType.TYPE_NAME)).withOptional(true).build()); // Titanium client doesn't use this
+			createFormController.addParameter(new PropertyDescriptionBuilder().withName("htmlTemplate")
+				.withType(TypesRegistry.getType(StringPropertyType.TYPE_NAME)).withOptional(true).build()); // Titanium client doesn't use this //
+			// createFormController.setAsync(true); // sync / async for this method is given explicitly by the java code that calls it (it calls either sync method or async method)
+			createFormController.setPreDataServiceCall(true); // make sure the client state (FormCache) is created first on client when that message arrives, before any updates for this same form (from potentially the same message) want to apply themselves on that form's state
+			addApiFunction(createFormController);
+
+			WebObjectApiFunctionDefinition destroyFormController = new WebObjectApiFunctionDefinition("destroyController");
+			destroyFormController
+				.addParameter(new PropertyDescriptionBuilder().withName("realFormName").withType(TypesRegistry.getType(StringPropertyType.TYPE_NAME)).build());
+			destroyFormController.setAsync(true);
+			destroyFormController.setPreDataServiceCall(true);
+			addApiFunction(destroyFormController);
 		}
 	}
 
-	private static final class TypesRegistryServiceSpecification extends WebObjectSpecification
-	{
-		@SuppressWarnings("nls")
-		private TypesRegistryServiceSpecification()
-		{
-			super(TypesRegistryService.TYPES_REGISTRY_SERVICE, "", IPackageReader.WEB_SERVICE, "", null, null, null, null, "", null, null, null);
-			WebObjectApiFunctionDefinition apiCallDef = new WebObjectApiFunctionDefinition("addComponentClientSideSpecs");
-			apiCallDef
-				.addParameter(new PropertyDescriptionBuilder().withName("toBeSent").withType(TypesRegistry.getType(ObjectPropertyType.TYPE_NAME)).build());
-			apiCallDef.setAsync(true);
-			apiCallDef.setPreDataServiceCall(true);
-			addApiFunction(apiCallDef);
-
-			apiCallDef = new WebObjectApiFunctionDefinition("setServiceClientSideSpecs");
-			apiCallDef
-				.addParameter(new PropertyDescriptionBuilder().withName("toBeSent").withType(TypesRegistry.getType(ObjectPropertyType.TYPE_NAME)).build());
-			apiCallDef.setAsync(true);
-			apiCallDef.setPreDataServiceCall(true);
-			addApiFunction(apiCallDef);
-		}
-	}
 
 	private static final class ClientFunctionsServiceSpecification extends WebObjectSpecification
 	{
@@ -143,7 +141,6 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 
 	private static final ClientFunctionsServiceSpecification CLIENT_FUNCTIONS_SERVICE_SPEC = new ClientFunctionsServiceSpecification();
 	private static final WindowServiceSpecification WINDOWS_SERVICE_SPEC = new WindowServiceSpecification();
-	private static final TypesRegistryServiceSpecification TYPES_REGISTRY_SERVICE_SPEC = new TypesRegistryServiceSpecification();
 
 	private NGClient client;
 
@@ -151,7 +148,8 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 	{
 		super(sessionKey);
 		registerClientService(new ServoyClientService(NGRuntimeWindowManager.WINDOW_SERVICE, WINDOWS_SERVICE_SPEC, this, false));
-		registerClientService(new ServoyClientService(TypesRegistryService.TYPES_REGISTRY_SERVICE, TYPES_REGISTRY_SERVICE_SPEC, this, false));
+		registerClientService(
+			new ServoyClientService(TypesRegistryService.TYPES_REGISTRY_SERVICE, TypesRegistryService.TYPES_REGISTRY_SERVICE_SPEC, this, false));
 		registerClientService(new ServoyClientService(CLIENT_FUNCTION_SERVICE, CLIENT_FUNCTIONS_SERVICE_SPEC, this, false));
 	}
 
@@ -311,6 +309,11 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 								}
 							}
 							sendSolutionCSSURL(solution.getSolution());
+							if (currentForm.isFormVisible())
+							{
+								client.getFormManager().getCachedFormControllers().stream().filter(f -> f != currentForm && f.isFormVisible())
+									.forEach(f -> NGClientWindow.getCurrentWindow().touchForm(f.getForm(), f.getName(), true, true));
+							}
 						}
 						finally
 						{
@@ -337,12 +340,14 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 								: new String[] { args.getSolutionName(), args.getMethodName() },
 							args);
 
-						if (getHttpSession().getAttribute(StatelessLoginHandler.ID_TOKEN) != null)
+						Solution sol = (Solution)ApplicationServerRegistry.get().getLocalRepository().getActiveRootObject(solutionName, IRepository.SOLUTIONS);
+						AUTHENTICATOR_TYPE authenticator = sol.getAuthenticator();
+						if (getHttpSession().getAttribute(StatelessLoginHandler.ID_TOKEN) != null && sol != null &&
+							authenticator != AUTHENTICATOR_TYPE.NONE && sol.getLoginFormID() == null && sol.getLoginSolutionName() == null)
 						{
 							setUserId();
 						}
 						client.loadSolution(solutionName);
-
 						client.showInfoPanel();
 
 					}
@@ -356,33 +361,24 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 				public void setUserId()
 				{
 					String id_token = (String)getHttpSession().getAttribute(StatelessLoginHandler.ID_TOKEN);
-					String[] chunks = id_token.split("\\.");
-					Base64.Decoder decoder = Base64.getUrlDecoder();
-					String payload = new String(decoder.decode(chunks[1]));
-					JSONObject token = new JSONObject(payload);
-					String userID = token.getString(StatelessLoginHandler.UID);
-
+					SvyID token = new SvyID(id_token);
 					ClientInfo ci = client.getClientInfo();
-					ci.setUserUid(userID);
-					ci.setUserName(token.getString(StatelessLoginHandler.USERNAME));
-					if (token.has(StatelessLoginHandler.PERMISSIONS))
-					{
-						JSONArray groups = token.getJSONArray(StatelessLoginHandler.PERMISSIONS);
-						String[] gr = new String[groups.length()];
-						for (int i = 0; i < groups.length(); i++)
-						{
-							gr[i] = groups.getString(i);
-						}
-						ci.setUserGroups(gr);
-					}
-					if (token.optBoolean("remember", false))
+					ci.setUserUid(token.getUserID());
+					ci.setUserName(token.getUsername());
+					String[] gr = token.getPermissions();
+					if (gr != null) ci.setUserGroups(gr);
+					Object[] tenants = token.getTenants();
+					client.getFormManager().setTenantValue(tenants);
+					if (token.rememberUser())
 					{
 						JSONObject obj = new JSONObject();
-						obj.put(StatelessLoginHandler.USERNAME, token.get(StatelessLoginHandler.USERNAME));
+						obj.put(SvyID.USERNAME, token.getUsername());
 						obj.put(StatelessLoginHandler.ID_TOKEN, id_token);
 						getClientService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("rememberUser",
 							new Object[] { obj });
 					}
+					//remove the id token of the oauth provider from the url
+					getClientService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("replaceUrlState", null);
 				}
 			});
 		}
@@ -400,7 +396,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 	private void sendUIProperties()
 	{
 		Map<String, Object> clientProperties = client.getClientSideUIProperties();
-		if (!clientProperties.containsValue(IApplication.TRUST_DATA_AS_HTML))
+		if (!clientProperties.containsKey(IApplication.TRUST_DATA_AS_HTML))
 		{
 			// set default trustDataAsHtml based on system setting
 			clientProperties.put(IApplication.TRUST_DATA_AS_HTML,

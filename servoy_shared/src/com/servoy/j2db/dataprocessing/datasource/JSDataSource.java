@@ -41,7 +41,26 @@ import com.servoy.j2db.util.IDestroyable;
 import com.servoy.j2db.util.ServoyException;
 
 /**
- * Scope for datasources.db.myserver.mytable or datasources.mem['dsname']
+ * <p>
+ * The <code>JSDataSource</code> represents a data source in the Servoy environment, encompassing both
+ * database sources (<code>datasources.db.myserver.mytable</code>) and in-memory sources
+ * (<code>datasources.mem['dsname']</code>). It provides a comprehensive API for interacting with data,
+ * enabling querying, record manipulation, and foundset management.
+ * </p>
+ *
+ * <p>
+ * This class supports creating new foundsets for a data source or retrieving named foundsets based on
+ * specific configurations. It allows the execution of queries through query builders (<code>QBSelect</code>)
+ * or raw SQL strings. Records can be loaded dynamically using various input formats, including primary keys,
+ * datasets, or queries. The ability to retrieve individual records by primary key ensures precise and efficient
+ * data access when needed.
+ * </p>
+ *
+ * <p>
+ * In addition to record management, <code>JSDataSource</code> facilitates retrieving metadata such as column
+ * names and table information for a data source. It supports the creation of query builders, optionally with
+ * table aliases, allowing complex query construction and interaction with outer tables in nested SQL scenarios.
+ * </p>
  *
  * @author rgansevles
  *

@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.servoy.j2db.IBasicFormManager.History;
+import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.plugins.IPlugin;
 import com.servoy.j2db.scripting.JSWindow;
 import com.servoy.j2db.scripting.RuntimeWindow;
@@ -152,10 +153,11 @@ public abstract class RuntimeWindowManager
 			IApplication app = fp.getApplication();
 			if (app.getFormManager() != null)
 			{
-				int form_id = fp.getForm().getNavigatorID();
-				if (form_id > 0)
+				String form_uuid = fp.getForm().getNavigatorID();
+				if (form_uuid != null && !Form.NAVIGATOR_IGNORE.equals(form_uuid) && !Form.NAVIGATOR_NONE.equals(form_uuid))
 				{
-					IFormController navigator = (IFormController)app.getFormManager().getForm(app.getFlattenedSolution().getForm(form_id).getName()).getFormUI()
+					IFormController navigator = (IFormController)app.getFormManager().getForm(app.getFlattenedSolution().getForm(form_uuid).getName())
+						.getFormUI()
 						.getController();
 					List<Runnable> invokeLaterRunnables2 = new ArrayList<Runnable>();
 					if (navigator != null) navigator.notifyVisible(false, invokeLaterRunnables2, true);

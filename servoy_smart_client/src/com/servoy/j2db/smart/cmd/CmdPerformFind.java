@@ -46,7 +46,8 @@ public class CmdPerformFind extends AbstractCmd
 	{
 		super(
 			app,
-			"CmdPerformFind", app.getI18NMessage("servoy.menuitem.search"), "servoy.menuitem.search", app.getI18NMessage("servoy.menuitem.search.mnemonic").charAt(0), app.loadImage("find_next.gif")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+			"CmdPerformFind", app.getI18NMessage("servoy.menuitem.search"), "servoy.menuitem.search", //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+			app.getI18NMessage("servoy.menuitem.search.mnemonic").charAt(0), app.loadImage("find_next.gif")); //$NON-NLS-1$ //$NON-NLS-2$
 		setActionCommand("search"); //$NON-NLS-1$
 		setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F3, 0));
 	}
@@ -70,7 +71,7 @@ public class CmdPerformFind extends AbstractCmd
 				IFoundSet foundSet = f.getFoundSet();
 				boolean shouldPerform = f.isInFindMode() && (foundSet == null || !processedFounsets.contains(foundSet));
 				if (shouldPerform && f instanceof FormController && ((FormController)f).getForm() != null &&
-					((FormController)f).getForm().getOnSearchCmdMethodID() < 0) shouldPerform = false;
+					"-1".equals(((FormController)f).getForm().getOnSearchCmdMethodID())) shouldPerform = false;
 				if (shouldPerform)
 				{
 					processedFounsets.add(foundSet);

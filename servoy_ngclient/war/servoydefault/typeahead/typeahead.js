@@ -167,7 +167,7 @@ angular.module('servoydefaultTypeahead', ['servoy'])
 						}
 						if (!hasMatchingDisplayValue)
 						{
-							if (hasRealValues) 
+							if (hasRealValues && !$scope.model.findmode) 
 							{
 								// if we still have old value do not set it to null or try to  get it from the list.
 								if ($scope.model.dataProviderID != null && $scope.model.dataProviderID !== $scope.value)

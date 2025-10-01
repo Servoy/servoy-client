@@ -27,9 +27,7 @@ import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
 
 import org.apache.wicket.Component;
-import org.apache.wicket.model.IModel;
 
-import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.persistence.ISupportTextSetup;
 import com.servoy.j2db.ui.IStylePropertyChanges;
 import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
@@ -359,7 +357,6 @@ public class ChangesRecorder implements IStylePropertyChangesRecorder
 			if (border instanceof CompoundBorder)
 			{
 				Insets marginInside = ComponentFactoryHelper.getBorderInsetsForNoComponent(((CompoundBorder)border).getInsideBorder());
-				borderMargin = TemplateGenerator.sumInsets(borderMargin, marginInside);
 				Border ob = ((CompoundBorder)border).getOutsideBorder();
 				if (ob instanceof ISupportCustomBorderInsets)
 				{
@@ -395,9 +392,7 @@ public class ChangesRecorder implements IStylePropertyChangesRecorder
 		if (padding == null) padding = defaultPadding;
 		if (properties != null)
 		{
-			Insets borderAndPadding = TemplateGenerator.sumInsets(insets, padding);
 			int innerHeight = height;
-			if (borderAndPadding != null) innerHeight -= borderAndPadding.top + borderAndPadding.bottom;
 			int bottomPaddingExtra = 0;
 			if (isButtonOrSelect && valign != ISupportTextSetup.CENTER)
 			{
@@ -420,10 +415,7 @@ public class ChangesRecorder implements IStylePropertyChangesRecorder
 		}
 
 		if (insets == null) insets = padding;
-		else
-		{
-			insets = TemplateGenerator.sumInsets(insets, padding);
-		}
+
 		return insets;
 	}
 
@@ -431,14 +423,7 @@ public class ChangesRecorder implements IStylePropertyChangesRecorder
 	public Insets getPadding(Border border, Insets margin)
 	{
 		Insets borderMargin = margin;
-		if (border != null)
-		{
-			if (border instanceof CompoundBorder)
-			{
-				Insets marginInside = ComponentFactoryHelper.getBorderInsetsForNoComponent(((CompoundBorder)border).getInsideBorder());
-				borderMargin = TemplateGenerator.sumInsets(borderMargin, marginInside);
-			}
-		}
+
 		return (borderMargin == null ? defaultPadding : borderMargin);
 	}
 
@@ -543,29 +528,6 @@ public class ChangesRecorder implements IStylePropertyChangesRecorder
 	 */
 	public void testChanged(Component component, Object value)
 	{
-		IModel model = component.getInnermostModel();
-
-		if (model instanceof RecordItemModel)
-		{
-			Object o = ((RecordItemModel)model).getLastRenderedValue(component);
-			Object displayV = value;
-			if (component instanceof IResolveObject)
-			{
-				displayV = ((IResolveObject)component).resolveDisplayValue(value);
-			}
-
-			if (component instanceof IDisplayData && ((IDisplayData)component).getDataProviderID() == null)
-			{
-				// we don't have a mechanism to detect if the text has changed
-				// both oldvalue and newvalue will always be null
-				changed = true;
-			}
-			else if (!Utils.equalObjects(o, displayV))
-			{
-				changed = true;
-				valueChanged = true;
-			}
-		}
 	}
 
 	private static String getSizeString(int size)

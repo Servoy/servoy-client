@@ -61,6 +61,8 @@ import com.servoy.j2db.persistence.ISupportExtendsID;
 import com.servoy.j2db.persistence.ISupportSize;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
+import com.servoy.j2db.scripting.IExecutingEnviroment;
+import com.servoy.j2db.scripting.info.EventType;
 import com.servoy.j2db.server.ngclient.property.ComponentPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.FormComponentPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions;
@@ -123,11 +125,11 @@ public final class FormElement implements INGFormElement
 
 		this.componentType = willTurnIntoErrorBean ? FormElement.ERROR_BEAN : FormTemplateGenerator.getComponentTypeName(persist);
 		IFormElement superPersist = persist;
-		String uniqueId = String.valueOf(superPersist.getID());
+		String uniqueId = superPersist.getUUID().toString();
 		while (inDesigner && superPersist != null)
 		{
 			superPersist = (IFormElement)PersistHelper.getSuperPersist(superPersist);
-			if (superPersist != null) uniqueId = String.valueOf(superPersist.getID());
+			if (superPersist != null) uniqueId = superPersist.getUUID().toString();
 		}
 		this.uniqueIdWithinForm = uniqueId;
 
@@ -354,12 +356,20 @@ public final class FormElement implements INGFormElement
 
 				Object formElementValue = map.get(pd.getName());
 
-				if (inDesigner && pd.getType() == VisiblePropertyType.INSTANCE)
+				if (pd.getType() instanceof VisiblePropertyType)
 				{
-					Object isVisibleObj = map.get(pd.getName());
-					if (isVisibleObj instanceof Boolean)
+					if (inDesigner)
 					{
-						isVisible = isVisible && ((Boolean)isVisibleObj).booleanValue();
+						Object isVisibleObj = map.get(pd.getName());
+						if (isVisibleObj instanceof Boolean)
+						{
+							isVisible = isVisible && ((Boolean)isVisibleObj).booleanValue();
+							map.put(pd.getName(), Boolean.TRUE);
+						}
+					}
+					else if (!map.containsKey(pd.getName()) && map.containsKey(DefaultComponentPropertiesProvider.VISIBLE_DATAPROVIDER_NAME))
+					{
+						// if we have a dataprovider for visible, we need to set a default value
 						map.put(pd.getName(), Boolean.TRUE);
 					}
 				}
@@ -388,7 +398,7 @@ public final class FormElement implements INGFormElement
 					Part part = flatForm.getPartAt(location.y);
 					if (part != null)
 					{
-						int top = flatForm.getPartStartYPos(part.getID());
+						int top = flatForm.getPartStartYPos(part.getUUID().toString());
 						newLocation.y = newLocation.y - top;
 						map.put(StaticContentSpecLoader.PROPERTY_LOCATION.getPropertyName(), newLocation);
 						map.put("offsetY", top);
@@ -660,10 +670,10 @@ public final class FormElement implements INGFormElement
 	 */
 	public Collection<String> getHandlers()
 	{
-		return getHandlers(true);
+		return getHandlers(true, null);
 	}
 
-	public Collection<String> getHandlers(boolean skipPrivate)
+	public Collection<String> getHandlers(boolean skipPrivate, INGApplication application)
 	{
 		List<String> handlers = new ArrayList<>();
 		Form mainForm = getForm();
@@ -694,12 +704,16 @@ public final class FormElement implements INGFormElement
 				handlers.add(eventName);
 			}
 			else if (Utils.equalObjects(eventName, StaticContentSpecLoader.PROPERTY_ONFOCUSGAINEDMETHODID.getPropertyName()) &&
-				(mainForm.getOnElementFocusGainedMethodID() > 0))
+				(mainForm.getOnElementFocusGainedMethodID() != null ||
+					(application != null && application.getEventsManager().hasListeners(EventType.onElementFocusGained,
+						IExecutingEnviroment.TOPLEVEL_FORMS + '.' + mainForm.getName()))))
 			{
 				handlers.add(eventName);
 			}
 			else if (Utils.equalObjects(eventName, StaticContentSpecLoader.PROPERTY_ONFOCUSLOSTMETHODID.getPropertyName()) &&
-				(mainForm.getOnElementFocusLostMethodID() > 0))
+				(mainForm.getOnElementFocusLostMethodID() != null ||
+					(application != null && application.getEventsManager().hasListeners(EventType.onElementFocusLost,
+						IExecutingEnviroment.TOPLEVEL_FORMS + '.' + mainForm.getName()))))
 			{
 				handlers.add(eventName);
 			}

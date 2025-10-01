@@ -16,8 +16,6 @@
  */
 package com.servoy.j2db.scripting;
 
-import java.applet.Applet;
-import java.applet.AudioClip;
 import java.awt.Rectangle;
 import java.io.BufferedReader;
 import java.io.File;
@@ -107,7 +105,35 @@ import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.gui.SnapShot;
 
 /**
- * Application object from the SOM to handle all JS application calls
+ * <p>The <code>application</code> class is a core utility in Servoy, enabling robust management of
+ * client sessions, user interfaces, and interactions with the underlying system. It provides
+ * functionality to control solutions, interact with system resources, and manage both client-specific
+ * and server-side behaviors.</p>
+ *
+ * <p>One of its primary capabilities is the management of solutions. Developers can close and
+ * optionally reopen solutions dynamically, ensuring that applications adapt to user or system
+ * requirements without disruption. The <code>application</code> object also facilitates the creation
+ * and handling of windows and dialogs, allowing for advanced UI management. Developers can create
+ * custom windows, retrieve active ones, and manipulate UI elements to provide tailored user experiences.</p>
+ *
+ * <p>The <code>application</code> object also provides tools to interact with the underlying system.
+ * It enables developers to execute external programs, both synchronously and asynchronously, gather
+ * system information such as client IP addresses and operating systems, and work with clipboard data.
+ * Additionally, it allows for managing properties at both the user and client levels, offering
+ * persistent and configurable settings across sessions.</p>
+ *
+ * <p>Advanced logging and debugging capabilities are integrated into the <code>application</code>
+ * class, allowing developers to assert conditions, log messages at varying levels, and gain insights
+ * into application behavior. Furthermore, it offers support for value lists and dynamic data
+ * management, enabling seamless integration with forms and data models.</p>
+ *
+ * <p>Several core methods highlight its versatility. Functions like <code>closeSolution</code> and
+ * <code>createWindow</code> exemplify its solution and UI management features. System-level utilities
+ * like <code>executeProgram</code>, <code>getHostName</code>, and <code>getOSName</code> extend its
+ * reach to the operating environment. Persistent storage and customization are supported through
+ * methods like <code>getUserProperty</code> and <code>setUserProperty</code>, while utilities such
+ * as <code>addClientInfo</code> and <code>refreshGlobalMethodValueList</code> provide dynamic
+ * adaptability for client-specific needs.</p>
  *
  * @author jblok
  */
@@ -139,7 +165,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 
 	private static Class< ? >[] getAllReturnedTypesInternal()
 	{
-		return new Class< ? >[] { APPLICATION_TYPES.class, CLIENTDESIGN.class, DRAGNDROP.class, ELEMENT_TYPES.class, ICSSPosition.class, IScriptRenderMethodsWithOptionalProps.class, JSDimension.class, JSPoint.class, JSDNDEvent.class, JSEvent.class, JSRenderEvent.class, JSUpload.class, JSWindow.class, JSLogger.class, JSLogBuilder.class, LOGGINGLEVEL.class, UICONSTANTS.class, UUID.class, WEBCONSTANTS.class, NGCONSTANTS.class, APP_UI_PROPERTY.class, APP_NG_PROPERTY.class };
+		return new Class< ? >[] { APPLICATION_TYPES.class, CLIENTDESIGN.class, DRAGNDROP.class, ELEMENT_TYPES.class, ICSSPosition.class, IScriptRenderMethodsWithOptionalProps.class, JSDimension.class, JSPoint.class, JSBounds.class, JSDNDEvent.class, JSEvent.class, JSRenderEvent.class, JSUpload.class, JSWindow.class, JSLogger.class, JSLogBuilder.class, LOGGINGLEVEL.class, UICONSTANTS.class, UUID.class, WEBCONSTANTS.class, NGCONSTANTS.class, APP_UI_PROPERTY.class, APP_NG_PROPERTY.class };
 	}
 
 	@Deprecated
@@ -217,19 +243,19 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 		application.checkAuthorized();
 		try
 		{
-			int sol_id = 0;
+			UUID sol_uuid = null;
 			if (currentSolutionOnly)
 			{
 				if (application.getFlattenedSolution().isMainSolutionLoaded())
 				{
-					sol_id = application.getSolution().getSolutionID();
+					sol_uuid = application.getSolution().getSolutionMetaData().getRootObjectUuid();
 				}
 				else
 				{
-					sol_id = application.getFlattenedSolution().getMainSolutionMetaData().getRootObjectId();
+					sol_uuid = application.getFlattenedSolution().getMainSolutionMetaData().getRootObjectUuid();
 				}
 			}
-			return application.getApplicationServerAccess().getActiveClientCount(sol_id);
+			return application.getApplicationServerAccess().getActiveClientCount(sol_uuid);
 		}
 		catch (Exception e)
 		{
@@ -485,14 +511,44 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	}
 
 	/**
+	 * Get all persistent property names (from servoy.properties file).
+	 *
+	 * @sample
+	 * // display all properties
+	 * allPropertyNames = application.getServoyPropertyNames();
+	 * for(var i = 0; i < allPropertyNames.length; i++)
+	 * {
+	 * 	application.output(allPropertyNames[i] + " = " + application.getServoyProperty(allPropertyNames[i]));
+	 * }
+	 *
+	 * @return Array of all property names
+	 */
+	@JSFunction
+	public String[] getServoyPropertyNames()
+	{
+		return application.getSettings().keySet().toArray(new String[0]);
+	}
+
+	/**
+	 * Get a persistent property value (from servoy.properties file).
+	 *
+	 * @sample var value = application.getServoyProperty('ServerManager.numberOfServers');
+	 *
+	 * @param name Name of the property
+	 *
+	 * @return Property value
+	 */
+	@JSFunction
+	public String getServoyProperty(String name)
+	{
+		return application.getSettings().getProperty(name);
+	}
+
+	/**
 	 * Sets a user property for this client: <br>
-	 * In NGClient this is stored in the locale storage of the browser, so it will be persisted over restarts as long as the user didn't clear the data.
+	 * In NGClient/Titanium Client this is stored in the locale storage of the browser, so it will be persisted over restarts as long as the user didn't clear the data.
 	 * <br>
 	 * For headless clients(including Batch Processors and Authentication clients) the user property is stored in memory and will be lost upon client restart.
-	 * <br>
-	 * For Web Client the user property will be stored in a persistent cookie
-	 * <br>
-	 * For Smart Client it will be stored in a properties file on the client machine.
 	 *
 	 * @sample application.setUserProperty('showOrders','1');
 	 *
@@ -540,18 +596,11 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	}
 
 	/**
-	 * Sets a UI property.
+	 * Sets a UI property as a global value.
 	 *
 	 * @sample
 	 * //Only use this function from the solution on open method!
-	 * //In smart client, use this to set javax.swing.UIDefaults properties.
-	 * application.putClientProperty('ToolTip.hideAccelerator', true)
-	 * //To change the comboboxes selection background color, do this:
-	 * application.putClientProperty('ComboBox.selectionBackground', new Packages.javax.swing.plaf.ColorUIResource(java.awt.Color.RED))
-	 *
-	 * //In web client, use this to change the template directory.
-	 * //To change the default dir of templates/default to templates/green_skin, do this:
-	 * application.putClientProperty('templates.dir','green_skin');
+	 * application.putClientProperty(APP_NG_PROPERTY.VALUELIST_CONTAINS_SEARCH, true);
 	 *
 	 * @param name Name of the client property
 	 * @param value New value of the client property
@@ -601,18 +650,12 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	}
 
 	/**
-	 * Overrides one style with another. In NGClient, it overrides the original stylesheet media defined on a solution with another media.
+	 * It overrides the original stylesheet media defined on a solution with another media.
 	 *
 	 * @sample
-	 * // Smart Client/Web Client usage
-	 * //This function will only have effect on  forms not yet created, so solution onLoad is the best place to override'
-	 * //For example overriding the use of default/designed style anywhere in the solution from 'mystyle' to 'mystyle_mac'
-	 * application.overrideStyle('mystyle','mystyle_mace')//in this case both styles should have about the same classes
-	 *
-	 * //NGClient usage
 	 * application.overrideStyle('oldstylesheet.css','mystylesheets/newstylesheet.css');
 	 * //Also less is supported also with compiling it at runtime
-	 * applicaiton.overrideStyle('solution.less', 'tenant.less'); // tenant.less can be a solution model changed or generated file, then it will be recompiled at runtime.
+	 * application.overrideStyle('solution.less', 'tenant.less'); // tenant.less can be a solution model changed or generated file, then it will be recompiled at runtime.
 	 *
 	 * @param originalStyleName Name of the style to override
 	 * @param newStyleName Name of the new style
@@ -637,9 +680,12 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * application.getMediaURL('solution.css');
 	 *
 	 * @param mediaName Name of the media
+	 *
+	 * @deprecated use clientutils.getMediaURL(mediaName) instead
 	 */
 	@JSFunction
 	@ServoyClientSupport(ng = true, wc = false, sc = false)
+	@Deprecated
 	public String getMediaURL(String mediaName)
 	{
 		if (application instanceof INGClientApplication)
@@ -1419,6 +1465,11 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	/**
 	 * Gets the HTTP server url.
 	 *
+	 * For an NGClient this will be the url that the user sees in the browser url bar.
+	 * For Headless pure server based clients this will just be http://localhost[:port]
+	 *
+	 * This method can throw an exception if the server url couldn't be retrieved from the client, for example if the user already closed its tab or due to some network problem.
+	 *
 	 * This url will end with a / so don't append to this server url something that starts with a / again
 	 * because RFC 3986 says that the path of a url (the part after the domain[:poort]) can not start with 2 slashes.
 	 *
@@ -1432,16 +1483,22 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	@JSFunction
 	public String getServerURL()
 	{
-		String url = application.getServerURL().toString();
-		// if it doesn't end with / add it
-		// it is needed in a context (the urls should be http://hostname:port/context/)
-		// and it has to be the same in the developer
-		if (!url.endsWith("/")) //$NON-NLS-1$
+		URL serverURL = application.getServerURL();
+		if (serverURL != null)
 		{
-			url += '/';
-		}
+			String url = serverURL.toString();
+			// if it doesn't end with / add it
+			// it is needed in a context (the urls should be http://hostname:port/context/)
+			// and it has to be the same in the developer
+			if (!url.endsWith("/")) //$NON-NLS-1$
+			{
+				url += '/';
+			}
 
-		return url;
+			return url;
+		}
+		throw new IllegalStateException(
+			"getServerURL gives a null url back from the client, this information couldn't be accessed, browser tab already closed?"); //$NON-NLS-1$
 	}
 
 	/**
@@ -1466,14 +1523,14 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * An alternative option is security.logout() which also does a log out for the user (for solutions that require authentication).
 	 *
 	 * @sample
-	 * //application.showURL('http://www.servoy.com', '_self');  //Web Client only
+	 * //application.showURL('http://www.servoy.com', '_self');
 	 * application.closeSolution();
 	 * //close current solution, open solution 'solution_name', call global method 'global_method_name' with argument 'my_argument'.
 	 * //if the user has been logged in, he will stay logged in
 	 * //application.closeSolution('solution_name','global_method_name','my_argument');
 	 * //application.closeSolution('solution_name', {a: 'my_string_argument', p1: 'param1', p2: 'param2'});//close current solution, open solution 'solution_name', call solution's onOpen with argument 'my_argument' and queryParams p1,p2
 	 * //Note: specifying a solution will not work in the Developer due to debugger dependencies
-	 * //specified solution should be of compatible type with client (normal type or client specific(Smart client only/Web client only) type )
+	 * //specified solution should be of compatible type with client (normal type or client specific type )
 	 *
 	 */
 	public void js_closeSolution()
@@ -1963,22 +2020,6 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public void js_playSound(final String url)
 	{
-		application.getScheduledExecutor().execute(new Runnable()
-		{
-			public void run()
-			{
-				try
-				{
-					URL u = new URL(url);
-					AudioClip clip = Applet.newAudioClip(u);
-					clip.play();
-				}
-				catch (Exception e)
-				{
-					Debug.error(e);
-				}
-			}
-		});
 	}
 
 	/**
@@ -1986,11 +2027,6 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 *
 	 * @sample
 	 * application.showURL('http://www.example.com');
-	 *
-	 * //NGClient and webclient specific additional parameters...
-	 * //2nd parameter: target frame or named dialog/window, so its possible to control in which (internal) frame or dialog the url is loaded, '_self' is current window,'_blank' is new dialog, '_top' is main window; default is '_blank'
-	 * //3rd parameter: dialog options used when a dialog is specified, example: 'height=200,width=400,status=yes,toolbar=no,menubar=no,location=no'
-	 * //3rd or 4th parameter: a timeout in seconds when the url should be shown, immediately/0 is default'
 	 *
 	 * @param url URL to show
 	 *
@@ -2007,7 +2043,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * @sampleas js_showURL(String)
 	 *
 	 * @param url URL to show
-	 * @param browserTarget Target frame or named dialog/window
+	 * @param browserTarget Target frame or named dialog/window, so its possible to control in which (internal) frame or dialog the url is loaded, '_self' is current window,'_blank' is new dialog, '_top' is main window; default is '_blank'
 	 *
 	 * @return Boolean (true) if URL was shown
 	 */
@@ -2022,8 +2058,8 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * @sampleas js_showURL(String)
 	 *
 	 * @param url URL to show
-	 * @param browserTarget Target frame or named dialog/window
-	 * @param browserTargetOptions Dialog options used when a dialog is specified / a timeout in seconds when the url should be shown
+	 * @param browserTarget Target frame or named dialog/window, so its possible to control in which (internal) frame or dialog the url is loaded, '_self' is current window,'_blank' is new dialog, '_top' is main window; default is '_blank'
+	 * @param browserTargetOptions Dialog options used when a dialog is specified, example: 'height=200,width=400,status=yes,toolbar=no,menubar=no,location=no'
 	 *
 	 * @return Boolean (true) if URL was shown
 	 */
@@ -2038,7 +2074,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * @sampleas js_showURL(String)
 	 *
 	 * @param url URL to show
-	 * @param browserTarget Target frame or named dialog/window
+	 * @param browserTarget Target frame or named dialog/window, so its possible to control in which (internal) frame or dialog the url is loaded, '_self' is current window,'_blank' is new dialog, '_top' is main window; default is '_blank'
 	 * @param timeout A timeout in seconds when the url should be shown
 	 *
 	 * @return Boolean (true) if URL was shown
@@ -2054,8 +2090,8 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * @sampleas js_showURL(String)
 	 *
 	 * @param url URL to show
-	 * @param browserTarget Target frame or named dialog/window
-	 * @param browserTargetOptions Dialog options used when a dialog is specified / a timeout in seconds when the url should be shown
+	 * @param browserTarget Target frame or named dialog/window, so its possible to control in which (internal) frame or dialog the url is loaded, '_self' is current window,'_blank' is new dialog, '_top' is main window; default is '_blank'
+	 * @param browserTargetOptions Dialog options used when a dialog is specified, example: 'height=200,width=400,status=yes,toolbar=no,menubar=no,location=no'
 	 * @param timeout A timeout in seconds when the url should be shown
 	 *
 	 * @return Boolean (true) if URL was shown
@@ -2170,7 +2206,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * Output something on the out stream. (if running in debugger view output console tab)
 	 *
 	 * @sample
-	 * // log level is used to determine how/if to log in servoy_log.txt; for smart client java out and err streams are used
+	 * // log level is used to determine how/if to log in servoy_log.txt
 	 * application.output('my very important trace msg');// default log level: info
 	 *
 	 * @param msg Object to send to output stream
@@ -2185,7 +2221,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * Output something on the out stream. (if running in debugger view output console tab)
 	 *
 	 * @sample
-	 * // log level is used to determine how/if to log in servoy_log.txt; for smart client java out and err streams are used
+	 * // log level is used to determine how/if to log in servoy_log.txt
 	 * application.output('my very important msg',LOGGINGLEVEL.ERROR);// log level: error
 	 *
 	 * @param msg Object to send to output stream
@@ -2209,6 +2245,23 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 		{
 			application.output(msg, level);
 		}
+	}
+
+	/**
+	 * This assert method can be used to check for conditions in the code.
+	 * A message can be give that will then end up in the log file (with the stacktrace where this failed).
+	 *
+	 * If the condition is false and your are in developer then also the debugger will stop on this line by default.
+	 *
+	 * @sample
+	 * application.assert(userId != null, "User id should not be null");
+	 *
+	 * @param condition If false then the assert is wrong and the message will be printed, debugger will stop on this line.
+	 * @param message The message to display if the condition is false.
+	 */
+	public void js_assert(boolean condition, String message)
+	{
+		application.assertCondition(condition, message);
 	}
 
 	/**
@@ -2243,8 +2296,6 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 
 	/**
 	 * Returns a date object initialized in client with current date and time.
-	 * This should be used instead of new Date() for webclients when the clients are in different times zones then the server.
-	 * Then this call will really return a time that is the locals webclients time.
 	 * For NG clients this is only useful when displaying on the client using format property (Use local time), and then
 	 * this is equivalent to new Date() on the client side, so basically this can be used to pre-fill with 'now' such a display.
 	 *
@@ -2547,8 +2598,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	/**
 	 * Get the main application window. This is the window that is created first for this client.
 	 *
-	 * In a smart client this is always just the first started window where the solution is loaded in.
-	 * In a webclient the user may open the same solution in a new tab in the same browser. In that case the main solution
+	 * In a browser client the user may open the same solution in a new tab in the same browser. In that case the main solution
 	 * window will always be the first opened tab, even if that one was already closed.
 	 * application.getActiveWindow() will always return the currently active/focused window or dialog.
 	 * If you need the window of the current top-level form, controller.getWindow() of that form will
@@ -2584,9 +2634,6 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 
 	/**
 	 * Show the specified form in a dialog. (NOTE: x, y, width, height are initial bounds - applied only the fist time a dialog is shown)
-	 *
-	 * NOTE:
-	 * In the Smart Client, no code is executed after the function showFormInDialog <em>if the dialog is modal</em>.
 	 *
 	 * NOTE:
 	 * x, y, width and height coordinates are only applied the first time the specified dialog is shown.
@@ -2905,28 +2952,63 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 
 	/**
 	 * This generates a browser function for the given function string that can be executed in the browser by a component that needs a function for a certain property value.
-	 * The resulting object  should be assigned into a config/property object that is then assigned to a component
-	 * The component will receive this function as a real function object in TiNG (but still as a plain string that needs to be evalled in NG1)
+	 * The resulting object should be assigned into a config/property object (where the property it typed as 'object'/'json'/'map' in the .spec) that is then assigned to a component.
+	 * The component will receive this function as a real function object in TiNG (but still as a plain string that needs to be evalled in NG1).<br/><br/>
 	 *
-	 * This is needed because in TiNG  it is not allowed, because of the Content Security Policy (CSP) that is enforced, to eval(string) to get a function object (that then can be executed later on)
+	 * This is needed because in TiNG it is not allowed - due to the Content Security Policy (CSP) that is enforced - to eval(string) in order to get a function object (that then can be executed later on).<br/><br/>
 	 *
-	 * This is a more dynamic variant of the spec property "clientfunction" https://docs.servoy.com/reference/servoycore/dev-api/property_types#clientfunction
+	 * This is a more dynamic variant of the .spec property type "clientfunction": https://docs.servoy.com/reference/servoy-developer/property_types#clientfunction<br/><br/>
+	 *
 	 * You do not need to use this for properties/arguments/return values that are declared to have "clientfunction" type in the .spec file, but rather for
-	 * when you want to give it inside plain 'object' typed values. From 2023.09 also map and json property types (even nested if configured in the spec correctly) are supported.
+	 * when you want to give it inside plain 'object' typed values. Starting with 2023.09, 'map' and 'json' property types (even nested if configured in the spec correctly) are supported.
 	 *
 	 * @sample
 	 * var options = { myfunction: application.generateBrowserFunction("function(param) { return param + 1 }") };
 	 * elements.component.options = options;
 	 *
-	 * @param functionString The function string of a js function that should be running in the clients browser.
+	 * @param functionString The javascript function (given as a string) that should be running in the client's browser.
 	 *
-	 * @return An object that can be assignd to a property of an component or custom type. (nested in an object/map/json type)
+	 * @return An object that can be assigned to a property of an component or custom type. (but which is then nested/part of an object type)
+	 *
+	 * @deprecated use clientutils.generateBrowserFunction instead
 	 */
 	@ServoyClientSupport(ng = true, mc = false, wc = false, sc = false)
 	@JSFunction
+	@Deprecated
 	public Object generateBrowserFunction(String functionString)
 	{
 		return application.generateBrowserFunction(functionString);
+	}
+
+	/**
+	 * Creates a blob loader url that can be sent to the browser so that it can download the value of the given dataprovider.
+	 * The dataprovider is mandatory, but also a datasource or server/tablename combination should be given if it points to a database column.<br/><br/>
+	 *
+	 * The build() method will return the url that can be sent to the browser inside a piece of html.
+	 *
+	 * @sample
+	 * // server/table column
+	 * var tableName = 'pdf_documents';
+	 * var columnName = 'invoice_doc';
+	 * var mimeType = 'application/pdf';
+	 * var bloburl1 = application.createUrlBlobloaderBuilder(columnName).serverAndTable("example_data", tableName).rowid(doc_id).filename(file_name).mimetype(mimeType).build();
+	 *
+	 * // datasource based column
+	 * var bloburl2 = application.createUrlBlobloaderBuilder("invoice_doc").datasource("db:/example_data/pdf_documents").rowid(doc_id).build();
+	 *
+	 * // global var
+	 * var bloburl3 = application.createUrlBlobloaderBuilder("scopes.sc1.profilePhoto").filename("profilePhoto.png").mimetype("application/png").build();
+	 *
+	 * @param dataprovider the dataprovider who's value should be sent to the browser (it can be a global scope variable or a datasource column)
+	 *
+	 * @deprecated use clientutils.createUrlBlobloaderBuilder instead
+	 */
+	@Deprecated
+	@ServoyClientSupport(ng = true, mc = false, wc = false, sc = false)
+	@JSFunction
+	public JSBlobLoaderBuilder createUrlBlobloaderBuilder(String dataprovider)
+	{
+		return application.createUrlBlobloaderBuilder(dataprovider);
 	}
 
 	/**
@@ -3181,8 +3263,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	}
 
 	/**
-	 * Returns the name of the operating system of the client.
-	 * In Smart Client this will return os.name system property. In Web/NG Client will return "OSFamily majorVersion.minorVersion".
+	 * Returns the name of the operating system of the client. Will return "OSFamily majorVersion.minorVersion".
 	 *
 	 * @sample var osname = application.getOSName();
 	 *
@@ -3716,6 +3797,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * @sample
 	 * var uuid = application.getServerUUID();
 	 *
+	 * @return the UUID of the server instance.
 	 */
 	@JSFunction
 	@ServoyClientSupport(ng = true, wc = true, sc = true, mc = false)
@@ -3731,7 +3813,6 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 		}
 		return "";
 	}
-
 
 	@Override
 	public String toString()

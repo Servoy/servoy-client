@@ -30,7 +30,6 @@ import com.servoy.j2db.util.Debug;
 
 /**
  * @author gganea
- *
  */
 public class ReadonlySabloValue implements ISmartPropertyValue
 {
@@ -61,11 +60,6 @@ public class ReadonlySabloValue implements ISmartPropertyValue
 		this.savedOppositeOfValue = oldValue;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.sablo.specification.property.ISmartPropertyValue#attachToBaseObject(org.sablo.IChangeListener, org.sablo.BaseWebObject)
-	 */
 	@Override
 	public void attachToBaseObject(IChangeListener changeMonitor, IWebObjectContext webObjectCntxt)
 	{
@@ -90,9 +84,6 @@ public class ReadonlySabloValue implements ISmartPropertyValue
 
 	}
 
-	/**
-	 *
-	 */
 	private void addOppositeOfListener()
 	{
 		oppositeOfListener = new PropertyChangeListener()
@@ -103,7 +94,7 @@ public class ReadonlySabloValue implements ISmartPropertyValue
 			{
 				// ignore the change when this is a find mode change.
 				if (findModeChange) return;
-				savedOppositeOfValue = (Boolean)evt.getNewValue();
+				savedOppositeOfValue = (boolean)webObjectContext.getProperty(configuration.getOppositeOf());
 			}
 		};
 
@@ -113,7 +104,6 @@ public class ReadonlySabloValue implements ISmartPropertyValue
 
 	private void setOppositeValue(boolean b)
 	{
-
 		webObjectContext.setProperty(configuration.getOppositeOf(), b);
 	}
 
@@ -129,11 +119,6 @@ public class ReadonlySabloValue implements ISmartPropertyValue
 		return true;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.sablo.specification.property.ISmartPropertyValue#detach()
-	 */
 	@Override
 	public void detach()
 	{
@@ -143,10 +128,6 @@ public class ReadonlySabloValue implements ISmartPropertyValue
 		}
 	}
 
-	/**
-	 * @param writer
-	 * @return
-	 */
 	public JSONWriter toJSON(JSONWriter writer)
 	{
 		try
@@ -165,33 +146,11 @@ public class ReadonlySabloValue implements ISmartPropertyValue
 		return !oppositeValue();
 	}
 
-	/**
-	 * @return
-	 */
 	public boolean getOldOppositeOfValue()
 	{
 		return savedOppositeOfValue;
 	}
 
-	@Override
-	public boolean equals(Object obj)
-	{
-		if (obj instanceof ReadonlySabloValue)
-		{
-			return ((ReadonlySabloValue)obj).readOnly == readOnly;
-		}
-		return false;
-	}
-
-	@Override
-	public int hashCode()
-	{
-		return readOnly ? 1231 : 1237;
-	}
-
-	/**
-	 * @param b
-	 */
 	public void setFindModeChange(boolean findModeChange)
 	{
 		this.findModeChange = findModeChange;

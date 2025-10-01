@@ -43,6 +43,7 @@ import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.server.shared.PerformanceTiming;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ServoyException;
+import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.xmlxport.ColumnInfoDef;
 
 /**
@@ -80,7 +81,7 @@ public class ProfileDataServer extends AbstractDelegateDataServer
 	 */
 	@Override
 	public IDataSet acquireLocks(String client_id, String server_name, String table_name, Set<Object> pkhashkeys, QuerySelect lockSelect, String transaction_id,
-		ArrayList<TableFilter> filters, int chunkSize) throws RemoteException, RepositoryException
+		ArrayList<TableFilter> filters, int chunkSize) throws RepositoryException
 	{
 		long startTime = System.currentTimeMillis();
 		try
@@ -137,7 +138,7 @@ public class ProfileDataServer extends AbstractDelegateDataServer
 	 * @see com.servoy.j2db.dataprocessing.ILockServer#releaseLocks(java.lang.String, java.lang.String, java.lang.String, java.util.Set)
 	 */
 	@Override
-	public boolean releaseLocks(String client_id, String server_name, String table_name, Set<Object> pkhashkeys) throws RemoteException, RepositoryException
+	public boolean releaseLocks(String client_id, String server_name, String table_name, Set<Object> pkhashkeys) throws RepositoryException
 	{
 		long startTime = System.currentTimeMillis();
 		try
@@ -167,7 +168,7 @@ public class ProfileDataServer extends AbstractDelegateDataServer
 	@Override
 	public IDataSet performQuery(String client_id, String server_name, String transaction_id, ISQLSelect sqlSelect, ColumnType[] resultTypes,
 		ArrayList<TableFilter> filters,
-		boolean distinctInMemory, int startRow, int rowsToRetrieve) throws ServoyException, RemoteException
+		boolean distinctInMemory, int startRow, int rowsToRetrieve) throws ServoyException
 	{
 		long startTime = System.currentTimeMillis();
 		try
@@ -197,7 +198,7 @@ public class ProfileDataServer extends AbstractDelegateDataServer
 	 */
 	@Override
 	public IDataSet performQuery(String client_id, String server_name, String driverTableName, String transaction_id, String sql, Object[] questiondata,
-		int startRow, int rowsToRetrieve) throws ServoyException, RemoteException
+		int startRow, int rowsToRetrieve) throws ServoyException
 	{
 		long startTime = System.currentTimeMillis();
 		try
@@ -229,7 +230,7 @@ public class ProfileDataServer extends AbstractDelegateDataServer
 	@Override
 	public IDataSet performQuery(String client_id, String server_name, String transaction_id, ISQLSelect sqlSelect, ColumnType[] resultTypes,
 		ArrayList<TableFilter> filters,
-		boolean distinctInMemory, int startRow, int rowsToRetrieve, int type) throws ServoyException, RemoteException
+		boolean distinctInMemory, int startRow, int rowsToRetrieve, int type) throws ServoyException
 	{
 		long startTime = System.currentTimeMillis();
 		try
@@ -248,7 +249,7 @@ public class ProfileDataServer extends AbstractDelegateDataServer
 	@Override
 	public IDataSet performQuery(String client_id, String server_name, String transaction_id, ISQLSelect sqlSelect, ColumnType[] resultTypes,
 		ArrayList<TableFilter> filters, boolean distinctInMemory, int startRow, int rowsToRetrieve, int type, ITrackingSQLStatement trackingInfo)
-		throws ServoyException, RemoteException
+		throws ServoyException
 	{
 		long startTime = System.currentTimeMillis();
 		try
@@ -281,7 +282,7 @@ public class ProfileDataServer extends AbstractDelegateDataServer
 	 */
 	@Override
 	public IDataSet performQuery(String client_id, String server_name, String driverTableName, String transaction_id, String sql, Object[] questiondata,
-		int startRow, int rowsToRetrieve, int type) throws ServoyException, RemoteException
+		int startRow, int rowsToRetrieve, int type) throws ServoyException
 	{
 		long startTime = System.currentTimeMillis();
 		try
@@ -312,7 +313,7 @@ public class ProfileDataServer extends AbstractDelegateDataServer
 	@Override
 	public IDataSet performQuery(String client_id, String server_name, String transaction_id, ISQLSelect sqlSelect, ColumnType[] resultTypes,
 		ArrayList<TableFilter> filters,
-		boolean distinctInMemory, int startRow, int rowsToRetrieve, boolean updateIdleTimestamp) throws ServoyException, RemoteException
+		boolean distinctInMemory, int startRow, int rowsToRetrieve, boolean updateIdleTimestamp) throws ServoyException
 	{
 		long startTime = System.currentTimeMillis();
 		try
@@ -344,7 +345,7 @@ public class ProfileDataServer extends AbstractDelegateDataServer
 	 */
 	@Override
 	public IDataSet performQuery(String client_id, String server_name, String driverTableName, String transaction_id, String sql, Object[] questiondata,
-		int startRow, int rowsToRetrieve, boolean updateIdleTimestamp) throws ServoyException, RemoteException
+		int startRow, int rowsToRetrieve, boolean updateIdleTimestamp) throws ServoyException
 	{
 		long startTime = System.currentTimeMillis();
 		try
@@ -372,7 +373,7 @@ public class ProfileDataServer extends AbstractDelegateDataServer
 	 */
 	@Override
 	public IDataSet performCustomQuery(String client_id, String server_name, String driverTableName, String transaction_id, ISQLSelect sqlSelect,
-		ArrayList<TableFilter> filters, int startRow, int rowsToRetrieve) throws ServoyException, RemoteException
+		ArrayList<TableFilter> filters, int startRow, int rowsToRetrieve) throws ServoyException
 	{
 		long startTime = System.currentTimeMillis();
 		try
@@ -387,7 +388,7 @@ public class ProfileDataServer extends AbstractDelegateDataServer
 	}
 
 	@Override
-	public IDataSet[] performQuery(String client_id, String server_name, String transaction_id, QueryData[] array) throws ServoyException, RemoteException
+	public IDataSet[] performQuery(String client_id, String server_name, String transaction_id, QueryData[] array) throws ServoyException
 	{
 		long startTime = System.currentTimeMillis();
 		try
@@ -424,7 +425,7 @@ public class ProfileDataServer extends AbstractDelegateDataServer
 	 */
 	@Override
 	public ISQLStatement createSQLStatement(int action, String server_name, String tableName, Object[] pkColumnData, String tid, String sql,
-		Object[] questiondata) throws RemoteException, RepositoryException
+		Object[] questiondata) throws RepositoryException
 	{
 		long startTime = System.currentTimeMillis();
 		try
@@ -439,7 +440,7 @@ public class ProfileDataServer extends AbstractDelegateDataServer
 
 	@Override
 	public ISQLStatement createSQLStatement(int action, String server_name, String tableName, Object[] pkColumnData, String tid, ISQLUpdate sqlUpdate,
-		ArrayList<TableFilter> filters) throws RemoteException, RepositoryException
+		ArrayList<TableFilter> filters) throws RepositoryException
 	{
 		long startTime = System.currentTimeMillis();
 		try
@@ -470,7 +471,7 @@ public class ProfileDataServer extends AbstractDelegateDataServer
 	 * @see com.servoy.j2db.dataprocessing.IDataServer#performUpdates(java.lang.String, com.servoy.j2db.dataprocessing.ISQLStatement[])
 	 */
 	@Override
-	public Object[] performUpdates(String clientId, ISQLStatement[] statements) throws ServoyException, RemoteException
+	public Object[] performUpdates(String clientId, ISQLStatement[] statements) throws ServoyException
 	{
 		long startTime = System.currentTimeMillis();
 		try
@@ -503,7 +504,7 @@ public class ProfileDataServer extends AbstractDelegateDataServer
 	 */
 	@Override
 	public Blob getBlob(String clientId, String serverName, ISQLSelect blobSelect, ArrayList<TableFilter> filters, String tid)
-		throws RepositoryException, RemoteException
+		throws RepositoryException
 	{
 		long startTime = System.currentTimeMillis();
 		try
@@ -526,7 +527,7 @@ public class ProfileDataServer extends AbstractDelegateDataServer
 	 * @see com.servoy.j2db.dataprocessing.IDataServer#startTransaction(java.lang.String, java.lang.String)
 	 */
 	@Override
-	public String startTransaction(String clientId, String server_name) throws RepositoryException, RemoteException
+	public String startTransaction(String clientId, String server_name) throws RepositoryException
 	{
 		long startTime = System.currentTimeMillis();
 		try
@@ -549,7 +550,7 @@ public class ProfileDataServer extends AbstractDelegateDataServer
 	 * @see com.servoy.j2db.dataprocessing.IDataServer#endTransactions(java.lang.String, java.lang.String[], boolean)
 	 */
 	@Override
-	public boolean endTransactions(String client_id, String[] transaction_id, boolean commit) throws RepositoryException, RemoteException
+	public boolean endTransactions(String client_id, String[] transaction_id, boolean commit) throws RepositoryException
 	{
 		long startTime = System.currentTimeMillis();
 		try
@@ -573,13 +574,13 @@ public class ProfileDataServer extends AbstractDelegateDataServer
 	 * @see com.servoy.j2db.dataprocessing.IDataServer#getNextSequence(java.lang.String, java.lang.String, java.lang.String, int)
 	 */
 	@Override
-	public Object getNextSequence(String serverName, String tableName, String columnName, int columnInfoID, String columnInfoServer)
-		throws RepositoryException, RemoteException
+	public Object getNextSequence(String serverName, String tableName, String columnName, UUID columnInfoUUID, String columnInfoServer)
+		throws RepositoryException
 	{
 		long startTime = System.currentTimeMillis();
 		try
 		{
-			return super.getNextSequence(serverName, tableName, columnName, columnInfoID, columnInfoServer);
+			return super.getNextSequence(serverName, tableName, columnName, columnInfoUUID, columnInfoServer);
 		}
 		finally
 		{
@@ -602,7 +603,7 @@ public class ProfileDataServer extends AbstractDelegateDataServer
 	 */
 	@Override
 	public InsertResult insertDataSet(String client_id, IDataSet set, String dataSource, String serverName, String tableName, String tid,
-		ColumnType[] columnTypes, String[] pkNames, HashMap<String, ColumnInfoDef> columnInfoDefinitions) throws ServoyException, RemoteException
+		ColumnType[] columnTypes, String[] pkNames, HashMap<String, ColumnInfoDef> columnInfoDefinitions) throws ServoyException
 	{
 		long startTime = System.currentTimeMillis();
 		try
@@ -637,7 +638,7 @@ public class ProfileDataServer extends AbstractDelegateDataServer
 	@Override
 	public ITable insertQueryResult(String client_id, String queryServerName, String queryTid, ISQLSelect sqlSelect, ArrayList<TableFilter> filters,
 		boolean distinctInMemory, int startRow, int rowsToRetrieve, int type, String dataSource, String targetServerName, String targetTableName,
-		String targetTid, ColumnType[] columnTypes, String[] pkNames) throws ServoyException, RemoteException
+		String targetTid, ColumnType[] columnTypes, String[] pkNames) throws ServoyException
 	{
 		long startTime = System.currentTimeMillis();
 		try
@@ -661,7 +662,7 @@ public class ProfileDataServer extends AbstractDelegateDataServer
 	 * @see com.servoy.j2db.dataprocessing.IDataServer#dropTemporaryTable(java.lang.String, java.lang.String, java.lang.String)
 	 */
 	@Override
-	public void dropTemporaryTable(String client_id, String serverName, String tableName) throws RemoteException, RepositoryException
+	public void dropTemporaryTable(String client_id, String serverName, String tableName) throws RepositoryException
 	{
 		long startTime = System.currentTimeMillis();
 		try

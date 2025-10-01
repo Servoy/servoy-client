@@ -25,10 +25,21 @@ import com.servoy.j2db.querybuilder.IQueryBuilderCondition;
 import com.servoy.j2db.scripting.IJavaScriptType;
 
 /**
+ * <p>The <code>QBCaseWhen</code> class is a utility for defining <code>WHEN</code> conditions within
+ * an SQL <code>CASE</code> expression in a <code>QBSelect</code> query. It specifies the conditions
+ * that, when met, determine the result of the <code>CASE</code> expression.</p>
+ *
+ * <p>The <code>then</code> method assigns the value to return when the specified <code>WHEN</code>
+ * condition is satisfied. This enables the construction of dynamic and complex conditional logic
+ * directly within SQL queries.</p>
+ *
+ * <p>For more information about constructing and executing queries, refer to the
+ * <a href="https://docs.servoy.com/reference/servoycore/dev-api/database-manager/qbselect">QBSelect</a> section of this documentation.</p>
+ *
  * @author rgansevles
  *
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "QBCaseWhen")
+@ServoyDocumented(category = ServoyDocumented.RUNTIME)
 public class QBCaseWhen implements IQueryBuilderCaseWhen, IJavaScriptType
 {
 	private final QBCase parent;
@@ -46,6 +57,8 @@ public class QBCaseWhen implements IQueryBuilderCaseWhen, IJavaScriptType
 	 * @param value The value.
 	 *
 	 * @sampleas com.servoy.j2db.querybuilder.impl.QBSelect#js_case()
+	 *
+	 * @return the parent `QBCase` object with the associated condition and value applied.
 	 */
 	@JSFunction
 	public QBCase then(Object value)

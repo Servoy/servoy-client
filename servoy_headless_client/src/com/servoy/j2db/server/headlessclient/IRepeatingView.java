@@ -18,7 +18,6 @@
 package com.servoy.j2db.server.headlessclient;
 
 import org.apache.wicket.Component;
-import org.apache.wicket.markup.repeater.RepeatingView;
 
 /**
  * @author jcompagner
@@ -29,7 +28,7 @@ public interface IRepeatingView
 
 	/**
 	 * gets a component by the name it was added.
-	 * 
+	 *
 	 * @param name
 	 * @return The component if found else null.
 	 */
@@ -38,16 +37,16 @@ public interface IRepeatingView
 	/**
 	 * Add a component that must be rendered,
 	 * this is done by a {@link RepeatingView}, the component's markup will be a <div></div>
-	 * 
+	 *
 	 * @param name
 	 * @param component
-	 * @return true if the component was added, false if there was already a component registered under that name 
+	 * @return true if the component was added, false if there was already a component registered under that name
 	 */
 	public boolean addComponent(String name, Component component);
 
 	/**
 	 * Remove a behaviour
-	 * 
+	 *
 	 * @param name the name
 	 * @return true if the component was registered and removed, false if under that name no component was found.
 	 */
@@ -56,7 +55,7 @@ public interface IRepeatingView
 	/**
 	 * Generates a unique id string. This makes it easy to add items to be rendered w/out having to
 	 * worry about generating unique id strings in your code.
-	 * 
+	 *
 	 * @return unique child id
 	 */
 	public String newChildId();

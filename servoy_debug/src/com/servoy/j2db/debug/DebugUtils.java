@@ -30,6 +30,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import javax.swing.SwingUtilities;
 
 import org.eclipse.dltk.rhino.dbgp.DBGPDebugger;
+import org.mozilla.javascript.Function;
 import org.mozilla.javascript.RhinoException;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.SpecProviderState;
@@ -48,6 +49,8 @@ import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IPersistVisitor;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.IScriptProvider;
+import com.servoy.j2db.persistence.Menu;
+import com.servoy.j2db.persistence.MenuItem;
 import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.ScriptCalculation;
 import com.servoy.j2db.persistence.ScriptMethod;
@@ -62,6 +65,7 @@ import com.servoy.j2db.scripting.FormScope;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.scripting.LazyCompilationScope;
 import com.servoy.j2db.server.ngclient.property.types.FormComponentPropertyType;
+import com.servoy.j2db.server.ngclient.property.types.MenuPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.RelationPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.ValueListPropertyType;
 import com.servoy.j2db.server.ngclient.template.FormTemplateGenerator;
@@ -155,7 +159,7 @@ public class DebugUtils
 
 					if (stackTrace == null) stackTrace = detail.toString();
 
-					msg += "\n > " + stackTrace;
+					msg = ((msg == null) ? "<null>\n > " : msg + "\n > ") + stackTrace;
 
 					if (detail instanceof ServoyException && ((ServoyException)detail).getScriptStackTrace() != null)
 					{
@@ -164,14 +168,18 @@ public class DebugUtils
 				}
 				else if (detail != null)
 				{
-					msg += "\n" + detail;
+					msg = ((msg == null) ? "<null>\n" : msg + "\n") + detail;
 					String scriptstack = Debug.getScriptStacktraceFromContext(msg);
 					if (scriptstack != null) msg += "\n" + scriptstack;
 				}
 				else
 				{
-					String scriptstack = Debug.getScriptStacktraceFromContext(msg);
-					if (scriptstack != null) msg += "\n" + scriptstack;
+					if (msg == null) msg = "<null>";
+					else
+					{
+						String scriptstack = Debug.getScriptStacktraceFromContext(msg);
+						if (scriptstack != null) msg += "\n" + scriptstack;
+					}
 				}
 				debugger.outputStdErr(msg.toString() + '\n');
 			}
@@ -268,7 +276,7 @@ public class DebugUtils
 		{
 
 			clientState.getFlattenedSolution().updatePersistInSolutionCopy(persist);
-			if (persist instanceof ScriptMethod)
+			if (persist instanceof ScriptMethod scriptMethod)
 			{
 				if (persist.getParent() instanceof Form)
 				{
@@ -282,9 +290,13 @@ public class DebugUtils
 				}
 				else if (persist.getParent() instanceof Solution)
 				{
-					LazyCompilationScope scope = clientState.getScriptEngine().getScopesScope().getGlobalScope(((ScriptMethod)persist).getScopeName());
-					scope.remove((IScriptProvider)persist);
-					scope.put((IScriptProvider)persist, (IScriptProvider)persist);
+					LazyCompilationScope scope = clientState.getScriptEngine().getScopesScope().getGlobalScope(scriptMethod.getScopeName());
+					Object oldValue = scope.remove(scriptMethod);
+					scope.put((IScriptProvider)persist, scriptMethod);
+					if (oldValue instanceof Function oldValueFunction)
+					{
+						clientState.getEventsManager().updateCallbacks(oldValueFunction, scope.getFunctionByName(scriptMethod.getName()));
+					}
 				}
 				else if (persist.getParent() instanceof TableNode)
 				{
@@ -424,7 +436,7 @@ public class DebugUtils
 										formsToReload.add(finalController);
 										return o;
 									}
-									if (o instanceof Field && ((Field)o).getValuelistID() > 0)
+									if (o instanceof Field && ((Field)o).getValuelistID() != null)
 									{
 										ValueList vl = clientState.getFlattenedSolution().getValueList(((Field)o).getValuelistID());
 										if (vl != null && Utils.equalObjects(finalRelation.getName(), vl.getRelationName()))
@@ -475,7 +487,8 @@ public class DebugUtils
 						@Override
 						public Object visit(IPersist o)
 						{
-							if (o instanceof Field && ((Field)o).getValuelistID() > 0 && ((Field)o).getValuelistID() == finalValuelist.getID())
+							if (o instanceof Field && ((Field)o).getValuelistID() != null &&
+								finalValuelist.getUUID().toString().equals(((Field)o).getValuelistID()))
 							{
 								formsToReload.add(finalController);
 								return o;
@@ -491,6 +504,42 @@ public class DebugUtils
 									for (PropertyDescription pd : properties)
 									{
 										if (Utils.equalObjects(webComponent.getFlattenedJson().opt(pd.getName()), finalValuelist.getUUID().toString()))
+										{
+											formsToReload.add(finalController);
+											return o;
+										}
+									}
+								}
+							}
+							return CONTINUE_TRAVERSAL;
+						}
+					});
+				}
+			}
+			else if (persist instanceof Menu || persist instanceof MenuItem)
+			{
+				clientState.getMenuManager().flushMenus();
+				final Menu menu = persist instanceof Menu ? (Menu)persist : (Menu)persist.getAncestor(IRepository.MENUS);
+				List<IFormController> cachedFormControllers = clientState.getFormManager().getCachedFormControllers();
+				for (IFormController formController : cachedFormControllers)
+				{
+					final IFormController finalController = formController;
+					formController.getForm().acceptVisitor(new IPersistVisitor()
+					{
+						@Override
+						public Object visit(IPersist o)
+						{
+							if (o instanceof WebComponent)
+							{
+								WebComponent webComponent = (WebComponent)o;
+								WebObjectSpecification spec = specProviderState == null ? null
+									: specProviderState.getWebObjectSpecification(webComponent.getTypeName());
+								if (spec != null)
+								{
+									Collection<PropertyDescription> properties = spec.getProperties(MenuPropertyType.INSTANCE);
+									for (PropertyDescription pd : properties)
+									{
+										if (Utils.equalObjects(webComponent.getFlattenedJson().opt(pd.getName()), menu.getUUID()))
 										{
 											formsToReload.add(finalController);
 											return o;

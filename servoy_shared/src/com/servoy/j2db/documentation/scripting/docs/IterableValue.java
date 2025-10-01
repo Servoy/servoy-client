@@ -22,6 +22,11 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 
 /**
+ * <p>
+ * The <code>IterableValue</code> object is designed for use in JavaScript loops to streamline iteration processes.
+ * It provides access to the current value of the iterable and indicates whether the iteration is complete.
+ * </p>
+ *
  * @author jcompanger
  * @since 2022.12
  */

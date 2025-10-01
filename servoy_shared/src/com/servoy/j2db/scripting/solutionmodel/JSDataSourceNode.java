@@ -42,7 +42,22 @@ import com.servoy.j2db.scripting.TableScope;
 import com.servoy.j2db.solutionmodel.ISMDataSourceNode;
 
 /**
- * Solution model holder for calculations and foundset methods.
+ * <p>The <code>JSDataSourceNode</code> class facilitates interaction with data source nodes within a
+ * Servoy solution model. It enables the creation, retrieval, and management of calculations and foundset
+ * methods associated with a data source.  * This class is tied to an <code>IApplication</code> instance
+ * and a specified data source, allowing dynamic manipulation of related objects.</p>
+ *
+ * ## Core Functionality
+ * <p>The class provides methods for retrieving and managing calculations and foundset methods. Calculations
+ * can be created using JavaScript code,  * with the ability to specify types and validate names. Similarly,
+ * foundset methods can be dynamically defined and linked to the data source. Both calculations and methods
+ * support retrieval, enumeration, and removal, enhancing the flexibility of database scripting.</p>
+ *
+ * ## Additional Features
+ * <p>The <code>JSDataSourceNode</code> ensures persistence management by integrating with the Servoy framework’s
+ * <code>FlattenedSolution</code> and <code>TableNode</code> objects. It supports cloning of script providers and
+ * handles runtime exceptions gracefully, ensuring stability. It also provides utility methods like <code>hashCode</code>,
+ * <code>equals</code>, and <code>toString</code> for seamless object management in Java environments.</p>
  *
  * @author rgansevles
  */
@@ -121,6 +136,8 @@ public class JSDataSourceNode implements IJSScriptParent<TableNode>, IConstantsO
 	 *
 	 * @sampleas newCalculation(String, int)
 	 *
+	 * @return a JSCalculation object for the specified calculation name, or null if no such calculation exists.
+	 *
 	 */
 	@JSFunction
 	public JSCalculation getCalculation(String name)
@@ -137,6 +154,8 @@ public class JSDataSourceNode implements IJSScriptParent<TableNode>, IConstantsO
 	 * Gets all the calculations for the datasource node.
 	 *
 	 * @sampleas newCalculation(String, int)
+	 *
+	 * @return an array of all JSCalculation objects for the data source node.
 	 */
 	@JSFunction
 	public JSCalculation[] getCalculations()
@@ -157,6 +176,8 @@ public class JSDataSourceNode implements IJSScriptParent<TableNode>, IConstantsO
 	 * @param code The code of the calculation, this must be a full function declaration.
 	 *
 	 * @sampleas newCalculation(String, int)
+	 *
+	 * @return the created JSCalculation object for the specified code with default type TEXT.
 	 *
 	 */
 	@JSFunction
@@ -184,6 +205,7 @@ public class JSDataSourceNode implements IJSScriptParent<TableNode>, IConstantsO
 	 * 	application.output(allCalcs[i]);
 	 * }
 	 *
+	 * @return the created JSCalculation object for the specified code and type.
 	 */
 	@JSFunction
 	public JSCalculation newCalculation(String code, int type)
@@ -309,6 +331,8 @@ public class JSDataSourceNode implements IJSScriptParent<TableNode>, IConstantsO
 	 *
 	 * @sampleas newMethod(String)
 	 *
+	 * @return the JSMethod object for the specified method name, or null if no such method exists.
+	 *
 	 */
 	@JSFunction
 	public JSMethod getMethod(String name)
@@ -325,6 +349,8 @@ public class JSDataSourceNode implements IJSScriptParent<TableNode>, IConstantsO
 	 * Gets all the foundset methods for the datasource node.
 	 *
 	 * @sampleas newMethod(String)
+	 *
+	 * @return an array of all JSMethod objects for the data source node.
 	 */
 	@JSFunction
 	public JSMethod[] getMethods()

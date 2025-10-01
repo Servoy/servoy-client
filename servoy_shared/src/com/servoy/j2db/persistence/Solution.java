@@ -18,7 +18,6 @@ package com.servoy.j2db.persistence;
 
 
 import java.awt.Dimension;
-import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -32,6 +31,8 @@ import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.json.JSONObject;
+
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.base.util.DataSourceUtilsBase;
 import com.servoy.j2db.documentation.ServoyDocumented;
@@ -44,7 +45,24 @@ import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 
 /**
- * A solution also root object for meta data
+ * <p>The <code>Servoy solution</code> represents a <code>project</code> that encapsulates
+ * both user interface and business logic. It supports modular design by allowing integration
+ * with other solutions defined as modules, improving organizational flexibility. Key properties
+ * include <code>comment</code> for programmer notes, <code>firstForm</code> to define the initial
+ * form upon deployment, and <code>modulesNames</code> listing the modules added to the solution.
+ * Authentication requirements are managed with <code>mustAuthenticate</code>, while
+ * <code>solutionType</code> specifies the type of solution, such as "Normal", "Module",
+ * "NG Client", or "Service". Other attributes like <code>styleSheet</code>, <code>titleText</code>,
+ * and <code>version</code> provide customization options and semantic versioning support.</p>
+ *
+ * <p>Notable events include <code>onOpen</code>, triggered when the solution starts, and
+ * <code>onClose</code>, which allows conditional termination. The <code>onAutoSaveFailed</code>
+ * event captures validation or save failures during automatic saving. Additional functionality
+ * is available through events like <code>onDataBroadcast</code> for handling data updates and
+ * <code>onError</code> to manage runtime exceptions.</p>
+ *
+ * <p>The solution provides flexible integration with login forms, internationalization,
+ * and custom styling, offering extensive configurability for various application requirements.</p>
  *
  * @author jblok
  */
@@ -82,7 +100,9 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 		NONE(0),
 		DEFAULT(1),
 		SERVOY_CLOUD(2),
-		AUTHENTICATOR(3);
+		AUTHENTICATOR(3),
+		OAUTH(4),
+		OAUTH_AUTHENTICATOR(5);
 
 		private final int value;
 
@@ -111,6 +131,10 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 					return SERVOY_CLOUD;
 				case 3 :
 					return AUTHENTICATOR;
+				case 4 :
+					return OAUTH;
+				case 5 :
+					return OAUTH_AUTHENTICATOR;
 			}
 			return null;
 		}
@@ -138,11 +162,6 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	/*
 	 * _____________________________________________________________ Methods for Form handling
 	 */
-
-	public Form getForm(int id)
-	{
-		return selectById(getForms(null, false), id);
-	}
 
 	public Iterator<Form> getForms(Table basedOnTable, boolean sort)
 	{
@@ -217,7 +236,12 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 
 	public Form getForm(String name)
 	{
-		return selectByName(getForms(null, false), name);
+		Form form = selectByName(getForms(null, false), name);
+		if (form == null)
+		{
+			form = selectByUUID(getForms(null, false), name);
+		}
+		return form;
 	}
 
 	public Form createNewForm(IValidateName validator, Style style, String formName, String dataSource, boolean show_in_menu, Dimension size)
@@ -225,7 +249,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	{
 		String name = formName == null ? "untitled" : formName; //$NON-NLS-1$
 		// Check if name is in use.
-		validator.checkName(name, 0, new ValidatorSearchContext(IRepository.FORMS), false);
+		validator.checkName(name, null, new ValidatorSearchContext(IRepository.FORMS), false);
 
 		Form f = (Form)getChangeHandler().createNewObject(this, IRepository.FORMS);
 		// Set all the required properties.
@@ -235,7 +259,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 		if (size != null) f.setSize(size);
 		if (style != null) f.setStyleName(style.getName());
 		addChild(f);
-		if (getFirstFormID() == 0) setFirstFormID(f.getID());
+		if (getFirstFormID() == null) setFirstFormID(f.getUUID().toString());
 		if (getSolutionType() == SolutionMetaData.MOBILE)
 		{
 			f.setNavigatorID(Form.NAVIGATOR_NONE);
@@ -321,15 +345,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 		}
 		else
 		{
-			String[] serverNames;
-			try
-			{
-				serverNames = repository.getDuplicateServerNames(stn[0]);
-			}
-			catch (RemoteException e)
-			{
-				throw new RepositoryException("Could not get relations", e); //$NON-NLS-1$
-			}
+			String[] serverNames = repository.getDuplicateServerNames(stn[0]);
 			if (serverNames.length == 1)
 			{
 				// no duplicates or an inmem table
@@ -465,7 +481,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	{
 		String name = relationName == null ? "untitled" : relationName; //$NON-NLS-1$
 		//check if name is in use
-		validator.checkName(name, 0, new ValidatorSearchContext(primaryDataSource, IRepository.RELATIONS), true);
+		validator.checkName(name, null, new ValidatorSearchContext(primaryDataSource, IRepository.RELATIONS), true);
 		Relation obj = (Relation)getChangeHandler().createNewObject(this, IRepository.RELATIONS);
 		obj.setJoinType(joinType);
 		//set all the required properties
@@ -483,6 +499,31 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	public Iterator<ValueList> getValueLists(boolean sort)
 	{
 		return getValueLists(getAllObjectsAsList(), sort);
+	}
+
+	public Iterator<Menu> getMenus(boolean sort)
+	{
+		return getMenus(getAllObjectsAsList(), sort);
+	}
+
+	public static Iterator<Menu> getMenus(List<IPersist> childs, boolean sort)
+	{
+		Iterator<Menu> menus = new TypeIterator<Menu>(childs, IRepository.MENUS);
+		if (sort)
+		{
+			return Utils.asSortedIterator(menus, NameComparator.INSTANCE);
+		}
+		return menus;
+	}
+
+	public static Iterator<Menu> getMenus(Iterator<Menu> childs, boolean sort)
+	{
+		Iterator<Menu> menus = childs;
+		if (sort)
+		{
+			return Utils.asSortedIterator(menus, NameComparator.INSTANCE);
+		}
+		return menus;
 	}
 
 	public static Iterator<ValueList> getValueLists(List<IPersist> childs, boolean sort)
@@ -505,11 +546,6 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 		return vls;
 	}
 
-	public ValueList getValueList(int id)
-	{
-		return selectById(getValueLists(false), id);
-	}
-
 	public ValueList getValueList(String name)
 	{
 		return selectByName(getValueLists(false), name);
@@ -520,9 +556,25 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 		String name = vlName == null ? "untitled" : vlName; //$NON-NLS-1$
 
 		//check if name is in use
-		validator.checkName(name, 0, new ValidatorSearchContext(IRepository.VALUELISTS), false);
+		validator.checkName(name, null, new ValidatorSearchContext(IRepository.VALUELISTS), false);
 
 		ValueList obj = (ValueList)getChangeHandler().createNewObject(this, IRepository.VALUELISTS);
+		//set all the required properties
+
+		obj.setName(name);
+
+		addChild(obj);
+		return obj;
+	}
+
+	public Menu createNewMenu(IValidateName validator, String menuName) throws RepositoryException
+	{
+		String name = menuName == null ? "untitled" : menuName; //$NON-NLS-1$
+
+		//check if name is in use
+		validator.checkName(name, null, new ValidatorSearchContext(IRepository.MENUS), false);
+
+		Menu obj = (Menu)getChangeHandler().createNewObject(this, IRepository.MENUS);
 		//set all the required properties
 
 		obj.setName(name);
@@ -584,7 +636,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 			throw new RepositoryException("unknow variable type: " + variableType); //$NON-NLS-1$
 		}
 		//check if name is in use
-		validator.checkName(name, 0, new ValidatorSearchContext(scopeName, IRepository.SCRIPTVARIABLES), false);
+		validator.checkName(name, null, new ValidatorSearchContext(scopeName, IRepository.SCRIPTVARIABLES), false);
 		ScriptVariable obj = (ScriptVariable)getChangeHandler().createNewObject(this, IRepository.SCRIPTVARIABLES);
 		//set all the required properties
 
@@ -831,15 +883,10 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	 */
 
 
-	public int getSolutionID()
-	{
-		return getID();
-	}
-
 	// do not need a set
 	public void updateName(IValidateName validator, String arg) throws RepositoryException
 	{
-		validator.checkName(arg, getID(), new ValidatorSearchContext(this, IRepository.SOLUTIONS), false);
+		validator.checkName(arg, getUUID(), new ValidatorSearchContext(this, IRepository.SOLUTIONS), false);
 		//checkForNameChange(getRootObjectMetaData().getName(), arg);
 		getRootObjectMetaData().setName(arg);
 	}
@@ -851,11 +898,6 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	/*
 	 * _____________________________________________________________ Global Script Methods from this class
 	 */
-
-	public ScriptMethod getScriptMethod(int id)
-	{
-		return selectById(getScriptMethods(null, false), id);
-	}
 
 	public ScriptMethod getScriptMethod(String scopeName, String name)
 	{
@@ -886,7 +928,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	public ScriptMethod createNewGlobalScriptMethod(IValidateName validator, String scopeName, String scriptName) throws RepositoryException
 	{
 		String name = scriptName == null ? "untitled" : scriptName; //$NON-NLS-1$
-		validator.checkName(name, 0, new ValidatorSearchContext(scopeName, IRepository.METHODS), false);
+		validator.checkName(name, null, new ValidatorSearchContext(scopeName, IRepository.METHODS), false);
 
 		ScriptMethod obj = (ScriptMethod)getChangeHandler().createNewObject(this, IRepository.METHODS);
 
@@ -905,7 +947,6 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 
 	/**
 	 * Flag that tells if authentication is needed in order to access the solution.
-	 * If unchecked, the Smart Client will always require authentication, regardless of this setting.
 	 * If checked, authentication is required, and either a provided loginSolution or otherwise the default Servoy login mechanism will be used.
 	 * If default Servoy login mechanism is used, the "servoy.webclient.basic.authentication" setting on the Admin Page can be used to enable the use of the standard browser basic authentication.
 	 */
@@ -997,10 +1038,10 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 
 	public Media createNewMedia(IValidateName validator, String name) throws RepositoryException
 	{
-		return createNewMedia(validator, name, 0);
+		return createNewMedia(validator, name, null);
 	}
 
-	public Media createNewMedia(IValidateName validator, String name, int skip_element_id_for_name_check) throws RepositoryException
+	public Media createNewMedia(IValidateName validator, String name, UUID skip_element_uuid_for_name_check) throws RepositoryException
 	{
 		if (name == null)
 		{
@@ -1008,7 +1049,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 		}
 
 		// Check if name is in use.
-		validator.checkName(name, skip_element_id_for_name_check, new ValidatorSearchContext(IRepository.MEDIA), false);
+		validator.checkName(name, skip_element_uuid_for_name_check, new ValidatorSearchContext(IRepository.MEDIA), false);
 
 		Media m = (Media)getChangeHandler().createNewObject(this, IRepository.MEDIA);
 		// Set all the required properties.
@@ -1042,11 +1083,6 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 			return Utils.asSortedIterator(medias, NameComparator.INSTANCE);
 		}
 		return medias;
-	}
-
-	public Media getMedia(int media_id)
-	{
-		return selectById(getMedias(false), media_id);
 	}
 
 	public Media getMedia(String name)
@@ -1126,19 +1162,14 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 			RootObjectMetaData metaData = moduleReference.getMetaData();
 			if (metaData != null)
 			{
-				try
+
+				Solution module = (Solution)getRepository().getActiveRootObject(metaData.getRootObjectUuid());
+				if (!result.containsKey(metaData.getName()))
 				{
-					Solution module = (Solution)getRepository().getActiveRootObject(metaData.getRootObjectId());
-					if (!result.containsKey(metaData.getName()))
-					{
-						result.put(metaData.getName(), module);
-						module.getReferencedModulesRecursive(result);
-					}
+					result.put(metaData.getName(), module);
+					module.getReferencedModulesRecursive(result);
 				}
-				catch (RemoteException e)
-				{
-					throw new RepositoryException(e);
-				}
+
 			}
 		}
 		return result;
@@ -1157,7 +1188,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 			RootObjectMetaData metaData = moduleReference.getMetaData();
 			if (metaData instanceof SolutionMetaData && ((SolutionMetaData)metaData).getSolutionType() != SolutionMetaData.LOGIN_SOLUTION)
 			{
-				newModules.add(((SolutionMetaData)metaData).getName());
+				newModules.add(metaData.getName());
 			}
 		}
 
@@ -1203,15 +1234,15 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	 * The custom CSS used by the solution (a MEDIA lib entry). It can reference other media resources (even additional .css through relative '@import' statements).
 	 * For NGClient - this CSS will be available directly in the browser.
 	 */
-	@ServoyClientSupport(ng = true, mc = false, wc = false, sc = false)
-	public int getStyleSheetID()
+	@ServoyClientSupport(ng = true, mc = true, wc = false, sc = false)
+	public String getStyleSheetID()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_STYLESHEET).intValue();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_STYLESHEET);
 	}
 
-	public void setStyleSheetID(int styleSheetMediaID)
+	public void setStyleSheetID(String styleSheetMediaID)
 	{
-		setTypedProperty(StaticContentSpecLoader.PROPERTY_STYLESHEET, Integer.valueOf(styleSheetMediaID));
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_STYLESHEET, styleSheetMediaID);
 	}
 
 	/**
@@ -1265,9 +1296,9 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	 * NOTE: If the Login form is specified, then the firstForm is the first form that will load next after the loginForm.
 	 */
 	@ServoyClientSupport(ng = true, mc = true, wc = true, sc = true)
-	public int getFirstFormID()
+	public String getFirstFormID()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_FIRSTFORMID).intValue();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_FIRSTFORMID);
 	}
 
 	/**
@@ -1281,9 +1312,9 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	 * @templatecode
 	 * return true
 	 */
-	public int getOnCloseMethodID()
+	public String getOnCloseMethodID()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONCLOSEMETHODID).intValue();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONCLOSEMETHODID);
 	}
 
 	/**
@@ -1299,9 +1330,9 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	 * @templateparam Object<Array<String> | String> queryParams all query parameters of the deeplink url with which the Client was started, key>string if there was one value else key>Array<String>
 	 */
 	@ServoyClientSupport(ng = true, mc = true, wc = true, sc = true)
-	public int getOnOpenMethodID()
+	public String getOnOpenMethodID()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONOPENMETHODID).intValue();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONOPENMETHODID);
 	}
 
 	/**
@@ -1318,9 +1349,9 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	 * @templateparam Object<Array<String> | String> queryParams all query parameters of the deeplink url with which the Client was started, key>string if there was one value else key>Array<String>
 	 */
 	@ServoyClientSupport(ng = true, mc = true, wc = true, sc = true)
-	public int getOnBeforeLoginMethodID()
+	public String getOnBeforeLoginMethodID()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONBEFORELOGINMETHODID).intValue();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONBEFORELOGINMETHODID);
 	}
 
 	/**
@@ -1334,26 +1365,26 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	/**
 	 * @param i
 	 */
-	public void setLoginFormID(int i)
+	public void setLoginFormID(String uuid)
 	{
-		setTypedProperty(StaticContentSpecLoader.PROPERTY_LOGINFORMID, i);
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_LOGINFORMID, uuid);
 	}
 
 	/**
 	 * The name of the login form that loads when a solution is deployed.
 	 */
 	@ServoyClientSupport(ng = true, mc = true, wc = true, sc = true)
-	public int getLoginFormID()
+	public String getLoginFormID()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_LOGINFORMID).intValue();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_LOGINFORMID);
 	}
 
 	/**
 	 * @param i
 	 */
-	public void setOnErrorMethodID(int i)
+	public void setOnErrorMethodID(String uuid)
 	{
-		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONERRORMETHODID, i);
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONERRORMETHODID, uuid);
 	}
 
 	/**
@@ -1396,20 +1427,20 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	 * 	}
 	 * }
 	 * //if returns false or no return, error is not reported to client; if returns true error is reported
-	 * //by default error report means logging the error, in smart client an error dialog will also show up
+	 * //by default error report means logging the error
 	 * return true
 	 */
-	public int getOnErrorMethodID()
+	public String getOnErrorMethodID()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONERRORMETHODID).intValue();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONERRORMETHODID);
 	}
 
 	/**
 	 * @param i
 	 */
-	public void setOnAutoSaveFailedMethodID(int i)
+	public void setOnAutoSaveFailedMethodID(String uuid)
 	{
-		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONAUTOSAVEDFAILEDMETHODID, i);
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONAUTOSAVEDFAILEDMETHODID, uuid);
 	}
 
 	/**
@@ -1434,41 +1465,41 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	});
 	 *
 	 */
-	public int getOnAutoSaveFailedMethodID()
+	public String getOnAutoSaveFailedMethodID()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONAUTOSAVEDFAILEDMETHODID).intValue();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONAUTOSAVEDFAILEDMETHODID);
 	}
 
 	/**
 	 * @param i
 	 */
-	public void setFirstFormID(int i)
+	public void setFirstFormID(String uuid)
 	{
-		setTypedProperty(StaticContentSpecLoader.PROPERTY_FIRSTFORMID, i);
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_FIRSTFORMID, uuid);
 	}
 
 	/**
 	 * @param i
 	 */
-	public void setOnCloseMethodID(int i)
+	public void setOnCloseMethodID(String uuid)
 	{
-		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONCLOSEMETHODID, i);
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONCLOSEMETHODID, uuid);
 	}
 
 	/**
 	 * @param i
 	 */
-	public void setOnOpenMethodID(int i)
+	public void setOnOpenMethodID(String uuid)
 	{
-		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONOPENMETHODID, i);
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONOPENMETHODID, uuid);
 	}
 
 	/**
 	 * @param i
 	 */
-	public void setOnBeforeLoginMethodID(int i)
+	public void setOnBeforeLoginMethodID(String uuid)
 	{
-		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONBEFORELOGINMETHODID, i);
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONBEFORELOGINMETHODID, uuid);
 	}
 
 	/**
@@ -1521,9 +1552,8 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	}
 
 	/**
-	 * The type of a solution; can be "Normal" (non-module), "Module", "Web client only", "Smart client only",
-	 * "Login", "Authenticator", "Pre-import hook module", "Post-import hook module", "Mobile".
-	 * These constants are defined in SolutionMetaData class.
+	 * The type of a solution; can be "Normal" (non-module), "Module", "Web client only (deprecated)", "Smart client only (deprecated)",
+	 * "Login", "Authenticator", "Pre-import hook module", "Post-import hook module", "Mobile", "Mobile shared module", "NG Client", "NG Module", "Service".
 	 */
 	@ServoyClientSupport(ng = true, mc = true, wc = true, sc = true)
 	public int getSolutionType()
@@ -1582,24 +1612,24 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	 * @templateparam Boolean cached data was cached
 	 * @templateaddtodo
 	 */
-	public int getOnDataBroadcastMethodID()
+	public String getOnDataBroadcastMethodID()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONDATABROADCASTMETHODID).intValue();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONDATABROADCASTMETHODID);
 	}
 
-	public void setOnDataBroadcastMethodID(int arg)
+	public void setOnDataBroadcastMethodID(String uuid)
 	{
-		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONDATABROADCASTMETHODID, arg);
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONDATABROADCASTMETHODID, uuid);
 	}
 
-	public int getOnInitMethodID()
+	public String getOnInitMethodID()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONINITMETHODID).intValue();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONINITMETHODID);
 	}
 
-	public void setOnInitMethodID(int arg)
+	public void setOnInitMethodID(String uuid)
 	{
-		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONINITMETHODID, arg);
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONINITMETHODID, uuid);
 	}
 
 	public void setVersion(String version)
@@ -1618,6 +1648,22 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_VERSION);
 	}
 
+
+	public void setEventTypes(JSONObject eventTypes)
+	{
+		this.setTypedProperty(StaticContentSpecLoader.PROPERTY_EVENTTYPES, eventTypes);
+	}
+
+	/**
+	 * These are the event types of the solution that can be added/fired/removed from eventsManager object.
+	 * These event types are added on top of default form events.
+	 * They can be access through EventType.name property when used to fire or listen to.
+	 */
+	@ServoyClientSupport(ng = true, mc = true, wc = true, sc = true)
+	public JSONObject getEventTypes()
+	{
+		return this.getTypedProperty(StaticContentSpecLoader.PROPERTY_EVENTTYPES);
+	}
 
 	@Override
 	public int compareTo(Solution o)

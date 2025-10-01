@@ -24,11 +24,12 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.IJavaScriptType;
 
 /**
- * This class is the representation of a mobile list component/form. 
- * 
+ * This class is the representation of a mobile list component/form.
+ *
  * @author acostescu
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
+@Deprecated
 public class JSInsetList extends BaseSHInsetList implements IJavaScriptType, ISHInsetList
 {
 	public JSInsetList(IBaseSMPortal portal, IBaseSMFormInternal contextForm)

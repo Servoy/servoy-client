@@ -17,6 +17,9 @@
 package com.servoy.j2db.dataprocessing;
 
 
+import static com.servoy.j2db.query.AbstractBaseQuery.deepClone;
+import static java.util.Arrays.stream;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -40,6 +43,7 @@ import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.ScriptCalculation;
 import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.persistence.Table;
+import com.servoy.j2db.query.ColumnType;
 import com.servoy.j2db.query.ISQLQuery;
 import com.servoy.j2db.query.Placeholder;
 import com.servoy.j2db.query.QueryDelete;
@@ -112,17 +116,16 @@ public class SQLSheet
 			Column c = table.getColumn(dataProviderID);
 			if (c == null) Debug.error("getCalculationOrColumnVariableInfo: Cannot get column with DP " + dataProviderID + " and columnIndex " + columnIndex +
 				" for table " + table.getDataSource());
-			return new VariableInfo(c.getType(), c.getLength(), c.getFlags());
+			return new VariableInfo(c.getColumnType(), c.getFlags());
 		}
 
-		Integer retVal = null;
+		int dptype = 0;
 		ScriptCalculation sc = application.getFlattenedSolution().getScriptCalculation(dataProviderID, table);
 		if (sc != null)
 		{
-			retVal = new Integer(sc.getDataProviderType());
+			dptype = sc.getDataProviderType();
 		}
-		return new VariableInfo((retVal != null ? retVal.intValue() : 0), Integer.MAX_VALUE /* allow unlimited value for unstored calcs */,
-			IBaseColumn.NORMAL_COLUMN);
+		return new VariableInfo(ColumnType.getInstance(dptype, Integer.MAX_VALUE /* allow unlimited value for unstored calcs */, 0), IBaseColumn.NORMAL_COLUMN);
 	}
 
 	public boolean containsCalculation(String dataProviderID)
@@ -388,7 +391,7 @@ public class SQLSheet
 				}
 				try
 				{
-					convertedValue = conv.convertFromObject(converterInfo.props, variableInfo.type, convertedValue);
+					convertedValue = conv.convertFromObject(converterInfo.props, variableInfo.type.getSqlType(), convertedValue);
 				}
 				catch (Exception e)
 				{
@@ -402,10 +405,10 @@ public class SQLSheet
 			{
 				// the length check (also done in FoundsetManager.validate(record))
 				int valueLen = Column.getObjectSize(convertedValue, variableInfo.type);
-				if (valueLen > 0 && variableInfo.length > 0 && valueLen > variableInfo.length) // insufficient space to save value
+				if (valueLen > 0 && variableInfo.type.getLength() > 0 && valueLen > variableInfo.type.getLength()) // insufficient space to save value
 				{
 					throw new IllegalArgumentException(application.getI18NMessage("servoy.record.error.columnSizeTooSmall", //$NON-NLS-1$
-						new Object[] { dataProviderID, Integer.valueOf(variableInfo.length), convertedValue }));
+						new Object[] { dataProviderID, Integer.valueOf(variableInfo.type.getLength()), convertedValue }));
 				}
 				// run the validators  (also done in FoundsetManager.validate(record))
 				Pair<String, Map<String, String>> validatorInfo = getColumnValidatorInfo(columnIndex);
@@ -472,11 +475,11 @@ public class SQLSheet
 			}
 		}
 
-		if (variableInfo.type != IColumnTypes.MEDIA || (variableInfo.flags & IBaseColumn.UUID_COLUMN) != 0)
+		if (variableInfo.type.getSqlType() != IColumnTypes.MEDIA || (variableInfo.flags & IBaseColumn.UUID_COLUMN) != 0)
 		{
 			try
 			{
-				convertedValue = Column.getAsRightType(variableInfo.type, variableInfo.flags, convertedValue, null, variableInfo.length, null, true, true); // dont use timezone here, should only be done in ui related stuff
+				convertedValue = Column.getAsRightType(variableInfo.type, variableInfo.flags, convertedValue, null, null, true, true); // dont use timezone here, should only be done in ui related stuff
 			}
 			catch (Exception e)
 			{
@@ -517,7 +520,14 @@ public class SQLSheet
 					}
 				}
 				// this is a UUID column, first convert to UUID (could be string or byte array (media)) - so we can get/use it as a valid uuid string
-				else value = Utils.getAsUUID(value, false);
+				else if (variableInfo.type.isArray() && value instanceof Object[] array)
+				{
+					value = stream(array).map((v) -> Utils.getAsUUID(v, false)).toArray();
+				}
+				else
+				{
+					value = Utils.getAsUUID(value, false);
+				}
 			}
 
 			ConverterInfo converterInfo = getColumnConverterInfo(columnIndex);
@@ -528,7 +538,7 @@ public class SQLSheet
 				{
 					try
 					{
-						value = conv.convertToObject(converterInfo.props, variableInfo.type, value);
+						value = conv.convertToObject(converterInfo.props, variableInfo.type.getSqlType(), value);
 					}
 					catch (Exception e)
 					{
@@ -748,6 +758,12 @@ public class SQLSheet
 	public SQLDescription getSQLDescription(int sqlType)
 	{
 		return sql.get(sqlType);
+	}
+
+	public QuerySelect getSelectQuery()
+	{
+		SQLDescription sqlDescription = getSQLDescription(SQLSheet.SELECT);
+		return sqlDescription == null ? null : deepClone((QuerySelect)sqlDescription.getSQLQuery());
 	}
 
 	public SQLDescription getRelatedSQLDescription(String relationName)
@@ -1069,14 +1085,12 @@ public class SQLSheet
 	 */
 	public class VariableInfo
 	{
-		public final int type;
-		public final int length;
+		public final ColumnType type;
 		public final int flags;
 
-		public VariableInfo(int type, int length, int flags)
+		public VariableInfo(ColumnType type, int flags)
 		{
 			this.type = type;
-			this.length = length;
 			this.flags = flags;
 		}
 	}

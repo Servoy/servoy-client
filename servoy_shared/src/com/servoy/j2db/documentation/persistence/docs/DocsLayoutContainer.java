@@ -25,6 +25,8 @@ import com.servoy.j2db.persistence.LayoutContainer;
 import com.servoy.j2db.util.UUID;
 
 /**
+ * Dummy class for use in the documentation generator.
+ *
  * @author lvostinar
  *
  */
@@ -36,9 +38,9 @@ public class DocsLayoutContainer extends LayoutContainer
 	private static final long serialVersionUID = 1L;
 
 
-	protected DocsLayoutContainer(ISupportChilds parent, int element_id, UUID uuid)
+	protected DocsLayoutContainer(ISupportChilds parent, UUID uuid)
 	{
-		super(parent, element_id, uuid);
+		super(parent, uuid);
 	}
 
 }

@@ -38,7 +38,8 @@ import com.servoy.j2db.server.ngclient.property.FoundsetTypeSabloValue;
  * @author lvostinar
  *
  */
-public class RuntimeComponentPropertyType extends DefaultPropertyType<RuntimeWebComponent> implements IConvertedPropertyType<RuntimeWebComponent>
+public class RuntimeComponentPropertyType extends DefaultPropertyType<RuntimeWebComponent>
+	implements IConvertedPropertyType<RuntimeWebComponent>
 {
 	public static final RuntimeComponentPropertyType INSTANCE = new RuntimeComponentPropertyType();
 	public static final String TYPE_NAME = "runtimecomponent";
@@ -106,4 +107,5 @@ public class RuntimeComponentPropertyType extends DefaultPropertyType<RuntimeWeb
 		writer.value(id);
 		return writer;
 	}
+
 }

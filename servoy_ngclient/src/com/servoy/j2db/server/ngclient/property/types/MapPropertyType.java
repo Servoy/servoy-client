@@ -17,6 +17,8 @@
 
 package com.servoy.j2db.server.ngclient.property.types;
 
+import java.lang.reflect.Array;
+import java.util.Date;
 import java.util.Map;
 
 import org.json.JSONArray;
@@ -25,6 +27,8 @@ import org.json.JSONObject;
 import org.json.JSONWriter;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
+import org.mozilla.javascript.NativeArray;
+import org.mozilla.javascript.NativeDate;
 import org.sablo.BaseWebObject;
 import org.sablo.IWebObjectContext;
 import org.sablo.specification.PropertyDescription;
@@ -220,10 +224,17 @@ public class MapPropertyType extends DefaultPropertyType<JSONObject>
 				v = object;
 
 			}
-			else if (v instanceof JSONObject)
+			else if (v instanceof JSONObject || v instanceof JSONArray)
 			{
 				// should the types still be like this? this is nested.
 				v = createJSONValue(v, application, types, dataConverterContext);
+			}
+			else if (v instanceof Date)
+			{
+				JSONObject object = new JSONObject();
+				object.put(JSONUtils.VALUE_KEY, NGDatePropertyType.toStringDate((Date)v, null));
+				object.put(JSONUtils.CONVERSION_CL_SIDE_TYPE_KEY, NGDatePropertyType.SVY_DATE_CLIENT_SIDE_TYPE_NAME);
+				v = object;
 			}
 			fixedJSONObject.put(jsonKey, v);
 		}
@@ -238,16 +249,50 @@ public class MapPropertyType extends DefaultPropertyType<JSONObject>
 
 		if (rhinoValue instanceof Map)
 		{
-			sabloValue = new JSONObject();
-			for (Map.Entry< ? , ? > entry : ((Map< ? , ? >)rhinoValue).entrySet())
-			{
-				Object value = entry.getValue();
-				if (value instanceof Map) value = toSabloComponentValue(value, null, pd, webObjectContext);
-				sabloValue.put(entry.getKey().toString(), value);
-			}
+			sabloValue = (JSONObject)convertToSabloValue(rhinoValue);
 		}
 
 		return sabloValue;
+	}
+
+	private Object convertToSabloValue(Object value)
+	{
+		if (value instanceof Map)
+		{
+			JSONObject sabloValue = new JSONObject();
+			for (Map.Entry< ? , ? > entry : ((Map< ? , ? >)value).entrySet())
+			{
+				sabloValue.put(entry.getKey().toString(), convertToSabloValue(entry.getValue()));
+			}
+			return sabloValue;
+		}
+		else if (value instanceof NativeDate)
+		{
+			return ((NativeDate)value).unwrap();
+		}
+		else if (value instanceof NativeArray)
+		{
+			JSONArray array = new JSONArray();
+			NativeArray nativeArray = (NativeArray)value;
+			for (Object element : nativeArray)
+			{
+				array.put(
+					convertToSabloValue(element));
+			}
+			return array;
+		}
+		else if (value != null && value.getClass().isArray())
+		{
+			JSONArray array = new JSONArray();
+			for (int i = 0; i < Array.getLength(value); i++)
+			{
+				array.put(
+					convertToSabloValue(Array.get(value, i)));
+			}
+			return array;
+		}
+		return value;
+
 	}
 
 	/**
@@ -340,6 +385,48 @@ public class MapPropertyType extends DefaultPropertyType<JSONObject>
 				if (item instanceof JSONObject || item instanceof JSONArray)
 				{
 					item = createJSONValue(item, application, subTypes, dataConverterContext);
+				}
+				else if (item instanceof Date)
+				{
+					JSONObject object = new JSONObject();
+					object.put(JSONUtils.VALUE_KEY, NGDatePropertyType.toStringDate((Date)item, null));
+					object.put(JSONUtils.CONVERSION_CL_SIDE_TYPE_KEY, NGDatePropertyType.SVY_DATE_CLIENT_SIDE_TYPE_NAME);
+					item = object;
+				}
+				else if (item instanceof BrowserFunction bf)
+				{
+					// this is a copy of what is in the class DynamicClientFunctionPropertyType.toJSON
+					if (application.getRuntimeProperties().containsKey("NG2")) //$NON-NLS-1$
+					{
+						JSONObject object = new JSONObject();
+						object.put(JSONUtils.VALUE_KEY, application.registerClientFunction(bf.getFunctionString()));
+						object.put(JSONUtils.CONVERSION_CL_SIDE_TYPE_KEY, DynamicClientFunctionPropertyType.CLIENT_SIDE_TYPE_NAME);
+						item = object;
+					}
+					else
+					{
+						item = bf.getFunctionString();
+					}
+				}
+				else if (item instanceof Function func && dataConverterContext != null)
+				{
+					// this is a copy of what is in the class FunctionRefType.toJSON
+					JSONObject value = new JSONObject();
+					BaseWebObject webObject = dataConverterContext.getWebObject();
+					if (webObject instanceof WebFormComponent wfc)
+					{
+						String name = wfc.getDataAdapterList().getForm().getName();
+						value.put("formname", name);
+					}
+					value.put(FunctionRefType.FUNCTION_HASH, FunctionRefType.INSTANCE.addReference(func, dataConverterContext));
+					value.put("svyType", FunctionRefType.TYPE_NAME);
+
+
+					JSONObject object = new JSONObject();
+					object.put(JSONUtils.VALUE_KEY, value);
+					object.put(JSONUtils.CONVERSION_CL_SIDE_TYPE_KEY, FunctionRefType.TYPE_NAME);
+					item = object;
+
 				}
 				fixedArray.put(i, item);
 			}

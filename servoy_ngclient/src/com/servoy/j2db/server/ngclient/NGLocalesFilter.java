@@ -21,18 +21,18 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Paths;
 
-import javax.servlet.DispatcherType;
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.annotation.WebFilter;
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.commons.io.IOUtils;
 
 import com.servoy.j2db.util.MimeTypes;
+
+import jakarta.servlet.DispatcherType;
+import jakarta.servlet.Filter;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
+import jakarta.servlet.annotation.WebFilter;
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * @author jcompagner
@@ -52,25 +52,32 @@ public class NGLocalesFilter implements Filter
 			// this code is a bit of copy of the IndexPageFilter locale handling part.
 			String requestURI = ((HttpServletRequest)request).getServletPath();
 			String normalize = Paths.get(requestURI).normalize().toString().replace('\\', '/');
-			InputStream resourceAsStream = request.getServletContext().getResourceAsStream(normalize);
-			if (resourceAsStream == null)
+			if (normalize.startsWith("/locales/"))
 			{
-				String[] locales = generateLocaleIds(localeId);
-				for (String locale : locales)
+				InputStream resourceAsStream = request.getServletContext().getResourceAsStream(normalize);
+				if (resourceAsStream == null)
 				{
-					resourceAsStream = request.getServletContext().getResourceAsStream(normalize.replace(localeId, locale));
-					if (resourceAsStream != null) break;
+					String[] locales = generateLocaleIds(localeId);
+					for (String locale : locales)
+					{
+						String localeNormalized = Paths.get(requestURI.replace(localeId, locale)).normalize().toString().replace('\\', '/');
+						if (localeNormalized.startsWith("/locales/"))
+						{
+							resourceAsStream = request.getServletContext().getResourceAsStream(localeNormalized);
+							if (resourceAsStream != null) break;
+						}
+					}
 				}
-			}
-			if (resourceAsStream != null)
-			{
-				String contentType = MimeTypes.guessContentTypeFromName(requestURI);
-				if (contentType != null) response.setContentType(contentType);
-				try (InputStream is = resourceAsStream)
+				if (resourceAsStream != null)
 				{
-					IOUtils.copy(is, response.getOutputStream());
+					String contentType = MimeTypes.guessContentTypeFromName(requestURI);
+					if (contentType != null) response.setContentType(contentType);
+					try (InputStream is = resourceAsStream)
+					{
+						IOUtils.copy(is, response.getOutputStream());
+					}
+					return;
 				}
-				return;
 			}
 		}
 		chain.doFilter(request, response);

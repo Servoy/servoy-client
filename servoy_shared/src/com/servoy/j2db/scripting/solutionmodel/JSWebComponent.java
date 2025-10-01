@@ -36,6 +36,25 @@ import com.servoy.j2db.scripting.IJavaScriptType;
 import com.servoy.j2db.util.Debug;
 
 /**
+ * <code>JSWebComponent</code> provides a wrapper for creating and managing web components in the Solution Model.
+ * It extends the <code>JSComponent</code> model and allows developers to define custom behaviors, attributes, and design-time properties.
+ * Web components are essential for building dynamic, responsive forms in web-based Servoy applications.
+ *
+ * <h2>Functionality</h2>
+ * <p>JSWebComponent includes properties such as <code>cssPosition</code> and <code>anchors</code> for defining layout behaviors,
+ * making it adaptable to resizing and responsive designs.
+ * Visibility, dimensions, and coordinates can be controlled via properties like <code>x</code>, <code>y</code>, <code>width</code>,
+ * <code>height</code>, and <code>visible</code>. The <code>typeName</code> property identifies the type of web component, as defined in the specification file.</p>
+ *
+ * <p>Methods such as <code>getAttribute</code>, <code>setJSONProperty</code>, and <code>getHandler</code> provide tools for managing attributes,
+ * design-time properties, and event handlers. These methods enable dynamic configuration and integration of web components into forms.
+ * Utilities like <code>getAttributes</code> and <code>getUUID</code> facilitate introspection and metadata access.</p>
+ *
+ * <p>JSWebComponent supports both design-time and runtime modifications, allowing components to be customized during development or adjusted dynamically at runtime.</p>
+ *
+ * <p>For more details, refer to the
+ * <a href="https://docs.servoy.com/reference/servoycore/dev-api/forms/runtimeform/elements/runtimewebcomponent">RuntimeWebComponent</a> section of this documentation.</p>
+ *
  * @author lvostinar
  *
  */
@@ -46,7 +65,7 @@ public class JSWebComponent extends JSComponent<WebComponent> implements IJavaSc
 
 	protected final IApplication application;
 
-	protected JSWebComponent(IJSParent< ? > parent, WebComponent baseComponent, IApplication application, boolean isNew)
+	public JSWebComponent(IJSParent< ? > parent, WebComponent baseComponent, IApplication application, boolean isNew)
 	{
 		super(parent, baseComponent, isNew);
 		this.application = application;
@@ -191,6 +210,8 @@ public class JSWebComponent extends JSComponent<WebComponent> implements IJavaSc
 	 * @sample
 	 * var wc = form.getWebComponent('mycomponent');
 	 * application.output(bean.typeName);
+	 *
+	 * @return the type name of the web component, as defined in the specification file.
 	 */
 	@JSGetter
 	public String getTypeName()
@@ -252,6 +273,8 @@ public class JSWebComponent extends JSComponent<WebComponent> implements IJavaSc
 	 * var isSet = wc.isJSONPropertySet(''mytext''); // returns false
 	 * wc.setJSONProperty('mytext', 'Hello World Extended!');
 	 * isSet = wc.isJSONPropertySet(''mytext''); // returns true
+	 *
+	 * @return true if the specified property is explicitly set, otherwise false.
 	 */
 	@JSFunction
 	public boolean isJSONPropertySet(String propertyName)
@@ -299,6 +322,8 @@ public class JSWebComponent extends JSComponent<WebComponent> implements IJavaSc
 	 * @sample
 	 * var wc = form.getWebComponent('mycomponent');
 	 * var handler = wc.getHandler('onActionMethodID');
+	 *
+	 * @return the JSMethod handler associated with the specified handler name.
 	 */
 	@JSFunction
 	public JSMethod getHandler(String handlerName)
@@ -365,6 +390,8 @@ public class JSWebComponent extends JSComponent<WebComponent> implements IJavaSc
 	 * var tabs = jsTabPanel.getJSONPRoperty("tabs");
 	 * tabs[0].containsFormId = jsForm;
 	 * jsTabPanel.setJSONProperty("tabs", tabs);
+	 *
+	 * @return the design-time value of the specified property, or the default value if not set.
 	 */
 	@JSFunction
 	public Object getJSONProperty(String propertyName)
@@ -382,6 +409,8 @@ public class JSWebComponent extends JSComponent<WebComponent> implements IJavaSc
 	 * var wc = form.getWebComponent('mycomponent');
 	 * application.output(wc.getJSONPropertyNames(true)); // will output all property names from the spec file
 	 * application.output(wc.getJSONPropertyNames(false)); // will output all property names that are set in component json
+	 *
+	 * @return an array of property names supported by the web component. Includes all properties or only set properties based on the includeAll parameter.
 	 */
 	@JSFunction
 	public String[] getJSONPropertyNames(boolean includeAll)

@@ -24,12 +24,25 @@ import org.mozilla.javascript.annotations.JSFunction;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.RepositoryException;
-import com.servoy.j2db.querybuilder.IQueryBuilderColumn;
 import com.servoy.j2db.querybuilder.IQueryBuilderSort;
 import com.servoy.j2db.querybuilder.IQueryBuilderSorts;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 
 /**
+ * <p>The <code>QBSorts</code> class is a versatile utility for managing sorting conditions in
+ * <code>QBSelect</code> queries. It enables developers to define ascending or descending sort orders
+ * for columns and functions, offering granular control over query result organization. This class
+ * integrates with other query builder components, allowing for dynamic updates to sorting criteria
+ * during query construction.</p>
+ *
+ * <p>With support for adding primary key columns automatically in alphabetical order,
+ * <code>QBSorts</code> streamlines the sorting process in complex queries. Additionally, it includes
+ * features for clearing sorting conditions, ensuring flexibility and adaptability. Key methods
+ * include <code>add(columnSortAsc)</code> for adding sort orders, <code>addPk()</code> for incorporating
+ * primary key columns, and <code>clear()</code> for resetting the sort configuration.</p>
+ *
+ * <p>For more details, see the <a href="https://docs.servoy.com/reference/servoycore/dev-api/database-manager/qbselect">QBSelect documentation</a>.</p>
+ *
  * @author rgansevles
  *
  */
@@ -44,8 +57,11 @@ public class QBSorts extends QBPart implements IQueryBuilderSorts
 		super(parent, parent);
 	}
 
+	/**
+	 *  @return the parent QBSelect query associated with these sorts.
+	 */
 	@Override
-	@JSReadonlyProperty
+	@JSReadonlyProperty(debuggerRepresentation = "Query parent part")
 	public final QBSelect getParent()
 	{
 		return (QBSelect)super.getParent();
@@ -56,6 +72,8 @@ public class QBSorts extends QBPart implements IQueryBuilderSorts
 	 * @sample
 	 *
 	 * query.sort.addPk()
+	 *
+	 * @return this QBSorts instance after adding primary key columns to the sort order.
 	 */
 	@JSFunction
 	public QBSorts addPk() throws RepositoryException
@@ -65,7 +83,7 @@ public class QBSorts extends QBPart implements IQueryBuilderSorts
 		{
 			for (String columnName : iterate(table.getRowIdentColumnNames()))
 			{
-				add(getParent().getColumn(columnName).asc());
+				add(((QBColumnImpl)getParent().getColumn(columnName)).asc());
 			}
 		}
 		return this;
@@ -76,6 +94,7 @@ public class QBSorts extends QBPart implements IQueryBuilderSorts
 	 * @sample
 	 *
 	 * query.sort.clear()
+	 * @return this QBSorts instance after clearing all sort conditions.
 	 */
 	@JSFunction
 	public QBSorts clear()
@@ -90,6 +109,8 @@ public class QBSorts extends QBPart implements IQueryBuilderSorts
 	 * query.sort.add(query.columns.orderid.desc)
 	 *
 	 * @param sort the sort to add
+	 *
+	 * @return this QBSorts instance after adding the specified sort condition.
 	 */
 	public QBSorts js_add(QBSort sort) throws RepositoryException
 	{
@@ -103,32 +124,23 @@ public class QBSorts extends QBPart implements IQueryBuilderSorts
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderSorts#add(IQueryBuilderColumn)
+	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderSorts#add(QBColumn)
 	 * @sample
 	 * query.sort.add(query.columns.orderid)
 	 *
 	 * @param columnSortAsc column to sort by
-	 */
-	public QBSorts js_add(QBColumn columnSortAsc) throws RepositoryException
-	{
-		return add(columnSortAsc);
-	}
-
-	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderSorts#add(IQueryBuilderColumn)
-	 * @sample
-	 * query.sort.add(query.columns.orderid)
 	 *
-	 * @param functionSortAsc function to add
+	 * @return this QBSorts instance after adding the specified column to the sort order.
 	 */
-	public QBSorts js_add(QBFunction functionSortAsc) throws RepositoryException
-	{
-		return add(functionSortAsc);
-	}
-
-	public QBSorts add(IQueryBuilderColumn columnSortAsc) throws RepositoryException
+	@JSFunction
+	public QBSorts add(QBColumn columnSortAsc) throws RepositoryException
 	{
 		return add(columnSortAsc.asc());
 	}
 
+	@Override
+	public String toString()
+	{
+		return "QBSorts(Helper class for creating functions)";
+	}
 }

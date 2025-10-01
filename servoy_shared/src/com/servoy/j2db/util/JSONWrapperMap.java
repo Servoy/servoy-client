@@ -59,7 +59,7 @@ public class JSONWrapperMap<T> extends AbstractMap<String, T>
 		{
 			try
 			{
-				json = new ServoyJSONObject(source, true);
+				json = new ServoyJSONObject(source, false);
 			}
 			catch (JSONException e)
 			{
@@ -158,7 +158,7 @@ public class JSONWrapperMap<T> extends AbstractMap<String, T>
 		if (source == null)
 		{
 			// source is touched
-			source = ServoyJSONObject.toString(getJson(), true, true, true);
+			source = ServoyJSONObject.toString(getJson(), false, true, false);
 		}
 		return source;
 	}

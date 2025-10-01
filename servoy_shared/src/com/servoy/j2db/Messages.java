@@ -398,8 +398,7 @@ public class Messages
 			boolean isColumnValueFilterChanged = false;
 			if (filterColumn == null && fm != null)
 			{
-				QueryTable messagesTable = new QueryTable(table.getSQLName(), table.getDataSource(), table.getCatalog(), table.getSchema());
-				QuerySelect sql = new QuerySelect(messagesTable);
+				QuerySelect sql = new QuerySelect(table.queryTable());
 				ArrayList<TableFilter> tableFilters = fm.getTableFilterParams(serverName, sql);
 				if (tableFilters != null)
 				{
@@ -457,11 +456,11 @@ public class Messages
 
 		if (loadingType == ALL_LOCALES || loadingType == DEFAULT_LOCALE)
 		{
-			QueryTable messagesTable = new QueryTable(table.getSQLName(), table.getDataSource(), table.getCatalog(), table.getSchema());
+			QueryTable messagesTable = table.queryTable();
 			QuerySelect sql = new QuerySelect(messagesTable);
-			QueryColumn msgKey = new QueryColumn(messagesTable, -1, "message_key", Types.VARCHAR, 150, 0, null, 0); //$NON-NLS-1$
-			QueryColumn msgVal = new QueryColumn(messagesTable, -1, "message_value", Types.VARCHAR, 2000, 0, null, 0); //$NON-NLS-1$
-			QueryColumn msgLang = new QueryColumn(messagesTable, -1, "message_language", Types.VARCHAR, 150, 0, null, 0); //$NON-NLS-1$
+			QueryColumn msgKey = new QueryColumn(messagesTable, "message_key", Types.VARCHAR, 150, 0, null, 0); //$NON-NLS-1$
+			QueryColumn msgVal = new QueryColumn(messagesTable, "message_value", Types.VARCHAR, 2000, 0, null, 0); //$NON-NLS-1$
+			QueryColumn msgLang = new QueryColumn(messagesTable, "message_language", Types.VARCHAR, 150, 0, null, 0); //$NON-NLS-1$
 			sql.addColumn(msgKey);
 			sql.addColumn(msgVal);
 
@@ -486,11 +485,11 @@ public class Messages
 
 			if (searchKey != null || searchText != null)
 			{
-				QueryTable subselectTable = new QueryTable(table.getSQLName(), table.getDataSource(), table.getCatalog(), table.getSchema());
+				QueryTable subselectTable = table.queryTable();
 				QuerySelect subselect = new QuerySelect(subselectTable);
-				QueryColumn msgKeySub = new QueryColumn(subselectTable, -1, "message_key", Types.VARCHAR, 150, 0, null, 0); //$NON-NLS-1$
-				QueryColumn msgValueSub = new QueryColumn(subselectTable, -1, "message_value", Types.VARCHAR, 2000, 0, null, 0); //$NON-NLS-1$
-				QueryColumn msgLangSub = new QueryColumn(subselectTable, -1, "message_language", Types.VARCHAR, 150, 0, null, 0); //$NON-NLS-1$
+				QueryColumn msgKeySub = new QueryColumn(subselectTable, "message_key", Types.VARCHAR, 150, 0, null, 0); //$NON-NLS-1$
+				QueryColumn msgValueSub = new QueryColumn(subselectTable, "message_value", Types.VARCHAR, 2000, 0, null, 0); //$NON-NLS-1$
+				QueryColumn msgLangSub = new QueryColumn(subselectTable, "message_language", Types.VARCHAR, 150, 0, null, 0); //$NON-NLS-1$
 				subselect.addColumn(msgKeySub);
 
 				String condSearch = "SEARCH"; //$NON-NLS-1$
@@ -541,13 +540,13 @@ public class Messages
 
 	private static void fillLocaleMessages(String clientId, IDataServer dataServer, Table table, String serverName, Column filterColumn,
 		Object columnValueFilter, String searchKey, String searchText, Locale language, Properties properties, int loadingType, IFoundSetManagerInternal fm)
-		throws ServoyException, RemoteException
+		throws ServoyException
 	{
-		QueryTable messagesTable = new QueryTable(table.getSQLName(), table.getDataSource(), table.getCatalog(), table.getSchema());
+		QueryTable messagesTable = table.queryTable();
 		QuerySelect sql = new QuerySelect(messagesTable);
-		QueryColumn msgKey = new QueryColumn(messagesTable, -1, "message_key", Types.VARCHAR, 150, 0, null, 0); //$NON-NLS-1$
-		QueryColumn msgVal = new QueryColumn(messagesTable, -1, "message_value", Types.VARCHAR, 2000, 0, null, 0); //$NON-NLS-1$
-		QueryColumn msgLang = new QueryColumn(messagesTable, -1, "message_language", Types.VARCHAR, 150, 0, null, 0); //$NON-NLS-1$
+		QueryColumn msgKey = new QueryColumn(messagesTable, "message_key", Types.VARCHAR, 150, 0, null, 0); //$NON-NLS-1$
+		QueryColumn msgVal = new QueryColumn(messagesTable, "message_value", Types.VARCHAR, 2000, 0, null, 0); //$NON-NLS-1$
+		QueryColumn msgLang = new QueryColumn(messagesTable, "message_language", Types.VARCHAR, 150, 0, null, 0); //$NON-NLS-1$
 		sql.addColumn(msgKey);
 		sql.addColumn(msgVal);
 
@@ -572,11 +571,11 @@ public class Messages
 
 		if (searchKey != null || searchText != null)
 		{
-			QueryTable subselectTable = new QueryTable(table.getSQLName(), table.getDataSource(), table.getCatalog(), table.getSchema());
+			QueryTable subselectTable = table.queryTable();
 			QuerySelect subselect = new QuerySelect(subselectTable);
-			QueryColumn msgKeySub = new QueryColumn(subselectTable, -1, "message_key", Types.VARCHAR, 150, 0, null, 0); //$NON-NLS-1$
-			QueryColumn msgValueSub = new QueryColumn(subselectTable, -1, "message_value", Types.VARCHAR, 2000, 0, null, 0); //$NON-NLS-1$
-			QueryColumn msgLangSub = new QueryColumn(subselectTable, -1, "message_language", Types.VARCHAR, 150, 0, null, 0); //$NON-NLS-1$
+			QueryColumn msgKeySub = new QueryColumn(subselectTable, "message_key", Types.VARCHAR, 150, 0, null, 0); //$NON-NLS-1$
+			QueryColumn msgValueSub = new QueryColumn(subselectTable, "message_value", Types.VARCHAR, 2000, 0, null, 0); //$NON-NLS-1$
+			QueryColumn msgLangSub = new QueryColumn(subselectTable, "message_language", Types.VARCHAR, 150, 0, null, 0); //$NON-NLS-1$
 			subselect.addColumn(msgKeySub);
 
 			String condSearch = "SEARCH"; //$NON-NLS-1$
@@ -722,8 +721,8 @@ public class Messages
 					return false;
 				}
 
-				QueryTable messagesTable = new QueryTable(table.getSQLName(), table.getDataSource(), table.getCatalog(), table.getSchema());
-				QueryColumn msgKey = new QueryColumn(messagesTable, -1, "message_key", Types.VARCHAR, 150, 0, null, 0); //$NON-NLS-1$
+				QueryTable messagesTable = table.queryTable();
+				QueryColumn msgKey = new QueryColumn(messagesTable, "message_key", Types.VARCHAR, 150, 0, null, 0); //$NON-NLS-1$
 				QueryDelete delete = new QueryDelete(messagesTable);
 				delete.addCondition(new CompareCondition(IBaseSQLCondition.EQUALS_OPERATOR, msgKey, key));
 

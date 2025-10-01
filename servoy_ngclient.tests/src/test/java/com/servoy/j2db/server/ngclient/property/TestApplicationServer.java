@@ -22,8 +22,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ScheduledExecutorService;
 
-import javax.servlet.http.HttpServlet;
-
 import com.servoy.j2db.IDebugClientHandler;
 import com.servoy.j2db.dataprocessing.IDataServer;
 import com.servoy.j2db.persistence.AbstractRepository;
@@ -39,7 +37,6 @@ import com.servoy.j2db.server.shared.IApplicationServerSingleton;
 import com.servoy.j2db.server.shared.IBatchManager;
 import com.servoy.j2db.server.shared.IServerStatus;
 import com.servoy.j2db.server.shared.IUserManager;
-import com.servoy.j2db.server.shared.IWebClientSessionFactory;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.xmlxport.IXMLExportUserChannel;
 import com.servoy.j2db.util.xmlxport.IXMLExporter;
@@ -48,6 +45,8 @@ import com.servoy.j2db.util.xmlxport.IXMLImportHandlerVersions11AndHigher;
 import com.servoy.j2db.util.xmlxport.IXMLImportUserChannel;
 import com.servoy.j2db.util.xmlxport.RootObjectImportInfo;
 import com.servoy.j2db.util.xmlxport.VersionInfo;
+
+import jakarta.servlet.http.HttpServlet;
 
 /**
  * @author jcompagner
@@ -133,13 +132,6 @@ final class TestApplicationServer implements IApplicationServerSingleton
 	{
 		// TODO Auto-generated method stub
 		return 0;
-	}
-
-	@Override
-	public IWebClientSessionFactory getWebClientSessionFactory()
-	{
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 	@Override

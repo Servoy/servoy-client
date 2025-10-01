@@ -41,12 +41,13 @@ import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElement
  *
  * @author gboros
  */
-public class TitleStringPropertyType extends TagStringPropertyType implements IFormElementDefaultValueToSabloComponent<String, BasicTagStringTypeSabloValue>
+public class TitleStringPropertyType extends TagStringPropertyType
+	implements IFormElementDefaultValueToSabloComponent<String, BasicTagStringTypeSabloValue>
 {
 	public static final TitleStringPropertyType NG_INSTANCE = new TitleStringPropertyType();
 	public static final String NG_TYPE_NAME = "titlestring";
 
-	protected TitleStringPropertyType()
+	private TitleStringPropertyType()
 	{
 	}
 
@@ -69,13 +70,6 @@ public class TitleStringPropertyType extends TagStringPropertyType implements IF
 			forDataprovider);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementDefaultValueToSabloComponent#toSabloComponentDefaultValue(org.sablo.
-	 * specification.PropertyDescription, com.servoy.j2db.server.ngclient.INGFormElement, com.servoy.j2db.server.ngclient.WebFormComponent,
-	 * com.servoy.j2db.server.ngclient.DataAdapterList)
-	 */
 	@Override
 	public BasicTagStringTypeSabloValue toSabloComponentDefaultValue(PropertyDescription pd, INGFormElement formElement, WebFormComponent component,
 		DataAdapterList dataAdapterList)
@@ -117,4 +111,5 @@ public class TitleStringPropertyType extends TagStringPropertyType implements IF
 		}
 		return null;
 	}
+
 }

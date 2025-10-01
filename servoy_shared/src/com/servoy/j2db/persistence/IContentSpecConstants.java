@@ -93,6 +93,7 @@ public interface IContentSpecConstants extends IContentSpecConstantsBase
 	public static final String PROPERTY_ONAFTERUPDATEMETHODID = "onAfterUpdateMethodID";
 	public static final String PROPERTY_ONFOUNDSETLOADMETHODID = "onFoundSetLoadMethodID";
 	public static final String PROPERTY_ONFOUNDSETNEXTCHUNKMETHODID = "onFoundsetNextChunkMethodID";
+	public static final String PROPERTY_ONFOUNDSETBEFORESELECTIONCHANGEMETHODID = "onFoundSetBeforeSelectionChangeMethodID";
 	public static final String PROPERTY_ONCLOSEMETHODID = "onCloseMethodID";
 	public static final String PROPERTY_ONCREATEMETHODID = "onCreateMethodID";
 	public static final String PROPERTY_ONDATABROADCASTMETHODID = "onDataBroadcastMethodID";
@@ -204,6 +205,7 @@ public interface IContentSpecConstants extends IContentSpecConstantsBase
 	public static final String PROPERTY_SORTOPTIONS = "sortOptions";
 	public static final String PROPERTY_STYLESHEET = "styleSheetID";
 	public static final String PROPERTY_STYLECLASS = "styleClass";
+	public static final String PROPERTY_ICONSTYLECLASS = "iconStyleClass";
 	public static final String PROPERTY_STYLENAME = "styleName";
 	public static final String PROPERTY_TAGTYPE = "tagType";
 	public static final String PROPERTY_TITLETEXT = "titleText";
@@ -228,4 +230,8 @@ public interface IContentSpecConstants extends IContentSpecConstantsBase
 	public static final String PROPERTY_ONVALIDATEMETHODID = "onValidateMethodID";
 	public static final String PROPERTY_ONAUTOSAVEDFAILEDMETHODID = "onAutoSaveFailedMethodID";
 	public static final String PROPERTY_ONBEFORELOGINMETHODID = "onBeforeLoginMethodID";
+	public static final String PROPERTY_USE_MIN_HEIGHT = "useMinHeight";
+	public static final String PROPERTY_USE_MIN_WIDTH = "useMinWidth";
+	public static final String PROPERTY_PERMISSIONS = "permissions";
+	public static final String PROPERTY_EVENTTYPES = "eventTypes";
 }

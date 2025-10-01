@@ -25,5 +25,5 @@ public interface IActiveSolutionImporter
 {
 	void doActiveSolutionImport() throws Exception;
 
-	long[] getSolutionLastModified(int[] ids);
+	long[] getSolutionLastModified(String[] uuids);
 }

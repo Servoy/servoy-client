@@ -17,6 +17,8 @@
 
 package com.servoy.j2db.querybuilder;
 
+import com.servoy.j2db.querybuilder.impl.QBGenericColumnBase;
+
 /**
  * Case search expression used in Servoy Query Objects.
  *
@@ -28,5 +30,5 @@ public interface IQueryBuilderCase extends IQueryBuilderPart
 {
 	IQueryBuilderCaseWhen when(IQueryBuilderCondition condition);
 
-	IQueryBuilderSearchCaseExpression elseValue(Object value);
+	QBGenericColumnBase elseValue(Object value);
 }

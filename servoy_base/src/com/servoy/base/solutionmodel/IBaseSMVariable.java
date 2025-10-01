@@ -29,7 +29,7 @@ import com.servoy.base.scripting.annotations.ServoyClientSupport;
  * @author acostescu
  * @since 7.0
  */
-@ServoyClientSupport(mc = true, wc = true, sc = true, ng = true) 
+@ServoyClientSupport(mc = true, wc = true, sc = true, ng = true)
 public interface IBaseSMVariable
 {
 
@@ -84,14 +84,14 @@ public interface IBaseSMVariable
 	public static final int MEDIA = IColumnTypeConstants.MEDIA;
 
 	/**
-	 * The default value of the variable.
+	 * The default value of the variable.<br/><br/>
 	 *
-	 * It is interpreted as a JS expression.
+	 * It is interpreted as a JS expression.<br/><br/>
 	 *
-	 * For form variables ,setting this property requires the form instances to be destroyed (history.remove("formName")).
-	 * If you want to use a default value for a newly created variable  create the variable using the 3 parameter version newVariable(name,type,defaultValue).
+	 * For form variables, setting this property via solutionModel requires the form instances to be destroyed (history.remove("formName")).<br/>
+	 * If you want to use a default value for a newly created variable  create the variable using the 3 parameter version newVariable(name,type,defaultValue).<br/><br/>
 	 *
-	 * For INTEGER variables it can be an integer constant, like 10 for example.
+	 * For INTEGER variables it can be an integer constant, like 10 for example.<br/>
 	 * For NUMBER variables it can be a real constant, like 22.41. For DATETIME
 	 * variables it can be "now", or a JS expression like "new Date()". For TEXT
 	 * variables it can be any string surrounded with quotes, like "'some text'".

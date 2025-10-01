@@ -19,6 +19,7 @@ package com.servoy.j2db.dataprocessing;
 
 import static com.servoy.j2db.dataprocessing.IDataServer.RAW_QUERY;
 import static com.servoy.j2db.dataprocessing.RowManager.createPKHashKey;
+import static com.servoy.j2db.dataprocessing.SQLGenerator.createTableFiltercondition;
 import static com.servoy.j2db.dataprocessing.SQLGenerator.isDistinctAllowed;
 import static com.servoy.j2db.persistence.ColumnInfo.DATABASE_IDENTITY;
 import static com.servoy.j2db.persistence.StaticContentSpecLoader.PROPERTY_ONAFTERCREATEMETHODID;
@@ -43,6 +44,7 @@ import java.lang.ref.WeakReference;
 import java.rmi.RemoteException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -99,6 +101,7 @@ import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.ScriptCalculation;
 import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.persistence.ScriptVariable;
+import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.persistence.StaticContentSpecLoader.TypedProperty;
 import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.persistence.TableNode;
@@ -144,12 +147,31 @@ import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 
 /**
- * The foundset of a form, also handles the locking with the AppServer based on tablepks, and is the formmodel itself!
+ * <p><code>FoundSet</code> serves as the data model for UI components or forms directly linked
+ * to a datasource, enabling data manipulation and validation. It supports common operations like
+ * sorting, query-based loading, and lazy loading, with features for relation handling and batch
+ * data management.</p>
+ *
+ * <h2>Functionality</h2>
+ * <p><code>FoundSet</code> allows filtering, creating, duplicating, or deleting records with a
+ * robust API for data management. Filters can be applied via query builders or column-based
+ * conditions and can be removed dynamically. Sorting can be done with predefined strings,
+ * deferred execution, or custom comparator functions.</p>
+ *
+ * <p>Developers can retrieve the current state of the foundset, including active filters, query
+ * parameters, and loaded record indices. <code>FoundSet</code>'s structure supports direct
+ * interaction with parent or related records, dynamic loading of omitted records, and navigation
+ * using indices or primary keys.</p>
+ *
+ * <p><code>FoundSet</code> also offers functionality for find/search operations using SQL-like
+ * conditions. It integrates with server-side data sources for data synchronization,
+ * enabling a balance of client-side and server-side performance optimization.</p>
  *
  * @author jblok
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "JSFoundSet", scriptingName = "JSFoundSet")
-public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMethods, IRowListener, Scriptable, SymbolScriptable, Cloneable, IJSFoundSet
+@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "JSFoundSet", scriptingName = "JSFoundSet", extendsComponent = "JSBaseSQLFoundSet")
+public abstract class FoundSet
+	implements IFoundSetInternal, IJSBaseSQLFoundSet, IRowListener, Scriptable, SymbolScriptable, Cloneable, IJSFoundSet, IDeleteTrigger
 {
 	public static final String JS_FOUNDSET = "JSFoundSet"; //$NON-NLS-1$
 
@@ -158,8 +180,9 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 	protected final FoundSetManager fsm;
 	protected final RowManager rowManager;
 	protected boolean findMode = false;
-	private List<IFoundSetEventListener> foundSetEventListeners = new ArrayList<IFoundSetEventListener>();
+	protected List<IFoundSetEventListener> foundSetEventListeners = new ArrayList<IFoundSetEventListener>();
 	private List<IModificationListener> aggregateModificationListeners = new ArrayList<IModificationListener>();
+	private final List<ISelectionChangeListener> selectionChangeListeners = new ArrayList<ISelectionChangeListener>();
 
 	private String serializedQuery;
 
@@ -183,7 +206,7 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 
 	protected boolean disposed = false;
 
-	private final List<WeakReference<IRecordInternal>> allParents = new ArrayList<WeakReference<IRecordInternal>>(6);
+	private final List<WeakReference<IRecordInternal>> allParents = new ArrayList<>(6);
 
 	private PrototypeState proto = null;
 
@@ -200,7 +223,7 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 	private int foundsetID = 0;
 
 	private static Callable symbol_iterator = (Context cx, Scriptable scope, Scriptable thisObj, Object[] args) -> {
-		return new IterableES6Iterator(scope, ((FoundSet)thisObj));
+		return new IterableES6Iterator(scope, ((Iterable)thisObj));
 	};
 
 	public PrototypeState getPrototypeState()
@@ -460,40 +483,34 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 		IFoundSetChanges changes = null;
 		String transaction_id = fsm.getTransactionID(sheet);
 		long time = System.currentTimeMillis();
-		try
+
+		QuerySelect theQuery = (sqlSelect == null) ? pksAndRecords.getQuerySelectForReading() : sqlSelect;
+		if (theQuery == null)
 		{
-			QuerySelect theQuery = (sqlSelect == null) ? pksAndRecords.getQuerySelectForReading() : sqlSelect;
-			if (theQuery == null)
+			// query has been cleared
+			pks = new BufferedDataSet();
+		}
+		else
+		{
+			pks = performQuery(transaction_id, theQuery, getRowIdentColumnTypes(), 0, rowsToRetrieve, IDataServer.FOUNDSET_LOAD_QUERY);
+		}
+		synchronized (pksAndRecords)
+		{
+			// optimistic locking, if the query has been changed in the mean time forget about the refresh
+			if (sqlSelect != null || theQuery == null || theQuery == pksAndRecords.getQuerySelectForReading())
 			{
-				// query has been cleared
-				pks = new BufferedDataSet();
+				changes = pksAndRecords.setPksAndQuery(pks, pks.getRowCount(), theQuery);
+				cachedRecords = pksAndRecords.getCachedRecords();
 			}
 			else
 			{
-				pks = performQuery(transaction_id, theQuery, getRowIdentColumnTypes(), 0, rowsToRetrieve, IDataServer.FOUNDSET_LOAD_QUERY);
-			}
-			synchronized (pksAndRecords)
-			{
-				// optimistic locking, if the query has been changed in the mean time forget about the refresh
-				if (sqlSelect != null || theQuery == null || theQuery == pksAndRecords.getQuerySelectForReading())
-				{
-					changes = pksAndRecords.setPksAndQuery(pks, pks.getRowCount(), theQuery);
-					cachedRecords = pksAndRecords.getCachedRecords();
-				}
-				else
-				{
-					Debug.log("refreshFromDBInternal: query was changed during refresh, not resetting old query"); //$NON-NLS-1$
-				}
-			}
-			if (Debug.tracing())
-			{
-				Debug.trace(Thread.currentThread().getName() + ": RefreshFrom DB time: " + (System.currentTimeMillis() - time) + " pks: " + pks.getRowCount() + //$NON-NLS-1$//$NON-NLS-2$
-					", SQL: " + theQuery); //$NON-NLS-1$
+				Debug.log("refreshFromDBInternal: query was changed during refresh, not resetting old query"); //$NON-NLS-1$
 			}
 		}
-		catch (RemoteException e)
+		if (Debug.tracing())
 		{
-			throw new RepositoryException(e);
+			Debug.trace(Thread.currentThread().getName() + ": RefreshFrom DB time: " + (System.currentTimeMillis() - time) + " pks: " + pks.getRowCount() + //$NON-NLS-1$//$NON-NLS-2$
+				", SQL: " + theQuery); //$NON-NLS-1$
 		}
 
 		initialized = true;
@@ -615,6 +632,7 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 	 * @sample
 	 * //Clear the foundset, including searches that may be on it
 	 * %%prefix%%foundset.clear();
+	 *
 	 */
 	public void js_clear()
 	{
@@ -687,6 +705,8 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 	 * {
 	 *    // foundset cannot be used anymore
 	 * }
+	 *
+	 * @return True if the foundset has been disposed; false otherwise.
 	 */
 	@JSFunction
 	public boolean isDisposed()
@@ -1068,7 +1088,8 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 	 *
 	 * @return foundset duplicate.
 	 */
-	public FoundSet js_duplicateFoundSet() throws ServoyException//can be used by loadRecords Again
+	@JSFunction
+	public FoundSet duplicateFoundSet() throws ServoyException//can be used by loadRecords Again
 	{
 		return (FoundSet)copy(false);
 	}
@@ -1089,10 +1110,10 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 	 *       #c        (modify condition, depends on column type)
 	 *       ^         (is null)
 	 *       ^=        (is null or empty)
-	 *       &lt;x     (less than value x)
-	 *       &gt;x     (greater than value x)
-	 *       &lt;=x    (less than or equals value x)
-	 *       &gt;=x    (greater than or equals value x)
+	 *       &lt;x        (less than value x)
+	 *       &gt;x        (greater than value x)
+	 *       &lt;=x       (less than or equals value x)
+	 *       &gt;=x       (greater than or equals value x)
 	 *       x...y     (between values x and y, including values)
 	 *       x         (equals value x)
 	 *
@@ -1107,11 +1128,11 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 	 *       today    (equals today)
 	 *
 	 *  Text fields:
-	 *       #c	        (case insensitive condition)
-	 *       = x      (equals a space and 'x')
-	 *       ^=       (is null or empty)
-	 *       %x%      (contains 'x')
-	 *       %x_y%    (contains 'x' followed by any char and 'y')
+	 *       #c      (case insensitive condition)
+	 *       = x     (equals a space and 'x')
+	 *       ^=      (is null or empty)
+	 *       %x%     (contains 'x')
+	 *       %x_y%   (contains 'x' followed by any char and 'y')
 	 *       \%      (contains char '%')
 	 *       \_      (contains char '_')
 	 *
@@ -1149,7 +1170,7 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 	 * 	postalcode = '12209';
 	 * 	%%prefix%%foundset.newRecord();   // Create a new search record
 	 * 	city = 'San Francisco';
-	 *  postalcode = '94117';
+	 * 	postalcode = '94117';
 	 * 	%%prefix%%foundset.search();      // Execute the query and load the records
 	 * }
 	 *
@@ -1200,6 +1221,7 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 	 * @return the recordCount
 	 *
 	 * @see com.servoy.j2db.dataprocessing.FoundSet#find()
+	 *
 	 */
 	@JSFunction
 	public int search() throws ServoyException
@@ -1417,6 +1439,15 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 		refreshFromDBInternal(
 			fsm.getSQLGenerator().getPKSelectSqlSelect(this, sheet.getTable(), pksAndRecords.getTempQuery(), null, true, null, lastSortColumns, false),
 			false, fsm.config.pkChunkSize(), false, false);
+		int newSize = getSize();
+		if (fsm.getApplication().isEventDispatchThread())
+		{
+			setSelectedIndex(newSize > 0 ? 0 : -1);
+		}
+		else
+		{
+			fsm.getApplication().invokeLater(() -> setSelectedIndex(newSize > 0 ? 0 : -1));
+		}
 	}
 
 	/**
@@ -1709,7 +1740,7 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 	 *
 	 * The query of the QBSelect that is given is added as a "search" condition to the existing base query of the foundset.
 	 * This does mean that loadAllRecords() will revert this, because that will clear the search condition and go back to the base query of the foundset.
-	 * Some hold true for clear() that will remove the search condition and because of that the given query will also be removed.
+	 * The same holds true for clear() that will also remove the search condition, and, because of that, the given query will also be removed.
 	 *
 	 * If you want to create more a "view" on your database that will always be kept by this foundset, so loadAllRecords() (with our withou first calliing clear()) will always
 	 * revert back to this set of data (and you can also search inside this data with find/search or adding another query on top of it.
@@ -2073,11 +2104,11 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 		}
 
 		Placeholder dynamicPKplaceholder = sqlSelect.getPlaceholder(new TablePlaceholderKey(sqlSelect.getTable(), SQLGenerator.PLACEHOLDER_FOUNDSET_PKS));
-		if (dynamicPKplaceholder != null && dynamicPKplaceholder.isSet() && dynamicPKplaceholder.getValue() instanceof Object[])
+		if (dynamicPKplaceholder != null && dynamicPKplaceholder.getRawValue() instanceof Object[][] valuesAarray)
 		{
 			// loading from saved query, dynamic pk was replaced by array in serialization, make dynamic again
 			dynamicPKplaceholder.setValue(new DynamicPkValuesArray(getSQLSheet().getTable().getRowIdentColumns(),
-				SQLGenerator.createPKValuesDataSet(getSQLSheet().getTable().getRowIdentColumns(), (Object[][])dynamicPKplaceholder.getValue())));
+				SQLGenerator.createPKValuesDataSet(getSQLSheet().getTable().getRowIdentColumns(), valuesAarray).getRows()));
 		}
 
 		if (sqlSelect.getSorts() == null)
@@ -2296,16 +2327,8 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 
 		// do query with sqlSelect
 		String transaction_id = fsm.getTransactionID(sheet);
-		IDataSet pk_data;
-		try
-		{
-			pk_data = performQuery(transaction_id, sqlSelect, getRowIdentColumnTypes(), 0, rowsToRetrieve, IDataServer.CUSTOM_QUERY);
-		}
-		catch (RemoteException e)
-		{
-			clear();
-			throw new RepositoryException(e);
-		}
+
+		IDataSet pk_data = performQuery(transaction_id, sqlSelect, getRowIdentColumnTypes(), 0, rowsToRetrieve, IDataServer.CUSTOM_QUERY);
 
 		if (pk_data.getRowCount() > 0 && pk_data.getColumnCount() != sheet.getPKIndexes().length)
 			throw new IllegalArgumentException(fsm.getApplication().getI18NMessage("servoy.foundSet.query.error.incorrectNumberOfPKS")); //$NON-NLS-1$
@@ -2946,16 +2969,10 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 		//cache pks
 		String transaction_id = fsm.getTransactionID(sheet);
 		long time = System.currentTimeMillis();
-		try
-		{
-			IDataSet pks = performQuery(transaction_id, sqlSelect, getRowIdentColumnTypes(), 0, fsm.config.pkChunkSize(), IDataServer.FOUNDSET_LOAD_QUERY);
 
-			changes = pksAndRecords.setPksAndQuery(pks, pks.getRowCount(), sqlSelect);
-		}
-		catch (RemoteException e)
-		{
-			throw new RepositoryException(e);
-		}
+		IDataSet pks = performQuery(transaction_id, sqlSelect, getRowIdentColumnTypes(), 0, fsm.config.pkChunkSize(), IDataServer.FOUNDSET_LOAD_QUERY);
+		changes = pksAndRecords.setPksAndQuery(pks, pks.getRowCount(), sqlSelect);
+
 		if (Debug.tracing())
 		{
 			Debug.trace(
@@ -3296,7 +3313,7 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 	/**
 	 * Omit record under the given index (add it to omit records list), to be shown with loadOmittedRecords. If index is null it behaves just like omitRecord().
 	 * This operation returns false when index is invalid (should be between 1 and foundset size) or foundset is in bad state (its table not accessible)
-	 * or the record is in an edit state and can't be saved (autosave is false). Any retrievable record can be ommitted.
+	 * or the record is in an edit state and can't be saved (autosave is false). Any retrievable record can be omitted.
 	 *
 	 * Note: The omitted records list is discarded when these functions are executed: loadAllRecords, loadRecords(dataset), loadRecords(sqlstring), invertRecords()
 	 *
@@ -3351,6 +3368,8 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 	 *
 	 * @see com.servoy.j2db.dataprocessing.FoundSet#js_loadOmittedRecords()
 	 *
+	 * @param record Record - The record to be omitted from the foundset.
+	 *
 	 * @return boolean true if record could be omitted.
 	 */
 	@JSFunction
@@ -3401,7 +3420,8 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 	 *
 	 * @return String sort columns
 	 */
-	public String js_getCurrentSort()
+	@JSFunction
+	public String getCurrentSort()
 	{
 		return FoundSetManager.getSortColumnsAsString(lastSortColumns);
 	}
@@ -3415,9 +3435,10 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 	 *
 	 * @param sortString the specified columns (and sort order)
 	 */
-	public void js_sort(String sortString) throws ServoyException
+	@JSFunction
+	public void sort(String sortString) throws ServoyException
 	{
-		js_sort(sortString, Boolean.FALSE);
+		sort(sortString, Boolean.FALSE);
 	}
 
 	/**
@@ -3430,7 +3451,8 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 	 * @param sortString the specified columns (and sort order)
 	 * @param defer boolean when true, the "sortString" will be just stored, without performing a query on the database (the actual sorting will be deferred until the next data loading action).
 	 */
-	public void js_sort(String sortString, Boolean defer) throws ServoyException
+	@JSFunction
+	public void sort(String sortString, Boolean defer) throws ServoyException
 	{
 		sort(((FoundSetManager)getFoundSetManager()).getSortColumns(getTable(), sortString), getBooleanAsbool(defer, false));
 	}
@@ -3736,7 +3758,7 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 	 *
 	 * @param index the new record is added at specified index (1-based).
 	 *
-	 * @return IJSRecord of new record.
+	 * @return the new record.
 	 */
 	@JSFunction
 	public IJSRecord createRecord(Number index) throws Exception
@@ -3753,7 +3775,7 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 	 * @param index the new record is added at specified index (1-based).
 	 * @param changeSelection boolean when true the selection is changed to the new record.
 	 *
-	 * @return  IJSRecord of new record.
+	 * @return the new record.
 	 */
 	@JSFunction
 	public IJSRecord createRecord(Number index, Boolean changeSelection) throws Exception
@@ -3775,7 +3797,7 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 	 *
 	 * @param onTop when true the new record is added as the topmost record.
 	 *
-	 * @return IJSRecord of new record.
+	 * @return the new record.
 	 */
 	@JSFunction
 	public IJSRecord createRecord(Boolean onTop) throws ServoyException
@@ -3793,7 +3815,7 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 	 * the record is added to the end, if all records are loaded, otherwise it will be added to the top
 	 * @param changeSelection boolean when true the selection is changed to the new record.
 	 *
-	 * @return  IJSRecord of new record.
+	 * @return the new record.
 	 */
 	@JSFunction
 	public IJSRecord createRecord(Boolean onTop, Boolean changeSelection) throws ServoyException
@@ -3809,7 +3831,7 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 	 * @sample
 	 * var rec = %%prefix%%foundset.createRecord(); // add as first record
 	 *
-	 * @return IJSRecord the new record
+	 * @return the new record
 	 */
 	@JSFunction
 	public IJSRecord createRecord() throws Exception
@@ -3817,24 +3839,46 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 		return createRecord(Integer.valueOf(1), Boolean.TRUE);
 	}
 
+	/**
+	 * Reverts outstanding (not saved) in memory changes from edited records of this foundset.
+	 * Best used in combination with the function databaseManager.setAutoSave()
+	 */
+	@JSFunction
+	public void revertEditedRecords() throws ServoyException
+	{
+		JSDatabaseManager.revertEditedRecords(fsm.getApplication(), this);
+	}
+
+	/**
+	 * Saves all outstanding (unsaved) data of this foundset and exits the current record.
+	 *
+	 * @return true if the save was done without an error.
+	 * @throws ServoyException
+	 */
+	@JSFunction
+	public boolean save() throws ServoyException
+	{
+		return JSDatabaseManager.saveData(fsm.getApplication(), this);
+	}
+
 	@Override
 	public int jsFunction_getSelectedIndex()
 	{
 		checkSelection();
-		return IFoundSetScriptMethods.super.jsFunction_getSelectedIndex();
+		return IJSBaseSQLFoundSet.super.jsFunction_getSelectedIndex();
 	}
 
 	@Override
 	public void jsFunction_setSelectedIndex(int index)
 	{
-		IFoundSetScriptMethods.super.jsFunction_setSelectedIndex(index);
+		IJSBaseSQLFoundSet.super.jsFunction_setSelectedIndex(index);
 	}
 
 	@Override
 	public Number[] jsFunction_getSelectedIndexes()
 	{
 		checkSelection();
-		return IFoundSetScriptMethods.super.jsFunction_getSelectedIndexes();
+		return IJSBaseSQLFoundSet.super.jsFunction_getSelectedIndexes();
 	}
 
 	/**
@@ -3871,9 +3915,9 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 	}
 
 	/**
-	 * Get the loaded record based on its  the primary key values
+	 * Get the loaded record based on its primary key values.
 	 *
-	 * This will only return a record that is already loaded in this foundset, this will not try to load anything from the database.
+	 * This will only return a record that is already loaded in this foundset; this will not try to load anything from the database.
 	 *
 	 * @sample var record = %%prefix%%foundset.getRecordByPk(1); // or getRecordByPk(1,2) or ([1,2]) for multicolumn pk
 	 *
@@ -3881,9 +3925,9 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 	 *
 	 * @return Record record.
 	 */
-	public IJSRecord js_getRecordByPk(Object... pk)
+	public IJSBaseSQLRecord js_getRecordByPk(Object... pk)
 	{
-		return (IJSRecord)getRecord(pk);
+		return (IJSBaseSQLRecord)getRecord(pk);
 	}
 
 	/**
@@ -3895,11 +3939,9 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 	 *
 	 * @return int index.
 	 */
-	public int js_getRecordIndex(IJSRecord record)
+	public int jsFunction_getRecordIndex(IJSRecord record)
 	{
-		int recordIndex = getRecordIndex((IRecord)record);
-		if (recordIndex == -1) return -1;
-		return recordIndex + 1;
+		return jsFunction_getRecordIndex((IJSBaseRecord)record);
 	}
 
 	/**
@@ -3918,26 +3960,27 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 
 	/**
 	 * Get the selected records.
-	 * When the founset is in multiSelect mode (see property multiSelect), selection can be a more than 1 record.
+	 * When the foundset is in multiSelect mode (see property multiSelect), selection can be a more than 1 record.
 	 *
 	 * @sample var selectedRecords = %%prefix%%foundset.getSelectedRecords();
 	 * @return Array current records.
 	 */
-	public IRecordInternal[] js_getSelectedRecords()
+	@JSFunction
+	public IJSBaseSQLRecord[] getSelectedRecords()
 	{
 		checkSelection();
 		int[] selectedIndexes = getSelectedIndexes();
-		List<IRecordInternal> selectedRecords = new ArrayList<IRecordInternal>(selectedIndexes.length);
+		List<IJSBaseSQLRecord> selectedRecords = new ArrayList<IJSBaseSQLRecord>(selectedIndexes.length);
 		for (int index : selectedIndexes)
 		{
 			IRecordInternal record = getRecord(index);
 			if (record != null && record != getPrototypeState()) // safety, do not return proto
 			{
-				selectedRecords.add(record);
+				selectedRecords.add((IJSBaseSQLRecord)record);
 			}
 		}
 
-		return selectedRecords.toArray(new IRecordInternal[selectedRecords.size()]);
+		return selectedRecords.toArray(new IJSBaseSQLRecord[selectedRecords.size()]);
 	}
 
 	/**
@@ -3959,6 +4002,8 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 	 * @sample
 	 * // allow user to select multiple rows.
 	 * %%prefix%%foundset.multiSelect = true;
+	 *
+	 * @return True if the foundset is in multi-select mode; false otherwise.
 	 */
 	public boolean js_isMultiSelect()
 	{
@@ -4080,7 +4125,7 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 				if (cachedRecords.get(startRow + r) == null)
 				{
 					Row rowData = rows.get(r);
-					if (rowData != null)
+					if (rowData != null && !isNewRowForOtherFoundset(rowData))
 					{
 						Record state = new Record(this, rowData);
 						cachedRecords.set(startRow + r, state);
@@ -4146,7 +4191,17 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 		return retval;
 	}
 
-	//sliding window cache for selectedindex
+	/**
+	 * If a row is a not saved yet and it does not belong to this foundset we should not create a record for it,
+	 * the record is already in the foundset that created it.
+	 */
+	private boolean isNewRowForOtherFoundset(Row rowData)
+	{
+		return !rowData.existInDB() &&
+			rowData.getRegisterdRecords().noneMatch(record -> record.getParentFoundSet() == this);
+	}
+
+	// sliding window cache for selectedindex
 	// caller already synced on PksAndRecordsHolder
 	private void removeRecords(int row, boolean breakOnNull, SafeArrayList<IRecordInternal> cachedRecords)
 	{
@@ -4587,7 +4642,7 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 	{
 		try
 		{
-			deleteAllInternal();
+			deleteAllInternal(this);
 		}
 		finally
 		{
@@ -4595,7 +4650,7 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 		}
 	}
 
-	public void deleteAllInternal() throws ServoyException
+	public void deleteAllInternal(IDeleteTrigger deleteTrigger) throws ServoyException
 	{
 		Table table = sheet.getTable();
 		if (table == null)
@@ -4627,73 +4682,50 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 				throw new ApplicationException(ServoyException.NO_DELETE_ACCESS, new Object[] { table.getName() });
 			}
 
-			boolean hasRelationsWithDelete = false;
-			Iterator<Relation> it = fsm.getApplication().getFlattenedSolution().getRelations(table, true, false);
-			while (it.hasNext())
-			{
-				Relation element = it.next();
-				if ((element.getDeleteRelatedRecords() || !element.getAllowParentDeleteWhenHavingRelatedRecords()) && !element.isGlobal())
-				{
-					Debug.trace("Foundset deleted per-record because relation '" + element.getName() + "' requires some checks"); //$NON-NLS-1$ //$NON-NLS-2$
-					hasRelationsWithDelete = true;
-					break;
-				}
-			}
+			boolean hasRelationsWithDelete = stream(fsm.getApplication().getFlattenedSolution().getRelations(table, true, false))
+				.anyMatch(relation -> {
+					if ((relation.getDeleteRelatedRecords() || !relation.getAllowParentDeleteWhenHavingRelatedRecords()) && !relation.isGlobal())
+					{
+						Debug.trace("Foundset deleted per-record because relation '" + relation.getName() + "' requires some checks"); //$NON-NLS-1$ //$NON-NLS-2$
+						return true;
+					}
+
+					return false;
+				});
 
 			if (!hasRelationsWithDelete)
 			{
 				getFoundSetManager().getEditRecordList().removeEditedRecords(this);
 
-				//do sql delete all at once
+				// do sql delete all at once
 				QueryDelete delete_sql = new QueryDelete(sqlSelect.getTable());
 				delete_sql.setCondition(sqlSelect.getWhereClone());
 
-				IDataSet deletePKs;
 				boolean allFoundsetRecordsLoaded = currentPKs != null && pksAndRecords.getCachedRecords().size() == getSize() && !hadMoreRows();
-				if (allFoundsetRecordsLoaded)
+
+				if (fsm.config.deleteWithAutosaveOff())
 				{
-					// clone because this will be used in a separate thread by performUpdates while it will be altered in this one (deletes all records at the end of the method)
-					deletePKs = currentPKs.clone();
+					performDeleteQueryDirectly(table, currentPKs, delete_sql, allFoundsetRecordsLoaded);
 				}
 				else
 				{
-					deletePKs = new BufferedDataSet();
-					deletePKs.addRow(new Object[] { ValueFactory.createTableFlushValue() });
-				}
-				String tid = fsm.getTransactionID(table.getServerName());
-				SQLStatement statement = new SQLStatement(ISQLActionTypes.DELETE_ACTION, table.getServerName(), table.getName(), deletePKs,
-					tid, delete_sql, fsm.getTableFilterParams(table.getServerName(), delete_sql));
-				try
-				{
-					Object[] results = fsm.getDataServer().performUpdates(fsm.getApplication().getClientID(), new ISQLStatement[] { statement });
-					for (int i = 0; results != null && i < results.length; i++)
-					{
-						if (results[i] instanceof ServoyException)
-						{
-							throw (ServoyException)results[i];
-						}
-					}
+					List<IFoundSetInternal> affectedFoundsets = stream(getFoundSetManager().getAllLoadedFoundsets(getDataSource(), true))
+						.filter(fs ->
+						// if this foundset is related, other foundsets on the same relation are not affected (no overlap)
+						(fs == this || getRelationName() == null || !getRelationName().equals(fs.getRelationName())))
+						.collect(toList());
 
-					if (!allFoundsetRecordsLoaded)
-					{
-						fsm.flushCachedDatabaseData(fsm.getDataSource(table));
-					}
+					getFoundSetManager().getEditRecordList().addDeleteQuery(this, delete_sql, fsm.getTableFilterParams(table.getServerName(), delete_sql),
+						affectedFoundsets, deleteTrigger);
+					getFoundSetManager().getEditRecordList().stopEditing(false, this);
+				}
 
-					partOfBiggerDelete = true;
-				}
-				catch (ApplicationException aex)
+				if (!allFoundsetRecordsLoaded)
 				{
-					if (allFoundsetRecordsLoaded || aex.getErrorCode() != ServoyException.RECORD_LOCKED)
-					{
-						throw aex;
-					}
-					// a record was locked by another client, try per-record
-					Debug.log("Could not delete all records in 1 statement (a record may be locked), trying per-record"); //$NON-NLS-1$
+					fsm.flushCachedDatabaseData(fsm.getDataSource(table));
 				}
-				catch (RemoteException e)
-				{
-					throw new RepositoryException(e);
-				}
+
+				partOfBiggerDelete = true;
 			}
 		}
 
@@ -4715,13 +4747,53 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 		{
 			for (int i = getSize() - 1; i >= 0; i--)
 			{
-				deleteRecord(i, partOfBiggerDelete);
+				deleteRecord(i, partOfBiggerDelete, deleteTrigger);
 			}
 		}
 		finally
 		{
 			int correctedSize = getCorrectedSizeForFires();
 			if (correctedSize > -1) fireFoundSetEvent(0, correctedSize, FoundSetEvent.CHANGE_DELETE);
+		}
+	}
+
+	private void performDeleteQueryDirectly(Table table, IDataSet currentPKs, QueryDelete delete_sql, boolean allFoundsetRecordsLoaded)
+		throws ServoyException, ApplicationException, RepositoryException
+	{
+		IDataSet deletePKs;
+		if (allFoundsetRecordsLoaded)
+		{
+			// clone because this will be used in a separate thread by performUpdates while it will be altered in this one (deletes all records at the end of the method)
+			deletePKs = currentPKs.clone();
+		}
+		else
+		{
+			deletePKs = new BufferedDataSet();
+			deletePKs.addRow(new Object[] { ValueFactory.createTableFlushValue() });
+		}
+
+		String tid = fsm.getTransactionID(table.getServerName());
+		SQLStatement statement = new SQLStatement(ISQLActionTypes.DELETE_ACTION, table.getServerName(), table.getName(), deletePKs,
+			tid, delete_sql, fsm.getTableFilterParams(table.getServerName(), delete_sql));
+		try
+		{
+			Object[] results = fsm.getDataServer().performUpdates(fsm.getApplication().getClientID(), new ISQLStatement[] { statement });
+			for (int i = 0; results != null && i < results.length; i++)
+			{
+				if (results[i] instanceof ServoyException)
+				{
+					throw (ServoyException)results[i];
+				}
+			}
+		}
+		catch (ApplicationException aex)
+		{
+			if (allFoundsetRecordsLoaded || aex.getErrorCode() != ServoyException.RECORD_LOCKED)
+			{
+				throw aex;
+			}
+			// a record was locked by another client, try per-record
+			Debug.log("Could not delete all records in 1 statement (a record may be locked), trying per-record"); //$NON-NLS-1$
 		}
 	}
 
@@ -4740,7 +4812,7 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 		((FoundSetManager)getFoundSetManager()).clearAllDeleteSets();
 		try
 		{
-			deleteRecord(state, row, false);
+			deleteRecord(state, row, false, state);
 		}
 		finally
 		{
@@ -4761,7 +4833,7 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 	}
 
 	// part of bigger delete == sql foundset delete is already done for this row (see deleteAll)
-	private void deleteRecord(int row, boolean partOfBiggerDelete) throws ServoyException
+	private void deleteRecord(int row, boolean partOfBiggerDelete, IDeleteTrigger deleteTrigger) throws ServoyException
 	{
 		IRecordInternal state;
 		if (partOfBiggerDelete)
@@ -4773,10 +4845,10 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 			state = getRecord(row);
 		}
 
-		deleteRecord(state, row, partOfBiggerDelete);
+		deleteRecord(state, row, partOfBiggerDelete, deleteTrigger);
 	}
 
-	private void deleteRecord(IRecordInternal state, int row, boolean partOfBiggerDelete) throws ServoyException
+	private void deleteRecord(IRecordInternal state, int row, boolean partOfBiggerDelete, IDeleteTrigger deleteTrigger) throws ServoyException
 	{
 		if (sheet.getTable() == null)
 		{
@@ -4797,26 +4869,29 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 
 			if (!partOfBiggerDelete)
 			{
-				try
+				if (fsm.config.deleteWithAutosaveOff())
 				{
-					// see EditRecordList.stopEditing
-					if (state.existInDataSource() &&
-						!executeFoundsetTriggerBreakOnFalse(new Object[] { state }, PROPERTY_ONDELETEMETHODID, true))
+					// when deletes are not performed with autosave off we call onDeleteMethod when validating the record
+					try
 					{
-						// trigger returned false
-						Debug.log("Delete not granted for the table " + getTable()); //$NON-NLS-1$
+						// see EditRecordList.stopEditing
+						if (state.existInDataSource() &&
+							!executeFoundsetTriggerBreakOnFalse(new Object[] { state }, PROPERTY_ONDELETEMETHODID, true))
+						{
+							// trigger returned false
+							Debug.log("Delete not granted for the table " + getTable()); //$NON-NLS-1$
+							throw new ApplicationException(ServoyException.DELETE_NOT_GRANTED);
+						}
+					}
+					catch (DataException e)
+					{
+						// trigger threw exception
+						state.getRawData().setLastException(e);
+						getFoundSetManager().getEditRecordList().markRecordAsFailed(state);
+						Debug.log("Delete not granted for the table " + getTable() + ", pre-delete trigger threw exception"); //$NON-NLS-1$ //$NON-NLS-2$
 						throw new ApplicationException(ServoyException.DELETE_NOT_GRANTED);
 					}
 				}
-				catch (DataException e)
-				{
-					// trigger threw exception
-					state.getRawData().setLastException(e);
-					getFoundSetManager().getEditRecordList().markRecordAsFailed(state);
-					Debug.log("Delete not granted for the table " + getTable() + ", pre-delete trigger threw exception"); //$NON-NLS-1$ //$NON-NLS-2$
-					throw new ApplicationException(ServoyException.DELETE_NOT_GRANTED);
-				}
-
 
 				// check for related data
 				FlattenedSolution flattenedSolution = fsm.getApplication().getFlattenedSolution();
@@ -4849,7 +4924,7 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 							}
 							else
 							{
-								relatedQuery.setColumns(new ArrayList<IQuerySelectValue>(asList(new QueryColumnValue(Integer.valueOf(1), null, true))));
+								relatedQuery.setColumns(new ArrayList<>(asList(new QueryColumnValue(Integer.valueOf(1), null, true))));
 
 								String transaction_id = fsm.getTransactionID(sheet);
 								try
@@ -4858,7 +4933,7 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 									IDataSet ds = performQuery(transaction_id, relatedQuery, getColumnTypes(IColumnTypes.INTEGER), 0, 0, RAW_QUERY);
 									hasRelatedRecords = ds.hadMoreRows();
 								}
-								catch (RemoteException | ServoyException e)
+								catch (ServoyException e)
 								{
 									hasRelatedRecords = true; // just to be safe
 									Debug.error(e);
@@ -4891,56 +4966,84 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 							{
 								Debug.trace("******************************* delete related set size: " + set.getSize() + " from record with PK: " + //$NON-NLS-1$//$NON-NLS-2$
 									state.getPKHashKey() + " index in foundset: " + row); //$NON-NLS-1$
-								set.deleteAllInternal();
+								set.deleteAllInternal(deleteTrigger);
 							}
 						}
 					}
 				}
 			}
 
+			Row data = state.getRawData();
 			if (state.existInDataSource())
 			{
-				Row data = state.getRawData();
-				rowManager.deleteRow(this, data, hasAccess(IRepository.TRACKING), partOfBiggerDelete);
-
-				executeFoundsetTrigger(new Object[] { state }, PROPERTY_ONAFTERDELETEMETHODID, false);
-
-				GlobalTransaction gt = fsm.getGlobalTransaction();
-				if (gt != null)
+				boolean performActualDelete = !partOfBiggerDelete;
+				if (fsm.config.deleteWithAutosaveOff())
 				{
-					gt.addDeletedRecord(state);
+					performDeleteRecordDirectly(state, performActualDelete);
 				}
+				else
+				{
+					if (performActualDelete && getFoundSetManager().getEditRecordList().addDeletedRecord(state, deleteTrigger))
+					{
+						if (!(state instanceof PrototypeState))
+						{
+							removeRecordInternalEx(state, false, row);
+							getFoundSetManager().getEditRecordList().stopEditing(false, state);
+						}
+					}
 
-				// really remove the state from the edited records, can't be saved at all anymore after delete.
-				fsm.getEditRecordList().removeEditedRecord(state);
+					rowManager.deleteRow(this, data, hasAccess(IRepository.TRACKING), false);
+				}
 			}
 			else
 			{
-				rowManager.clearRow(state.getRawData());
+				rowManager.clearRow(data);
 			}
 		}
 		if (!(state instanceof PrototypeState))
 		{
-			removeRecordInternalEx(state, row);
-			// delete the row data so it won't be updated by other foundsets also having records to this rowdata.
+			removeRecordInternalEx(state, fsm.config.deleteWithAutosaveOff(), row);
 			if (state != null && state.getRawData() != null)
 			{
-				state.getRawData().flagExistInDB();
+				Row rawData = state.getRawData();
+				rawData.unregister(state);
+				if (!rawData.existInDB())
+				{
+					// If the record exists in other foundsets, remove it from those
+					rawData.remove();
+				}
+				// delete the row old data so it won't be updated by other foundsets also having records to this rowdata.
+				rawData.flagExistInDB();
 			}
-
 		}
+	}
+
+	private void performDeleteRecordDirectly(IRecordInternal state, boolean performActualDelete) throws ServoyException
+	{
+		Row row = state.getRawData();
+		rowManager.deleteRow(this, row, hasAccess(IRepository.TRACKING), performActualDelete);
+
+		executeFoundsetTrigger(new Object[] { state }, PROPERTY_ONAFTERDELETEMETHODID, false);
+		GlobalTransaction gt = fsm.getGlobalTransaction();
+		if (gt != null)
+		{
+			gt.addDeletedRecord(state);
+		}
+
+		// really remove the state from the edited records, can't be saved at all anymore after delete.
+		fsm.getEditRecordList().removeEditedRecord(state);
 	}
 
 	/**
 	 * Execute the foundset trigger for specified TableNode property.
-	 * When multiple tiggers exist, stop when 1 returns false.
+	 * When multiple triggers exist, stop when 1 returns false.
 	 *
 	 * @param args
 	 * @param property TableNode property
 	 * @return
 	 * @throws ServoyException
 	 */
-	boolean executeFoundsetTriggerBreakOnFalse(Object[] args, TypedProperty<Integer> property, boolean throwException) throws ServoyException
+	boolean executeFoundsetTriggerBreakOnFalse(Object[] args, TypedProperty<String> property, boolean throwException) throws ServoyException
 	{
 		return fsm.executeFoundsetTriggerBreakOnFalse(getTable(), args, property, throwException, this);
 	}
@@ -4953,12 +5056,12 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 	 * @return
 	 * @throws ServoyException
 	 */
-	void executeFoundsetTrigger(Object[] args, TypedProperty<Integer> property, boolean throwException) throws ServoyException
+	void executeFoundsetTrigger(Object[] args, TypedProperty<String> property, boolean throwException) throws ServoyException
 	{
 		fsm.executeFoundsetTrigger(getTable(), args, property, throwException, this);
 	}
 
-	Object executeFoundsetTriggerReturnFirst(Object[] args, TypedProperty<Integer> property, boolean throwException) throws ServoyException
+	Object executeFoundsetTriggerReturnFirst(Object[] args, TypedProperty<String> property, boolean throwException) throws ServoyException
 	{
 		return fsm.executeFoundsetTriggerReturnFirst(getTable(), args, property, throwException, this);
 	}
@@ -4973,13 +5076,15 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 			while (tableNodes.hasNext())
 			{
 				TableNode node = tableNodes.next();
-				int methodId = node.getOnDeleteMethodID();
-				if (methodId > 0 && solutionRoot.getScriptMethod(methodId) != null || AbstractBase.selectById(foundsetMethods.iterator(), methodId) != null)
+				String methodUUID = node.getOnDeleteMethodID();
+				if (methodUUID != null && solutionRoot.getScriptMethod(methodUUID) != null ||
+					AbstractBase.selectByUUID(foundsetMethods.iterator(), methodUUID) != null)
 				{
 					return true;
 				}
-				methodId = node.getOnAfterDeleteMethodID();
-				if (methodId > 0 && solutionRoot.getScriptMethod(methodId) != null || AbstractBase.selectById(foundsetMethods.iterator(), methodId) != null)
+				methodUUID = node.getOnAfterDeleteMethodID();
+				if (methodUUID != null && solutionRoot.getScriptMethod(methodUUID) != null ||
+					AbstractBase.selectByUUID(foundsetMethods.iterator(), methodUUID) != null)
 				{
 					return true;
 				}
@@ -4996,13 +5101,12 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 	protected void removeRecordInternal(int row)
 	{
 		IRecordInternal state = pksAndRecords.getCachedRecords().get(row); // if state was not cached no need to query for it here
-		removeRecordInternalEx(state, row);
+		removeRecordInternalEx(state, true, row);
 	}
 
-	private void removeRecordInternalEx(IRecordInternal state, int row)
+	private void removeRecordInternalEx(IRecordInternal state, boolean javascriptStop, int row)
 	{
-		//state can be null in case the row is already deleted in the database, but the pk is present in this foundset
-
+		// state can be null in case the row is already deleted in the database, but the pk is present in this foundset
 		EditRecordList editRecordList = getFoundSetManager().getEditRecordList();
 		if (state != null)
 		{
@@ -5014,7 +5118,7 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 				{
 					if (existInDataSource)
 					{
-						state.stopEditing();
+						editRecordList.stopEditing(javascriptStop, state);
 					}
 					else
 					{
@@ -5128,25 +5232,17 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 		{
 			//cache pks
 			String transaction_id = fsm.getTransactionID(sheet);
-			try
-			{
-				IDataSet pks = performQuery(transaction_id, sqlSelect, getRowIdentColumnTypes(), 0, fsm.config.pkChunkSize(), IDataServer.FOUNDSET_LOAD_QUERY);
 
-				synchronized (pksAndRecords)
-				{
-					// optimistic locking, if the query has been changed in the mean time forget about the refresh
-					if (sqlSelect != pksAndRecords.getQuerySelectForReading())
-					{
-						Debug.log("invert: query was changed during refresh, not resetting old query"); //$NON-NLS-1$
-						return;
-					}
-					changes = pksAndRecords.setPksAndQuery(pks, pks.getRowCount(), sqlSelect);
-				}
-			}
-			catch (RemoteException e)
+			IDataSet pks = performQuery(transaction_id, sqlSelect, getRowIdentColumnTypes(), 0, fsm.config.pkChunkSize(), IDataServer.FOUNDSET_LOAD_QUERY);
+			synchronized (pksAndRecords)
 			{
-				changes = pksAndRecords.setPksAndQuery(new BufferedDataSet(), 0, sqlSelect);
-				throw new RepositoryException(e);
+				// optimistic locking, if the query has been changed in the mean time forget about the refresh
+				if (sqlSelect != pksAndRecords.getQuerySelectForReading())
+				{
+					Debug.log("invert: query was changed during refresh, not resetting old query"); //$NON-NLS-1$
+					return;
+				}
+				changes = pksAndRecords.setPksAndQuery(pks, pks.getRowCount(), sqlSelect);
 			}
 		}
 
@@ -5163,7 +5259,7 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 	{
 		if (sheet.getTable() == null)
 		{
-			getFoundSetManager().getApplication().reportJSWarning("ommit fails because of an invalid table");
+			getFoundSetManager().getApplication().reportJSWarning("omit fails because of an invalid table");
 			return false;
 		}
 
@@ -5174,7 +5270,7 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 			if (row < 0 || row >= getSize())
 			{
 				success = false;
-				getFoundSetManager().getApplication().reportJSWarning("ommit fails because of an invalid index " + row);
+				getFoundSetManager().getApplication().reportJSWarning("omit fails because of an invalid index " + row);
 				continue;
 			}
 			IRecordInternal state = getRecord(row);
@@ -5199,14 +5295,12 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 				omittedPKs.addRow(dsState.getPK());
 			}
 
-			QuerySelect sqlSelect = pksAndRecords.getQuerySelectForModification();
-
 			// replace the OMIT condition, keep sort (could be custom sort, different from lastSortColumns)
 			replaceOmitCondition();
 
 			for (IRecordInternal dsState : recordsToOmit)
 			{
-				removeRecordInternalEx(dsState, pksAndRecords.getCachedRecords().indexOf(dsState));
+				removeRecordInternalEx(dsState, true, pksAndRecords.getCachedRecords().indexOf(dsState));
 			}
 		}
 
@@ -5288,7 +5382,7 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 		{
 			if ((fsm.getEditRecordList().stopIfEditing(this) & (ISaveConstants.VALIDATION_FAILED + ISaveConstants.SAVE_FAILED)) != 0)
 			{
-				//we cannot allow finds when there are editting records...it possible to start (related!)find on table which whould possible not include editing records
+				//we cannot allow finds when there are editing records...it possible to start (related!)find on table which whould possible not include editing records
 				if (Debug.tracing())
 				{
 					Debug.trace("new record failed because there where records in edit mode and auto save is false"); //$NON-NLS-1$
@@ -5608,18 +5702,13 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 				returnInvalidRangeConditions.addAll(AbstractBaseQuery.getInvalidRangeConditions(sqlCondition));
 			}
 
-			//cache pks
+			// cache pks
 			String transaction_id = fsm.getTransactionID(sheet);
 			long time = System.currentTimeMillis();
-			IDataSet findPKs = null;
-			try
-			{
-				findPKs = performQuery(transaction_id, findSqlSelect, getRowIdentColumnTypes(), 0, fsm.config.pkChunkSize(), IDataServer.FIND_BROWSER_QUERY);
-			}
-			catch (RemoteException e)
-			{
-				throw new RepositoryException(e);
-			}
+
+			IDataSet findPKs = performQuery(transaction_id, findSqlSelect, getRowIdentColumnTypes(), 0, fsm.config.pkChunkSize(),
+				IDataServer.FIND_BROWSER_QUERY);
+
 			if (Debug.tracing())
 			{
 				Debug.trace("Find executed, time: " + (System.currentTimeMillis() - time) + " thread: " + Thread.currentThread().getName() + ", sql: " + //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
@@ -5688,7 +5777,7 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 				QuerySet qs = fsm.getDataServer().getSQLQuerySet(serverName, currentQuery, tableFilterParams, 0, -1, true, true);
 				return qs.getSelect().getSql();
 			}
-			catch (RepositoryException | RemoteException e)
+			catch (RepositoryException e)
 			{
 				Debug.error("Can't get a serialized state from " + currentQuery, e); //$NON-NLS-1$
 			}
@@ -5839,24 +5928,17 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 		int rowsToRetrieve = calculateRowsToRetrieve(rowsToRetrieveHint, selectedPKs);
 
 		String transaction_id = fsm.getTransactionID(sheet);
-		try
-		{
-			pks = performQuery(transaction_id, sqlSelect, getRowIdentColumnTypes(), 0, rowsToRetrieve, IDataServer.FOUNDSET_LOAD_QUERY);
 
-			synchronized (pksAndRecords)
-			{
-				// optimistic locking, if the query has been changed in the mean time forget about the refresh
-				if (sqlSelect != pksAndRecords.getQuerySelectForReading())
-				{
-					Debug.log("sort: query was changed during refresh, not resetting old query"); //$NON-NLS-1$
-					return false;
-				}
-				changes = pksAndRecords.setPksAndQuery(pks, pks.getRowCount(), sqlSelect, isSorting);
-			}
-		}
-		catch (RemoteException e)
+		pks = performQuery(transaction_id, sqlSelect, getRowIdentColumnTypes(), 0, rowsToRetrieve, IDataServer.FOUNDSET_LOAD_QUERY);
+		synchronized (pksAndRecords)
 		{
-			throw new RepositoryException(e);
+			// optimistic locking, if the query has been changed in the mean time forget about the refresh
+			if (sqlSelect != pksAndRecords.getQuerySelectForReading())
+			{
+				Debug.log("sort: query was changed during refresh, not resetting old query"); //$NON-NLS-1$
+				return false;
+			}
+			changes = pksAndRecords.setPksAndQuery(pks, pks.getRowCount(), sqlSelect, isSorting);
 		}
 
 		initialized = true;
@@ -5873,7 +5955,7 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 		int newSize = getRawSize();
 		fireDifference(oldSize, newSize, changes);
 
-		trySelectingPks(selectedPKs, newSize, false);
+		trySelectingPks(selectedPKs, newSize, true);
 
 		return true;
 	}
@@ -6047,7 +6129,7 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 		fireFoundSetEvent(new FoundSetEvent(this, FoundSetEvent.CONTENTS_CHANGED, changeType, firstRow, lastRow));
 	}
 
-	protected final void fireFoundSetEvent(int firstRow, int lastRow, int changeType, List<String> dataproviders)
+	public final void fireFoundSetEvent(int firstRow, int lastRow, int changeType, Set<String> dataproviders)
 	{
 		fireFoundSetEvent(new FoundSetEvent(this, FoundSetEvent.CONTENTS_CHANGED, changeType, firstRow, lastRow, dataproviders));
 	}
@@ -6108,9 +6190,66 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 
 	public abstract int getSelectedIndex();
 
-	public abstract void setSelectedIndex(int i);
+	public boolean setSelectedIndex(int i)
+	{
+		try
+		{
+			if (getSelectedIndex() >= 0 && i >= 0)
+			{
+				if (fsm.hasFoundsetTrigger(getDataSource(), StaticContentSpecLoader.PROPERTY_ONFOUNDSETBEFORESELECTIONCHANGEMETHODID) &&
+					!executeFoundsetTriggerBreakOnFalse(new Object[] { getSelectedRecord(), getRecord(i) },
+						StaticContentSpecLoader.PROPERTY_ONFOUNDSETBEFORESELECTIONCHANGEMETHODID, false))
+				{
+					return false;
+				}
+				return executeSelectionListeners(new IRecordInternal[] { getRecord(getSelectedIndex()) }, new IRecordInternal[] { getRecord(i) });
+			}
+		}
+		catch (ServoyException e)
+		{
+			Debug.error(e);
+			return false;
+		}
+		return true;
+	}
 
-	public abstract void setSelectedIndexes(int[] indexes);
+	public boolean setSelectedIndexes(int[] indexes)
+	{
+		try
+		{
+			if (getSelectedIndex() >= 0)
+			{
+				if (fsm.hasFoundsetTrigger(getDataSource(), StaticContentSpecLoader.PROPERTY_ONFOUNDSETBEFORESELECTIONCHANGEMETHODID) &&
+					!executeFoundsetTriggerBreakOnFalse(
+						new Object[] { getSelectedRecords(), indexes != null ? Arrays.stream(indexes).mapToObj(index -> getRecord(index)).toArray() : null },
+						StaticContentSpecLoader.PROPERTY_ONFOUNDSETBEFORESELECTIONCHANGEMETHODID, false))
+				{
+					return false;
+				}
+				return executeSelectionListeners(
+					Arrays.stream(getSelectedIndexes()).mapToObj(index -> getRecord(index)).toArray(size -> new IRecordInternal[size]),
+					indexes != null ? Arrays.stream(indexes).mapToObj(index -> getRecord(index)).toArray(size -> new IRecordInternal[size]) : null);
+			}
+		}
+		catch (ServoyException e)
+		{
+			Debug.error(e);
+			return false;
+		}
+		return true;
+	}
+
+	private boolean executeSelectionListeners(IRecordInternal[] oldSelection, IRecordInternal[] newSelection)
+	{
+		for (ISelectionChangeListener listener : selectionChangeListeners)
+		{
+			if (!listener.selectionChange(oldSelection, newSelection))
+			{
+				return false;
+			}
+		}
+		return true;
+	}
 
 	public abstract int[] getSelectedIndexes();
 
@@ -6146,33 +6285,6 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 		else recordPkHash = createPKHashKey(pks.getRow(i));
 
 		return pkHash.equals(recordPkHash);
-	}
-
-	/**
-	 * @see com.servoy.j2db.dataprocessing.IFireCollectable#completeFire(java.util.List)
-	 */
-	public void completeFire(Map<IRecord, List<String>> entries)
-	{
-		int start = Integer.MAX_VALUE;
-		int end = -1;
-		List<String> dataproviders = null;
-		for (IRecord record : entries.keySet())
-		{
-			int index = getRecordIndex(record);
-			if (index != -1 && start > index)
-			{
-				start = index;
-			}
-			if (end < index)
-			{
-				end = index;
-			}
-			dataproviders = entries.get(record);
-		}
-		if (start != Integer.MAX_VALUE && end != -1)
-		{
-			fireFoundSetEvent(start, end, FoundSetEvent.CHANGE_UPDATE, dataproviders);
-		}
 	}
 
 	private boolean isInNotify = false;
@@ -6287,7 +6399,8 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 							Object[] changedColumnNames = e.getChangedColumnNames();
 							if (changedColumnNames instanceof String[])
 							{
-								fireFoundSetEvent(0, getSize() - 1, FoundSetEvent.CHANGE_UPDATE, asList((String[])changedColumnNames));
+								HashSet<String> set = new HashSet<>(Arrays.asList((String[])changedColumnNames));
+								fireFoundSetEvent(0, getSize() - 1, FoundSetEvent.CHANGE_UPDATE, set);
 							}
 							else
 							{
@@ -6837,7 +6950,7 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 					return Collections.<ScriptVariable> emptyList().iterator();
 				}
 
-				public ScriptMethod getScriptMethod(int methodId)
+				public ScriptMethod getScriptMethod(String methodNameOrUUID)
 				{
 					return null; // not called by LCS
 				}
@@ -7080,10 +7193,9 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 		{
 			FoundSet fs = (FoundSet)clone();
 			QuerySelect fs_sqlSelect = fs.pksAndRecords.getQuerySelectForReading(); // no need for clone, just made one
-			SQLSheet.SQLDescription select_desc = sheet.getSQLDescription(SQLSheet.SELECT);
-			if (select_desc != null)
+			QuerySelect select = sheet.getSelectQuery();
+			if (select != null)
 			{
-				QuerySelect select = (QuerySelect)select_desc.getSQLQuery();
 				fs_sqlSelect.setCondition(SQLGenerator.CONDITION_SEARCH, select.getConditionClone(SQLGenerator.CONDITION_SEARCH));
 				// Leave CONDITION_RELATION and CONDITION_FILTER as is in fs (when it is a related fs)
 				fs_sqlSelect.clearJoins();
@@ -7209,7 +7321,7 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 		{
 			if (fs.foundSetFilters == null || !fs.foundSetFilters.contains(filter))
 			{
-				if (myOwnFilters == null) myOwnFilters = new ArrayList<TableFilter>(foundSetFilters.size());
+				if (myOwnFilters == null) myOwnFilters = new ArrayList<>(foundSetFilters.size());
 				myOwnFilters.add(filter);
 			}
 		}
@@ -7218,6 +7330,7 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 			addFilterconditions(fs.pksAndRecords.getQuerySelectForModification(), myOwnFilters));
 		if (fs.foundSetFilters != null)
 		{
+			var originalFilters = foundSetFilters;
 			// copy over the foundset filters from the other fs, merged with the filters this foundset had
 			foundSetFilters = new ArrayList<>();
 			fs.foundSetFilters.forEach(filter -> {
@@ -7237,7 +7350,7 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 			{
 				foundSetFilters.addAll(myOwnFilters);
 			}
-			resetFiltercondition(foundSetFilters);
+			resetFiltercondition(originalFilters);
 		}
 		initialized = fs.initialized;
 
@@ -7296,7 +7409,7 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 		}
 
 		// create condition to check filter
-		QueryFilter filtercondition = SQLGenerator.createTableFiltercondition(creationSqlSelect.getTable(), sheet.getTable(),
+		QueryFilter filtercondition = createTableFiltercondition(creationSqlSelect.getTable(), sheet.getTable(),
 			dataproviderTableFilterdefinition);
 		if (filtercondition == null)
 		{
@@ -7315,7 +7428,7 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 		EditRecordList editRecordList = fsm.getEditRecordList();
 		if (editRecordList.stopIfEditing(this) != ISaveConstants.STOPPED)
 		{
-			Debug.log("Couldn't add foundset filter param because foundset had edited records"); //$NON-NLS-1$
+			Debug.warn("Couldn't add foundset filter param because foundset had edited records"); //$NON-NLS-1$
 			return false;
 		}
 
@@ -7428,7 +7541,7 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 	{
 		for (TableFilter tf : iterate(filters))
 		{
-			QueryFilter filtercondition = SQLGenerator.createTableFiltercondition(select.getTable(), sheet.getTable(), tf);
+			QueryFilter filtercondition = createTableFiltercondition(select.getTable(), sheet.getTable(), tf);
 			select.addCondition(SQLGenerator.CONDITION_FILTER, filtercondition.getCondition());
 			for (ISQLJoin join : iterate(filtercondition.getJoins()))
 			{
@@ -7599,6 +7712,25 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 		}
 	}
 
+	public void addSelectionChangeListener(ISelectionChangeListener l)
+	{
+		synchronized (selectionChangeListeners)
+		{
+			if (!selectionChangeListeners.contains(l))
+			{
+				selectionChangeListeners.add(l);
+			}
+		}
+	}
+
+	public void removeSelectionChangeListener(ISelectionChangeListener l)
+	{
+		synchronized (selectionChangeListeners)
+		{
+			selectionChangeListeners.remove(l);
+		}
+	}
+
 	public String[] getDataProviderNames(int type)
 	{
 		switch (type)
@@ -7629,7 +7761,7 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 
 
 	protected IDataSet performQuery(String transaction_id, QuerySelect query, ColumnType[] resultTypes, int startRow, int rowsToRetrieve, int type)
-		throws RemoteException, ServoyException
+		throws ServoyException
 	{
 		if (disposed)
 		{

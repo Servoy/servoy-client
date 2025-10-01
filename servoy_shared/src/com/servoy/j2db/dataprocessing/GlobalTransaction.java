@@ -17,10 +17,10 @@
 package com.servoy.j2db.dataprocessing;
 
 
-import java.rmi.RemoteException;
+import static java.util.Collections.emptyList;
+
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -37,21 +37,21 @@ import com.servoy.j2db.util.Debug;
  */
 public class GlobalTransaction
 {
-	enum crud
+	enum Crud
 	{
 		Created, Updated, Deleted
 	}
 
-	private HashMap<IRecordInternal, crud> records;//all rows to prevent they are gc'ed
-	private Map<String, String> serverTransactions;//serverName->transactionID
+	private HashMap<IRecordInternal, Crud> records; // all rows to prevent they are gc'ed
+	private Map<String, String> serverTransactions; // serverName->transactionID
 	private final IDataServer dataServer;
 	private final String clientID;
 	private final List<ITransactable> transactionEndListeners = new ArrayList<ITransactable>();
 
 	GlobalTransaction(IDataServer ds, String cid)
 	{
-		serverTransactions = new HashMap<String, String>();
-		records = new HashMap<IRecordInternal, crud>();
+		serverTransactions = new HashMap<>();
+		records = new HashMap<>();
 		dataServer = ds;
 		clientID = cid;
 	}
@@ -74,17 +74,17 @@ public class GlobalTransaction
 		Collection<String> collection;
 		if (queryForNewData && !records.isEmpty())
 		{
-			collection = new HashSet<String>();
+			collection = new HashSet<>();
 			try
 			{
-				for (Entry<IRecordInternal, crud> entry : records.entrySet())
+				for (Entry<IRecordInternal, Crud> entry : records.entrySet())
 				{
 					// TODO this loop can be optimized.
 					// Search for all the rows with the same table and do a in query (per 200 rows..) instead of possibly querying them 1-by-1
 
 					IRecordInternal record = entry.getKey();
 					Row row = record.getRawData();
-					collection.add(record.getParentFoundSet().getDataSource());
+					collection.add(record.getDataSource());
 
 					// it is possible that during the transaction the record's foundset did find/search operations or load by query, ....
 					// so the record might no longer be in the foundset; we can only put this record back to editing mode with changes if required by "revertSavedRecords" == false argument
@@ -148,7 +148,7 @@ public class GlobalTransaction
 		}
 		else
 		{
-			collection = Collections.<String> emptyList();
+			collection = emptyList();
 		}
 
 		fireTransactionEnded(false);
@@ -199,46 +199,42 @@ public class GlobalTransaction
 		}
 		if (records != null)
 		{
-			serverTransactions = new HashMap<String, String>();//clear, so they are not processes on IDataService
-			return rollback(true, revertSavedRecords);//all others
+			serverTransactions = new HashMap<>(); // clear, so they are not processes on IDataService
+			return rollback(true, revertSavedRecords); // all others
 		}
 		return null;
 	}
 
 	String addRecord(String serverName, IRecordInternal r) throws RepositoryException
 	{
-		if (!records.containsKey(r))
+		if (r.isFlaggedForDeletion())
 		{
-			records.put(r, r.existInDataSource() ? crud.Updated : crud.Created);
+			records.put(r, Crud.Deleted);
+		}
+		else if (!records.containsKey(r))
+		{
+			records.put(r, r.existInDataSource() ? Crud.Updated : Crud.Created);
 		}
 		return getTransactionID(serverName);
 	}
 
 	void addDeletedRecord(IRecordInternal r)
 	{
-		records.put(r, crud.Deleted);
+		records.put(r, Crud.Deleted);
 	}
-
 
 	public synchronized String getTransactionID(String serverName) throws RepositoryException
 	{
-		try
+		// check if transaction exist for a server
+		String tid = serverTransactions.get(serverName);
+		if (tid == null)
 		{
-			//check if transaction exist for a server
-			String tid = serverTransactions.get(serverName);
-			if (tid == null)
-			{
-				//create
-				tid = dataServer.startTransaction(clientID, serverName);
-				//store
-				serverTransactions.put(serverName, tid);
-			}
-			return tid;
+			// create
+			tid = dataServer.startTransaction(clientID, serverName);
+			// store
+			serverTransactions.put(serverName, tid);
 		}
-		catch (RemoteException e)
-		{
-			throw new RepositoryException(e);
-		}
+		return tid;
 	}
 
 	public void addTransactionEndListener(ITransactable l)

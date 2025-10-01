@@ -24,17 +24,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.fileupload.FileItemHeaders;
+import org.apache.commons.fileupload2.core.FileItem;
+import org.apache.commons.fileupload2.core.FileItemHeaders;
 import org.apache.commons.io.FileDeleteStrategy;
 import org.apache.commons.io.FileUtils;
 
@@ -44,6 +39,11 @@ import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.Utils;
 
+import jakarta.servlet.ServletConfig;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import me.desair.tus.server.TusFileUploadService;
 import me.desair.tus.server.exception.TusException;
 import me.desair.tus.server.upload.UploadInfo;
@@ -76,7 +76,7 @@ public class TusServlet extends AbstractMediaResourceServlet
 					"', directory could not be created or doesn't exists");
 			}
 		}
-		tusFileUploadService = new TusFileUploadService().withUploadURI(config.getServletContext().getContextPath() + "/tus/upload/[0-9]+/.+/.+/.+/");
+		tusFileUploadService = new TusFileUploadService().withUploadUri(config.getServletContext().getContextPath() + "/tus/upload/[0-9]+/.+/.+/.+/");
 		tusFileUploadService.withUploadExpirationPeriod(Long.valueOf(15 * 60 * 1000L)); // 15 minutes
 		if (fileUploadDir != null)
 		{
@@ -120,7 +120,7 @@ public class TusServlet extends AbstractMediaResourceServlet
 		}
 		catch (IOException | TusException e)
 		{
-			e.printStackTrace();
+			Debug.error(e);
 		}
 
 		if (uploadInfo != null && !uploadInfo.isUploadInProgress())
@@ -183,7 +183,7 @@ public class TusServlet extends AbstractMediaResourceServlet
 		}
 	}
 
-	private class TusFileItem implements FileItem, IFile
+	private class TusFileItem implements FileItem<TusFileItem>, IFile
 	{
 
 		private final File file;
@@ -204,12 +204,13 @@ public class TusServlet extends AbstractMediaResourceServlet
 		}
 
 		@Override
-		public void setHeaders(FileItemHeaders arg0)
+		public TusFileItem setHeaders(FileItemHeaders arg0)
 		{
+			return this;
 		}
 
 		@Override
-		public void delete()
+		public TusFileItem delete()
 		{
 			try
 			{
@@ -219,6 +220,7 @@ public class TusServlet extends AbstractMediaResourceServlet
 			{
 				Debug.error(e);
 			}
+			return this;
 		}
 
 		@Override
@@ -271,12 +273,6 @@ public class TusServlet extends AbstractMediaResourceServlet
 			return this.file.length();
 		}
 
-		public String getString(final String charset)
-			throws UnsupportedEncodingException
-		{
-			return new String(get(), charset);
-		}
-
 		@Override
 		public String getString()
 		{
@@ -304,26 +300,42 @@ public class TusServlet extends AbstractMediaResourceServlet
 		}
 
 		@Override
-		public void setFieldName(String arg0)
+		public TusFileItem setFormField(boolean arg0)
 		{
+			return this;
 		}
 
 		@Override
-		public void setFormField(boolean arg0)
+		public TusFileItem write(Path toFile)
 		{
-		}
-
-		@Override
-		public void write(File toFile) throws Exception
-		{
-			FileUtils.moveFile(this.file, toFile);
+			try
+			{
+				FileUtils.moveFile(this.file, toFile.toFile());
+			}
+			catch (IOException e)
+			{
+				Debug.error("Error moving file to " + toFile, e);
+			}
 			delete();
+			return this;
 		}
 
 		@Override
 		public File getFile()
 		{
 			return file;
+		}
+
+		@Override
+		public String getString(Charset toCharset) throws IOException
+		{
+			return FileUtils.readFileToString(file, toCharset);
+		}
+
+		@Override
+		public TusFileItem setFieldName(String name)
+		{
+			return this;
 		}
 
 	}

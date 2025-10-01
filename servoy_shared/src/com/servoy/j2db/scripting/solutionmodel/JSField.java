@@ -43,6 +43,7 @@ import com.servoy.j2db.util.Utils;
 
 // Documented via JSFieldWithConstants
 // JSFieldWithConstants was introduced to prevent the duplication of constants like JSRadios.PASSWORD == JSField.PASSWORD
+@Deprecated
 public class JSField extends JSComponent<Field> implements ISMField, IMobileSMField
 {
 	private final IApplication application;
@@ -71,7 +72,7 @@ public class JSField extends JSComponent<Field> implements ISMField, IMobileSMFi
 
 	/**
 	 * @clonedesc com.servoy.base.persistence.IBaseFieldCommon#getDataProviderID()
-	 * 
+	 *
 	 * @sample
 	 * // Normally the dataprovider is specified when a component is created.
 	 * var field = form.newField('parent_table_text', JSField.TEXT_FIELD, 10, 40, 100, 20);
@@ -92,7 +93,7 @@ public class JSField extends JSComponent<Field> implements ISMField, IMobileSMFi
 
 	/**
 	 * @clonedesc com.servoy.base.persistence.IBaseGraphicalComponentCommon#getDisplaysTags()
-	 * 
+	 *
 	 * @sample
 	 * var field = form.newField('parent_table_text', JSField.TEXT_FIELD, 10, 40, 100, 20);
 	 * field.displaysTags = true;
@@ -113,7 +114,7 @@ public class JSField extends JSComponent<Field> implements ISMField, IMobileSMFi
 	/**
 	 * @clonedesc com.servoy.base.persistence.IBaseFieldCommon#getDisplayType()
 	 *
-	 * @sample 
+	 * @sample
 	 * // The display type is specified when the field is created.
 	 * var cal = form.newField('my_table_date', JSField.CALENDAR, 10, 10, 100, 20);
 	 * // But it can be changed if needed.
@@ -134,7 +135,7 @@ public class JSField extends JSComponent<Field> implements ISMField, IMobileSMFi
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Field#getEditable()
-	 * 
+	 *
 	 * @sample
 	 * var field = form.newField('my_table_text', JSField.TEXT_FIELD, 10, 10, 100, 20);
 	 * field.editable = false;
@@ -153,7 +154,7 @@ public class JSField extends JSComponent<Field> implements ISMField, IMobileSMFi
 
 	/**
 	 * @clonedesc com.servoy.base.persistence.IBaseFieldCommon#getFormat()
-	 * 
+	 *
 	 * @sample
 	 * var field = form.newField('my_table_number', JSField.TEXT_FIELD, 10, 10, 100, 20);
 	 * field.format = '$#.00';
@@ -225,7 +226,7 @@ public class JSField extends JSComponent<Field> implements ISMField, IMobileSMFi
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Field#getSelectOnEnter()
-	 * 
+	 *
 	 * @sample
 	 * // Create two fields and set one of them to have "selectOnEnter" true. As you tab
 	 * // through the fields you can notice how the text inside the second field gets
@@ -272,7 +273,7 @@ public class JSField extends JSComponent<Field> implements ISMField, IMobileSMFi
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Field#getText()
-	 * 
+	 *
 	 * @sample
 	 * var form = solutionModel.newForm('someForm', 'db:/example_data/my_table', null, false, 640, 480);
 	 * var field = form.newField('my_table_number', JSField.TEXT_FIELD, 10, 10, 100, 20);
@@ -309,7 +310,7 @@ public class JSField extends JSComponent<Field> implements ISMField, IMobileSMFi
 
 	/**
 	 * @clonedesc com.servoy.base.persistence.IBaseFieldCommon#getPlaceholderText()
-	 * 
+	 *
 	 * @sample
 	 * field.placeholderText = 'Search';
 	 */
@@ -327,7 +328,7 @@ public class JSField extends JSComponent<Field> implements ISMField, IMobileSMFi
 
 	/**
 	 * @clonedesc com.servoy.base.persistence.IBaseField#getValuelistID()
-	 * 
+	 *
 	 * @sample
 	 * var vlist = solutionModel.newValueList('options', JSValueList.CUSTOM_VALUES);
 	 * vlist.customValues = "one\ntwo\nthree\nfour";
@@ -350,18 +351,18 @@ public class JSField extends JSComponent<Field> implements ISMField, IMobileSMFi
 	{
 		if (valuelist == null)
 		{
-			getBaseComponent(true).setValuelistID(0);
+			getBaseComponent(true).setValuelistID(null);
 		}
 		else
 		{
-			getBaseComponent(true).setValuelistID(((JSValueList)valuelist).getValueList().getID());
+			getBaseComponent(true).setValuelistID(((JSValueList)valuelist).getValueList().getUUID().toString());
 		}
 	}
 
 	/**
 	 * @clonedesc com.servoy.j2db.scripting.solutionmodel.JSGraphicalComponent#getVerticalAlignment()
 	 * @sampleas com.servoy.j2db.scripting.solutionmodel.JSGraphicalComponent#getVerticalAlignment()
-	 * 
+	 *
 	 * @deprecated not used (is ignored) on fields
 	 */
 	@Deprecated
@@ -379,11 +380,11 @@ public class JSField extends JSComponent<Field> implements ISMField, IMobileSMFi
 		ScriptMethod scriptMethod = JSForm.getScriptMethod(function, application.getFlattenedSolution());
 		if (scriptMethod != null)
 		{
-			getBaseComponent(true).setOnActionMethodID(scriptMethod.getID());
+			getBaseComponent(true).setOnActionMethodID(scriptMethod.getUUID().toString());
 		}
 		else
 		{
-			getBaseComponent(true).setOnActionMethodID(0);
+			getBaseComponent(true).setOnActionMethodID(null);
 		}
 	}
 
@@ -396,11 +397,11 @@ public class JSField extends JSComponent<Field> implements ISMField, IMobileSMFi
 		ScriptMethod scriptMethod = JSForm.getScriptMethod(function, application.getFlattenedSolution());
 		if (scriptMethod != null)
 		{
-			getBaseComponent(true).setOnDataChangeMethodID(scriptMethod.getID());
+			getBaseComponent(true).setOnDataChangeMethodID(scriptMethod.getUUID().toString());
 		}
 		else
 		{
-			getBaseComponent(true).setOnDataChangeMethodID(0);
+			getBaseComponent(true).setOnDataChangeMethodID(null);
 		}
 	}
 
@@ -413,11 +414,11 @@ public class JSField extends JSComponent<Field> implements ISMField, IMobileSMFi
 		ScriptMethod scriptMethod = JSForm.getScriptMethod(function, application.getFlattenedSolution());
 		if (scriptMethod != null)
 		{
-			getBaseComponent(true).setOnFocusGainedMethodID(scriptMethod.getID());
+			getBaseComponent(true).setOnFocusGainedMethodID(scriptMethod.getUUID().toString());
 		}
 		else
 		{
-			getBaseComponent(true).setOnFocusGainedMethodID(0);
+			getBaseComponent(true).setOnFocusGainedMethodID(null);
 		}
 	}
 
@@ -430,11 +431,11 @@ public class JSField extends JSComponent<Field> implements ISMField, IMobileSMFi
 		ScriptMethod scriptMethod = JSForm.getScriptMethod(function, application.getFlattenedSolution());
 		if (scriptMethod != null)
 		{
-			getBaseComponent(true).setOnFocusLostMethodID(scriptMethod.getID());
+			getBaseComponent(true).setOnFocusLostMethodID(scriptMethod.getUUID().toString());
 		}
 		else
 		{
-			getBaseComponent(true).setOnFocusLostMethodID(0);
+			getBaseComponent(true).setOnFocusLostMethodID(null);
 		}
 	}
 
@@ -452,7 +453,7 @@ public class JSField extends JSComponent<Field> implements ISMField, IMobileSMFi
 
 	/**
 	 * @clonedesc com.servoy.base.persistence.IBaseGraphicalComponent#getOnActionMethodID()
-	 * 
+	 *
 	 * @sample
 	 * var doNothingMethod = form.newMethod('function doNothing() { application.output("Doing nothing."); }');
 	 * var onClickMethod = form.newMethod('function onClick(event) { application.output("I was clicked at " + event.getTimestamp()); }');
@@ -478,7 +479,7 @@ public class JSField extends JSComponent<Field> implements ISMField, IMobileSMFi
 
 	/**
 	 * @clonedesc com.servoy.base.persistence.IBaseField#getOnDataChangeMethodID()
-	 * 
+	 *
 	 * @sample
 	 * var form = solutionModel.newForm('someForm', 'db:/example_data/parent_table', null, false, 620, 300);
 	 * var onDataChangeMethod = form.newMethod('function onDataChange(oldValue, newValue, event) { application.output("Data changed from " + oldValue + " to " + newValue + " at " + event.getTimestamp()); }');
@@ -500,7 +501,7 @@ public class JSField extends JSComponent<Field> implements ISMField, IMobileSMFi
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Field#getOnRenderMethodID()
-	 * 
+	 *
 	 * @sample
 	 * field.onRender = form.newMethod('function onRender(event) { event.getElement().bgcolor = \'#00ff00\' }');
 	 */
@@ -533,7 +534,7 @@ public class JSField extends JSComponent<Field> implements ISMField, IMobileSMFi
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Field#getOnFocusGainedMethodID()
-	 * 
+	 *
 	 * @sample
 	 * var form = solutionModel.newForm('someForm', 'db:/example_data/parent_table', null, false, 620, 300);
 	 * var onFocusLostMethod = form.newMethod('function onFocusLost(event) { application.output("Focus lost at " + event.getTimestamp()); }');
@@ -557,7 +558,7 @@ public class JSField extends JSComponent<Field> implements ISMField, IMobileSMFi
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Field#getOnFocusLostMethodID()
-	 * 
+	 *
 	 * @sampleas getOnFocusGained()
 	 */
 	@JSGetter
