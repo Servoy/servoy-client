@@ -206,7 +206,8 @@ public class FoundsetLinkedPropertyType<YF, YT> implements IYieldingType<Foundse
 	public FoundsetLinkedTypeSabloValue<YF, YT> toSabloComponentValue(YF formElementValue, PropertyDescription pd, INGFormElement formElement,
 		WebFormComponent component, DataAdapterList dataAdapterList)
 	{
-		return new FoundsetLinkedTypeSabloValue<YF, YT>(getConfig(pd).forFoundset, formElementValue, getConfig(pd).wrappedPropertyDescription, formElement);
+		return formElementValue == null ? null
+			: new FoundsetLinkedTypeSabloValue<YF, YT>(getConfig(pd).forFoundset, formElementValue, getConfig(pd).wrappedPropertyDescription, formElement);
 	}
 
 	@Override
