@@ -19,14 +19,18 @@ package com.servoy.j2db.scripting.solutionmodel.developer;
 
 import org.mozilla.javascript.annotations.JSFunction;
 
+import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 
 /**
+ * This is the holds the information about a developer menu.
+ *
  * @author jcompagner
  *
  * @since 2025.09
  *
  */
+@ServoyDocumented(category = ServoyDocumented.RUNTIME)
 public class JSDeveloperMenu
 {
 	private final String text;
@@ -58,24 +62,38 @@ public class JSDeveloperMenu
 		return location;
 	}
 
+	/**
+	 * @return the text of the menu
+	 */
 	@JSReadonlyProperty
 	public String getText()
 	{
 		return text;
 	}
 
+	/**
+	 * @return the componentNames
+	 */
 	@JSReadonlyProperty
 	public String[] getComponentNames()
 	{
 		return componentNames;
 	}
 
+	/**
+	 * @return the id
+	 */
 	@JSFunction
 	public String getId()
 	{
 		return id;
 	}
 
+	/**
+	 * Sets the id of this menu can be used when called.
+	 * @param id
+	 * @return the this
+	 */
 	@JSFunction
 	public JSDeveloperMenu setId(String id)
 	{

@@ -69,6 +69,8 @@ public interface QBTextColumnBase extends IQueryBuilderColumn
 	 * @param pos
 	 * @sample
 	 * query.result.add(query.columns.mycol.substring(3))
+	 *
+	 * @return the QBTextColumn that can be added to the result.
 	 */
 	@JSFunction
 	public QBTextColumnBase substring(int pos);
@@ -79,6 +81,8 @@ public interface QBTextColumnBase extends IQueryBuilderColumn
 	 * @param len
 	 * @sample
 	 * query.result.add(query.columns.mycol.substring(3, 2))
+	 *
+	 * @return the QBTextColumn that can be added to the result.
 	 */
 	@JSFunction
 	public QBTextColumnBase substring(int pos, int len);
@@ -96,6 +100,8 @@ public interface QBTextColumnBase extends IQueryBuilderColumn
 	 * @param arg string to locate
 	 * @sample
 	 * query.result.add(query.columns.mycol.locate('sample'))
+	 *
+	 * @return the QBIntegerColumn that can be added to the result.
 	 */
 	@JSFunction
 	public QBIntegerColumnBase locate(Object arg);
@@ -106,6 +112,8 @@ public interface QBTextColumnBase extends IQueryBuilderColumn
 	 * @param start start pos
 	 * @sample
 	 * query.result.add(query.columns.mycol.locate('sample', 5))
+	 *
+	 * @return the QBIntegerColumn that can be added to the result.
 	 */
 	@JSFunction
 	public QBIntegerColumnBase locate(Object arg, int start);
