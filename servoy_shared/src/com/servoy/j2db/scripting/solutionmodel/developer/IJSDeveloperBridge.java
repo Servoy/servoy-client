@@ -42,7 +42,7 @@ public interface IJSDeveloperBridge
 	/**
 	 * Shows the form in in the the ui of the developer (so in a dialog) where a developer can interact with.
 	 *
-	 * @param formName
+	 * @param formName The name of the form to show
 	 */
 	@JSFunction
 	void showForm(String formName);
@@ -51,10 +51,10 @@ public interface IJSDeveloperBridge
 	 * Creates an instanceof a JSDeveloperMenu that can be used in the register function to add a menu item to the context menu or in the form editor.
 	 * The location is one of the servoyDeveloper.LOCATIOM properties
 	 *
-	 * @param text
-	 * @param location
+	 * @param text The label that is shown for this menu item.
+	 * @param location The location where this menu item should be shown (one of the servoyDeveloper.LOCATIOM properties).
 	 *
-	 * @return
+	 * @return the created menu item
 	 */
 	@JSFunction
 	JSDeveloperMenu createMenu(String text, int location);
@@ -64,10 +64,10 @@ public interface IJSDeveloperBridge
 	 * Creates an instanceof a JSDeveloperMenu that can be used in the register function to add a menu item to the context menu or in the form editor for specific components.
 	 * The componentNames is an array of component names
 	 *
-	 * @param text
-	 * @param componentNames
+	 * @param text The label that is shown for this menu item.
+	 * @param componentNames The component names where this menu item should be shown for.
 	 *
-	 * @return
+	 * @return the created menu item
 	 */
 	@JSFunction
 	JSDeveloperMenu createComponentMenu(String text, String[] componentNames);
@@ -77,8 +77,8 @@ public interface IJSDeveloperBridge
 	 *
 	 * The callback is called when this menu item is clicked on.
 	 *
-	 * @param menu
-	 * @param callback
+	 * @param menu The menu that needs to be registered
+	 * @param callback The callback will be called when the menu item is clicked
 	 */
 	@JSFunction
 	void registerMenuItem(JSDeveloperMenu menu, Function callback);

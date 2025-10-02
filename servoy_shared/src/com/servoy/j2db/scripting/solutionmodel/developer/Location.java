@@ -29,18 +29,27 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
 public class Location
 {
+	/**
+	 * The menu item will be in the context menu of a solution node.
+	 */
 	@JSReadonlyProperty
 	public int getSOLUTION()
 	{
 		return 1;
 	}
 
+	/**
+	 * The menu item will be in the form's context menu.
+	 */
 	@JSReadonlyProperty
 	public int getFORM()
 	{
 		return 2;
 	}
 
+	/**
+	 * The menu item will be in the context menu of a component in a form. (designer or solution explorer)
+	 */
 	@JSReadonlyProperty
 	public int getCOMPONENT()
 	{
