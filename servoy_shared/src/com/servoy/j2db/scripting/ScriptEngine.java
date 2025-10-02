@@ -275,6 +275,9 @@ public class ScriptEngine implements IScriptSupport
 			tmpSolutionScope.put(IExecutingEnviroment.TOPLEVEL_JSPERMISSION, tmpSolutionScope,
 				application.getPermissionManager());
 
+			tmpSolutionScope.put(IExecutingEnviroment.TOPLEVEL_JSVALUELIST, tmpSolutionScope,
+				application.getValueListManager());
+
 			pluginScope = new PluginScope(tmpSolutionScope, application);
 			tmpSolutionScope.put(IExecutingEnviroment.TOPLEVEL_PLUGINS, tmpSolutionScope, pluginScope);
 
