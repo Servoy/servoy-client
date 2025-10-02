@@ -20,14 +20,17 @@ package com.servoy.j2db;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.stream.StreamSupport;
 
 import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.ScriptableObject;
 
+import com.servoy.base.persistence.constants.IValueListConstants;
 import com.servoy.j2db.persistence.ValueList;
-import com.servoy.j2db.scripting.solutionmodel.JSValueList;
+import com.servoy.j2db.scripting.DefaultJavaScope;
 
 /**
  * @author Diana
@@ -62,15 +65,65 @@ public class ValueListManager implements IValueListManager, Scriptable
 	@Override
 	public Object get(String name, Scriptable start)
 	{
-		ValueList valueList = application.getSolution().getValueList(name);
-		IServiceProvider sp = J2DBGlobals.getServiceProvider();
-		IApplication application1 = null;
-		if (sp instanceof IApplication && sp instanceof IDebugClient)
+		if (name.equals("CUSTOM_VALUES")) return IValueListConstants.CUSTOM_VALUES; //$NON-NLS-1$
+		if (name.equals("DATABASE_VALUES")) return IValueListConstants.DATABASE_VALUES; //$NON-NLS-1$
+		if (name.equals("EMPTY_VALUE_ALWAYS")) return IValueListConstants.EMPTY_VALUE_ALWAYS; //$NON-NLS-1$
+		if (name.equals("EMPTY_VALUE_NEVER")) return IValueListConstants.EMPTY_VALUE_NEVER; //$NON-NLS-1$
+
+		if (name.equals("NAMES")) //$NON-NLS-1$
 		{
-			application1 = (IApplication)sp;
+			Scriptable topLevel = ScriptableObject.getTopLevelScope(start);
+
+			final List<String> valueListNames = new ArrayList<>();
+
+			DefaultJavaScope namesScope = new DefaultJavaScope(topLevel, Map.of())
+			{
+				@Override
+				public Object getDefaultValue(Class< ? > hint)
+				{
+					return toString();
+				}
+
+				// toString is needed when JSValueList.NAMES is used without valuelist name after it
+				@Override
+				public String toString()
+				{
+					StringBuilder sb = new StringBuilder("{");
+					for (int i = 0; i < valueListNames.size(); i++)
+					{
+						String vlName = valueListNames.get(i);
+						Object vlNameNativeObject = get(vlName, this);
+						if (i > 0) sb.append(", ");
+						sb.append(vlName).append(": ").append(vlNameNativeObject == null ? "null" : vlNameNativeObject.toString());
+					}
+					sb.append("}");
+					return sb.toString();
+				}
+
+				@Override
+				public Object[] getIds()
+				{
+					return valueListNames.toArray(new Object[0]);
+				}
+			};
+
+			final Iterator<ValueList> allValueLists = application.getSolution().getValueLists(false);
+			while (allValueLists.hasNext())
+			{
+				ValueList vl = allValueLists.next();
+				if (vl != null && vl.getName() != null)
+				{
+					namesScope.put(vl.getName(), namesScope, vl.getName());
+					valueListNames.add(vl.getName());
+				}
+			}
+
+			return namesScope;
+
 		}
 
-		return valueList != null ? new JSValueList(valueList, application1, true) : null;
+		ValueList valueList = application.getSolution().getValueList(name);
+		return valueList != null ? valueList.getName() : null;
 	}
 
 	/*
