@@ -19,9 +19,9 @@ package com.servoy.j2db.querybuilder.impl;
 
 import org.mozilla.javascript.annotations.JSFunction;
 
-import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.querybuilder.IQueryBuilderColumn;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
+import com.servoy.j2db.scripting.annotations.JSRealClass;
 
 /**
  * This interface lists functions on text columns.
@@ -29,7 +29,7 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
  * @author rgansevles
  *
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME, realClass = QBTextColumn.class)
+@JSRealClass(QBTextColumn.class)
 public interface QBTextColumnBase extends IQueryBuilderColumn
 {
 	/**

@@ -17,8 +17,8 @@
 
 package com.servoy.j2db.querybuilder.impl;
 
-import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.querybuilder.IQueryBuilderColumn;
+import com.servoy.j2db.scripting.annotations.JSRealClass;
 
 /**
  * Tagging interface for general columns.
@@ -26,7 +26,7 @@ import com.servoy.j2db.querybuilder.IQueryBuilderColumn;
  * @author rgansevles
  *
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME, realClass = QBGenericColumn.class)
+@JSRealClass(QBGenericColumn.class)
 public interface QBGenericColumnBase extends IQueryBuilderColumn
 {
 }
