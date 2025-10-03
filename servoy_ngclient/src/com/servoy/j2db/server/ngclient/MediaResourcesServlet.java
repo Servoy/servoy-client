@@ -218,6 +218,10 @@ public class MediaResourcesServlet extends AbstractMediaResourceServlet
 				return sendData(response, mediaInfo.getInputStream(), mediaInfo.getContentType(), mediaInfo.getFileName(), mediaInfo.getContentDisposition(),
 					mediaInfo.getContentLength());
 			}
+			else
+			{
+				Debug.warn("Could not find dynamic media with id " + dynamicID + " for client sessionkey: " + session.getSessionKey());
+			}
 
 		}
 
