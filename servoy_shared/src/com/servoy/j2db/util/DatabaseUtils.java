@@ -82,7 +82,7 @@ public class DatabaseUtils
 		json.put("sortingNullprecedence", serverSettings.getSortingNullprecedence().name());
 		json.put("queryProcedures", serverSettings.getQueryProcedures()); // nullable
 		json.put("clientOnlyConnections", serverSettings.getClientOnlyConnections()); // nullable
-		return json.toString(true);
+		return json.toString();
 	}
 
 	/**
