@@ -140,6 +140,9 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 	//permission manager
 	protected transient volatile ValueListManager valueListManager;
 
+	//for scripting
+	protected transient volatile JSFormManager jsFormManager;
+
 	//foundset manager handling the foundsets
 	protected transient volatile IFoundSetManagerInternal foundSetManager;
 
@@ -1001,6 +1004,26 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		return permissionManager;
 	}
 
+	public JSFormManager getJSFormManager()
+	{
+		if (jsFormManager == null && !isShutDown())
+		{
+			synchronized (this)
+			{
+				if (jsFormManager == null)
+				{
+					jsFormManager = createJSFormManager();
+				}
+			}
+		}
+		return jsFormManager;
+	}
+
+	private JSFormManager createJSFormManager()
+	{
+		return new JSFormManager(this);
+	}
+
 	protected PermissionManager createPermissionManager()
 	{
 		return new PermissionManager(this);
@@ -1226,6 +1249,8 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 
 		valueListManager = null;
 
+		jsFormManager = null;
+
 		saveSettings();
 
 		//de register myself
@@ -1405,6 +1430,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 			eventsManager = null;
 			permissionManager = null;
 			valueListManager = null;
+			jsFormManager = null;
 
 			// clear broadcast filters and drop any temp tables for this client
 			IDataServer ds = getDataServer();

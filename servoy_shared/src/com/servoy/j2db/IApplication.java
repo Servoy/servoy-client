@@ -328,6 +328,13 @@ public interface IApplication extends IBasicApplication, IServiceProvider, ILogL
 	public IValueListManager getValueListManager();
 
 	/**
+	 * Get the JSFormManager
+	 *
+	 * @return
+	 */
+	public IJSFormManager getJSFormManager();
+
+	/**
 	 * Get the user manager (used to do authentication and security)
 	 *
 	 * @return

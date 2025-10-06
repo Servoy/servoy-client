@@ -55,6 +55,7 @@ import org.sablo.websocket.utils.JSONUtils.IJSONStringWithClientSideType;
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.IDataRendererFactory;
 import com.servoy.j2db.IEventsManager;
+import com.servoy.j2db.IJSFormManager;
 import com.servoy.j2db.IMenuManager;
 import com.servoy.j2db.IModeManager;
 import com.servoy.j2db.IPermissionManager;
@@ -2131,6 +2132,17 @@ public class DataProviderDateTest
 		public IValueListManager getValueListManager()
 		{
 			// TODO Auto-generated method stub
+			return null;
+		}
+
+		/*
+		 * (non-Javadoc)
+		 *
+		 * @see com.servoy.j2db.IApplication#getJSFormManager()
+		 */
+		@Override
+		public IJSFormManager getJSFormManager()
+		{
 			return null;
 		}
 	}
