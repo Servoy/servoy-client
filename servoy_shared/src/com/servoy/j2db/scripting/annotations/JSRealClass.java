@@ -13,20 +13,25 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 
-package com.servoy.j2db.querybuilder.impl;
+package com.servoy.j2db.scripting.annotations;
 
-import com.servoy.j2db.querybuilder.IQueryBuilderColumn;
-import com.servoy.j2db.scripting.annotations.JSRealClass;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
- * Tagging interface for general columns.
- *
  * @author rgansevles
  *
+ * Use this annotation when a class or interface is used at runtime, but for documentation and code completion another class should be used.
  */
-@JSRealClass(QBGenericColumn.class)
-public interface QBGenericColumnBase extends IQueryBuilderColumn
-{
+@Documented
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
+public @interface JSRealClass {
+	Class< ? > value();
+
 }

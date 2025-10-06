@@ -17,9 +17,9 @@
 
 package com.servoy.j2db.querybuilder.impl;
 
-import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.querybuilder.IQueryBuilderColumn;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
+import com.servoy.j2db.scripting.annotations.JSRealClass;
 
 /**
  * This interface lists functions on array columns.
@@ -27,7 +27,7 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
  * @author rgansevles
  *
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME, realClass = QBArrayColumn.class)
+@JSRealClass(QBArrayColumn.class)
 public interface QBArrayColumnBase extends IQueryBuilderColumn
 {
 	/**

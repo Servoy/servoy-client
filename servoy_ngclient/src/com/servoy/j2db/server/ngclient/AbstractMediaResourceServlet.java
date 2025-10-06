@@ -88,13 +88,19 @@ public abstract class AbstractMediaResourceServlet extends HttpServlet
 
 	protected INGClientWebsocketSession getSession(HttpServletRequest request, int clientnr)
 	{
+		INGClientWebsocketSession session = null;
 		// try to look it up as clientnr. (solution model)
 		HttpSession httpSession = request.getSession(false);
 		if (httpSession != null)
 		{
-			return (INGClientWebsocketSession)WebsocketSessionManager.getSession(WebsocketSessionFactory.CLIENT_ENDPOINT, httpSession, clientnr);
+			session = (INGClientWebsocketSession)WebsocketSessionManager.getSession(WebsocketSessionFactory.CLIENT_ENDPOINT, httpSession, clientnr);
 		}
-		return null;
+		if (session == null && clientnr > 0)
+		{
+			Debug.warn("Could not find client with id " + clientnr + " for media request " + request.getRequestURI() +
+				". HttpSession: " + (httpSession != null ? httpSession.getId() : "null"));
+		}
+		return session;
 	}
 
 	/**

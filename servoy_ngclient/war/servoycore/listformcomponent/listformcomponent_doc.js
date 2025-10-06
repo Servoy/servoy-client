@@ -11,6 +11,11 @@ var foundset;
 var containedForm;
 
 /**
+ * Margin added to the containedForm. Use this property instead of adding margin via CSS for a correct layout of the contained forms.
+ */
+var containedFormMargin;
+
+/**
  * Determines the layout mode of the list form component, such as 'cardview' or 'listview'.
  */
 var pageLayout;

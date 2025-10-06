@@ -41,8 +41,8 @@ function createPopupMenu() {}
  *  //menu.show(100, 100);
  * }
  * 
- * @param {JSMenu} [menu] The JSMenu whose structure will be used to initialize the popup menu.
- * @param {Function} [callback] The menu item click handler that will be set on all popup menu items. The callback signature is: function(itemIndex:number, parentIndex: number, isSelected: boolean, parentMenu: String, menu: String)
+ * @param {JSMenu} menu The JSMenu whose structure will be used to initialize the popup menu.
+ * @param {Function} callback The menu item click handler that will be set on all popup menu items. The callback signature is: function(itemIndex:number, parentIndex: number, isSelected: boolean, parentMenu: String, menu: String)
  * 
  * @return {CustomType<window.Popup>} A new popup menu instance, optionally initialized with the provided JSMenu structure and callback function.
  */
@@ -215,18 +215,18 @@ function FormPopup() {
      * @return {RuntimeComponent} The FormPopup itself if it's used as a setter or the component if no argument is given
      */
     this.component = function() {}
-	
-	/**
-	  * Set component form popup will be shown relative to. If null, will use coordinates or show at screen center.
-	  *
-	  * @example
-	  * plugins.window.createFormPopup(forms.orderPicker).component(elements.myelement).show();
-	  *
-	  * @param {RuntimeComponent} component the form to show
-	  *
-	  * @return {CustomType<window.FormPopup>} The FormPopup itself if it's used as a setter or the component if no argument is given
-	  */
-	  this.component_component = function(component) {}
+    
+    /**
+      * Set component form popup will be shown relative to. If null, will use coordinates or show at screen center.
+      *
+      * @example
+      * plugins.window.createFormPopup(forms.orderPicker).component(elements.myelement).show();
+      *
+      * @param {RuntimeComponent} component the form to show
+      *
+      * @return {CustomType<window.FormPopup>} The FormPopup itself if it's used as a setter or the component if no argument is given
+      */
+      this.component_component = function(component) {}
 
     /**
      Returns the width.
@@ -238,19 +238,19 @@ function FormPopup() {
      *
      */
     this.width = function() {}
-	
-	/**
-	  * Set form popup width. If not set, form design width will be used.
-	  *
-	  * @example
-	  * plugins.window.createFormPopup(forms.orderPicker).width(100).show();
-	  *
-	  * @param {Number} width form popup width
-	  *
-	  * @return {CustomType<window.FormPopup>} The FormPopup itself if it's used as a setter or the width if no argument is given
-	  *
-	  */
-	 this.width_width = function(width) {}
+    
+    /**
+      * Set form popup width. If not set, form design width will be used.
+      *
+      * @example
+      * plugins.window.createFormPopup(forms.orderPicker).width(100).show();
+      *
+      * @param {Number} width form popup width
+      *
+      * @return {CustomType<window.FormPopup>} The FormPopup itself if it's used as a setter or the width if no argument is given
+      *
+      */
+     this.width_width = function(width) {}
 
     /**
      * Returns the height.
@@ -262,17 +262,17 @@ function FormPopup() {
      */
     this.height = function() {}
 
-	/**
-	  * Set form popup height. If not set, form design height will be used.
-	  *
-	  * @example
-	  * plugins.window.createFormPopup(forms.orderPicker).height(100).show();
-	  *
-	  * @param {Number} height form popup height
-	  *
-	  * @return {CustomType<window.FormPopup>} The FormPopup itself if it's used as a setter or the height if no argument is given
-	  */
-	 this.height_height = function(height) {}
+    /**
+      * Set form popup height. If not set, form design height will be used.
+      *
+      * @example
+      * plugins.window.createFormPopup(forms.orderPicker).height(100).show();
+      *
+      * @param {Number} height form popup height
+      *
+      * @return {CustomType<window.FormPopup>} The FormPopup itself if it's used as a setter or the height if no argument is given
+      */
+     this.height_height = function(height) {}
 
     /**
      * Returns the x.
@@ -284,19 +284,19 @@ function FormPopup() {
      *
      */
     this.x = function() {}
-	
-	/**
-	  * Set form popup x location. The priority sequence for location is: related element, set location, center of screen.
-	  *
-	  * @example
-	  * plugins.window.createFormPopup(forms.orderPicker).x(100).show();
-	  *
-	  * @param {Number} x form popup x location
-	  *
-	  * @return {CustomType<window.FormPopup>} The FormPopup itself if it's used as a setter or the x if no argument is given
-	  *
-	  */
-	 this.x_x = function(x) {}	
+    
+    /**
+      * Set form popup x location. The priority sequence for location is: related element, set location, center of screen.
+      *
+      * @example
+      * plugins.window.createFormPopup(forms.orderPicker).x(100).show();
+      *
+      * @param {Number} x form popup x location
+      *
+      * @return {CustomType<window.FormPopup>} The FormPopup itself if it's used as a setter or the x if no argument is given
+      *
+      */
+     this.x_x = function(x) {}  
 
     /**
      * Returns the y value
@@ -309,19 +309,19 @@ function FormPopup() {
      */
     this.y = function() {}
 
-	/**
-	  * Set form popup y location. The priority sequence for location is: related element, set location, center of screen.
-	  *
-	  * @example
-	  * plugins.window.createFormPopup(forms.orderPicker).y(100).show();
-	  *
-	  * @param {Number} y form popup y location
-	  *
-	  * @return {CustomType<window.FormPopup>} The FormPopup itself if it's used as a setter or the y value if no argument is given
-	  *
-	  */
-	 this.y_y = function(y) {}	
-	
+    /**
+      * Set form popup y location. The priority sequence for location is: related element, set location, center of screen.
+      *
+      * @example
+      * plugins.window.createFormPopup(forms.orderPicker).y(100).show();
+      *
+      * @param {Number} y form popup y location
+      *
+      * @return {CustomType<window.FormPopup>} The FormPopup itself if it's used as a setter or the y value if no argument is given
+      *
+      */
+     this.y_y = function(y) {}  
+    
     /**
      * Returns the backdrop value
      *
@@ -332,19 +332,19 @@ function FormPopup() {
      *
      */
     this.showBackdrop = function(showBackdrop) {}
-	
-	/**
-	  * Set whether backdrop will be shown. Default value is false.
-	  *
-	  * @example
-	  * plugins.window.createFormPopup(forms.orderPicker).showBackdrop(true).show();
-	  *
-	  * @param {Boolean} showBackdrop form popup showBackdrop
-	  *
-	  * @return {CustomType<window.FormPopup>} The FormPopup itself if it's used as a setter or the showBackdrop value if no argument is given
-	  *
-	  */
-	 this.showBackdrop_showBackdrop = function(showBackdrop) {}
+    
+    /**
+      * Set whether backdrop will be shown. Default value is false.
+      *
+      * @example
+      * plugins.window.createFormPopup(forms.orderPicker).showBackdrop(true).show();
+      *
+      * @param {Boolean} showBackdrop form popup showBackdrop
+      *
+      * @return {CustomType<window.FormPopup>} The FormPopup itself if it's used as a setter or the showBackdrop value if no argument is given
+      *
+      */
+     this.showBackdrop_showBackdrop = function(showBackdrop) {}
 
     /**
      * Returns the datprovider value
@@ -356,19 +356,19 @@ function FormPopup() {
      *
      */
     this.dataprovider = function() {}
-	
-	/**
-	  * Set form popup dataprovider that will be set. If this is set, also scope needs to be specified.
-	  *
-	  * @example
-	  * plugins.window.createFormPopup(forms.orderPicker).dataprovider('myid').scope(foundset.getSelectedRecord()).show();
-	  *
-	  * @param {String} dataprovider form popup dataprovider
-	  *
-	  * @return {CustomType<window.FormPopup>} The FormPopup itself if it's used as a setter or the dataprovider value if no argument is given
-	  *
-	  */
-	 this.dataprovider_dataprovider = function(dataprovider) {}
+    
+    /**
+      * Set form popup dataprovider that will be set. If this is set, also scope needs to be specified.
+      *
+      * @example
+      * plugins.window.createFormPopup(forms.orderPicker).dataprovider('myid').scope(foundset.getSelectedRecord()).show();
+      *
+      * @param {String} dataprovider form popup dataprovider
+      *
+      * @return {CustomType<window.FormPopup>} The FormPopup itself if it's used as a setter or the dataprovider value if no argument is given
+      *
+      */
+     this.dataprovider_dataprovider = function(dataprovider) {}
 
     /**
      * Returns the onClose function value
@@ -380,20 +380,20 @@ function FormPopup() {
      *
      */
     this.onClose = function() {}
-	
-	/**
-	  * Set the onclose function that is called when the closeFormPopup is called.
-	  * This onClose will get a JSEvent as the first argument, and the return value that is given to the closeFormPopup(retvalue) call.
-	  *
-	  * @example
-	  * plugins.window.createFormPopup(forms.orderPicker).dataprovider('myid').onClose(closePopupFunction).show();
-	  *
-	  * @param {Function} onClose Function that needs to be called when closed
-	  *
-	  * @return {CustomType<window.FormPopup>} The FormPopup itself if it's used as a setter or the function value if no argument is given
-	  *
-	  */
-	 this.onClose_onClose = function(func) {}
+    
+    /**
+      * Set the onclose function that is called when the closeFormPopup is called.
+      * This onClose will get a JSEvent as the first argument, and the return value that is given to the closeFormPopup(retvalue) call.
+      *
+      * @example
+      * plugins.window.createFormPopup(forms.orderPicker).dataprovider('myid').onClose(closePopupFunction).show();
+      *
+      * @param {Function} onClose Function that needs to be called when closed
+      *
+      * @return {CustomType<window.FormPopup>} The FormPopup itself if it's used as a setter or the function value if no argument is given
+      *
+      */
+     this.onClose_onClose = function(func) {}
 
     /**
      * Returns the scope object
@@ -405,19 +405,19 @@ function FormPopup() {
      *
      */
     this.scope = function() {}
-	
-	/**
-	  * Set form popup scope that will be modified. If this is set, also dataprovider needs to be specified.
-	  *
-	  * @example
-	  * plugins.window.createFormPopup(forms.orderPicker).dataprovider('myid').scope(foundset.getSelectedRecord()).show();
-	  *
-	  * @param {Object} scope Form popup scope to modify
-	  *
-	  * @return {CustomType<window.FormPopup>} The FormPopup itself if it's used as a setter or the scope object if no argument is given
-	  *
-	  */
-	 this.scope_scope = function(scope) {}
+    
+    /**
+      * Set form popup scope that will be modified. If this is set, also dataprovider needs to be specified.
+      *
+      * @example
+      * plugins.window.createFormPopup(forms.orderPicker).dataprovider('myid').scope(foundset.getSelectedRecord()).show();
+      *
+      * @param {Object} scope Form popup scope to modify
+      *
+      * @return {CustomType<window.FormPopup>} The FormPopup itself if it's used as a setter or the scope object if no argument is given
+      *
+      */
+     this.scope_scope = function(scope) {}
 
     /**
      * Show form popup using parameters that were set
@@ -427,16 +427,16 @@ function FormPopup() {
      *
      */
     this.show = function() {}
-	
-	/**
-	 * Close/Cancel the current form and his children if applicable.
-	 *
-	 * @example
-	 * plugins.window.getFormPopup(forms.orderPicker).cancel();
-	 *
-	 */
-	this.cancel = function() {}
-	
+    
+    /**
+     * Close/Cancel the current form and his children if applicable.
+     *
+     * @example
+     * plugins.window.getFormPopup(forms.orderPicker).cancel();
+     *
+     */
+    this.cancel = function() {}
+    
     /**
      * Create a form popup that can be filled with data and shown.
      *
@@ -447,7 +447,7 @@ function FormPopup() {
      *
      * @return {CustomType<window.FormPopup>} FormPopup
      */
-	this.createFormPopup = function(form) {}
+    this.createFormPopup = function(form) {}
 }
 
 /**
@@ -1427,62 +1427,62 @@ function Popup() {
      * @param {Boolean} [positionTop] The positionTop where to show the popup (default false)
      */
     this.show = function(component, x, y, positionTop) { }
-	
-	/**
-	 * Show the popup menu relative to the specified component.
+    
+    /**
+     * Show the popup menu relative to the specified component.
      * If there is not enough space above or under the component, the behavior is undefined (the browser will decide how menu is displayed)
      * @example
-	 * // create a popup menu
-	 * var menu = plugins.window.createPopupMenu();
-	 * // add a menu item
-	 * menu.addMenuItem("an entry", feedback);
-	 *
-	 * if (event.getSource()) {
+     * // create a popup menu
+     * var menu = plugins.window.createPopupMenu();
+     * // add a menu item
+     * menu.addMenuItem("an entry", feedback);
+     *
+     * if (event.getSource()) {
      *  // display the popup over the component which is the source of the event
      *  menu.show(event.getSource(), true);
-	 * }
-	 * 
-	 * @param {Runtimecomponent} component The component where this popup is linked in
-	 * @param {Boolean} [positionTop] The positionTop where to show the popup (default false)
+     * }
+     * 
+     * @param {Runtimecomponent} component The component where this popup is linked in
+     * @param {Boolean} [positionTop] The positionTop where to show the popup (default false)
      */
-	this.show_component_positionTop = function(component, positionTop) { }
-	
-	/**
-	 * Show the popup menu at the specified location
-	 *
-	 * @example
-	 * // create a popup menu
-	 * var menu = plugins.window.createPopupMenu();
-	 * // add a menu item
-	 * menu.addMenuItem("an entry", feedback);
-	 *
-	 * if (event.getSource()) {
-	 *  // display the popup at specified coordinates
-	 *  menu.show(10, 10);
-	 * }
-	 *
-	 * @param {Number} x The x of the popup 
-	 * @param {Number} y The y coordinate of the popup
-	 */
-	this.show_x_y = function(x, y) { }
-	
-	/**
-	 * Show the popup menu relative to the event's source
-	 *
-	 * @example
-	 * // create a popup menu
-	 * var menu = plugins.window.createPopupMenu();
-	 * // add a menu item
-	 * menu.addMenuItem("an entry", feedback);
-	 *
-	 * if (event.getSource()) {
-	 *  // display the popup over the component which is the source of the event
-	 *  menu.show(event.getSource());
-	 * }
-	 *
-	 * @param {JSEvent} event event related to Popup 
-	 */
-	this.show_event = function(event) { }
+    this.show_component_positionTop = function(component, positionTop) { }
+    
+    /**
+     * Show the popup menu at the specified location
+     *
+     * @example
+     * // create a popup menu
+     * var menu = plugins.window.createPopupMenu();
+     * // add a menu item
+     * menu.addMenuItem("an entry", feedback);
+     *
+     * if (event.getSource()) {
+     *  // display the popup at specified coordinates
+     *  menu.show(10, 10);
+     * }
+     *
+     * @param {Number} x The x of the popup 
+     * @param {Number} y The y coordinate of the popup
+     */
+    this.show_x_y = function(x, y) { }
+    
+    /**
+     * Show the popup menu relative to the event's source
+     *
+     * @example
+     * // create a popup menu
+     * var menu = plugins.window.createPopupMenu();
+     * // add a menu item
+     * menu.addMenuItem("an entry", feedback);
+     *
+     * if (event.getSource()) {
+     *  // display the popup over the component which is the source of the event
+     *  menu.show(event.getSource());
+     * }
+     *
+     * @param {JSEvent} event event related to Popup 
+     */
+    this.show_event = function(event) { }
 }
 
 var svy_types = {
@@ -1521,7 +1521,12 @@ var svy_types = {
       /**
        * Indicates whether the menu item is enabled.
        */
-      enabled: null
+      enabled: null,
+      
+      /**
+       * The tooltip text to be shown for this menu
+       */
+      tooltipText: null,
   },
 
   /**

@@ -29,6 +29,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.Charset;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -217,6 +218,10 @@ public class MediaResourcesServlet extends AbstractMediaResourceServlet
 
 				return sendData(response, mediaInfo.getInputStream(), mediaInfo.getContentType(), mediaInfo.getFileName(), mediaInfo.getContentDisposition(),
 					mediaInfo.getContentLength());
+			}
+			else
+			{
+				Debug.warn("Could not find dynamic media with id " + dynamicID + " for client sessionkey: " + session.getSessionKey());
 			}
 
 		}
@@ -693,7 +698,9 @@ public class MediaResourcesServlet extends AbstractMediaResourceServlet
 		 */
 		public File getFile()
 		{
-			return item.getPath().toFile();
+			Path path = item.getPath();
+			if (path != null) return path.toFile();
+			return null;
 		}
 
 		/*

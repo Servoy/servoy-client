@@ -39,6 +39,8 @@ public interface QBTextColumnComparableFunctions
 	 * // case-insensitive compares can be done using the upper (or lower) functions,
 	 * // this can be useful when using for example German letters like ß,
 	 * query.where.add(query.columns.companyname.upper.like(query.functions.upper('groß%')))
+	 *
+	 * @return the QBCondition that can be added to a where clause
 	 */
 	@JSFunction
 	QBCondition like(Object pattern);
@@ -51,7 +53,9 @@ public interface QBTextColumnComparableFunctions
 	 * @param escape the escape char
 	 *
 	 * @sample
-	 * query.where.add(query.columns.companyname.like('X_%', '_'))
+	 * query.where.add(query.columns.companyname.like('X_%', '_')
+	 *
+	 * @return the QBCondition that can be added to a where clause
 	 */
 	@JSFunction
 	QBCondition like(Object pattern, char escape);
