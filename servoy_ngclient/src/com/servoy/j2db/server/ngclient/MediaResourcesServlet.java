@@ -29,6 +29,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.Charset;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -697,7 +698,9 @@ public class MediaResourcesServlet extends AbstractMediaResourceServlet
 		 */
 		public File getFile()
 		{
-			return item.getPath().toFile();
+			Path path = item.getPath();
+			if (path != null) return path.toFile();
+			return null;
 		}
 
 		/*
