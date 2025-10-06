@@ -96,7 +96,7 @@ public record PersistIdentifier(
 	 */
 	public static PersistIdentifier fromJSONString(String jsonContent)
 	{
-		if (jsonContent == null) return null;
+		if (jsonContent == null || jsonContent.length() == 0) return null;
 
 		char firstChar = jsonContent.charAt(0);
 
