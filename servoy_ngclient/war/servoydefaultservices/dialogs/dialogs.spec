@@ -67,7 +67,7 @@
 				{
 					"name": "buttonsText",
 					"type": "string...",
-					"optional": "true"
+					"optional":true
 				}
 			]
 		},
@@ -86,12 +86,12 @@
 				{
 					"name": "dialogMessage",
 					"type": "string",
-                    "optional": "true"
+                    "optional":true
 				},
 				{
 					"name": "buttonsText",
 					"type": "string...",
-					"optional": "true"
+					"optional":true
 				}
 			]
 		},
@@ -105,25 +105,25 @@
 				{
 					"name": "dialogTitle",
 					"type": "string",
-					"optional": "true"
+					"optional":true
 				},
 
 				{
 					"name": "dialogMessage",
 					"type": "string",
-					"optional": "true"
+					"optional":true
 				},
 
 				{
 					"name": "initialValue",
 					"type": "string",
-					"optional": "true"
+					"optional": true
 				},
 
 				{
 					"name": "inputType",
 					"type": "string",
-					"optional": "true"
+					"optional": true
 				}
 			]
 		},
@@ -147,7 +147,7 @@
 				{
 					"name": "buttonsText",
 					"type": "string...",
-					"optional": "true"
+					"optional":true
 				}
 			]
 		},
@@ -194,7 +194,7 @@
 				{
 					"name": "buttonsText",
 					"type": "string...",
-					"optional": "true"
+					"optional":true
 				}
 			]
 		}
