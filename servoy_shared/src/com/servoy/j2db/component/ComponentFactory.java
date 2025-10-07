@@ -1012,7 +1012,7 @@ public class ComponentFactory
 							((CustomValueList)list).addDataProvider(dataprovider);
 						}
 					}
-					else if (type != Types.OTHER && type != currentType &&
+					else if (type != Types.OTHER && type != Types.ARRAY && type != currentType &&
 						!(((Column.mapToDefaultType(type) == IColumnTypes.INTEGER || Column.mapToDefaultType(type) == IColumnTypes.TEXT) &&
 							Column.mapToDefaultType(currentType) == IColumnTypes.NUMBER) ||
 							((Column.mapToDefaultType(type) == IColumnTypes.NUMBER || Column.mapToDefaultType(type) == IColumnTypes.TEXT) &&

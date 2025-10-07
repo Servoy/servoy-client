@@ -22,6 +22,7 @@ public class DataproviderConfig
 	public static final String DISPLAY_TAGS_PROPERTY_NAME_CONFIG_OPT = "displayTagsPropertyName"; //$NON-NLS-1$
 	public static final String DISPLAY_TAGS_CONFIG_OPT = "displayTags"; //$NON-NLS-1$
 	public static final String RESOLVE_VALUELIST_CONFIG_OPT = "resolveValuelist"; //$NON-NLS-1$
+	public static final String MULTISELECT_VALUE_OR_PROPERTY = "multiselect"; //$NON-NLS-1$
 
 	private final String onDataChange;
 	private final String onDataChangeCallback;
@@ -29,9 +30,10 @@ public class DataproviderConfig
 	private final String displayTagsPropertyName;
 	private final boolean displayTags;
 	private final boolean resolveValuelist;
+	private final String multiselect;
 
 	public DataproviderConfig(String onDataChange, String onDataChangeCallback, boolean parseHtml, String displayTagsPropertyName, boolean displayTags,
-		boolean resolveValuelist)
+		boolean resolveValuelist, String multiselect)
 	{
 		this.onDataChange = onDataChange;
 		this.onDataChangeCallback = onDataChangeCallback;
@@ -39,6 +41,7 @@ public class DataproviderConfig
 		this.displayTagsPropertyName = displayTagsPropertyName;
 		this.displayTags = displayTags;
 		this.resolveValuelist = resolveValuelist;
+		this.multiselect = multiselect;
 	}
 
 	public String getOnDataChange()
@@ -69,5 +72,13 @@ public class DataproviderConfig
 	public boolean shouldResolveValuelist()
 	{
 		return resolveValuelist;
+	}
+
+	/**
+	 * @return the multiselect
+	 */
+	public String getMultiselect()
+	{
+		return multiselect;
 	}
 }

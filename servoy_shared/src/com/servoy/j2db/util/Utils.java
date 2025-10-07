@@ -3171,6 +3171,25 @@ public final class Utils
 		return lst.toArray(new String[lst.size()]);
 	}
 
+	public static String getTokenValue(Object[] value, String delim)
+	{
+		if (value == null || value.length == 0)
+		{
+			return null;
+		}
+
+		StringBuilder sb = new StringBuilder();
+		for (Object o : value)
+		{
+			if (sb.length() > 0)
+			{
+				sb.append(delim);
+			}
+			sb.append(o instanceof String ? (String)o : "");
+		}
+		return sb.toString();
+	}
+
 	/**
 	 * Iterate over iterator.
 	 * <pre>
@@ -3763,4 +3782,5 @@ public final class Utils
 		}
 		return retval;
 	}
+
 }

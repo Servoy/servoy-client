@@ -88,6 +88,7 @@ public class DataproviderPropertyType extends DefaultPropertyType<DataproviderTy
 		String displayTagsPropertyName = null;
 		boolean displayTags = false;
 		boolean resolveValuelist = false;
+		String multiselect = null;
 		if (json != null)
 		{
 			JSONObject onDataChangeObj = json.optJSONObject("ondatachange");
@@ -101,9 +102,10 @@ public class DataproviderPropertyType extends DefaultPropertyType<DataproviderTy
 			displayTags = json.has(DataproviderConfig.DISPLAY_TAGS_CONFIG_OPT) ? json.optBoolean(DataproviderConfig.DISPLAY_TAGS_CONFIG_OPT, false) : false;
 			resolveValuelist = json.has(DataproviderConfig.RESOLVE_VALUELIST_CONFIG_OPT)
 				? json.optBoolean(DataproviderConfig.RESOLVE_VALUELIST_CONFIG_OPT, false) : false;
+			multiselect = json.optString(DataproviderConfig.MULTISELECT_VALUE_OR_PROPERTY, null);
 		}
 
-		return new DataproviderConfig(onDataChange, onDataChangeCallback, hasParseHtml, displayTagsPropertyName, displayTags, resolveValuelist);
+		return new DataproviderConfig(onDataChange, onDataChangeCallback, hasParseHtml, displayTagsPropertyName, displayTags, resolveValuelist, multiselect);
 	}
 
 	@Override

@@ -34,6 +34,7 @@ import java.util.TimeZone;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.mozilla.javascript.Scriptable;
 import org.sablo.IChangeListener;
@@ -45,6 +46,7 @@ import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IPropertyConverterForBrowser;
 import org.sablo.specification.property.IPropertyType;
 import org.sablo.specification.property.types.DatePropertyType;
+import org.sablo.specification.property.types.StringPropertyType;
 import org.sablo.specification.property.types.TypesRegistry;
 import org.sablo.util.ValueReference;
 import org.sablo.websocket.utils.JSONUtils;
@@ -67,6 +69,7 @@ import com.servoy.j2db.dataprocessing.ISwingFoundSet;
 import com.servoy.j2db.dataprocessing.LookupValueList;
 import com.servoy.j2db.dataprocessing.ModificationEvent;
 import com.servoy.j2db.dataprocessing.ValueFactory.DbIdentValue;
+import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.ColumnWrapper;
 import com.servoy.j2db.persistence.IColumn;
 import com.servoy.j2db.persistence.IColumnTypes;
@@ -135,6 +138,7 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 	private String shouldResolveFromValuelistWithName;
 	private String formatPdName;
 	protected List<IChangeListener> underlyingValueChangeListeners = new ArrayList<>();
+	private Boolean isMultiselect = null;
 
 	public DataproviderTypeSabloValue(String dataProviderID, IDataAdapterList dataAdapterList, IServoyDataConverterContext servoyDataConverterContext,
 		PropertyDescription dpPD)
@@ -463,6 +467,7 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 			}
 		}
 
+		computeMultiselect(dp);
 
 		Object v = com.servoy.j2db.dataprocessing.DataAdapterList.getValueObject(record, servoyDataConverterContext.getForm().getFormScope(), dpID);
 		if (v == Scriptable.NOT_FOUND) v = null;
@@ -682,6 +687,35 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 		}
 	}
 
+	private void computeMultiselect(IDataProvider dp)
+	{
+		isMultiselect = Boolean.FALSE;
+		if (webObjectContext != null && getDataProviderConfig() != null && getDataProviderConfig().getMultiselect() != null)
+		{
+			if ("true".equals(getDataProviderConfig().getMultiselect()))
+			{
+				// array or string
+				if (dp != null)
+				{
+					if ((dp instanceof Column column &&
+						column.getColumnType().getSqlType() == Types.ARRAY) || dp.getDataProviderType() == IColumnTypes.TEXT)
+					{
+						isMultiselect = Boolean.TRUE;
+					}
+				}
+
+			}
+			else
+			{
+				Object ms = webObjectContext.getProperty(getDataProviderConfig().getMultiselect());
+				if (ms instanceof Boolean)
+				{
+					isMultiselect = (Boolean)ms;
+				}
+			}
+		}
+	}
+
 	protected IJSONStringWithClientSideType getValueForToJSON(IBrowserConverterContext dataConverterContext) throws JSONException
 	{
 		if (uiValue instanceof DbIdentValue)
@@ -745,7 +779,7 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 			ejw.value(uiValue instanceof String ? uiValue : (uiValue != null ? String.valueOf(uiValue) : ""));
 			jsonValueRepresentation = new JSONStringWithClientSideType(ejw.toJSONString(), null);
 		}
-		else if (typeOfDP != null && !valuelistDisplayValue)
+		else if (typeOfDP != null && !valuelistDisplayValue && !Boolean.TRUE.equals(isMultiselect)) // if multiselect then just send the value as is (array or string with \n)
 		{
 			Object value = uiValue;
 			// if the value to display is null, but it represents a count/avg/sum aggregate DP then
@@ -818,8 +852,13 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 		}
 		else
 		{
+			Object value = uiValue;
+			if (isMultiselect != null && isMultiselect.booleanValue() && value instanceof String)
+			{
+				value = Utils.getTokenElements((String)value, "\n", false);
+			}
 			EmbeddableJSONWriter ejw = new EmbeddableJSONWriter(true); // that 'true' is a workaround for allowing directly a value instead of object or array
-			ejw.value(uiValue);
+			ejw.value(value);
 			// if valuelistDisplayValue just use the value from valuelist with no conversion ?
 			jsonValueRepresentation = new JSONStringWithClientSideType(ejw.toJSONString(), null);
 		}
@@ -831,6 +870,23 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 		checkIfModifiable();
 		Object oldUIValue = uiValue;
 
+		if (newJSONValue instanceof JSONArray jsonArray)
+		{
+			String[] array = new String[jsonArray.length()];
+			for (int i = 0; i < jsonArray.length(); i++)
+			{
+				array[i] = jsonArray.getString(i);
+			}
+			if (isMultiselect != null && isMultiselect.booleanValue() && typeOfDP != null &&
+				(typeOfDP.getType() instanceof StringPropertyType || typeOfDP.getType() instanceof HTMLStringPropertyType))
+			{
+				newJSONValue = Utils.getTokenValue(array, "\n");
+			}
+			else
+			{
+				newJSONValue = array;
+			}
+		}
 		ValueReference<Boolean> serverSideValueIsNotTheSameAsClient = new ValueReference<>(Boolean.FALSE);
 		if (!findMode && typeOfDP != null)
 		{
@@ -888,7 +944,7 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 		}
 		else uiValue = newJSONValue;
 
-		if (oldUIValue != uiValue && (oldUIValue == null || !oldUIValue.equals(uiValue)))
+		if (oldUIValue != uiValue && (oldUIValue == null || !Utils.equalObjects(oldUIValue, uiValue)))
 		{
 			jsonValue = null;
 		}
