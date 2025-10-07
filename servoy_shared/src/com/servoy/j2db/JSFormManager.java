@@ -58,6 +58,16 @@ public class JSFormManager implements Scriptable, IJSFormManager
 		if (name.equals("LOCKED_LIST_VIEW")) return IFormConstants.VIEW_TYPE_LIST_LOCKED; //deprecated
 		if (name.equals("LOCKED_TABLE_VIEW")) return IFormConstants.VIEW_TYPE_TABLE_LOCKED; //deprecated
 
+		//encapsulation (all deprecated)
+		if (name.equals("DEFAULT_ENCAPSULATION")) return IFormConstants.DEFAULT;
+		if (name.equals("PRIVATE_ENCAPSULATION")) return IFormConstants.HIDE_IN_SCRIPTING_MODULE_SCOPE;
+		if (name.equals("MODULE_PRIVATE_ENCAPSULATION")) return IFormConstants.MODULE_SCOPE;
+		if (name.equals("HIDE_DATAPROVIDERS_ENCAPSULATION")) return IFormConstants.HIDE_DATAPROVIDERS;
+		if (name.equals("HIDE_FOUNDSET_ENCAPSULATION")) return IFormConstants.HIDE_FOUNDSET;
+		if (name.equals("HIDE_CONTROLLER_ENCAPSULATION")) return IFormConstants.HIDE_CONTROLLER;
+		if (name.equals("HIDE_ELEMENTS_ENCAPSULATION")) return IFormConstants.HIDE_ELEMENTS;
+
+
 		//selection modes
 		if (name.equals("SELECTION_MODE_DEFAULT")) return IForm.SELECTION_MODE_DEFAULT;
 		if (name.equals("SELECTION_MODE_SINGLE")) return IForm.SELECTION_MODE_SINGLE;
@@ -66,6 +76,7 @@ public class JSFormManager implements Scriptable, IJSFormManager
 		//foundset
 		if (name.equals("EMPTY_FOUNDSET")) return Form.NAMED_FOUNDSET_EMPTY;
 		if (name.equals("SEPARATE_FOUNDSET")) return Form.NAMED_FOUNDSET_SEPARATE;
+
 
 		try
 		{
