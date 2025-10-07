@@ -22,7 +22,9 @@ import java.util.List;
 
 import org.mozilla.javascript.Scriptable;
 
+import com.servoy.base.persistence.constants.IFormConstants;
 import com.servoy.j2db.BasicFormController.JSForm;
+import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.util.Debug;
 
 /**
@@ -49,6 +51,22 @@ public class JSFormManager implements Scriptable, IJSFormManager
 	@Override
 	public Object get(String name, Scriptable start)
 	{
+		//view types (deprecated)
+		if (name.equals("RECORD_VIEW")) return IForm.RECORD_VIEW;
+		if (name.equals("LIST_VIEW")) return IForm.LIST_VIEW;
+		if (name.equals("LOCKED_RECORD_VIEW")) return IForm.LOCKED_RECORD_VIEW;
+		if (name.equals("LOCKED_LIST_VIEW")) return IFormConstants.VIEW_TYPE_LIST_LOCKED; //deprecated
+		if (name.equals("LOCKED_TABLE_VIEW")) return IFormConstants.VIEW_TYPE_TABLE_LOCKED; //deprecated
+
+		//selection modes
+		if (name.equals("SELECTION_MODE_DEFAULT")) return IForm.SELECTION_MODE_DEFAULT;
+		if (name.equals("SELECTION_MODE_SINGLE")) return IForm.SELECTION_MODE_SINGLE;
+		if (name.equals("SELECTION_MODE_MULTI")) return IForm.SELECTION_MODE_MULTI;
+
+		//foundset
+		if (name.equals("EMPTY_FOUNDSET")) return Form.NAMED_FOUNDSET_EMPTY;
+		if (name.equals("SEPARATE_FOUNDSET")) return Form.NAMED_FOUNDSET_SEPARATE;
+
 		try
 		{
 			IForm frm = application.getFormManager().getForm(name);
