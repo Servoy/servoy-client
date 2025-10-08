@@ -19,12 +19,16 @@ package com.servoy.j2db;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.ScriptableObject;
 
 import com.servoy.base.persistence.constants.IFormConstants;
-import com.servoy.j2db.BasicFormController.JSForm;
 import com.servoy.j2db.persistence.Form;
+import com.servoy.j2db.scripting.DefaultJavaScope;
+import com.servoy.j2db.scripting.solutionmodel.JSForm;
 import com.servoy.j2db.util.Debug;
 
 /**
@@ -47,50 +51,164 @@ public class JSFormManager implements Scriptable, IJSFormManager
 		return null;
 	}
 
-
+	@SuppressWarnings("nls")
 	@Override
 	public Object get(String name, Scriptable start)
 	{
-		//view types (deprecated)
-		if (name.equals("RECORD_VIEW")) return IForm.RECORD_VIEW;
-		if (name.equals("LIST_VIEW")) return IForm.LIST_VIEW;
-		if (name.equals("LOCKED_RECORD_VIEW")) return IForm.LOCKED_RECORD_VIEW;
-		if (name.equals("LOCKED_LIST_VIEW")) return IFormConstants.VIEW_TYPE_LIST_LOCKED; //deprecated
-		if (name.equals("LOCKED_TABLE_VIEW")) return IFormConstants.VIEW_TYPE_TABLE_LOCKED; //deprecated
-
-		//encapsulation (all deprecated)
-		if (name.equals("DEFAULT_ENCAPSULATION")) return IFormConstants.DEFAULT;
-		if (name.equals("PRIVATE_ENCAPSULATION")) return IFormConstants.HIDE_IN_SCRIPTING_MODULE_SCOPE;
-		if (name.equals("MODULE_PRIVATE_ENCAPSULATION")) return IFormConstants.MODULE_SCOPE;
-		if (name.equals("HIDE_DATAPROVIDERS_ENCAPSULATION")) return IFormConstants.HIDE_DATAPROVIDERS;
-		if (name.equals("HIDE_FOUNDSET_ENCAPSULATION")) return IFormConstants.HIDE_FOUNDSET;
-		if (name.equals("HIDE_CONTROLLER_ENCAPSULATION")) return IFormConstants.HIDE_CONTROLLER;
-		if (name.equals("HIDE_ELEMENTS_ENCAPSULATION")) return IFormConstants.HIDE_ELEMENTS;
-
-
-		//selection modes
-		if (name.equals("SELECTION_MODE_DEFAULT")) return IForm.SELECTION_MODE_DEFAULT;
-		if (name.equals("SELECTION_MODE_SINGLE")) return IForm.SELECTION_MODE_SINGLE;
-		if (name.equals("SELECTION_MODE_MULTI")) return IForm.SELECTION_MODE_MULTI;
-
-		//foundset
-		if (name.equals("EMPTY_FOUNDSET")) return Form.NAMED_FOUNDSET_EMPTY;
-		if (name.equals("SEPARATE_FOUNDSET")) return Form.NAMED_FOUNDSET_SEPARATE;
-
-
-		try
+		switch (name)
 		{
-			IForm frm = application.getFormManager().getForm(name);
-			if (frm instanceof BasicFormController fc)
+			// view types (deprecated)
+			case "RECORD_VIEW" :
+				return IForm.RECORD_VIEW;
+			case "LIST_VIEW" :
+				return IForm.LIST_VIEW;
+			case "LOCKED_RECORD_VIEW" :
+				return IForm.LOCKED_RECORD_VIEW;
+			case "LOCKED_LIST_VIEW" :
+				return IFormConstants.VIEW_TYPE_LIST_LOCKED; // deprecated
+			case "LOCKED_TABLE_VIEW" :
+				return IFormConstants.VIEW_TYPE_TABLE_LOCKED; // deprecated
+
+			// encapsulation (all deprecated)
+			case "DEFAULT_ENCAPSULATION" :
+				return IFormConstants.DEFAULT;
+			case "PRIVATE_ENCAPSULATION" :
+				return IFormConstants.HIDE_IN_SCRIPTING_MODULE_SCOPE;
+			case "MODULE_PRIVATE_ENCAPSULATION" :
+				return IFormConstants.MODULE_SCOPE;
+			case "HIDE_DATAPROVIDERS_ENCAPSULATION" :
+				return IFormConstants.HIDE_DATAPROVIDERS;
+			case "HIDE_FOUNDSET_ENCAPSULATION" :
+				return IFormConstants.HIDE_FOUNDSET;
+			case "HIDE_CONTROLLER_ENCAPSULATION" :
+				return IFormConstants.HIDE_CONTROLLER;
+			case "HIDE_ELEMENTS_ENCAPSULATION" :
+				return IFormConstants.HIDE_ELEMENTS;
+
+			// selection modes
+			case "SELECTION_MODE_DEFAULT" :
+				return IForm.SELECTION_MODE_DEFAULT;
+			case "SELECTION_MODE_SINGLE" :
+				return IForm.SELECTION_MODE_SINGLE;
+			case "SELECTION_MODE_MULTI" :
+				return IForm.SELECTION_MODE_MULTI;
+
+			// foundset constants
+			case "EMPTY_FOUNDSET" :
+				return Form.NAMED_FOUNDSET_EMPTY;
+			case "SEPARATE_FOUNDSET" :
+				return Form.NAMED_FOUNDSET_SEPARATE;
+
+			case "NAMES" :
+				return getNames(start);
+			case "INSTANCES" :
+				return getInstances(start);
+
+			default :
+				return getJSForm(name);
+		}
+	}
+
+	private Object getInstances(Scriptable start)
+	{
+
+		final List<String> forms = new ArrayList<>();
+		Scriptable topLevel = ScriptableObject.getTopLevelScope(start);
+		if (topLevel == null)
+		{
+			topLevel = application.getScriptEngine().getScopesScope().getParentScope();
+		}
+		DefaultJavaScope instancesScope = new DefaultJavaScope(topLevel, Map.of())
+		{
+			@Override
+			public Object getDefaultValue(Class< ? > hint)
 			{
-				return new JSForm(fc);
+				return toString();
 			}
-		}
-		catch (Exception e)
+
+			@Override
+			public String toString()
+			{
+				String formsString = forms.stream()
+					.map(formName -> {
+						Object formInstance = get(formName, this);
+						return formName + ": " + (formInstance == null ? "null" : formInstance.toString());
+					})
+					.collect(Collectors.joining(", "));
+				return "{" + formsString + "}";
+			}
+
+			@Override
+			public Object[] getIds()
+			{
+				return forms.toArray(new Object[0]);
+			}
+		};
+
+		application.getFlattenedSolution().getForms(true)
+			.forEachRemaining(form -> forms.add(form.getName()));
+
+		for (String formName : forms)
 		{
-			Debug.error(e);
+			JSForm jsForm = getJSForm(formName);
+			instancesScope.put(formName, instancesScope, jsForm);
 		}
-		return null;
+
+		return instancesScope;
+	}
+
+	private JSForm getJSForm(String formName)
+	{
+		Form formInstance = application.getFlattenedSolution().getForm(formName);
+		JSForm jsForm = null;
+		if (formInstance != null)
+		{
+			jsForm = new JSForm((IApplication)application, formInstance, false);
+		}
+		return jsForm;
+	}
+
+	private Object getNames(Scriptable start)
+	{
+		final List<String> forms = new ArrayList<>();
+		Scriptable topLevel = ScriptableObject.getTopLevelScope(start);
+		DefaultJavaScope namesScope = new DefaultJavaScope(topLevel, Map.of())
+		{
+			@Override
+			public Object getDefaultValue(Class< ? > hint)
+			{
+				return toString();
+			}
+
+			@Override
+			public String toString()
+			{
+				StringBuilder sb = new StringBuilder("{");
+				String formsString = forms.stream()
+					.map(formName -> {
+						Object formNameNativeObject = get(formName, this);
+						return formName + ": " + (formNameNativeObject == null ? "null" : formNameNativeObject.toString());
+					})
+					.collect(Collectors.joining(", "));
+				sb.append(formsString).append("}");
+				return sb.toString();
+			}
+
+			@Override
+			public Object[] getIds()
+			{
+				return forms.toArray(new Object[0]);
+			}
+		};
+
+		application.getFlattenedSolution().getForms(true)
+			.forEachRemaining(form -> forms.add(form.getName()));
+		for (String formName : forms)
+		{
+			namesScope.put(formName, namesScope, formName);
+		}
+
+		return namesScope;
 	}
 
 
@@ -160,16 +278,16 @@ public class JSFormManager implements Scriptable, IJSFormManager
 	@Override
 	public Object[] getIds()
 	{
-		List<String> controllers = new ArrayList<>();
+		List<String> ids = new ArrayList<>();
 		try
 		{
-			application.getFlattenedSolution().getForms(true).forEachRemaining(form -> controllers.add(form.getName()));
+			application.getFlattenedSolution().getForms(true).forEachRemaining(form -> ids.add(form.getName()));
 		}
 		catch (Exception e)
 		{
 			Debug.error(e);
 		}
-		return controllers.toArray();
+		return ids.toArray();
 	}
 
 	@Override
