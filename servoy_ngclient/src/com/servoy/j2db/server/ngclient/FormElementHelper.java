@@ -768,6 +768,28 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 		}
 	}
 
+	public IPersist findPersist(UUID uuid)
+	{
+		IPersist persist = findPersist(uuid, formComponentElements);
+		if (persist == null) persist = findPersist(uuid, formComponentElementsForDesign);
+		return persist;
+	}
+
+	private IPersist findPersist(UUID uuid, ConcurrentMap<UUID, Map<String, FormComponentCache>> cache)
+	{
+		for (Map<String, FormComponentCache> map : cache.values())
+		{
+			for (FormComponentCache fcc : map.values())
+			{
+				for (FormElement fe : fcc.getFormComponentElements())
+				{
+					if (fe.getPersistIfAvailable().getUUID().equals(uuid)) return fe.getPersistIfAvailable();
+				}
+			}
+		}
+		return null;
+	}
+
 	// this variable prevents infinite cycle for form components that have a tabseq property
 	private final ThreadLocal<Boolean> nestedCall = new ThreadLocal<Boolean>();
 
