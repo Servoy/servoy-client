@@ -19,15 +19,14 @@ package com.servoy.j2db;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.mozilla.javascript.NativeObject;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
 
 import com.servoy.base.persistence.constants.IFormConstants;
 import com.servoy.j2db.persistence.Form;
-import com.servoy.j2db.scripting.DefaultJavaScope;
 import com.servoy.j2db.scripting.solutionmodel.JSForm;
 import com.servoy.j2db.util.Debug;
 
@@ -111,31 +110,25 @@ public class JSFormManager implements Scriptable, IJSFormManager
 
 	private Object getInstances(Scriptable start)
 	{
-
 		final List<String> forms = new ArrayList<>();
+		application.getFlattenedSolution().getForms(true)
+			.forEachRemaining(form -> forms.add(form.getName()));
 		Scriptable topLevel = ScriptableObject.getTopLevelScope(start);
-		if (topLevel == null)
-		{
-			topLevel = application.getScriptEngine().getScopesScope().getParentScope();
-		}
-		DefaultJavaScope instancesScope = new DefaultJavaScope(topLevel, Map.of())
+		ScriptableObject instancesScope = new NativeObject()
 		{
 			@Override
-			public Object getDefaultValue(Class< ? > hint)
+			public Object get(String name, Scriptable start)
 			{
-				return toString();
-			}
+				if (has(name, start)) return super.get(name, start);
 
-			@Override
-			public String toString()
-			{
-				String formsString = forms.stream()
-					.map(formName -> {
-						Object formInstance = get(formName, this);
-						return formName + ": " + (formInstance == null ? "null" : formInstance.toString());
-					})
-					.collect(Collectors.joining(", "));
-				return "{" + formsString + "}";
+				if (forms.contains(name))
+				{
+					JSForm jsForm = getJSForm(name);
+					put(name, this, jsForm);
+					return jsForm;
+				}
+
+				return super.get(name, start);
 			}
 
 			@Override
@@ -143,17 +136,14 @@ public class JSFormManager implements Scriptable, IJSFormManager
 			{
 				return forms.toArray(new Object[0]);
 			}
+
+			@Override
+			public String toString()
+			{
+				return forms.stream().collect(Collectors.joining(", ", "{", "}"));
+			}
 		};
-
-		application.getFlattenedSolution().getForms(true)
-			.forEachRemaining(form -> forms.add(form.getName()));
-
-		for (String formName : forms)
-		{
-			JSForm jsForm = getJSForm(formName);
-			instancesScope.put(formName, instancesScope, jsForm);
-		}
-
+		instancesScope.setParentScope(topLevel);
 		return instancesScope;
 	}
 
@@ -170,43 +160,12 @@ public class JSFormManager implements Scriptable, IJSFormManager
 
 	private Object getNames(Scriptable start)
 	{
-		final List<String> forms = new ArrayList<>();
 		Scriptable topLevel = ScriptableObject.getTopLevelScope(start);
-		DefaultJavaScope namesScope = new DefaultJavaScope(topLevel, Map.of())
-		{
-			@Override
-			public Object getDefaultValue(Class< ? > hint)
-			{
-				return toString();
-			}
-
-			@Override
-			public String toString()
-			{
-				StringBuilder sb = new StringBuilder("{");
-				String formsString = forms.stream()
-					.map(formName -> {
-						Object formNameNativeObject = get(formName, this);
-						return formName + ": " + (formNameNativeObject == null ? "null" : formNameNativeObject.toString());
-					})
-					.collect(Collectors.joining(", "));
-				sb.append(formsString).append("}");
-				return sb.toString();
-			}
-
-			@Override
-			public Object[] getIds()
-			{
-				return forms.toArray(new Object[0]);
-			}
-		};
+		ScriptableObject namesScope = new NativeObject();
+		namesScope.setParentScope(topLevel);
 
 		application.getFlattenedSolution().getForms(true)
-			.forEachRemaining(form -> forms.add(form.getName()));
-		for (String formName : forms)
-		{
-			namesScope.put(formName, namesScope, formName);
-		}
+			.forEachRemaining(form -> namesScope.put(form.getName(), namesScope, form.getName()));
 
 		return namesScope;
 	}
