@@ -331,8 +331,6 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 				{
 					try
 					{
-						sendUIProperties();
-
 						// the solution was not loaded or another was loaded, now create a main window and load the solution.
 						client.getRuntimeWindowManager().createMainWindow(CurrentWindow.get().getNr());
 						client.handleArguments(
@@ -348,6 +346,8 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 							setUserId();
 						}
 						client.loadSolution(solutionName);
+
+						sendUIProperties();
 						client.showInfoPanel();
 
 					}
@@ -403,7 +403,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 				Boolean.valueOf(Settings.getInstance().getProperty(Settings.TRUST_DATA_AS_HTML_SETTING, Boolean.FALSE.toString())));
 		}
 		clientProperties.put(Settings.TESTING_MODE,
-			Boolean.valueOf(Settings.getInstance().getProperty(Settings.TESTING_MODE, Boolean.FALSE.toString())));
+			Boolean.valueOf(Utils.isInTestingMode(client)));
 		getClientService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("setUIProperties", new Object[] { new JSONObject(clientProperties) });
 	}
 

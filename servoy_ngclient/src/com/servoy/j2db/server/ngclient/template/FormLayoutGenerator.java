@@ -63,7 +63,6 @@ import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
 import com.servoy.j2db.server.ngclient.WebFormUI;
 import com.servoy.j2db.server.ngclient.property.types.NGTabSeqPropertyType;
 import com.servoy.j2db.util.PersistHelper;
-import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -105,7 +104,7 @@ public class FormLayoutGenerator
 		return seq;
 	}
 
-	public static String generateFormComponent(Form form, FlattenedSolution fs, IFormElementCache cache)
+	public static String generateFormComponent(Form form, FlattenedSolution fs, IFormElementCache cache, IServoyDataConverterContext context)
 	{
 		StringWriter out = new StringWriter();
 		PrintWriter writer = new PrintWriter(out);
@@ -136,7 +135,7 @@ public class FormLayoutGenerator
 			// if (PartWrapper.isSecurityVisible(component, fs, form))
 			if (component instanceof LayoutContainer)
 			{
-				FormLayoutStructureGenerator.generateLayoutContainer((LayoutContainer)component, form, fs, writer, null, cache);
+				FormLayoutStructureGenerator.generateLayoutContainer((LayoutContainer)component, form, fs, writer, null, cache, context);
 			}
 			else if (component instanceof IFormElement)
 			{
@@ -145,7 +144,7 @@ public class FormLayoutGenerator
 				{
 					FormLayoutGenerator.generateFormElementWrapper(writer, fe, form, form.isResponsiveLayout());
 				}
-				FormLayoutGenerator.generateFormElement(writer, fe, form);
+				FormLayoutGenerator.generateFormElement(writer, fe, form, context);
 				if (form != null && !form.isResponsiveLayout())
 				{
 					FormLayoutGenerator.generateEndDiv(writer);
@@ -157,7 +156,7 @@ public class FormLayoutGenerator
 
 	public static void generateRecordViewForm(PrintWriter writer, Form form, String realFormName, IServoyDataConverterContext context, boolean design)
 	{
-		generateFormStartTag(writer, form, realFormName, false, design);
+		generateFormStartTag(writer, form, realFormName, false, design, context);
 		Iterator<Part> it = form.getParts();
 
 		if (design)
@@ -233,7 +232,7 @@ public class FormLayoutGenerator
 					}
 
 					generateFormElementWrapper(writer, fe, form, form.isResponsiveLayout());
-					generateFormElement(writer, fe, form);
+					generateFormElement(writer, fe, form, context);
 					generateEndDiv(writer);
 				}
 
@@ -244,7 +243,8 @@ public class FormLayoutGenerator
 		generateFormEndTag(writer, design);
 	}
 
-	public static void generateFormStartTag(PrintWriter writer, Form form, String realFormName, boolean responsiveMode, boolean design)
+	public static void generateFormStartTag(PrintWriter writer, Form form, String realFormName, boolean responsiveMode, boolean design,
+		IServoyDataConverterContext context)
 	{
 		if (design)
 		{
@@ -290,7 +290,7 @@ public class FormLayoutGenerator
 
 		}
 		else writer.print(String.format("<svy-formload formname=\"%1$s\"><div ng-controller=\"%1$s\" ", realFormName));
-		if (Utils.getAsBoolean(Settings.getInstance().getProperty("servoy.ngclient.testingMode", "false")))
+		if (Utils.isInTestingMode(context != null ? context.getApplication() : null))
 		{
 			writer.print(String.format("data-svy-name=\"%1$s\" ", realFormName));
 		}
@@ -514,7 +514,7 @@ public class FormLayoutGenerator
 //		return false;
 //	}
 
-	public static void generateFormElement(PrintWriter writer, FormElement fe, Form form)
+	public static void generateFormElement(PrintWriter writer, FormElement fe, Form form, IServoyDataConverterContext context)
 	{
 		IPersist fePersist = fe.getPersistIfAvailable();
 
@@ -524,7 +524,7 @@ public class FormLayoutGenerator
 		writer.print(" name='");
 		writer.print(name);
 		writer.print("'");
-		if (Utils.getAsBoolean(Settings.getInstance().getProperty("servoy.ngclient.testingMode", "false")))
+		if (Utils.isInTestingMode(context != null ? context.getApplication() : null))
 		{
 			String elementName = name;
 			if (elementName.startsWith("svy_") && fePersist != null)

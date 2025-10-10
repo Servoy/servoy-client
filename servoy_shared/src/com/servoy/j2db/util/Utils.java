@@ -109,6 +109,7 @@ import org.mozilla.javascript.xml.XMLObject;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IEventDelegator;
+import com.servoy.j2db.INGClientApplication;
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.MediaURLStreamHandler;
 import com.servoy.j2db.dataprocessing.FoundSet;
@@ -3781,6 +3782,19 @@ public final class Utils
 			}
 		}
 		return retval;
+	}
+
+	public static boolean isInTestingMode(INGClientApplication client)
+	{
+		if (client != null)
+		{
+			Object clientIsInTesting = client.getClientProperty(Settings.TESTING_MODE);
+			if (clientIsInTesting != null)
+			{
+				return Utils.getAsBoolean(clientIsInTesting);
+			}
+		}
+		return Utils.getAsBoolean(Settings.getInstance().getProperty(Settings.TESTING_MODE, "false"));
 	}
 
 }

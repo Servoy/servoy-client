@@ -466,15 +466,17 @@ public class NGClientEntryFilter extends WebEntry
 				if (uri.endsWith(".html"))
 				{
 					response.setContentType("text/html");
+					ServoyDataConverterContext context = wsSession != null ? new ServoyDataConverterContext(wsSession.getClient())
+						: new ServoyDataConverterContext(fs);
 					if (form.isResponsiveLayout())
 					{
 						FormLayoutStructureGenerator.generateLayout(form, formName, fs, writer,
-							design ? new DesignProperties(request.getParameter("cont")) : null);
+							design ? new DesignProperties(request.getParameter("cont")) : null, context);
 					}
 					else
 					{
 						FormLayoutGenerator.generateRecordViewForm(writer, form, formName,
-							wsSession != null ? new ServoyDataConverterContext(wsSession.getClient()) : new ServoyDataConverterContext(fs), design);
+							context, design);
 					}
 				}
 				else if (uri.endsWith(".js"))

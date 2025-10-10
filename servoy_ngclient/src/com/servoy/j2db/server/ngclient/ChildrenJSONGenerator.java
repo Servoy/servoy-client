@@ -71,7 +71,6 @@ import com.servoy.j2db.server.ngclient.template.FormLayoutGenerator;
 import com.servoy.j2db.server.ngclient.template.FormLayoutStructureGenerator;
 import com.servoy.j2db.server.ngclient.template.FormTemplateGenerator;
 import com.servoy.j2db.server.ngclient.template.PersistIdentifier;
-import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -430,7 +429,7 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 			}
 
 			// note that this if is in ServoyAttributesPropertyType as well
-			if (Utils.getAsBoolean(Settings.getInstance().getProperty("servoy.ngclient.testingMode", "false")))
+			if (Utils.isInTestingMode(context.getApplication()))
 			{
 				String elementCypressIdentifier = name;
 				if (elementCypressIdentifier.startsWith("svy_") && o.getUUID() != null)

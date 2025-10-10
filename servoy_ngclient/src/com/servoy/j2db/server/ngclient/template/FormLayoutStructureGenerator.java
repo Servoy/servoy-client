@@ -51,6 +51,7 @@ import com.servoy.j2db.persistence.PositionComparator;
 import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.FormElementHelper;
 import com.servoy.j2db.server.ngclient.IFormElementCache;
+import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.Utils;
@@ -77,22 +78,24 @@ public class FormLayoutStructureGenerator
 		}
 	}
 
-	public static void generateLayout(Form form, String realFormName, FlattenedSolution fs, PrintWriter writer, DesignProperties design)
+	public static void generateLayout(Form form, String realFormName, FlattenedSolution fs, PrintWriter writer, DesignProperties design,
+		IServoyDataConverterContext context)
 	{
 		try
 		{
-			FormLayoutGenerator.generateFormStartTag(writer, form, realFormName, false, design != null);
+			FormLayoutGenerator.generateFormStartTag(writer, form, realFormName, false, design != null, context);
 			Iterator<IPersist> components = form.getAllObjects(PositionComparator.XY_PERSIST_COMPARATOR);
 			while (components.hasNext())
 			{
 				IPersist component = components.next();
 				if (component instanceof LayoutContainer)
 				{
-					generateLayoutContainer((LayoutContainer)component, form, fs, writer, design, FormElementHelper.INSTANCE);
+					generateLayoutContainer((LayoutContainer)component, form, fs, writer, design, FormElementHelper.INSTANCE, context);
 				}
 				else if (component instanceof IFormElement)
 				{
-					FormLayoutGenerator.generateFormElement(writer, FormElementHelper.INSTANCE.getFormElement((IFormElement)component, fs, null, false), form);
+					FormLayoutGenerator.generateFormElement(writer, FormElementHelper.INSTANCE.getFormElement((IFormElement)component, fs, null, false), form,
+						context);
 				}
 			}
 			FormLayoutGenerator.generateFormEndTag(writer, design != null);
@@ -110,7 +113,7 @@ public class FormLayoutStructureGenerator
 	}
 
 	public static void generateLayoutContainer(LayoutContainer container, Form form, FlattenedSolution fs, PrintWriter writer, DesignProperties design,
-		IFormElementCache cache)
+		IFormElementCache cache, IServoyDataConverterContext context)
 	{
 		WebLayoutSpecification spec = null;
 		if (container.getPackageName() != null)
@@ -260,7 +263,7 @@ public class FormLayoutStructureGenerator
 			IPersist component = components.next();
 			if (component instanceof LayoutContainer)
 			{
-				generateLayoutContainer((LayoutContainer)component, form, fs, writer, design, cache);
+				generateLayoutContainer((LayoutContainer)component, form, fs, writer, design, cache, context);
 			}
 			else if (component instanceof IFormElement)
 			{
@@ -273,7 +276,7 @@ public class FormLayoutStructureGenerator
 				{
 					FormLayoutGenerator.generateFormElementWrapper(writer, fe, form, false);
 				}
-				FormLayoutGenerator.generateFormElement(writer, fe, form);
+				FormLayoutGenerator.generateFormElement(writer, fe, form, context);
 				if (isCSSPositionContainer)
 				{
 					FormLayoutGenerator.generateEndDiv(writer);

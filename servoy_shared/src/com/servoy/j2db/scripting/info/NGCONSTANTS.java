@@ -20,6 +20,7 @@ import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.IPrefixedConstantsObject;
+import com.servoy.j2db.util.Settings;
 
 /**
  * <p>The NGClient/Titanium Client constants provide essential configurations to
@@ -134,6 +135,16 @@ public class NGCONSTANTS implements IPrefixedConstantsObject
 	 *
 	 */
 	public static final String VALUELIST_CONTAINS_SEARCH = IApplication.VALUELIST_CONTAINS_SEARCH;
+
+	/**
+	 * The client property that can be set on a client to enable testing mode. Default value is false. When set to true, the client will generate stable html element ids so that tests can be run.
+	 * This is a client specific variant of the global setting servoy.ngclient.testingMode (in servoy.properties).
+	 *
+	 * @sample
+	 * application.putClientProperty(NGCONSTANTS.TESTING_MODE, true);
+	 *
+	 */
+	public static final String TESTING_MODE = Settings.TESTING_MODE;
 
 	public String getPrefix()
 	{

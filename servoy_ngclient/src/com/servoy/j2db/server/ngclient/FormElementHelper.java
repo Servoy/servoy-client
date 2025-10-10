@@ -225,7 +225,7 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 				return FormElementHelper.INSTANCE.getFormElement(component, flattendSol, path, design);
 			}
 		};
-		String template = FormLayoutGenerator.generateFormComponent(frm, fs, cache);
+		String template = FormLayoutGenerator.generateFormComponent(frm, fs, cache, null);
 		return new FormComponentCache(list, template, frm.getUUID().toString());
 	}
 

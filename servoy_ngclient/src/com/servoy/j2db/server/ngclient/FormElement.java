@@ -48,6 +48,7 @@ import org.sablo.websocket.utils.JSONUtils;
 import org.sablo.websocket.utils.PropertyUtils;
 
 import com.servoy.j2db.FlattenedSolution;
+import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.Bean;
 import com.servoy.j2db.persistence.CSSPositionUtils;
@@ -77,7 +78,6 @@ import com.servoy.j2db.server.ngclient.utils.MiniMap;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.ServoyJSONObject;
-import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -463,7 +463,7 @@ public final class FormElement implements INGFormElement
 		if (name == null)
 		{
 			if (getPersistIfAvailable() != null && getPersistIfAvailable().getUUID() != null &&
-				Utils.getAsBoolean(Settings.getInstance().getProperty("servoy.ngclient.testingMode", "false")))
+				Utils.isInTestingMode(J2DBGlobals.getServiceProvider() instanceof INGApplication ngApp ? ngApp : null))
 			{
 				name = SVY_NAME_PREFIX + getPersistIfAvailable().getUUID();
 			}
