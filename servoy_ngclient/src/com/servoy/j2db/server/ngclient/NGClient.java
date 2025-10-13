@@ -87,6 +87,7 @@ import com.servoy.j2db.scripting.GlobalScope;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.scripting.JSBlobLoaderBuilder;
 import com.servoy.j2db.scripting.PluginScope;
+import com.servoy.j2db.scripting.StartupArguments;
 import com.servoy.j2db.scripting.info.EventType;
 import com.servoy.j2db.scripting.info.NGCONSTANTS;
 import com.servoy.j2db.server.headlessclient.AbstractApplication;
@@ -119,6 +120,7 @@ import com.servoy.j2db.util.RendererParentWrapper;
 import com.servoy.j2db.util.SecuritySupport;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.ServoyScheduledExecutor;
+import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 
@@ -2038,6 +2040,16 @@ public class NGClient extends AbstractApplication
 	public String getMediaURL(String mediaName)
 	{
 		return MediaPropertyType.getMediaUrl(mediaName, getFlattenedSolution(), this);
+	}
+
+	@Override
+	public void handleArguments(String args[], StartupArguments argumentsScope)
+	{
+		super.handleArguments(args, argumentsScope);
+		if (argumentsScope != null && argumentsScope.containsKey("svy_testmode"))
+		{
+			putClientProperty(Settings.TESTING_MODE, Boolean.valueOf(Utils.getAsBoolean(argumentsScope.get("svy_testmode"))));
+		}
 	}
 
 }
