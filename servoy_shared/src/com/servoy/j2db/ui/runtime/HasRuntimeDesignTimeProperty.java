@@ -37,7 +37,7 @@ public interface HasRuntimeDesignTimeProperty
 	 * @sample
 	 * var prop = forms.orders.elements.mylabel.getDesignTimeProperty('myprop')
 	 *
-	 * @return A map of all design-time properties for the element.
+	 * @return The value of the specified design-time property.
 	 */
 	@JSFunction
 	public Object getDesignTimeProperty(String key);
@@ -47,7 +47,7 @@ public interface HasRuntimeDesignTimeProperty
 	 * @sample
 	 * var prop = forms.orders.elements.mylabel.getDesignProperties()
 	 *
-	 * @return The value of the specified design-time property.
+	 * @return A map of all design-time properties for the element.
 	 */
 	@JSFunction
 	public Map<String, Object> getDesignProperties();

@@ -54,7 +54,7 @@ public interface HasRuntimeStyleClass
 	public void removeStyleClass(String styleName);
 
 	/**
-	 * Check if an element already have a style from the styleClass property.
+	 * Check if an element already has a style from the styleClass property.
 	 *
 	 * @param styleName the name of the style class to be checked
 	 *

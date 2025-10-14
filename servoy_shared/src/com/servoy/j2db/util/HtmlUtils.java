@@ -615,7 +615,9 @@ public class HtmlUtils
 	{
 		if (description == null) return null;
 
-		String desc = TextUtils.newLinesToBackslashN(description);
+		// first strip down comment start/middle/end chars (/**, *, */).
+		String desc = TextUtils.stripCommentStartMiddleAndEndChars(description);
+		desc = TextUtils.newLinesToBackslashN(desc);
 
 		if (!desc.contains("<") && formattedPlainTextHintPattern.matcher(desc).matches())
 		{
