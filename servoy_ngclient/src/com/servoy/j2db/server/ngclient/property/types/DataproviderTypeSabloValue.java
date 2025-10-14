@@ -776,7 +776,16 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 			// in UI show only strings in find mode (just like SC/WC do); if they are something else like real dates/numbers which could happen
 			// from scripting, then show string representation
 			EmbeddableJSONWriter ejw = new EmbeddableJSONWriter(true); // that 'true' is a workaround for allowing directly a value instead of object or array
-			ejw.value(uiValue instanceof String ? uiValue : (uiValue != null ? String.valueOf(uiValue) : ""));
+			Object value = null;
+			if (isMultiselect != null && isMultiselect.booleanValue() && uiValue instanceof String)
+			{
+				value = Utils.getTokenElements((String)value, "\n", false);
+			}
+			else
+			{
+				value = uiValue instanceof String ? uiValue : (uiValue != null ? String.valueOf(uiValue) : "");
+			}
+			ejw.value(value);
 			jsonValueRepresentation = new JSONStringWithClientSideType(ejw.toJSONString(), null);
 		}
 		else if (typeOfDP != null && !valuelistDisplayValue && !Boolean.TRUE.equals(isMultiselect)) // if multiselect then just send the value as is (array or string with \n)
