@@ -188,13 +188,13 @@ public class JSUpload implements IUploadData, IJavaScriptType, IFile
 	 */
 	public File getFile()
 	{
-		if (item instanceof DiskFileItem)
+		if (item instanceof DiskFileItem dfi && dfi.getPath() != null)
 		{
-			return ((DiskFileItem)item).getPath().toFile();
+			return dfi.getPath().toFile();
 		}
-		else if (item instanceof IFile)
+		else if (item instanceof IFile file)
 		{
-			return ((IFile)item).getFile();
+			return file.getFile();
 		}
 		return null;
 	}
