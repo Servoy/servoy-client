@@ -1,4 +1,4 @@
-/**
+/*
  * Servoy Core Slider Component.
  * A component for selecting a value or range of values using a draggable handle.
  */

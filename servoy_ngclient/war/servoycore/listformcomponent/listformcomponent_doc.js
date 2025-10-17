@@ -1,4 +1,7 @@
-/** listformcomponent_doc.js */
+/*
+ * List Form Component Component embeds a Form Component within a repeater-container-component.<br/>
+ * The Form Component set in "containedForm" will be repeated once for each record of "foundset". 
+ */
 
 /**
  * Reference to the foundset bound to the component for displaying data.
@@ -6,7 +9,7 @@
 var foundset;
 
 /**
- * Specifies the form that is embedded within the list form component.
+ * Specifies the Form Component that is embedded/repeated within the list form component.
  */
 var containedForm;
 

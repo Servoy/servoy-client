@@ -1,4 +1,4 @@
-/**
+/*
  * Provides record navigation controls and form switching functionality.
  */
 

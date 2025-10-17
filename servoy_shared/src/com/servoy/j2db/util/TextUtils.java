@@ -25,13 +25,11 @@ import java.util.regex.Pattern;
 public class TextUtils
 {
 
-	private static Pattern regexP1 = Pattern.compile("(?m:^\\s*/\\*\\* )"); // /**space
-	private static Pattern regexP2 = Pattern.compile("(?m:^\\s*/\\*\\*)"); // /**
-	private static Pattern regexP3 = Pattern.compile("(?m:^\\s*/\\* )"); // /*space
-	private static Pattern regexP4 = Pattern.compile("(?m:^\\s*/\\*)"); // /*
-	private static Pattern regexP5 = Pattern.compile("(?m:\\s*\\*/)"); // */
-	private static Pattern regexP6 = Pattern.compile("(?m:^\\s*\\* )"); // *space
-	private static Pattern regexP7 = Pattern.compile("(?m:^\\s*\\*)"); // *
+	private static Pattern regexP1 = Pattern.compile("(^\\s*/\\*\\*\\s*)");
+	private static Pattern regexP2 = Pattern.compile("(^\\s*/\\*\\s*)");
+	private static Pattern regexP3 = Pattern.compile("(\\s*\\*/)");
+	// ?m: in there means that it's using multi-line mode; ^ then matches each line not just string start
+	private static Pattern regexP4 = Pattern.compile("(?m:^\\s*\\* ?)");
 
 	/**
 	 * This only strips down some whitespace as well as start/end block comment chars. It does not look for one line comments, so //.
@@ -39,13 +37,14 @@ public class TextUtils
 	public static String stripCommentStartMiddleAndEndChars(String doc)
 	{
 		String stripped = doc;
-		stripped = regexP1.matcher(stripped).replaceAll("");
-		stripped = regexP2.matcher(stripped).replaceAll("");
-		stripped = regexP3.matcher(stripped).replaceAll("");
-		stripped = regexP4.matcher(stripped).replaceAll("");
-		stripped = regexP5.matcher(stripped).replaceAll("");
-		stripped = regexP6.matcher(stripped).replaceAll("");
-		return regexP7.matcher(stripped).replaceAll("");
+
+		// @formatter:off
+		stripped = regexP1.matcher(stripped).replaceFirst(""); //    /** regex
+		stripped = regexP2.matcher(stripped).replaceFirst(""); //    /*  regex
+		stripped = regexP3.matcher(stripped).replaceFirst(""); //    */  regex
+		stripped = regexP4.matcher(stripped).replaceAll("");   //    *   regex
+		// @formatter:on
+		return stripped;
 	}
 
 	public static String newLinesToBackslashN(String source)

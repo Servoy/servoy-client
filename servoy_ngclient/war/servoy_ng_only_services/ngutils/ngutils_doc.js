@@ -1,3 +1,7 @@
+/*
+ * A service that provides utility methods for NG/Titanium client. 
+ */
+
 /**
  * Constant representing the default viewport settings for mobile devices.
  * This setting allows zooming in and out while displaying content correctly on mobile.
@@ -27,8 +31,6 @@ var VIEWPORT_MOBILE_DENY_ZOOM_IN;
  * These tags are added to the DOM for customizing meta and other header tags at runtime.
  */
 var contributedTags;
-
-
 
 /**
  * This will register a callback that will be triggered on all history/window popstate events (back,forward but also next main form).

@@ -1,5 +1,5 @@
-/**
- * Servoy Core Error Bean Component displays an error message when a resource is missing or an error occurs.
+/*
+ * Servoy Core Error Bean Component displays an error message when a component that is used in the solution cannot be found.
  */
 
 /**

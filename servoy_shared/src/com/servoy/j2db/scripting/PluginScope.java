@@ -36,10 +36,6 @@ public class PluginScope extends DefaultScope
 {
 	private volatile IApplication application;
 
-	/**
-	 * @param toplevelScope
-	 * @param application2
-	 */
 	public PluginScope(Scriptable toplevelScope, IApplication application)
 	{
 		super(toplevelScope);
@@ -54,9 +50,6 @@ public class PluginScope extends DefaultScope
 		this.application = null;
 	}
 
-	/**
-	 * @see com.servoy.j2db.scripting.DefaultScope#get(java.lang.String, org.mozilla.javascript.Scriptable)
-	 */
 	@Override
 	public Object get(String name, Scriptable start)
 	{
@@ -169,9 +162,6 @@ public class PluginScope extends DefaultScope
 		return name;
 	}
 
-	/**
-	 * @see com.servoy.j2db.scripting.DefaultScope#getIds()
-	 */
 	@Override
 	public Object[] getIds()
 	{

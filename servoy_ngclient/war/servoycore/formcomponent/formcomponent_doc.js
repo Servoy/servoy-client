@@ -1,7 +1,11 @@
-/**
- * Form Component Container embeds a form within a container that supports both anchored and responsive layouts.
+/*
+ * Form Component Component embeds a Form Component within a container-component.<br/>
+ * It supports both anchored and responsive layouts.
  */
 
+/**
+ * The Form Component that is contained/to be shown by this Form Component Component. 
+ */
 var containedForm;
 
 /**

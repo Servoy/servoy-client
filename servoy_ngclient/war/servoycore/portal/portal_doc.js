@@ -1,5 +1,6 @@
-/**
- * A Servoy Extra Component that displays a portal for viewing and editing related foundset records.
+/*
+ * The implementation of the old table view/list view (Smart/WebClient) forms for NG1. It is for NG1.<br/>
+ * It is no longer available in Titanium client; Servoy Extra Component's Table, Nggrids (Data/Power Grid) or core List Form Component can be used instead.
  */
 
 /**

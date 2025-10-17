@@ -1,6 +1,7 @@
-/**
+/*
  * Servoy Core Form Container Component embeds a form within a container that supports both anchored and responsive layouts.
  */
+
 /**
  * Defines the animation to be applied when the form container is shown or hidden.
  */

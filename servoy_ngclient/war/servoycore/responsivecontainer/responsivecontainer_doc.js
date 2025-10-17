@@ -1,4 +1,4 @@
-/**
+/*
  * A container component for embedding forms with responsive layout and custom styling.
  */
 

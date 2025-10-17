@@ -1,3 +1,6 @@
+/*
+ * A service that can be used for working with popup forms/menus, shortcuts etc.
+ */
 
 /**
  * Creates a new empty popup menu

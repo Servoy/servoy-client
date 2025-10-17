@@ -1,3 +1,8 @@
+/*
+ * A service for working quickly with simple dialogs in NG/Titanium client.<br/>
+ * For more complex modal windows/popups you can use use modal windows from the "application" node or popups offered by the "window" plugin.
+ */
+
 /**
  * Shows an error dialog with the specified title, message and a customizable set of buttons.
  *
