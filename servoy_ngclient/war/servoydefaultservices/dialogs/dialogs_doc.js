@@ -9,10 +9,12 @@
  * @example
  * //show dialog
  * var thePressedButton = plugins.dialogs.showErrorDialog('Title', 'Value not allowed','OK', 'Cancel');
+ * //show dialog with focus on second button (index 1)
+ * var thePressedButton = plugins.dialogs.showErrorDialog('Title', 'Value not allowed','OK', 'Cancel', 1);
  *
  * @param {String} dialogTitle Dialog title.
  * @param {String} dialogMessage Dialog message.
- * @param {String...} [buttonsText] variable arguments of button texts..
+ * @param {String...} [buttonsText] variable arguments of button texts. The last argument can be a number specifying the index (0-based) of the button to focus and highlight.
  * 
  * @return {String} pressed button or null if closed by escape key
  */
@@ -24,10 +26,12 @@ function showErrorDialog(dialogTitle,dialogMessage,buttonsText) {}
  * @example
  * //show dialog
  * var thePressedButton = plugins.dialogs.showInfoDialog('Title', 'Value not allowed','OK', 'Cancel');
+ * //show dialog with focus on second button (index 1)
+ * var thePressedButton = plugins.dialogs.showInfoDialog('Title', 'Value not allowed','OK', 'Cancel', 1);
  *
  * @param {String} dialogTitle Dialog title.
  * @param {String} [dialogMessage] Dialog message.
- * @param {String...} [buttonsText] variable arguments of button texts..
+ * @param {String...} [buttonsText] variable arguments of button texts. The last argument can be a number specifying the index (0-based) of the button to focus and highlight.
  * 
  * @return {String} The text of the button that was pressed by the user, or null if the dialog was closed without selection.
  */
@@ -39,10 +43,12 @@ function showInfoDialog(dialogTitle,dialogMessage,buttonsText) {}
  * @example
  * //show dialog
  * var thePressedButton = plugins.dialogs.showQuestionDialog('Title', 'Value not allowed','OK', 'Cancel');
+ * //show dialog with focus on second button (index 1)
+ * var thePressedButton = plugins.dialogs.showQuestionDialog('Title', 'Value not allowed','OK', 'Cancel', 1);
  *
  * @param {String} dialogTitle Dialog title.
  * @param {String} dialogMessage Dialog message.
- * @param {String...} [buttonsText] variable arguments of button texts..
+ * @param {String...} [buttonsText] variable arguments of button texts. The last argument can be a number specifying the index (0-based) of the button to focus and highlight.
  * 
  * @return {String} The text of the button that was pressed by the user.
  */
@@ -88,10 +94,12 @@ function showSelectDialog(dialogTitle,dialogMessage,options) { }
 * @example
 * //show dialog
 * var thePressedButton = plugins.dialogs.showWarningDialog('Title', 'Value not allowed','OK', 'Cancel');
+* //show dialog with focus on second button (index 1)
+* var thePressedButton = plugins.dialogs.showWarningDialog('Title', 'Value not allowed','OK', 'Cancel', 1);
 *
 * @param {String} dialogTitle Dialog title.
 * @param {String} dialogMessage Dialog message.
-* @param {String...} [buttonsText] variable arguments of button texts.
+* @param {String...} [buttonsText] variable arguments of button texts. The last argument can be a number specifying the index (0-based) of the button to focus and highlight.
 *
 * @return {String} pressed button text
 */
