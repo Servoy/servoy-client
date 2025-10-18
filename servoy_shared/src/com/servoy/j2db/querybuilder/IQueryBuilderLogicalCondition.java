@@ -18,6 +18,8 @@
 package com.servoy.j2db.querybuilder;
 
 import com.servoy.j2db.persistence.RepositoryException;
+import com.servoy.j2db.querybuilder.impl.QBLogicalCondition;
+import com.servoy.j2db.scripting.annotations.JSRealClass;
 
 /**
  * Logical condition (AND or OR clause) for building Servoy Query Objects.
@@ -26,7 +28,7 @@ import com.servoy.j2db.persistence.RepositoryException;
  *
  * @since 6.1
  */
-
+@JSRealClass(QBLogicalCondition.class)
 public interface IQueryBuilderLogicalCondition extends IQueryBuilderCondition
 {
 	/**

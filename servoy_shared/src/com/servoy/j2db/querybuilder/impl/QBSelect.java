@@ -58,6 +58,7 @@ import com.servoy.j2db.query.OrCondition;
 import com.servoy.j2db.query.Placeholder;
 import com.servoy.j2db.query.QueryColumnValue;
 import com.servoy.j2db.query.QuerySelect;
+import com.servoy.j2db.query.SortOptions;
 import com.servoy.j2db.query.TablePlaceholderKey;
 import com.servoy.j2db.querybuilder.IQueryBuilder;
 import com.servoy.j2db.querybuilder.IQueryBuilderCondition;
@@ -922,6 +923,16 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 			}
 		}
 		return queryTable;
+	}
+
+	/**
+	 * RAGTEST doc
+	 * @param querySelectValue
+	 * @return
+	 */
+	public SortOptions getSortOptions(IQuerySelectValue querySelectValue)
+	{
+		return tableProvider.getSortOptions(tableProvider.resolveColumn(querySelectValue.getColumn()));
 	}
 
 	IQuerySelectValue[] createOperands(Object[] values, BaseColumnType columnType, int flags)

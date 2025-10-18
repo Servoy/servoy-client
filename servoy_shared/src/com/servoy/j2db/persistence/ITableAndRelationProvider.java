@@ -19,7 +19,9 @@ package com.servoy.j2db.persistence;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.dataprocessing.IDataSet;
 import com.servoy.j2db.dataprocessing.IFoundSet;
+import com.servoy.j2db.query.QueryColumn;
 import com.servoy.j2db.query.QuerySelect;
+import com.servoy.j2db.query.SortOptions;
 import com.servoy.j2db.querybuilder.IQueryBuilder;
 import com.servoy.j2db.util.ServoyException;
 
@@ -38,21 +40,28 @@ public interface ITableAndRelationProvider
 	 * @param dataSource the datasource
 	 * @return the table interface
 	 */
-	public ITable getTable(String dataSource) throws RepositoryException;
+	ITable getTable(String dataSource) throws RepositoryException;
 
 	/**
 	 * Get relation by name for current solution
 	 * @param relationName
 	 * @return
 	 */
-	public IRelation getRelation(String relationName);
+	IRelation getRelation(String relationName);
 
 	/**
 	 * Find the data source of the table with given sql name in same server as serverDataSource
 	 * @param serverDataSource
 	 * @param tableSQLName
 	 */
-	public String resolveDataSource(String serverDataSource, String tableSQLName);
+	String resolveDataSource(String serverDataSource, String tableSQLName);
+
+	/** RAGTEST doc
+	 * Find the data source of the table with given sql name in same server as serverDataSource
+	 * @param serverDataSource
+	 * @param tableSQLName
+	 */
+	IColumn resolveColumn(QueryColumn qColumn);
 
 	/**
 	 * Get the QuerySet for a QuerySelect select.
@@ -60,15 +69,15 @@ public interface ITableAndRelationProvider
 	 * @param select the QuerySelect
 	 * @param includeFilters include table filters option
 	 */
-	public QuerySet getQuerySet(QuerySelect select, boolean includeFilters) throws RepositoryException;
+	QuerySet getQuerySet(QuerySelect select, boolean includeFilters) throws RepositoryException;
 
-	public IApplication getApplication();
+	IApplication getApplication();
 
 	/**
 	 * Get a new foundset for the query.
 	 * @since 6.1
 	 */
-	public IFoundSet getFoundSet(IQueryBuilder query) throws ServoyException;
+	IFoundSet getFoundSet(IQueryBuilder query) throws ServoyException;
 
 	/**
 	 * Performs a sql query with a query builder object.
@@ -82,5 +91,14 @@ public interface ITableAndRelationProvider
 	 *
 	 * @since 8.0
 	 */
-	public IDataSet getDataSetByQuery(IQueryBuilder query, boolean useTableFilters, int max_returned_rows) throws ServoyException;
+	IDataSet getDataSetByQuery(IQueryBuilder query, boolean useTableFilters, int max_returned_rows) throws ServoyException;
+
+	/**
+	 * RAGTEST doc
+	 * @param dataSource
+	 * @param columnSqlName
+	 * @return
+	 */
+	SortOptions getSortOptions(IColumn column);
+
 }

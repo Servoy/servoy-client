@@ -17,10 +17,11 @@
 
 package com.servoy.j2db.querybuilder;
 
+import com.servoy.j2db.querybuilder.impl.QBNullPrecedence;
 
 /**
  * A sorting column in Servoy Query Objects.
- * 
+ *
  * @author rgansevles
  *
  * @since 6.1
@@ -28,4 +29,17 @@ package com.servoy.j2db.querybuilder;
 
 public interface IQueryBuilderSort extends IQueryBuilderPart
 {
+	/** RAGTEST doc
+	 * Constant for join types.
+	 * @see #on()
+	 */
+	static final QBNullPrecedence NULLS_FIRST = QBNullPrecedence.nullsFirst;
+	static final QBNullPrecedence NULLS_LAST = QBNullPrecedence.nullsLast;
+	static final QBNullPrecedence DATABASE_DEFAULT = QBNullPrecedence.databaseDefault;
+
+
+	IQueryBuilderSort ignoreCase(boolean newIgnoreCase);
+
+	IQueryBuilderSort nullPrecedence(QBNullPrecedence newNullPrecedence);
+
 }

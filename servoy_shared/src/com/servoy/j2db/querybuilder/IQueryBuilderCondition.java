@@ -17,15 +17,18 @@
 
 package com.servoy.j2db.querybuilder;
 
+import com.servoy.j2db.querybuilder.impl.QBCondition;
+import com.servoy.j2db.scripting.annotations.JSRealClass;
 
 /**
  * Condition expression in Servoy Query Objects.
- * 
+ *
  * @author rgansevles
  *
  * @since 6.1
  */
 
+@JSRealClass(QBCondition.class)
 public interface IQueryBuilderCondition extends IQueryBuilderPart
 {
 }

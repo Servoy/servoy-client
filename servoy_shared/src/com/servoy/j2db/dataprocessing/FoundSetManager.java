@@ -120,6 +120,7 @@ import com.servoy.j2db.query.ISQLJoin;
 import com.servoy.j2db.query.ISQLSelect;
 import com.servoy.j2db.query.Placeholder;
 import com.servoy.j2db.query.QueryAggregate;
+import com.servoy.j2db.query.QueryColumn;
 import com.servoy.j2db.query.QueryColumnValue;
 import com.servoy.j2db.query.QueryDelete;
 import com.servoy.j2db.query.QuerySelect;
@@ -240,6 +241,41 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		}
 
 		return SortOptions.NONE.withIgnoreCase(ignoreCase).withNullprecedence(sortingNullprecedence);
+	}
+
+	public IColumn resolveColumn(QueryColumn qColumn)
+	{
+		try
+		{
+			if (qColumn != null)
+			{
+				String dataSource = qColumn.getTable().getDataSource();
+				String serverName = getDataSourceServerName(dataSource);
+				if (serverName != null)
+				{
+					// First defined at server level
+					IServer server = application.getSolution().getServer(serverName);
+					if (server != null)
+					{
+						String tableName = getDataSourceTableName(dataSource);
+						if (tableName != null)
+						{
+							ITable table = server.getTable(tableName);
+							if (table != null)
+							{
+								return table.getColumnBySqlname(qColumn.getName());
+							}
+						}
+					}
+				}
+			}
+		}
+		catch (RemoteException | RepositoryException e)
+		{
+			Debug.error("Exception resolving column", e);
+		}
+
+		return null;
 	}
 
 	/**
@@ -2391,7 +2427,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 				IDataServer ds = application.getDataServer();
 				if (foundset.getQuerySelectForReading() instanceof QuerySelect sqlString)
 				{
-					String serverName = DataSourceUtils.getDataSourceServerName(sqlString.getTable().getDataSource());
+					String serverName = getDataSourceServerName(sqlString.getTable().getDataSource());
 					String transaction_id = getTransactionID(serverName);
 					QuerySelect selectCountSQLString = sqlString.getSelectCount("n", true); //$NON-NLS-1$
 					IDataSet set = ds.performQuery(application.getClientID(), serverName, transaction_id, selectCountSQLString, null,
