@@ -781,6 +781,11 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 			{
 				value = Utils.getTokenElements((String)value, "\n", false);
 			}
+			else if (isMultiselect != null && isMultiselect.booleanValue() && value == null && getDataProviderConfig() != null &&
+				"true".equals(getDataProviderConfig().getMultiselect()))
+			{
+				value = new String[] { null };
+			}
 			else
 			{
 				value = uiValue instanceof String ? uiValue : (uiValue != null ? String.valueOf(uiValue) : "");
@@ -862,9 +867,16 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 		else
 		{
 			Object value = uiValue;
-			if (isMultiselect != null && isMultiselect.booleanValue() && value instanceof String)
+			if (isMultiselect != null && isMultiselect.booleanValue())
 			{
-				value = Utils.getTokenElements((String)value, "\n", false);
+				if (value instanceof String)
+				{
+					value = Utils.getTokenElements((String)value, "\n", false);
+				}
+				else if (value == null && getDataProviderConfig() != null && "true".equals(getDataProviderConfig().getMultiselect()))
+				{
+					value = new String[] { null };
+				}
 			}
 			EmbeddableJSONWriter ejw = new EmbeddableJSONWriter(true); // that 'true' is a workaround for allowing directly a value instead of object or array
 			ejw.value(value);
