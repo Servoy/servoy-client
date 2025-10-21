@@ -47,6 +47,7 @@ import com.servoy.j2db.server.ngclient.property.types.FormComponentPropertyType;
 import com.servoy.j2db.ui.IMediaFieldConstants;
 import com.servoy.j2db.util.Debug;
 
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -86,6 +87,7 @@ public abstract class AbstractMediaResourceServlet extends HttpServlet
 		return wsSession != null ? wsSession.getClient() : null;
 	}
 
+	@SuppressWarnings("nls")
 	protected INGClientWebsocketSession getSession(HttpServletRequest request, int clientnr)
 	{
 		INGClientWebsocketSession session = null;
@@ -97,8 +99,24 @@ public abstract class AbstractMediaResourceServlet extends HttpServlet
 		}
 		if (session == null && clientnr > 0)
 		{
+			String jsessionId = "null";
+			if (httpSession == null)
+			{
+				Cookie[] cookies = request.getCookies();
+				if (cookies != null)
+				{
+					for (Cookie cookie : cookies)
+					{
+						if ("JSESSIONID".equals(cookie.getName()))
+						{
+							jsessionId = cookie.getValue();
+							break;
+						}
+					}
+				}
+			}
 			Debug.warn("Could not find client with id " + clientnr + " for media request " + request.getRequestURI() +
-				". HttpSession: " + (httpSession != null ? httpSession.getId() : "null"));
+				". HttpSession: " + (httpSession != null ? httpSession.getId() : "null") + " jsessionId: " + jsessionId);
 		}
 		return session;
 	}
