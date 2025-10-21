@@ -140,6 +140,28 @@ public class I18NUtil
 
 				List<Column> tenantColumns = i18NTable.getTenantColumns();
 
+				QueryInsert insert = new QueryInsert(messagesTable);
+				QueryInsert insertForNullLanguage = new QueryInsert(messagesTable);
+				QueryColumn[] insertColumns = null;
+				QueryColumn[] insertColumnsForNullLanguage = null;
+				if (logIdIsServoyManaged)
+				{
+					insertColumns = new QueryColumn[] { pkCol, msgKey, msgLang, msgVal };
+					insertColumnsForNullLanguage = new QueryColumn[] { pkCol, msgKey, msgVal };
+				}
+				else
+				{
+					insertColumns = new QueryColumn[] { msgKey, msgLang, msgVal };
+					insertColumnsForNullLanguage = new QueryColumn[] { msgKey, msgVal };
+				}
+				Column filterColumn = i18NTable.getColumn(filterName);
+				if (filterColumn != null && filterValue != null && filterValue.length > 0)
+				{
+					insertColumns = Utils.arrayAdd(insertColumns, filterColumn.queryColumn(messagesTable), true);
+					insertColumnsForNullLanguage = Utils.arrayAdd(insertColumnsForNullLanguage, filterColumn.queryColumn(messagesTable), true);
+				}
+				Object[][] insertColumnValuesListForBatch = new Object[insertColumns.length][];
+				Object[][] insertColumnValuesListForBatchWithNullLanguage = new Object[insertColumnsForNullLanguage.length][];
 				for (Entry<String, MessageEntry> messageEntry : messages.entrySet())
 				{
 					String key = messageEntry.getKey();
@@ -150,20 +172,16 @@ public class I18NUtil
 
 					if (!remoteMessages.containsKey(key)) // insert
 					{
-						QueryInsert insert = new QueryInsert(messagesTable);
-						QueryColumn[] insertColumns = null;
 						Object[] insertColumnValues = null;
 						if (logIdIsServoyManaged)
 						{
 							Object messageId = dataServer.getNextSequence(i18NServerName, i18NTableName, pkColumn.getName(), null, i18NServerName);
 							if (lang == null)
 							{
-								insertColumns = new QueryColumn[] { pkCol, msgKey, msgVal };
 								insertColumnValues = new Object[] { messageId, messageKey, value };
 							}
 							else
 							{
-								insertColumns = new QueryColumn[] { pkCol, msgKey, msgLang, msgVal };
 								insertColumnValues = new Object[] { messageId, messageKey, lang, value };
 							}
 						}
@@ -171,26 +189,30 @@ public class I18NUtil
 						{
 							if (lang == null)
 							{
-								insertColumns = new QueryColumn[] { msgKey, msgVal };
 								insertColumnValues = new Object[] { messageKey, value };
 							}
 							else
 							{
-								insertColumns = new QueryColumn[] { msgKey, msgLang, msgVal };
 								insertColumnValues = new Object[] { messageKey, lang, value };
 							}
 						}
 
-						Column filterColumn = i18NTable.getColumn(filterName);
 						if (filterColumn != null && filterValue != null && filterValue.length > 0)
 						{
-							insertColumns = Utils.arrayAdd(insertColumns, filterColumn.queryColumn(messagesTable), true);
 							insertColumnValues = Utils.arrayAdd(insertColumnValues, filterValue[0], true);
 						}
-
-						insert.setColumnValues(insertColumns, insertColumnValues);
-
-						updateStatements.add(new SQLStatement(ISQLActionTypes.INSERT_ACTION, i18NServerName, i18NTableName, null, null, insert, null));
+						for (int i = 0; i < insertColumnValues.length; i++)
+						{
+							if (lang == null)
+							{
+								insertColumnValuesListForBatchWithNullLanguage[i] = Utils.arrayAdd(insertColumnValuesListForBatchWithNullLanguage[i],
+									insertColumnValues[i], true);
+							}
+							else
+							{
+								insertColumnValuesListForBatch[i] = Utils.arrayAdd(insertColumnValuesListForBatch[i], insertColumnValues[i], true);
+							}
+						}
 					}
 					else if (!remoteMessages.get(key).getValue().equals(value) && !noUpdates) // update
 					{
@@ -201,7 +223,6 @@ public class I18NUtil
 
 						if (filterName != null)
 						{
-							Column filterColumn = i18NTable.getColumn(filterName);
 							if (filterColumn != null && filterValue != null && filterValue.length > 0)
 							{
 								QueryColumn columnFilter = filterColumn.queryColumn(messagesTable);
@@ -223,7 +244,19 @@ public class I18NUtil
 							fm != null ? fm.getTableFilterParams(i18NServerName, update) : null));
 					}
 				}
+				if (insertColumnValuesListForBatch[0].length > 0)
+				{
+					insert.setColumnValues(insertColumns, insertColumnValuesListForBatch);
 
+					updateStatements.add(new SQLStatement(ISQLActionTypes.INSERT_ACTION, i18NServerName, i18NTableName, null, null, insert, null));
+				}
+				if (insertColumnValuesListForBatchWithNullLanguage[0].length > 0)
+				{
+					insertForNullLanguage.setColumnValues(insertColumnsForNullLanguage, insertColumnValuesListForBatchWithNullLanguage);
+
+					updateStatements
+						.add(new SQLStatement(ISQLActionTypes.INSERT_ACTION, i18NServerName, i18NTableName, null, null, insertForNullLanguage, null));
+				}
 				if (!noRemoves)
 				{
 					for (Entry<String, MessageEntry> remoteMessageEntry : remoteMessages.entrySet())
@@ -241,7 +274,6 @@ public class I18NUtil
 
 							if (filterName != null)
 							{
-								Column filterColumn = i18NTable.getColumn(filterName);
 								if (filterColumn != null && filterValue != null && filterValue.length > 0)
 								{
 									QueryColumn columnFilter = filterColumn.queryColumn(messagesTable);
