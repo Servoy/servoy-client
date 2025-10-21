@@ -36,4 +36,9 @@ public interface IFile
 	public String getContentType();
 
 	public long getSize();
+
+	public default String getName()
+	{
+		return null;
+	}
 }
