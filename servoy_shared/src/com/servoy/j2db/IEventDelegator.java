@@ -32,6 +32,8 @@ public interface IEventDelegator
 	 */
 	public void invokeLater(Runnable r);
 
+	public void invokeLater(Runnable r, boolean immediate);
+
 	public boolean isEventDispatchThread();
 
 	public void invokeAndWait(Runnable r);

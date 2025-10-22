@@ -314,7 +314,7 @@ public class ServoyApiObject
 				}
 
 			}
-			Utils.invokeLater(app, invokeLaterRunnables);
+			Utils.invokeImmediate(app, invokeLaterRunnables);
 
 			if (ret)
 			{
@@ -343,7 +343,7 @@ public class ServoyApiObject
 	@JSFunction
 	public void showFormDelayed(Scriptable model, String formNameProperty, String relationNameProperty)
 	{
-		Utils.invokeLater(app, Arrays.asList(() -> {
+		Utils.invokeImmediate(app, Arrays.asList(() -> {
 			IWebFormUI formUI = this.component.findParent(IWebFormUI.class);
 			if (component.isVisible() && formUI != null && formUI.getController() != null && formUI.getController().isFormVisible())
 			{

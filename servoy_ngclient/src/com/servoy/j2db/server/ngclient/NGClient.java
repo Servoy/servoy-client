@@ -734,6 +734,19 @@ public class NGClient extends AbstractApplication
 	}
 
 	@Override
+	protected void doInvokeLater(Runnable r, boolean immediate)
+	{
+		if (immediate)
+		{
+			wsSession.getEventDispatcher().addImmediateEvent(r);
+		}
+		else
+		{
+			doInvokeLater(r);
+		}
+	}
+
+	@Override
 	public boolean isEventDispatchThread()
 	{
 		IEventDispatcher eventDispatcher = wsSession.getEventDispatcher(false);

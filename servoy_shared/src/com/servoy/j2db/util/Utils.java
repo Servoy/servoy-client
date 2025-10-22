@@ -2302,6 +2302,17 @@ public final class Utils
 		}
 	}
 
+	public static void invokeImmediate(IEventDelegator delegator, List<Runnable> runnables)
+	{
+		if (runnables != null)
+		{
+			for (Runnable r : runnables)
+			{
+				delegator.invokeLater(r, true);
+			}
+		}
+	}
+
 //	@Deprecated
 //	public static String firstLetterToUpperCase(String string)
 //	{

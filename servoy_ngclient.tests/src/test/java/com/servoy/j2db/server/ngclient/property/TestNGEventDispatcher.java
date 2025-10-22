@@ -17,6 +17,8 @@
 
 package com.servoy.j2db.server.ngclient.property;
 
+import java.util.List;
+
 import org.sablo.eventthread.IEventDispatcher;
 import org.sablo.websocket.CurrentWindow;
 import org.sablo.websocket.IWindow;
@@ -81,6 +83,18 @@ public class TestNGEventDispatcher implements IEventDispatcher
 	public void addEvent(Runnable event, int eventLevel)
 	{
 		event.run();
+	}
+
+	@Override
+	public void addImmediateEvent(Runnable event)
+	{
+		event.run();
+	}
+
+	@Override
+	public List<Runnable> getExecuteImmediateRunnablesAndClearList()
+	{
+		return null;
 	}
 
 	@Override

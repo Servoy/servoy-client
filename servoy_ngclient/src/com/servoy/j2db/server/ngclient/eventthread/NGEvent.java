@@ -17,12 +17,15 @@
 
 package com.servoy.j2db.server.ngclient.eventthread;
 
+import java.util.List;
+
 import org.sablo.eventthread.Event;
 import org.sablo.eventthread.WebsocketSessionWindows;
 import org.sablo.websocket.CurrentWindow;
 
 import com.servoy.j2db.server.ngclient.INGApplication;
 import com.servoy.j2db.server.ngclient.INGClientWebsocketSession;
+import com.servoy.j2db.util.Debug;
 
 
 /**
@@ -66,6 +69,23 @@ public class NGEvent extends Event
 	@Override
 	protected void afterExecute()
 	{
+		List<Runnable> executeImmediateRunnables = client.getWebsocketSession().getEventDispatcher().getExecuteImmediateRunnablesAndClearList();
+		while (executeImmediateRunnables != null && executeImmediateRunnables.size() > 0)
+		{
+			for (Runnable r : executeImmediateRunnables)
+			{
+				try
+				{
+					r.run();
+				}
+				catch (Exception e)
+				{
+					exception = e;
+					Debug.error("Exception in after execute", e);
+				}
+			}
+			executeImmediateRunnables = client.getWebsocketSession().getEventDispatcher().getExecuteImmediateRunnablesAndClearList();
+		}
 		client.getRuntimeWindowManager().setCurrentWindowName(previous);
 		super.afterExecute();
 	}

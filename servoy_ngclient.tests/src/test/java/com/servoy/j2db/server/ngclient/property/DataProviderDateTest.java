@@ -843,6 +843,12 @@ public class DataProviderDateTest
 		}
 
 		@Override
+		public void invokeLater(Runnable r, boolean immediate)
+		{
+
+		}
+
+		@Override
 		public boolean isEventDispatchThread()
 		{
 			return false;
