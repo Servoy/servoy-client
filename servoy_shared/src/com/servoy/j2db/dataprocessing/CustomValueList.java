@@ -232,8 +232,9 @@ public class CustomValueList extends OptimizedDefaultListModel implements IValue
 		try
 		{
 			startBundlingEvents();
+			boolean isNotUsingSpecialCharacter = values == null || !values.split("\n")[0].endsWith("|^");
 			//add empty row
-			if (allowEmptySelection)
+			if (allowEmptySelection && isNotUsingSpecialCharacter)
 			{
 				super.addElement(""); //$NON-NLS-1$
 			}
