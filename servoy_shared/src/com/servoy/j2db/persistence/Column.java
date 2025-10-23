@@ -777,6 +777,10 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 
 	public String getTypeAsString()
 	{
+		if (nativeTypename != null)
+		{
+			return nativeTypename;
+		}
 		return getDisplayTypeString(getColumnType());
 	}
 
