@@ -493,6 +493,11 @@ public abstract class FoundSet
 		else
 		{
 			pks = performQuery(transaction_id, theQuery, getRowIdentColumnTypes(), 0, rowsToRetrieve, IDataServer.FOUNDSET_LOAD_QUERY);
+			if (lastSortColumns != null && lastSortColumns.size() == 1 && lastSortColumns.get(0) instanceof EmbeddingSortColumn)
+			{
+				// if this is a vector sort then we need to follow the max count of the sort.
+				pks.clearHadMoreRows();
+			}
 		}
 		synchronized (pksAndRecords)
 		{
@@ -3520,6 +3525,30 @@ public abstract class FoundSet
 	}
 
 	/**
+	 * Sorts the foundset based on the given embedding column and embeddings.
+	 * It will load the foundset with records that are the most similar to the provided embeddings first until the maxRows is reached.
+	 *
+	 * So this is kind of a search instead of sort, but t
+	 *
+	 * @param embedingColumn the Vector column name
+	 * @param embeddings The embeddings to compare/sort against
+	 * @param maxRows the number of rows to load that are the most similar to the provided embeddings
+	 * @throws ServoyException
+	 */
+	@SuppressWarnings("nls")
+	@JSFunction
+	public void sort(String embedingColumn, float[] embeddings, Number maxRows) throws ServoyException
+	{
+		Column column = getTable().getColumn(embedingColumn);
+		if (column == null || !column.hasFlag(IBaseColumn.VECTOR_COLUMN))
+		{
+			throw new RuntimeException("Column '" + embedingColumn + "' is not a vector column.");
+		}
+		this.lastSortColumns = List.of(new EmbeddingSortColumn(column, embeddings, maxRows));
+		loadAllRecords();
+	}
+
+	/**
 	 * Delete all records in foundset, resulting in empty foundset.
 	 *
 	 * @sample
@@ -5989,6 +6018,10 @@ public abstract class FoundSet
 	 */
 	private int calculateRowsToRetrieve(int rowsToRetrieveHint, Object[][] selectedPKs)
 	{
+		if (lastSortColumns != null && lastSortColumns.size() == 1 && lastSortColumns.get(0) instanceof EmbeddingSortColumn esc)
+		{
+			return esc.getMaxRows().intValue();
+		}
 		if (selectedPKs != null)
 		{
 			// round up to next 200 (selection + 50)

@@ -38,6 +38,7 @@ import static java.util.stream.Collectors.toList;
 import java.lang.reflect.Array;
 import java.sql.Types;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -97,6 +98,7 @@ import com.servoy.j2db.query.QueryAggregate;
 import com.servoy.j2db.query.QueryColumn;
 import com.servoy.j2db.query.QueryColumnValue;
 import com.servoy.j2db.query.QueryCustomSelect;
+import com.servoy.j2db.query.QueryCustomSort;
 import com.servoy.j2db.query.QueryDelete;
 import com.servoy.j2db.query.QueryFactory;
 import com.servoy.j2db.query.QueryFilter;
@@ -350,6 +352,13 @@ public class SQLGenerator
 		for (int i = 0; orderByFields != null && i < orderByFields.size(); i++)
 		{
 			SortColumn sc = orderByFields.get(i);
+			if (sc instanceof EmbeddingSortColumn esc)
+			{
+				String referenceVector = Arrays.toString(esc.getVector());
+				sqlSelect.addSort(new QueryCustomSort(esc.getName() + " <=> '" + referenceVector + "'"));
+				break;
+			}
+
 			IColumn column = sc.getColumn(); // can be column or aggregate
 			if (column.getDataProviderType() == MEDIA && (column.getFlags() & (IDENT_COLUMNS | UUID_COLUMN)) == 0)
 			{
