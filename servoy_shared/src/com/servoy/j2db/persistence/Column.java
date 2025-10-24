@@ -777,7 +777,7 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 
 	public String getTypeAsString()
 	{
-		if (nativeTypename != null)
+		if (nativeTypename != null && hasFlag(IBaseColumn.NATIVE_COLUMN))
 		{
 			return nativeTypename;
 		}
