@@ -86,7 +86,7 @@ public class QBJoin extends QBTableClause implements IQueryBuilderJoin, IConstan
 	}
 
 	/**
-	 * Returns the join type, one of {@link IQueryBuilderJoin#LEFT_OUTER_JOIN}, {@link IQueryBuilderJoin#INNER_JOIN}, {@link IQueryBuilderJoin#RIGHT_OUTER_JOIN}, {@link IQueryBuilderJoin#FULL_JOIN}
+	 * Returns the join type, one of QBJoin.LEFT_OUTER_JOIN, QBJoin.INNER_JOIN, QBJoin.RIGHT_OUTER_JOIN, QBJoin.FULL_JOIN
 	 *
 	 * @return the join type, one of IQueryBuilderJoin
 	 */

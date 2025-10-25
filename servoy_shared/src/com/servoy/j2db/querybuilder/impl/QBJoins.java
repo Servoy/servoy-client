@@ -45,7 +45,6 @@ import com.servoy.j2db.query.QueryJoin;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.query.TableExpression;
 import com.servoy.j2db.querybuilder.IQueryBuilder;
-import com.servoy.j2db.querybuilder.IQueryBuilderJoin;
 import com.servoy.j2db.querybuilder.IQueryBuilderJoins;
 import com.servoy.j2db.scripting.DefaultJavaScope;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
@@ -437,7 +436,7 @@ public class QBJoins extends DefaultJavaScope implements IQueryBuilderJoins
 	 * @sampleas add(String, int)
 	 *
 	 * @param dataSource data source
-	 * @param joinType join type, one of {@link IQueryBuilderJoin#LEFT_OUTER_JOIN}, {@link IQueryBuilderJoin#INNER_JOIN}, {@link IQueryBuilderJoin#RIGHT_OUTER_JOIN}, {@link IQueryBuilderJoin#FULL_JOIN}
+	 * @param joinType join type, one of QBJoin.LEFT_OUTER_JOIN, QBJoin.INNER_JOIN, QBJoin.RIGHT_OUTER_JOIN, QBJoin.FULL_JOIN
 	 * @param alias the alias for joining table
 	 *
 	 *  @return a QBJoin object representing the newly added join with the specified type and alias.

@@ -33,7 +33,7 @@ public interface IQueryBuilderJoins extends IQueryBuilderPart
 	 * Add a join clause from the parent query builder part to the specified data source.
 	 *
 	 * @param dataSource data source
-	 * @param joinType join type, one of {@link IQueryBuilderJoin#LEFT_OUTER_JOIN}, {@link IQueryBuilderJoin#INNER_JOIN}, {@link IQueryBuilderJoin#RIGHT_OUTER_JOIN}, {@link IQueryBuilderJoin#FULL_JOIN}
+	 * @param joinType join type, one of QBJoin.LEFT_OUTER_JOIN, QBJoin.INNER_JOIN, QBJoin.RIGHT_OUTER_JOIN, QBJoin.FULL_JOIN.
 	 * @param alias alias for joining table
 	 *  <pre>
 	 * query.joins().add(detailDataSource,  IQueryBuilderJoin.LEFT_OUTER_JOIN, "detail")
@@ -52,7 +52,7 @@ public interface IQueryBuilderJoins extends IQueryBuilderPart
 	/**
 	 * Add a join based on relation or add a manual join.
 	 * When dataSourceOrRelation is a relation name, a join will be added based on the relation.
-	 * When dataSourceOrRelation is a data source, an empty join will be added with join type {@link IQueryBuilderJoin#LEFT_OUTER_JOIN}.
+	 * When dataSourceOrRelation is a data source, an empty join will be added with join type QBJoin.LEFT_OUTER_JOIN.
 	 * @param dataSourceOrRelation add join based on relation or data source
 	 * @param alias alias, when null default is used
 	 *
@@ -61,7 +61,7 @@ public interface IQueryBuilderJoins extends IQueryBuilderPart
 	IQueryBuilderJoin add(String dataSourceOrRelation, String alias) throws RepositoryException;
 
 	/**
-	 * Add a join with join type {@link IQueryBuilderJoin#LEFT_OUTER_JOIN} and no alias for the joining table.
+	 * Add a join with join type QBJoin.LEFT_OUTER_JOIN and no alias for the joining table.
 	 *
 	 * @see #add(String, int, String)
 	 */
@@ -78,7 +78,7 @@ public interface IQueryBuilderJoins extends IQueryBuilderPart
 	 * Add a join clause from the parent query builder part to a derived table based on another query.
 	 *
 	 * @param subqueryBuilder
-	 * @param joinType join type, one of {@link IQueryBuilderJoin#LEFT_OUTER_JOIN}, {@link IQueryBuilderJoin#INNER_JOIN}, {@link IQueryBuilderJoin#RIGHT_OUTER_JOIN}, {@link IQueryBuilderJoin#FULL_JOIN}
+	 * @param joinType join type, one of QBJoin.LEFT_OUTER_JOIN, QBJoin.INNER_JOIN, QBJoin.RIGHT_OUTER_JOIN, QBJoin.FULL_JOIN
 	 * @param alias alias for joining derived table
 	 *  <pre>
 	 * IQueryBuilderJoin join = query.joins().add(subquery, IQueryBuilderJoin.LEFT_OUTER_JOIN, "detail");
