@@ -27,7 +27,7 @@ public class TextUtils
 
 	private static Pattern regexP1 = Pattern.compile("(^\\s*/\\*\\*\\s*)");
 	private static Pattern regexP2 = Pattern.compile("(^\\s*/\\*\\s*)");
-	private static Pattern regexP3 = Pattern.compile("(\\s*\\*/)");
+	private static Pattern regexP3 = Pattern.compile("(\\s*\\*/\\s*\\z)");
 	// ?m: in there means that it's using multi-line mode; ^ then matches each line not just string start
 	private static Pattern regexP4 = Pattern.compile("(?m:^\\s*\\* ?)");
 
@@ -36,6 +36,7 @@ public class TextUtils
 	 */
 	public static String stripCommentStartMiddleAndEndChars(String doc)
 	{
+		// TODO we can use here so dltk JSDoc parser or util to strip these out?
 		String stripped = doc;
 
 		// @formatter:off
