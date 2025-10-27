@@ -43,6 +43,7 @@ import com.servoy.j2db.dataprocessing.IColumnValidatorManager;
 import com.servoy.j2db.dataprocessing.IConverterManager;
 import com.servoy.j2db.dataprocessing.IUIConverter;
 import com.servoy.j2db.persistence.NameComparator;
+import com.servoy.j2db.server.extensions.ServoyServiceLoader;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ExtendableURLClassLoader;
 import com.servoy.j2db.util.JarManager;
@@ -760,6 +761,7 @@ public class PluginManager extends JarManager implements IPluginManagerInternal,
 				}
 				URL[] urls = allUrls.toArray(new URL[allUrls.size()]);
 				_pluginsClassLoader = ExtendableURLClassLoader.create(urls, parentClassLoader != null ? parentClassLoader : getClass().getClassLoader());
+				ServoyServiceLoader.setClassLoader(_pluginsClassLoader);
 			}
 			catch (Throwable th)
 			{

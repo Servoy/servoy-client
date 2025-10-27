@@ -399,6 +399,8 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 			return stream(array).map(el -> getAsRightType(type, flags, el, throwOnFail, truncate)).toArray();
 		}
 
+		if ((flags & VECTOR_COLUMN) != 0) return obj; // do not convert vector columns
+
 		if ((flags & UUID_COLUMN) != 0 || obj instanceof UUID)
 		{
 			UUID uuid = Utils.getAsUUID(obj, throwOnFail);
