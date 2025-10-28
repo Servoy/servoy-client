@@ -142,6 +142,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 
 	//for scripting
 	protected transient volatile JSFormManager jsFormManager;
+	protected transient volatile JSComponentManager jsComponentManager;
 
 	//foundset manager handling the foundsets
 	protected transient volatile IFoundSetManagerInternal foundSetManager;
@@ -719,6 +720,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 
 	private final Map<Object, Object> runtimeProperties = new HashMap<Object, Object>();
 
+
 	public Map<Object, Object> getRuntimeProperties()
 	{
 		return runtimeProperties;
@@ -1022,6 +1024,26 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 	private JSFormManager createJSFormManager()
 	{
 		return new JSFormManager(this);
+	}
+
+	private JSComponentManager createJSComponentManager()
+	{
+		return new JSComponentManager(this);
+	}
+
+	public JSComponentManager getJSComponentManager()
+	{
+		if (jsComponentManager == null && !isShutDown())
+		{
+			synchronized (this)
+			{
+				if (jsComponentManager == null)
+				{
+					jsComponentManager = createJSComponentManager();
+				}
+			}
+		}
+		return jsComponentManager;
 	}
 
 	protected PermissionManager createPermissionManager()
