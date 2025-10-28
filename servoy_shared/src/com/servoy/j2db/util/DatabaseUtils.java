@@ -79,7 +79,7 @@ public class DatabaseUtils
 	{
 		ServoyJSONObject json = new ServoyJSONObject();
 		json.put("sortIgnorecase", serverSettings.isSortIgnorecase());
-		json.put("sortingNullprecedence", serverSettings.getSortingNullprecedence().name());
+		if (serverSettings.getSortingNullprecedence() != null) json.put("sortingNullprecedence", serverSettings.getSortingNullprecedence().name());
 		json.put("queryProcedures", serverSettings.getQueryProcedures()); // nullable
 		json.put("clientOnlyConnections", serverSettings.getClientOnlyConnections()); // nullable
 		return json.toString();
@@ -97,7 +97,7 @@ public class DatabaseUtils
 			ServoyJSONObject json = new ServoyJSONObject(stringDBIContent, false);
 			serverDef.serverSettings = new ServerSettings(
 				json.getBoolean("sortIgnorecase"),
-				SortingNullprecedence.valueOf(json.getString("sortingNullprecedence")),
+				json.has("sortingNullprecedence") ? SortingNullprecedence.valueOf(json.getString("sortingNullprecedence")) : null,
 				(Boolean)json.opt("queryProcedures"),
 				(Boolean)json.opt("clientOnlyConnections"));
 		}

@@ -34,7 +34,7 @@ public class ServerSettings implements Serializable
 	public static final ServerSettings DEFAULT = new ServerSettings(false, databaseDefault, null, null);
 
 	private final boolean sortIgnorecase;
-	private final SortingNullprecedence sortingNullprecedence;
+	private final SortingNullprecedence sortingNullprecedence; // when null the value has not been explicitly set, use value from ServerConfig
 	private final Boolean queryProcedures; // when null the value has not been explicitly set, use value from ServerConfig
 	private final Boolean clientOnlyConnections; // when null the value has not been explicitly set, use value from ServerConfig
 
@@ -96,6 +96,15 @@ public class ServerSettings implements Serializable
 		return new ServerSettings(this.sortIgnorecase, this.sortingNullprecedence, this.queryProcedures, Boolean.valueOf(clientOnlyConnectionsSet));
 	}
 
+	public ServerSettings withSortingNullprecedence(SortingNullprecedence sortingNullprecedenceSet)
+	{
+		if (sortingNullprecedenceSet == this.sortingNullprecedence)
+		{
+			return this;
+		}
+		return new ServerSettings(this.sortIgnorecase, sortingNullprecedenceSet, this.queryProcedures, this.clientOnlyConnections);
+	}
+
 	/**
 	 * copy legacy value from server config.
 	 */
@@ -110,7 +119,10 @@ public class ServerSettings implements Serializable
 		{
 			updated = updated.withClientOnlyConnections(serverConfig.isClientOnlyConnections());
 		}
-
+		if (this.sortingNullprecedence == null)
+		{
+			updated = updated.withSortingNullprecedence(serverConfig.getSortingNullprecedence());
+		}
 		return updated;
 	}
 

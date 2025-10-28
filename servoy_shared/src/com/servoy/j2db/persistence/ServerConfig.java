@@ -103,11 +103,13 @@ public class ServerConfig implements Serializable, Comparable<ServerConfig>
 	private final List<String> quoteList;
 	private final boolean clientOnlyConnections;
 	private final String initializationString;
+	private final SortingNullprecedence sortingNullprecedence;
 
 	public ServerConfig(String serverName, String userName, String password, String serverUrl, Map<String, String> connectionProperties, String driver,
 		String catalog, String schema, int maxActive, int maxIdle, int maxPreparedStatementsIdle, int connectionValidationType, String validationQuery,
 		String dataModelCloneFrom, boolean enabled, boolean skipSysTables, boolean prefixTables, boolean queryProcedures, int idleTimeout,
-		Integer selectINValueCountLimit, String dialectClass, List<String> quoteList, boolean clientOnlyConnections, String initializationString)
+		Integer selectINValueCountLimit, String dialectClass, List<String> quoteList, boolean clientOnlyConnections, String initializationString,
+		SortingNullprecedence sortingNullprecedence)
 	{
 		this.clientOnlyConnections = clientOnlyConnections;
 		this.serverName = Utils.toEnglishLocaleLowerCase(serverName); // safety for when stored in columnInfo
@@ -131,7 +133,7 @@ public class ServerConfig implements Serializable, Comparable<ServerConfig>
 		this.dialectClass = dialectClass;
 		this.quoteList = quoteList;
 		this.initializationString = initializationString;
-
+		this.sortingNullprecedence = sortingNullprecedence;
 		if (driver == null || serverUrl == null)
 		{
 			throw new IllegalArgumentException("server URL or driver name not specified"); //$NON-NLS-1$
@@ -285,6 +287,14 @@ public class ServerConfig implements Serializable, Comparable<ServerConfig>
 	public String getInitializationString()
 	{
 		return initializationString;
+	}
+
+	/**
+	 * @return
+	 */
+	public SortingNullprecedence getSortingNullprecedence()
+	{
+		return sortingNullprecedence;
 	}
 
 	public Builder newBuilder()
@@ -534,6 +544,7 @@ public class ServerConfig implements Serializable, Comparable<ServerConfig>
 		private List<String> quoteList = emptyList();
 		private boolean clientOnlyConnections;
 		private String initializationString;
+		private SortingNullprecedence sortingNullprecedence;
 
 		public Builder()
 		{
@@ -711,6 +722,12 @@ public class ServerConfig implements Serializable, Comparable<ServerConfig>
 			return this;
 		}
 
+		public Builder setSortingNullprecedence(SortingNullprecedence sortingNullprecedence)
+		{
+			this.sortingNullprecedence = sortingNullprecedence;
+			return this;
+		}
+
 		public ServerConfig build()
 		{
 			return new ServerConfig(
@@ -737,7 +754,8 @@ public class ServerConfig implements Serializable, Comparable<ServerConfig>
 				dialectClass,
 				quoteList,
 				clientOnlyConnections,
-				initializationString);
+				initializationString,
+				sortingNullprecedence);
 		}
 	}
 }
