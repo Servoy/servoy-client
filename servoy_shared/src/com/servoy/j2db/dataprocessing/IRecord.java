@@ -104,7 +104,15 @@ public interface IRecord extends IRecordDeprecated
 	public boolean isLocked();
 
 	/**
-	 * Add modification listener
+	 * Add modification listener.<br/><br/>
+	 *
+	 * NOTE: the listener received {@link ModificationEvent#getValue()} will almost always be correct,
+	 * with one very rare exception: if {@link #getValue(String)} is called for a calculation in a non-event thread
+	 * while the event thread is modifying the same record/value, resulting in different values - the order of
+	 * the events might be wrong (so the ModificationEvent#getValue() that is fired last might have already
+	 * been changed and received by the listener as the value before). Smart client used to do that, but that
+	 * is obsolete. You can always get the value directly from the record in the listener to make sure it's the
+	 * correct up-to-date one.
 	 *
 	 * @param l the listener
 	 */

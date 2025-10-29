@@ -21,7 +21,7 @@ import java.util.EventObject;
 
 /**
  * This class is used to inform about modifications
- * 
+ *
  * @author jblok
  * @since Servoy 5.0
  */
@@ -40,7 +40,7 @@ public class ModificationEvent extends EventObject
 
 	/**
 	 * Get the dataprovider name
-	 * 
+	 *
 	 * @return the dataprovider
 	 */
 	public String getName()
@@ -49,8 +49,8 @@ public class ModificationEvent extends EventObject
 	}
 
 	/**
-	 * Get the changed value
-	 * 
+	 * Get the changed value.
+	 *
 	 * @return the value
 	 */
 	public Object getValue()
@@ -65,7 +65,7 @@ public class ModificationEvent extends EventObject
 
 	/**
 	 * Get the record this notification is for and value is from
-	 * 
+	 *
 	 * @return the record
 	 */
 	public IRecord getRecord()
