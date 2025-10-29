@@ -909,7 +909,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 			}
 		}
 
-		// one of the relations could be changed make sure they are recreated.
+		// one of the relations could be changed; make sure they are recreated.
 		createRelationListeners();
 		if (e.getRecord() == null) tellNestedRelatedListenersThatGlobalOrScopeVariableChanged(e.getName()); // if it's a change in the record, they will refresh anyway due to direct foundset listeners added by nestedRelatedFoundsetListeners or due to DAL.setRecord(...)
 
@@ -1550,7 +1550,8 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 						+ ",\n\t\thas this RelatedListener: "
 						+ ((toWatchRelations != null && toWatchRelations.values().stream()
 							.<RelatedListener>mapMulti((pair, consumer) -> pair.getRight().forEach(consumer))
-							.anyMatch((rl) -> rl == this)) ? "yes" : "no") + ",\n\t\t"
+							.anyMatch((rl) -> (rl == this))) ? "yes" : "no") + ",\n\t\t"
+						+ "propertyValue: " + propertyValue + ",\n\t\t"
 						+ (toWatchRelations != null ? Integer.valueOf(toWatchRelations.size()) : "null") + ",\n\t\t"
 						+ dataProviderToLinkedComponentProperty.size() + ",\n\t\t"
 						+ allComponentPropertiesLinkedToData.size() + ",\n\t\t"

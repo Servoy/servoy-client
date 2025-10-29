@@ -44,6 +44,7 @@ import org.mozilla.javascript.annotations.JSSetter;
 import com.servoy.base.scripting.api.IJSDataSet;
 import com.servoy.base.scripting.api.IJSRecord;
 import com.servoy.j2db.ApplicationException;
+import com.servoy.j2db.IApplication;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.scripting.DefaultJavaScope;
@@ -191,12 +192,13 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord, IJSBaseSQ
 			{
 				return converted ? row.getValue(dataProviderID) : row.getRawValue(dataProviderID);//also stored calcs are always calculated ones(required due to use of plugin methods in calc);
 			}
-			if (containsCalc) //check if calculation
+			if (containsCalc) // check if calculation
 			{
+				// here mustRecalc == true, because it passed the previous if
 				jsFireCollector = FireJSCollector.createOrGetJSFireCollector();
 				UsedDataProviderTracker usedDataProviderTracker = new UsedDataProviderTracker(
 					getParentFoundSet().getFoundSetManager().getApplication().getFlattenedSolution());
-				Object value = parent.getCalculationValue(this, dataProviderID, null, usedDataProviderTracker);//do real calc
+				Object value = parent.getCalculationValue(this, dataProviderID, null, usedDataProviderTracker); // do real calc
 				if (!(value instanceof Undefined))
 				{
 					value = Utils.mapToNullIfUnmanageble(value);
@@ -214,7 +216,29 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord, IJSBaseSQ
 		finally
 		{
 			if (threadExecutionRegistered) row.threadCalculationComplete(dataProviderID);
-			if (jsFireCollector != null) jsFireCollector.done();
+			if (jsFireCollector != null)
+			{
+				IApplication app = parent.getFoundSetManager().getApplication();
+				if (app.isEventDispatchThread())
+					jsFireCollector.done();
+				else
+				{
+					// never fire row/record listeners outside of the app. event thread
+					// that will lead to unexpected results; listeners do expect to be fired inside the app. event thread..
+					// for example DataAdapterList listeners that might be triggered by this may recreate DAL listeners while the event thread
+					// would maybe destroy the form/DAL - if the 2 were running on separate threads
+					var jsFireCollectorS = jsFireCollector;
+					app.invokeLater(() -> {
+						// NOTE although the ModificationEvents fired by this might be too late
+						// because the event thread might have already changed the same record/value after this thread's change
+						// and have that already fired, the ModificationEvent.getValue() is currently only used
+						// in obsolete smart/web-client code and for MenuFoundSet/MeduItemRecords (but unrelated to what happens here)
+						// so firing here a ModificationEvent with an obsolete value should not be a problem
+						// at least with how the code was when this comment was added...
+						jsFireCollectorS.done();
+					});
+				}
+			}
 		}
 		if (parent.containsDataProvider(dataProviderID)) //as shared (global or aggregate)
 		{
