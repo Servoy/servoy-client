@@ -76,6 +76,16 @@ public class JSComponentManager implements Scriptable, IJSComponentManager
 				}
 
 				@Override
+				public Object getDefaultValue(Class< ? > typeHint)
+				{
+					if (typeHint == null || typeHint == String.class)
+					{
+						return componentName;
+					}
+					return super.getDefaultValue(typeHint);
+				}
+
+				@Override
 				public Object[] getIds()
 				{
 					return list.toArray(new Object[0]);
