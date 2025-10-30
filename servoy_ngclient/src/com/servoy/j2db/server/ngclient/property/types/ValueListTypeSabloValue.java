@@ -572,7 +572,7 @@ public class ValueListTypeSabloValue
 		boolean dbValueRowRendered = false;
 		if ((previousRecord != null && !previousRecord.equals(record)) || // if previous record is different from current record
 			(getConfig().isAutoResetFilter() && Utils.equalObjects(dataProvider, dataproviderID)) || // or if auto reset filter is on and the dp that changed is the one that this vl is for
-			!Utils.equalObjects(dataProvider, dataproviderID)) // or if the dp that changed is not the one that this vl is for then we do need to rest becaus this could be a field that is related to the value that is changed.
+			(dataProvider != null && !Utils.equalObjects(dataProvider, dataproviderID))) // or if the dp that changed is not the one that this vl is for then we do need to rest becaus this could be a field that is related to the value that is changed.
 		{
 			revertFilter();
 		}
