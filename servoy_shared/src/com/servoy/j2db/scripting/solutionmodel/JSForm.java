@@ -4071,8 +4071,10 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * form.useCssPosition = true
 	 * var webcomponent = form.newWebComponent('mywebcomponent','mypackage-testcomponent');
 	 *
+	 * var web_component = form.newWebComponent('mywebcomponent',JSComponent.mypackage_testcomponent);
+	 *
 	 * @param name the specified name of the JSWebComponent object
-	 * @param type the webcomponent name as it appears in the spec
+	 * @param type the webcomponent name as it appears in the spec or the JSComponent constant representing the webcomponent type
 	 *
 	 * @return a JSWebComponent object
 	 */
