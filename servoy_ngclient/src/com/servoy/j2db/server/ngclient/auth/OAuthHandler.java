@@ -172,6 +172,7 @@ public class OAuthHandler
 
 	private static void handleLoginFailed(HttpServletRequest req, HttpServletResponse resp, Pair<FlattenedSolution, Boolean> _fs, JSONObject auth)
 	{
+		if (auth == null) return;
 		String loginFailedUrl = auth.optString(OAuthParameters.login_failed_url.name(), null);
 		if (loginFailedUrl != null && !loginFailedUrl.isBlank())
 		{
