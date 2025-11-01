@@ -59,7 +59,7 @@ public interface IServerAccess extends IPluginAccess
 	 *
 	 * @param interfaceClassName
 	 * @param obj
-	 * @deprecated
+	 * @deprecated use registerRemoteService
 	 */
 	@Deprecated
 	public void registerRMIService(String interfaceClassName, Remote obj) throws RemoteException;
@@ -88,21 +88,21 @@ public interface IServerAccess extends IPluginAccess
 	 * Get a pooled and reserved jdbc connection, do not forget to close() if done with it (leave commit/rollback to starter of transaction).
 	 *
 	 * @param server_name
-	 * @param transaction_id null if not present/used
+	 * @param transactionId null if not present/used
 	 * @return the connection, null if server or transaction not present.
 	 * @since 3.1
 	 */
-	public Connection getDBServerConnection(String server_name, String transaction_id);
+	public Connection getDBServerConnection(String server_name, String transactionId);
 
 	/**
 	 * Get a pooled and reserved jdbc connection, do not forget to close() if done with it (leave commit/rollback to starter of transaction).
 	 *
 	 * @param server_name
-	 * @param transaction_id null if not present/used
+	 * @param transactionId null if not present/used
 	 * @return the connection, null if server or transaction not present.
 	 * @since 3.1
 	 */
-	public Connection getDBServerConnection(String server_name, String transaction_id, String clientId);
+	public Connection getDBServerConnection(String server_name, String transactionId, String clientId);
 
 	/**
 	 * Get a pooled raw jdbc connection, do not forget to close() if done with it.
@@ -140,10 +140,10 @@ public interface IServerAccess extends IPluginAccess
 	 *
 	 * @param server_name
 	 * @param table_name
-	 * @param transaction_id The transaction id to use, null if there isn't one or shouldn't be used.
+	 * @param transactionId The transaction id to use, null if there isn't one or shouldn't be used.
 	 * @since 3.5
 	 */
-	public boolean flushAllClientsCache(String server_name, String table_name, String transaction_id);
+	public boolean flushAllClientsCache(String server_name, String table_name, String transactionId);
 
 	/**
 	 * notifyDataChange to clients based on pk(s) data, use with extreme care, its effecting the performance of clients!
@@ -152,11 +152,11 @@ public interface IServerAccess extends IPluginAccess
 	 * @param table_name
 	 * @param pks
 	 * @param action
-	 * @param transaction_id
+	 * @param transactionId
 	 *
 	 * @since 3.5
 	 */
-	public boolean notifyDataChange(String server_name, String table_name, IDataSet pks, int action, String transaction_id);
+	public boolean notifyDataChange(String server_name, String table_name, IDataSet pks, int action, String transactionId);
 
 	/**
 	 * End the timing that was started with {@link #addPerformanceTiming(String, String, long, String)}
@@ -387,7 +387,7 @@ public interface IServerAccess extends IPluginAccess
 	/** Executes a stored procedure
 	 * @param clientId
 	 * @param serverName
-	 * @param transaction_id
+	 * @param transactionId
 	 * @param procedureDeclaration
 	 * @param questiondata
 	 * @param inOutType
@@ -400,13 +400,13 @@ public interface IServerAccess extends IPluginAccess
 	 *
 	 */
 
-	public IDataSet executeStoredProcedure(String clientId, String serverName, String transaction_id, String procedureDeclaration, Object[] questiondata,
+	public IDataSet executeStoredProcedure(String clientId, String serverName, String transactionId, String procedureDeclaration, Object[] questiondata,
 		int[] inOutType, int startRow, int maxNumberOfRowsToRetrieve) throws ServoyException;
 
 	/** Executes a stored procedure, return all result sets
 	 * @param clientId
 	 * @param serverName
-	 * @param transaction_id
+	 * @param transactionId
 	 * @param procedureDeclaration
 	 * @param questiondata
 	 * @param startRow
@@ -416,8 +416,21 @@ public interface IServerAccess extends IPluginAccess
 	 *
 	 * @since 7.4
 	 */
-	public IDataSet[] executeStoredProcedure(String clientId, String serverName, String transaction_id, String procedureDeclaration, Object[] questiondata,
+	public IDataSet[] executeStoredProcedure(String clientId, String serverName, String transactionId, String procedureDeclaration, Object[] questiondata,
 		int startRow, int maxNumberOfRowsToRetrieve) throws ServoyException;
+
+	/** Inserts a dataset into an existing table, return the generated pks
+	 * @param clientId
+	 * @param serverName
+	 * @param tableName
+	 * @param transactionId
+	 * @param dataSet
+	 *
+	 * @return the generated pks
+	 *
+	 * @since 2025.12
+	 */
+	public Object[] insertDataSet(String clientId, String serverName, String tableName, String transactionId, IDataSet dataSet) throws ServoyException;
 
 
 	public JSDataSet getLocks();
