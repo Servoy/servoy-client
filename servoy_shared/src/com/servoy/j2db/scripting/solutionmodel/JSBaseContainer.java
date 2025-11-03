@@ -508,7 +508,7 @@ public abstract class JSBaseContainer<T extends AbstractContainer> implements IJ
 	 * var container = myForm.getLayoutContainer("row1")
 	 * var bean = container.newWebComponent('bean','mypackage-testcomponent');
 	 *
-	 * var webcomponent = form.newWebComponent('mywebcomponent',JSComponent.mypackage_testcomponent);
+	 * var webcomponent = form.newWebComponent('mywebcomponent',JSComponent.mypackage.testcomponent);
 	 *
 	 * @param name the specified name of the JSWebComponent object
 	 * @param type the webcomponent name as it appears in the spec or the JSComponent constant representing the webcomponent type
