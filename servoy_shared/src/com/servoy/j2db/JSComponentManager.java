@@ -18,12 +18,13 @@
 package com.servoy.j2db;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.mozilla.javascript.NativeObject;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
+import org.sablo.specification.PackageSpecification;
 import org.sablo.specification.SpecProviderState;
 import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.WebObjectSpecification;
@@ -50,64 +51,23 @@ public class JSComponentManager implements Scriptable, IJSComponentManager
 	@Override
 	public Object get(String name, Scriptable start)
 	{
-		if (isComponent(name))
+		if (isPackage(name))
 		{
-			String componentName = name.replace('_', '-');
-			WebObjectSpecification spec = WebComponentSpecProvider.getSpecProviderState().getWebObjectSpecification(componentName);
-			if (spec == null) return Scriptable.NOT_FOUND;
-
-			List<String> list = new ArrayList<>();
-			list.addAll(spec.getAllPropertiesNames());
-			list.addAll(spec.getApiFunctions().keySet());
-
-			Scriptable componentObj = new NativeObject()
-			{
-				@Override
-				public Object get(String name_, Scriptable start_)
-				{
-					if (has(name_, start_)) return super.get(name_, start_);
-
-					if (list.contains(name_))
-					{
-						put(name_, this, name_);
-						return name_;
-					}
-					return Scriptable.NOT_FOUND;
-				}
-
-				@Override
-				public Object getDefaultValue(Class< ? > typeHint)
-				{
-					if (typeHint == null || typeHint == String.class)
-					{
-						return componentName;
-					}
-					return super.getDefaultValue(typeHint);
-				}
-
-				@Override
-				public Object[] getIds()
-				{
-					return list.toArray(new Object[0]);
-				}
-
-				@Override
-				public String toString()
-				{
-					return list.stream().collect(Collectors.joining(", ", "{", "}"));
-				}
-			};
-			Scriptable topLevel = ScriptableObject.getTopLevelScope(start);
-			componentObj.setParentScope(topLevel);
-			return componentObj;
+			return new PackageScriptable(name, start);
 		}
+
 		return Scriptable.NOT_FOUND;
 	}
 
 	private boolean isComponent(String name)
 	{
-		if (name == null) return false;
 		return WebComponentSpecProvider.getSpecProviderState().getWebObjectSpecification(name.replace('_', '-')) != null;
+	}
+
+	private boolean isPackage(String name)
+	{
+		if (name == null) return false;
+		return WebComponentSpecProvider.getSpecProviderState().getPackageNames().contains(name);
 	}
 
 	@Override
@@ -179,11 +139,7 @@ public class JSComponentManager implements Scriptable, IJSComponentManager
 	public Object[] getIds()
 	{
 		SpecProviderState componentsSpecProviderState = WebComponentSpecProvider.getSpecProviderState();
-		return componentsSpecProviderState.getWebObjectSpecifications()
-			.values()
-			.stream()
-			.flatMap(componentsPackage -> componentsPackage.getSpecifications().keySet().stream())
-			.toArray(String[]::new);
+		return componentsSpecProviderState.getPackageNames().toArray(new String[0]);
 	}
 
 
@@ -198,5 +154,84 @@ public class JSComponentManager implements Scriptable, IJSComponentManager
 	public boolean hasInstance(Scriptable instance)
 	{
 		return false;
+	}
+
+	private class PackageScriptable extends NativeObject
+	{
+		private final String packageName;
+
+		public PackageScriptable(String packageName, Scriptable parent)
+		{
+			this.packageName = packageName;
+			setParentScope(ScriptableObject.getTopLevelScope(parent));
+		}
+
+		@Override
+		public Object get(String name, Scriptable start)
+		{
+			if (name == null) return Scriptable.NOT_FOUND;
+
+			String componentName = packageName + "-" + name;
+			if (isComponent(componentName))
+			{
+				return new ComponentScriptable(componentName, start);
+			}
+			return Scriptable.NOT_FOUND;
+		}
+
+		@Override
+		public Object[] getIds()
+		{
+			SpecProviderState componentsSpecProviderState = WebComponentSpecProvider.getSpecProviderState();
+			PackageSpecification<WebObjectSpecification> pkg = componentsSpecProviderState.getWebObjectSpecifications().get(packageName);
+			return pkg.getSpecifications().keySet().stream()
+				.map(specName -> specName.substring(specName.indexOf('-') + 1))
+				.toArray(String[]::new);
+		}
+	}
+
+	private class ComponentScriptable extends NativeObject
+	{
+		final String componentName;
+		final List<String> members;
+
+		ComponentScriptable(String componentName, Scriptable start)
+		{
+			this.componentName = componentName;
+			WebObjectSpecification spec = WebComponentSpecProvider.getSpecProviderState().getWebObjectSpecification(componentName);
+
+			if (spec != null)
+			{
+				members = new ArrayList<>();
+				members.addAll(spec.getAllPropertiesNames());
+				members.addAll(spec.getApiFunctions().keySet());
+			}
+			else members = Collections.emptyList();
+
+			setParentScope(ScriptableObject.getTopLevelScope(start));
+		}
+
+		@Override
+		public Object get(String name, Scriptable start)
+		{
+			if (members.contains(name))
+			{
+				put(name, this, name);
+				return name;
+			}
+			return Scriptable.NOT_FOUND;
+		}
+
+		@Override
+		public Object[] getIds()
+		{
+			return members.toArray(new Object[0]);
+		}
+
+		@Override
+		public Object getDefaultValue(Class< ? > typeHint)
+		{
+			return componentName;
+		}
 	}
 }
