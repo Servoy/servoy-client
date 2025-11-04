@@ -103,7 +103,7 @@ public class AngularIndexPageFilter implements Filter
 				try
 				{
 					Pair<Boolean, String> showLogin = null;
-					if (requestURI.contains("/svy_oauth/"))
+					if (OAuthHandler.isOAuthRequest(request))
 					{
 						showLogin = OAuthHandler.handleOauth(request, response);
 						if (Boolean.FALSE.equals(showLogin.getLeft()) && showLogin.getRight() == null) return;
