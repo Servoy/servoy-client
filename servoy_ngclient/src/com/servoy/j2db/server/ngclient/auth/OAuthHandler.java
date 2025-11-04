@@ -77,18 +77,15 @@ public class OAuthHandler
 	{
 		String reqUrl = req.getRequestURL().toString();
 		Pair<Boolean, String> showLogin = new Pair<>(Boolean.TRUE, null);
-		if (reqUrl.contains("/svy_oauth/"))
+		if (req.getParameter("id_token") != null || req.getParameter("code") != null)
 		{
-			if (req.getParameter("id_token") != null || req.getParameter("code") != null)
-			{
-				checkToken(req, resp, reqUrl, showLogin);
-			}
-			else
-			{
-				//could be that the id token is in the fragment
-				showLogin.setLeft(Boolean.FALSE);
-				extractFromFragment(req, resp, reqUrl);
-			}
+			checkToken(req, resp, reqUrl, showLogin);
+		}
+		else if (reqUrl.contains("/svy_oauth/"))
+		{
+			//could be that the id token is in the fragment
+			showLogin.setLeft(Boolean.FALSE);
+			extractFromFragment(req, resp, reqUrl);
 		}
 		return showLogin;
 	}
@@ -243,6 +240,10 @@ public class OAuthHandler
 		for (int i = 0; i < path.getNameCount(); i++)
 		{
 			String pathInfo = path.getName(i).toString();
+			if ("svy_oauth".equals(pathInfo))
+			{
+				continue;
+			}
 			url.append("/" + pathInfo);
 		}
 		if (queryString != null && queryString.contains("svy_remove_id_token"))
@@ -540,5 +541,10 @@ public class OAuthHandler
 			log.error("Could not call the authenticator.", e);
 		}
 		return null;
+	}
+
+	public static boolean isOAuthRequest(HttpServletRequest request)
+	{
+		return request.getParameter("svy_remove_id_token") != null || request.getRequestURI().contains("/svy_oauth/");
 	}
 }
