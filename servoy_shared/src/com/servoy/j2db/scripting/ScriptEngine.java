@@ -34,6 +34,7 @@ import org.mozilla.javascript.JavaScriptException;
 import org.mozilla.javascript.NativeFunction;
 import org.mozilla.javascript.NativeJavaClass;
 import org.mozilla.javascript.NativeJavaObject;
+import org.mozilla.javascript.NativeWith;
 import org.mozilla.javascript.ScriptRuntime;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Undefined;
@@ -1156,6 +1157,19 @@ final class ProfilingDebugFrame implements DebugFrame
 			performanceData.endAction(pfId, application.getClientID());
 			pfId = null;
 		}
+	}
+
+	@Override
+	public void onNativeWithEnter(Context cx, NativeWith withScope)
+	{
+		// no need to profile in block scopes (for loops)
+	}
+
+
+	@Override
+	public void onNativeWithExit(Context cx, NativeWith withScope)
+	{
+		// no need to profile in block scopes (for loops)
 	}
 
 	@Override
