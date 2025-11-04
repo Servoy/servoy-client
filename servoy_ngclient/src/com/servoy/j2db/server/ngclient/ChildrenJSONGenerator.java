@@ -650,7 +650,7 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 			{
 				attributes.put("svy-name", layoutContainer.getName());
 			}
-			attributes.put("svy-priority", String.valueOf(layoutContainer.getLocation().x));
+			attributes.put("svy-priority", String.valueOf(layoutContainer.getLocation().y));
 			if (spec != null)
 			{
 				String designClass = spec.getDesignStyleClass() != null && spec.getDesignStyleClass().length() > 0 ? spec.getDesignStyleClass()
