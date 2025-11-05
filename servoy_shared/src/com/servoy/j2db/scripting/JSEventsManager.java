@@ -17,9 +17,12 @@
 
 package com.servoy.j2db.scripting;
 
+import java.util.List;
+
 import org.mozilla.javascript.BaseFunction;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
+import org.mozilla.javascript.ScriptRuntime;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.annotations.JSFunction;
 
@@ -195,7 +198,13 @@ public class JSEventsManager implements IReturnedTypesProvider
 	@ServoyClientSupport(ng = true, wc = true, sc = true, mc = false)
 	public Object fireEventListeners(EventType eventType, Object context, Object[] callbackArguments, EVENTS_AGGREGATION_TYPE returnValueAggregationType)
 	{
-		return application.getEventsManager().fireListeners(eventType, getContextAsString(context), callbackArguments, returnValueAggregationType);
+		Object array = application.getEventsManager().fireListeners(eventType, getContextAsString(context), callbackArguments, returnValueAggregationType);
+		if (array instanceof List< ? > lst)
+		{
+			Context cx = Context.getCurrentContext();
+			return cx.newArray(ScriptRuntime.getTopCallScope(cx), lst.toArray());
+		}
+		return array;
 	}
 
 	/**
