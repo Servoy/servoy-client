@@ -27,6 +27,7 @@ import java.util.Set;
 import com.servoy.base.query.BaseAbstractBaseQuery;
 import com.servoy.j2db.dataprocessing.AbstractDelegateDataServer;
 import com.servoy.j2db.dataprocessing.Blob;
+import com.servoy.j2db.dataprocessing.DatasetHandler;
 import com.servoy.j2db.dataprocessing.IDataServer;
 import com.servoy.j2db.dataprocessing.IDataSet;
 import com.servoy.j2db.dataprocessing.ISQLStatement;
@@ -386,6 +387,23 @@ public class ProfileDataServer extends AbstractDelegateDataServer
 			informListeners("Query", server_name, set.getSelect().getSql(), transaction_id, startTime, set.getSelect().getParameters());
 		}
 	}
+
+	@Override
+	public void loadCustomQuery(String client_id, String server_name, String driverTableName, String transaction_id, ISQLSelect sqlSelect,
+		ArrayList<TableFilter> filters, int startRow, int pageSize, DatasetHandler datasetHandler) throws ServoyException
+	{
+		long startTime = System.currentTimeMillis();
+		try
+		{
+			super.loadCustomQuery(client_id, server_name, driverTableName, transaction_id, sqlSelect, filters, startRow, pageSize, datasetHandler);
+		}
+		finally
+		{
+			QuerySet set = getSQLQuerySet(server_name, sqlSelect, filters, 0, 1, false, false);
+			informListeners("Query", server_name, set.getSelect().getSql(), transaction_id, startTime, set.getSelect().getParameters());
+		}
+	}
+
 
 	@Override
 	public IDataSet[] performQuery(String client_id, String server_name, String transaction_id, QueryData[] array) throws ServoyException

@@ -35,6 +35,7 @@ import com.servoy.j2db.dataprocessing.BroadcastFilter;
 import com.servoy.j2db.dataprocessing.BufferedDataSet;
 import com.servoy.j2db.dataprocessing.BufferedDataSetInternal;
 import com.servoy.j2db.dataprocessing.ClientInfo;
+import com.servoy.j2db.dataprocessing.DatasetHandler;
 import com.servoy.j2db.dataprocessing.IClient;
 import com.servoy.j2db.dataprocessing.IClientHost;
 import com.servoy.j2db.dataprocessing.IDataServer;
@@ -342,6 +343,14 @@ public class TestNGClient extends NGClient
 				ArrayList<TableFilter> filters, int startRow, int rowsToRetrieve) throws ServoyException
 			{
 				return dataSetMap.get(sqlSelect.getTable().getDataSource());
+			}
+
+			@Override
+			public void loadCustomQuery(String client_id, String server_name, String driverTableName, String transaction_id, ISQLSelect sqlSelect,
+				ArrayList<TableFilter> filters, int startRow, int pageSize, DatasetHandler datasetHandler) throws ServoyException
+			{
+				var dataSet = dataSetMap.get(sqlSelect.getTable().getDataSource());
+				datasetHandler.acceptDataSet(dataSet == null ? new BufferedDataSet() : dataSet);
 			}
 
 			@Override

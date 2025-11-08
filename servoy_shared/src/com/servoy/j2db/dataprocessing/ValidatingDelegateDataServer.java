@@ -260,6 +260,14 @@ public class ValidatingDelegateDataServer extends AbstractDelegateDataServer
 		return super.performCustomQuery(client_id, server_name, driverTableName, transaction_id, sqlSelect, filters, startRow, rowsToRetrieve);
 	}
 
+	@Override
+	public void loadCustomQuery(String client_id, String server_name, String driverTableName, String transaction_id, ISQLSelect sqlSelect,
+		ArrayList<TableFilter> filters, int startRow, int pageSize, DatasetHandler datasetHandler) throws ServoyException
+	{
+		validateQuery(sqlSelect);
+		super.loadCustomQuery(client_id, server_name, driverTableName, transaction_id, sqlSelect, filters, startRow, pageSize, datasetHandler);
+	}
+
 	/**
 	 * @param client_id
 	 * @param server_name

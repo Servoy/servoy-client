@@ -146,6 +146,13 @@ public class DataServerProxy implements IDataServer
 		return ds.performCustomQuery(clientId, getMappedServerName(serverName), driverTableName, transaction_id, sqlSelect, filters, startRow, rowsToRetrieve);
 	}
 
+	@Override
+	public void loadCustomQuery(String client_id, String server_name, String driverTableName, String transaction_id, ISQLSelect sqlSelect,
+		ArrayList<TableFilter> filters, int startRow, int pageSize, DatasetHandler datasetHandler) throws ServoyException
+	{
+		ds.loadCustomQuery(client_id, server_name, driverTableName, transaction_id, sqlSelect, filters, startRow, pageSize, datasetHandler);
+	}
+
 	public IDataSet performQuery(String _ignoredClientId, String serverName, String transaction_id, ISQLSelect sqlSelect, ColumnType[] resultTypes,
 		ArrayList<TableFilter> filters,
 		boolean distinctInMemory, int startRow, int rowsToRetrieve, boolean updateIdleTimestamp) throws ServoyException

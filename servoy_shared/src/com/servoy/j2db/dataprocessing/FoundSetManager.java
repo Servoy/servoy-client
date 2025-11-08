@@ -2391,7 +2391,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 				IDataServer ds = application.getDataServer();
 				if (foundset.getQuerySelectForReading() instanceof QuerySelect sqlString)
 				{
-					String serverName = DataSourceUtils.getDataSourceServerName(sqlString.getTable().getDataSource());
+					String serverName = getDataSourceServerName(sqlString.getTable().getDataSource());
 					String transaction_id = getTransactionID(serverName);
 					QuerySelect selectCountSQLString = sqlString.getSelectCount("n", true); //$NON-NLS-1$
 					IDataSet set = ds.performQuery(application.getClientID(), serverName, transaction_id, selectCountSQLString, null,
@@ -3813,6 +3813,36 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			throw new RuntimeException(new ServoyException(ServoyException.InternalCodes.SERVER_NOT_FOUND, new Object[] { select.getDataSource() }));
 
 		return getDataSetByQuery(serverName, select.build(), useTableFilters, max_returned_rows);
+	}
+
+
+	@Override
+	public void loadDataSetsByQuery(IQueryBuilder query, int startRow, int pageSize, DatasetHandler dataSetHandler) throws ServoyException
+	{
+		if (!application.haveRepositoryAccess())
+		{
+			// no access to repository yet, have to log in first
+			dataSetHandler.acceptDataSet(new BufferedDataSet());
+			return;
+		}
+
+
+		String serverName = getDataSourceServerName(query.getDataSource());
+		if (serverName == null)
+			throw new RuntimeException(new ServoyException(ServoyException.InternalCodes.SERVER_NOT_FOUND, new Object[] { query.getDataSource() }));
+
+		ISQLSelect sqlSelect = query.build();
+
+		IDataServer ds = application.getDataServer();
+		String transaction_id = getTransactionID(serverName);
+		long time = System.currentTimeMillis();
+		ds.loadCustomQuery(application.getClientID(), serverName, "<user_query>", transaction_id, sqlSelect, getTableFilterParams(serverName, sqlSelect),
+			startRow, pageSize, dataSetHandler);
+		if (Debug.tracing())
+		{
+			Debug.trace(
+				"Load query, time: " + (System.currentTimeMillis() - time) + " thread: " + Thread.currentThread().getName() + " SQL: " + sqlSelect); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+		}
 	}
 
 	private static boolean compareColumnTypes(List<ColumnType> types1, List<ColumnType> types2)

@@ -181,6 +181,21 @@ public interface IDatabaseManager extends ISaveConstants, ITableAndRelationProvi
 	 */
 	public IDataSet getDataSetByQuery(IQueryBuilder query, int max_returned_rows) throws ServoyException;
 
+	/**
+	 * Performs a sql query with a query builder object.
+	 * Will throw an exception if anything did go wrong when executing the query.
+	 *
+	 * <br>Table filters on the involved tables in the query are applied.
+	 *
+	 * @param query IQueryBuilder query.
+	 * @param startRow The first row to process.
+	 * @param pageSize The number of records to collect into a dataSet.
+	 * @param dataSetHandler Callback for loaded dataSet, last dataset will have hadMoreRows set to false.
+	 *
+	 * @since 2025.12
+	 */
+	public void loadDataSetsByQuery(IQueryBuilder query, int startRow, int pageSize, DatasetHandler dataSetHandler) throws ServoyException;
+
 
 	/**
 	 * Gets the list of records that couldn't be saved.

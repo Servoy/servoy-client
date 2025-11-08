@@ -24,6 +24,7 @@ import java.util.Set;
 
 import com.servoy.j2db.dataprocessing.Blob;
 import com.servoy.j2db.dataprocessing.BroadcastFilter;
+import com.servoy.j2db.dataprocessing.DatasetHandler;
 import com.servoy.j2db.dataprocessing.IDataServer;
 import com.servoy.j2db.dataprocessing.IDataSet;
 import com.servoy.j2db.dataprocessing.ISQLStatement;
@@ -276,6 +277,21 @@ public class ExceptionCheckingDataServer implements IDataServer
 		{
 			return delegate.performQuery(client_id, server_name, driverTableName, transaction_id, sql, questiondata, startRow, rowsToRetrieve,
 				updateIdleTimestamp);
+		}
+		catch (ServoyException e)
+		{
+			checkException(e);
+			throw e;
+		}
+	}
+
+	@Override
+	public void loadCustomQuery(String client_id, String server_name, String driverTableName, String transaction_id, ISQLSelect sqlSelect,
+		ArrayList<TableFilter> filters, int startRow, int pageSize, DatasetHandler datasetHandler) throws ServoyException
+	{
+		try
+		{
+			delegate.loadCustomQuery(client_id, server_name, driverTableName, transaction_id, sqlSelect, filters, startRow, pageSize, datasetHandler);
 		}
 		catch (ServoyException e)
 		{
