@@ -777,11 +777,11 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 			// from scripting, then show string representation
 			EmbeddableJSONWriter ejw = new EmbeddableJSONWriter(true); // that 'true' is a workaround for allowing directly a value instead of object or array
 			Object value = null;
-			if (isMultiselect != null && isMultiselect.booleanValue() && uiValue instanceof String)
+			if (Boolean.TRUE.equals(isMultiselect) && uiValue instanceof String)
 			{
 				value = Utils.getTokenElements((String)value, "\n", false);
 			}
-			else if (isMultiselect != null && isMultiselect.booleanValue() && value == null && getDataProviderConfig() != null &&
+			else if (Boolean.TRUE.equals(isMultiselect) && value == null && getDataProviderConfig() != null &&
 				"true".equals(getDataProviderConfig().getMultiselect()))
 			{
 				value = new String[] { null };
@@ -867,7 +867,7 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 		else
 		{
 			Object value = uiValue;
-			if (isMultiselect != null && isMultiselect.booleanValue())
+			if (Boolean.TRUE.equals(isMultiselect))
 			{
 				if (value instanceof String)
 				{
@@ -898,7 +898,7 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 			{
 				array[i] = jsonArray.getString(i);
 			}
-			if (isMultiselect != null && isMultiselect.booleanValue() && typeOfDP != null &&
+			if (Boolean.TRUE.equals(isMultiselect) && typeOfDP != null &&
 				(typeOfDP.getType() instanceof StringPropertyType || typeOfDP.getType() instanceof HTMLStringPropertyType))
 			{
 				newJSONValue = Utils.getTokenValue(array, "\n");
