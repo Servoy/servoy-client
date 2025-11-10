@@ -123,7 +123,8 @@ public abstract class RuntimeWindowManager
 		RuntimeWindow window = getWindow(currentWindowName);
 		if (window == null)
 		{
-			if (log.isInfoEnabled()) log.info("No current window for '" + currentWindowName + "' creating one if name is not null");
+			if (log.isInfoEnabled())
+				log.info("No current window for '" + currentWindowName + "' creating one if name is not null", new RuntimeException("stacktrace")); //$NON-NLS-1$ //$NON-NLS-2$
 			if (currentWindowName != null)
 			{
 				// the current window shouldn't be null, this could be a new tab in the web, create it
