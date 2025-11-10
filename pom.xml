@@ -33,6 +33,13 @@
 		</pluginRepository>
 	</pluginRepositories>
 
+     <distributionManagement>
+        <repository>
+            <id>my-s3-release-repo</id>
+            <url>file://C:/m2-repo/</url>
+        </repository>
+    </distributionManagement>
+
 	<profiles>
 		<profile>
 			<id>doc</id>
