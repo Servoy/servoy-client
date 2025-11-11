@@ -184,10 +184,12 @@ public class FormComponentSabloValue implements ISmartPropertyValue
 	{
 		if (webObjectContext == null) return; // it is already detached
 
-		ComponentTypeSabloValue[] components = getComponents();
-		for (ComponentTypeSabloValue componentTypeSabloValue : components)
+		if (components != null)
 		{
-			componentTypeSabloValue.detach();
+			for (ComponentTypeSabloValue componentTypeSabloValue : components)
+			{
+				componentTypeSabloValue.detach();
+			}
 		}
 		this.webObjectContext = null;
 	}
