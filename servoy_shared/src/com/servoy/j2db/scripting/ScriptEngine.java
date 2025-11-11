@@ -52,6 +52,7 @@ import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.ISmartClientApplication;
 import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.MenuManager;
+import com.servoy.j2db.ValueListManager;
 import com.servoy.j2db.dataprocessing.DataException;
 import com.servoy.j2db.dataprocessing.FoundSet;
 import com.servoy.j2db.dataprocessing.IDataServer;
@@ -277,7 +278,7 @@ public class ScriptEngine implements IScriptSupport
 				application.getPermissionManager());
 
 			tmpSolutionScope.put(IExecutingEnviroment.TOPLEVEL_JSVALUELIST, tmpSolutionScope,
-				application.getValueListManager());
+				new ValueListManager(application, tmpSolutionScope));
 
 			tmpSolutionScope.put(IExecutingEnviroment.TOPLEVEL_JSFORM, tmpSolutionScope,
 				application.getJSFormManager());

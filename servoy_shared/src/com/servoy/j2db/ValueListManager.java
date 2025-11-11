@@ -31,30 +31,21 @@ import org.mozilla.javascript.ScriptableObject;
 import com.servoy.base.persistence.constants.IValueListConstants;
 import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.scripting.DefaultJavaScope;
+import com.servoy.j2db.scripting.DefaultScope;
 
 /**
  * @author Diana
  *
  */
-public class ValueListManager implements IValueListManager, Scriptable
+public class ValueListManager extends DefaultScope implements IValueListManager
 {
 
-	private final ClientState application;
+	private final IApplication application;
 
-	public ValueListManager(ClientState clientState)
+	public ValueListManager(IApplication application, Scriptable scope)
 	{
-		this.application = clientState;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.mozilla.javascript.Scriptable#getClassName()
-	 */
-	@Override
-	public String getClassName()
-	{
-		return null;
+		super(scope);
+		this.application = application;
 	}
 
 	/*
@@ -129,132 +120,12 @@ public class ValueListManager implements IValueListManager, Scriptable
 	/*
 	 * (non-Javadoc)
 	 *
-	 * @see org.mozilla.javascript.Scriptable#get(int, org.mozilla.javascript.Scriptable)
-	 */
-	@Override
-	public Object get(int index, Scriptable start)
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 *
 	 * @see org.mozilla.javascript.Scriptable#has(java.lang.String, org.mozilla.javascript.Scriptable)
 	 */
 	@Override
 	public boolean has(String name, Scriptable start)
 	{
 		return get(name, start) != null;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.mozilla.javascript.Scriptable#has(int, org.mozilla.javascript.Scriptable)
-	 */
-	@Override
-	public boolean has(int index, Scriptable start)
-	{
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.mozilla.javascript.Scriptable#put(java.lang.String, org.mozilla.javascript.Scriptable, java.lang.Object)
-	 */
-	@Override
-	public void put(String name, Scriptable start, Object value)
-	{
-		// TODO Auto-generated method stub
-
-	}
-
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.mozilla.javascript.Scriptable#put(int, org.mozilla.javascript.Scriptable, java.lang.Object)
-	 */
-	@Override
-	public void put(int index, Scriptable start, Object value)
-	{
-		// TODO Auto-generated method stub
-
-	}
-
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.mozilla.javascript.Scriptable#delete(java.lang.String)
-	 */
-	@Override
-	public void delete(String name)
-	{
-		// TODO Auto-generated method stub
-
-	}
-
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.mozilla.javascript.Scriptable#delete(int)
-	 */
-	@Override
-	public void delete(int index)
-	{
-		// TODO Auto-generated method stub
-
-	}
-
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.mozilla.javascript.Scriptable#getPrototype()
-	 */
-	@Override
-	public Scriptable getPrototype()
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.mozilla.javascript.Scriptable#setPrototype(org.mozilla.javascript.Scriptable)
-	 */
-	@Override
-	public void setPrototype(Scriptable prototype)
-	{
-		// TODO Auto-generated method stub
-
-	}
-
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.mozilla.javascript.Scriptable#getParentScope()
-	 */
-	@Override
-	public Scriptable getParentScope()
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.mozilla.javascript.Scriptable#setParentScope(org.mozilla.javascript.Scriptable)
-	 */
-	@Override
-	public void setParentScope(Scriptable parent)
-	{
-		// TODO Auto-generated method stub
-
 	}
 
 	/*
@@ -274,29 +145,4 @@ public class ValueListManager implements IValueListManager, Scriptable
 
 		return names.toArray();
 	}
-
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.mozilla.javascript.Scriptable#getDefaultValue(java.lang.Class)
-	 */
-	@Override
-	public Object getDefaultValue(Class< ? > hint)
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.mozilla.javascript.Scriptable#hasInstance(org.mozilla.javascript.Scriptable)
-	 */
-	@Override
-	public boolean hasInstance(Scriptable instance)
-	{
-		// TODO Auto-generated method stub
-		return false;
-	}
-
 }

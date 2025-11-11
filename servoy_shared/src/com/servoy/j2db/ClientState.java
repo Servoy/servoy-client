@@ -1006,6 +1006,11 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		return permissionManager;
 	}
 
+	protected PermissionManager createPermissionManager()
+	{
+		return new PermissionManager(this);
+	}
+	
 	public JSFormManager getJSFormManager()
 	{
 		if (jsFormManager == null && !isShutDown())
@@ -1025,7 +1030,6 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 	{
 		return new JSFormManager(this);
 	}
-
 	private JSComponentManager createJSComponentManager()
 	{
 		return new JSComponentManager(this);
@@ -1044,31 +1048,6 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 			}
 		}
 		return jsComponentManager;
-	}
-
-	protected PermissionManager createPermissionManager()
-	{
-		return new PermissionManager(this);
-	}
-
-	public ValueListManager getValueListManager()
-	{
-		if (valueListManager == null && !isShutDown())
-		{
-			synchronized (this)
-			{
-				if (valueListManager == null)
-				{
-					valueListManager = createValueListManager();
-				}
-			}
-		}
-		return valueListManager;
-	}
-
-	protected ValueListManager createValueListManager()
-	{
-		return new ValueListManager(this);
 	}
 
 	public String getClientID()

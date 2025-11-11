@@ -316,17 +316,10 @@ public interface IApplication extends IBasicApplication, IServiceProvider, ILogL
 	/**
 	 * Get the permission manager.
 	 *
-	 * @return IEventsManager
+	 * @return IPermissionManager
 	 */
 	public IPermissionManager getPermissionManager();
-
-	/**
-	 * Get the permission manager.
-	 *
-	 * @return IEventsManager
-	 */
-	public IValueListManager getValueListManager();
-
+	
 	/**
 	 * Get the JSFormManager
 	 *
@@ -340,7 +333,6 @@ public interface IApplication extends IBasicApplication, IServiceProvider, ILogL
 	 * @return
 	 */
 	public IJSComponentManager getJSComponentManager();
-
 	/**
 	 * Get the user manager (used to do authentication and security)
 	 *
