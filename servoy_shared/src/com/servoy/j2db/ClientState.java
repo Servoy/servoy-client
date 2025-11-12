@@ -991,65 +991,6 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		return new EventsManager(this);
 	}
 
-	public PermissionManager getPermissionManager()
-	{
-		if (permissionManager == null && !isShutDown())
-		{
-			synchronized (this)
-			{
-				if (permissionManager == null)
-				{
-					permissionManager = createPermissionManager();
-				}
-			}
-		}
-		return permissionManager;
-	}
-
-	protected PermissionManager createPermissionManager()
-	{
-		return new PermissionManager(this);
-	}
-	
-	public JSFormManager getJSFormManager()
-	{
-		if (jsFormManager == null && !isShutDown())
-		{
-			synchronized (this)
-			{
-				if (jsFormManager == null)
-				{
-					jsFormManager = createJSFormManager();
-				}
-			}
-		}
-		return jsFormManager;
-	}
-
-	private JSFormManager createJSFormManager()
-	{
-		return new JSFormManager(this);
-	}
-	private JSComponentManager createJSComponentManager()
-	{
-		return new JSComponentManager(this);
-	}
-
-	public JSComponentManager getJSComponentManager()
-	{
-		if (jsComponentManager == null && !isShutDown())
-		{
-			synchronized (this)
-			{
-				if (jsComponentManager == null)
-				{
-					jsComponentManager = createJSComponentManager();
-				}
-			}
-		}
-		return jsComponentManager;
-	}
-
 	public String getClientID()
 	{
 		if (clientInfo == null)

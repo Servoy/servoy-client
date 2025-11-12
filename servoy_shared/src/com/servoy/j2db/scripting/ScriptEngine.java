@@ -51,7 +51,10 @@ import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.ISmartClientApplication;
 import com.servoy.j2db.J2DBGlobals;
+import com.servoy.j2db.JSComponentManager;
+import com.servoy.j2db.JSFormManager;
 import com.servoy.j2db.MenuManager;
+import com.servoy.j2db.PermissionManager;
 import com.servoy.j2db.ValueListManager;
 import com.servoy.j2db.dataprocessing.DataException;
 import com.servoy.j2db.dataprocessing.FoundSet;
@@ -275,16 +278,16 @@ public class ScriptEngine implements IScriptSupport
 				application.getEventsManager());
 
 			tmpSolutionScope.put(IExecutingEnviroment.TOPLEVEL_JSPERMISSION, tmpSolutionScope,
-				application.getPermissionManager());
+				new PermissionManager(application, tmpSolutionScope));
 
 			tmpSolutionScope.put(IExecutingEnviroment.TOPLEVEL_JSVALUELIST, tmpSolutionScope,
 				new ValueListManager(application, tmpSolutionScope));
 
 			tmpSolutionScope.put(IExecutingEnviroment.TOPLEVEL_JSFORM, tmpSolutionScope,
-				application.getJSFormManager());
+				new JSFormManager(application, tmpSolutionScope));
 
 			tmpSolutionScope.put(IExecutingEnviroment.TOPLEVEL_JSCOMPONENT, tmpSolutionScope,
-				application.getJSComponentManager());
+				new JSComponentManager(application, tmpSolutionScope));
 
 			pluginScope = new PluginScope(tmpSolutionScope, application);
 			tmpSolutionScope.put(IExecutingEnviroment.TOPLEVEL_PLUGINS, tmpSolutionScope, pluginScope);

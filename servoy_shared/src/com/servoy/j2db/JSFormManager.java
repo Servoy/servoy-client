@@ -27,19 +27,20 @@ import org.mozilla.javascript.ScriptableObject;
 
 import com.servoy.base.persistence.constants.IFormConstants;
 import com.servoy.j2db.persistence.Form;
+import com.servoy.j2db.scripting.DefaultScope;
 import com.servoy.j2db.scripting.solutionmodel.JSForm;
 import com.servoy.j2db.util.Debug;
 
 /**
  * @author emera
  */
-public class JSFormManager implements Scriptable, IJSFormManager
+public class JSFormManager extends DefaultScope implements IJSFormManager
 {
-	private final ClientState application;
+	private final IApplication application;
 
-	public JSFormManager(ClientState application)
+	public JSFormManager(IApplication application, Scriptable scope)
 	{
-		super();
+		super(scope);
 		this.application = application;
 	}
 
@@ -153,7 +154,7 @@ public class JSFormManager implements Scriptable, IJSFormManager
 		JSForm jsForm = null;
 		if (formInstance != null)
 		{
-			jsForm = new JSForm((IApplication)application, formInstance, false);
+			jsForm = new JSForm(application, formInstance, false);
 		}
 		return jsForm;
 	}

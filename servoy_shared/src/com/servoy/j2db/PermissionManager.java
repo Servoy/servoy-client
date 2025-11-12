@@ -23,6 +23,7 @@ import java.util.List;
 import org.mozilla.javascript.Scriptable;
 
 import com.servoy.j2db.persistence.IRepository;
+import com.servoy.j2db.scripting.DefaultScope;
 import com.servoy.j2db.scripting.info.JSPermission;
 import com.servoy.j2db.util.Debug;
 
@@ -30,13 +31,14 @@ import com.servoy.j2db.util.Debug;
  * @author lvostinar
  *
  */
-public class PermissionManager implements IPermissionManager, Scriptable
+public class PermissionManager extends DefaultScope implements IPermissionManager
 {
-	private final ClientState application;
+	private final IApplication application;
 
-	public PermissionManager(ClientState clientState)
+	public PermissionManager(IApplication application, Scriptable scope)
 	{
-		this.application = clientState;
+		super(scope);
+		this.application = application;
 	}
 
 	@Override

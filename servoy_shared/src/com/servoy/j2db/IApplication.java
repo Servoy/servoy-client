@@ -314,26 +314,6 @@ public interface IApplication extends IBasicApplication, IServiceProvider, ILogL
 	public IEventsManager getEventsManager();
 
 	/**
-	 * Get the permission manager.
-	 *
-	 * @return IPermissionManager
-	 */
-	public IPermissionManager getPermissionManager();
-	
-	/**
-	 * Get the JSFormManager
-	 *
-	 * @return
-	 */
-	public IJSFormManager getJSFormManager();
-
-	/**
-	 * Get the JSComponentManager (list of webcomponents, their properties and methods).
-	 *
-	 * @return
-	 */
-	public IJSComponentManager getJSComponentManager();
-	/**
 	 * Get the user manager (used to do authentication and security)
 	 *
 	 * @return

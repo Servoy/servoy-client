@@ -29,16 +29,18 @@ import org.sablo.specification.SpecProviderState;
 import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.WebObjectSpecification;
 
+import com.servoy.j2db.scripting.DefaultScope;
+
 /**
  * @author emera
  */
-public class JSComponentManager implements Scriptable, IJSComponentManager
+public class JSComponentManager extends DefaultScope implements IJSComponentManager
 {
-	private final ClientState application;
+	private final IApplication application;
 
-	public JSComponentManager(ClientState application)
+	public JSComponentManager(IApplication application, Scriptable scope)
 	{
-		super();
+		super(scope);
 		this.application = application;
 	}
 
