@@ -72,12 +72,22 @@ public class WebCustomType extends AbstractBase implements IChildWebObject, ISup
 	public static WebCustomType createNewInstance(IBasicWebObject parentWebObject, Object propertyDescription, String jsonKey, int index, boolean isNew,
 		UUID uuid)
 	{
-		return new WebCustomType(parentWebObject, propertyDescription, jsonKey, index, isNew,
-			uuid != null ? uuid : UUID.randomUUID());
+		return createNewInstance(parentWebObject, propertyDescription, jsonKey, index, isNew, uuid, null);
 	}
 
+	public static WebCustomType createNewInstance(IBasicWebObject parentWebObject, Object propertyDescription, String jsonKey, int index, boolean isNew,
+		UUID uuid, UUID extendsUUID)
+	{
+		return new WebCustomType(parentWebObject, propertyDescription, jsonKey, index, isNew,
+			uuid != null ? uuid : UUID.randomUUID(), extendsUUID);
+	}
 
 	public WebCustomType(IBasicWebObject parentWebObject, Object propertyDescription, String jsonKey, int index, boolean isNew, UUID uuid)
+	{
+		this(parentWebObject, propertyDescription, jsonKey, index, isNew, uuid, null);
+	}
+
+	public WebCustomType(IBasicWebObject parentWebObject, Object propertyDescription, String jsonKey, int index, boolean isNew, UUID uuid, UUID extendsUUID)
 	{
 		super(IRepository.WEBCUSTOMTYPES, parentWebObject, uuid);
 		webObjectImpl = new WebObjectImpl(this, propertyDescription);
@@ -88,7 +98,22 @@ public class WebCustomType extends AbstractBase implements IChildWebObject, ISup
 		JSONObject fullJSONInFrmFile = WebObjectImpl.getFullJSONInFrmFile(this, isNew);
 		if (fullJSONInFrmFile == null) fullJSONInFrmFile = new ServoyJSONObject();
 		fullJSONInFrmFile.put(UUID_KEY, getUUID().toString());
+		if (extendsUUID != null)
+		{
+			fullJSONInFrmFile.put(StaticContentSpecLoader.PROPERTY_EXTENDSID.getPropertyName(), extendsUUID.toString());
+		}
 		webObjectImpl.setJsonInternal(fullJSONInFrmFile);
+	}
+
+	private WebCustomType(IBasicWebObject parentWebObject, Object propertyDescription, String jsonKey, int index, JSONObject jsonObject)
+	{
+		super(IRepository.WEBCUSTOMTYPES, parentWebObject, UUID.fromString(jsonObject.getString(UUID_KEY)));
+		webObjectImpl = new WebObjectImpl(this, propertyDescription);
+
+		this.jsonKey = jsonKey;
+		this.index = index;
+
+		webObjectImpl.setJsonInternal(jsonObject);
 	}
 
 	public PropertyDescription getPropertyDescription()
