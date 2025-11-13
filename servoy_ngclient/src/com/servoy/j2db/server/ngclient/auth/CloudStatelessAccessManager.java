@@ -42,7 +42,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -78,6 +77,8 @@ import jakarta.servlet.http.HttpServletResponse;
 @SuppressWarnings("nls")
 public class CloudStatelessAccessManager
 {
+	private static final String SVY_REDIRECT = "svyRedirect";
+
 	private static final Logger log = LoggerFactory.getLogger("stateless.login");
 
 	private static final String BASE_CLOUD_URL = System.getProperty("servoy.api.url", "https://middleware-prod.unifiedui.servoy-cloud.eu");
@@ -244,6 +245,7 @@ public class CloudStatelessAccessManager
 							String endpoint = path.getName(path.getNameCount() - 1).toString().replace(".html", "");
 							if (Arrays.asList(endpoints).contains(endpoint))
 							{
+								String svyRedirect = request.getParameter(SVY_REDIRECT);
 								if ("POST".equalsIgnoreCase(request.getMethod()))
 								{
 									res = executeCloudPostRequest(httpclient, solution, endpoint, request,
@@ -256,7 +258,7 @@ public class CloudStatelessAccessManager
 
 								if (res != null)
 								{
-									writeResponse(request, response, solution, res, index);
+									writeResponse(request, response, solution, res, index, svyRedirect);
 									return true;
 								}
 								else
@@ -303,6 +305,7 @@ public class CloudStatelessAccessManager
 			String[] values = entry.getValue();
 			for (String value : values)
 			{
+				if (SVY_REDIRECT.equals(entry.getKey())) continue;
 				postParameters.put(entry.getKey(), value);
 			}
 		}
@@ -375,24 +378,36 @@ public class CloudStatelessAccessManager
 	public static void revokeToken(Solution solution, DecodedJWT jwt)
 	{
 		String provider = jwt.getClaim(CLOUD_OAUTH_ENDPOINT).asString();
-		JSONObject oauth = getOAuthConfigFromTheCloud(solution, null, provider);
-		OAuth20Service service = OAuthUtils.createOauthService(oauth, new HashMap<>(), null);
-		if (service != null)
-			try
+		if (provider != null)
 		{
-			if (service != null && service.getApi().getRevokeTokenEndpoint() != null)
+			JSONObject oauth = getOAuthConfigFromTheCloud(solution, null, provider);
+			if (oauth != null)
 			{
-				service.revokeToken(jwt.getClaim(StatelessLoginHandler.REFRESH_TOKEN).asString(), TokenTypeHint.REFRESH_TOKEN);
+				OAuth20Service service = OAuthUtils.createOauthService(oauth, new HashMap<>(), null);
+				if (service != null)
+				{
+					try
+					{
+						if (service != null && service.getApi().getRevokeTokenEndpoint() != null)
+						{
+							service.revokeToken(jwt.getClaim(StatelessLoginHandler.REFRESH_TOKEN).asString(), TokenTypeHint.REFRESH_TOKEN);
+						}
+					}
+					catch (IOException | InterruptedException | ExecutionException | UnsupportedOperationException e)
+					{
+						log.error("Could not revoke the refresh token.", e);
+					}
+				}
 			}
-		}
-			catch (IOException | InterruptedException | ExecutionException | UnsupportedOperationException e)
-		{
-			log.error("Could not revoke the refresh token.", e);
+			else
+			{
+				log.error("Could not revoke the refresh token, the cloud did not return an oauth config for " + provider);
+			}
 		}
 	}
 
 	private static void writeResponse(HttpServletRequest request, HttpServletResponse response, Solution solution, Pair<Integer, JSONObject> res,
-		Object index)
+		Object index, String initialURL)
 		throws IOException, UnsupportedEncodingException, ServletException
 	{
 		String html = null;
@@ -476,17 +491,11 @@ public class CloudStatelessAccessManager
 				}
 				if (!showLogin.getLeft().booleanValue() && (index instanceof File || index instanceof String))
 				{
-					//TODO refactor?
 					if (showLogin.getRight() != null)
 					{
 						request.getSession().setAttribute(StatelessLoginHandler.ID_TOKEN, showLogin.getRight());
 					}
-
-					String indexHtml = index instanceof File file ? FileUtils.readFileToString(file, "UTF-8") : (String)index;
-
-					ContentSecurityPolicyConfig contentSecurityPolicyConfig = AngularIndexPageWriter.addcontentSecurityPolicyHeader(request, response, false); // for NG2 remove the unsafe-eval
-					AngularIndexPageWriter.writeIndexPage(indexHtml, request, response, solution.getName(),
-						contentSecurityPolicyConfig == null ? null : contentSecurityPolicyConfig.getNonce());
+					response.sendRedirect(initialURL != null ? initialURL : request.getContextPath() + "/index.html");
 					return;
 				}
 				else
@@ -525,6 +534,7 @@ public class CloudStatelessAccessManager
 					html = html.replace("<script ", "<script nonce='" + contentSecurityPolicyNonce + '\'');
 					html = html.replace("<style", "<style nonce='" + contentSecurityPolicyNonce + '\'');
 				}
+				if (initialURL != null) html = html.replace("</form>", "<input type='hidden' name='" + SVY_REDIRECT + "' value='" + initialURL + "'></form>");
 				HTMLWriter.writeHTML(request, response, html);
 			}
 			else
@@ -700,6 +710,12 @@ public class CloudStatelessAccessManager
 				if (status == HttpURLConnection.HTTP_OK && res != null)
 				{
 					loginHtml = res.optString("html", null);
+					if (loginHtml != null && loginHtml.contains("</form>"))
+					{
+						String queryString = request.getQueryString() != null ? "?" + request.getQueryString() : "";
+						loginHtml = loginHtml.replace("</form>", "<input type='hidden' name='" + SVY_REDIRECT + "' value='" +
+							request.getRequestURL() + queryString + "'></form>");
+					}
 				}
 			}
 		}
