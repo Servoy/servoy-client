@@ -1,3 +1,4 @@
+/***/
 	   $scope.getTabAt = function(index) {
     	   if(index > 0 && index <= $scope.model.tabs.length) {
     		   return $scope.model.tabs[index - 1];
