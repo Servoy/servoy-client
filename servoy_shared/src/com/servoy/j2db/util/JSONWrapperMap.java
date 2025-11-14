@@ -53,7 +53,7 @@ public class JSONWrapperMap<T> extends AbstractMap<String, T>
 	 *
 	 * @return
 	 */
-	protected JSONObject getJson()
+	public JSONObject getJson()
 	{
 		if (json == null && source != null)
 		{

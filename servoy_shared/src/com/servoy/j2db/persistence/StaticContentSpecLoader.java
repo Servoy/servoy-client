@@ -227,7 +227,8 @@ public class StaticContentSpecLoader implements IContentSpecConstants
 	public static final TypedProperty<String> PROPERTY_CONTENT = new TypedProperty<String>(IContentSpecConstants.PROPERTY_CONTENT);
 	public static final TypedProperty<String> PROPERTY_CSSCLASS = new TypedProperty<String>(IContentSpecConstants.PROPERTY_CSSCLASS);
 	public static final TypedProperty<String> PROPERTY_CSSTEXT = new TypedProperty<String>(IContentSpecConstants.PROPERTY_CSSTEXT);
-	public static final TypedProperty<String> PROPERTY_CUSTOMPROPERTIES = new TypedProperty<String>(IContentSpecConstantsBase.PROPERTY_CUSTOMPROPERTIES);
+	public static final TypedProperty<JSONObject> PROPERTY_CUSTOMPROPERTIES = new TypedProperty<JSONObject>(
+		IContentSpecConstantsBase.PROPERTY_CUSTOMPROPERTIES);
 	public static final TypedProperty<String> PROPERTY_CUSTOMVALUES = new TypedProperty<String>(IContentSpecConstants.PROPERTY_CUSTOMVALUES);
 	public static final TypedProperty<String> PROPERTY_DATAPROVIDERID1 = new TypedProperty<String>(IContentSpecConstants.PROPERTY_DATAPROVIDERID1);
 	public static final TypedProperty<String> PROPERTY_DATAPROVIDERID2 = new TypedProperty<String>(IContentSpecConstants.PROPERTY_DATAPROVIDERID2);
@@ -745,28 +746,28 @@ public class StaticContentSpecLoader implements IContentSpecConstants
 			cs.new Element(319, IRepository.TABLENODES, PROPERTY_DATASOURCE.getPropertyName(), IRepository.DATASOURCES);
 
 			//custom properties support
-			cs.new Element(320, IRepository.FORMS, PROPERTY_CUSTOMPROPERTIES.getPropertyName(), IRepository.STRING);
-			cs.new Element(321, IRepository.BEANS, PROPERTY_CUSTOMPROPERTIES.getPropertyName(), IRepository.STRING);
-			cs.new Element(322, IRepository.PORTALS, PROPERTY_CUSTOMPROPERTIES.getPropertyName(), IRepository.STRING);
-			cs.new Element(323, IRepository.TABPANELS, PROPERTY_CUSTOMPROPERTIES.getPropertyName(), IRepository.STRING);
-			cs.new Element(324, IRepository.TABS, PROPERTY_CUSTOMPROPERTIES.getPropertyName(), IRepository.STRING);
-			cs.new Element(325, IRepository.GRAPHICALCOMPONENTS, PROPERTY_CUSTOMPROPERTIES.getPropertyName(), IRepository.STRING);
-			cs.new Element(326, IRepository.RELATIONS, PROPERTY_CUSTOMPROPERTIES.getPropertyName(), IRepository.STRING);
-			cs.new Element(327, IRepository.SHAPES, PROPERTY_CUSTOMPROPERTIES.getPropertyName(), IRepository.STRING);
-			cs.new Element(328, IRepository.RECTSHAPES, PROPERTY_CUSTOMPROPERTIES.getPropertyName(), IRepository.STRING);
-			cs.new Element(329, IRepository.VALUELISTS, PROPERTY_CUSTOMPROPERTIES.getPropertyName(), IRepository.STRING);
-			cs.new Element(330, IRepository.LINES, PROPERTY_CUSTOMPROPERTIES.getPropertyName(), IRepository.STRING);
-			cs.new Element(331, IRepository.PARTS, PROPERTY_CUSTOMPROPERTIES.getPropertyName(), IRepository.STRING);
-			cs.new Element(332, IRepository.METHODS, PROPERTY_CUSTOMPROPERTIES.getPropertyName(), IRepository.STRING);
-			cs.new Element(333, IRepository.SCRIPTVARIABLES, PROPERTY_CUSTOMPROPERTIES.getPropertyName(), IRepository.STRING);
-			cs.new Element(334, IRepository.SCRIPTCALCULATIONS, PROPERTY_CUSTOMPROPERTIES.getPropertyName(), IRepository.STRING);
-			cs.new Element(335, IRepository.TABLENODES, PROPERTY_CUSTOMPROPERTIES.getPropertyName(), IRepository.STRING);
-			cs.new Element(336, IRepository.AGGREGATEVARIABLES, PROPERTY_CUSTOMPROPERTIES.getPropertyName(), IRepository.STRING);
-			cs.new Element(337, IRepository.SOLUTIONS, PROPERTY_CUSTOMPROPERTIES.getPropertyName(), IRepository.STRING);
-			cs.new Element(338, IRepository.STYLES, PROPERTY_CUSTOMPROPERTIES.getPropertyName(), IRepository.STRING);
-			cs.new Element(339, IRepository.MEDIA, PROPERTY_CUSTOMPROPERTIES.getPropertyName(), IRepository.STRING);
-			cs.new Element(340, IRepository.FIELDS, PROPERTY_CUSTOMPROPERTIES.getPropertyName(), IRepository.STRING);
-			cs.new Element(341, IRepository.RELATION_ITEMS, PROPERTY_CUSTOMPROPERTIES.getPropertyName(), IRepository.STRING);
+			cs.new Element(320, IRepository.FORMS, PROPERTY_CUSTOMPROPERTIES.getPropertyName(), IRepository.JSON, null);
+			cs.new Element(321, IRepository.BEANS, PROPERTY_CUSTOMPROPERTIES.getPropertyName(), IRepository.JSON, null);
+			cs.new Element(322, IRepository.PORTALS, PROPERTY_CUSTOMPROPERTIES.getPropertyName(), IRepository.JSON, null);
+			cs.new Element(323, IRepository.TABPANELS, PROPERTY_CUSTOMPROPERTIES.getPropertyName(), IRepository.JSON, null);
+			cs.new Element(324, IRepository.TABS, PROPERTY_CUSTOMPROPERTIES.getPropertyName(), IRepository.JSON, null);
+			cs.new Element(325, IRepository.GRAPHICALCOMPONENTS, PROPERTY_CUSTOMPROPERTIES.getPropertyName(), IRepository.JSON, null);
+			cs.new Element(326, IRepository.RELATIONS, PROPERTY_CUSTOMPROPERTIES.getPropertyName(), IRepository.JSON, null);
+			cs.new Element(327, IRepository.SHAPES, PROPERTY_CUSTOMPROPERTIES.getPropertyName(), IRepository.JSON, null);
+			cs.new Element(328, IRepository.RECTSHAPES, PROPERTY_CUSTOMPROPERTIES.getPropertyName(), IRepository.JSON, null);
+			cs.new Element(329, IRepository.VALUELISTS, PROPERTY_CUSTOMPROPERTIES.getPropertyName(), IRepository.JSON, null);
+			cs.new Element(330, IRepository.LINES, PROPERTY_CUSTOMPROPERTIES.getPropertyName(), IRepository.JSON, null);
+			cs.new Element(331, IRepository.PARTS, PROPERTY_CUSTOMPROPERTIES.getPropertyName(), IRepository.JSON, null);
+			cs.new Element(332, IRepository.METHODS, PROPERTY_CUSTOMPROPERTIES.getPropertyName(), IRepository.JSON, null);
+			cs.new Element(333, IRepository.SCRIPTVARIABLES, PROPERTY_CUSTOMPROPERTIES.getPropertyName(), IRepository.JSON, null);
+			cs.new Element(334, IRepository.SCRIPTCALCULATIONS, PROPERTY_CUSTOMPROPERTIES.getPropertyName(), IRepository.JSON, null);
+			cs.new Element(335, IRepository.TABLENODES, PROPERTY_CUSTOMPROPERTIES.getPropertyName(), IRepository.JSON, null);
+			cs.new Element(336, IRepository.AGGREGATEVARIABLES, PROPERTY_CUSTOMPROPERTIES.getPropertyName(), IRepository.JSON, null);
+			cs.new Element(337, IRepository.SOLUTIONS, PROPERTY_CUSTOMPROPERTIES.getPropertyName(), IRepository.JSON, null);
+			cs.new Element(338, IRepository.STYLES, PROPERTY_CUSTOMPROPERTIES.getPropertyName(), IRepository.JSON, null);
+			cs.new Element(339, IRepository.MEDIA, PROPERTY_CUSTOMPROPERTIES.getPropertyName(), IRepository.JSON, null);
+			cs.new Element(340, IRepository.FIELDS, PROPERTY_CUSTOMPROPERTIES.getPropertyName(), IRepository.JSON, null);
+			cs.new Element(341, IRepository.RELATION_ITEMS, PROPERTY_CUSTOMPROPERTIES.getPropertyName(), IRepository.JSON, null);
 
 			cs.new Element(342, IRepository.PORTALS, PROPERTY_ONDRAGMETHODID.getPropertyName(), IRepository.ELEMENTS);
 			cs.new Element(343, IRepository.PORTALS, PROPERTY_ONDRAGOVERMETHODID.getPropertyName(), IRepository.ELEMENTS);
@@ -784,7 +785,7 @@ public class StaticContentSpecLoader implements IContentSpecConstants
 			cs.new Element(350, IRepository.FORMS, PROPERTY_ONRESIZEMETHODID.getPropertyName(), IRepository.ELEMENTS);
 			cs.new Element(351, IRepository.TEMPLATES, PROPERTY_RESOURCETYPE.getPropertyName(), IRepository.INTEGER);
 			cs.new Element(352, IRepository.TEMPLATES, PROPERTY_CONTENT.getPropertyName(), IRepository.STRING);
-			cs.new Element(353, IRepository.TEMPLATES, PROPERTY_CUSTOMPROPERTIES.getPropertyName(), IRepository.STRING);
+			cs.new Element(353, IRepository.TEMPLATES, PROPERTY_CUSTOMPROPERTIES.getPropertyName(), IRepository.JSON, null);
 		}
 
 		// 38 is for workspace update
@@ -875,7 +876,7 @@ public class StaticContentSpecLoader implements IContentSpecConstants
 		{
 			cs.new Element(413, IRepository.SOLUTIONS, PROPERTY_STYLESHEET.getPropertyName(), IRepository.ELEMENTS);
 			cs.new Element(414, IRepository.LAYOUTCONTAINERS, PROPERTY_LOCATION.getPropertyName(), IRepository.POINT);
-			cs.new Element(415, IRepository.LAYOUTCONTAINERS, PROPERTY_CUSTOMPROPERTIES.getPropertyName(), IRepository.STRING);
+			cs.new Element(415, IRepository.LAYOUTCONTAINERS, PROPERTY_CUSTOMPROPERTIES.getPropertyName(), IRepository.JSON, null);
 			cs.new Element(416, IRepository.LAYOUTCONTAINERS, PROPERTY_TAGTYPE.getPropertyName(), IRepository.STRING);
 			cs.new Element(417, IRepository.LAYOUTCONTAINERS, PROPERTY_ELEMENTID.getPropertyName(), IRepository.STRING);
 			cs.new Element(418, IRepository.LAYOUTCONTAINERS, PROPERTY_CSSCLASS.getPropertyName(), IRepository.STRING);
@@ -897,7 +898,7 @@ public class StaticContentSpecLoader implements IContentSpecConstants
 			cs.new Element(430, IRepository.WEBCOMPONENTS, PROPERTY_JSON.getPropertyName(), IRepository.JSON, null);
 			cs.new Element(431, IRepository.WEBCOMPONENTS, PROPERTY_FORMINDEX.getPropertyName(), IRepository.INTEGER);
 			cs.new Element(432, IRepository.WEBCOMPONENTS, PROPERTY_EXTENDSID.getPropertyName(), IRepository.ELEMENTS);
-			cs.new Element(433, IRepository.WEBCOMPONENTS, PROPERTY_CUSTOMPROPERTIES.getPropertyName(), IRepository.STRING);
+			cs.new Element(433, IRepository.WEBCOMPONENTS, PROPERTY_CUSTOMPROPERTIES.getPropertyName(), IRepository.JSON, null);
 		}
 
 		if (old_repository_version < 47)
@@ -972,7 +973,7 @@ public class StaticContentSpecLoader implements IContentSpecConstants
 
 			cs.new Element(465, IRepository.CSSPOS_LAYOUTCONTAINERS, PROPERTY_CSS_POSITION.getPropertyName(), IRepository.CSSPOSITION);
 //			cs.new Element(465, IRepository.CSSPOS_LAYOUTCONTAINERS, PROPERTY_LOCATION.getPropertyName(), IRepository.POINT);
-			cs.new Element(466, IRepository.CSSPOS_LAYOUTCONTAINERS, PROPERTY_CUSTOMPROPERTIES.getPropertyName(), IRepository.STRING);
+			cs.new Element(466, IRepository.CSSPOS_LAYOUTCONTAINERS, PROPERTY_CUSTOMPROPERTIES.getPropertyName(), IRepository.JSON, null);
 			cs.new Element(467, IRepository.CSSPOS_LAYOUTCONTAINERS, PROPERTY_TAGTYPE.getPropertyName(), IRepository.STRING);
 			cs.new Element(468, IRepository.CSSPOS_LAYOUTCONTAINERS, PROPERTY_ELEMENTID.getPropertyName(), IRepository.STRING);
 			cs.new Element(469, IRepository.CSSPOS_LAYOUTCONTAINERS, PROPERTY_CSSCLASS.getPropertyName(), IRepository.STRING);
@@ -990,14 +991,14 @@ public class StaticContentSpecLoader implements IContentSpecConstants
 			cs.new Element(475, IRepository.MENUS, PROPERTY_COMMENT.getPropertyName(), IRepository.STRING);
 			cs.new Element(476, IRepository.MENUS, PROPERTY_ENCAPSULATION.getPropertyName(), IRepository.INTEGER);
 			cs.new Element(477, IRepository.MENUS, PROPERTY_STYLECLASS.getPropertyName(), IRepository.STRING);
-			cs.new Element(478, IRepository.MENUS, PROPERTY_CUSTOMPROPERTIES.getPropertyName(), IRepository.STRING);
+			cs.new Element(478, IRepository.MENUS, PROPERTY_CUSTOMPROPERTIES.getPropertyName(), IRepository.JSON, null);
 
 			cs.new Element(479, IRepository.MENU_ITEMS, PROPERTY_NAME.getPropertyName(), IRepository.STRING);
 			cs.new Element(480, IRepository.MENU_ITEMS, PROPERTY_TEXT.getPropertyName(), IRepository.STRING);
 			cs.new Element(481, IRepository.MENU_ITEMS, PROPERTY_TOOLTIPTEXT.getPropertyName(), IRepository.STRING);
 			cs.new Element(482, IRepository.MENU_ITEMS, PROPERTY_STYLECLASS.getPropertyName(), IRepository.STRING);
 			cs.new Element(483, IRepository.MENU_ITEMS, PROPERTY_ICONSTYLECLASS.getPropertyName(), IRepository.STRING);
-			cs.new Element(484, IRepository.MENU_ITEMS, PROPERTY_CUSTOMPROPERTIES.getPropertyName(), IRepository.STRING);
+			cs.new Element(484, IRepository.MENU_ITEMS, PROPERTY_CUSTOMPROPERTIES.getPropertyName(), IRepository.JSON, null);
 			cs.new Element(485, IRepository.MENU_ITEMS, PROPERTY_ENABLED.getPropertyName(), IRepository.BOOLEAN, Boolean.TRUE);
 			cs.new Element(486, IRepository.MENU_ITEMS, PROPERTY_PERMISSIONS.getPropertyName(), IRepository.JSON, null);
 		}

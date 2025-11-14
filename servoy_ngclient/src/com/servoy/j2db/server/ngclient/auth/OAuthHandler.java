@@ -54,7 +54,6 @@ import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.server.shared.IApplicationServer;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.ScopesUtils;
-import com.servoy.j2db.util.ServoyJSONObject;
 import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 
@@ -318,8 +317,8 @@ public class OAuthHandler
 		String refresh_token = oldToken.getStringClaim(StatelessLoginHandler.REFRESH_TOKEN);
 		if (refresh_token != null)
 		{
-			JSONObject properties = new ServoyJSONObject(solution.getCustomProperties(), false);
-			if (properties.has(StatelessLoginHandler.OAUTH_CUSTOM_PROPERTIES))
+			JSONObject properties = solution.getCustomProperties();
+			if (properties != null && properties.has(StatelessLoginHandler.OAUTH_CUSTOM_PROPERTIES))
 			{
 				JSONObject auth = properties.getJSONObject(StatelessLoginHandler.OAUTH_CUSTOM_PROPERTIES);
 				OAuth20Service service = OAuthUtils.createOauthService(request, auth, new HashMap<>());
@@ -447,8 +446,8 @@ public class OAuthHandler
 
 	public static void revokeToken(Solution solution, DecodedJWT jwt)
 	{
-		JSONObject properties = new ServoyJSONObject(solution.getCustomProperties(), false);
-		if (properties.has(StatelessLoginHandler.OAUTH_CUSTOM_PROPERTIES))
+		JSONObject properties = solution.getCustomProperties();
+		if (properties != null && properties.has(StatelessLoginHandler.OAUTH_CUSTOM_PROPERTIES))
 		{
 			JSONObject auth = properties.getJSONObject(StatelessLoginHandler.OAUTH_CUSTOM_PROPERTIES);
 			OAuth20Service service = OAuthUtils.createOauthService(auth, new HashMap<>(), null);
@@ -502,9 +501,9 @@ public class OAuthHandler
 	private static JSONObject getConfig(Solution solution, Solution authenticatorModule, JSONArray args)
 	{
 		String method = GET_OAUTH_CONFIG;
-		JSONObject properties = new ServoyJSONObject(solution.getCustomProperties(), false);
+		JSONObject properties = solution.getCustomProperties();
 		ScriptMethod sm = null;
-		if (properties.has(GET_OAUTH_CONFIG))
+		if (properties != null && properties.has(GET_OAUTH_CONFIG))
 		{
 			UUID uuid = Utils.getAsUUID(properties.get(GET_OAUTH_CONFIG), false);
 			sm = (ScriptMethod)authenticatorModule.getAllObjectsAsList().stream().filter(persist -> persist.getUUID().equals(uuid))

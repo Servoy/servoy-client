@@ -374,9 +374,10 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 						((AbstractBase)cloneOfChildOfFormComponent).getCustomProperties() != null)
 					{
 						// custom properties needs to be merged in..
-						JSONObject original = new ServoyJSONObject(((AbstractBase)cloneOfChildOfFormComponent).getCustomProperties(), false);
+						JSONObject json = ((AbstractBase)cloneOfChildOfFormComponent).getCustomProperties();
+						JSONObject original = new ServoyJSONObject(json, ServoyJSONObject.getNames(json), false, true);
 						ServoyJSONObject.mergeAndDeepCloneJSON(new ServoyJSONObject((String)val, false), original);
-						((AbstractBase)cloneOfChildOfFormComponent).setCustomProperties(ServoyJSONObject.toString(original, false, true, false));
+						((AbstractBase)cloneOfChildOfFormComponent).setCustomProperties(original);
 					}
 					else if (val instanceof JSONArray && ((AbstractBase)cloneOfChildOfFormComponent).getProperty(key) instanceof IChildWebObject[])
 					{

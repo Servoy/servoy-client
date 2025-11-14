@@ -1019,7 +1019,7 @@ public abstract class AbstractBase implements IPersist
 	 * @param arg the customProperties
 	 * @throws JSONException
 	 */
-	public void setCustomProperties(String arg)
+	public void setCustomProperties(JSONObject arg)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_CUSTOMPROPERTIES, arg);
 		jsonCustomProperties = null;
@@ -1032,11 +1032,11 @@ public abstract class AbstractBase implements IPersist
 	 *
 	 * @return the customProperties
 	 */
-	public String getCustomProperties()
+	public JSONObject getCustomProperties()
 	{
 		if (jsonCustomProperties != null)
 		{
-			return jsonCustomProperties.toString();
+			return jsonCustomProperties.getJson();
 		}
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_CUSTOMPROPERTIES);
 	}
@@ -1081,13 +1081,13 @@ public abstract class AbstractBase implements IPersist
 	@SuppressWarnings("unchecked")
 	private Object getCustomPropertyNonFlattenedInternal(String[] path)
 	{
-		String customProperties = getTypedProperty(StaticContentSpecLoader.PROPERTY_CUSTOMPROPERTIES);
+		JSONObject customProperties = getTypedProperty(StaticContentSpecLoader.PROPERTY_CUSTOMPROPERTIES);
 
 		if (customProperties == null) return UNDEFINED;
 
 		if (jsonCustomProperties == null)
 		{
-			jsonCustomProperties = new JSONWrapperMap(customProperties);
+			jsonCustomProperties = new JSONWrapperMap(new ServoyJSONObject(customProperties, ServoyJSONObject.getNames(customProperties), false, true));
 		}
 		try
 		{
@@ -1118,7 +1118,7 @@ public abstract class AbstractBase implements IPersist
 	@SuppressWarnings("unchecked")
 	public Object putCustomProperty(String[] path, Object value)
 	{
-		String customProperties = getTypedProperty(StaticContentSpecLoader.PROPERTY_CUSTOMPROPERTIES);
+		JSONObject customProperties = getTypedProperty(StaticContentSpecLoader.PROPERTY_CUSTOMPROPERTIES);
 		boolean isNotExtendingAnotherPersist = isNotExtendingAnotherPersist();
 
 		if (isNotExtendingAnotherPersist && customProperties == null && value == null) return null;
@@ -1127,7 +1127,7 @@ public abstract class AbstractBase implements IPersist
 		{
 			if (customProperties != null)
 			{
-				jsonCustomProperties = new JSONWrapperMap(customProperties);
+				jsonCustomProperties = new JSONWrapperMap(new ServoyJSONObject(customProperties, ServoyJSONObject.getNames(customProperties), false, true));
 			}
 			else
 			{
@@ -1164,26 +1164,19 @@ public abstract class AbstractBase implements IPersist
 		{
 			old = map.put(leaf, value != null ? value : JSONObject.NULL); // in case of inherited elements when put(key, null) is called we really need to write the null (which for JSONObject means writing JSONObject.NULL; if we would just put null it would be equivalent to a remove(key) which would not override key to remove parent value through inheritance)
 		}
-		setTypedProperty(StaticContentSpecLoader.PROPERTY_CUSTOMPROPERTIES, jsonCustomProperties.toString());
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_CUSTOMPROPERTIES, jsonCustomProperties.getJson());
 		return old;
 	}
 
 	@SuppressWarnings("unchecked")
 	public Object clearCustomProperty(String[] path)
 	{
-		String customProperties = getTypedProperty(StaticContentSpecLoader.PROPERTY_CUSTOMPROPERTIES);
+		JSONObject customProperties = getTypedProperty(StaticContentSpecLoader.PROPERTY_CUSTOMPROPERTIES);
 		if (customProperties == null) return null;
 
 		if (jsonCustomProperties == null)
 		{
-			if (customProperties != null)
-			{
-				jsonCustomProperties = new JSONWrapperMap(customProperties);
-			}
-			else
-			{
-				jsonCustomProperties = new JSONWrapperMap(new ServoyJSONObject());
-			}
+			jsonCustomProperties = new JSONWrapperMap(new ServoyJSONObject(customProperties, ServoyJSONObject.getNames(customProperties), false, true));
 		}
 
 		Map<String, Object> map = jsonCustomProperties;
@@ -1209,7 +1202,7 @@ public abstract class AbstractBase implements IPersist
 		if (jsonCustomProperties != null)
 		{
 			if (jsonCustomProperties.isEmpty()) clearProperty(StaticContentSpecLoader.PROPERTY_CUSTOMPROPERTIES.getPropertyName());
-			else setTypedProperty(StaticContentSpecLoader.PROPERTY_CUSTOMPROPERTIES, jsonCustomProperties.toString());
+			else setTypedProperty(StaticContentSpecLoader.PROPERTY_CUSTOMPROPERTIES, jsonCustomProperties.getJson());
 		}
 
 		return old;
