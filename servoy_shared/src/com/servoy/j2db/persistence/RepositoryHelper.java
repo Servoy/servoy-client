@@ -445,7 +445,7 @@ public class RepositoryHelper
 		{
 			return true;
 		}
-		if (persist instanceof Form && StaticContentSpecLoader.PROPERTY_VIEW.getPropertyName().equals(name) && ((Form)persist).getUseCssPosition())
+		if (persist instanceof Form && StaticContentSpecLoader.PROPERTY_VIEW.getPropertyName().equals(name))
 		{
 			return true;
 		}
