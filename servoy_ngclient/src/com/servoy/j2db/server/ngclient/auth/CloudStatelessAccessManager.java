@@ -190,10 +190,10 @@ public class CloudStatelessAccessManager
 			Pair<Integer, JSONObject> res = httpclient.execute(httpget, new CloudResponseHandler("login_auth"));
 			if (res.getLeft().intValue() == HttpStatus.SC_OK)
 			{
-				SvyTokenBuilder tokenBuilder = extractPermissionFromResponse(needToLogin, res, oldToken.getUsername());
+				SvyTokenBuilder tokenBuilder = extractPermissionFromResponse(needToLogin, res, oldToken != null ? oldToken.getUsername() : username);
 				if (tokenBuilder == null) return false;
-				tokenBuilder.withRememberUser(oldToken.rememberUser());
-				tokenBuilder.withRefreshToken(oldToken.getStringClaim(StatelessLoginHandler.REFRESH_TOKEN));
+				tokenBuilder.withRememberUser(oldToken != null ? Boolean.valueOf(oldToken.rememberUser()) : Boolean.FALSE);
+				if (oldToken != null) tokenBuilder.withRefreshToken(oldToken.getStringClaim(StatelessLoginHandler.REFRESH_TOKEN));
 				tokenBuilder.withClaim(CLOUD_OAUTH_ENDPOINT, provider);
 				String svyToken = tokenBuilder.sign();
 				needToLogin.setLeft(Boolean.FALSE);
