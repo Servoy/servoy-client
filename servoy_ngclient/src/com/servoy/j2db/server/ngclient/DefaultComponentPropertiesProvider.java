@@ -19,6 +19,7 @@ package com.servoy.j2db.server.ngclient;
 
 import java.util.Map;
 
+import org.json.JSONObject;
 import org.sablo.specification.IDefaultComponentPropertiesProvider;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.PropertyDescriptionBuilder;
@@ -69,19 +70,32 @@ public class DefaultComponentPropertiesProvider implements IDefaultComponentProp
 		if (!properties.containsKey("formIndex"))
 		{
 			properties.put("formIndex",
-				new PropertyDescriptionBuilder().withName("formIndex").withType(IntPropertyType.INSTANCE_NULL_DEFAULT).build());
+				new PropertyDescriptionBuilder().withName("formIndex").withType(IntPropertyType.INSTANCE_NULL_DEFAULT)
+					.withTags(new JSONObject().put(PropertyDescription.DOCUMENTATION_TAG_FOR_PROP_OR_KEY_FOR_HANDLERS,
+						"The Z index of this component. If two components overlap, then the component with higher Z index is displayed above the component with lower Z index."))
+					.build());
+
 		}
 		if (!properties.containsKey(IContentSpecConstants.PROPERTY_CSS_POSITION))
 		{
 			properties.put(IContentSpecConstants.PROPERTY_CSS_POSITION,
 				new PropertyDescriptionBuilder().withName(IContentSpecConstants.PROPERTY_CSS_POSITION).withType(
-					TypesRegistry.getType(CSSPositionPropertyType.TYPE_NAME)).build());
+					TypesRegistry.getType(CSSPositionPropertyType.TYPE_NAME))
+					.withTags(new JSONObject().put(PropertyDescription.DOCUMENTATION_TAG_FOR_PROP_OR_KEY_FOR_HANDLERS,
+						"CSS position is a replacement for anchoring system making it more intuitive to place a component.\r\n" +
+							"CSS position should be set on form, an absolute position form can either work with anchoring or with css position.\r\n" +
+							"This is only working in NGClient."))
+					.build());
 		}
 		if (!properties.containsKey(IContentSpecConstants.PROPERTY_ATTRIBUTES))
 		{
 			properties.put(IContentSpecConstants.PROPERTY_ATTRIBUTES,
 				new PropertyDescriptionBuilder().withName(IContentSpecConstants.PROPERTY_ATTRIBUTES).withType(
-					TypesRegistry.getType(ServoyAttributesPropertyType.TYPE_NAME)).build());
+					TypesRegistry.getType(ServoyAttributesPropertyType.TYPE_NAME))
+					.withTags(new JSONObject().put(PropertyDescription.DOCUMENTATION_TAG_FOR_PROP_OR_KEY_FOR_HANDLERS,
+						"Array of attributes of a component"))
+					.build());
+
 		}
 		if (properties.values().stream().anyMatch(p -> p.getType() instanceof EnabledPropertyType))
 		{
