@@ -414,6 +414,8 @@ public class NGFormServiceHandler extends FormServiceHandler
 				}
 				else
 				{
+					// need to execute the invokeLaters from WebFormController.notifyVisible in order to trigger onHide for the components on the form
+					Utils.invokeLater(getApplication(), invokeLaterRunnables);
 					// a hide form; could either be a failed hide (if something blocked it; returns FALSE)
 					// or a successful hide with or without a following show of another form (with - it will use the retVal of executeMethod("formvisibility", showing) call above; without it will just be TRUE)
 					return retValIfHiding;
