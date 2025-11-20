@@ -29,12 +29,19 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.ResourceBundle;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 
+import org.mozilla.javascript.Callable;
+import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
+import org.mozilla.javascript.NativePromise;
+import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.ScriptableObject;
 
 import com.servoy.j2db.ClientVersion;
 import com.servoy.j2db.FlattenedSolution;
@@ -486,22 +493,63 @@ public class ClientPluginAccessProvider implements IClientPluginAccess
 
 					if (!async)
 					{
-						Object retval;
+						Object[] retval = new Object[1];
 						try
 						{
 							method.wait();
-							retval = method.getRetval();
+							retval[0] = method.getRetval();
+							if (retval[0] instanceof NativePromise nativePromise)
+							{
+								if (ScriptableObject.getProperty(nativePromise, "then") instanceof Callable callable)
+								{
+									CountDownLatch latch = new CountDownLatch(1);
+									Context cx = Context.enter();
+									try
+									{
+										callable.call(cx, nativePromise, nativePromise, new Object[] { new Callable()
+										{
+
+											@Override
+											public Object call(Context cx, Scriptable scope, Scriptable thisObj, Object[] args)
+											{
+												retval[0] = args[0];
+												latch.countDown();
+												return null;
+											}
+
+										}, new Callable()
+										{
+
+											@Override
+											public Object call(Context cx, Scriptable scope, Scriptable thisObj, Object[] args)
+											{
+												// what should we do on reject?
+												retval[0] = args[0];
+												latch.countDown();
+												return null;
+											}
+
+										} });
+										cx.processMicrotasks();
+									}
+									finally
+									{
+										Context.exit();
+									}
+									latch.await(5, TimeUnit.MINUTES);
+								}
+							}
 						}
 						catch (InterruptedException e)
 						{
-							retval = e;
+							retval[0] = e;
 							Debug.error(e);
 						}
-						if (retval instanceof Exception)
+						if (retval[0] instanceof Exception ex)
 						{
-							throw (Exception)retval;
+							throw ex;
 						}
-						return retval;
+						return retval[0];
 					}
 				}
 			}
