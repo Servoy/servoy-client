@@ -2704,63 +2704,65 @@ public final class Utils
 		return close(w);
 	}
 
+	@SuppressWarnings("nls")
 	public static byte[] readFile(File f, long size)
 	{
-		if (f != null && f.exists())
+		if (f == null || !f.exists())
 		{
-
-			FileInputStream fis = null;
-			try
-			{
-				long length = f.length();
-				fis = new FileInputStream(f);
-				FileChannel fc = fis.getChannel();
-				if (size > length || size < 0) size = length;
-				if (size > Integer.MAX_VALUE) throw new IllegalArgumentException("Can't read in a file that is bigger than 2GB " + f); //$NON-NLS-1$
-				ByteBuffer bb = ByteBuffer.allocate((int)size);
-				fc.read(bb);
-				bb.rewind();
-				byte[] bytes = null;
-				if (bb.hasArray())
-				{
-					bytes = bb.array();
-				}
-				else
-				{
-					bytes = new byte[(int)size];
-					bb.get(bytes, 0, (int)size);
-				}
-				return bytes;
-			}
-			catch (Exception e)
-			{
-				Debug.error("Error reading file: " + f, e); //$NON-NLS-1$
-			}
-			finally
-			{
-				try
-				{
-					if (fis != null) fis.close();
-				}
-				catch (Exception ex)
-				{
-				}
-			}
-
-			//			ByteArrayOutputStream sb = new ByteArrayOutputStream();
-			//			try
-			//			{
-			//				FileInputStream is = new FileInputStream(f);
-			//				BufferedInputStream bis = new BufferedInputStream(is);
-			//				streamCopy(bis, sb);
-			//				closeInputStream(bis);
-			//			}
-			//			catch (Exception e)
-			//			{
-			//				Debug.error(e);
-			//			}
-			//			return sb.toByteArray();
+			return null; // Return null if file is invalid or doesn't exist
 		}
+
+		try (FileInputStream fis = new FileInputStream(f);
+			FileChannel fc = fis.getChannel())
+		{
+			long length = f.length();
+			long bytesToRead = size;
+
+			// If the requested size is greater than file length OR negative, set size to file length.
+			if (bytesToRead > length || bytesToRead < 0)
+			{
+				bytesToRead = length;
+			}
+
+			if (bytesToRead > Integer.MAX_VALUE)
+			{
+				throw new IllegalArgumentException("Can't read in a file that is bigger than 2GB (" + f + "). Requested size: " + bytesToRead);
+			}
+
+			int bufferSize = (int)bytesToRead;
+			// Allocate memory off-heap for faster I/O (Zero-copy)
+			ByteBuffer bb = ByteBuffer.allocateDirect(bufferSize);
+
+			// The read call will populate the off-heap buffer
+			fc.read(bb);
+
+			// Set limit to the amount of data read and position to 0.
+			bb.flip();
+
+			// Copy to Heap Array
+			byte[] bytes = new byte[bb.remaining()];
+
+			// Copy the data from the Direct Buffer into the Heap array
+			bb.get(bytes);
+
+			return bytes;
+		}
+		catch (IOException e)
+		{
+			// Handle IOException from file operations
+			Debug.error("Error reading file: " + f, e);
+		}
+		catch (IllegalArgumentException e)
+		{
+			// Handle the 2GB limit exception
+			Debug.error("Argument error reading file: " + f, e);
+		}
+		catch (Exception e)
+		{
+			// Catch any other unexpected exceptions
+			Debug.error("Unexpected error reading file: " + f, e);
+		}
+
 		return null;
 	}
 
