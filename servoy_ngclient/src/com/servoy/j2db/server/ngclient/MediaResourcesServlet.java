@@ -198,7 +198,7 @@ public class MediaResourcesServlet extends AbstractMediaResourceServlet
 				}
 				catch (Exception e)
 				{
-					Debug.error("could not decrypt blobloader: " + encrypted);
+					Debug.error("could not decrypt blobloader: " + encrypted + " trying to show the url in a different client?", e);
 				}
 			}
 		}
