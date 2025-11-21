@@ -61,6 +61,11 @@ public interface IQueryBuilderConstants
 	/**
 	 * @sameas TYPE_BIG_INTEGER
 	 */
+	public static final String NUMERIC = IQueryConstants.NUMERIC;
+
+	/**
+	 * @sameas TYPE_BIG_INTEGER
+	 */
 	public static final String TYPE_INTEGER = IQueryConstants.TYPE_INTEGER;
 
 	/**

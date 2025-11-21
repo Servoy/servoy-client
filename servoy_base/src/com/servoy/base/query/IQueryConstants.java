@@ -92,6 +92,11 @@ public interface IQueryConstants
 	/**
 	 * @sameas TYPE_BIG_INTEGER
 	 */
+	public static final String NUMERIC = "numeric";
+
+	/**
+	 * @sameas TYPE_BIG_INTEGER
+	 */
 	public static final String TYPE_INTEGER = "integer";
 
 	/**

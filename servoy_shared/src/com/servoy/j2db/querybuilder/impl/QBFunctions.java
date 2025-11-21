@@ -46,6 +46,7 @@ import static com.servoy.j2db.query.QueryFunction.QueryFunctionType.sqrt;
 import static com.servoy.j2db.query.QueryFunction.QueryFunctionType.substring;
 import static com.servoy.j2db.query.QueryFunction.QueryFunctionType.trim;
 import static com.servoy.j2db.query.QueryFunction.QueryFunctionType.upper;
+import static com.servoy.j2db.query.QueryFunction.QueryFunctionType.vector_score;
 import static com.servoy.j2db.query.QueryFunction.QueryFunctionType.year;
 import static com.servoy.j2db.util.Utils.getCallerMethodName;
 import static java.util.Arrays.asList;
@@ -262,8 +263,7 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	@JSFunction
 	public QBGenericColumnBase cast(Object value, String type)
 	{
-		return new QBFunctionImpl(getRoot(), getParent(), cast,
-			new IQuerySelectValue[] { createOperand(value), new QueryColumnValue(type, null, true) });
+		return new QBFunctionImpl(getRoot(), getParent(), cast, new IQuerySelectValue[] { createOperand(value), new QueryColumnValue(type, null, true) });
 	}
 
 	/**
@@ -501,10 +501,9 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	 * @return A query builder column representing the input rounded to the specified number of decimal places.
 	 */
 	@JSFunction
-	public QBIntegerColumnBase round(Object arg, int decimals)
+	public QBNumberColumnBase round(Object arg, int decimals)
 	{
-		return new QBFunctionImpl(getRoot(), getParent(), round,
-			new IQuerySelectValue[] { createOperand(arg), createOperand(Integer.valueOf(decimals)) });
+		return new QBFunctionImpl(getRoot(), getParent(), round, new IQuerySelectValue[] { createOperand(arg), createOperand(Integer.valueOf(decimals)) });
 	}
 
 	/**
@@ -638,7 +637,6 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 		return new QBFunctionImpl(getRoot(), getParent(), year, new IQuerySelectValue[] { createOperand(arg) });
 	}
 
-
 	/**
 	 * @clonedesc com.servoy.j2db.querybuilder.impl.QBArrayColumnBase#cardinality()
 	 * @param arg date object
@@ -653,6 +651,24 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	public QBIntegerColumnBase cardinality(Object arg)
 	{
 		return new QBFunctionImpl(getRoot(), getParent(), cardinality, new IQuerySelectValue[] { createOperand(arg) });
+	}
+
+	/**
+	 * @clonedesc com.servoy.j2db.querybuilder.impl.QBVectorColumnBase#vector_score(String)
+	 * @param arg vector column
+	 * @param embedding embedding object
+	 * @sample
+	 * var query = datasources.db.example_data.books.createSelect();
+	 * query.where.add(query.joins.books_to_books_embeddings.columns.embedding.vector_score(client.embed('Magic or Fantasy')).min_score(0.7))
+	 * foundset.loadRecords(query);
+	 *
+	 * @return A query builder column representing the normalized vector score of the vector column compared with the embedding.
+	 */
+	@JSFunction
+	public QBScoreColumnBase vector_score(Object arg, float[] embedding)
+	{
+		return new QBFunctionImpl(getRoot(), getParent(), vector_score,
+			new IQuerySelectValue[] { createOperand(arg), new QueryColumnValue(embedding, null) });
 	}
 
 	/**

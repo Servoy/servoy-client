@@ -17,6 +17,7 @@
 
 package com.servoy.j2db.querybuilder.impl;
 
+import static com.servoy.j2db.query.QueryFunction.QueryFunctionType._denormalize_vector_score;
 import static com.servoy.j2db.util.Utils.arrayAdd;
 
 import com.servoy.base.query.BaseColumnType;
@@ -38,7 +39,8 @@ import com.servoy.j2db.querybuilder.IQueryBuilder;
  */
 public class QBColumnImpl extends QBPart
 	implements QBGenericColumnBase, QBIntegerColumnBase, QBDatetimeColumnBase, QBNumberColumnBase, QBMediaColumnBase,
-	QBTextColumnBase, QBColumnComparable<QBColumnComparable<QBColumn>>, QBTextColumnComparableFunctions, QBArrayColumnBase, QBColumn,
+	QBTextColumnBase, QBScoreColumnBase, QBColumnComparable<QBColumnComparable<QBColumn>>, QBTextColumnComparableFunctions, QBArrayColumnBase,
+	QBVectorColumnBase, QBColumn,
 	QBNumberColumnFunctions<QBColumn>
 {
 	private final IQuerySelectValue queryColumn;
@@ -457,6 +459,31 @@ public class QBColumnImpl extends QBPart
 	public QBIntegerColumnBase cardinality()
 	{
 		return getRoot().functions().cardinality(this);
+	}
+
+	/////////////////////////////////////////////////////////
+	////////////// QBVectorColumnBase methods ///////////////
+	/////////////////////////////////////////////////////////
+
+	@Override
+	public QBScoreColumnBase vector_score(float[] embedding)
+	{
+		return getRoot().functions().vector_score(this, embedding);
+	}
+
+	/////////////////////////////////////////////////////////
+	////////////// QBScoreColumnBase methods ///////////////
+	/////////////////////////////////////////////////////////
+
+	@Override
+	public QBCondition min_score(Object normalizedScore)
+	{
+		// compare using the denormalized score so native indexes can be used
+		var denormalizedScore = new QBFunctionImpl(getRoot(), getParent(), _denormalize_vector_score, new IQuerySelectValue[] { createOperand(this) });
+		var denormalizedMinScore = new QBFunctionImpl(getRoot(), getParent(), _denormalize_vector_score,
+			new IQuerySelectValue[] { createOperand(normalizedScore) });
+
+		return denormalizedScore.le(denormalizedMinScore);
 	}
 
 	/////////////////////////////////////////////////////////

@@ -17,6 +17,9 @@
 
 package com.servoy.j2db.querybuilder.impl;
 
+import static com.servoy.j2db.query.QueryFunction.QueryFunctionType._native_vector_score;
+import static com.servoy.j2db.query.QueryFunction.QueryFunctionType.vector_score;
+
 import com.servoy.j2db.query.IQuerySelectValue;
 import com.servoy.j2db.query.QueryFunction;
 import com.servoy.j2db.query.QueryFunction.QueryFunctionType;
@@ -32,12 +35,34 @@ public class QBFunctionImpl extends QBColumnImpl
 	private final QueryFunctionType functionType;
 	private final IQuerySelectValue[] functionArgs;
 
-	QBFunctionImpl(QBSelect root, QBTableClause queryBuilderTableClause, QueryFunctionType functionType, IQuerySelectValue[] functionArgs)
+	protected QBFunctionImpl(QBSelect root, QBTableClause queryBuilderTableClause, QueryFunctionType functionType, IQuerySelectValue[] functionArgs)
 	{
 		super(root, queryBuilderTableClause, null);
 		this.functionType = functionType;
 		this.functionArgs = functionArgs;
 	}
+
+	@Override
+	public QBSort desc()
+	{
+		if (functionType == vector_score)
+		{
+			return new QBSort(getRoot(), new QBFunctionImpl(getRoot(), getParent(), _native_vector_score, functionArgs), false);
+		}
+		return super.desc();
+	}
+
+
+	@Override
+	public QBSort asc()
+	{
+		if (functionType == vector_score)
+		{
+			return new QBSort(getRoot(), new QBFunctionImpl(getRoot(), getParent(), _native_vector_score, functionArgs), true);
+		}
+		return super.asc();
+	}
+
 
 	@Override
 	public IQuerySelectValue getQuerySelectValue()

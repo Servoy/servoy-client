@@ -68,6 +68,9 @@ public final class QueryFunction implements IQuerySelectValue
 		round,
 		ceil,
 		cardinality,
+		vector_score, // normalized score
+		_native_vector_score, // only internal
+		_denormalize_vector_score, // only internal
 
 		distinct, // slightly abused as function
 		plus,

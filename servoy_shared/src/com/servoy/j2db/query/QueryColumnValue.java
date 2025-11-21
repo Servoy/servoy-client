@@ -16,6 +16,7 @@
  */
 package com.servoy.j2db.query;
 
+import java.sql.Types;
 import java.util.Date;
 
 import com.servoy.base.query.BaseColumnType;
@@ -104,6 +105,10 @@ public final class QueryColumnValue implements IQuerySelectValue
 		if (value instanceof byte[])
 		{
 			return ColumnType.getColumnType(IColumnTypes.MEDIA);
+		}
+		if (value instanceof float[])
+		{
+			return ColumnType.getColumnType(Types.OTHER);
 		}
 
 		return null;
