@@ -123,7 +123,9 @@ public class OAuthUtils
 		apiSecret,
 		clientId,
 		state,
-		login_failed_url;
+		login_failed_url,
+		code_challenge_method,
+		code_verifier;
 	}
 
 	private static String getResponseType(Provider provider, JSONObject auth, Map<String, String> additionalParameters)
@@ -226,9 +228,9 @@ public class OAuthUtils
 			additionalParameters.put("prompt", "consent");
 		}
 
-		if (!request.getParameterMap().isEmpty())
+		StringBuilder state = new StringBuilder();
+		if (!request.getParameterMap().isEmpty() && (request.getParameter("id_token") == null && request.getParameter("code") == null))
 		{
-			StringBuilder state = new StringBuilder();
 			request.getParameterMap().forEach((key, values) -> {
 				String value = String.join(",", values);
 				try
@@ -246,18 +248,22 @@ public class OAuthUtils
 					Debug.error("Error encoding key or value", e);
 				}
 			});
+		}
+		if (auth.has(OAuthParameters.state.name()))
+		{
+			state.append(auth.getString(OAuthParameters.state.name())).append("&");
+		}
 
-			if (state.length() > 0 && state.charAt(state.length() - 1) == '&')
-			{
-				state.append("svyuuid=").append(nonce);
-			}
+		if (state.length() > 0 && state.charAt(state.length() - 1) == '&')
+		{
+			state.append("svyuuid=").append(nonce);
+		}
 
-			if (state.length() > 0)
-			{
-				additionalParameters.put("state", state.toString());
-				Map<String, JSONObject> cache = (Map<String, JSONObject>)request.getServletContext().getAttribute(OAuthParameters.nonce.name());
-				cache.put(additionalParameters.get("state"), auth);
-			}
+		if (state.length() > 0)
+		{
+			additionalParameters.put("state", state.toString());
+			Map<String, JSONObject> cache = (Map<String, JSONObject>)request.getServletContext().getAttribute(OAuthParameters.nonce.name());
+			cache.put(additionalParameters.get("state"), auth);
 		}
 		return createOauthService(auth, additionalParameters, StatelessLoginUtils.getServerURL(request));
 	}

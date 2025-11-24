@@ -18,7 +18,6 @@
 package com.servoy.j2db.server.ngclient.auth;
 
 import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
@@ -128,35 +127,17 @@ public class StatelessLoginUtils
 		return url.toString();
 	}
 
-	public static HttpServletRequest checkForPossibleSavedDeeplink(HttpServletRequest request)
+	public static String checkForPossibleSavedDeeplink(HttpServletRequest request)
 	{
 		String state = request.getParameter("state");
-
-		if (state != null && state.contains("="))
+		if (state == null)
 		{
-			Map<String, String[]> stateParams = new HashMap<>();
-			String[] pairs = state.split("&");
-			for (String pair : pairs)
-			{
-				String[] keyValue = pair.split("=", 2);
-				try
-				{
-					String key = URLDecoder.decode(keyValue[0], "UTF-8");
-					if ("svyuuid".equals(key))
-					{
-						continue; // skip svyuuid
-					}
-					String value = keyValue.length > 1 ? URLDecoder.decode(keyValue[1], "UTF-8") : "";
-					stateParams.put(key, new String[] { value });
-				}
-				catch (UnsupportedEncodingException e)
-				{
-					log.error("Error decoding state parameter", e);
-				}
-			}
-
-			return new OAuthDeeplinkRequestWrapper(request, stateParams);
+			return null;
 		}
-		return request;
+
+		// remove svyuuid=... 
+		String queryString = state.replaceAll("(^|&)(svyuuid=[^&]*)(&|$)", "$1$3");
+		queryString = queryString.replaceAll("^&|&$", "");
+		return queryString;
 	}
 }

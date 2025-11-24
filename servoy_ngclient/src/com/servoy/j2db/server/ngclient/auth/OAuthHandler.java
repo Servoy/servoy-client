@@ -23,6 +23,8 @@ import java.io.PrintWriter;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.SecureRandom;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -38,7 +40,11 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.github.scribejava.apis.openid.OpenIdOAuth2AccessToken;
 import com.github.scribejava.core.model.OAuth2AccessToken;
+import com.github.scribejava.core.oauth.AccessTokenRequestParams;
+import com.github.scribejava.core.oauth.AuthorizationUrlBuilder;
 import com.github.scribejava.core.oauth.OAuth20Service;
+import com.github.scribejava.core.pkce.PKCE;
+import com.github.scribejava.core.pkce.PKCECodeChallengeMethod;
 import com.github.scribejava.core.revoke.TokenTypeHint;
 import com.servoy.base.util.ITagResolver;
 import com.servoy.base.util.TagParser;
@@ -67,8 +73,8 @@ import jakarta.servlet.http.HttpServletResponse;
  */
 public class OAuthHandler
 {
+	private static final String CODE = "code";
 	private static final String GET_OAUTH_CONFIG = "getOAuthConfig";
-	private static final String OAUTHCONFIGREQUEST_PARAM = "oauthconfigrequest";
 
 	static final Logger log = LoggerFactory.getLogger("stateless.login");
 
@@ -76,7 +82,7 @@ public class OAuthHandler
 	{
 		String reqUrl = req.getRequestURL().toString();
 		Pair<Boolean, String> showLogin = new Pair<>(Boolean.TRUE, null);
-		if (req.getParameter("id_token") != null || req.getParameter("code") != null)
+		if (req.getParameter("id_token") != null || req.getParameter(CODE) != null)
 		{
 			checkToken(req, resp, reqUrl, showLogin);
 		}
@@ -103,7 +109,7 @@ public class OAuthHandler
 		String id_token = req.getParameter("id_token");
 		String refreshToken = null;
 		JSONObject auth = null;
-		if (req.getParameter("code") != null)
+		if (req.getParameter(CODE) != null)
 		{
 			String nonceState = req.getParameter(OAuthParameters.state.name());
 			auth = getNonce(req.getServletContext(), nonceState);
@@ -119,7 +125,12 @@ public class OAuthHandler
 			OAuth20Service service = OAuthUtils.createOauthService(req, auth, new HashMap<>());
 			try
 			{
-				OAuth2AccessToken access = service.getAccessToken(req.getParameter("code"));
+				AccessTokenRequestParams accessTokenRequestParams = AccessTokenRequestParams.create(req.getParameter(CODE));
+				if (auth.has(OAuthParameters.code_verifier.name()))
+				{
+					accessTokenRequestParams.pkceCodeVerifier(auth.getString(OAuthParameters.code_verifier.name()));
+				}
+				OAuth2AccessToken access = service.getAccessToken(accessTokenRequestParams);
 				if (access instanceof OpenIdOAuth2AccessToken accessToken)
 				{
 					refreshToken = accessToken.getRefreshToken();
@@ -370,7 +381,12 @@ public class OAuthHandler
 		{
 			try
 			{
-				final String authorizationUrl = service.createAuthorizationUrlBuilder()//
+				AuthorizationUrlBuilder authorizationUrlBuilder = service.createAuthorizationUrlBuilder();
+				if (auth.has(OAuthParameters.code_challenge_method.name()) && service.getResponseType().contains(CODE))
+				{
+					setPKCE(authorizationUrlBuilder, auth);
+				}
+				final String authorizationUrl = authorizationUrlBuilder//
 					.additionalParams(additionalParameters).build();
 				StatelessLoginHandler.log.atInfo().log(() -> "authorization url " + authorizationUrl);
 				StatelessLoginHandler.log.atInfo().log(() -> "Writing the auto login page.");
@@ -429,6 +445,32 @@ public class OAuthHandler
 		}
 	}
 
+	private static void setPKCE(AuthorizationUrlBuilder authorizationUrlBuilder, JSONObject auth)
+	{
+		String codeChallengeMethod = auth.optString(OAuthParameters.code_challenge_method.name(), "S256");
+		String codeVerifier = null;
+		if ("S256".equalsIgnoreCase(codeChallengeMethod))
+		{
+			authorizationUrlBuilder = authorizationUrlBuilder.initPKCE();
+			PKCE pkce = authorizationUrlBuilder.getPkce();
+			codeVerifier = pkce.getCodeVerifier();
+		}
+		else
+		{
+			//plain, but is not recommended
+			byte[] randomBytes = new byte[32];
+			new SecureRandom().nextBytes(randomBytes);
+			codeVerifier = Base64.getUrlEncoder().withoutPadding().encodeToString(randomBytes);
+
+			// plain = challenge == verifier
+			PKCE pkce = new PKCE();
+			pkce.setCodeVerifier(codeVerifier);
+			pkce.setCodeChallengeMethod(PKCECodeChallengeMethod.PLAIN);
+			authorizationUrlBuilder = authorizationUrlBuilder.pkce(pkce);
+		}
+		auth.put(OAuthParameters.code_verifier.name(), codeVerifier);
+	}
+
 	public static void redirectToOAuthLogin(HttpServletRequest request, HttpServletResponse response, Solution solution)
 	{
 		Object properties = solution.getCustomProperty(new String[] { StatelessLoginHandler.OAUTH_CUSTOM_PROPERTIES });
@@ -467,12 +509,6 @@ public class OAuthHandler
 
 	public static void redirectToAuthenticator(HttpServletRequest request, HttpServletResponse response, Solution solution) throws ServletException
 	{
-		String oauthconfigrequest = StringEscapeUtils.escapeHtml4(request.getParameter(OAUTHCONFIGREQUEST_PARAM));
-		if (oauthconfigrequest == null)
-		{
-			log.error("Oauth config request parameter was not provided");
-			throw new ServletException("Oauth config request parameter was not provided");
-		}
 		Solution authenticatorModule = AuthenticatorManager.findAuthenticator(solution);
 		if (authenticatorModule != null)
 		{
@@ -488,12 +524,15 @@ public class OAuthHandler
 			}
 
 			JSONArray args = new JSONArray();
-			args.put(oauthconfigrequest);
 			args.put(json);
 			JSONObject config = getConfig(solution, authenticatorModule, args);
 			if (config != null)
 			{
 				generateOauthCall(request, response, config);
+			}
+			else
+			{
+				throw new ServletException("Incorrect settings for oauth, missing config.");
 			}
 		}
 	}

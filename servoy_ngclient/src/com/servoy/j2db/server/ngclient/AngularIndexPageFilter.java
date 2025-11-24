@@ -109,6 +109,11 @@ public class AngularIndexPageFilter implements Filter
 					{
 						showLogin = OAuthHandler.handleOauth(request, response);
 						if (Boolean.FALSE.equals(showLogin.getLeft()) && showLogin.getRight() == null) return;
+
+						request.getSession().setAttribute(StatelessLoginHandler.ID_TOKEN, showLogin.getRight());
+						String queryString = StatelessLoginUtils.checkForPossibleSavedDeeplink(request);
+						response.sendRedirect(request.getRequestURI() + (queryString != null ? "?" + queryString : ""));
+						return;
 					}
 					else
 					{
@@ -124,9 +129,6 @@ public class AngularIndexPageFilter implements Filter
 					{
 						HttpSession session = request.getSession(); // we know we are logged in so we can make a session now
 						session.setAttribute(StatelessLoginHandler.ID_TOKEN, showLogin.getRight());
-
-						//could be oauth + deeplink (need to wrap the request to add the parameters)
-						req = StatelessLoginUtils.checkForPossibleSavedDeeplink(request);
 					}
 				}
 				catch (Exception e)
