@@ -112,7 +112,7 @@ public class AngularIndexPageFilter implements Filter
 
 						request.getSession().setAttribute(StatelessLoginHandler.ID_TOKEN, showLogin.getRight());
 						String queryString = StatelessLoginUtils.checkForPossibleSavedDeeplink(request);
-						response.sendRedirect(request.getRequestURI() + (queryString != null ? "?" + queryString : ""));
+						response.sendRedirect(request.getRequestURI().replace("/svy_oauth", "") + (queryString != null ? "?" + queryString : ""));
 						return;
 					}
 					else
