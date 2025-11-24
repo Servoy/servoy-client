@@ -93,7 +93,7 @@ public class DefaultComponentPropertiesProvider implements IDefaultComponentProp
 				new PropertyDescriptionBuilder().withName(IContentSpecConstants.PROPERTY_ATTRIBUTES).withType(
 					TypesRegistry.getType(ServoyAttributesPropertyType.TYPE_NAME))
 					.withTags(new JSONObject().put(PropertyDescription.DOCUMENTATION_TAG_FOR_PROP_OR_KEY_FOR_HANDLERS,
-						"Array of attributes of a component"))
+						"Array of attributes of a component that will be rendered in HTML."))
 					.build());
 
 		}
