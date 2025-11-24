@@ -84,7 +84,7 @@ public class JSEventsManager implements IReturnedTypesProvider
 	 * </pre>
 	 *
 	 * @sample
-	 * var deregister = eventsManager.addEventListener(EventType.myCustomEvent,this.callback);
+	 * var deregister = eventsManager.addEventListener(EventType.myCustomEvent, myCallback);
 	 * deregister();
 	 *
 	 * @param eventType Event type to listen to.
@@ -119,8 +119,8 @@ public class JSEventsManager implements IReturnedTypesProvider
 	 * </pre>
 	 *
 	 * @sample
-	 * var deregiser = eventsManager.addEventListener(EventType.onShowMethodID,this.callback,forms.myform);
-	 * deregiser();
+	 * var deregister = eventsManager.addEventListener(EventType.onShow,myCallback,forms.myform);
+	 * deregister();
 	 *
 	 * @param eventType Event type to listen to.
 	 * @param callback callback to be called.
@@ -147,7 +147,7 @@ public class JSEventsManager implements IReturnedTypesProvider
 	 * Removes one or multiple listeners (depending on parameters). Only works for custom event listeners that were added using addEventListener.
 	 *
 	 * @sample
-	 * eventsManager.removeEventListener(EventType.myCustomEvent,this.callback,'mycontext');
+	 * eventsManager.removeEventListener(EventType.myCustomEvent,callback,'mycontext');
 	 *
 	 * @param eventType Event type for listener to remove. Cannot be null.
 	 * @param callback callback to be removed. Can be null (any listener).
