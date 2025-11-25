@@ -17,97 +17,16 @@
 
 package com.servoy.j2db.server.ngclient.auth;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.util.HashMap;
-import java.util.Map;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletRequestWrapper;
 
 /**
  * @author emera
  */
 public class StatelessLoginUtils
 {
-	/**
-	 * @author emera
-	 */
-	public static class OAuthDeeplinkRequestWrapper extends HttpServletRequestWrapper
-	{
-		/**
-		 *
-		 */
-		private final Map<String, String[]> stateParams;
-		private final Map<String, String[]> params;
-
-		/**
-		 * @param request
-		 * @param stateParams
-		 */
-		public OAuthDeeplinkRequestWrapper(HttpServletRequest request, Map<String, String[]> stateParams)
-		{
-			super(request);
-			this.stateParams = stateParams;
-			params = stateParams;
-		}
-
-		@Override
-		public String getParameter(String name)
-		{
-			String[] values = params.get(name);
-			if (values != null && values.length > 0)
-			{
-				return values[0];
-			}
-			return super.getParameter(name);
-		}
-
-		@Override
-		public String[] getParameterValues(String name)
-		{
-			return params.getOrDefault(name, super.getParameterValues(name));
-		}
-
-		@Override
-		public Map<String, String[]> getParameterMap()
-		{
-			Map<String, String[]> combinedParams = new HashMap<>(super.getParameterMap());
-			combinedParams.putAll(params);
-			return combinedParams;
-		}
-
-		@Override
-		public String getQueryString()
-		{
-			StringBuilder queryString = new StringBuilder(super.getQueryString() != null ? super.getQueryString() + "&" : "");
-			params.forEach((key, values) -> {
-				for (String value : values)
-				{
-					try
-					{
-						String encodedKey = URLEncoder.encode(key, "UTF-8");
-						String encodedValue = URLEncoder.encode(value, "UTF-8");
-						queryString.append(encodedKey).append("=").append(encodedValue).append("&");
-					}
-					catch (UnsupportedEncodingException e)
-					{
-						log.error("Error encoding key or value", e);
-					}
-				}
-			});
-			if (queryString.length() > 0 && queryString.charAt(queryString.length() - 1) == '&')
-			{
-				queryString.setLength(queryString.length() - 1);
-			}
-
-			return queryString.toString();
-		}
-	}
-
 	public static final String JWT_Password = "servoy.jwt.logintoken.password";
 	public static final String SVYLOGIN_PATH = "svylogin";
 	static final Logger log = LoggerFactory.getLogger("stateless.login");
@@ -135,7 +54,7 @@ public class StatelessLoginUtils
 			return null;
 		}
 
-		// remove svyuuid=... 
+		// remove svyuuid=...
 		String queryString = state.replaceAll("(^|&)(svyuuid=[^&]*)(&|$)", "$1$3");
 		queryString = queryString.replaceAll("^&|&$", "");
 		return queryString;
