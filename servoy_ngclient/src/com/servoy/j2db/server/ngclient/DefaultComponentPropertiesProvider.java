@@ -111,12 +111,18 @@ public class DefaultComponentPropertiesProvider implements IDefaultComponentProp
 		if (properties.values().stream().anyMatch(p -> p.getType() instanceof EnabledPropertyType))
 		{
 			properties.put(ENABLED_DATAPROVIDER_NAME, new PropertyDescriptionBuilder().withName(ENABLED_DATAPROVIDER_NAME).withType(
-				TypesRegistry.getType(DataproviderPropertyType.TYPE_NAME)).build());
+				TypesRegistry.getType(DataproviderPropertyType.TYPE_NAME))
+				.withTags(new JSONObject().put(PropertyDescription.DOCUMENTATION_TAG_FOR_PROP_OR_KEY_FOR_HANDLERS,
+					"Component enabled state can be controlled through enabled property(boolean) and an enabled dataprovider (optional) that should evaluate to true/false. If enabled dataprovider is set then the component enabled state will be a logical and between the two values. Disabled components prevent any user interaction."))
+				.build());
 		}
 		if (properties.values().stream().anyMatch(p -> p.getType() instanceof VisiblePropertyType))
 		{
 			properties.put(VISIBLE_DATAPROVIDER_NAME, new PropertyDescriptionBuilder().withName(VISIBLE_DATAPROVIDER_NAME).withType(
-				TypesRegistry.getType(DataproviderPropertyType.TYPE_NAME)).build());
+				TypesRegistry.getType(DataproviderPropertyType.TYPE_NAME))
+				.withTags(new JSONObject().put(PropertyDescription.DOCUMENTATION_TAG_FOR_PROP_OR_KEY_FOR_HANDLERS,
+					"Component visibility can be controlled through visible property(boolean) and a visible dataprovider (optional) that should evaluate to true/false. If visible dataprovider is set then the component visibility will be a logical and between the two values."))
+				.build());
 		}
 	}
 }
