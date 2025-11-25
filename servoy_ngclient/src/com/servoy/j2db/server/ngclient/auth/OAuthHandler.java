@@ -583,6 +583,7 @@ public class OAuthHandler
 
 	public static boolean isOAuthRequest(HttpServletRequest request)
 	{
-		return request.getParameter("svy_remove_id_token") != null || request.getRequestURI().contains("/svy_oauth/");
+		return !request.getRequestURI().contains("/designer") &&
+			(request.getParameter("svy_remove_id_token") != null || request.getRequestURI().contains("/svy_oauth/"));
 	}
 }
