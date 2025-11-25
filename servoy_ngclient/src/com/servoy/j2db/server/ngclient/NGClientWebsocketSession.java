@@ -209,7 +209,8 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 	@Override
 	protected IEventDispatcher createEventDispatcher()
 	{
-		return client == null ? null : new NGEventDispatcher(client);
+		// if the client or the clientid is null, then we cannot create an event dispatcher (anymore)
+		return client == null || client.getClientID() == null ? null : new NGEventDispatcher(client);
 	}
 
 	@Override
