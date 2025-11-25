@@ -241,4 +241,16 @@ public class UpdateableCSSPosition extends AbstractCSSPosition
 		flagComponent();
 	}
 
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.scripting.solutionmodel.AbstractCSSPosition#toString()
+	 */
+	@Override
+	public String toString()
+	{
+		if (this.pos == null) return "{}"; //$NON-NLS-1$
+		return super.toString();
+	}
+
 }
