@@ -511,7 +511,7 @@ public abstract class AbstractBase implements IPersist
 	}
 
 	/**
-	 * Additional information, such as programmer notes about this model object's purpose.
+	 * Additional design time information, such as programmer notes about this model object's purpose.
 	 */
 	public String getComment()
 	{
