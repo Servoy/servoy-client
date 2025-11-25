@@ -104,7 +104,8 @@ public class DefaultComponentPropertiesProvider implements IDefaultComponentProp
 				new PropertyDescriptionBuilder().withName(IContentSpecConstants.PROPERTY_COMMENT).withType(
 					TypesRegistry.getType(StringPropertyType.TYPE_NAME))
 					.withTags(new JSONObject().put(PropertyDescription.DOCUMENTATION_TAG_FOR_PROP_OR_KEY_FOR_HANDLERS,
-						"Additional design time information, such as programmer notes about this model object's purpose."))
+						"Additional design time information, such as programmer notes about this model object's purpose.")
+						.put(WebFormComponent.TAG_SCOPE, "design"))
 					.build());
 
 		}
