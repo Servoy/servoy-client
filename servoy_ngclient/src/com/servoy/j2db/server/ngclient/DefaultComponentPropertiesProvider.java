@@ -27,7 +27,6 @@ import org.sablo.specification.property.types.DimensionPropertyType;
 import org.sablo.specification.property.types.EnabledPropertyType;
 import org.sablo.specification.property.types.IntPropertyType;
 import org.sablo.specification.property.types.PointPropertyType;
-import org.sablo.specification.property.types.StringPropertyType;
 import org.sablo.specification.property.types.TypesRegistry;
 import org.sablo.specification.property.types.VisiblePropertyType;
 
@@ -95,17 +94,6 @@ public class DefaultComponentPropertiesProvider implements IDefaultComponentProp
 					TypesRegistry.getType(ServoyAttributesPropertyType.TYPE_NAME))
 					.withTags(new JSONObject().put(PropertyDescription.DOCUMENTATION_TAG_FOR_PROP_OR_KEY_FOR_HANDLERS,
 						"Array of attributes of a component that will be rendered in HTML."))
-					.build());
-
-		}
-		if (!properties.containsKey(IContentSpecConstants.PROPERTY_COMMENT))
-		{
-			properties.put(IContentSpecConstants.PROPERTY_COMMENT,
-				new PropertyDescriptionBuilder().withName(IContentSpecConstants.PROPERTY_COMMENT).withType(
-					TypesRegistry.getType(StringPropertyType.TYPE_NAME))
-					.withTags(new JSONObject().put(PropertyDescription.DOCUMENTATION_TAG_FOR_PROP_OR_KEY_FOR_HANDLERS,
-						"Additional design time information, such as programmer notes about this model object's purpose.")
-						.put(WebFormComponent.TAG_SCOPE, "design"))
 					.build());
 
 		}
