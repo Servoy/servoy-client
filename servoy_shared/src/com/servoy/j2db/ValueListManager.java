@@ -48,91 +48,91 @@ public class ValueListManager extends DefaultScope implements IValueListManager
 		this.application = application;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.mozilla.javascript.Scriptable#get(java.lang.String, org.mozilla.javascript.Scriptable)
-	 */
+	@SuppressWarnings({ "nls" })
 	@Override
 	public Object get(String name, Scriptable start)
 	{
-		if (name.equals("CUSTOM_VALUES")) return IValueListConstants.CUSTOM_VALUES; //$NON-NLS-1$
-		if (name.equals("DATABASE_VALUES")) return IValueListConstants.DATABASE_VALUES; //$NON-NLS-1$
-		if (name.equals("EMPTY_VALUE_ALWAYS")) return IValueListConstants.EMPTY_VALUE_ALWAYS; //$NON-NLS-1$
-		if (name.equals("EMPTY_VALUE_NEVER")) return IValueListConstants.EMPTY_VALUE_NEVER; //$NON-NLS-1$
-
-		if (name.equals("NAMES")) //$NON-NLS-1$
+		return switch (name)
 		{
-			Scriptable topLevel = ScriptableObject.getTopLevelScope(start);
-
-			final List<String> valueListNames = new ArrayList<>();
-
-			DefaultJavaScope namesScope = new DefaultJavaScope(topLevel, Map.of())
-			{
-				@Override
-				public Object getDefaultValue(Class< ? > hint)
-				{
-					return toString();
-				}
-
-				// toString is needed when JSValueList.NAMES is used without valuelist name after it
-				@Override
-				public String toString()
-				{
-					StringBuilder sb = new StringBuilder("{");
-					for (int i = 0; i < valueListNames.size(); i++)
-					{
-						String vlName = valueListNames.get(i);
-						Object vlNameNativeObject = get(vlName, this);
-						if (i > 0) sb.append(", ");
-						sb.append(vlName).append(": ").append(vlNameNativeObject == null ? "null" : vlNameNativeObject.toString());
-					}
-					sb.append("}");
-					return sb.toString();
-				}
-
-				@Override
-				public Object[] getIds()
-				{
-					return valueListNames.toArray(new Object[0]);
-				}
-			};
-
-			final Iterator<ValueList> allValueLists = application.getSolution().getValueLists(false);
-			while (allValueLists.hasNext())
-			{
-				ValueList vl = allValueLists.next();
-				if (vl != null && vl.getName() != null)
-				{
-					namesScope.put(vl.getName(), namesScope, vl.getName());
-					valueListNames.add(vl.getName());
-				}
+			case "CUSTOM_VALUES" -> Integer.valueOf(IValueListConstants.CUSTOM_VALUES);
+			case "DATABASE_VALUES" -> Integer.valueOf(IValueListConstants.DATABASE_VALUES);
+			case "EMPTY_VALUE_ALWAYS" -> Integer.valueOf(IValueListConstants.EMPTY_VALUE_ALWAYS);
+			case "EMPTY_VALUE_NEVER" -> Integer.valueOf(IValueListConstants.EMPTY_VALUE_NEVER);
+			case "NAMES" -> createNames(start);
+			default -> {
+				ValueList valueList = application.getSolution().getValueList(name);
+				yield valueList != null ? valueList.getName() : null;
 			}
-
-			return namesScope;
-
-		}
-
-		ValueList valueList = application.getSolution().getValueList(name);
-		return valueList != null ? valueList.getName() : null;
+		};
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.mozilla.javascript.Scriptable#has(java.lang.String, org.mozilla.javascript.Scriptable)
+	/**
+	 * @param start
+	 * @return
 	 */
+	private Scriptable createNames(Scriptable start)
+	{
+		Scriptable topLevel = ScriptableObject.getTopLevelScope(start);
+
+		final List<String> valueListNames = new ArrayList<>();
+
+		DefaultJavaScope namesScope = new DefaultJavaScope(topLevel, Map.of())
+		{
+			@Override
+			public Object getDefaultValue(Class< ? > hint)
+			{
+				return toString();
+			}
+
+			// toString is needed when JSValueList.NAMES is used without valuelist name after it
+			@SuppressWarnings("nls")
+			@Override
+			public String toString()
+			{
+				StringBuilder sb = new StringBuilder('{');
+				for (int i = 0; i < valueListNames.size(); i++)
+				{
+					String vlName = valueListNames.get(i);
+					Object vlNameNativeObject = get(vlName, this);
+					if (i > 0) sb.append(", ");
+					sb.append(vlName).append(": ").append(vlNameNativeObject == null ? "null" : vlNameNativeObject.toString());
+				}
+				sb.append('}');
+				return sb.toString();
+			}
+
+			@Override
+			public Object[] getIds()
+			{
+				return valueListNames.toArray(new Object[0]);
+			}
+		};
+
+		final Iterator<ValueList> allValueLists = application.getSolution().getValueLists(false);
+		while (allValueLists.hasNext())
+		{
+			ValueList vl = allValueLists.next();
+			if (vl != null && vl.getName() != null)
+			{
+				namesScope.put(vl.getName(), namesScope, vl.getName());
+				valueListNames.add(vl.getName());
+			}
+		}
+
+		return namesScope;
+	}
+
+	@SuppressWarnings("nls")
 	@Override
 	public boolean has(String name, Scriptable start)
 	{
-		return get(name, start) != null;
+		return switch (name)
+		{
+			case "NAMES", "CUSTOM_VALUES", "DATABASE_VALUES", "EMPTY_VALUE_ALWAYS", "EMPTY_VALUE_NEVER" -> true;
+			default -> application.getSolution().getValueList(name) != null;
+		};
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.mozilla.javascript.Scriptable#getIds()
-	 */
 	@Override
 	public Object[] getIds()
 	{

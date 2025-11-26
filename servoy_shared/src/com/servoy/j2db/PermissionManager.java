@@ -17,6 +17,7 @@
 
 package com.servoy.j2db;
 
+import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,6 +27,7 @@ import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.scripting.DefaultScope;
 import com.servoy.j2db.scripting.info.JSPermission;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.ServoyException;
 
 /**
  * @author lvostinar
@@ -40,13 +42,6 @@ public class PermissionManager extends DefaultScope implements IPermissionManage
 		super(scope);
 		this.application = application;
 	}
-
-	@Override
-	public String getClassName()
-	{
-		return null;
-	}
-
 
 	@Override
 	public Object get(String name, Scriptable start)
@@ -68,82 +63,23 @@ public class PermissionManager extends DefaultScope implements IPermissionManage
 		return null;
 	}
 
-
-	@Override
-	public Object get(int index, Scriptable start)
-	{
-		return null;
-	}
-
-
 	@Override
 	public boolean has(String name, Scriptable start)
 	{
-		return get(name, start) != null;
-	}
-
-
-	@Override
-	public boolean has(int index, Scriptable start)
-	{
+		if (IRepository.ADMIN_GROUP.equals(name))
+		{
+			return true;
+		}
+		try
+		{
+			return application.getUserManager().getGroupId(application.getClientID(), name) != -1;
+		}
+		catch (RemoteException | ServoyException e)
+		{
+			Debug.error(e);
+		}
 		return false;
 	}
-
-
-	@Override
-	public void put(String name, Scriptable start, Object value)
-	{
-
-	}
-
-
-	@Override
-	public void put(int index, Scriptable start, Object value)
-	{
-
-	}
-
-
-	@Override
-	public void delete(String name)
-	{
-	}
-
-
-	@Override
-	public void delete(int index)
-	{
-
-	}
-
-
-	@Override
-	public Scriptable getPrototype()
-	{
-		return null;
-	}
-
-
-	@Override
-	public void setPrototype(Scriptable prototype)
-	{
-
-	}
-
-
-	@Override
-	public Scriptable getParentScope()
-	{
-		return null;
-	}
-
-
-	@Override
-	public void setParentScope(Scriptable parent)
-	{
-
-	}
-
 
 	@Override
 	public Object[] getIds()
@@ -162,19 +98,5 @@ public class PermissionManager extends DefaultScope implements IPermissionManage
 			names.add(IRepository.ADMIN_GROUP);
 		}
 		return names.toArray();
-	}
-
-
-	@Override
-	public Object getDefaultValue(Class< ? > hint)
-	{
-		return null;
-	}
-
-
-	@Override
-	public boolean hasInstance(Scriptable instance)
-	{
-		return false;
 	}
 }

@@ -44,69 +44,33 @@ public class JSFormManager extends DefaultScope implements IJSFormManager
 		this.application = application;
 	}
 
-
-	@Override
-	public String getClassName()
-	{
-		return null;
-	}
-
 	@SuppressWarnings("nls")
 	@Override
 	public Object get(String name, Scriptable start)
 	{
-		switch (name)
+		return switch (name)
 		{
-			// view types (deprecated)
-			case "RECORD_VIEW" :
-				return IForm.RECORD_VIEW;
-			case "LIST_VIEW" :
-				return IForm.LIST_VIEW;
-			case "LOCKED_RECORD_VIEW" :
-				return IForm.LOCKED_RECORD_VIEW;
-			case "LOCKED_LIST_VIEW" :
-				return IFormConstants.VIEW_TYPE_LIST_LOCKED; // deprecated
-			case "LOCKED_TABLE_VIEW" :
-				return IFormConstants.VIEW_TYPE_TABLE_LOCKED; // deprecated
-
-			// encapsulation (all deprecated)
-			case "DEFAULT_ENCAPSULATION" :
-				return IFormConstants.DEFAULT;
-			case "PRIVATE_ENCAPSULATION" :
-				return IFormConstants.HIDE_IN_SCRIPTING_MODULE_SCOPE;
-			case "MODULE_PRIVATE_ENCAPSULATION" :
-				return IFormConstants.MODULE_SCOPE;
-			case "HIDE_DATAPROVIDERS_ENCAPSULATION" :
-				return IFormConstants.HIDE_DATAPROVIDERS;
-			case "HIDE_FOUNDSET_ENCAPSULATION" :
-				return IFormConstants.HIDE_FOUNDSET;
-			case "HIDE_CONTROLLER_ENCAPSULATION" :
-				return IFormConstants.HIDE_CONTROLLER;
-			case "HIDE_ELEMENTS_ENCAPSULATION" :
-				return IFormConstants.HIDE_ELEMENTS;
-
-			// selection modes
-			case "SELECTION_MODE_DEFAULT" :
-				return IForm.SELECTION_MODE_DEFAULT;
-			case "SELECTION_MODE_SINGLE" :
-				return IForm.SELECTION_MODE_SINGLE;
-			case "SELECTION_MODE_MULTI" :
-				return IForm.SELECTION_MODE_MULTI;
-
-			// foundset constants
-			case "EMPTY_FOUNDSET" :
-				return Form.NAMED_FOUNDSET_EMPTY;
-			case "SEPARATE_FOUNDSET" :
-				return Form.NAMED_FOUNDSET_SEPARATE;
-
-			case "NAMES" :
-				return getNames(start);
-			case "INSTANCES" :
-				return getInstances(start);
-
-			default :
-				return getJSForm(name);
-		}
+			case "RECORD_VIEW" -> Integer.valueOf(IForm.RECORD_VIEW);
+			case "LIST_VIEW" -> Integer.valueOf(IForm.LIST_VIEW);
+			case "LOCKED_RECORD_VIEW" -> Integer.valueOf(IForm.LOCKED_RECORD_VIEW);
+			case "LOCKED_LIST_VIEW" -> Integer.valueOf(IFormConstants.VIEW_TYPE_LIST_LOCKED); // deprecated
+			case "LOCKED_TABLE_VIEW" -> Integer.valueOf(IFormConstants.VIEW_TYPE_TABLE_LOCKED); // deprecated
+			case "DEFAULT_ENCAPSULATION" -> Integer.valueOf(IFormConstants.DEFAULT);
+			case "PRIVATE_ENCAPSULATION" -> Integer.valueOf(IFormConstants.HIDE_IN_SCRIPTING_MODULE_SCOPE);
+			case "MODULE_PRIVATE_ENCAPSULATION" -> Integer.valueOf(IFormConstants.MODULE_SCOPE);
+			case "HIDE_DATAPROVIDERS_ENCAPSULATION" -> Integer.valueOf(IFormConstants.HIDE_DATAPROVIDERS);
+			case "HIDE_FOUNDSET_ENCAPSULATION" -> Integer.valueOf(IFormConstants.HIDE_FOUNDSET);
+			case "HIDE_CONTROLLER_ENCAPSULATION" -> Integer.valueOf(IFormConstants.HIDE_CONTROLLER);
+			case "HIDE_ELEMENTS_ENCAPSULATION" -> Integer.valueOf(IFormConstants.HIDE_ELEMENTS);
+			case "SELECTION_MODE_DEFAULT" -> Integer.valueOf(IForm.SELECTION_MODE_DEFAULT);
+			case "SELECTION_MODE_SINGLE" -> Integer.valueOf(IForm.SELECTION_MODE_SINGLE);
+			case "SELECTION_MODE_MULTI" -> Integer.valueOf(IForm.SELECTION_MODE_MULTI);
+			case "EMPTY_FOUNDSET" -> Form.NAMED_FOUNDSET_EMPTY;
+			case "SEPARATE_FOUNDSET" -> Form.NAMED_FOUNDSET_SEPARATE;
+			case "NAMES" -> getNames(start);
+			case "INSTANCES" -> getInstances(start);
+			default -> getJSForm(name);
+		};
 	}
 
 	private Object getInstances(Scriptable start)
@@ -171,68 +135,18 @@ public class JSFormManager extends DefaultScope implements IJSFormManager
 		return namesScope;
 	}
 
-
-	@Override
-	public Object get(int index, Scriptable start)
-	{
-		return null;
-	}
-
-
+	@SuppressWarnings("nls")
 	@Override
 	public boolean has(String name, Scriptable start)
 	{
-		return get(name, start) != null;
-	}
-
-
-	@Override
-	public boolean has(int index, Scriptable start)
-	{
-		return false;
-	}
-
-
-	@Override
-	public void put(String name, Scriptable start, Object value)
-	{
-	}
-
-	@Override
-	public void put(int index, Scriptable start, Object value)
-	{
-	}
-
-	@Override
-	public void delete(String name)
-	{
-	}
-
-	@Override
-	public void delete(int index)
-	{
-	}
-
-	@Override
-	public Scriptable getPrototype()
-	{
-		return null;
-	}
-
-	@Override
-	public void setPrototype(Scriptable prototype)
-	{
-	}
-
-	@Override
-	public Scriptable getParentScope()
-	{
-		return null;
-	}
-
-	@Override
-	public void setParentScope(Scriptable parent)
-	{
+		return switch (name)
+		{
+			case "RECORD_VIEW", "LIST_VIEW", "LOCKED_RECORD_VIEW", "LOCKED_LIST_VIEW", "LOCKED_TABLE_VIEW", "DEFAULT_ENCAPSULATION", "PRIVATE_ENCAPSULATION",
+				"MODULE_PRIVATE_ENCAPSULATION", "HIDE_DATAPROVIDERS_ENCAPSULATION", "HIDE_FOUNDSET_ENCAPSULATION", "HIDE_CONTROLLER_ENCAPSULATION",
+				"HIDE_ELEMENTS_ENCAPSULATION", "SELECTION_MODE_DEFAULT", "SELECTION_MODE_SINGLE", "SELECTION_MODE_MULTI", "EMPTY_FOUNDSET", "SEPARATE_FOUNDSET",
+				"NAMES", "INSTANCES" -> true;
+			default -> application.getFlattenedSolution().getForm(name) != null;
+		};
 	}
 
 	@Override
@@ -248,17 +162,5 @@ public class JSFormManager extends DefaultScope implements IJSFormManager
 			Debug.error(e);
 		}
 		return ids.toArray();
-	}
-
-	@Override
-	public Object getDefaultValue(Class< ? > hint)
-	{
-		return null;
-	}
-
-	@Override
-	public boolean hasInstance(Scriptable instance)
-	{
-		return false;
 	}
 }

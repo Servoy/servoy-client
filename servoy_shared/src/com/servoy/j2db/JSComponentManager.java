@@ -36,18 +36,9 @@ import com.servoy.j2db.scripting.DefaultScope;
  */
 public class JSComponentManager extends DefaultScope implements IJSComponentManager
 {
-	private final IApplication application;
-
-	public JSComponentManager(IApplication application, Scriptable scope)
+	public JSComponentManager(Scriptable scope)
 	{
 		super(scope);
-		this.application = application;
-	}
-
-	@Override
-	public String getClassName()
-	{
-		return null;
 	}
 
 	@Override
@@ -61,11 +52,6 @@ public class JSComponentManager extends DefaultScope implements IJSComponentMana
 		return Scriptable.NOT_FOUND;
 	}
 
-	private boolean isComponent(String name)
-	{
-		return WebComponentSpecProvider.getSpecProviderState().getWebObjectSpecification(name.replace('_', '-')) != null;
-	}
-
 	private boolean isPackage(String name)
 	{
 		if (name == null) return false;
@@ -73,69 +59,10 @@ public class JSComponentManager extends DefaultScope implements IJSComponentMana
 	}
 
 	@Override
-	public Object get(int index, Scriptable start)
-	{
-		return null;
-	}
-
-	@Override
 	public boolean has(String name, Scriptable start)
 	{
-		return get(name, start) != null;
+		return isPackage(name);
 	}
-
-	@Override
-	public boolean has(int index, Scriptable start)
-	{
-		return false;
-	}
-
-	@Override
-	public void put(String name, Scriptable start, Object value)
-	{
-	}
-
-
-	@Override
-	public void put(int index, Scriptable start, Object value)
-	{
-	}
-
-	@Override
-	public void delete(String name)
-	{
-	}
-
-	@Override
-	public void delete(int index)
-	{
-	}
-
-	@Override
-	public Scriptable getPrototype()
-	{
-		return null;
-	}
-
-	@Override
-	public void setPrototype(Scriptable prototype)
-	{
-	}
-
-
-	@Override
-	public Scriptable getParentScope()
-	{
-		return null;
-	}
-
-
-	@Override
-	public void setParentScope(Scriptable parent)
-	{
-
-	}
-
 
 	@Override
 	public Object[] getIds()
@@ -144,28 +71,14 @@ public class JSComponentManager extends DefaultScope implements IJSComponentMana
 		return componentsSpecProviderState.getPackageNames().toArray(new String[0]);
 	}
 
-
-	@Override
-	public Object getDefaultValue(Class< ? > hint)
-	{
-		return null;
-	}
-
-
-	@Override
-	public boolean hasInstance(Scriptable instance)
-	{
-		return false;
-	}
-
-	private class PackageScriptable extends NativeObject
+	private class PackageScriptable extends DefaultScope
 	{
 		private final String packageName;
 
 		public PackageScriptable(String packageName, Scriptable parent)
 		{
+			super(parent);
 			this.packageName = packageName;
-			setParentScope(ScriptableObject.getTopLevelScope(parent));
 		}
 
 		@Override
@@ -173,12 +86,23 @@ public class JSComponentManager extends DefaultScope implements IJSComponentMana
 		{
 			if (name == null) return Scriptable.NOT_FOUND;
 
-			String componentName = packageName + "-" + name;
+			String componentName = packageName + '-' + name;
 			if (isComponent(componentName))
 			{
 				return new ComponentScriptable(componentName, start);
 			}
 			return Scriptable.NOT_FOUND;
+		}
+
+		private boolean isComponent(String name)
+		{
+			return WebComponentSpecProvider.getSpecProviderState().getWebObjectSpecification(name.replace('_', '-')) != null;
+		}
+
+		@Override
+		public boolean has(String name, Scriptable start)
+		{
+			return isComponent(packageName + '-' + name);
 		}
 
 		@Override

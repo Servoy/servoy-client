@@ -287,7 +287,7 @@ public class ScriptEngine implements IScriptSupport
 				new JSFormManager(application, tmpSolutionScope));
 
 			tmpSolutionScope.put(IExecutingEnviroment.TOPLEVEL_JSCOMPONENT, tmpSolutionScope,
-				new JSComponentManager(application, tmpSolutionScope));
+				new JSComponentManager(tmpSolutionScope));
 
 			pluginScope = new PluginScope(tmpSolutionScope, application);
 			tmpSolutionScope.put(IExecutingEnviroment.TOPLEVEL_PLUGINS, tmpSolutionScope, pluginScope);
