@@ -21,9 +21,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.mozilla.javascript.NativeObject;
 import org.mozilla.javascript.Scriptable;
-import org.mozilla.javascript.ScriptableObject;
 import org.sablo.specification.PackageSpecification;
 import org.sablo.specification.SpecProviderState;
 import org.sablo.specification.WebComponentSpecProvider;
@@ -116,25 +114,23 @@ public class JSComponentManager extends DefaultScope implements IJSComponentMana
 		}
 	}
 
-	private class ComponentScriptable extends NativeObject
+	private class ComponentScriptable extends DefaultScope
 	{
 		final String componentName;
 		final List<String> members;
 
 		ComponentScriptable(String componentName, Scriptable start)
 		{
+			super(start);
 			this.componentName = componentName;
 			WebObjectSpecification spec = WebComponentSpecProvider.getSpecProviderState().getWebObjectSpecification(componentName);
 
 			if (spec != null)
 			{
 				members = new ArrayList<>();
-				members.addAll(spec.getAllPropertiesNames());
-				members.addAll(spec.getApiFunctions().keySet());
+				members.addAll(spec.getAllPropertiesNames()); // TODO should this also filter out private/deprecated ones?
 			}
 			else members = Collections.emptyList();
-
-			setParentScope(ScriptableObject.getTopLevelScope(start));
 		}
 
 		@Override
@@ -142,10 +138,15 @@ public class JSComponentManager extends DefaultScope implements IJSComponentMana
 		{
 			if (members.contains(name))
 			{
-				put(name, this, name);
 				return name;
 			}
 			return Scriptable.NOT_FOUND;
+		}
+
+		@Override
+		public boolean has(String name, Scriptable start)
+		{
+			return members.contains(name);
 		}
 
 		@Override
