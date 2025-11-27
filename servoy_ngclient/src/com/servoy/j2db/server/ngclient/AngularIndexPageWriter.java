@@ -512,4 +512,40 @@ public class AngularIndexPageWriter
 
 		return false;
 	}
+
+	public static boolean handleShortSolutionRequest(HttpServletRequest request, HttpServletResponse response) throws IOException
+	{
+		if (isShortSolutionRequest(request))
+		{
+			StringBuffer url = request.getRequestURL();
+			if (!url.toString().endsWith("/")) url.append("/");
+			url.append("index.html");
+			String queryString = request.getQueryString();
+			if (queryString != null) url.append("?").append(queryString);
+			response.sendRedirect(url.toString());
+			return true;
+		}
+
+		return false;
+	}
+
+	// checks for short solution request, like "<context>/solutions/solution_name" or "<context>/solutions/solution_name/"
+	private static boolean isShortSolutionRequest(HttpServletRequest request)
+	{
+		String uri = request.getRequestURI();
+		String contextPathWithSolutionPath = request.getContextPath() + SOLUTIONS_PATH;
+		if (uri != null && uri.startsWith(contextPathWithSolutionPath))
+		{
+			String solutionName = uri.substring(contextPathWithSolutionPath.length());
+			if (solutionName.length() > 0)
+			{
+				int firstSlashIdx = solutionName.indexOf('/');
+				if (firstSlashIdx == -1 || (solutionName.length() > 1 && (firstSlashIdx == solutionName.length() - 1)))
+				{
+					return true;
+				}
+			}
+		}
+		return false;
+	}
 }
