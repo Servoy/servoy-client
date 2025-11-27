@@ -252,5 +252,10 @@ public class ClientStub implements IClient
 		return 0l;
 	}
 
+	@Override
+	public ClientState getClientState()
+	{
+		return this.client;
+	}
 
 }

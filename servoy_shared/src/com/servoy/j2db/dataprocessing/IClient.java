@@ -17,6 +17,7 @@
 package com.servoy.j2db.dataprocessing;
 
 
+import com.servoy.j2db.ClientState;
 import com.servoy.j2db.scripting.StartupArguments;
 
 /**
@@ -57,4 +58,6 @@ public interface IClient
 	 * Return the last date and time when a user has physically accessed the application
 	 */
 	long getLastAccessedTime();
+
+	public ClientState getClientState();
 }
