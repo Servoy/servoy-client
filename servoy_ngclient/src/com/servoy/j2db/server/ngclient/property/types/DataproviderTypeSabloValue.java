@@ -138,7 +138,7 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 	private String shouldResolveFromValuelistWithName;
 	private String formatPdName;
 	protected List<IChangeListener> underlyingValueChangeListeners = new ArrayList<>();
-	private Boolean isMultiselect = null;
+	private boolean isMultiselect = false;
 
 	public DataproviderTypeSabloValue(String dataProviderID, IDataAdapterList dataAdapterList, IServoyDataConverterContext servoyDataConverterContext,
 		PropertyDescription dpPD)
@@ -689,7 +689,7 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 
 	private void computeMultiselect(IDataProvider dp)
 	{
-		isMultiselect = Boolean.FALSE;
+		isMultiselect = false;
 		if (webObjectContext != null && getDataProviderConfig() != null && getDataProviderConfig().getMultiselect() != null)
 		{
 			if ("true".equals(getDataProviderConfig().getMultiselect()))
@@ -700,7 +700,7 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 					if ((dp instanceof Column column &&
 						column.getColumnType().getSqlType() == Types.ARRAY) || dp.getDataProviderType() == IColumnTypes.TEXT)
 					{
-						isMultiselect = Boolean.TRUE;
+						isMultiselect = true;
 					}
 				}
 
@@ -708,9 +708,9 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 			else
 			{
 				Object ms = webObjectContext.getProperty(getDataProviderConfig().getMultiselect());
-				if (ms instanceof Boolean)
+				if (ms instanceof Boolean bool)
 				{
-					isMultiselect = (Boolean)ms;
+					isMultiselect = bool.booleanValue();
 				}
 			}
 		}
@@ -777,11 +777,11 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 			// from scripting, then show string representation
 			EmbeddableJSONWriter ejw = new EmbeddableJSONWriter(true); // that 'true' is a workaround for allowing directly a value instead of object or array
 			Object value = null;
-			if (Boolean.TRUE.equals(isMultiselect) && uiValue instanceof String)
+			if (isMultiselect && uiValue instanceof String)
 			{
 				value = Utils.getTokenElements((String)value, "\n", false);
 			}
-			else if (Boolean.TRUE.equals(isMultiselect) && value == null && getDataProviderConfig() != null &&
+			else if (isMultiselect && value == null && getDataProviderConfig() != null &&
 				"true".equals(getDataProviderConfig().getMultiselect()))
 			{
 				value = new String[] { null };
@@ -793,7 +793,7 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 			ejw.value(value);
 			jsonValueRepresentation = new JSONStringWithClientSideType(ejw.toJSONString(), null);
 		}
-		else if (typeOfDP != null && !valuelistDisplayValue && !Boolean.TRUE.equals(isMultiselect)) // if multiselect then just send the value as is (array or string with \n)
+		else if (typeOfDP != null && !valuelistDisplayValue && !isMultiselect) // if multiselect then just send the value as is (array or string with \n)
 		{
 			Object value = uiValue;
 			// if the value to display is null, but it represents a count/avg/sum aggregate DP then
@@ -867,7 +867,7 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 		else
 		{
 			Object value = uiValue;
-			if (Boolean.TRUE.equals(isMultiselect))
+			if (isMultiselect)
 			{
 				if (value instanceof String)
 				{
@@ -898,7 +898,7 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 			{
 				array[i] = jsonArray.getString(i);
 			}
-			if (Boolean.TRUE.equals(isMultiselect) && typeOfDP != null &&
+			if (isMultiselect && typeOfDP != null &&
 				(typeOfDP.getType() instanceof StringPropertyType || typeOfDP.getType() instanceof HTMLStringPropertyType))
 			{
 				newJSONValue = Utils.getTokenValue(array, "\n");
