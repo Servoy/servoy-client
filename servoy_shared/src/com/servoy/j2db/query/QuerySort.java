@@ -102,7 +102,7 @@ public final class QuerySort implements IQuerySort
 	@Override
 	public String toString()
 	{
-		return new StringBuilder(column.getColumnName()).append(ascending ? " ASC" : " DESC").toString();
+		return new StringBuilder(column.getColumnName() == null ? "<anonymous>" : column.getColumnName()).append(ascending ? " ASC" : " DESC").toString();
 	}
 
 	///////// serialization ////////////////
