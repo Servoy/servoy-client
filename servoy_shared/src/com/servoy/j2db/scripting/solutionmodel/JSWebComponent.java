@@ -235,10 +235,10 @@ public class JSWebComponent extends JSComponent<WebComponent> implements IJavaSc
 	 *
 	 * @sample
 	 * var wc = form.getWebComponent('mycomponent');
-	 * wc.setJSONProperty('mytext', 'Hello World!');
-	 * wc.setJSONProperty('mynumber', 1);
-	 * wc.setJSONProperty('myborder', 'LineBorder,1,#ccffcc');
-	 * wc.setJSONProperty('mydynamicfoundset', { dataproviders: { dp1: "city", dp2: "country" }, foundsetSelector: "" }); // foundset property type using
+	 * wc.setJSONProperty(JSWebComponent.mypackage.mycomponent.mytext, 'Hello World!');
+	 * wc.setJSONProperty(JSWebComponent.mypackage.mycomponent.mynumber, 1);
+	 * wc.setJSONProperty(JSWebComponent.mypackage.mycomponent.myborder, 'LineBorder,1,#ccffcc');
+	 * wc.setJSONProperty(JSWebComponent.mypackage.mycomponent.mydynamicfoundset, { dataproviders: { dp1: "city", dp2: "country" }, foundsetSelector: "" }); // foundset property type using
 	 *     // the parent form's foundset and providing two columns of the foundset to client; see foundset property type wiki page for more information
 	 */
 	@JSFunction
@@ -254,9 +254,9 @@ public class JSWebComponent extends JSComponent<WebComponent> implements IJavaSc
 	 *
 	 * @sample
 	 * var wc = form.getWebComponent('mycomponent'); // form is extending another form who's 'mycomponent' has property 'mytext' set to something...
-	 * wc.setJSONProperty('mytext', 'Hello World Extended!');
+	 * wc.setJSONProperty(JSWebComponent.mypackage.mycomponent.mytext, 'Hello World Extended!');
 	 * // hmm I changed my mind - I like simple 'Hello World' better
-	 * wc.resetJSONProperty('mytext');
+	 * wc.resetJSONProperty(JSWebComponent.mypackage.mycomponent.mytext);
 	 */
 	@JSFunction
 	public void resetJSONProperty(String propertyName)
@@ -270,9 +270,9 @@ public class JSWebComponent extends JSComponent<WebComponent> implements IJavaSc
 	 *
 	 * @sample
 	 * var wc = form.getWebComponent('mycomponent');
-	 * var isSet = wc.isJSONPropertySet(''mytext''); // returns false
-	 * wc.setJSONProperty('mytext', 'Hello World Extended!');
-	 * isSet = wc.isJSONPropertySet(''mytext''); // returns true
+	 * var isSet = wc.isJSONPropertySet(JSWebComponent.mypackage.mycomponent.mytext); // returns false
+	 * wc.setJSONProperty(JSWebComponent.mypackage.mycomponent.mytext, 'Hello World Extended!');
+	 * isSet = wc.isJSONPropertySet(JSWebComponent.mypackage.mycomponent.mytext); // returns true
 	 *
 	 * @return true if the specified property is explicitly set, otherwise false.
 	 */
@@ -291,7 +291,7 @@ public class JSWebComponent extends JSComponent<WebComponent> implements IJavaSc
 	 *
 	 * @sample
 	 * var wc = form.getWebComponent('mycomponent');
-	 * wc.setHandler('onActionMethodID', form.getMethod('onAction'));
+	 * wc.setHandler(JSWebComponent.mypackage.mycomponent.onActionMethodID, form.getMethod('onAction'));
 	 */
 	@JSFunction
 	public void setHandler(String handlerName, JSMethod method)
@@ -305,9 +305,9 @@ public class JSWebComponent extends JSComponent<WebComponent> implements IJavaSc
 	 *
 	 * @sample
 	 * var wc = form.getWebComponent('mycomponent'); // form is extending another form who's 'onActionMethodID' does something nice
-	 * wc.setHandler('onActionMethodID', form.getMethod('onCoolerAction'));
+	 * wc.setHandler(JSWebComponent.mypackage.mycomponent.onActionMethodID, form.getMethod('onCoolerAction'));
 	 * // hmm, I changed my mind - I like 'nice' action better
-	 * wc.resetHandler('onActionMethodID');
+	 * wc.resetHandler(JSWebComponent.mypackage.mycomponent.onActionMethodID);
 	 */
 	@JSFunction
 	public void resetHandler(String handlerName)
@@ -321,7 +321,7 @@ public class JSWebComponent extends JSComponent<WebComponent> implements IJavaSc
 	 *
 	 * @sample
 	 * var wc = form.getWebComponent('mycomponent');
-	 * var handler = wc.getHandler('onActionMethodID');
+	 * var handler = wc.getHandler(JSWebComponent.mypackage.mycomponent.onActionMethodID);
 	 *
 	 * @return the JSMethod handler associated with the specified handler name.
 	 */
@@ -380,16 +380,16 @@ public class JSWebComponent extends JSComponent<WebComponent> implements IJavaSc
 	 *
 	 * @sample
 	 * var wc = form.getWebComponent('mycomponent');
-	 * application.output(wc.getJSONProperty('mytext')); // will output a string value if present for a string typed property
-	 * application.output(wc.getJSONProperty('mynumber')); // getter will return a number if present
-	 * application.output(JSON.stringify(wc.getJSONProperty('mycustomtype'), null, '  ')); // getter returns an object if present for custom types is spec files
-	 * application.output(JSON.stringify(wc.getJSONProperty('myarray'), null, '  ')); // getter returns an array type if present for array types
-	 * application.output(JSON.stringify(wc.getJSONProperty('myfoundset'), null, '  ')); // getter returns an object representing the design settings of the given property if present
+	 * application.output(wc.getJSONProperty(JSWebComponent.mypackage.mycomponent.mytext)); // will output a string value if present for a string typed property
+	 * application.output(wc.getJSONProperty(JSWebComponent.mypackage.mycomponent.mynumber)); // getter will return a number if present
+	 * application.output(JSON.stringify(wc.getJSONProperty(JSWebComponent.mypackage.mycomponent.mycustomtype), null, '  ')); // getter returns an object if present for custom types is spec files
+	 * application.output(JSON.stringify(wc.getJSONProperty(JSWebComponent.mypackage.mycomponent.myarray), null, '  ')); // getter returns an array type if present for array types
+	 * application.output(JSON.stringify(wc.getJSONProperty(JSWebComponent.mypackage.mycomponent.myfoundset), null, '  ')); // getter returns an object representing the design settings of the given property if present
 	 *
 	 * //In case you want to change a more complex property (e.g. tabs) obtained with getJSONProperty, setJSONProperty must be used:
-	 * var tabs = jsTabPanel.getJSONPRoperty("tabs");
+	 * var tabs = jsTabPanel.getJSONPRoperty(JSWebComponent.bootstrapcomponents.tabpanel.tabs);
 	 * tabs[0].containsFormId = jsForm;
-	 * jsTabPanel.setJSONProperty("tabs", tabs);
+	 * jsTabPanel.setJSONProperty(JSWebComponent.bootstrapcomponents.tabpanel.tabs, tabs);
 	 *
 	 * @return the design-time value of the specified property, or the default value if not set.
 	 */
