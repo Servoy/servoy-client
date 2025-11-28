@@ -668,8 +668,9 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	@JSFunction
 	public QBScoreColumnBase vector_score(Object arg, float[] embedding)
 	{
+		IQuerySelectValue firstArg = createOperand(arg);
 		return new QBFunctionImpl(getRoot(), getParent(), vector_score,
-			new IQuerySelectValue[] { createOperand(arg), new QueryColumnValue(embedding, null) });
+			new IQuerySelectValue[] { firstArg, new QueryColumnValue(embedding, null, false, firstArg.getNativeTypename()) });
 	}
 
 	/**

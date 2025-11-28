@@ -36,6 +36,7 @@ public final class QueryColumnValue implements IQuerySelectValue
 	private Object value;
 	private final String alias;
 	private final boolean fixedvalue;
+	private final String nativeTypename;
 
 	public QueryColumnValue(Object value, String alias)
 	{
@@ -44,15 +45,21 @@ public final class QueryColumnValue implements IQuerySelectValue
 
 	public QueryColumnValue(Object value, String alias, boolean fixedvalue)
 	{
+		this(value, alias, fixedvalue, null);
+	}
+
+	public QueryColumnValue(Object value, String alias, boolean fixedvalue, String nativeTypename)
+	{
 		this.value = value;
 		this.alias = alias;
 		this.fixedvalue = fixedvalue;
+		this.nativeTypename = nativeTypename;
 	}
 
 	@Override
 	public IQuerySelectValue asAlias(String newAlias)
 	{
-		return new QueryColumnValue(value, newAlias, fixedvalue);
+		return new QueryColumnValue(value, newAlias, fixedvalue, nativeTypename);
 	}
 
 	public Object getValue()
@@ -62,7 +69,7 @@ public final class QueryColumnValue implements IQuerySelectValue
 
 	public IQuerySelectValue withValue(Object newValue)
 	{
-		return new QueryColumnValue(newValue, alias, fixedvalue);
+		return new QueryColumnValue(newValue, alias, fixedvalue, nativeTypename);
 	}
 
 	public String getAlias()
@@ -80,7 +87,7 @@ public final class QueryColumnValue implements IQuerySelectValue
 
 	public IQuerySelectValue withFixedvalue(boolean newFixedvalue)
 	{
-		return newFixedvalue == fixedvalue ? this : new QueryColumnValue(value, alias, newFixedvalue);
+		return newFixedvalue == fixedvalue ? this : new QueryColumnValue(value, alias, newFixedvalue, nativeTypename);
 	}
 
 	@Override
@@ -112,6 +119,16 @@ public final class QueryColumnValue implements IQuerySelectValue
 		}
 
 		return null;
+	}
+
+	@Override
+	public String getNativeTypename()
+	{
+		if (nativeTypename != null)
+		{
+			return nativeTypename;
+		}
+		return IQuerySelectValue.super.getNativeTypename();
 	}
 
 	@Override
@@ -186,7 +203,8 @@ public final class QueryColumnValue implements IQuerySelectValue
 	public Object writeReplace()
 	{
 		// Note: when this serialized structure changes, make sure that old data (maybe saved as serialized xml) can still be deserialized!
-		return new ReplacedObject(AbstractBaseQuery.QUERY_SERIALIZE_DOMAIN, getClass(), new Object[] { value, alias, Boolean.valueOf(fixedvalue) });
+		return new ReplacedObject(AbstractBaseQuery.QUERY_SERIALIZE_DOMAIN, getClass(),
+			new Object[] { value, alias, Boolean.valueOf(fixedvalue), nativeTypename });
 	}
 
 	public QueryColumnValue(ReplacedObject s)
@@ -196,6 +214,7 @@ public final class QueryColumnValue implements IQuerySelectValue
 		value = members[i++];
 		alias = (String)members[i++];
 		fixedvalue = ((Boolean)members[i++]).booleanValue();
+		nativeTypename = (i < members.length) ? (String)members[i++] : null;
 	}
 
 }
