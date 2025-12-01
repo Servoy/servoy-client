@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Servoy Debug Core Plug-in
 Bundle-SymbolicName: servoy_debug;singleton:=true
-Bundle-Version: 2025.12.0.4120_rc
+Bundle-Version: 2026.3.0.4140_rc
 Bundle-RequiredExecutionEnvironment: JavaSE-21
 Bundle-Vendor: Servoy
 Require-Bundle: servoy_headless_client,
