@@ -85,13 +85,14 @@ public final class ProfileData
 			this.args = new String[args.length];
 			for (int i = 0; i < args.length; i++)
 			{
-				if (args[i] instanceof Wrapper && !(args[i] instanceof NativeArray))
+				Object arg = args[i];
+				if (arg instanceof Wrapper && !(arg instanceof NativeArray))
 				{
-					args[i] = ((Wrapper)args[i]).unwrap();
+					arg = ((Wrapper)arg).unwrap();
 				}
-				if (args[i] instanceof JSEvent)
+				if (arg instanceof JSEvent)
 				{
-					JSEvent event = (JSEvent)args[i];
+					JSEvent event = (JSEvent)arg;
 					StringBuilder sb = new StringBuilder();
 					sb.append("JSEvent[");
 					boolean added = false;
@@ -139,13 +140,13 @@ public final class ProfileData
 					sb.append("]");
 					this.args[i] = sb.toString();
 				}
-				else if (args[i] instanceof Undefined)
+				else if (arg instanceof Undefined)
 				{
 					this.args[i] = "undefined";
 				}
 				else
 				{
-					this.args[i] = args[i] != null ? args[i].toString() : null;
+					this.args[i] = arg != null ? arg.toString() : null;
 				}
 			}
 		}
