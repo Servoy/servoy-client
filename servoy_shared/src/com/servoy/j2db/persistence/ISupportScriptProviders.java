@@ -18,6 +18,8 @@ package com.servoy.j2db.persistence;
 
 import java.util.Iterator;
 
+import com.servoy.j2db.util.UUID;
+
 
 public interface ISupportScriptProviders
 {
@@ -25,5 +27,5 @@ public interface ISupportScriptProviders
 
 	public Iterator<ScriptVariable> getScriptVariables(boolean b);
 
-	public ScriptMethod getScriptMethod(String methodNameOrUUID);
+	public ScriptMethod getScriptMethod(UUID uuid);
 }

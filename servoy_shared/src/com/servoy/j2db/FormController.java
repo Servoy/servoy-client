@@ -79,6 +79,7 @@ import com.servoy.j2db.util.IStyleSheet;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.TabSequenceHelper;
+import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -113,9 +114,9 @@ public class FormController extends BasicFormController
 			return form.getScriptMethods(sort);
 		}
 
-		public ScriptMethod getScriptMethod(String methodNameOrUUID)
+		public ScriptMethod getScriptMethod(UUID uuid)
 		{
-			return form.getScriptMethod(methodNameOrUUID);
+			return form.getScriptMethod(uuid);
 		}
 
 		/**

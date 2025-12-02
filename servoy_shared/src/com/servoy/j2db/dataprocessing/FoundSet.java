@@ -6950,7 +6950,7 @@ public abstract class FoundSet
 					return Collections.<ScriptVariable> emptyList().iterator();
 				}
 
-				public ScriptMethod getScriptMethod(String methodNameOrUUID)
+				public ScriptMethod getScriptMethod(UUID uuid)
 				{
 					return null; // not called by LCS
 				}
