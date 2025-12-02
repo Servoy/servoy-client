@@ -551,7 +551,7 @@ public class ScriptEngine implements IScriptSupport
 							return Collections.<ScriptVariable> emptyList().iterator();
 						}
 
-						public ScriptMethod getScriptMethod(String methodUUID)
+						public ScriptMethod getScriptMethod(UUID uuid)
 						{
 							return null; // is not used for calculations
 						}

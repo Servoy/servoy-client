@@ -2209,6 +2209,12 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		return getScriptMethod(null, methodNameOrUUID);
 	}
 
+	@Override
+	public ScriptMethod getScriptMethod(UUID uuid)
+	{
+		return getScriptMethod(uuid.toString());
+	}
+
 	/**
 	 * Get global script method.
 	 * Scope name may be in methodName (globals.x, scopes.globals.x or scopes.myscope.x) or may be supplied in arg scopeName.

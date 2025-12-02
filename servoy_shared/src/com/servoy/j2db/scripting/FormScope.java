@@ -113,11 +113,20 @@ public class FormScope extends ScriptVariableScope implements Wrapper, Contextua
 	{
 		if (extendScopes.length > 0)
 		{
-			for (LazyCompilationScope extendScope : extendScopes)
+			for (int i = 0; i < extendScopes.length; i++)
 			{
-				if (extendScope.getScriptLookup().getScriptMethod(sp.getName()) != null)
+				if (extendScopes[i].getScriptLookup().getScriptMethod(sp.getUUID()) != null)
 				{
-					return extendScope;
+					if (i + 1 < extendScopes.length)
+					{
+						// the super scope is the next extend scope
+						return extendScopes[i + 1];
+					}
+					else
+					{
+						// if this was the last extendScope then the script doesn't have a super
+						return null;
+					}
 				}
 			}
 			// if not found then the script method resides in the sup (FlattenedForm) itself
@@ -457,24 +466,7 @@ public class FormScope extends ScriptVariableScope implements Wrapper, Contextua
 		@Override
 		protected Scriptable getFunctionSuper(IScriptProvider sp)
 		{
-			if (extendScopes.length > 0)
-			{
-				boolean found = false;
-				// find next extend scope that has the method.
-				for (LazyCompilationScope extendScope : extendScopes)
-				{
-					if (extendScope == this)
-					{
-						found = true;
-						continue;
-					}
-					if (found && extendScope.getScriptLookup().getScriptMethod(sp.getName()) != null)
-					{
-						return extendScope;
-					}
-				}
-			}
-			return null;
+			return FormScope.this.getFunctionSuper(sp);
 		}
 
 		/*

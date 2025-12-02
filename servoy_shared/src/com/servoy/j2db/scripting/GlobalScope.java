@@ -36,6 +36,7 @@ import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.ScopesUtils;
+import com.servoy.j2db.util.UUID;
 
 /**
  * @author jcompagner
@@ -60,7 +61,7 @@ public class GlobalScope extends ScriptVariableScope
 				return application.getFlattenedSolution().getScriptVariables(scopeName, sort);
 			}
 
-			public ScriptMethod getScriptMethod(String methodUUID)
+			public ScriptMethod getScriptMethod(UUID uuid)
 			{
 				return null; // is not used in lazy compilation scope
 			}
