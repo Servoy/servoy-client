@@ -244,13 +244,13 @@ public class I18NUtil
 							fm != null ? fm.getTableFilterParams(i18NServerName, update) : null));
 					}
 				}
-				if (insertColumnValuesListForBatch[0].length > 0)
+				if (insertColumnValuesListForBatch[0] != null && insertColumnValuesListForBatch[0].length > 0)
 				{
 					insert.setColumnValues(insertColumns, insertColumnValuesListForBatch);
 
 					updateStatements.add(new SQLStatement(ISQLActionTypes.INSERT_ACTION, i18NServerName, i18NTableName, null, null, insert, null));
 				}
-				if (insertColumnValuesListForBatchWithNullLanguage[0].length > 0)
+				if (insertColumnValuesListForBatchWithNullLanguage[0] != null && insertColumnValuesListForBatchWithNullLanguage[0].length > 0)
 				{
 					insertForNullLanguage.setColumnValues(insertColumnsForNullLanguage, insertColumnValuesListForBatchWithNullLanguage);
 
