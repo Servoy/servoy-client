@@ -88,7 +88,7 @@ public class JSEventsManager implements IReturnedTypesProvider
 	 * deregister();
 	 *
 	 * @param eventType Event type to listen to.
-	 * @param callback callback to be called.
+	 * @param {(param1:String,param2:Number)=>String} callback the function callback
 	 *
 	 * @return returns the deregister function that can be used to remove the listener.
 	 */
@@ -123,7 +123,7 @@ public class JSEventsManager implements IReturnedTypesProvider
 	 * deregister();
 	 *
 	 * @param eventType Event type to listen to.
-	 * @param callback callback to be called.
+	 * @param {(param1:String,param2:Number)=>String} callback the function callback
 	 * @param context Can be a form, global scope or any string. Will cause callback to only be called on that context.
 	 *
 	 * @return returns the deregister function that can be used to remove the listener.

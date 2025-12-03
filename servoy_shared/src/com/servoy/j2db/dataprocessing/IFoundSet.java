@@ -105,7 +105,7 @@ public interface IFoundSet extends IFoundSetDeprecated, IGlobalValueEntry, Itera
 	 * During traversal, foundset modifications (like sort, load records...) cannot be performed, otherwise it will throw an exception.
 	 * The same exception will happen if a rollback happens on the foundsets datasource. Because that will also generate a full refesh/reload of the foundset.
 	 *
-	 * @param callback Callback interface to be called for each record.
+	 * @param {(param1:String,param2:Number)=>String} callback the function callback
 	 *
 	 * @return Object will return what callback returns
 	 */
