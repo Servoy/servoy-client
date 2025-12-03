@@ -868,6 +868,12 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 		return selectByName(getScriptMethods(false), name);
 	}
 
+	@Override
+	public ScriptMethod getScriptMethod(UUID smUUID)
+	{
+		return getChild(smUUID) instanceof ScriptMethod sm ? sm : null;
+	}
+
 	/**
 	 * Create new script method.
 	 *
