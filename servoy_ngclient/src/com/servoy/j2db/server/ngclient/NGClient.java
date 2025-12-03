@@ -1012,6 +1012,12 @@ public class NGClient extends AbstractApplication
 				invokeLater(() -> NGClient.this.shutDown(true));
 
 			}
+
+			@Override
+			public void closeSolution()
+			{
+				invokeLater(() -> NGClient.this.closeSolution(true, null));
+			}
 		};
 	}
 
