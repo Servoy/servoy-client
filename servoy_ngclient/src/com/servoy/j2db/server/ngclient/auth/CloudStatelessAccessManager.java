@@ -43,8 +43,10 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.owasp.encoder.Encode;
 import org.sablo.security.ContentSecurityPolicyConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -245,7 +247,7 @@ public class CloudStatelessAccessManager
 							String endpoint = path.getName(path.getNameCount() - 1).toString().replace(".html", "");
 							if (Arrays.asList(endpoints).contains(endpoint))
 							{
-								String svyRedirect = request.getParameter(SVY_REDIRECT);
+								String svyRedirect = Encode.forHtmlAttribute(request.getParameter(SVY_REDIRECT));
 								if ("POST".equalsIgnoreCase(request.getMethod()))
 								{
 									res = executeCloudPostRequest(httpclient, solution, endpoint, request,
@@ -495,7 +497,7 @@ public class CloudStatelessAccessManager
 					{
 						request.getSession().setAttribute(StatelessLoginHandler.ID_TOKEN, showLogin.getRight());
 					}
-					response.sendRedirect(initialURL != null ? initialURL : request.getContextPath() + "/index.html");
+					response.sendRedirect(initialURL != null ? StringEscapeUtils.unescapeHtml4(initialURL) : request.getContextPath() + "/index.html");
 					return;
 				}
 				else
@@ -712,7 +714,7 @@ public class CloudStatelessAccessManager
 					loginHtml = res.optString("html", null);
 					if (loginHtml != null && loginHtml.contains("</form>"))
 					{
-						String queryString = request.getQueryString() != null ? "?" + request.getQueryString() : "";
+						String queryString = request.getQueryString() != null ? "?" + Encode.forHtmlAttribute(request.getQueryString()) : "";
 						loginHtml = loginHtml.replace("</form>", "<input type='hidden' name='" + SVY_REDIRECT + "' value='" +
 							request.getRequestURL() + queryString + "'></form>");
 					}
