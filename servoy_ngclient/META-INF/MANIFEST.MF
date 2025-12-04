@@ -74,6 +74,7 @@ Import-Package: com.auth0.jwk;version="[0.22.0,1.0.0)",
  org.jsoup;version="1.17.1",
  org.jsoup.nodes;version="1.17.1",
  org.jsoup.select;version="1.17.1",
+ org.owasp.encoder,
  org.slf4j;version="2.0.6",
  org.slf4j.spi;version="[2.0.0,3.0.0)"
 Bundle-ActivationPolicy: lazy
