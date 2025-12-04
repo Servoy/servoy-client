@@ -386,7 +386,6 @@ public abstract class AbstractBase implements IPersist
 							propertyValue = mergeJSONObjects((JSONObject)propertyValue, (JSONObject)value);
 						}
 					}
-					propertiesMap.put(propertyName, propertyValue);
 					return propertyValue;
 				}
 

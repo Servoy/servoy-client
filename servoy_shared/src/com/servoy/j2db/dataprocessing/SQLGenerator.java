@@ -1100,17 +1100,24 @@ public class SQLGenerator
 				{
 					// no need to query, dummy condition (where 1=2) here
 					List<IQuerySelectValue> columns = ((QuerySelect)sqlSelect).getColumns();
-					String[] columnNames = new String[columns.size()];
-					ColumnType[] columnTypes = new ColumnType[columns.size()];
-					for (int i = 0; i < columns.size(); i++)
+					if (columns != null)
 					{
-						IQuerySelectValue col = columns.get(i);
-						columnNames[i] = col.getAliasOrName();
-						BaseColumnType columnType = col.getColumnType();
-						columnTypes[i] = columnType == null ? ColumnType.getInstance(Types.OTHER, 0, 0) : ColumnType.toColumnType(columnType);
-					}
+						String[] columnNames = new String[columns.size()];
+						ColumnType[] columnTypes = new ColumnType[columns.size()];
+						for (int i = 0; i < columns.size(); i++)
+						{
+							IQuerySelectValue col = columns.get(i);
+							columnNames[i] = col.getAliasOrName();
+							BaseColumnType columnType = col.getColumnType();
+							columnTypes[i] = columnType == null ? ColumnType.getInstance(Types.OTHER, 0, 0) : ColumnType.toColumnType(columnType);
+						}
 
-					return BufferedDataSetInternal.createBufferedDataSet(columnNames, columnTypes, new SafeArrayList<Object[]>(0), false);
+						return BufferedDataSetInternal.createBufferedDataSet(columnNames, columnTypes, new SafeArrayList<Object[]>(0), false);
+					}
+					else
+					{
+						Debug.log("Unexpected columns null for query in getEmptyDataSetForDummyQuery " + sqlSelect); //$NON-NLS-1$
+					}
 				}
 			}
 		}
