@@ -17,7 +17,7 @@
 
 package com.servoy.j2db.querybuilder.impl;
 
-import static com.servoy.j2db.query.QueryFunction.QueryFunctionType._native_vector_score;
+import static com.servoy.j2db.query.QueryFunction.QueryFunctionType.vector_distance;
 import static com.servoy.j2db.query.QueryFunction.QueryFunctionType.vector_score;
 
 import com.servoy.j2db.query.IQuerySelectValue;
@@ -47,7 +47,8 @@ public class QBFunctionImpl extends QBColumnImpl
 	{
 		if (functionType == vector_score)
 		{
-			return new QBSort(getRoot(), new QBFunctionImpl(getRoot(), getParent(), _native_vector_score, functionArgs), false);
+			// vector_score is from 0-1 (higher is better), vector_distance is 0 or more, lower is better
+			return new QBSort(getRoot(), new QBFunctionImpl(getRoot(), getParent(), vector_distance, functionArgs), true);
 		}
 		return super.desc();
 	}
@@ -58,7 +59,8 @@ public class QBFunctionImpl extends QBColumnImpl
 	{
 		if (functionType == vector_score)
 		{
-			return new QBSort(getRoot(), new QBFunctionImpl(getRoot(), getParent(), _native_vector_score, functionArgs), true);
+			// vector_score is from 0-1 (higher is better), vector_distance is 0 or more, lower is better
+			return new QBSort(getRoot(), new QBFunctionImpl(getRoot(), getParent(), vector_distance, functionArgs), false);
 		}
 		return super.asc();
 	}

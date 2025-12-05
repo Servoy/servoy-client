@@ -69,7 +69,7 @@ public final class QueryFunction implements IQuerySelectValue
 		ceil,
 		cardinality,
 		vector_score, // normalized score
-		_native_vector_score, // only internal
+		vector_distance, // database-native cosine distance
 		_denormalize_vector_score, // only internal
 
 		distinct, // slightly abused as function

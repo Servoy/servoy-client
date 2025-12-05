@@ -32,13 +32,35 @@ import com.servoy.j2db.scripting.annotations.JSRealClass;
 public interface QBVectorColumnBase extends IQueryBuilderColumn
 {
 	/**
-	 * Calculate the normalized score for this column using the embedding
-	 * @param pos
+	 * Calculate the normalized score for this column using the embedding.
+	 *
+	 * The normalized score is a number from 0 to 1 where higher means better.
+	 * When sorting on score you can sort on 'vector_score(embedding) desc' to get the best matches first.
+	 * It is more efficient to sort using the native distance function 'vector_distance(embedding) asc' to get the best matches first.
+	 *
+	 * The score result has a function min_score for filtering on the score, this is optimized for filtering compared to the standard number comparison functions.
+	 *
+	 * @param embedding embedding object
 	 * @sample
-	 * query.result.addquery.joins.books_to_books_embeddings.columns.embedding.vector_score(client.embed('Magic or Fantasy'))
+	 * query.result.addquery.joins.books_to_books_embeddings.columns.embedding.vector_score(model.embedding('Magic or Fantasy'))
 	 *
 	 * @return the QBScoreColumn that can be added to the result.
 	 */
 	@JSFunction
 	public QBScoreColumnBase vector_score(float[] embedding);
+
+	/**
+	 * Calculate the database native cosine distance for this column using the embedding.
+	 *
+	 * The native cosine distance is a positive number where lower means better.
+	 * When sorting on score you can sort on 'vector_distance(embedding) asc' to get the best matches first.
+	 *
+	 * @param embedding embedding object
+	 * @sample
+	 * query.sort.add(query.joins.books_to_books_embeddings.columns.embedding.vector_distance(model.embedding('Magic or Fantasy')))
+	 *
+	 * @return the QBNumberColumn that can be used for sorting.
+	 */
+	@JSFunction
+	public QBNumberColumnBase vector_distance(float[] embedding);
 }

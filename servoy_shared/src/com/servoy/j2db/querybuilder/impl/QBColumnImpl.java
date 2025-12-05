@@ -471,6 +471,12 @@ public class QBColumnImpl extends QBPart
 		return getRoot().functions().vector_score(this, embedding);
 	}
 
+	@Override
+	public QBNumberColumnBase vector_distance(float[] embedding)
+	{
+		return getRoot().functions().vector_distance(this, embedding);
+	}
+
 	/////////////////////////////////////////////////////////
 	////////////// QBScoreColumnBase methods ///////////////
 	/////////////////////////////////////////////////////////
@@ -483,7 +489,7 @@ public class QBColumnImpl extends QBPart
 		var denormalizedMinScore = new QBFunctionImpl(getRoot(), getParent(), _denormalize_vector_score,
 			new IQuerySelectValue[] { createOperand(normalizedScore) });
 
-		return denormalizedScore.le(denormalizedMinScore);
+		return denormalizedScore.lt(denormalizedMinScore);
 	}
 
 	/////////////////////////////////////////////////////////
