@@ -46,6 +46,7 @@ import static com.servoy.j2db.query.QueryFunction.QueryFunctionType.sqrt;
 import static com.servoy.j2db.query.QueryFunction.QueryFunctionType.substring;
 import static com.servoy.j2db.query.QueryFunction.QueryFunctionType.trim;
 import static com.servoy.j2db.query.QueryFunction.QueryFunctionType.upper;
+import static com.servoy.j2db.query.QueryFunction.QueryFunctionType.vector_distance;
 import static com.servoy.j2db.query.QueryFunction.QueryFunctionType.vector_score;
 import static com.servoy.j2db.query.QueryFunction.QueryFunctionType.year;
 import static com.servoy.j2db.util.Utils.getCallerMethodName;
@@ -659,7 +660,7 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	 * @param embedding embedding object
 	 * @sample
 	 * var query = datasources.db.example_data.books.createSelect();
-	 * query.where.add(query.joins.books_to_books_embeddings.columns.embedding.vector_score(client.embed('Magic or Fantasy')).min_score(0.7))
+	 * query.where.add(query.joins.books_to_books_embeddings.columns.embedding.vector_score(model.embedding('Magic or Fantasy')).min_score(0.7))
 	 * foundset.loadRecords(query);
 	 *
 	 * @return A query builder column representing the normalized vector score of the vector column compared with the embedding.
@@ -669,6 +670,25 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	{
 		IQuerySelectValue firstArg = createOperand(arg);
 		return new QBFunctionImpl(getRoot(), getParent(), vector_score,
+			new IQuerySelectValue[] { firstArg, new QueryColumnValue(embedding, null, false, firstArg.getNativeTypename()) });
+	}
+
+	/**
+	 * @clonedesc com.servoy.j2db.querybuilder.impl.QBVectorColumnBase#vector_distance(String)
+	 * @param arg vector column
+	 * @param embedding embedding object
+	 * @sample
+	 * var query = datasources.db.example_data.books.createSelect();
+	 * query.sort.add(query.joins.books_to_books_embeddings.columns.embedding.vector_distance(model.embedding('Magic or Fantasy')))
+	 * foundset.loadRecords(query);
+	 *
+	 * @return A query builder column representing the database native cosine distance of the vector column compared with the embedding.
+	 */
+	@JSFunction
+	public QBScoreColumnBase vector_distance(Object arg, float[] embedding)
+	{
+		IQuerySelectValue firstArg = createOperand(arg);
+		return new QBFunctionImpl(getRoot(), getParent(), vector_distance,
 			new IQuerySelectValue[] { firstArg, new QueryColumnValue(embedding, null, false, firstArg.getNativeTypename()) });
 	}
 

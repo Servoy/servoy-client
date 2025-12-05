@@ -33,10 +33,14 @@ public interface QBScoreColumnBase extends QBNumberColumnBase
 {
 	/**
 	 * Compare normalized score column with a value or another column.
+	 * The normalized score is a number from 0 to 1 where higher means better.
+	 *
+	 * This function is equivalent to 'vector_score(embedding).ge(score)', but optimized for the specific database implementation.
+	 *
 	 * Operator: min_score
 	 * @param value
 	 * @sample
-	 * query.where.add(query.joins.books_to_books_embeddings.columns.embedding.vector_score(client.embed('Magic or Fantasy')).min_score(0.7))
+	 * query.where.add(query.joins.books_to_books_embeddings.columns.embedding.vector_score(model.embedding('Magic or Fantasy')).min_score(0.7))
 	 *
 	 *  @return a QBCondition representing the "minimal score" comparison.
 	 */
