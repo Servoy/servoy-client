@@ -66,9 +66,16 @@ public class ClientSideTypesTest extends AbstractSolutionTest
 		String comp2 = new String(bytes);
 		is.close();
 
+		is = getClass().getResourceAsStream("ClientSideTypesTest-component3.spec");
+		bytes = new byte[is.available()];
+		is.read(bytes);
+		String comp3 = new String(bytes);
+		is.close();
+
 		HashMap<String, String> components = new HashMap<>();
 		components.put("component1.spec", comp1);
 		components.put("component2.spec", comp2);
+		components.put("component3.spec", comp3);
 		InMemPackageReader inMemPackageReader = new InMemPackageReader(manifest, components);
 		return inMemPackageReader;
 	}
