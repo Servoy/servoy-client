@@ -49,6 +49,11 @@ import com.servoy.j2db.util.xmlxport.TableDef;
  */
 public class DatabaseUtils
 {
+	public static TableDef deserializeTableInfo(String stringDBIContent) throws JSONException
+	{
+		return deserializeTableInfo(stringDBIContent, true);
+	}
+
 	/**
 	 * Gets the table information from a .dbi (JSON format) file like structured String.
 	 *
@@ -56,12 +61,12 @@ public class DatabaseUtils
 	 * @return the deserialized table information.
 	 * @throws JSONException if the structure of the JSON in String stringDBIContent is bad.
 	 */
-	public static TableDef deserializeTableInfo(String stringDBIContent) throws JSONException
+	public static TableDef deserializeTableInfo(String stringDBIContent, boolean sortColumns) throws JSONException
 	{
 		try
 		{
 			ServoyJSONObject dbiContents = new ServoyJSONObject(stringDBIContent, false);
-			TableDef tableInfo = deserializeTableInfo(dbiContents);
+			TableDef tableInfo = deserializeTableInfo(dbiContents, sortColumns);
 			tableInfo.dbiFileContents = stringDBIContent;
 			return tableInfo;
 		}
@@ -105,6 +110,11 @@ public class DatabaseUtils
 		return serverDef;
 	}
 
+	public static TableDef deserializeTableInfo(ServoyJSONObject dbiContents) throws JSONException
+	{
+		return deserializeTableInfo(dbiContents, true);
+	}
+
 	/**
 	 * Gets the table information from a .dbi (JSON format) file like structured String.
 	 *
@@ -112,7 +122,7 @@ public class DatabaseUtils
 	 * @return the deserialized table information.
 	 * @throws JSONException if the structure of the JSON in String stringDBIContent is bad.
 	 */
-	public static TableDef deserializeTableInfo(ServoyJSONObject dbiContents) throws JSONException
+	public static TableDef deserializeTableInfo(ServoyJSONObject dbiContents, boolean sortColumns) throws JSONException
 	{
 		TableDef tableInfo = new TableDef();
 		tableInfo.name = dbiContents.getString("name");
@@ -171,19 +181,22 @@ public class DatabaseUtils
 					tableInfo.columnInfoDefSet.add(cid);
 				}
 			}
-			// sort it based on creation index, so it is created the same as displayedin the table editor
-			Collections.sort(tableInfo.columnInfoDefSet, new Comparator<ColumnInfoDef>()
+			if (sortColumns)
 			{
-				@Override
-				public int compare(ColumnInfoDef o1, ColumnInfoDef o2)
+				// sort it based on creation index, so it is created the same as displayedin the table editor
+				Collections.sort(tableInfo.columnInfoDefSet, new Comparator<ColumnInfoDef>()
 				{
-					if (o1.creationOrderIndex == o2.creationOrderIndex)
+					@Override
+					public int compare(ColumnInfoDef o1, ColumnInfoDef o2)
 					{
-						return o1.name.compareTo(o2.name);
+						if (o1.creationOrderIndex == o2.creationOrderIndex)
+						{
+							return o1.name.compareTo(o2.name);
+						}
+						return o1.creationOrderIndex - o2.creationOrderIndex;
 					}
-					return o1.creationOrderIndex - o2.creationOrderIndex;
-				}
-			});
+				});
+			}
 		}
 		return tableInfo;
 	}
