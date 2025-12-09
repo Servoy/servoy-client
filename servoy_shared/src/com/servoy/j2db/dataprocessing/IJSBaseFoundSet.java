@@ -122,7 +122,7 @@ public interface IJSBaseFoundSet extends IFoundSetInternal
 	 *  	//handle the record here
 	 *  });
 	 *
-	 * @param callback {(record:JsRecord,recordIndex?:Number,foundset?:JSFoundset)=>Object} The callback function to be called for each loaded record in the foundset. Can receive three parameters: the record to be processed, the index of the record in the foundset, and the foundset that is traversed.
+	 * @param callback {(record:JSRecord,recordIndex?:Number,foundset?:JSFoundSet)=>Object} The callback function to be called for each loaded record in the foundset. Can receive three parameters: the record to be processed, the index of the record in the foundset, and the foundset that is traversed.
 	 *
 	 * @return Object the return value of the callback
 	 *
@@ -138,7 +138,7 @@ public interface IJSBaseFoundSet extends IFoundSetInternal
 	 *
 	 * @sampleas forEach(Function)
 	 *
-	 * @param callback {(record:JsRecord,recordIndex?:Number,foundset?:JSFoundset)=>Object} The callback function to be called for each loaded record in the foundset. Can receive three parameters: the record to be processed, the index of the record in the foundset, and the foundset that is traversed.
+	 * @param callback {(record:JSRecord,recordIndex?:Number,foundset?:JSFoundSet)=>Object} The callback function to be called for each loaded record in the foundset. Can receive three parameters: the record to be processed, the index of the record in the foundset, and the foundset that is traversed.
 	 * @param thisObject What the this object should be in the callback function (default it is the foundset)
 	 *
 	 * @return Object the return value of the callback
