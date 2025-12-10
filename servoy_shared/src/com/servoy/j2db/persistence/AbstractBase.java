@@ -383,11 +383,13 @@ public abstract class AbstractBase implements IPersist
 					{
 						if (propertyValue instanceof JSONObject)
 						{
-							propertyValue = mergeJSONObjects((JSONObject)propertyValue, (JSONObject)value);
+							return mergeJSONObjects((JSONObject)propertyValue, (JSONObject)value);
 						}
 					}
-					propertiesMap.put(propertyName, propertyValue);
-					return propertyValue;
+					else
+					{
+						return propertyValue;
+					}
 				}
 
 				Element element = StaticContentSpecLoader.getContentSpec().getPropertyForObjectTypeByName(getTypeID(), propertyName);
