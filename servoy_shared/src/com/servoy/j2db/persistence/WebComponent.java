@@ -255,7 +255,19 @@ public class WebComponent extends BaseComponent implements IWebComponent
 			{
 				if (json != null)
 				{
-					superJson = AbstractBase.mergeJSONObjects(superJson, json);
+					Iterator it = json.keys();
+					while (it.hasNext())
+					{
+						String key = (String)it.next();
+						try
+						{
+							superJson.put(key, json.get(key));
+						}
+						catch (JSONException e)
+						{
+							Debug.error(e);
+						}
+					}
 				}
 				json = superJson;
 			}

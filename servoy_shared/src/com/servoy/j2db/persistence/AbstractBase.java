@@ -26,13 +26,11 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -284,9 +282,9 @@ public abstract class AbstractBase implements IPersist
 		}
 	}
 
-	protected static JSONObject mergeJSONObjects(JSONObject obj1, JSONObject obj2)
+	private static JSONObject mergeJSONObjects(JSONObject obj1, JSONObject obj2)
 	{
-		ServoyJSONObject mergedObj = new ServoyJSONObject();
+		JSONObject mergedObj = new JSONObject();
 		Iterator<String> valueKeysIte = obj1.keys();
 		while (valueKeysIte.hasNext())
 		{
@@ -301,7 +299,20 @@ public abstract class AbstractBase implements IPersist
 			Object v2 = obj2.opt(valueKey);
 			if (v1 instanceof JSONArray && v2 instanceof JSONArray)
 			{
-				JSONArray mergedValue = mergeJSONArrays((JSONArray)v1, (JSONArray)v2);
+				JSONArray mergedValue = new JSONArray();
+				for (int i = 0; i < ((JSONArray)v2).length(); i++)
+				{
+					Object vv1 = i < ((JSONArray)v1).length() ? ((JSONArray)v1).opt(i) : null;
+					Object vv2 = ((JSONArray)v2).opt(i);
+					if (vv1 instanceof JSONObject && vv2 instanceof JSONObject)
+					{
+						mergedValue.put(i, mergeJSONObjects((JSONObject)vv1, (JSONObject)vv2));
+					}
+					else
+					{
+						mergedValue.put(i, vv2);
+					}
+				}
 				mergedObj.put(valueKey, mergedValue);
 			}
 			else if (v1 instanceof JSONObject && v2 instanceof JSONObject)
@@ -1508,239 +1519,4 @@ public abstract class AbstractBase implements IPersist
 		return null;
 	}
 
-	/**
-	 * Merges two JSONArrays according to the following rules:
-	 * - If a JSONObject from both arrays has the same svyUUID, merge them using mergeJSONObjects.
-	 * - If a JSONObject from v1 doesn't have svyUUID, merge it with the JSONObject from v2 at the same index (if present).
-	 * - If a JSONObject from v2 has extendsID but there is no JSONObject in v1 with the same svyUUID, skip it.
-	 * - If a JSONObject from v2 has no extendsID and no match in v1, add it to the result.
-	 * - Add any objects from v1 that were not merged.
-	 */
-	private static JSONArray mergeJSONArrays(JSONArray v1, JSONArray v2)
-	{
-		Map<String, Integer> v1UUIDIndexMap = new HashMap<>();
-		JSONArray result = new JSONArray();
-		Set<Integer> mergedV1Indices = new HashSet<>();
-		Set<String> mergedExtendsIDs = new HashSet<>();
-
-		// Build map from svyUUID to index for v1
-		for (int i = 0; i < v1.length(); i++)
-		{
-			Object v1Elem = v1.opt(i);
-			if (v1Elem instanceof JSONObject)
-			{
-				JSONObject obj = (JSONObject)v1Elem;
-				if (obj.has("svyUUID"))
-				{
-					v1UUIDIndexMap.put(obj.optString("svyUUID"), i);
-				}
-			}
-		}
-
-		// First, handle v1 elements that are not JSONObject or JSONObject without svyUUID by index
-		for (int i = 0; i < v1.length(); i++)
-		{
-			Object v1Elem = v1.opt(i);
-			if (!(v1Elem instanceof JSONObject))
-			{
-				// Not a JSONObject, merge is just v2 value at same index if present, else v1 value
-				if (i < v2.length())
-				{
-					result.put(v2.opt(i));
-				}
-				else
-				{
-					result.put(v1Elem);
-				}
-				mergedV1Indices.add(i);
-			}
-			else
-			{
-				JSONObject obj1 = (JSONObject)v1Elem;
-				if (!obj1.has("svyUUID"))
-				{
-					JSONObject obj2 = v2.optJSONObject(i);
-					if (obj2 != null)
-					{
-						result.put(mergeJSONObjects(obj1, obj2));
-					}
-					else if (i < v2.length())
-					{
-						result.put(v2.opt(i));
-					}
-					else
-					{
-						result.put(obj1);
-					}
-					mergedV1Indices.add(i);
-				}
-			}
-		}
-
-		// Process v2 for extendsID logic
-		for (int i = 0; i < v2.length(); i++)
-		{
-			JSONObject obj2 = v2.optJSONObject(i);
-			if (obj2 == null) continue;
-			String extendsID = obj2.optString("extendsID", null);
-			boolean hasExtendsID = obj2.has("extendsID");
-			if (extendsID != null && v1UUIDIndexMap.containsKey(extendsID))
-			{
-				int v1Idx = v1UUIDIndexMap.get(extendsID);
-				Object v1Elem = v1.opt(v1Idx);
-				if (v1Elem instanceof JSONObject)
-				{
-					result.put(mergeJSONObjects((JSONObject)v1Elem, obj2));
-				}
-				else
-				{
-					result.put(obj2);
-				}
-				mergedV1Indices.add(v1Idx);
-				mergedExtendsIDs.add(extendsID);
-			}
-			else if (hasExtendsID)
-			{
-				// Skip if extendsID and no match in v1
-				continue;
-			}
-			else
-			{
-				// Add as is
-				result.put(obj2);
-			}
-		}
-
-		// Add remaining v1 elements that were not merged
-		// First, collect all svyUUIDs already present in the result
-		Set<String> resultSvyUUIDs = new HashSet<>();
-		for (int i = 0; i < result.length(); i++)
-		{
-			Object elem = result.opt(i);
-			if (elem instanceof JSONObject)
-			{
-				JSONObject obj = (JSONObject)elem;
-				if (obj.has("svyUUID"))
-				{
-					resultSvyUUIDs.add(obj.optString("svyUUID"));
-				}
-			}
-		}
-		for (int i = 0; i < v1.length(); i++)
-		{
-			if (mergedV1Indices.contains(i)) continue;
-			Object v1Elem = v1.opt(i);
-			if (v1Elem instanceof JSONObject)
-			{
-				JSONObject obj1 = (JSONObject)v1Elem;
-				if (obj1.has("svyUUID"))
-				{
-					String oldSvyUUID = obj1.optString("svyUUID");
-					if (resultSvyUUIDs.contains(oldSvyUUID))
-					{
-						continue; // skip duplicate svyUUID
-					}
-					resultSvyUUIDs.add(oldSvyUUID); // add to set to prevent further duplicates
-					// Set extendsID and new svyUUID
-					JSONObject newObj = new JSONObject(obj1.toString()); // deep copy
-					newObj.put("extendsID", oldSvyUUID);
-					newObj.put("svyUUID", UUID.randomUUID().toString());
-
-					result = insertAfterExtendsID(result, v1, newObj);
-					continue;
-				}
-			}
-			if (v1Elem != null)
-			{
-				result.put(v1Elem);
-			}
-		}
-
-		return result;
-	}
-
-	/**
-	 * Searches in the given JSONArray (v1) for the element with svyUUID == oldSvyUUID
-	 * and returns the svyUUID of the previous element in v1, or null if not found or no previous element.
-	 */
-	private static String getPreviousSvyUUID(JSONArray v1, String oldSvyUUID)
-	{
-		if (v1 == null || oldSvyUUID == null) return null;
-		for (int i = 0; i < v1.length(); i++)
-		{
-			Object elem = v1.opt(i);
-			if (elem instanceof JSONObject)
-			{
-				JSONObject obj = (JSONObject)elem;
-				if (obj.has("svyUUID") && oldSvyUUID.equals(obj.optString("svyUUID")))
-				{
-					// Found the element, check previous
-					if (i > 0)
-					{
-						Object prevElem = v1.opt(i - 1);
-						if (prevElem instanceof JSONObject)
-						{
-							JSONObject prevObj = (JSONObject)prevElem;
-							if (prevObj.has("svyUUID"))
-							{
-								return prevObj.optString("svyUUID");
-							}
-						}
-					}
-					return null;
-				}
-			}
-		}
-		return null;
-	}
-
-	/**
-	 * Adds newObj in result after the element that has extendsID == prevSvyUUID.
-	 * Uses getPreviousSvyUUID to find prevSvyUUID in v1.
-	 */
-	private static JSONArray insertAfterExtendsID(JSONArray result, JSONArray v1, JSONObject newObj)
-	{
-		if (newObj == null || !newObj.has("extendsID")) return result;
-		String extendsID = newObj.optString("extendsID");
-		String prevSvyUUID = getPreviousSvyUUID(v1, extendsID);
-		int insertPos = 0;
-		if (prevSvyUUID != null)
-		{
-			for (int i = 0; i < result.length(); i++)
-			{
-				Object elem = result.opt(i);
-				if (elem instanceof JSONObject)
-				{
-					JSONObject obj = (JSONObject)elem;
-					if (obj.has("extendsID") && obj.optString("extendsID").equals(prevSvyUUID))
-					{
-						insertPos = i + 1;
-						break;
-					}
-				}
-			}
-		}
-		// Insert newObj at insertPos
-		JSONArray newResult = new JSONArray();
-		for (int i = 0; i < result.length(); i++)
-		{
-			newResult.put(result.get(i));
-			if (i == insertPos - 1)
-			{
-				newResult.put(newObj);
-			}
-		}
-		if (insertPos == 0)
-		{
-			JSONArray tempResult = new JSONArray();
-			tempResult.put(newObj);
-			for (int i = 0; i < result.length(); i++)
-				tempResult.put(result.get(i));
-			return tempResult;
-		}
-		else
-		{
-			return newResult;
-		}
-	}
 }
