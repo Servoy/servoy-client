@@ -633,40 +633,8 @@ public class WebObjectImpl extends WebObjectBasicImpl
 												{
 													if (PropertyUtils.isCustomJSONObjectProperty(elementPD.getType()))
 													{
-														UUID extendsUUID = null;
-														if (childChildWebObjectUUID == null && newJSNOValAtIdx instanceof JSONObject)
-														{
-															JSONObject newJSNOValAtIdxObj = (JSONObject)newJSNOValAtIdx;
-															if (newJSNOValAtIdxObj.has(StaticContentSpecLoader.PROPERTY_EXTENDSID.getPropertyName()))
-															{
-																try
-																{
-																	extendsUUID = UUID
-																		.fromString(newJSNOValAtIdxObj
-																			.getString(StaticContentSpecLoader.PROPERTY_EXTENDSID.getPropertyName()));
-																}
-																catch (IllegalArgumentException ex)
-																{
-																	Debug.error(ex);
-																}
-															}
-															if (newJSNOValAtIdxObj.has(IChildWebObject.UUID_KEY))
-															{
-																try
-																{
-																	childChildWebObjectUUID = UUID
-																		.fromString(newJSNOValAtIdxObj
-																			.getString(IChildWebObject.UUID_KEY));
-																}
-																catch (IllegalArgumentException ex)
-																{
-																	Debug.error(ex);
-																}
-															}
-														}
 														WebCustomType webCustomType = WebCustomType.createNewInstance(webObject, elementPD, beanJSONKey, i,
-															false, childChildWebObjectUUID, extendsUUID);
-
+															false, childChildWebObjectUUID);
 														webCustomType.setTypeName(simpleTypeName);
 														persistMappedPropertyArray.add(webCustomType);
 														if (newChildPersistPropertiesToFire == null) newChildPersistPropertiesToFire = new ArrayList<>();
