@@ -39,6 +39,7 @@ import org.mozilla.javascript.Scriptable;
 import org.sablo.BaseWebObject;
 import org.sablo.IChangeListener;
 import org.sablo.WebComponent;
+import org.sablo.eventthread.EventDispatcher;
 import org.sablo.eventthread.IEventDispatcher;
 import org.sablo.eventthread.WebsocketSessionWindows;
 import org.sablo.specification.IFunctionParameters;
@@ -1704,6 +1705,24 @@ public class NGClient extends AbstractApplication
 	{
 		try
 		{
+			// see SVY-20760
+			// if a button click would in the same method show a "progress" form
+			// then call updateUI(), then after a few seconds show a "destination" form,
+			// then the intermediate "progress" form should be shown for those few seconds;
+			// as the actual show of the progress form on client is usually done after the current
+			// event is over (so after the function execution) - because of SVY-19635,
+			// so in a future event with high event level,
+			// that is scheduled by the show, after it's onShow handler executes etc.
+
+			// SVY-19635 aimed to send data only once to client after onShow handler
+			// executes in order to avoid flicker & allow any sync component api calls
+			// to client to execute in onShow, without breaking or stalling
+
+			// updateUI should give a chance for all those to be processed right away and send
+			// their results to client, before the function execution continues
+			((EventDispatcher)getWebsocketSession().getEventDispatcher()).runEventsAddedByCurrentEventStack();
+
+			// send any (known) pending changes to client
 			CurrentWindow.get().sendChanges();
 		}
 		catch (Exception ex)

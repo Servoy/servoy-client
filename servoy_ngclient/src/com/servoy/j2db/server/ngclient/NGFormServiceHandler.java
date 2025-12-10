@@ -364,7 +364,7 @@ public class NGFormServiceHandler extends FormServiceHandler
 					// 3. initial form data (updateController to client) if needed, or form data changes are sent to client
 					// 4. this 'formvisibility' call gets resolved on client, so that the form is shown
 
-					// so in case of onShow with sync calls to ca component API what should happen is:
+					// so in case of onShow with sync calls to a component API what should happen is:
 					// 1. form show code runs that might add the onShow form handler to invokeLaterRunnables
 					// 2. onShow executes; does a sync call to client and waits - suspends the event thread with IEventDispatcher.EVENT_LEVEL_SYNC_API_CALL level; if form is already on client, data changes are send as part of this response
 					// 3. initial form data (updateController to client) is sent to client if form data is not already on client
