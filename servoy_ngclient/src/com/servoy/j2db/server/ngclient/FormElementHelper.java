@@ -370,12 +370,12 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 						// if both are json (like a nested form) then merge it in.
 						ServoyJSONObject.mergeAndDeepCloneJSON((JSONObject)val, (JSONObject)((AbstractBase)cloneOfChildOfFormComponent).getProperty(key));
 					}
-					else if (val instanceof String && StaticContentSpecLoader.PROPERTY_CUSTOMPROPERTIES.getPropertyName().equals(key) &&
-						((AbstractBase)cloneOfChildOfFormComponent).getCustomProperties() != null)
+					else if (val instanceof String && StaticContentSpecLoader.PROPERTY_CUSTOMPROPERTIES.getPropertyName().equals(key))
 					{
 						// custom properties needs to be merged in..
 						JSONObject json = ((AbstractBase)cloneOfChildOfFormComponent).getCustomProperties();
-						JSONObject original = new ServoyJSONObject(json, ServoyJSONObject.getNames(json), false, true);
+						JSONObject original = json != null ? new ServoyJSONObject(json, ServoyJSONObject.getNames(json), false, true)
+							: new ServoyJSONObject(false, true);
 						ServoyJSONObject.mergeAndDeepCloneJSON(new ServoyJSONObject((String)val, false), original);
 						((AbstractBase)cloneOfChildOfFormComponent).setCustomProperties(original);
 					}
