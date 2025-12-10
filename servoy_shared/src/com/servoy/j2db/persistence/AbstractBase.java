@@ -1643,9 +1643,7 @@ public abstract class AbstractBase implements IPersist
 					newObj.put("extendsID", oldSvyUUID);
 					newObj.put("svyUUID", UUID.randomUUID().toString());
 
-					//result = insertAfterExtendsID(result, v1, newObj);
-					result.put(newObj);
-
+					result = insertAfterExtendsID(result, v1, newObj);
 					continue;
 				}
 			}
