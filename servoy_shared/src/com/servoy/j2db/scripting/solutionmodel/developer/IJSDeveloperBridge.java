@@ -78,7 +78,7 @@ public interface IJSDeveloperBridge
 	 * The callback is called when this menu item is clicked on.
 	 *
 	 * @param menu The menu that needs to be registered
-	 * @param callback The callback will be called when the menu item is clicked
+	 * @param callback {(forms:Array<JSForm>,components:Array<JSComponent>)=>void} The callback will be called when the menu item is clicked
 	 */
 	@JSFunction
 	void registerMenuItem(JSDeveloperMenu menu, Function callback);
