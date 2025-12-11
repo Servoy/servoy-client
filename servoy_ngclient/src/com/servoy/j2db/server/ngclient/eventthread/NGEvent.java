@@ -37,9 +37,9 @@ public class NGEvent extends Event
 	private String suspendedWindowName;
 	private String previous;
 
-	public NGEvent(INGApplication client, Runnable runnable, int eventLevel)
+	public NGEvent(INGApplication client, Runnable runnable, int eventLevel, Event wasAddedByEvent)
 	{
-		super(client.getWebsocketSession(), runnable, eventLevel);
+		super(client.getWebsocketSession(), runnable, eventLevel, wasAddedByEvent);
 		this.client = client;
 	}
 
