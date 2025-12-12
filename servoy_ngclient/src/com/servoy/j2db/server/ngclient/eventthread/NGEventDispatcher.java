@@ -48,7 +48,7 @@ public class NGEventDispatcher extends EventDispatcher
 	@Override
 	protected Event createEvent(Runnable event, int eventLevel)
 	{
-		return new NGEvent(client, event, eventLevel);
+		return new NGEvent(client, event, eventLevel, getCurrentEventIfOnEventThread());
 	}
 
 	@Override
