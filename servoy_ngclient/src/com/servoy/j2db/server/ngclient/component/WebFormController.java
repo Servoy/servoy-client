@@ -829,7 +829,14 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 					}
 				}
 			};
-			invokeLaterRunnables.add(run);
+			if (visible)
+			{
+				invokeLaterRunnables.add(run);
+			}
+			else
+			{
+				run.run();
+			}
 
 			if (!visible && titleDataChangeListener != null) // if we are hiding the form and titleDataChangeListener is not null, then we remove it
 			{
