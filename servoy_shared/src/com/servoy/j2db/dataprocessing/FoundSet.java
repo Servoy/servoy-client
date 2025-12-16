@@ -3433,7 +3433,7 @@ public abstract class FoundSet
 	 *
 	 * @sample %%prefix%%foundset.sort('columnA desc,columnB asc');
 	 *
-	 * @param sortString the specified columns (and sort order)
+	 * @param sortString the specified columns (and sort order); it can be "" - if you want to reset to default sorting
 	 */
 	@JSFunction
 	public void sort(String sortString) throws ServoyException
@@ -3448,7 +3448,7 @@ public abstract class FoundSet
 	 *
 	 * @sample %%prefix%%foundset.sort('columnA desc,columnB asc');
 	 *
-	 * @param sortString the specified columns (and sort order)
+	 * @param sortString the specified columns (and sort order); it can be null or "" - if you want to reset to default sorting
 	 * @param defer boolean when true, the "sortString" will be just stored, without performing a query on the database (the actual sorting will be deferred until the next data loading action).
 	 */
 	@JSFunction
