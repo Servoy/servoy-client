@@ -44,6 +44,7 @@ import com.servoy.j2db.util.Pair;
 
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * @author emera
@@ -103,7 +104,7 @@ public class JWTValidator
 	}
 
 	static boolean checkOauthIdToken(Pair<Boolean, String> needToLogin, Solution solution, AUTHENTICATOR_TYPE authenticator,
-		DecodedJWT decodedJWT, HttpServletRequest request, String refreshToken, boolean checkNonce)
+		DecodedJWT decodedJWT, HttpServletRequest request, HttpServletResponse response, String refreshToken, boolean checkNonce)
 	{
 		if (!"svy".equals(decodedJWT.getIssuer()))
 		{
@@ -146,7 +147,8 @@ public class JWTValidator
 						}
 						else if (authenticator == AUTHENTICATOR_TYPE.SERVOY_CLOUD)
 						{
-							return CloudStatelessAccessManager.checkCloudOAuthPermissions(needToLogin, solution, payload, remember, refreshToken,
+							return CloudStatelessAccessManager.checkCloudOAuthPermissions(request, response, needToLogin, solution, payload, remember,
+								refreshToken,
 								auth.getString(CloudStatelessAccessManager.CLOUD_OAUTH_ENDPOINT)); //TODO where to move?
 						}
 					}

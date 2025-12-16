@@ -17,7 +17,6 @@
 
 package com.servoy.j2db.server.ngclient.auth;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
@@ -39,6 +38,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.apache.commons.codec.binary.Base64;
@@ -92,7 +93,8 @@ public class CloudStatelessAccessManager
 	public static final String CLOUD_OAUTH_ENDPOINT = "endpoint";
 
 
-	public static boolean checkCloudOAuthPermissions(Pair<Boolean, String> needToLogin, Solution solution, String payload, Boolean rememberUser,
+	public static boolean checkCloudOAuthPermissions(HttpServletRequest request, HttpServletResponse response, Pair<Boolean, String> needToLogin,
+		Solution solution, String payload, Boolean rememberUser,
 		String refresh_token, String provider)
 	{
 		HttpRequest post = HttpRequest.newBuilder(CLOUD_OAUTH_URL).setHeader("Accept", "application/json")
@@ -104,15 +106,24 @@ public class CloudStatelessAccessManager
 			Pair<Integer, JSONObject> res = httpclient.send(post, new CloudResponseHandler("validateOAuthUser")).body();
 			if (res.getLeft().intValue() == HttpURLConnection.HTTP_OK)
 			{
-				SvyTokenBuilder tokenBuilder = extractPermissionFromResponse(needToLogin, res, null);
-				if (tokenBuilder == null) return false;
+				String queryString = StatelessLoginUtils.checkForPossibleSavedDeeplink(request);
+				String svyRedirect = request.getRequestURI().replace("/svy_oauth", "");
+				if (queryString != null)
+				{
+					Pattern pattern = Pattern.compile("(?:^|&)svyRedirect=([^&]+)");
+					Matcher matcher = pattern.matcher(queryString);
+					if (matcher.find())
+					{
+						svyRedirect = URLDecoder.decode(matcher.group(1), StandardCharsets.UTF_8);
+					}
+					URI redirectUri = URI.create(svyRedirect);
 
-				tokenBuilder.withRememberUser(rememberUser);
-				tokenBuilder.withRefreshToken(refresh_token);
-				tokenBuilder.withClaim(CLOUD_OAUTH_ENDPOINT, provider);
-				String svyToken = tokenBuilder.sign();
-				needToLogin.setLeft(Boolean.FALSE);
-				needToLogin.setRight(svyToken);
+					if (!request.getServerName().equals(redirectUri.getHost()))
+					{
+						throw new IllegalArgumentException("Invalid redirect target");
+					}
+				}
+				writeResponse(request, response, solution, res, svyRedirect, rememberUser, refresh_token, provider);
 				return true;
 			}
 		}
@@ -120,10 +131,15 @@ public class CloudStatelessAccessManager
 		{
 			log.error("Can't validate user with the Servoy Cloud", e);
 		}
+		catch (ServletException e)
+		{
+			log.error("Can't write response for the Servoy Cloud", e);
+		}
 		return false;
 	}
 
-	public static boolean checkCloudPermissions(String username, String password, boolean remember, SvyID oldToken, Pair<Boolean, String> needToLogin,
+	public static boolean checkCloudPermissions(String username, String password, boolean remember,
+		SvyID oldToken, Pair<Boolean, String> needToLogin,
 		Solution solution,
 		HttpServletRequest request)
 	{
@@ -186,7 +202,8 @@ public class CloudStatelessAccessManager
 			Pair<Integer, JSONObject> res = httpclient.send(builder.build(), new CloudResponseHandler("login_auth")).body();
 			if (res.getLeft().intValue() == HttpURLConnection.HTTP_OK)
 			{
-				SvyTokenBuilder tokenBuilder = extractPermissionFromResponse(needToLogin, res, oldToken != null ? oldToken.getUsername() : username);
+				SvyTokenBuilder tokenBuilder = extractPermissionFromResponse(res,
+					oldToken != null ? oldToken.getUsername() : username);
 				if (tokenBuilder == null) return false;
 				tokenBuilder.withRememberUser(oldToken != null ? Boolean.valueOf(oldToken.rememberUser()) : Boolean.FALSE);
 				if (oldToken != null) tokenBuilder.withRefreshToken(oldToken.getStringClaim(StatelessLoginHandler.REFRESH_TOKEN));
@@ -225,7 +242,7 @@ public class CloudStatelessAccessManager
 		return oauth;
 	}
 
-	public static boolean handlePossibleCloudRequest(HttpServletRequest request, HttpServletResponse response, String solutionName, Object index)
+	public static boolean handlePossibleCloudRequest(HttpServletRequest request, HttpServletResponse response, String solutionName)
 		throws ServletException
 	{
 		Path path = Paths.get(request.getServletPath()).normalize();
@@ -260,7 +277,7 @@ public class CloudStatelessAccessManager
 
 								if (res != null)
 								{
-									writeResponse(request, response, solution, res, index, svyRedirect);
+									writeResponse(request, response, solution, res, svyRedirect, null, null, null);
 									return true;
 								}
 								else
@@ -409,7 +426,7 @@ public class CloudStatelessAccessManager
 	}
 
 	private static void writeResponse(HttpServletRequest request, HttpServletResponse response, Solution solution, Pair<Integer, JSONObject> res,
-		Object index, String initialURL)
+		String initialURL, Boolean rememberUser, String refresh_token, String provider)
 		throws IOException, UnsupportedEncodingException, ServletException
 	{
 		String html = null;
@@ -477,26 +494,21 @@ public class CloudStatelessAccessManager
 			{
 				log.atInfo().log(() -> "The cloud returned permissions: " + json.getJSONArray("permissions").toString(2));
 				Pair<Boolean, String> showLogin = new Pair<>(Boolean.TRUE, null);
-				SvyTokenBuilder tokenBuilder = extractPermissionFromResponse(showLogin, res,
-					json.optString(SvyID.USERNAME, ""));
+				SvyTokenBuilder tokenBuilder = extractPermissionFromResponse(res, json.optString(SvyID.USERNAME, ""));
 				if (tokenBuilder != null)
 				{
 					tokenBuilder
 						.withRememberUser(
-							json.has(SvyID.REMEMBER) ? Boolean.valueOf(json.getBoolean(SvyID.REMEMBER)) : Boolean.FALSE) //
-						.withRefreshToken(json.optString(StatelessLoginHandler.REFRESH_TOKEN, ""))//
-						//TODO we can't have the provider here unless it is returned from the cloud
-						.withClaim(CLOUD_OAUTH_ENDPOINT, json.optString(CLOUD_OAUTH_ENDPOINT, ""));
+							Boolean.valueOf(json.has(SvyID.REMEMBER) ? json.getBoolean(SvyID.REMEMBER) : rememberUser)) //
+						.withRefreshToken(json.optString(StatelessLoginHandler.REFRESH_TOKEN, refresh_token))//
+						.withClaim(CLOUD_OAUTH_ENDPOINT, json.optString(CLOUD_OAUTH_ENDPOINT, provider));
 					String svyToken = tokenBuilder.sign();
 					showLogin.setLeft(Boolean.FALSE);
 					showLogin.setRight(svyToken);
 				}
-				if (!showLogin.getLeft().booleanValue() && (index instanceof File || index instanceof String))
+				if (!showLogin.getLeft().booleanValue() && showLogin.getRight() != null)
 				{
-					if (showLogin.getRight() != null)
-					{
-						request.getSession().setAttribute(StatelessLoginHandler.ID_TOKEN, showLogin.getRight());
-					}
+					request.getSession().setAttribute(StatelessLoginHandler.ID_TOKEN, showLogin.getRight());
 					response.sendRedirect(initialURL != null ? StringEscapeUtils.unescapeHtml4(initialURL) : request.getContextPath() + "/index.html");
 					return;
 				}
@@ -527,24 +539,31 @@ public class CloudStatelessAccessManager
 				StatelessLoginHandler.writeLoginPage(request, response, solution.getName(), html); //TODO refactor
 				return;
 			}
-			if (html != null)
-			{
-				ContentSecurityPolicyConfig contentSecurityPolicyConfig = CloudStatelessAccessManager.addcontentSecurityPolicyHeader(request, response);
-				String contentSecurityPolicyNonce = contentSecurityPolicyConfig != null ? contentSecurityPolicyConfig.getNonce() : null;
-				if (contentSecurityPolicyNonce != null)
-				{
-					html = html.replace("<script ", "<script nonce='" + contentSecurityPolicyNonce + '\'');
-					html = html.replace("<style", "<style nonce='" + contentSecurityPolicyNonce + '\'');
-				}
-				if (initialURL != null) html = html.replace("</form>", "<input type='hidden' name='" + SVY_REDIRECT + "' value='" + initialURL + "'></form>");
-				HTMLWriter.writeHTML(request, response, html);
-			}
-			else
-			{
-				log.error("The cloud did not return html.");
-			}
+			writeHTML(request, response, initialURL, html);
 		}
 
+	}
+
+	private static void writeHTML(HttpServletRequest request, HttpServletResponse response, String initialURL, String htmlToWrite)
+		throws UnsupportedEncodingException, IOException
+	{
+		if (htmlToWrite != null)
+		{
+			String html = htmlToWrite;
+			ContentSecurityPolicyConfig contentSecurityPolicyConfig = CloudStatelessAccessManager.addcontentSecurityPolicyHeader(request, response);
+			String contentSecurityPolicyNonce = contentSecurityPolicyConfig != null ? contentSecurityPolicyConfig.getNonce() : null;
+			if (contentSecurityPolicyNonce != null)
+			{
+				html = html.replace("<script ", "<script nonce='" + contentSecurityPolicyNonce + '\'');
+				html = html.replace("<style", "<style nonce='" + contentSecurityPolicyNonce + '\'');
+			}
+			if (initialURL != null) html = html.replace("</form>", "<input type='hidden' name='" + SVY_REDIRECT + "' value='" + initialURL + "'></form>");
+			HTMLWriter.writeHTML(request, response, html);
+		}
+		else
+		{
+			log.error("The cloud did not return html.");
+		}
 	}
 
 	private static String requestParamsToString(Map<String, String[]> parameterMap)
@@ -613,18 +632,12 @@ public class CloudStatelessAccessManager
 		return endpoints;
 	}
 
-	private static SvyTokenBuilder extractPermissionFromResponse(Pair<Boolean, String> needToLogin, Pair<Integer, JSONObject> res, String user)
+	private static SvyTokenBuilder extractPermissionFromResponse(
+		Pair<Integer, JSONObject> res, String user)
 	{
 		JSONObject loginTokenJSON = res.getRight();
 		if (loginTokenJSON != null)
 		{
-			if (res.getRight().has("html"))
-			{
-				//TODO should this be moved somehow to writeResponse?
-				needToLogin.setLeft(Boolean.TRUE);
-				needToLogin.setRight(res.getRight().getString("html"));
-				return null;
-			}
 			if (loginTokenJSON.has("permissions"))
 			{
 				String[] permissions = null, tenants = null;
