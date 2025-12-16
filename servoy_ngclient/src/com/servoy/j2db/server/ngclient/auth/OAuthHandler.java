@@ -53,6 +53,7 @@ import com.servoy.j2db.Credentials;
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.persistence.Solution;
+import com.servoy.j2db.persistence.Solution.AUTHENTICATOR_TYPE;
 import com.servoy.j2db.server.ngclient.AngularIndexPageWriter;
 import com.servoy.j2db.server.ngclient.StatelessLoginHandler;
 import com.servoy.j2db.server.ngclient.auth.OAuthUtils.OAuthParameters;
@@ -164,12 +165,12 @@ public class OAuthHandler
 			{
 				refreshToken = decodedJWT.getClaim(StatelessLoginHandler.REFRESH_TOKEN).asString();
 			}
-			if (JWTValidator.checkOauthIdToken(showLogin, fs.getSolution(), fs.getSolution().getAuthenticator(), decodedJWT, req, refreshToken,
+			if (JWTValidator.checkOauthIdToken(showLogin, fs.getSolution(), fs.getSolution().getAuthenticator(), decodedJWT, req, resp, refreshToken,
 				true))
 			{
 				return showLogin;
 			}
-			else
+			else if (fs.getSolution().getAuthenticator() != AUTHENTICATOR_TYPE.SERVOY_CLOUD)
 			{
 				handleLoginFailed(req, resp, _fs, auth);
 			}
@@ -323,7 +324,8 @@ public class OAuthHandler
 		return null;
 	}
 
-	public static boolean refreshOAuthTokenIfPossible(Pair<Boolean, String> needToLogin, Solution solution, SvyID oldToken, HttpServletRequest request)
+	public static boolean refreshOAuthTokenIfPossible(Pair<Boolean, String> needToLogin, Solution solution, SvyID oldToken, HttpServletRequest request,
+		HttpServletResponse response)
 	{
 		String refresh_token = oldToken.getStringClaim(StatelessLoginHandler.REFRESH_TOKEN);
 		if (refresh_token != null)
@@ -340,7 +342,8 @@ public class OAuthHandler
 						OpenIdOAuth2AccessToken token = (OpenIdOAuth2AccessToken)service.refreshAccessToken(refresh_token);
 						String id_token = token.getOpenIdToken();
 						DecodedJWT decodedJWT = JWT.decode(id_token);
-						return JWTValidator.checkOauthIdToken(needToLogin, solution, solution.getAuthenticator(), decodedJWT, request, refresh_token, false);
+						return JWTValidator.checkOauthIdToken(needToLogin, solution, solution.getAuthenticator(), decodedJWT, request, response, refresh_token,
+							false);
 					}
 					catch (Exception e)
 					{
@@ -368,12 +371,19 @@ public class OAuthHandler
 		Map<String, String> additionalParameters = new HashMap<>();
 		if (!Utils.stringIsEmpty(id_token))
 		{
-			DecodedJWT decodedJWT = JWT.decode(id_token);
-			if (!"svy".equals(decodedJWT.getIssuer()))
+			try
 			{
-				//id token which is rejected by the authenticator, show the prompt
-				additionalParameters.put("prompt", "consent"); // should this be select_account ?
-				StatelessLoginHandler.log.info("The id_token could not be verified with the authenticator, show consent screen.");
+				DecodedJWT decodedJWT = JWT.decode(id_token);
+				if (!"svy".equals(decodedJWT.getIssuer()))
+				{
+					//id token which is rejected by the authenticator, show the prompt
+					additionalParameters.put("prompt", "consent"); // should this be select_account ?
+					StatelessLoginHandler.log.info("The id_token could not be verified with the authenticator, show consent screen.");
+				}
+			}
+			catch (Exception e)
+			{
+				log.error("The existing id_token is not valid, show consent screen.", e);
 			}
 		}
 		OAuth20Service service = OAuthUtils.createOauthService(request, auth, additionalParameters);

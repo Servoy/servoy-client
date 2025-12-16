@@ -37,6 +37,7 @@ import org.slf4j.LoggerFactory;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.auth0.jwt.interfaces.DecodedJWT;
@@ -111,41 +112,49 @@ public class StatelessLoginHandler
 					String password = request.getParameter(PASSWORD);
 					if (!Utils.stringIsEmpty(user) && !Utils.stringIsEmpty(password))
 					{
-						checkUser(user, password, "on".equals(request.getParameter("remember")), null, needToLogin, fs.getSolution(), request);
+						checkUser(user, password, "on".equals(request.getParameter("remember")), null, needToLogin, fs.getSolution(), request, reponse);
 						if (!needToLogin.getLeft()) return needToLogin;
 					}
 
 					String id_token = HTMLWriter.getExistingIdToken(request);
 					if (id_token != null)
 					{
-						SvyID svyID = new SvyID(id_token);
-						Properties settings = ApplicationServerRegistry.get().getServerAccess().getSettings();
-						JWTVerifier jwtVerifier = JWT.require(Algorithm.HMAC256(settings.getProperty(StatelessLoginUtils.JWT_Password)))
-							.build();
-
 						try
 						{
-							jwtVerifier.verify(id_token);
-							needToLogin.setLeft(Boolean.FALSE);
-							needToLogin.setRight(id_token);
-						}
-						catch (JWTVerificationException ex)
-						{
-							if (ex instanceof TokenExpiredException)
+							SvyID svyID = new SvyID(id_token);
+							Properties settings = ApplicationServerRegistry.get().getServerAccess().getSettings();
+							JWTVerifier jwtVerifier = JWT.require(Algorithm.HMAC256(settings.getProperty(StatelessLoginUtils.JWT_Password)))
+								.build();
+
+							try
 							{
-								if (svyID.getUsername() != null && svyID.getUserID() != null && svyID.getPermissions() != null)
+								jwtVerifier.verify(id_token);
+								needToLogin.setLeft(Boolean.FALSE);
+								needToLogin.setRight(id_token);
+							}
+							catch (JWTVerificationException ex)
+							{
+								if (ex instanceof TokenExpiredException)
 								{
-									try
+									if (svyID.getUsername() != null && svyID.getUserID() != null && svyID.getPermissions() != null)
 									{
-										checkUser(user, password, true, svyID, needToLogin, fs.getSolution(), request);
-									}
-									catch (Exception e)
-									{
-										log.atInfo().setCause(e).log(() -> "Exception thrown when checking the user");
-										throw new ServletException(e.getMessage(), e);
+										try
+										{
+											checkUser(user, password, true, svyID, needToLogin, fs.getSolution(), request, reponse);
+										}
+										catch (Exception e)
+										{
+											log.atInfo().setCause(e).log(() -> "Exception thrown when checking the user");
+											throw new ServletException(e.getMessage(), e);
+										}
 									}
 								}
 							}
+						}
+						catch (JWTDecodeException e)
+						{
+							log.atError().setCause(e).log(() -> "Not a valid JWT format");
+							needToLogin.setLeft(Boolean.TRUE);
 						}
 					}
 				}
@@ -159,12 +168,12 @@ public class StatelessLoginHandler
 	}
 
 	private static void checkUser(String username, String password, boolean remember, SvyID oldToken, Pair<Boolean, String> needToLogin, Solution solution,
-		HttpServletRequest request)
+		HttpServletRequest request, HttpServletResponse response)
 	{
 		boolean verified = false;
 		if (solution.getAuthenticator() == AUTHENTICATOR_TYPE.OAUTH)
 		{
-			verified = OAuthHandler.refreshOAuthTokenIfPossible(needToLogin, solution, oldToken, request);
+			verified = OAuthHandler.refreshOAuthTokenIfPossible(needToLogin, solution, oldToken, request, response);
 		}
 		else if (checkCSRFToken(request))
 		{

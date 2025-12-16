@@ -17,7 +17,11 @@
 
 package com.servoy.j2db.server.ngclient.auth;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.auth0.jwt.JWT;
+import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 
 /**
@@ -33,10 +37,20 @@ public class SvyID
 	public static final String TENANTS = "tenants";
 	public static final String PERMISSIONS = "permissions";
 
+	private static final Logger log = LoggerFactory.getLogger("stateless.login");
+
 	public SvyID(String id_token)
 	{
 		super();
-		decoded = JWT.decode(id_token);
+		try
+		{
+			decoded = JWT.decode(id_token);
+		}
+		catch (JWTDecodeException e)
+		{
+			log.error("Not a valid JWT format", e);
+			throw e;
+		}
 	}
 
 	public String getUserID()
