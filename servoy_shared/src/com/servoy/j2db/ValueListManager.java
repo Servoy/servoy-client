@@ -60,7 +60,7 @@ public class ValueListManager extends DefaultScope implements IValueListManager
 			case "EMPTY_VALUE_NEVER" -> Integer.valueOf(IValueListConstants.EMPTY_VALUE_NEVER);
 			case "NAMES" -> createNames(start);
 			default -> {
-				ValueList valueList = application.getSolution().getValueList(name);
+				ValueList valueList = application.getFlattenedSolution().getValueList(name);
 				yield valueList != null ? valueList.getName() : null;
 			}
 		};
@@ -108,7 +108,7 @@ public class ValueListManager extends DefaultScope implements IValueListManager
 			}
 		};
 
-		final Iterator<ValueList> allValueLists = application.getSolution().getValueLists(false);
+		final Iterator<ValueList> allValueLists = application.getFlattenedSolution().getValueLists(false);
 		while (allValueLists.hasNext())
 		{
 			ValueList vl = allValueLists.next();
