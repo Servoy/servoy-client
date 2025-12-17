@@ -914,7 +914,7 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 						// TODO why do we make it so?
 						for (TabSeqProperty tabSeqElement : elementsInThatListFormComponent)
 						{
-							cachedTabSeq.put(tabSeqElement, value);
+							cachedTabSeq.put(tabSeqElement, tabSeqElement.getSeqValue());
 						}
 					}
 				}
