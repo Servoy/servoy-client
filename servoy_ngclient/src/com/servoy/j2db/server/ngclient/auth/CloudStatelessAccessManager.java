@@ -44,6 +44,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -388,7 +389,7 @@ public class CloudStatelessAccessManager
 		return params.entrySet().stream()
 			.flatMap(entry -> {
 				String key = URLEncoder.encode(entry.getKey(), StandardCharsets.UTF_8);
-				return List.of(entry.getValue()).stream()
+				return List.of(entry.getValue()).stream().filter(value -> !StringUtils.isBlank(value))
 					.map(value -> key + '=' + URLEncoder.encode(value, StandardCharsets.UTF_8));
 			})
 			.collect(Collectors.joining("&"));
