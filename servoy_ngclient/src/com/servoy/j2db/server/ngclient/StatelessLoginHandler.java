@@ -29,6 +29,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.collections4.map.PassiveExpiringMap;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
 import org.sablo.security.ContentSecurityPolicyConfig;
 import org.sablo.util.HTTPUtils;
@@ -381,7 +382,7 @@ public class StatelessLoginHandler
 			sb.append("\n   }) ");
 			sb.append("\n  </script> ");
 		}
-		else if (id_token != null)
+		else if (!StringUtils.isBlank(id_token))
 		{
 			sb.append("\n  	 <script type='text/javascript'>");
 			sb.append("\n    window.addEventListener('load', () => { ");
@@ -389,7 +390,7 @@ public class StatelessLoginHandler
 			sb.append("\n   }) ");
 			sb.append("\n  </script> ");
 		}
-		else if (request.getParameter(USERNAME) != null)
+		else if (!StringUtils.isBlank(request.getParameter(USERNAME)))
 		{
 			sb.append("\n  	 <script type='text/javascript'>");
 			sb.append("\n    window.addEventListener('load', () => { ");
