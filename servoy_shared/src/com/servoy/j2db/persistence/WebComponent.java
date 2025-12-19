@@ -338,8 +338,16 @@ public class WebComponent extends BaseComponent implements IWebComponent
 		boolean flattenOverrides) throws RepositoryException
 	{
 		IPersist clone = super.cloneObj(newParent, deep, validator, changeName, changeChildNames, flattenOverrides);
-		if (deep && clone instanceof WebComponent)
+		if (deep && clone instanceof WebComponent wcClone)
 		{
+			if (this.getExtendsID() != null)
+			{
+				JSONObject flattenedJson = this.getFlattenedJson();
+				if (flattenedJson != null)
+				{
+					wcClone.setProperty(IContentSpecConstants.PROPERTY_JSON, flattenedJson);
+				}
+			}
 			List<WebCustomType> types = new ArrayList<WebCustomType>();
 			clone.acceptVisitor(new IPersistVisitor()
 			{
@@ -354,7 +362,7 @@ public class WebComponent extends BaseComponent implements IWebComponent
 					return IPersistVisitor.CONTINUE_TRAVERSAL;
 				}
 			});
-			((WebComponent)clone).updateJSON();
+			wcClone.updateJSON();
 			for (WebCustomType customType : types)
 			{
 				clone.getRootObject().getChangeHandler().fireIPersistChanged(customType);
