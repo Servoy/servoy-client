@@ -49,7 +49,7 @@ public class Promise
 	 * This returned promise fulfills when all of the input's promises fulfill (including when an empty iterable is passed),
 	 * with an array of the fulfillment values. It rejects when any of the input's promises rejects, with this first rejection reason.
 	 *
-	 * @param iterable {Array<Promise>} An array of Promises to be resolved collectively.
+	 * @param iterable An array of Promises to be resolved collectively.
 	 *
 	 * @return A Promise that fulfills with an array of values when all input promises resolve, or rejects with the reason of the first rejected promise.
 	 */
@@ -66,7 +66,7 @@ public class Promise
 	 * This returned promise fulfills when all of the input's promises settle (including when an empty iterable is passed),
 	 * with an array of objects that describe the outcome of each promise.
 	 *
-	 * @param iterable {Array<Promise>} An array of promises to be settled.
+	 * @param iterable An array of promises to be settled.
 	 *
 	 * @return A promise that resolves with an array of outcome objects for each settled input promise.
 	 */
@@ -80,7 +80,7 @@ public class Promise
 	 * The Promise.race() static method takes an iterable of promises as input and returns a single Promise.
 	 * This returned promise settles with the eventual state of the first promise that settles.
 	 *
-	 * @param iterable {Array<Promise>} An array of promises to race.
+	 * @param iterable An array of promises to race.
 	 *
 	 * @return A promise that settles with the outcome of the first settled input promise.
 	 */
@@ -129,7 +129,7 @@ public class Promise
 	 * It stores the callbacks within the promise it is called on and immediately returns another Promise object,
 	 * allowing you to chain calls to other promise methods.
 	 *
-	 * @param onFulfilled {Function} A function called when the promise is fulfilled.
+	 * @param onFulfilled A function called when the promise is fulfilled.
 	 *
 	 * @return A promise that resolves or rejects based on the provided fulfillment or rejection handler.
 	 */
@@ -160,7 +160,7 @@ public class Promise
 	 * It immediately returns another Promise object, allowing you to chain calls to other promise methods.
 	 * It is a shortcut for then(undefined, onRejected).
 	 *
-	 * @param onRejected {Function} A function invoked when the promise is rejected.
+	 * @param onRejected A function invoked when the promise is rejected.
 	 *
 	 * @return A promise that executes the rejection handler and resolves based on its outcome.
 	 */
@@ -176,7 +176,7 @@ public class Promise
 	 *
 	 * This lets you avoid duplicating code in both the promise's then() and catch() handlers.
 	 *
-	 * @param onFinally {Function} A function called once the promise is settled, regardless of outcome.
+	 * @param onFinally A function called once the promise is settled, regardless of outcome.
 	 *
 	 * @return A promise that executes the finalizing function after the original promise settles.
 	 */
