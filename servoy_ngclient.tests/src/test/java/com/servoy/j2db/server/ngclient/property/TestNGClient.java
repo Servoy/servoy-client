@@ -376,6 +376,11 @@ public class TestNGClient extends NGClient
 			}
 
 			@Override
+			public void deleteFromDataSet(String client_id, IDataSet set, String serverName, String tableName, String tid) throws ServoyException
+			{
+			}
+
+			@Override
 			public InsertResult insertDataSet(String client_id, IDataSet set, final String dataSource, String serverName, String tableName, String tid,
 				ColumnType[] columnTypes, String[] pkNames, HashMap<String, ColumnInfoDef> columnInfoDefinitions) throws ServoyException
 			{

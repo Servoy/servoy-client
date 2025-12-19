@@ -432,6 +432,16 @@ public interface IServerAccess extends IPluginAccess
 	 */
 	public Object[] insertDataSet(String clientId, String serverName, String tableName, String transactionId, IDataSet dataSet) throws ServoyException;
 
+	/** Delete records from the table where columns match the values in the dataset
+	 * @param clientId
+	 * @param serverName
+	 * @param tableName
+	 * @param transactionId
+	 * @param dataSet
+	 *
+	 * @since 2025.12
+	 */
+	public void deleteFromDataSet(String clientId, String serverName, String tableName, String transactionId, IDataSet dataSet) throws ServoyException;
 
 	public JSDataSet getLocks();
 

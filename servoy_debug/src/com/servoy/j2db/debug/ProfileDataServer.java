@@ -42,6 +42,7 @@ import com.servoy.j2db.query.ISQLSelect;
 import com.servoy.j2db.query.ISQLUpdate;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.server.shared.PerformanceTiming;
+import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.UUID;
@@ -631,6 +632,20 @@ public class ProfileDataServer extends AbstractDelegateDataServer
 		finally
 		{
 			informListeners("FillDataSource", dataSource, null, null, startTime, null);
+		}
+	}
+
+	@Override
+	public void deleteFromDataSet(String client_id, IDataSet set, String serverName, String tableName, String tid) throws ServoyException
+	{
+		long startTime = System.currentTimeMillis();
+		try
+		{
+			super.deleteFromDataSet(client_id, set, serverName, tableName, tid);
+		}
+		finally
+		{
+			informListeners("DeleteFromDataset", DataSourceUtils.createDBTableDataSource(serverName, tableName), null, null, startTime, null);
 		}
 	}
 
