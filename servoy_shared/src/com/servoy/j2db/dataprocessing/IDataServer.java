@@ -200,6 +200,21 @@ public interface IDataServer
 	public InsertResult insertDataSet(String client_id, IDataSet set, String dataSource, String serverName, String tableName, String tid,
 		ColumnType[] columnTypes, String[] pkNames, HashMap<String, ColumnInfoDef> columnInfoDefinitions) throws ServoyException;
 
+
+	/**
+	 * Delete records from table, the column names in the data set must match the column names of the table.
+	 *
+	 * @param client_id
+	 * @param set data set
+	 * @param serverName
+	 * @param tableName
+	 * @param tid transaction id
+	 *
+	 * @throws ServoyException
+	 * @throws RemoteException
+	 */
+	public void deleteFromDataSet(String client_id, IDataSet set, String serverName, String tableName, String tid) throws ServoyException;
+
 	/**
 	 * Insert a data from a query in a table. When tableName is null a temporary table will be created
 	 *

@@ -495,6 +495,23 @@ public abstract class AbstractDelegateDataServer implements IDataServer, IDelega
 
 	/**
 	 * @param client_id
+	 * @param set
+	 * @param dataSource
+	 * @param serverName
+	 * @param tableName
+	 * @param tid
+	 *
+	 * @throws ServoyException
+	 * @throws RemoteException
+	 * @see com.servoy.j2db.dataprocessing.IDataServer#deleteFromDataSet(java.lang.String, com.servoy.j2db.dataprocessing.IDataSet, java.lang.String, java.lang.String, java.lang.String)
+	 */
+	public void deleteFromDataSet(String client_id, IDataSet set, String serverName, String tableName, String tid) throws ServoyException
+	{
+		dataserver.deleteFromDataSet(client_id, set, serverName, tableName, tid);
+	}
+
+	/**
+	 * @param client_id
 	 * @param queryServerName
 	 * @param queryTid
 	 * @param sqlSelect

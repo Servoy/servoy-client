@@ -589,6 +589,20 @@ public class ExceptionCheckingDataServer implements IDataServer
 		}
 	}
 
+	@Override
+	public void deleteFromDataSet(String client_id, IDataSet set, String serverName, String tableName, String tid) throws ServoyException
+	{
+		try
+		{
+			delegate.deleteFromDataSet(client_id, set, serverName, tableName, tid);
+		}
+		catch (ServoyException e)
+		{
+			checkException(e);
+			throw e;
+		}
+	}
+
 	/**
 	 * @param client_id
 	 * @param queryServerName

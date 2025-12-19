@@ -324,6 +324,12 @@ public class DataServerProxy implements IDataServer
 		return ds.insertDataSet(clientId, set, dataSource, getMappedServerName(serverName), tableName, tid, columnTypes, pkNames, columnInfoDefinitions);
 	}
 
+	@Override
+	public void deleteFromDataSet(String client_id, IDataSet set, String serverName, String tableName, String tid) throws ServoyException
+	{
+		ds.deleteFromDataSet(client_id, set, serverName, tableName, tid);
+	}
+
 	public ITable insertQueryResult(String _ignoredClientId, String queryServerName, String queryTid, ISQLSelect sqlSelect, ArrayList<TableFilter> filters,
 		boolean distinctInMemory, int startRow, int rowsToRetrieve, int type, String dataSource, String targetServerName, String targetTableName,
 		String targetTid, ColumnType[] columnTypes, String[] pkNames) throws ServoyException
