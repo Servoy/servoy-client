@@ -25,6 +25,7 @@ import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.stream.StreamSupport;
 
+import org.mozilla.javascript.NativeJavaObject;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
 
@@ -32,6 +33,7 @@ import com.servoy.base.persistence.constants.IValueListConstants;
 import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.scripting.DefaultJavaScope;
 import com.servoy.j2db.scripting.DefaultScope;
+import com.servoy.j2db.scripting.solutionmodel.JSValueList;
 
 /**
  * @author Diana
@@ -64,6 +66,17 @@ public class ValueListManager extends DefaultScope implements IValueListManager
 				yield valueList != null ? valueList.getName() : null;
 			}
 		};
+	}
+
+	@Override
+	public boolean hasInstance(Scriptable instance)
+	{
+		if (instance instanceof NativeJavaObject njo &&
+			njo.unwrap() instanceof JSValueList)
+		{
+			return true;
+		}
+		return super.hasInstance(instance);
 	}
 
 	/**

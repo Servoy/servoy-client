@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.mozilla.javascript.NativeJavaObject;
 import org.mozilla.javascript.NativeObject;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
@@ -71,6 +72,17 @@ public class JSFormManager extends DefaultScope implements IJSFormManager
 			case "INSTANCES" -> getInstances(start);
 			default -> getJSForm(name);
 		};
+	}
+
+	@Override
+	public boolean hasInstance(Scriptable instance)
+	{
+		if (instance instanceof NativeJavaObject njo &&
+			njo.unwrap() instanceof JSForm)
+		{
+			return true;
+		}
+		return super.hasInstance(instance);
 	}
 
 	private Object getInstances(Scriptable start)
