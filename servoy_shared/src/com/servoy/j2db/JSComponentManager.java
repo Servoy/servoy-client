@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.mozilla.javascript.NativeJavaObject;
 import org.mozilla.javascript.Scriptable;
 import org.sablo.specification.PackageSpecification;
 import org.sablo.specification.SpecProviderState;
@@ -28,6 +29,7 @@ import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.WebObjectSpecification;
 
 import com.servoy.j2db.scripting.DefaultScope;
+import com.servoy.j2db.scripting.solutionmodel.JSWebComponent;
 
 /**
  * @author emera
@@ -48,6 +50,17 @@ public class JSComponentManager extends DefaultScope implements IJSComponentMana
 		}
 
 		return Scriptable.NOT_FOUND;
+	}
+
+	@Override
+	public boolean hasInstance(Scriptable instance)
+	{
+		if (instance instanceof NativeJavaObject njo &&
+			njo.unwrap() instanceof JSWebComponent)
+		{
+			return true;
+		}
+		return super.hasInstance(instance);
 	}
 
 	private boolean isPackage(String name)
