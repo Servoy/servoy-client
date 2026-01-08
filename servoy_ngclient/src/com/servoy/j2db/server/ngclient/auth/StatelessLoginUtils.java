@@ -54,8 +54,8 @@ public class StatelessLoginUtils
 			return null;
 		}
 
-		// remove svyuuid=...
-		String queryString = state.replaceAll("(^|&)(svyuuid=[^&]*)(&|$)", "$1$3");
+		// remove svyuuid=... and state=...
+		String queryString = state.replaceAll("(?:(?<=^)|(?<=&))(state|svyuuid)=[^&]*&?", "");
 		queryString = queryString.replaceAll("^&|&$", "");
 		return queryString;
 	}

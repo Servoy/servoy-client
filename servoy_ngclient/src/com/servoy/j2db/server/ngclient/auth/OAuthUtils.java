@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.json.JSONObject;
+import org.owasp.encoder.Encode;
 
 import com.github.scribejava.apis.GoogleApi20;
 import com.github.scribejava.apis.LinkedInApi20;
@@ -251,7 +252,8 @@ public class OAuthUtils
 		}
 		if (auth.has(OAuthParameters.state.name()))
 		{
-			state.append(auth.getString(OAuthParameters.state.name())).append("&");
+			state.append("state=").append(Encode.forUriComponent(auth.getString(OAuthParameters.state.name())));
+			state.append("&");
 		}
 
 		if (state.length() > 0 && state.charAt(state.length() - 1) == '&')
