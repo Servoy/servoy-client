@@ -17,8 +17,13 @@
 
 package com.servoy.j2db.server.ngclient.auth;
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.rmi.RemoteException;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -31,6 +36,7 @@ import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.server.ngclient.StatelessLoginHandler;
+import com.servoy.j2db.server.ngclient.auth.OAuthUtils.OAuthParameters;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.server.shared.IApplicationServer;
 import com.servoy.j2db.util.Pair;
@@ -109,7 +115,45 @@ public class AuthenticatorManager
 					json.put(entry.getKey(), value);
 				}
 			}
+
+			if (entry.getKey().startsWith(OAuthParameters.state.name()))
+			{
+				String[] values = entry.getValue();
+				if (values.length > 0)
+				{
+					String stateValue = values[0];
+					//state has a 'state' and a 'query' and a uuid (which the authenticator does not need)
+					addParsedStateParameterToJson(stateValue, json);
+				}
+			}
 		}
+	}
+
+	private static void addParsedStateParameterToJson(String stateValue, JSONObject json)
+	{
+		Map<String, String> params = Arrays.stream(stateValue.split("&"))
+			.map(p -> p.split("=", 2))
+			.collect(Collectors.toMap(
+				p -> p[0],
+				p -> p.length > 1 ? p[1] : "",
+				(a, b) -> a,
+				LinkedHashMap::new // preserve order
+			));
+
+		if (params.containsKey(OAuthParameters.state.name()))
+		{
+			String decodedState = URLDecoder.decode(params.get(OAuthParameters.state.name()), StandardCharsets.UTF_8);
+			json.put(OAuthParameters.state.name(), decodedState);
+		}
+
+		// remove the OAuth specific params
+		params.remove(OAuthParameters.state.name());
+		params.remove("svyuuid");
+
+		String originalQuery = params.entrySet().stream()
+			.map(e -> e.getKey() + "=" + e.getValue())
+			.collect(Collectors.joining("&"));
+		json.put("query", originalQuery);
 	}
 
 	public static boolean checkAuthenticatorPermissions(String username, String password, boolean remember, SvyID oldToken, Pair<Boolean, String> needToLogin,
