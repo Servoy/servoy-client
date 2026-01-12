@@ -51,7 +51,7 @@ public class Promise
 	 *
 	 * @param iterable {Array} An array of Promises to be resolved collectively.
 	 *
-	 * @return A Promise that fulfills with an array of values when all input promises resolve, or rejects with the reason of the first rejected promise.
+	 * @return {Promise} A Promise that fulfills with an array of values when all input promises resolve, or rejects with the reason of the first rejected promise.
 	 */
 	@SuppressWarnings("unused")
 	@JSFunction
@@ -68,7 +68,7 @@ public class Promise
 	 *
 	 * @param iterable {Array} An array of promises to be settled.
 	 *
-	 * @return A promise that resolves with an array of outcome objects for each settled input promise.
+	 * @return {Promise} A promise that resolves with an array of outcome objects for each settled input promise.
 	 */
 	@JSFunction
 	public Promise allSettled(Array iterable)
@@ -82,7 +82,7 @@ public class Promise
 	 *
 	 * @param iterable {Array} An array of promises to race.
 	 *
-	 * @return A promise that settles with the outcome of the first settled input promise.
+	 * @return {Promise} A promise that settles with the outcome of the first settled input promise.
 	 */
 	@JSFunction
 	public Promise race(Array iterable)
@@ -95,7 +95,7 @@ public class Promise
 	 *
 	 * @param reason {Object} The reason for rejecting the promise.
 	 *
-	 * @return A promise that is rejected with the specified reason.
+	 * @return {Promise} A promise that is rejected with the specified reason.
 	 */
 	@JSFunction
 	public Promise reject(Object reason)
@@ -115,7 +115,7 @@ public class Promise
 	 *
 	 * @param value {Object} A value or then able to resolve as a promise.
 	 *
-	 * @return A promise resolved with the given value or flattened if it is thenable.
+	 * @return {Promise} A promise resolved with the given value or flattened if it is thenable.
 	 */
 	@JSFunction
 	public Promise resolve(Object value)
@@ -131,7 +131,7 @@ public class Promise
 	 *
 	 * @param onFulfilled {Function} A function called when the promise is fulfilled.
 	 *
-	 * @return A promise that resolves or rejects based on the provided fulfillment or rejection handler.
+	 * @return {Promise} A promise that resolves or rejects based on the provided fulfillment or rejection handler.
 	 */
 	@JSFunction
 	public Promise then(Function onFulfilled)
@@ -147,7 +147,7 @@ public class Promise
 	 *
 	 * @param onFulfilled The callback function that is invoked when the Promise is fulfilled.
 	 * @param onRejected The callback function that is invoked when the Promise is rejected.
-	 * @return A Promise that resolves or rejects based on the outcome of the provided fulfillment or rejection callbacks
+	 * @return {Promise} A Promise that resolves or rejects based on the outcome of the provided fulfillment or rejection callbacks
 	 */
 	@JSFunction
 	public Promise then(Function onFulfilled, Function onRejected)
@@ -162,7 +162,7 @@ public class Promise
 	 *
 	 * @param onRejected {Function} A function invoked when the promise is rejected.
 	 *
-	 * @return A promise that executes the rejection handler and resolves based on its outcome.
+	 * @return {Promise} A promise that executes the rejection handler and resolves based on its outcome.
 	 */
 	public Promise js_catch(Function onRejected)
 	{
@@ -178,7 +178,7 @@ public class Promise
 	 *
 	 * @param onFinally {Function} A function called once the promise is settled, regardless of outcome.
 	 *
-	 * @return A promise that executes the finalizing function after the original promise settles.
+	 * @return {Promise} A promise that executes the finalizing function after the original promise settles.
 	 */
 	public Promise js_finally(Function onFinally)
 	{

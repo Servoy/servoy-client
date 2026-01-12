@@ -1885,7 +1885,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * @param useTableFilters use table filters.
 	 * @param max_returned_rows The maximum number of rows returned by the query.
 	 *
-	 * @return The promise that will receive the result.
+	 * @return {Promise} The promise that will receive the result.
 	 */
 	@JSFunction
 	public NativePromise getDataSetByQueryAsync(QBSelect query, Boolean useTableFilters, Number max_returned_rows)
@@ -1924,7 +1924,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * @param query QBSelect query.
 	 * @param max_returned_rows The maximum number of rows returned by the query.
 	 *
-	 * @return The promise that will receive the result.
+	 * @return {Promise} The promise that will receive the result.
 	 */
 	@JSFunction
 	public NativePromise getDataSetByQueryAsync(QBSelect query, Number max_returned_rows)
@@ -1950,7 +1950,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * @param arguments Specified arguments or null if there are no arguments.
 	 * @param max_returned_rows The maximum number of rows returned by the query.
 	 *
-	 * @return The promise that will receive the result.
+	 * @return {Promise} The promise that will receive the result.
 	 */
 	@JSFunction
 	public NativePromise getDataSetByQueryAsync(String server_name, String sql_query, Object[] arguments, Number max_returned_rows)
