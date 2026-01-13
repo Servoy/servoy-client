@@ -1991,7 +1991,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * @param max_returned_rows The maximum number of rows returned by the query.
 	 * @param queryTimeout number of seconds the jdbc driver will wait for a sql statement to execute. Default value is 0 (no timeout).
 	 *
-	 * @return {Promise} The promise that will receive the result.
+	 * @return {Promise<JSDataSet>} The promise that will receive the result.
 	 */
 	@JSFunction
 	public NativePromise getDataSetByQueryAsync(QBSelect query, Boolean useTableFilters, Number max_returned_rows, int queryTimeout)
@@ -2083,7 +2083,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * @param max_returned_rows The maximum number of rows returned by the query.
 	 * @param queryTimeout number of seconds the jdbc driver will wait for a sql statement to execute. Default value is 0 (no timeout).
 	 *
-	 * @return {Promise} The promise that will receive the result.
+	 * @return {Promise<JSDataSet>} The promise that will receive the result.
 	 */
 	@JSFunction
 	public NativePromise getDataSetByQueryAsync(String server_name, String sql_query, Object[] arguments, Number max_returned_rows, int queryTimeout)
