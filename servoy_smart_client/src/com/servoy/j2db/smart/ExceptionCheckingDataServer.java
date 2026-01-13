@@ -328,6 +328,21 @@ public class ExceptionCheckingDataServer implements IDataServer
 		}
 	}
 
+	public IDataSet performCustomQuery(String client_id, String server_name, String driverTableName, String transaction_id, ISQLSelect sqlSelect,
+		ArrayList<TableFilter> filters, int startRow, int rowsToRetrieve, int queryTimeout) throws ServoyException
+	{
+		try
+		{
+			return delegate.performCustomQuery(client_id, server_name, driverTableName, transaction_id, sqlSelect, filters, startRow, rowsToRetrieve,
+				queryTimeout);
+		}
+		catch (ServoyException e)
+		{
+			checkException(e);
+			throw e;
+		}
+	}
+
 	/**
 	 * @param client_id
 	 * @param server_name

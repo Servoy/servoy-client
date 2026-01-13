@@ -1738,6 +1738,51 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 */
 	public JSDataSet js_getDataSetByQuery(String server_name, String sql_query, Object[] arguments, Number max_returned_rows) throws ServoyException
 	{
+		return js_getDataSetByQuery(server_name, sql_query, arguments, max_returned_rows, 0);
+	}
+
+	/**
+	 * Performs a sql query on the specified server, returns the result in a dataset.
+	 * Will throw an exception if query is not a select statement or anything did go wrong when executing the query.
+	 *
+	 * Using this variation of getDataSetByQuery any Tablefilter on the involved tables will be disregarded.
+	 *
+	 * @sample
+	 * //finds duplicate records in a specified foundset
+	 * var vQuery =" SELECT companiesid from companies where company_name IN (SELECT company_name from companies group bycompany_name having count(company_name)>1 )";
+	 * var vDataset = databaseManager.getDataSetByQuery(databaseManager.getDataSourceServerName(controller.getDataSource()), vQuery, null, 1000);
+	 * controller.loadRecords(vDataset);
+	 *
+	 * var maxReturnedRows = 10;//useful to limit number of rows
+	 * var query = 'select c1,c2,c3 from test_table where start_date = ?';//do not use '.' or special chars in names or aliases if you want to access data by name
+	 * var args = new Array();
+	 * args[0] = order_date //or  new Date()
+	 * var dataset = databaseManager.getDataSetByQuery(databaseManager.getDataSourceServerName(controller.getDataSource()), query, args, maxReturnedRows,30);
+	 *
+	 * // place in label:
+	 * // elements.myLabel.text = '<html>'+dataset.getAsHTML()+'</html>';
+	 *
+	 * //example to calc a strange total
+	 * global_total = 0;
+	 * for( var i = 1 ; i <= dataset.getMaxRowIndex() ; i++ )
+	 * {
+	 * 	dataset.rowIndex = i;
+	 * 	global_total = global_total + dataset.c1 + dataset.getValue(i,3);
+	 * }
+	 * //example to assign to dataprovider
+	 * //employee_salary = dataset.getValue(row,column)
+	 *
+	 * @param server_name The name of the server where the query should be executed.
+	 * @param sql_query The custom sql, must start with 'select', 'call', 'with' or 'declare'.
+	 * @param arguments Specified arguments or null if there are no arguments.
+	 * @param max_returned_rows The maximum number of rows returned by the query.
+	 * @param queryTimeout number of seconds the jdbc driver will wait for a sql statement to execute. Default value is 0 (no timeout).
+	 *
+	 * @return The JSDataSet containing the results of the query.
+	 */
+	public JSDataSet js_getDataSetByQuery(String server_name, String sql_query, Object[] arguments, Number max_returned_rows, int queryTimeout)
+		throws ServoyException
+	{
 		int _max_returned_rows = Utils.getAsInteger(max_returned_rows);
 		application.checkAuthorized();
 		if (server_name == null) throw new RuntimeException(new ServoyException(ServoyException.InternalCodes.SERVER_NOT_FOUND, new Object[] { "<null>" })); //$NON-NLS-1$
@@ -1754,7 +1799,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 		try
 		{
 			return new JSDataSet(application, ((FoundSetManager)application.getFoundSetManager()).getDataSetByQuery(server_name,
-				new QueryCustomSelect(sql_query, arguments), false, _max_returned_rows));
+				new QueryCustomSelect(sql_query, arguments), false, _max_returned_rows, queryTimeout));
 		}
 		catch (ServoyException e)
 		{
@@ -1787,7 +1832,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * Using this variation of getDataSetByQuery any Tablefilter on the involved tables will be taken into account.
 	 *
 	 * @sample
-	 * // use the query froma foundset and add a condition
+	 * // use the query from a foundset and add a condition
 	 * /** @type {QBSelect<db:/example_data/orders>} *&#47;
 	 * var q = foundset.getQuery()
 	 * q.where.add(q.joins.orders_to_order_details.columns.discount.eq(2))
@@ -1840,6 +1885,38 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 */
 	public JSDataSet js_getDataSetByQuery(QBSelect query, Boolean useTableFilters, Number max_returned_rows) throws ServoyException
 	{
+		return js_getDataSetByQuery(query, useTableFilters, max_returned_rows, 0);
+	}
+
+	/**
+	 * Performs a sql query with a query builder object.
+	 * Will throw an exception if anything did go wrong when executing the query.
+	 *
+	 * @sample
+	 * // use the query from a foundset and add a condition
+	 * /** @type {QBSelect<db:/example_data/orders>} *&#47;
+	 * var q = foundset.getQuery()
+	 * q.where.add(q.joins.orders_to_order_details.columns.discount.eq(2))
+	 * var maxReturnedRows = 10;//useful to limit number of rows
+	 * var ds = databaseManager.getDataSetByQuery(q, true, maxReturnedRows);
+	 *
+	 * // query: select PK from example.book_nodes where parent = 111 and(note_date is null or note_date > now)
+	 * var query = datasources.db.example_data.book_nodes.createSelect().result.addPk().root
+	 * query.where.add(query.columns.parent_id.eq(111))
+	 * 	.add(query.or
+	 * 	.add(query.columns.note_date.isNull)
+	 * 	.add(query.columns.note_date.gt(new Date())))
+	 * databaseManager.getDataSetByQuery(q, true, max_returned_rows,30)
+	 *
+	 * @param query QBSelect query.
+	 * @param useTableFilters use table filters (default true).
+	 * @param max_returned_rows The maximum number of rows returned by the query.
+	 * @param queryTimeout number of seconds the jdbc driver will wait for a sql statement to execute. Default value is 0 (no timeout).
+	 *
+	 * @return The JSDataSet containing the results of the query.
+	 */
+	public JSDataSet js_getDataSetByQuery(QBSelect query, Boolean useTableFilters, Number max_returned_rows, int queryTimeout) throws ServoyException
+	{
 		int _max_returned_rows = Utils.getAsInteger(max_returned_rows);
 		application.checkAuthorized();
 
@@ -1857,7 +1934,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 		try
 		{
 			return new JSDataSet(application, ((FoundSetManager)application.getFoundSetManager()).getDataSetByQuery(serverName, select,
-				!Boolean.FALSE.equals(useTableFilters), _max_returned_rows));
+				!Boolean.FALSE.equals(useTableFilters), _max_returned_rows, queryTimeout));
 		}
 		catch (ServoyException e)
 		{
@@ -1890,11 +1967,40 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	@JSFunction
 	public NativePromise getDataSetByQueryAsync(QBSelect query, Boolean useTableFilters, Number max_returned_rows)
 	{
+		return getDataSetByQueryAsync(query, useTableFilters, max_returned_rows, 0);
+	}
+
+	/**
+	 * Performs an async sql query with a query builder object.
+	 * Will resolve the promise if query is executed without exception or will reject the promise with the exception.
+	 *
+	 * @sample
+	 * // use the query from a foundset and add a condition
+	 * /** @type {QBSelect<db:/example_data/orders>} *&#47;
+	 * var q = foundset.getQuery()
+	 * q.where.add(q.joins.orders_to_order_details.columns.discount.eq(2))
+	 * var maxReturnedRows = 10;//useful to limit number of rows
+	 * databaseManager.getDataSetByQueryAsync(q, true, maxReturnedRows).then(function(jsDataset) {
+	 * 		// do something with the dataset
+	 *  }, function(error) {
+	 *      // handle error
+	 *  });
+	 *
+	 * @param query QBSelect query.
+	 * @param useTableFilters use table filters.
+	 * @param max_returned_rows The maximum number of rows returned by the query.
+	 * @param queryTimeout number of seconds the jdbc driver will wait for a sql statement to execute. Default value is 0 (no timeout).
+	 *
+	 * @return {Promise} The promise that will receive the result.
+	 */
+	@JSFunction
+	public NativePromise getDataSetByQueryAsync(QBSelect query, Boolean useTableFilters, Number max_returned_rows, int queryTimeout)
+	{
 		Deferred deferred = new Deferred(application);
 		application.getScheduledExecutor().execute(() -> {
 			try
 			{
-				JSDataSet dataSet = js_getDataSetByQuery(query, useTableFilters, max_returned_rows);
+				JSDataSet dataSet = js_getDataSetByQuery(query, useTableFilters, max_returned_rows, queryTimeout);
 				deferred.resolve(dataSet);
 			}
 			catch (Exception e)
@@ -1955,11 +2061,38 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	@JSFunction
 	public NativePromise getDataSetByQueryAsync(String server_name, String sql_query, Object[] arguments, Number max_returned_rows)
 	{
+		return getDataSetByQueryAsync(server_name, sql_query, arguments, max_returned_rows, 0);
+	}
+
+	/**
+	 * Performs an async sql query with an sql query on a specified server.
+	 * Will resolve the promise with dataset result if query is executed without exception or will reject the promise with the exception.
+	 * Using this variation of getDataSetByQueryAsync will ignore any table filter on the involved tables.
+	 *
+	 * @sample
+	 * var maxReturnedRows = 10;//useful to limit number of rows
+	 * databaseManager.getDataSetByQueryAsync(databaseManager.getDataSourceServerName(controller.getDataSource()), 'select c1,c2,c3 from test_table where start_date = ?', new Array(new Date()), maxReturnedRows).then(function(jsDataset) {
+	 * 		// do something with the dataset
+	 *  }, function(error) {
+	 *      // handle error
+	 *  });
+	 *
+	 * @param server_name The name of the server where the query should be executed.
+	 * @param sql_query The custom sql, must start with 'select', 'call', 'with' or 'declare'.
+	 * @param arguments Specified arguments or null if there are no arguments.
+	 * @param max_returned_rows The maximum number of rows returned by the query.
+	 * @param queryTimeout number of seconds the jdbc driver will wait for a sql statement to execute. Default value is 0 (no timeout).
+	 *
+	 * @return {Promise} The promise that will receive the result.
+	 */
+	@JSFunction
+	public NativePromise getDataSetByQueryAsync(String server_name, String sql_query, Object[] arguments, Number max_returned_rows, int queryTimeout)
+	{
 		Deferred deferred = new Deferred(application);
 		application.getScheduledExecutor().execute(() -> {
 			try
 			{
-				JSDataSet dataSet = js_getDataSetByQuery(server_name, sql_query, arguments, max_returned_rows);
+				JSDataSet dataSet = js_getDataSetByQuery(server_name, sql_query, arguments, max_returned_rows, queryTimeout);
 				deferred.resolve(dataSet);
 			}
 			catch (Exception e)

@@ -502,7 +502,7 @@ public class ServoyApiObject
 		try
 		{
 			return new JSDataSet(app, ((FoundSetManager)app.getFoundSetManager()).getDataSetByQuery(serverName, select,
-				true, _max_returned_rows));
+				true, _max_returned_rows, 0));
 		}
 		catch (ServoyException e)
 		{

@@ -2579,13 +2579,14 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		return serverName;
 	}
 
-	public IDataSet getDataSetByQuery(String serverName, ISQLSelect sqlSelect, boolean includeFilters, int maxNumberOfRowsToRetrieve) throws ServoyException
+	public IDataSet getDataSetByQuery(String serverName, ISQLSelect sqlSelect, boolean includeFilters, int maxNumberOfRowsToRetrieve, int queryTimeout)
+		throws ServoyException
 	{
 		IDataServer ds = application.getDataServer();
 		String transaction_id = getTransactionID(serverName);
 		long time = System.currentTimeMillis();
 		IDataSet set = ds.performCustomQuery(application.getClientID(), serverName, "<user_query>", transaction_id, sqlSelect,
-			includeFilters ? getTableFilterParams(serverName, sqlSelect) : null, 0, maxNumberOfRowsToRetrieve);
+			includeFilters ? getTableFilterParams(serverName, sqlSelect) : null, 0, maxNumberOfRowsToRetrieve, queryTimeout);
 		if (Debug.tracing())
 		{
 			Debug.trace(
@@ -3797,7 +3798,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		return getDataSetByQuery(query, true, max_returned_rows);
 	}
 
-	public IDataSet getDataSetByQuery(IQueryBuilder query, boolean useTableFilters, int max_returned_rows) throws ServoyException
+	public IDataSet getDataSetByQuery(IQueryBuilder query, boolean useTableFilters, int max_returned_rows, int queryTimeout) throws ServoyException
 	{
 		if (!application.haveRepositoryAccess())
 		{
@@ -3812,9 +3813,13 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		if (serverName == null)
 			throw new RuntimeException(new ServoyException(ServoyException.InternalCodes.SERVER_NOT_FOUND, new Object[] { select.getDataSource() }));
 
-		return getDataSetByQuery(serverName, select.build(), useTableFilters, max_returned_rows);
+		return getDataSetByQuery(serverName, select.build(), useTableFilters, max_returned_rows, queryTimeout);
 	}
 
+	public IDataSet getDataSetByQuery(IQueryBuilder query, boolean useTableFilters, int max_returned_rows) throws ServoyException
+	{
+		return getDataSetByQuery(query, useTableFilters, max_returned_rows, 0);
+	}
 
 	@Override
 	public void loadDataSetsByQuery(IQueryBuilder query, int startRow, int pageSize, DatasetHandler dataSetHandler) throws ServoyException

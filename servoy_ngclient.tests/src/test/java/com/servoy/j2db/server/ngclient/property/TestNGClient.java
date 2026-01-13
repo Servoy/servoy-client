@@ -346,6 +346,13 @@ public class TestNGClient extends NGClient
 			}
 
 			@Override
+			public IDataSet performCustomQuery(String client_id, String server_name, String driverTableName, String transaction_id, ISQLSelect sqlSelect,
+				ArrayList<TableFilter> filters, int startRow, int rowsToRetrieve, int queryTimeout) throws ServoyException
+			{
+				return dataSetMap.get(sqlSelect.getTable().getDataSource());
+			}
+
+			@Override
 			public void loadCustomQuery(String client_id, String server_name, String driverTableName, String transaction_id, ISQLSelect sqlSelect,
 				ArrayList<TableFilter> filters, int startRow, int pageSize, DatasetHandler datasetHandler) throws ServoyException
 			{
