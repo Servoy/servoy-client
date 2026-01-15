@@ -2402,7 +2402,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * Get the full version information of this solution and all its modules.
 	 * This will return an object that is a map of Name(Sting)->Version(String) of the solution and all its modules.
 	 *
-	 * @return Name->Version map object.
+	 * @return {Map<String,String>} Name->Version map object.
 	 */
 	public JSMap<String, String> js_getVersionInfo()
 	{
