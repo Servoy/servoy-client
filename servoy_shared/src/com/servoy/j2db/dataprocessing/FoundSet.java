@@ -434,6 +434,12 @@ public abstract class FoundSet
 	protected void refreshFromDBInternal(QuerySelect sqlSelect, boolean dropSort, int rowsToRetrieveHint, boolean keepPkOrder, boolean skipStopEdit)
 		throws ServoyException
 	{
+		refreshFromDBInternal(sqlSelect, dropSort, rowsToRetrieveHint, keepPkOrder, skipStopEdit, false);
+	}
+
+	protected void refreshFromDBInternal(QuerySelect sqlSelect, boolean dropSort, int rowsToRetrieveHint, boolean keepPkOrder, boolean skipStopEdit,
+		boolean selectionIndex0WhenNotFound) throws ServoyException
+	{
 		if (fsm.getDataServer() == null)
 		{
 			// no data access yet
@@ -595,7 +601,7 @@ public abstract class FoundSet
 		// move to correct position if we know
 		if (selectedIndex == -1)
 		{
-			trySelectingPks(selectedPKs, newSize, false);
+			trySelectingPks(selectedPKs, newSize, selectionIndex0WhenNotFound);
 		}
 		else
 		{
@@ -1438,16 +1444,7 @@ public abstract class FoundSet
 	{
 		refreshFromDBInternal(
 			fsm.getSQLGenerator().getPKSelectSqlSelect(this, sheet.getTable(), pksAndRecords.getTempQuery(), null, true, null, lastSortColumns, false),
-			false, fsm.config.pkChunkSize(), false, false);
-		int newSize = getSize();
-		if (fsm.getApplication().isEventDispatchThread())
-		{
-			setSelectedIndex(newSize > 0 ? 0 : -1);
-		}
-		else
-		{
-			fsm.getApplication().invokeLater(() -> setSelectedIndex(newSize > 0 ? 0 : -1));
-		}
+			false, fsm.config.pkChunkSize(), false, false, true);
 	}
 
 	/**
