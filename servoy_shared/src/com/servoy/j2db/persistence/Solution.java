@@ -965,11 +965,8 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	// Needed for solution properties editing
 	public void setAuthenticator(AUTHENTICATOR_TYPE authenticator)
 	{
-		Map<String, Object> object = (Map<String, Object>)getCustomProperty(AUTHENTICATOR_CUSTOM_PROPERTY_PATH);
-		if (object == null)
-		{
-			object = new HashMap<String, Object>();
-		}
+		Map<String, Object> object = new HashMap<String, Object>();
+		object.putAll((Map<String, Object>)getCustomProperty(AUTHENTICATOR_CUSTOM_PROPERTY_PATH));
 		object.put(AUTHENTICATOR_TYPE_PROPERTY, Integer.valueOf(authenticator.getValue()));
 		putCustomProperty(AUTHENTICATOR_CUSTOM_PROPERTY_PATH, object);
 
