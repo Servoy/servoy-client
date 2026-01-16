@@ -966,7 +966,10 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	public void setAuthenticator(AUTHENTICATOR_TYPE authenticator)
 	{
 		Map<String, Object> object = new HashMap<String, Object>();
-		object.putAll((Map<String, Object>)getCustomProperty(AUTHENTICATOR_CUSTOM_PROPERTY_PATH));
+		if (getCustomProperty(AUTHENTICATOR_CUSTOM_PROPERTY_PATH) instanceof Map< ? , ? > map)
+		{
+			object.putAll((Map<String, Object>)map);
+		}
 		object.put(AUTHENTICATOR_TYPE_PROPERTY, Integer.valueOf(authenticator.getValue()));
 		putCustomProperty(AUTHENTICATOR_CUSTOM_PROPERTY_PATH, object);
 
@@ -1014,7 +1017,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	}
 	/*------------------------------------------------------------------------------------------------------------------------
 	 * LISTENERS
-
+	
 	public void iPersistChanged(IPersist persist)
 	{
 		getChangeHandler().fireIPersistChanged(persist);
