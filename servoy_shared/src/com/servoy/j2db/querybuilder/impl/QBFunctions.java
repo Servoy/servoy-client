@@ -50,7 +50,6 @@ import static com.servoy.j2db.query.QueryFunction.QueryFunctionType.vector_dista
 import static com.servoy.j2db.query.QueryFunction.QueryFunctionType.vector_score;
 import static com.servoy.j2db.query.QueryFunction.QueryFunctionType.year;
 import static com.servoy.j2db.util.Utils.getCallerMethodName;
-import static java.util.Arrays.asList;
 import static java.util.Arrays.stream;
 
 import org.mozilla.javascript.annotations.JSFunction;
@@ -59,6 +58,7 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.query.ColumnType;
 import com.servoy.j2db.query.IQuerySelectValue;
 import com.servoy.j2db.query.QueryColumnValue;
+import com.servoy.j2db.query.QueryTrimSpecification;
 import com.servoy.j2db.querybuilder.IQueryBuilderFunctions;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 import com.servoy.j2db.util.Debug;
@@ -174,14 +174,13 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	public QBTextColumnBase trim(Object value)
 	{
 		// ansi standard trim()
-		return trim("BOTH", " ", "FROM", value);
+		return trim("BOTH", " ", value);
 	}
 
 	/**
 	 * @clonedesc com.servoy.j2db.querybuilder.impl.QBTextColumnBase#trim()
-	 * @param leading_trailing_both 'leading', 'trailing' or 'both'
-	 * @param characters characters to remove
-	 * @param fromKeyword 'from'
+	 * @param specification 'leading', 'trailing' or 'both'
+	 * @param character single character to remove
 	 * @param value value to trim
 	 * @sample
 	 * var query = datasources.db.example_data.orders.createSelect();
@@ -192,17 +191,47 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	 * @return A query builder column representing the value with specified characters trimmed from a specified position.
 	 */
 	@JSFunction
-	public QBTextColumnBase trim(String leading_trailing_both, String characters, String fromKeyword, Object value)
+	public QBTextColumnBase trim(String specification, String character, Object value)
 	{
-		// some dbs (HXTT-DBF) do not like parameters for the characters, when it is 1 character it is safe for inline.
-		IQuerySelectValue charactersValue = characters.length() == 1
-			? new QueryColumnValue('\'' + characters + '\'', null, true)
-			: new QueryColumnValue(characters, null, false);
+		if (character == null || character.length() != 1)
+		{
+			throw new IllegalArgumentException("caharacter argument must be one single character");
+		}
+
 		return new QBFunctionImpl(getRoot(), getParent(), trim, new IQuerySelectValue[] { //
-			new QueryColumnValue(leading_trailing_both, null, validateKeyword(leading_trailing_both, "leading", "trailing", "both")), // keyword
-			charactersValue, // characters
-			new QueryColumnValue(fromKeyword, null, validateKeyword(fromKeyword, "from")), // keyword
+			QueryTrimSpecification.fromSpecification(specification), //
+			new QueryColumnValue(Character.valueOf(character.charAt(0)), null, true), //
 			createOperand(value, TEXT)
+		});
+	}
+
+	/**
+	 * @clonedesc com.servoy.j2db.querybuilder.impl.QBTextColumnBase#trim()
+	 * @param specification 'leading', 'trailing' or 'both'
+	 * @param character single character to remove
+	 * @param fromKeyword 'from' (ignored)
+	 * @param value value to trim
+	 * @sample
+	 * var query = datasources.db.example_data.orders.createSelect();
+	 * // show shipname but remove trailing space
+	 * query.result.add(query.functions.trim('trailing', ' ', 'from', query.columns.shipname));
+	 * foundset.loadRecords(query);
+	 *
+	 * @deprecated use trim(String, String, Object)
+	 * @return A query builder column representing the value with specified characters trimmed from a specified position.
+	 */
+	@JSFunction
+	@Deprecated
+	public QBTextColumnBase trim(String specification, String character, String fromKeyword, Object value)
+	{
+		if (character == null || character.length() != 1)
+		{
+			throw new IllegalArgumentException("caharacter argument must be one single character");
+		}
+
+		return new QBFunctionImpl(getRoot(), getParent(), trim, new IQuerySelectValue[] { //
+
+			QueryTrimSpecification.fromSpecification(specification), new QueryColumnValue(character.charAt(0), null, true), createOperand(value, TEXT)
 		});
 	}
 
@@ -707,14 +736,6 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	{
 		IQuerySelectValue[] functionArgs = stream(args).map(this::createOperand).toArray(IQuerySelectValue[]::new);
 		return new QBFunctionImpl(getRoot(), getParent(), coalesce, functionArgs);
-	}
-
-	/**
-	 * @return true if the value matches one of the allowed strings.
-	 */
-	private static boolean validateKeyword(String value, String... allowed)
-	{
-		return value != null && asList(allowed).contains(value.trim().toLowerCase());
 	}
 
 	private static void warnIgnoredNegatedColumn(Object value)

@@ -89,6 +89,14 @@ public interface IQueryBuilderFunctions extends IQueryBuilderPart
 	/**
 	 * Create trim([leading | trailing | both] [characters] from column)
 	 */
+	IQueryBuilderColumn trim(String leading_trailing_both, String characters, Object value);
+
+	/**
+	 * Create trim([leading | trailing | both] [characters] from column)
+	 *
+	 * Deprecated: use trim(String, String, Object)
+	 */
+	@Deprecated()
 	IQueryBuilderColumn trim(String leading_trailing_both, String characters, String fromKeyword, Object value);
 
 	/**
