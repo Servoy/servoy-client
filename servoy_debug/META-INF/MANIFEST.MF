@@ -13,9 +13,9 @@ Require-Bundle: servoy_headless_client,
  org.eclipse.swt,
  servoy_ngclient,
  sablo
-Export-Package: com.servoy.j2db.debug,
- com.servoy.j2db.debug.extensions,
- com.servoy.j2db.debug.layout
+Export-Package: com.servoy.j2db.debug;version="2025.12.1.4123",
+ com.servoy.j2db.debug.extensions;version="2025.12.1.4123",
+ com.servoy.j2db.debug.layout;version="2025.12.1.4123"
 Bundle-ActivationPolicy: lazy
 Import-Package: jakarta.servlet;version="[6.1.0,8.0.0)",
  jakarta.servlet.http;version="[6.1.0,8.0.0)"
