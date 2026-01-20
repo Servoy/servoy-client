@@ -354,6 +354,10 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 				});
 			}
 			templateProperties.content.keySet().remove(IContentSpecConstants.PROPERTY_ATTRIBUTES);
+			if (!templateProperties.content.containsKey(WebFormComponent.MARKUP_PROPERTY_ID))
+			{
+				templateProperties.content.put(WebFormComponent.MARKUP_PROPERTY_ID, ComponentFactory.getMarkupId(form.getName(), name));
+			}
 			JSONUtils.writeData(FormElementToJSON.INSTANCE, writer, templateProperties.content, templateProperties.contentType,
 				new FormElementContext(fe, context, null));
 			if (designer)
