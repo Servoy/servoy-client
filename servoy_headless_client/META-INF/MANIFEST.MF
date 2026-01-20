@@ -11,9 +11,9 @@ Require-Bundle: org.eclipse.dltk.javascript.rhino,
  org.jsoup,
  com.github.ua-parser.uap-java
 Bundle-Vendor: Servoy
-Export-Package: com.servoy.j2db.server.headlessclient,
- com.servoy.j2db.server.headlessclient.dataui,
- com.servoy.j2db.server.headlessclient.util
+Export-Package: com.servoy.j2db.server.headlessclient;version="2025.3.4.4046_LTS",
+ com.servoy.j2db.server.headlessclient.dataui;version="2025.3.4.4046_LTS",
+ com.servoy.j2db.server.headlessclient.util;version="2025.3.4.4046_LTS"
 Import-Package: javax.servlet;version="[4.0.0,5.0.0)",
  javax.servlet.http;version="[4.0.0,5.0.0)",
  org.slf4j;version="2.0.6"
