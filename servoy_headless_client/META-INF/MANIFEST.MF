@@ -11,15 +11,15 @@ Require-Bundle: org.eclipse.dltk.javascript.rhino,
  org.jsoup,
  com.github.ua-parser.uap-java
 Bundle-Vendor: Servoy
-Export-Package: com.servoy.j2db.server.headlessclient,
- com.servoy.j2db.server.headlessclient.dataui,
- com.servoy.j2db.server.headlessclient.dnd,
- com.servoy.j2db.server.headlessclient.eventthread,
- com.servoy.j2db.server.headlessclient.jquery,
- com.servoy.j2db.server.headlessclient.mask,
- com.servoy.j2db.server.headlessclient.tinymce,
- com.servoy.j2db.server.headlessclient.util,
- com.servoy.j2db.server.headlessclient.yui
+Export-Package: com.servoy.j2db.server.headlessclient;version="2024.3.9.3952_LTS",
+ com.servoy.j2db.server.headlessclient.dataui;version="2024.3.9.3952_LTS",
+ com.servoy.j2db.server.headlessclient.dnd;version="2024.3.9.3952_LTS",
+ com.servoy.j2db.server.headlessclient.eventthread;version="2024.3.9.3952_LTS",
+ com.servoy.j2db.server.headlessclient.jquery;version="2024.3.9.3952_LTS",
+ com.servoy.j2db.server.headlessclient.mask;version="2024.3.9.3952_LTS",
+ com.servoy.j2db.server.headlessclient.tinymce;version="2024.3.9.3952_LTS",
+ com.servoy.j2db.server.headlessclient.util;version="2024.3.9.3952_LTS",
+ com.servoy.j2db.server.headlessclient.yui;version="2024.3.9.3952_LTS"
 Import-Package: javax.servlet;version="[4.0.0,5.0.0)",
  javax.servlet.http;version="[4.0.0,5.0.0)",
  org.slf4j;version="2.0.6"
