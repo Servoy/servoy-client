@@ -65,6 +65,7 @@ import com.servoy.j2db.server.ngclient.property.types.BorderPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.FormComponentPropertyType;
 import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.PersistIdentifier;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -255,7 +256,7 @@ public class FormWrapper
 	public boolean isSecurityVisible(IPersist persist)
 	{
 		if (context.getApplication() == null) return true;
-		int access = context.getApplication().getFlattenedSolution().getSecurityAccess(persist.getUUID(),
+		int access = context.getApplication().getFlattenedSolution().getFormSecurityAccess(persist,
 			form.getImplicitSecurityNoRights() ? IRepository.IMPLICIT_FORM_NO_ACCESS : IRepository.IMPLICIT_FORM_ACCESS);
 		boolean b_visible = ((access & IRepository.VIEWABLE) != 0);
 		return b_visible;

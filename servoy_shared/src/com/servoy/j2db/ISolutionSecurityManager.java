@@ -21,7 +21,6 @@ import java.rmi.RemoteException;
 import java.util.Map;
 import java.util.Set;
 
-import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.UUID;
@@ -41,15 +40,33 @@ public interface ISolutionSecurityManager extends Remote
 	public String[] getUserGroups(String clientId, String userUID) throws RemoteException, ServoyException;
 
 	/**
-	 * Map keys are either UUIDs (for forms or elements) or CharSequence (for tables/columns)
-	 * TODO: separate so that proper generics can be used.
-	 * @param solution_ids
-	 * @param releaseNumbers
-	 * @param groups
-	 * @return
-	 * @throws RepositoryException
+	 * Map keys are either UUIDs (for forms or elements) or CharSequence (for tables/columns).<br/>
+	 * The set represents the ones that have implicit rights. UUIDs for form elements and Strings for table columns.
+	 *
+	 * @deprecated use {@link #getSecurityAccessForTablesAndForms(String, UUID[], int[], String[])} instead; in order to work correctly with
+	 *              form component component children, now, the key given for forms and elements changed
+	 *              to a String in the new method. UUIDs given by this method were not enough to uniquely identify those.
+	 *              A different method was created although this signature with "Object" could be reused in order to not run into runtime
+	 *              exceptions or bugs where old code expects UUIDs.
 	 * @throws RemoteException
 	 */
-	public Pair<Map<Object, Integer>, Set<Object>> getSecurityAccess(String clientId, UUID[] solution_uuid, int[] releaseNumber, String[] groups)
+	@Deprecated
+	public Pair<Map<Object, Integer>, Set<Object>> getSecurityAccess(String clientId, UUID[] solution_uuids, int[] releaseNumbers, String[] groups)
 		throws RemoteException, ServoyException;
+
+	/**
+	 * The returned tableSecurityAccessInfo identifier keys are PersistIdentifier.toJSONString Strings for forms or elements.<br/>
+	 * The returned formSecurityAccessInfo identifier keys are Strings identifying the table column.<br/>
+	 */
+	public TableAndFormSecurityAccessInfo getSecurityAccessForTablesAndForms(String clientId, UUID[] solution_uuids, int[] releaseNumbers,
+		String[] groups)
+		throws RemoteException, ServoyException;
+
+	public static record TableAndFormSecurityAccessInfo(SecurityAccessInfo tableSecurityAccessInfo, SecurityAccessInfo formSecurityAccessInfo)
+	{
+	}
+	public static record SecurityAccessInfo(Map<String, Integer> explicitIdentifierToAccessMap, Set<String> implicitAccessIdentifiers)
+	{
+	}
+
 }

@@ -550,7 +550,7 @@ public abstract class FormManager extends BasicFormManager implements PropertyCh
 
 		try
 		{
-			int access = application.getFlattenedSolution().getSecurityAccess(f.getUUID(),
+			int access = application.getFlattenedSolution().getFormSecurityAccess(f,
 				f.getImplicitSecurityNoRights() ? IRepository.IMPLICIT_FORM_NO_ACCESS : IRepository.IMPLICIT_FORM_ACCESS);
 			if (access != -1)
 			{
@@ -744,7 +744,7 @@ public abstract class FormManager extends BasicFormManager implements PropertyCh
 		Form f = possibleForms.get(formName);
 		if (f == null) return null;
 
-		int access = application.getFlattenedSolution().getSecurityAccess(f.getUUID(),
+		int access = application.getFlattenedSolution().getFormSecurityAccess(f,
 			f.getImplicitSecurityNoRights() ? IRepository.IMPLICIT_FORM_NO_ACCESS : IRepository.IMPLICIT_FORM_ACCESS);
 		if (access != -1)
 		{

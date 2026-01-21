@@ -17,7 +17,12 @@
 
 package com.servoy.j2db;
 
+import java.util.function.Function;
+
 import org.json.JSONObject;
+
+import com.servoy.j2db.persistence.IFormElement;
+import com.servoy.j2db.persistence.IPersist;
 
 /**
  * @author jcompagner
@@ -46,4 +51,13 @@ public interface INGClientApplication extends IApplication
 	 * @return
 	 */
 	public JSONObject getUserAgentAndPlatform();
+
+	/**
+	 * If the persist is a form component component, it goes though it's child FC components (recursively) and calls addFCCChildConsumer
+	 * for each one that has it's name set.
+	 * @param addFCCChildConsumer a consumer that handles the children and returns true if it wants to consume more and false if it wants
+	 * to stop consuming children. A null return value is equivalent to returning Boolean.TRUE.
+	 */
+	void addFormComponentComponentChildrenWithNames(IPersist elem, Function<IFormElement, Boolean> addFCCChildConsumer);
+
 }

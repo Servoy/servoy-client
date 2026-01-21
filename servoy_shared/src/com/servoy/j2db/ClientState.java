@@ -29,7 +29,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 import java.util.TimeZone;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -40,6 +39,7 @@ import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Undefined;
 
 import com.servoy.base.persistence.constants.IValueListConstants;
+import com.servoy.j2db.ISolutionSecurityManager.TableAndFormSecurityAccessInfo;
 import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.dataprocessing.ClientInfo;
 import com.servoy.j2db.dataprocessing.CustomValueList;
@@ -71,7 +71,6 @@ import com.servoy.j2db.server.shared.IApplicationServerAccess;
 import com.servoy.j2db.server.shared.IClientManager;
 import com.servoy.j2db.server.shared.IUserManager;
 import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.UUID;
@@ -1640,7 +1639,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 				}
 			}
 
-			Pair<Map<Object, Integer>, Set<Object>> securityAccess = getUserManager().getSecurityAccess(clientInfo.getClientId(), suuids, srns, groups);
+			TableAndFormSecurityAccessInfo securityAccess = getUserManager().getSecurityAccessForTablesAndForms(clientInfo.getClientId(), suuids, srns, groups);
 			root.addSecurityAccess(securityAccess);
 
 			if (foundSetManager != null)

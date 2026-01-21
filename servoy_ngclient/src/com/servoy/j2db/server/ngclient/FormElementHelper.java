@@ -74,11 +74,11 @@ import com.servoy.j2db.server.ngclient.property.types.NGTabSeqPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.PropertyPath;
 import com.servoy.j2db.server.ngclient.template.FormLayoutGenerator;
 import com.servoy.j2db.server.ngclient.template.FormTemplateGenerator;
-import com.servoy.j2db.server.ngclient.template.PersistIdentifier;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.server.shared.IApplicationServer;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
+import com.servoy.j2db.util.PersistIdentifier;
 import com.servoy.j2db.util.ServoyJSONObject;
 import com.servoy.j2db.util.SortedList;
 import com.servoy.j2db.util.StringComparator;
@@ -102,7 +102,7 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 	public final static RuntimeProperty<String> FC_NAME_OF_ROOT_ACTUAL_FORM_EVEN_IN_CASE_OF_NESTED_FORM_COMPONENTS = new RuntimeProperty<>() {};
 	public final static RuntimeProperty<IPersist> FC_DIRECT_PARENT_FORM_COMPONENT_CONTAINER = new RuntimeProperty<>() {};
 	public final static RuntimeProperty<String> FC_CHILD_ELEMENT_NAME_INSIDE_DIRECT_PARENT_FORM_COMPONENT = new RuntimeProperty<>() {};
-	public final static RuntimeProperty<String[]> FC_COMPONENT_AND_PROPERTY_NAME_PATH = new RuntimeProperty<>() {};
+	public final static RuntimeProperty<String[]> FC_COMPONENT_AND_PROPERTY_NAME_PATH = PersistIdentifier.FC_COMPONENT_AND_PROPERTY_NAME_PATH;
 
 	public final static RuntimeProperty<Pair<Long, Map<TabSeqProperty, Integer>>> FORM_TAB_SEQUENCE = new RuntimeProperty<Pair<Long, Map<TabSeqProperty, Integer>>>() {};
 	public final static FormElementHelper INSTANCE = new FormElementHelper();
@@ -276,7 +276,8 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 			}
 
 			// build names like fcc1$containedForm$fcc2$containedForm$button1
-			// & the component-and-property-name-path array which is the same but as a String array (the array is used in code to avoid String parsing)
+			// & the component-and-property-name-path array which is the same but as a String array (the array
+			// is used in code to avoid String parsing); the first array item is the UUID of the root form component, not the name
 
 			// we still do this for the name, because even though our code that needs to be aware of form component nesting should now rely on
 			// componentPersist.getRuntimeProperty(FormElementHelper.FC_COMPONENT_AND_PROPERTY_NAME_PATH) instead, we exposed this $ based
@@ -289,9 +290,15 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 			// not be used with string $ parsing anymore anyway)... but that would result in solution code element.getName() returning a different
 			// value then previously expected
 			PersistIdentifier designId = formComponentContainerElement.getDesignId();
-			String parentCompAndPropPathAsString = designId != null && designId.persistUUIDAndFCPropAndComponentPath().length == 1
-				? designId.persistUUIDAndFCPropAndComponentPath()[0] /* this will be an UUID in developer, not a name */
+			String parentCompAndPropPathAsString = (designId != null && designId.persistUUIDAndFCPropAndComponentPath().length == 1)
+				? designId.persistUUIDAndFCPropAndComponentPath()[0] /* so we are inside form designer; this will be an UUID, not a name */
 				: formComponentContainerElement.getName();
+			// @formatter:off
+				// so in designer, if it's not nested inside an FCC, it will be the UUID of the persist; not sure if the UUID is still really needed in the name as now we have the FC_COMPONENT_AND_PROPERTY_NAME_PATH stored as an array that does have the UUID always; we no longer rely on parsing $ merged names
+				//                 if it is nested inside an FCC, it will be the name
+				// outside designer, it will be the name (if nested inside an FCC it already contains all the path so far concatenated via $)
+			// @formatter:on
+
 			String fullChildNameForTemplate = (parentCompAndPropPathAsString != null ? parentCompAndPropPathAsString + '$' + pd.getName() + '$' : "") + //$NON-NLS-1$
 				childNameInsideFormComponent;
 
@@ -319,7 +326,9 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 			else
 			{
 				compAndPropPath = new String[3];
-				compAndPropPath[0] = parentCompAndPropPathAsString; // it's actually just the name (or uuid when in designer) here as we didn't find a parentCompAndPropPath
+				IPersist fccElPersist = formComponentContainerElement.getPersistIfAvailable();
+				// fccElPersist should always be non-null here; so compAndPropPath[0] should always end up being an UUID
+				compAndPropPath[0] = (fccElPersist != null) ? fccElPersist.getUUID().toString() : parentCompAndPropPathAsString;
 			}
 			compAndPropPath[compAndPropPath.length - 2] = pd.getName();
 			compAndPropPath[compAndPropPath.length - 1] = childNameInsideFormComponent;

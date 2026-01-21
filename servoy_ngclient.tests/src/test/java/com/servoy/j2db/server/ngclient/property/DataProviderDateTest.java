@@ -31,6 +31,7 @@ import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.function.Function;
 
 import javax.swing.ImageIcon;
 
@@ -68,6 +69,8 @@ import com.servoy.j2db.dataprocessing.IRecord;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IColumnTypes;
+import com.servoy.j2db.persistence.IFormElement;
+import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Solution;
@@ -2112,6 +2115,18 @@ public class DataProviderDateTest
 		{
 			// TODO Auto-generated method stub
 			return null;
+		}
+
+		/*
+		 * (non-Javadoc)
+		 *
+		 * @see com.servoy.j2db.INGClientApplication#addFormComponentComponentChildrenWithNames(com.servoy.j2db.persistence.IPersist,
+		 * java.util.function.Consumer)
+		 */
+		@Override
+		public void addFormComponentComponentChildrenWithNames(IPersist elem, Function<IFormElement, Boolean> addFCCChildConsumer)
+		{
+			// TODO Auto-generated method stub
 		}
 	}
 }

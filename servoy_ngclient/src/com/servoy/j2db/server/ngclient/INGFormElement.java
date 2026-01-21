@@ -21,7 +21,7 @@ import org.sablo.IPropertyDescriptionProvider;
 
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IPersist;
-import com.servoy.j2db.server.ngclient.template.PersistIdentifier;
+import com.servoy.j2db.util.PersistIdentifier;
 
 /**
  * @author lvostinar

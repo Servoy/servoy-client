@@ -24,7 +24,7 @@ package com.servoy.j2db.server.shared;
  */
 public class SecurityInfo implements Comparable<SecurityInfo>
 {
-	public final String element_uid;//element UUID or columnname
+	public final String element_uid; // element UUID (PersistIdentifier.toJSONString() in case of form elements) or column name for tables
 	public final int access;
 
 	public SecurityInfo(String element_uid, int access)

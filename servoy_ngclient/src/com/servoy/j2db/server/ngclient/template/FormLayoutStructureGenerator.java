@@ -54,6 +54,7 @@ import com.servoy.j2db.server.ngclient.IFormElementCache;
 import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.PersistHelper;
+import com.servoy.j2db.util.PersistIdentifier;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -108,7 +109,7 @@ public class FormLayoutStructureGenerator
 
 	private static boolean isSecurityVisible(FlattenedSolution fs, IPersist persist, Form form)
 	{
-		return (fs.getSecurityAccess(persist.getUUID(),
+		return (fs.getFormSecurityAccess(persist,
 			form.getImplicitSecurityNoRights() ? IRepository.IMPLICIT_FORM_NO_ACCESS : IRepository.IMPLICIT_FORM_ACCESS) & IRepository.VIEWABLE) != 0;
 	}
 

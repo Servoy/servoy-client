@@ -480,8 +480,8 @@ public class FormController extends BasicFormController
 				containerImpl.getUndoManager(), null);
 		}
 
-		//apply security
-		int access = application.getFlattenedSolution().getSecurityAccess(form.getUUID(),
+		// apply security
+		int access = application.getFlattenedSolution().getFormSecurityAccess(form,
 			form.getImplicitSecurityNoRights() ? IRepository.IMPLICIT_FORM_NO_ACCESS : IRepository.IMPLICIT_FORM_ACCESS);
 		if (access != -1)
 		{

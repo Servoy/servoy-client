@@ -170,8 +170,6 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 		List<FormElement> formElements = getFormElements();
 		for (FormElement fe : formElements)
 		{
-			// TODO do something similar for child elements (so properties of type 'components' which contain componentSpecs in them)
-
 			WebObjectSpecification componentSpec = fe.getWebComponentSpec(false);
 			if (componentSpec == null)
 			{
