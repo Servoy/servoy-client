@@ -29,12 +29,9 @@ import org.sablo.specification.property.ICustomType;
 import org.sablo.specification.property.IPropertyType;
 
 import com.servoy.j2db.IApplication;
-import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.Form;
-import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IRepository;
-import com.servoy.j2db.persistence.Portal;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.server.ngclient.property.DataproviderConfig;
 import com.servoy.j2db.server.ngclient.property.FoundsetLinkedConfig;
@@ -65,37 +62,8 @@ public class ComponentFactory
 		int elementSecurity = 0;
 		if (persist != null)
 		{
-			boolean getItDirectlyBasedOnPersistAndForm = true;
-			if (fe.isFormComponentChild())
-			{
-				Form frm = persist.getAncestor(Form.class);
-				String elementName = ((AbstractBase)persist).getRuntimeProperty(FormElementHelper.FC_CHILD_ELEMENT_NAME_INSIDE_DIRECT_PARENT_FORM_COMPONENT);
-				if (frm != null && elementName != null)
-				{
-					for (IPersist p : frm.getFlattenedFormElementsAndLayoutContainers())
-					{
-						if (p instanceof IFormElement && Utils.equalObjects(((IFormElement)p).getName(), elementName))
-						{
-							elementSecurity = application.getFlattenedSolution().getSecurityAccess(p.getUUID(),
-								form.getImplicitSecurityNoRights() ? IRepository.IMPLICIT_FORM_NO_ACCESS : IRepository.IMPLICIT_FORM_ACCESS);
-							getItDirectlyBasedOnPersistAndForm = false;
-							break;
-						}
-					}
-				}
-			}
-			else if (persist.getParent() instanceof Portal)
-			{
-				elementSecurity = application.getFlattenedSolution().getSecurityAccess(((Portal)persist.getParent()).getUUID(),
-					form.getImplicitSecurityNoRights() ? IRepository.IMPLICIT_FORM_NO_ACCESS : IRepository.IMPLICIT_FORM_ACCESS);
-				getItDirectlyBasedOnPersistAndForm = false;
-			}
-
-			if (getItDirectlyBasedOnPersistAndForm)
-			{
-				elementSecurity = application.getFlattenedSolution().getSecurityAccess(persist.getUUID(),
-					form.getImplicitSecurityNoRights() ? IRepository.IMPLICIT_FORM_NO_ACCESS : IRepository.IMPLICIT_FORM_ACCESS);
-			}
+			elementSecurity = application.getFlattenedSolution().getFormSecurityAccess(persist,
+				form.getImplicitSecurityNoRights() ? IRepository.IMPLICIT_FORM_NO_ACCESS : IRepository.IMPLICIT_FORM_ACCESS);
 
 			if (!((elementSecurity & IRepository.VIEWABLE) != 0))
 			{
@@ -132,7 +100,7 @@ public class ComponentFactory
 			}
 			else
 			{
-				int formSecurity = application.getFlattenedSolution().getSecurityAccess(form.getUUID(),
+				int formSecurity = application.getFlattenedSolution().getFormSecurityAccess(form,
 					form.getImplicitSecurityNoRights() ? IRepository.IMPLICIT_FORM_NO_ACCESS : IRepository.IMPLICIT_FORM_ACCESS);
 				if (!((formSecurity & IRepository.ACCESSIBLE) != 0)) // form not accessible
 				{

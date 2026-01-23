@@ -23,7 +23,6 @@ import org.sablo.websocket.utils.JSONUtils.IToJSONConverter;
 
 import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.Form;
-import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.RepositoryHelper;
@@ -51,7 +50,7 @@ import com.servoy.j2db.util.Utils;
 public class WebFormComponent extends Container implements IContextProvider, INGWebObjectContext
 {
 	public static final String TAG_SCOPE = "scope";
-	private static final String MARKUP_PROPERTY_ID = "svyMarkupId";
+	public static final String MARKUP_PROPERTY_ID = "svyMarkupId";
 
 	private final Map<IWebFormUI, Integer> visibleForms = new HashMap<IWebFormUI, Integer>();
 	private FormElement formElement;
@@ -344,7 +343,8 @@ public class WebFormComponent extends Container implements IContextProvider, ING
 			IPersist persist = formElement.getPersistIfAvailable();
 			if (persist instanceof AbstractBase)
 			{
-				String formName = ((AbstractBase)persist).getRuntimeProperty(FormElementHelper.FC_NAME_OF_ROOT_ACTUAL_FORM_EVEN_IN_CASE_OF_NESTED_FORM_COMPONENTS);
+				String formName = ((AbstractBase)persist)
+					.getRuntimeProperty(FormElementHelper.FC_NAME_OF_ROOT_ACTUAL_FORM_EVEN_IN_CASE_OF_NESTED_FORM_COMPONENTS);
 				if (formName != null)
 				{
 					formElementForm = dataAdapterList.getApplication().getFormManager().getForm(formName).getForm();
@@ -366,25 +366,9 @@ public class WebFormComponent extends Container implements IContextProvider, ING
 	private void checkMethodExecutionSecurityAccess(WebObjectFunctionDefinition functionDef, Form formElementForm)
 	{
 		IPersist persist = formElement.getPersistIfAvailable();
-		if (formElement.isFormComponentChild())
-		{
-			Form frm = persist.getAncestor(Form.class);
-			String elementName = ((AbstractBase)persist).getRuntimeProperty(FormElementHelper.FC_CHILD_ELEMENT_NAME_INSIDE_DIRECT_PARENT_FORM_COMPONENT);
-			if (frm != null && elementName != null)
-			{
-				for (IPersist p : frm.getFlattenedFormElementsAndLayoutContainers())
-				{
-					if (p instanceof IFormElement && Utils.equalObjects(((IFormElement)p).getName(), elementName))
-					{
-						persist = p;
-						break;
-					}
-				}
-			}
-		}
 		if (persist != null)
 		{
-			int access = dataAdapterList.getApplication().getFlattenedSolution().getSecurityAccess(persist.getUUID(),
+			int access = dataAdapterList.getApplication().getFlattenedSolution().getFormSecurityAccess(persist,
 				formElementForm.getImplicitSecurityNoRights() ? IRepository.IMPLICIT_FORM_NO_ACCESS : IRepository.IMPLICIT_FORM_ACCESS);
 			if (!((access & IRepository.ACCESSIBLE) != 0))
 			{

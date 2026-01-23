@@ -91,12 +91,41 @@ public interface IUserManager extends ISolutionSecurityManager, Remote
 
 	public boolean changeUserName(String clientId, String userUID, String newUserName) throws ServoyException, RemoteException;
 
+	/**
+	 * Use the new version that receives the elementUID as a string. So {@link #setFormSecurityAccess(String, String, Integer, String, String)}
+	 * @deprecated
+	 */
+	@Deprecated
 	public void setFormSecurityAccess(String clientId, String groupName, Integer accessMask, UUID elementUUID, String solutionName) throws ServoyException,
 		RemoteException;
 
+	/**
+	 * Use the new version that receives the elementUID as a string. So {@link #setFormSecurityAccess(String, String, Integer, UUID, String, String)}
+	 * @deprecated
+	 */
+	@Deprecated
 	public void setFormSecurityAccess(String clientId, String groupName, Integer accessMask, UUID formUUID, UUID elementUUID, String solutionName)
 		throws ServoyException,
 		RemoteException;
+
+	/**
+	 * @param elementUIDToString it is normally a PersistIdentifier.toJSONString() of an element; it can be a simple UUID as well,
+	 * just like it was used before SVY-20327, but as a String. By coincidence for most elements (so for the ones that are not nested inside form components)
+	 * the JSON representation of their PersistIdentifier is equal to their UUID.toString().
+	 */
+	public void setFormSecurityAccess(String clientId, String groupName, Integer accessMask, String elementUID, String solutionName)
+		throws ServoyException,
+		RemoteException;
+
+	/**
+	 * @param elementUIDToString it is normally a PersistIdentifier.toJSONString() of an element; it can be a simple UUID as well,
+	 * just like it was used before SVY-20327, but as a String. By coincidence for most elements (so for the ones that are not nested inside form components)
+	 * the JSON representation of their PersistIdentifier is equal to their UUID.toString().
+	 */
+	public void setFormSecurityAccess(String clientId, String groupName, Integer accessMask, UUID formUUID, String elementUID, String solutionName)
+		throws ServoyException,
+		RemoteException;
+
 
 	public void setTableSecurityAccess(String clientId, String groupName, Integer accessMask, String connectionName, String tableName, String columnName)
 		throws ServoyException, RemoteException;

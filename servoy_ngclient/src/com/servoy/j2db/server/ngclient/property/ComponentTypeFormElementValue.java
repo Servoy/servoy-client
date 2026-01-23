@@ -20,9 +20,12 @@ package com.servoy.j2db.server.ngclient.property;
 import java.util.List;
 
 import com.servoy.j2db.FlattenedSolution;
+import com.servoy.j2db.persistence.AbstractBase;
+import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.server.ngclient.FormElement;
+import com.servoy.j2db.server.ngclient.FormElementHelper;
 
 /**
  * Value used in FormElement for component types.
@@ -57,10 +60,17 @@ public class ComponentTypeFormElementValue
 	public boolean isSecurityViewable(FlattenedSolution solution)
 	{
 		IPersist persist = element.getPersistIfAvailable();
-		if (persist != null && solution != null)
+		if (persist instanceof AbstractBase p && solution != null)
 		{
-			int access = solution.getSecurityAccess(persist.getUUID(),
-				element.getForm().getImplicitSecurityNoRights() ? IRepository.IMPLICIT_FORM_NO_ACCESS : IRepository.IMPLICIT_FORM_ACCESS);
+			// if this is a component that is inside a form component container, then element.getForm() would
+			// give the form component not the form in which this form component child is used; and we need in that case
+			// to use the implicit security of the actual runtime form where this child component is used
+
+			String fccActualFormIfApplicable = p.getRuntimeProperty(FormElementHelper.FC_NAME_OF_ROOT_ACTUAL_FORM_EVEN_IN_CASE_OF_NESTED_FORM_COMPONENTS);
+			Form realFormToUse = (fccActualFormIfApplicable != null ? solution.getForm(fccActualFormIfApplicable) : element.getForm());
+
+			int access = solution.getFormSecurityAccess(persist,
+				realFormToUse.getImplicitSecurityNoRights() ? IRepository.IMPLICIT_FORM_NO_ACCESS : IRepository.IMPLICIT_FORM_ACCESS);
 			if (!((access & IRepository.VIEWABLE) != 0)) return false;
 		}
 

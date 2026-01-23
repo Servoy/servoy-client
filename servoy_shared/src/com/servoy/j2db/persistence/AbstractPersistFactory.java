@@ -354,9 +354,12 @@ public abstract class AbstractPersistFactory implements IPersistFactory
 	}
 
 
-	public static Map<Object, Object> resetUUIDSRecursively(IPersist persist, final IPersistFactory persistFactory, final boolean flagChanged)
+	/**
+	 * @return a map of old UUID.toString() to new UUID.toString()
+	 */
+	public static Map<String, String> resetUUIDSRecursively(IPersist persist, final IPersistFactory persistFactory, final boolean flagChanged)
 	{
-		final Map<Object, Object> updatedElementIds = new HashMap<>();
+		final Map<String, String> updatedElementIds = new HashMap<>();
 		persist.acceptVisitor(new IPersistVisitor()
 		{
 			public Object visit(IPersist o)

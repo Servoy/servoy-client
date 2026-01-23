@@ -15,7 +15,7 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
 */
 
-package com.servoy.j2db.server.ngclient.template;
+package com.servoy.j2db.util;
 
 import java.util.Arrays;
 import java.util.Objects;
@@ -25,9 +25,14 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.sablo.websocket.utils.JSONUtils;
 
-import com.servoy.j2db.util.UUID;
+import com.servoy.j2db.persistence.AbstractBase;
+import com.servoy.j2db.persistence.IChildWebObject;
+import com.servoy.j2db.persistence.IPersist;
+import com.servoy.j2db.persistence.RuntimeProperty;
 
 /**
+ * This class is need as a way
+ *
  * @author acostescu
  */
 public record PersistIdentifier(
@@ -35,9 +40,13 @@ public record PersistIdentifier(
 	String customTypeOrComponentTypePropertyUUIDInsidePersist // in case it wants to identify a "ghost" (form editor) persist that might be inside form components
 )
 {
+	public static final RuntimeProperty<String[]> FC_COMPONENT_AND_PROPERTY_NAME_PATH = new RuntimeProperty<>()
+	{
+	};
 
 	private static final String GHOST_IDENTIFIER_INSIDE_COMPONENT = "g"; //$NON-NLS-1$
 	private static final String COMPONENT_LOCATOR_KEY = "p"; //$NON-NLS-1$
+
 
 	public static PersistIdentifier fromSimpleUUID(UUID uuid)
 	{
@@ -128,6 +137,36 @@ public record PersistIdentifier(
 		}
 	}
 
+	/**
+	 * USE {@link PersistFinder#fromPersist(IPersist)} instead of this if the given persist comes from the development environment - so if it can be a {@link WebFormComponentChildType}.<br/><br/>
+	 *
+	 * Creates a PersistIdentifier from the given persist.
+	 *
+	 * If the persist is not inside a form component and it's not a custom type, it will just use the UUID.<br/>
+	 * If it is inside a form component then it will use the correct identification path.<br/>
+	 * If it is a custom type (like a column of a table) then it will also give the correct PersistIdemtifier for it (UUID or path + UUID of custom type)...
+	 */
+	public static PersistIdentifier fromPersist(IPersist persist)
+	{
+		IPersist persistToGetThePathFrom = persist;
+		String customTypeOrComponentTypePropertyUUIDInsidePersist = null;
+		if (persist instanceof IChildWebObject persistBasedJSONProp)
+		{
+			// so either a custom type (like columns of a datagrid) or a child web component (property of type 'component' like list form component uses)
+			// so we need to get as PersistIdentifier the path array (simple UUID if not in FC) + the UUID of the IChildWebObject
+			persistToGetThePathFrom = persistBasedJSONProp.getParent();
+			customTypeOrComponentTypePropertyUUIDInsidePersist = persistBasedJSONProp.getUUID().toString();
+		}
+
+		String[] fcUUIDAndNamePath = ((AbstractBase)persistToGetThePathFrom).getRuntimeProperty(FC_COMPONENT_AND_PROPERTY_NAME_PATH);
+		if (fcUUIDAndNamePath == null)
+		{
+			fcUUIDAndNamePath = new String[] { persistToGetThePathFrom.getUUID().toString() };
+		}
+
+		return new PersistIdentifier(fcUUIDAndNamePath, customTypeOrComponentTypePropertyUUIDInsidePersist);
+	}
+
 	@Override
 	public int hashCode()
 	{
@@ -158,6 +197,23 @@ public record PersistIdentifier(
 	{
 		return "persistUUIDAndFCPropAndComponentPath = " + Arrays.toString(persistUUIDAndFCPropAndComponentPath) + //$NON-NLS-1$
 			"\ncustomTypeOrComponentTypePropertyUUIDInsidePersist = " + customTypeOrComponentTypePropertyUUIDInsidePersist; //$NON-NLS-1$
+	}
+
+	/**
+	 * If this identifies a component inside one or more form component components,
+	 * give the identifier for it's direct FCC parent.<br/><br/>
+	 *
+	 * @return the requested parent form component component identifier.
+	 */
+	public PersistIdentifier parentFCCIdentifier()
+	{
+		// NOTE: do take into account the fact that persistUUIDAndFCPropAndComponentPath array does contain the FC property names as well,
+		// so a component is once every 2 entries in the array; so 1, 3, 5 ...
+		if (persistUUIDAndFCPropAndComponentPath().length < 3)
+			throw new IllegalStateException(
+				"This persist identifier does not have an FCC parent; lenght of persistUUIDAndFCPropAndComponentPath needs to be at least 3, but it is " + //$NON-NLS-1$
+					persistUUIDAndFCPropAndComponentPath().length + ". Identifier: " + this); //$NON-NLS-1$
+		return new PersistIdentifier(Arrays.copyOf(persistUUIDAndFCPropAndComponentPath, persistUUIDAndFCPropAndComponentPath.length - 2), null);
 	}
 
 }

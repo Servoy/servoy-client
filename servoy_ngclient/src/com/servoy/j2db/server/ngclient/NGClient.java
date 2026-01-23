@@ -77,7 +77,10 @@ import com.servoy.j2db.dataprocessing.IClient;
 import com.servoy.j2db.dataprocessing.IDataServer;
 import com.servoy.j2db.dataprocessing.IFoundSetManagerInternal;
 import com.servoy.j2db.dataprocessing.SwingFoundSetFactory;
+import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.Form;
+import com.servoy.j2db.persistence.IFormElement;
+import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.persistence.Solution;
@@ -100,6 +103,8 @@ import com.servoy.j2db.server.ngclient.property.BrowserFunction;
 import com.servoy.j2db.server.ngclient.property.types.MediaPropertyType;
 import com.servoy.j2db.server.ngclient.scripting.WebServiceFunction;
 import com.servoy.j2db.server.ngclient.scripting.WebServiceScriptable;
+import com.servoy.j2db.server.ngclient.template.FormTemplateGenerator;
+import com.servoy.j2db.server.ngclient.utils.FormComponentUtils;
 import com.servoy.j2db.server.ngclient.utils.NGUtils;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.server.shared.IApplicationServer;
@@ -2087,6 +2092,26 @@ public class NGClient extends AbstractApplication
 		if (argumentsScope != null && argumentsScope.containsKey("svy_testmode"))
 		{
 			putClientProperty(Settings.TESTING_MODE, Boolean.valueOf(Utils.getAsBoolean(argumentsScope.get("svy_testmode"))));
+		}
+	}
+
+	@Override
+	public void addFormComponentComponentChildrenWithNames(IPersist elem, java.util.function.Function<IFormElement, Boolean> addFCCChildConsumer)
+	{
+		if (FormTemplateGenerator.isWebcomponentBean(elem))
+		{
+			FormComponentUtils.addFormComponentComponentChildren((IFormElement)elem,
+				getFlattenedSolution(), true,
+				(FormComponentUtils.FCCCHandlerArgs<Void> args) -> {
+					String ownName = ((AbstractBase)args.childFe())
+						.getRuntimeProperty(FormElementHelper.FC_CHILD_ELEMENT_NAME_INSIDE_DIRECT_PARENT_FORM_COMPONENT);
+					Boolean goOnSearching = Boolean.TRUE;
+					if (ownName != null && ownName.length() != 0)
+					{
+						goOnSearching = addFCCChildConsumer.apply(args.childFe());
+					}
+					return goOnSearching == null ? null : new Pair<>(null, goOnSearching);
+				}, null, false);
 		}
 	}
 

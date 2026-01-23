@@ -208,7 +208,7 @@ public class PartWrapper
 	public static boolean isSecurityVisible(IPersist persist, FlattenedSolution fs, Form form)
 	{
 		if (fs == null) return true;
-		int access = fs.getSecurityAccess(persist.getUUID(),
+		int access = fs.getFormSecurityAccess(persist,
 			form.getImplicitSecurityNoRights() ? IRepository.IMPLICIT_FORM_NO_ACCESS : IRepository.IMPLICIT_FORM_ACCESS);
 		boolean b_visible = ((access & IRepository.VIEWABLE) != 0);
 		return b_visible;

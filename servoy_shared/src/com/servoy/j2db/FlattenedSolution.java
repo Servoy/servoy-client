@@ -40,11 +40,14 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.function.BiConsumer;
 
 import org.json.JSONObject;
 
 import com.servoy.base.persistence.constants.IValueListConstants;
 import com.servoy.base.query.IBaseSQLCondition;
+import com.servoy.j2db.ISolutionSecurityManager.SecurityAccessInfo;
+import com.servoy.j2db.ISolutionSecurityManager.TableAndFormSecurityAccessInfo;
 import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.dataprocessing.DBValueList;
 import com.servoy.j2db.dataprocessing.IFoundSetManagerInternal;
@@ -119,6 +122,7 @@ import com.servoy.j2db.scripting.info.EventType;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IteratorChain;
 import com.servoy.j2db.util.Pair;
+import com.servoy.j2db.util.PersistIdentifier;
 import com.servoy.j2db.util.ScopesUtils;
 import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
@@ -143,8 +147,8 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 
 	private volatile Solution copySolution = null;
 
-	private volatile Set<Object> overridenSecurityIds;
-	private volatile Pair<ConcurrentMap<Object, Integer>, Set<Object>> securityAccess;
+	private volatile Set<String> overridenSecurityIds; // can be form/form element identifiers (PersistIdentifier.toJSONString()) or table column identifiers
+	private volatile TableAndFormSecurityAccessInfo securityAccess; // this one uses ConcurrentHashMap in it
 
 	private volatile ConcurrentMap<ITable, Map<String, IDataProvider>> allProvidersForTable = null; //table -> Map(dpname,dp) ,runtime var
 	private final ConcurrentMap<String, IDataProvider> globalProviders = new ConcurrentHashMap<String, IDataProvider>(64, 9f, 16); //global -> dp ,runtime var
@@ -183,12 +187,6 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		this(true);
 	}
 
-	/**
-	 * @param solution
-	 * @param activeSolutionHandler
-	 * @throws RemoteException
-	 * @throws RepositoryException
-	 */
 	public FlattenedSolution(SolutionMetaData solutionMetaData, IActiveSolutionHandler activeSolutionHandler) throws RepositoryException, RemoteException
 	{
 		this(true);
@@ -229,11 +227,14 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		return copy;
 	}
 
+	/**
+	 * Used by solution model cloneComponent or cloneForm.
+	 */
 	@SuppressWarnings({ "unchecked", "nls" })
 	public <T extends AbstractBase> T clonePersist(T persist, String newName, AbstractBase newParent)
 	{
 		T clone = (T)persist.clonePersist(persist.getParent() == newParent ? null : newParent);
-		final Map<Object, Object> updatedElementIds = AbstractPersistFactory.resetUUIDSRecursively(clone, getPersistFactory(), false);
+		final Map<String, String> updatedElementUUIDs = AbstractPersistFactory.resetUUIDSRecursively(clone, getPersistFactory(), false);
 		if (persist.getParent() == newParent)
 		{
 			newParent.addChild(clone);
@@ -258,6 +259,9 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		}
 		if (clone instanceof ISupportChilds)
 		{
+			// update UUID references in all children (for example if one
+			// clones a form, the references between entities in that form need
+			// to be updated to the new ones
 			clone.acceptVisitor(new IPersistVisitor()
 			{
 				public Object visit(IPersist o)
@@ -267,17 +271,16 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 						Map<String, Object> propertiesMap = ((AbstractBase)o).getPropertiesMap();
 						for (Map.Entry<String, Object> entry : propertiesMap.entrySet())
 						{
-							Object elementUUID = updatedElementIds.get(entry.getValue());
-							if (elementUUID instanceof String)
+							String elementUUID = updatedElementUUIDs.get(entry.getValue());
+							if (elementUUID != null)
 							{
 								Element element = StaticContentSpecLoader.getContentSpec().getPropertyForObjectTypeByName(o.getTypeID(), entry.getKey());
 								if (element.getTypeID() == IRepository.ELEMENTS) ((AbstractBase)o).setProperty(entry.getKey(), elementUUID);
 							}
-							else if (entry.getValue() instanceof JSONObject)
+							else if (entry.getValue() instanceof JSONObject) // for event handlers SVY-9923 for example
 							{
-								updateElementReferences((JSONObject)entry.getValue(), updatedElementIds);
+								updateElementReferences((JSONObject)entry.getValue(), updatedElementUUIDs);
 							}
-
 						}
 					}
 					return null;
@@ -286,38 +289,58 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		}
 		if (securityAccess != null)
 		{
-			ConcurrentMap<Object, Integer> securityValues = securityAccess.getLeft();
-			for (Object elementUUID : new HashSet(securityValues.keySet()))
-			{
-				if (updatedElementIds.containsKey(elementUUID.toString()))
-				{
-					UUID uuid = Utils.getAsUUID(updatedElementIds.get(elementUUID.toString()), false);
-					if (uuid != null)
-					{
-						securityValues.put(uuid, securityValues.get(elementUUID));
-					}
-				}
-			}
+			// clones should get the correct form/element security info
+
+			// explicit
+			Map<String, Integer> explicitFormSecurityValues = securityAccess.formSecurityAccessInfo().explicitIdentifierToAccessMap();
+			cloneSecurityAccess(updatedElementUUIDs, explicitFormSecurityValues.keySet(), (clonedFormOrComponentUid, originalFormOrComponentUid) -> {
+				explicitFormSecurityValues.put(clonedFormOrComponentUid, explicitFormSecurityValues.get(originalFormOrComponentUid));
+			});
+
+			// and implicit
+			Set<String> implicitFormSecurityValues = securityAccess.formSecurityAccessInfo().implicitAccessIdentifiers();
+			cloneSecurityAccess(updatedElementUUIDs, implicitFormSecurityValues, (clonedFormOrComponentUid, originalFormOrComponentUid) -> {
+				implicitFormSecurityValues.add(clonedFormOrComponentUid);
+			});
 		}
 		flush(persist);
 		getIndex().reload();
 		return clone;
 	}
 
-	private void updateElementReferences(JSONObject json, Map<Object, Object> updatedElementIds)
+	private void cloneSecurityAccess(final Map<String, String> updatedElementUUIDs,
+		Set<String> securityElementOrFormUids, BiConsumer<String, String> copySecFromSecondToFirst)
+	{
+		for (String componentOrFormUID : new HashSet<String>(securityElementOrFormUids))
+		{
+			PersistIdentifier elementOrFormIdentifier = PersistIdentifier.fromJSONString(componentOrFormUID); // old one
+			String elementOrFormOrFCCRootElementUUID = elementOrFormIdentifier.persistUUIDAndFCPropAndComponentPath()[0]; // old one
+			if (updatedElementUUIDs.containsKey(elementOrFormOrFCCRootElementUUID))
+			{
+				UUID uuid = Utils.getAsUUID(updatedElementUUIDs.get(elementOrFormOrFCCRootElementUUID), false);
+				if (uuid != null)
+				{
+					elementOrFormIdentifier.persistUUIDAndFCPropAndComponentPath()[0] = uuid.toString(); // update to new one
+					copySecFromSecondToFirst.accept(elementOrFormIdentifier.toJSONString(), componentOrFormUID);
+				}
+			}
+		}
+	}
+
+	private void updateElementReferences(JSONObject json, Map<String, String> updatedElementUUIDs)
 	{
 		Iterator<String> it = json.keys();
 		while (it.hasNext())
 		{
 			String key = it.next();
-			Object elementId = updatedElementIds.get(json.get(key));
-			if (elementId != null)
+			Object elementUUID = updatedElementUUIDs.get(json.get(key));
+			if (elementUUID != null)
 			{
-				json.put(key, elementId);
+				json.put(key, elementUUID);
 			}
 			else if (json.get(key) instanceof JSONObject)
 			{
-				updateElementReferences((JSONObject)json.get(key), updatedElementIds);
+				updateElementReferences((JSONObject)json.get(key), updatedElementUUIDs);
 			}
 		}
 	}
@@ -379,9 +402,6 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		return index != null ? index : loginFlattenedSolution != null ? loginFlattenedSolution.getIndex() : new EmptyPersistIndex();
 	}
 
-	/**
-	 *
-	 */
 	protected void flushExtendsStuff()
 	{
 		// implemented by the real client FS and the DeveloperFS
@@ -537,10 +557,6 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		return persistFactory;
 	}
 
-
-	/**
-	 * @return
-	 */
 	public VariantsHandler getVariantsHandler()
 	{
 		if (variantsHandler == null)
@@ -559,7 +575,6 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		return encryptionHandler;
 	}
 
-
 	public Style createStyleCopy(Style style)
 	{
 		if (mainSolution == null && loginFlattenedSolution == null) return null;
@@ -574,7 +589,6 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		}
 		return copy;
 	}
-
 
 	public Style createStyle(String name, String content)
 	{
@@ -601,10 +615,6 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		return style;
 	}
 
-	/**
-	 * @param style
-	 * @return
-	 */
 	public boolean isUserStyle(Style style)
 	{
 		if (mainSolution == null && loginFlattenedSolution != null)
@@ -621,9 +631,6 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		return getSolution().getLastModifiedTime();
 	}
 
-	/**
-	 * @return
-	 */
 	public Solution getSolution()
 	{
 		if (mainSolution == null && loginFlattenedSolution != null)
@@ -771,17 +778,11 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		buildEventTypesList();
 	}
 
-	/**
-	 * @return
-	 */
 	protected ISolutionModelPersistIndex createPersistIndex()
 	{
 		return new SolutionModelPersistIndex(PersistIndexCache.getPersistIndex(getSolution(), getModules()));
 	}
 
-	/**
-	 *
-	 */
 	private Map<String, Style> getAllStyles()
 	{
 		if (all_styles == null & mainSolution != null)
@@ -1032,9 +1033,6 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 
 	/**
 	 * Check whether a form can be instantiated.
-	 *
-	 * @param form
-	 * @return
 	 */
 	public boolean formCanBeInstantiated(Form form)
 	{
@@ -1124,10 +1122,6 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		return;
 	}
 
-	/**
-	 * @param copyInto
-	 * @param s
-	 */
 	private void fillList(List<IPersist> copyInto, Solution s)
 	{
 		List<IPersist> allObjectsAsList = s.getAllObjectsAsList();
@@ -1148,7 +1142,6 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 			}
 		}
 	}
-
 
 	public Collection<String> getScopeNames()
 	{
@@ -1236,45 +1229,76 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		return scopes;
 	}
 
-	public void addSecurityAccess(Pair<Map<Object, Integer>, Set<Object>> sp)
+	public void addSecurityAccess(TableAndFormSecurityAccessInfo securityAccessToAdd)
 	{
-		addSecurityAccess(sp, true);
+		addSecurityAccess(securityAccessToAdd, true);
 	}
 
-	public void overrideSecurityAccess(Map<Object, Integer> sp)
+	public void overrideSecurityAccess(Map<String, Integer> explicitTableSecurityAccessToOverride,
+		Map<String, Integer> explicitFormAndElementSecurityAccessToOverride)
 	{
 		if (overridenSecurityIds == null)
 		{
 			overridenSecurityIds = new HashSet<>();
 		}
-		overridenSecurityIds.addAll(sp.keySet());
-		addSecurityAccess(new Pair<Map<Object, Integer>, Set<Object>>(sp, securityAccess != null ? securityAccess.getRight() : new HashSet<>()), false);
+		overridenSecurityIds.addAll(explicitTableSecurityAccessToOverride.keySet());
+		overridenSecurityIds.addAll(explicitFormAndElementSecurityAccessToOverride.keySet());
+
+		addSecurityAccess(new TableAndFormSecurityAccessInfo(
+			new SecurityAccessInfo(explicitTableSecurityAccessToOverride,
+				securityAccess != null ? securityAccess.tableSecurityAccessInfo().implicitAccessIdentifiers() : new HashSet<>()),
+			new SecurityAccessInfo(explicitFormAndElementSecurityAccessToOverride,
+				securityAccess != null ? securityAccess.formSecurityAccessInfo().implicitAccessIdentifiers() : new HashSet<>())),
+			false);
 	}
 
-	public void addSecurityAccess(Pair<Map<Object, Integer>, Set<Object>> sp, boolean combineIfExisting)
+	public void addSecurityAccess(TableAndFormSecurityAccessInfo accessToAdd, boolean combineIfExisting)
 	{
-		if (sp == null || sp.getLeft() == null) return;
+		if (accessToAdd == null || (accessToAdd.formSecurityAccessInfo().explicitIdentifierToAccessMap() == null &&
+			accessToAdd.tableSecurityAccessInfo().explicitIdentifierToAccessMap() == null)) return;
+
 		// always make sure that the overridenSecurityIds are never any more in implicit mode
-		if (overridenSecurityIds != null) sp.getRight().removeAll(overridenSecurityIds);
+		if (overridenSecurityIds != null)
+		{
+			accessToAdd.formSecurityAccessInfo().implicitAccessIdentifiers().removeAll(overridenSecurityIds);
+			accessToAdd.tableSecurityAccessInfo().implicitAccessIdentifiers().removeAll(overridenSecurityIds);
+		}
+
 		if (securityAccess == null)
 		{
-			securityAccess = new Pair<ConcurrentMap<Object, Integer>, Set<Object>>(new ConcurrentHashMap<Object, Integer>(sp.getLeft()), sp.getRight());
+			securityAccess = new TableAndFormSecurityAccessInfo(
+				new SecurityAccessInfo(new ConcurrentHashMap<>(accessToAdd.tableSecurityAccessInfo().explicitIdentifierToAccessMap()),
+					accessToAdd.tableSecurityAccessInfo().implicitAccessIdentifiers()),
+				new SecurityAccessInfo(new ConcurrentHashMap<>(accessToAdd.formSecurityAccessInfo().explicitIdentifierToAccessMap()),
+					accessToAdd.formSecurityAccessInfo().implicitAccessIdentifiers()));
 		}
 		else
 		{
 			// first add the implicit list to the current list, this has only effect of combineIfExisting is true (false would mean overriden and then it is already adjusted)
-			securityAccess.getRight().addAll(sp.getRight());
-			for (Entry<Object, Integer> entry : sp.getLeft().entrySet())
+			securityAccess.tableSecurityAccessInfo().implicitAccessIdentifiers().addAll(accessToAdd.tableSecurityAccessInfo().implicitAccessIdentifiers());
+			securityAccess.formSecurityAccessInfo().implicitAccessIdentifiers().addAll(accessToAdd.formSecurityAccessInfo().implicitAccessIdentifiers());
+
+			// now the explicit
+			addExplicitAccessRights(combineIfExisting, accessToAdd.tableSecurityAccessInfo().explicitIdentifierToAccessMap(),
+				securityAccess.tableSecurityAccessInfo().explicitIdentifierToAccessMap());
+			addExplicitAccessRights(combineIfExisting, accessToAdd.formSecurityAccessInfo().explicitIdentifierToAccessMap(),
+				securityAccess.formSecurityAccessInfo().explicitIdentifierToAccessMap());
+		}
+	}
+
+	private void addExplicitAccessRights(boolean combineIfExisting, Map<String, Integer> explicitAccessRightsToAdd,
+		Map<String, Integer> currentExplicitAccessRights)
+	{
+		for (Entry<String, Integer> entry : explicitAccessRightsToAdd.entrySet())
+		{
+			String uid = entry.getKey();
+			int newValue = entry.getValue().intValue();
+			Integer currentValue = currentExplicitAccessRights.get(uid);
+			if (currentValue != null && combineIfExisting)
 			{
-				Object elementUID = entry.getKey();
-				int newValue = entry.getValue().intValue();
-				Integer currentValue = securityAccess.getLeft().get(elementUID);
-				if (currentValue != null && combineIfExisting)
-				{
-					newValue |= currentValue.intValue();
-				}
-				securityAccess.getLeft().put(elementUID, new Integer(newValue));
+				newValue |= currentValue.intValue();
 			}
+			currentExplicitAccessRights.put(uid, Integer.valueOf(newValue));
 		}
 	}
 
@@ -1282,20 +1306,64 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 	{
 		if (securityAccess != null)
 		{
-			securityAccess.getLeft().clear();
+			securityAccess.tableSecurityAccessInfo().explicitIdentifierToAccessMap().clear();
+			securityAccess.formSecurityAccessInfo().explicitIdentifierToAccessMap().clear();
 			securityAccess = null;
 			overridenSecurityIds = null;
 		}
 	}
 
-	public int getSecurityAccess(Object element_id, int implicitValue)
+	public int getTableSecurityAccess(String uid, int implicitValue)
+	{
+		if (securityAccess == null) return -1;
+		return getSecurityAccess(uid, implicitValue, securityAccess.tableSecurityAccessInfo(), IRepository.IMPLICIT_TABLE_ACCESS);
+	}
+
+	public int getFormSecurityAccess(IPersist formOrFormElement, int implicitValue)
 	{
 		if (securityAccess == null) return -1;
 
-		Integer i = securityAccess.getLeft().get(element_id);
-		if (i == null)
+		PersistIdentifier persistIdentifier = PersistIdentifier.fromPersist(formOrFormElement);
+
+		if (persistIdentifier.persistUUIDAndFCPropAndComponentPath().length > 1)
 		{
-			//return -1;
+			// it's a component that is nested inside one or more form component components;
+			// access rights can be configured for both the component itself or any of it's 'parent' form component components
+
+			// a logical AND (taking into account implicit) between the child persist access rights
+			// and all parent form component components (of this persist) access rights
+			int elementSecurity = getSecurityAccess(persistIdentifier.toJSONString(), implicitValue, securityAccess.formSecurityAccessInfo(),
+				IRepository.IMPLICIT_FORM_ACCESS);
+
+			// if it's already 0 (no rights) no use doing &= anymore as it will still remain 0
+			while (elementSecurity != 0 && persistIdentifier.persistUUIDAndFCPropAndComponentPath().length > 2) // needs to be at least 3 to be nested inside a form component component (0 is the FCC, 1 the name of the FC property)
+			{
+				persistIdentifier = persistIdentifier.parentFCCIdentifier();
+				elementSecurity &= getSecurityAccess(persistIdentifier.toJSONString(), implicitValue, securityAccess.formSecurityAccessInfo(),
+					IRepository.IMPLICIT_FORM_ACCESS);
+			}
+
+			return elementSecurity;
+		}
+		else if (formOrFormElement.getParent() instanceof Portal)
+		{
+			persistIdentifier = PersistIdentifier.fromPersist(formOrFormElement.getParent());
+		}
+
+		// if we reached this place, the access rights is given by one persist only
+		return getSecurityAccess(persistIdentifier.toJSONString(), implicitValue, securityAccess.formSecurityAccessInfo(),
+			IRepository.IMPLICIT_FORM_ACCESS);
+	}
+
+	/**
+	 * @param implicitValue this int is determined by the "no rights unless explicitly specified" check-box in form editor -> security or DB table editor -> security
+	 * @param defaultImplicitValue for example, if it's a form it will be the default form security value (VIEWABLE | ACCESSIBLE); for DB table columns it's currently READ | INSERT | UPDATE | DELETE (no TRACKING).
+	 */
+	private int getSecurityAccess(String uid, int implicitValue, SecurityAccessInfo currentAccessInfo, int defaultImplicitValue)
+	{
+		Integer explicitValue = currentAccessInfo.explicitIdentifierToAccessMap().get(uid);
+		if (explicitValue == null)
+		{
 			// we now return implicit value here
 			return implicitValue;
 		}
@@ -1303,14 +1371,27 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		{
 			// if the value is not the implicit value and an implicit value is asked for and it was registered that it should have
 			// an implicit value then return the implicit value
-			// so this is in implicit mode where the element was not configured in all the groups..
-			if (i.intValue() != implicitValue && (implicitValue == IRepository.IMPLICIT_FORM_ACCESS || implicitValue == IRepository.IMPLICIT_TABLE_ACCESS) &&
-				securityAccess.getRight().contains(element_id)) return implicitValue;
-			return i.intValue();
+
+			// so an element/form/column could be specified in one group/permission only, although multiple groups/permissions might be active
+			// (the user can belong to multiple groups/permissions); so the current value of "explicitValue" is a bitwise OR but only between
+			// active groups/permissions that DO have permissions explicitly set; we need to take into account active groups/permissions that do
+			// not have explicit value set as well
+
+			// see if this is in implicit mode where the element was not configured in all the groups/permissions explicitly..
+			// so basically: if the "no rights unless explicitly specified" check-box in form editor/column editor -> security is
+			//     - unchecked (so it has rights by default) and the element/form is missing from at least one active group/permission - it will have the default permissions
+			//     - checked (so it does not have rights by default) and the element/form is missing from at least one active group/permission, that does not affect the explicit value that was found
+			// TODO SVY-20840 what if for a DB table column, the TRACKING flag is set explicitly in a group/permission and the check-box is unchecked (so it has rights by default) and security is not
+			// explicitly set for all the active groups/permissions? then shouldn't it keep the TRACKING flag as well which is not in defaultImplicitValue?
+			if (explicitValue.intValue() != implicitValue && implicitValue == defaultImplicitValue &&
+				currentAccessInfo.implicitAccessIdentifiers().contains(uid))
+				return implicitValue;
+
+			return explicitValue.intValue();
 		}
 	}
 
-	//commit all user data
+	// commit all user data
 	public void close(IActiveSolutionHandler handler)
 	{
 		flushAllCachedData();
@@ -1501,10 +1582,6 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		return null;
 	}
 
-	/**
-	 * @return
-	 * @throws RepositoryException
-	 */
 	protected IDataProvider getEnumDataProvider(String id) throws RepositoryException
 	{
 		// Note: this method is overridden in developer to add the correct type to EnumDataProviders
@@ -1778,9 +1855,6 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 
 	/**
 	 * Get relations from string rel1.rel2. ... .reln
-	 *
-	 * @param name
-	 * @return
 	 */
 	public Relation[] getRelationSequence(String name)
 	{
@@ -1818,9 +1892,6 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 
 	/**
 	 * Search for a persist by UUID in the main solution and all modules.
-	 *
-	 * @param uuid
-	 * @return
 	 */
 	public IPersist searchPersist(String uuid)
 	{
@@ -1835,9 +1906,6 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 
 	/**
 	 * Search for a persist in the parent tree in the main solution and all modules.
-	 *
-	 * @param persist
-	 * @return
 	 */
 	public IPersist searchPersist(IPersist persist)
 	{
@@ -1916,10 +1984,6 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 	{
 		flush(persist);
 	}
-
-	/**
-	 * @param persist
-	 */
 
 	public void setParentSolution(FlattenedSolution parent)
 	{
@@ -2079,7 +2143,6 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 	/**
 	 * Load style for form, look for extend forms in flattenedSolution when possible
 	 * @param flattenedSolution may be null, fallback to f.getSolution() plus repo load
-	 * @param f
 	 */
 	public static Style loadStyleForForm(FlattenedSolution flattenedSolution, Form form)
 	{
@@ -2159,8 +2222,6 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 
 	/**
 	 * set bean design instance if not set yet.
-	 * @param b
-	 * @param arg
 	 * @return new value or old value if instance was already set
 	 */
 	public synchronized Object setBeanDesignInstance(Bean b, Object arg)
@@ -2409,7 +2470,6 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 	}
 
 	/**
-	 * @param form
 	 * @return form hierarchy list [ form, form.super, form.super.super, ... ]
 	 */
 	public List<Form> getFormHierarchy(Form form)
@@ -2592,12 +2652,6 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 
 	/**
 	 * Get the internal relation that can be used to sort on this value list using the display values.
-	 * @param valueList
-	 * @param callingTable
-	 * @param dataProviderID
-	 * @param foundSetManager
-	 * @return
-	 * @throws RepositoryException
 	 */
 	public Relation getValuelistSortRelation(ValueList valueList, Table callingTable, String dataProviderID, IFoundSetManagerInternal foundSetManager)
 		throws RepositoryException
@@ -2789,9 +2843,6 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		}
 	}
 
-	/**
-	 * @see java.lang.Object#toString()
-	 */
 	@SuppressWarnings("nls")
 	@Override
 	public String toString()
@@ -2814,10 +2865,6 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		return sb.toString();
 	}
 
-	/**
-	 * @param form
-	 * @param namedInstance
-	 */
 	public void deregisterLiveForm(Form form, String namedInstance)
 	{
 		synchronized (liveForms)
@@ -2857,9 +2904,6 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 
 	}
 
-	/**
-	 * @param form
-	 */
 	public void registerLiveForm(Form form, String namedInstance)
 	{
 		synchronized (liveForms)
@@ -2884,10 +2928,6 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		}
 	}
 
-	/**
-	 * @param form
-	 * @param application
-	 */
 	public void registerChangedForm(Form form)
 	{
 		synchronized (liveForms)
@@ -2913,9 +2953,6 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		}
 	}
 
-	/**
-	 *
-	 */
 	@SuppressWarnings("nls")
 	public void checkStateForms(IServiceProvider provider)
 	{
@@ -2997,8 +3034,6 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 
 	/**
 	 * Called by the Template generator to generate a record view html when the form is in design and in TABLEVIEW
-	 * @param f
-	 * @return
 	 */
 	public boolean isInDesign(Form f)
 	{
@@ -3007,9 +3042,6 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		return f.getName().equals(designFormName);
 	}
 
-	/**
-	 * @param form
-	 */
 	public void setInDesign(Form form)
 	{
 		if (form == null)

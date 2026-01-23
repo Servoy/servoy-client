@@ -500,7 +500,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 
 		try
 		{
-			int access = application.getFlattenedSolution().getSecurityAccess(f.getUUID(),
+			int access = application.getFlattenedSolution().getFormSecurityAccess(f,
 				f.getImplicitSecurityNoRights() ? IRepository.IMPLICIT_FORM_NO_ACCESS : IRepository.IMPLICIT_FORM_ACCESS);
 			if (access != -1)
 			{
@@ -566,7 +566,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 
 				// as this will send the updateController call to client (initial data) if needed, we do it after visibility runnables are done; so that we show the state after onShow instead of doing this earlier and then sending any UI changes that happen in onShow later to client
 				// see BIG COMMENT in NGFormServiceHandler.executeMethod('formvisibility'); - here we have a similar thing, but the main form is changed,
-				// not the tab of a tabpanel or some other visibility of a custom component;
+				// not the tab of a tab-panel or some other visibility of a custom component;
 				invokeLaterRunnables.add(new IRunnableWithEventLevel()
 				{
 					public void run()

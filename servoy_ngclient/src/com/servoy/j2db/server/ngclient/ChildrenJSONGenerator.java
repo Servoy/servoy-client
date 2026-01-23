@@ -70,7 +70,7 @@ import com.servoy.j2db.server.ngclient.property.types.PropertyPath;
 import com.servoy.j2db.server.ngclient.template.FormLayoutGenerator;
 import com.servoy.j2db.server.ngclient.template.FormLayoutStructureGenerator;
 import com.servoy.j2db.server.ngclient.template.FormTemplateGenerator;
-import com.servoy.j2db.server.ngclient.template.PersistIdentifier;
+import com.servoy.j2db.util.PersistIdentifier;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -148,8 +148,21 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 	public Object visit(IPersist o)
 	{
 		if (o == skip) return IPersistVisitor.CONTINUE_TRAVERSAL;
-		if (!isSecurityVisible(o))
+
+		FormElement fe = null;
+		IPersist persistToUseForSecurityCheck = null;
+		if (o instanceof IFormElement && cache != null)
+		{
+			// is this is for form component component child element? use the fcc cache value, so security & others can identify
+			// based on persist from the actual form, not from the form component form where it is defined
+			fe = cache.getFormElement((IFormElement)o, this.context.getSolution(), null, designer);
+			persistToUseForSecurityCheck = fe.getPersistIfAvailable();
+		}
+		if (persistToUseForSecurityCheck == null) persistToUseForSecurityCheck = o;
+
+		if (!isSecurityVisible(persistToUseForSecurityCheck))
 			return IPersistVisitor.CONTINUE_TRAVERSAL;
+
 		if (part != null && (o instanceof IFormElement || o instanceof CSSPositionLayoutContainer))
 		{
 			int startPos = form.getPartStartYPos(part.getUUID().toString());
@@ -162,12 +175,6 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 		}
 		if (o instanceof IFormElement)
 		{
-			FormElement fe = null;
-			if (cache != null)
-			{
-				// this is for form component elements finding
-				fe = cache.getFormElement((IFormElement)o, this.context.getSolution(), null, designer);
-			}
 			if (fe == null && formUI != null)
 			{
 				List<FormElement> cachedFormElements = formUI.getFormElements();
@@ -285,20 +292,8 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 	public boolean isSecurityVisible(IPersist persist)
 	{
 		if (context.getApplication() == null || persist.getUUID() == null || !(persist instanceof IFormElement)) return true;
-		String elementName = ((AbstractBase)persist).getRuntimeProperty(FormElementHelper.FC_CHILD_ELEMENT_NAME_INSIDE_DIRECT_PARENT_FORM_COMPONENT);
-		Form frm = persist.getAncestor(Form.class);
-		if (frm != null && elementName != null)
-		{
-			for (IPersist p : frm.getFlattenedFormElementsAndLayoutContainers())
-			{
-				if (p instanceof IFormElement && Utils.equalObjects(((IFormElement)p).getName(), elementName))
-				{
-					persist = p;
-					break;
-				}
-			}
-		}
-		int access = context.getApplication().getFlattenedSolution().getSecurityAccess(persist.getUUID(),
+
+		int access = context.getApplication().getFlattenedSolution().getFormSecurityAccess(persist,
 			form.getImplicitSecurityNoRights() ? IRepository.IMPLICIT_FORM_NO_ACCESS : IRepository.IMPLICIT_FORM_ACCESS);
 		boolean b_visible = ((access & IRepository.VIEWABLE) != 0);
 		return b_visible;
@@ -354,6 +349,10 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 				});
 			}
 			templateProperties.content.keySet().remove(IContentSpecConstants.PROPERTY_ATTRIBUTES);
+			if (!templateProperties.content.containsKey(WebFormComponent.MARKUP_PROPERTY_ID))
+			{
+				templateProperties.content.put(WebFormComponent.MARKUP_PROPERTY_ID, ComponentFactory.getMarkupId(form.getName(), name));
+			}
 			JSONUtils.writeData(FormElementToJSON.INSTANCE, writer, templateProperties.content, templateProperties.contentType,
 				new FormElementContext(fe, context, null));
 			if (designer)

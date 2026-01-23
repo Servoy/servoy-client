@@ -271,7 +271,7 @@ public class ComponentFactory
 			if (comp.isFocusable()) comp.setFocusable(true);
 			OrientationApplier.setOrientationToAWTComponent(comp, application.getLocale(), application.getSolution().getTextOrientation());
 		}
-		int access = application.getFlattenedSolution().getSecurityAccess(meta.getUUID(),
+		int access = application.getFlattenedSolution().getFormSecurityAccess(meta,
 			form.getImplicitSecurityNoRights() ? IRepository.IMPLICIT_FORM_NO_ACCESS : IRepository.IMPLICIT_FORM_ACCESS);
 		if (access != -1)
 		{
@@ -304,7 +304,7 @@ public class ComponentFactory
 				while (it.hasNext())
 				{
 					Tab t = (Tab)it.next();
-					int access1 = application.getFlattenedSolution().getSecurityAccess(t.getUUID(),
+					int access1 = application.getFlattenedSolution().getFormSecurityAccess(t,
 						form.getImplicitSecurityNoRights() ? IRepository.IMPLICIT_FORM_NO_ACCESS : IRepository.IMPLICIT_FORM_ACCESS);
 					if (access1 != -1)
 					{

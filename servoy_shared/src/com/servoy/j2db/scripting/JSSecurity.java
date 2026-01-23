@@ -25,16 +25,19 @@ import java.util.List;
 import java.util.Map;
 
 import org.mozilla.javascript.annotations.JSFunction;
+import org.sablo.util.ValueReference;
 
 import com.servoy.base.scripting.api.IJSSecurity;
 import com.servoy.j2db.ApplicationException;
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.INGClientApplication;
 import com.servoy.j2db.dataprocessing.BufferedDataSet;
 import com.servoy.j2db.dataprocessing.ClientInfo;
 import com.servoy.j2db.dataprocessing.IDataSet;
 import com.servoy.j2db.dataprocessing.JSDataSet;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.Form;
+import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.IServer;
@@ -50,6 +53,7 @@ import com.servoy.j2db.scripting.info.TABLESECURITY;
 import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ILogLevel;
+import com.servoy.j2db.util.PersistIdentifier;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
@@ -1462,25 +1466,38 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 		int access = 0;
 		if (form != null)
 		{
-			UUID accesUUID = null;
+			ValueReference<IPersist> accesPersist = new ValueReference<>(null);
 			if (elementName != null)
 			{
 				for (IPersist persist : form.getFlattenedFormElementsAndLayoutContainers())
 				{
 					if (persist instanceof ISupportName && Utils.equalObjects(elementName, ((ISupportName)persist).getName()))
 					{
-						accesUUID = persist.getUUID();
+						accesPersist.value = persist;
 						break;
 					}
+					// now check children of form component components as well
+					if (application instanceof INGClientApplication ngApp)
+					{
+						ngApp.addFormComponentComponentChildrenWithNames(persist, (IFormElement childFe) -> {
+							if (Utils.equalObjects(elementName, childFe.getName()))
+							{
+								accesPersist.value = childFe;
+								return Boolean.FALSE;
+							}
+							return Boolean.TRUE;
+						});
+					}
+
 				}
 			}
 			else
 			{
-				accesUUID = form.getUUID();
+				accesPersist.value = form;
 			}
-			if (accesUUID != null)
+			if (accesPersist.value != null)
 			{
-				access = application.getFlattenedSolution().getSecurityAccess(accesUUID,
+				access = application.getFlattenedSolution().getFormSecurityAccess(accesPersist.value,
 					form.getImplicitSecurityNoRights() ? IRepository.IMPLICIT_FORM_NO_ACCESS : IRepository.IMPLICIT_FORM_ACCESS);
 			}
 		}
@@ -1666,33 +1683,46 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	}
 
 	/**
-	 * Sets the security settings; the entries contained in the given dataset will override those contained in the current security settings.
+	 * Sets the security settings; the entries contained in the given DataSet will override those contained in the current security settings for this client.<br/><br/>
+	 * The DataSet must be (see sample code) a 2 column DataSet, where the first column is the <b>identifier</b> column and the second one is the a <b>accessFlags</b> int.<br/><br/>
 	 *
-	 * NOTE: The security.getElementUUIDs and security.setSecuritySettings functions can be used to define custom security that overrides Servoy security.
-	 * For additional information see the function security.getElementUUIDs.
+	 * The <b>identifier</b>:<ul>
+	 *   <li>in case of a <b>form or component</b> it is one from the DataSet returned by security.getFormAndComponentIdentifiers(formName), from the "uid"/second column.</li>
+	 *   <li>in case of a <b>table</b> it is something like 'example_data.orders', so a server name & table name combination.</li>
+	 * </ul>
+	 * <br/>
+	 *
+	 * The <b>accessFlag</b> is a integer made up of the wanted access constants (from the available ones for forms/component and tables) merged via a bitwise OR (so a single |).
+	 * Constants that can be used here:<ul>
+	 *   <li>in case of a <b>form or component</b>: JSSecurity.VIEWABLE and JSSecurity.ACCESSIBLE</li>
+	 *   <li>in case of a <b>table</b>: JSSecurity.READ, JSSecurity.INSERT, JSSecurity.UPDATE, JSSecurity.DELETE, JSSecurity.TRACKING.</li>
+	 * </ul>
 	 *
 	 * @sample
 	 * var colNames = new Array();
 	 * colNames[0] = 'uuid';
 	 * colNames[1] = 'flags';
-	 * var dataset = databaseManager.createEmptyDataSet(0,colNames);
+	 * var dataset = databaseManager.createEmptyDataSet(0, colNames);
 	 *
 	 * var row = new Array();
-	 * row[0] = '413a4d69-becb-4ae4-8fdd-980755d6a7fb';//normally retreived via security.getElementUUIDs(...)
-	 * row[1] = JSSecurity.VIEWABLE|JSSecurity.ACCESSIBLE; // use bitwise 'or' for both
-	 * dataset.addRow(row);//setting element security
+	 * // a string identifier normally retrieved via security.getFormAndComponentIdentifiers(formName) that can identify
+	 * // either a Form, a component within a form (in both cases being an UUID String), or a component nested within a Form Component component
+	 * // (no matter how many levels deep) in a form (in which case it will be the FCC's UUID String + a name path)
+	 * row[0] = '413a4d69-becb-4ae4-8fdd-980755d6a7fb';
+	 * row[1] = JSSecurity.VIEWABLE | JSSecurity.ACCESSIBLE; // use bitwise 'or' for both
+	 * dataset.addRow(row); // setting form and form element (component) security
 	 *
 	 * row = new Array();
 	 * row[0] = 'example_data.orders';
-	 * row[1] = JSSecurity.READ|JSSecurity.INSERT|JSSecurity.UPDATE|JSSecurity.DELETE|JSSecurity.TRACKING; //use bitwise 'or' for multiple flags
-	 * dataset.addRow(row);//setting table security
+	 * row[1] = JSSecurity.READ | JSSecurity.INSERT | JSSecurity.UPDATE | JSSecurity.DELETE | JSSecurity.TRACKING; // use bitwise 'or' for multiple flags
+	 * dataset.addRow(row); // setting table security
 	 *
-	 * security.setSecuritySettings(dataset);//to be called in solution startup method
+	 * security.setSecuritySettings(dataset); // to be called in solution startup method
 	 *
 	 * @param dataset the dataset with security settings
 	 */
 	@SuppressWarnings("nls")
-	public void js_setSecuritySettings(Object dataset) // uuid/server.tablename , integer(flags)
+	public void js_setSecuritySettings(Object dataset) // PersistIdentifier.toJSONString() for forms/components or server.tablename for tables -> integer(flags)
 	{
 		if (dataset instanceof JSDataSet)
 		{
@@ -1702,7 +1732,8 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 		{
 			application.getFoundSetManager().getEditRecordList().clearSecuritySettings();
 
-			Map<Object, Integer> sp = new HashMap<Object, Integer>();
+			Map<String, Integer> explicitTableSecurityAccessToOverride = new HashMap<String, Integer>();
+			Map<String, Integer> explicitFormAndElementSecurityAccessToOverride = new HashMap<String, Integer>();
 
 			IDataSet ds = (IDataSet)dataset;
 			if (ds.getColumnCount() < 2) return;
@@ -1716,36 +1747,41 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 					try
 					{
 						boolean matched = false;
-						if (row[0] instanceof UUID)
+						if (row[0] instanceof UUID uuid)
 						{
-							sp.put(row[0], val);
-							matched = true;
-						}
-						else if (row[0].toString().indexOf('-') > 0)
-						{
-							UUID uuid = UUID.fromString(row[0].toString());
-							sp.put(uuid, val);
+							explicitFormAndElementSecurityAccessToOverride.put(PersistIdentifier.fromSimpleUUID(uuid).toJSONString(), val);
 							matched = true;
 						}
 						else
 						{
-							String datasource = row[0].toString();
-							if (datasource.indexOf('.') != -1)
+							String identifier = row[0].toString();
+							if (identifier.indexOf('-') > 0)
 							{
-								String[] server_table = datasource.split("\\.");
-								if (server_table.length == 2)
+								// still an UUID or something that contains an UUID but in String form (we expect it to be a PersistIdentifier.toJSONString())
+								explicitFormAndElementSecurityAccessToOverride.put(identifier, val);
+								matched = true;
+							}
+							else
+							{
+								String datasource = identifier;
+								if (datasource.indexOf('.') != -1)
 								{
-									IServer server = application.getSolution().getServer(server_table[0]);
-									if (server != null)
+									String[] server_table = datasource.split("\\.");
+									if (server_table.length == 2)
 									{
-										ITable table = server.getTable(server_table[1]);
-										if (table != null)
+										IServer server = application.getSolution().getServer(server_table[0]);
+										if (server != null)
 										{
-											Iterator<String> it = table.getRowIdentColumnNames();
-											if (it.hasNext())
+											ITable table = server.getTable(server_table[1]);
+											if (table != null)
 											{
-												sp.put(Utils.getDotQualitfied(table.getServerName(), table.getName(), it.next()), val);
-												matched = true;
+												Iterator<String> it = table.getRowIdentColumnNames();
+												if (it.hasNext())
+												{
+													explicitTableSecurityAccessToOverride
+														.put(Utils.getDotQualitfied(table.getServerName(), table.getName(), it.next()), val);
+													matched = true;
+												}
 											}
 										}
 									}
@@ -1763,19 +1799,24 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 					}
 				}
 			}
-			application.getFlattenedSolution().overrideSecurityAccess(sp);
+			application.getFlattenedSolution().overrideSecurityAccess(explicitTableSecurityAccessToOverride,
+				explicitFormAndElementSecurityAccessToOverride);
 		}
 	}
 
 	/**
-	 * Returns the form elements UUID's as dataset, the one with no name is the form itself.
+	 * Returns the form elements UUID's as dataset, the one with no name is the form itself.<br/>
+	 * The names of the columns in this dataset are "names" and "uuid".
 	 *
 	 * @sample var formElementsUUIDDataSet = security.getElementUUIDs('orders_form');
 	 *
 	 * @param formname the formname to retieve the dataset for
 	 * @return dataset with element info
+	 *
+	 * @deprecated use getFormAndComponentIdentifiers(formName) instead; that one is made to work with Form Component component children in forms as well (no matter how deeply nested).
 	 */
 	@SuppressWarnings("nls")
+	@Deprecated
 	public JSDataSet js_getElementUUIDs(String formname)// return dataset with name, uuid (note: null name is form uuid)
 	{
 		Form f = application.getFlattenedSolution().getForm(formname);
@@ -1799,6 +1840,55 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 				}
 			}
 			IDataSet set = new BufferedDataSet(new String[] { "name", "uuid" }, elements);
+			return new JSDataSet(application, set);
+		}
+		return new JSDataSet(application);
+	}
+
+	/**
+	 * Returns the form and this form's component identifiers as a DataSet with a "name" column and
+	 * a "identifier" column; the row with no name in it gives the identifier of the form itself.<br/><br/>
+	 *
+	 * These identifiers can be used in the DataSet one gives to security.setSecuritySettings(...).
+	 *
+	 * @sample let formAndFormElementIdentifiersDataSet = security.getFormAndComponentIdentifiers('orders_form');
+	 *
+	 * @param formName the name of the form to retrieve the DataSet for
+	 * @return a DataSet with name to identifier info. See description.
+	 */
+	@SuppressWarnings("nls")
+	public JSDataSet js_getFormAndComponentIdentifiers(String formName) // returns a dataset with name to PersistIdentifier.toJSONString() (note: null name is the form's identifier)
+	{
+		Form f = application.getFlattenedSolution().getForm(formName);
+		if (f == null) f = application.getFormManager().getPossibleForm(formName);
+		if (f != null)
+		{
+			List<Object[]> elements = new ArrayList<>();
+			elements.add(new Object[] { null, PersistIdentifier.fromPersist(f).toJSONString() });
+			Iterator< ? extends IPersist> it = f.isResponsiveLayout() ? f.getFlattenedObjects(NameComparator.INSTANCE).iterator() : f.getAllObjects();
+			while (it.hasNext())
+			{
+				IPersist elem = it.next();
+				int type = elem.getTypeID();
+				if (type == IRepository.GRAPHICALCOMPONENTS || type == IRepository.FIELDS || type == IRepository.PORTALS || type == IRepository.RECTSHAPES ||
+					type == IRepository.SHAPES || type == IRepository.BEANS || type == IRepository.TABPANELS || type == IRepository.WEBCOMPONENTS)
+				{
+					if (elem instanceof ISupportName && ((ISupportName)elem).getName() != null)
+					{
+						elements.add(new Object[] { ((ISupportName)elem).getName(), PersistIdentifier.fromPersist(elem).toJSONString() });
+					}
+
+					// add children of form component components that need to be listed
+					if (application instanceof INGClientApplication ngApp)
+					{
+						ngApp.addFormComponentComponentChildrenWithNames(elem, (IFormElement childFe) -> {
+							elements.add(new Object[] { childFe.getName(), PersistIdentifier.fromPersist(childFe).toJSONString() });
+							return Boolean.TRUE;
+						});
+					}
+				}
+			}
+			IDataSet set = new BufferedDataSet(new String[] { "name", "identifier" }, elements);
 			return new JSDataSet(application, set);
 		}
 		return new JSDataSet(application);

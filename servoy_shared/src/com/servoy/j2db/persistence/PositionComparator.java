@@ -20,8 +20,6 @@ package com.servoy.j2db.persistence;
 import java.awt.Component;
 import java.awt.Point;
 import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @author jblok
@@ -34,8 +32,6 @@ public class PositionComparator
 	public static final Comparator< ? super IPersist> YX_PERSIST_COMPARATOR = new PositionPersistComparator(false);
 	public static final Comparator< ? super Component> YX_COMPONENT_COMPARATOR = new PositionComponentComparator(false);
 	public static final Comparator< ? super ISupportBounds> YX_BOUNDS_COMPARATOR = new SupportBoundsComparator(false);
-
-	private static ThreadLocal<Map<String, Boolean>> parentFormsCache = new ThreadLocal<>();
 
 	public static class PositionPersistComparator implements Comparator<IPersist>
 	{
@@ -53,14 +49,6 @@ public class PositionComparator
 			if (hierarchyCompare != 0)
 			{
 				return hierarchyCompare;
-			}
-			if (areBothFromSameParentForm(o1, o2))
-			{
-				// both elements are from the same parent form - use inverted sorting
-				if (o1 instanceof ISupportBounds && o2 instanceof ISupportBounds)
-				{
-					return comparePoint(!xy, CSSPositionUtils.getLocation((ISupportBounds)o1), CSSPositionUtils.getLocation((ISupportBounds)o2));
-				}
 			}
 			if (o1 instanceof ISupportBounds && o2 instanceof ISupportBounds)
 			{
@@ -167,13 +155,11 @@ public class PositionComparator
 		// if from different forms in hierarchy, sort by hierarchy (parent forms first)
 		if (form1 != null && form2 != null && !form1.equals(form2))
 		{
-			Map<String, Boolean> parentFormsMap = new HashMap<>();
-
-			if (hasFormInHierarchy(form1, form2, parentFormsMap))
+			if (hasFormInHierarchy(form1, form2))
 			{
 				return 1;
 			}
-			if (hasFormInHierarchy(form2, form1, parentFormsMap))
+			if (hasFormInHierarchy(form2, form1))
 			{
 				return -1;
 			}
@@ -191,22 +177,17 @@ public class PositionComparator
 	 * @param parentFormsMap a map to populate with parent forms found during traversal
 	 * @return true if form1 extends form2, false otherwise
 	 */
-	static boolean hasFormInHierarchy(Form form1, Form form2, Map<String, Boolean> parentFormsMap)
+	static boolean hasFormInHierarchy(Form form1, Form form2)
 	{
 		Form superForm = form1.getExtendsForm();
 		while (superForm != null)
 		{
-			// Track this as a parent form
-			parentFormsMap.put(superForm.getUUID().toString(), Boolean.TRUE);
-
 			if (superForm.getUUID().equals(form2.getUUID()))
 			{
-				parentFormsCache.set(parentFormsMap);
 				return true;
 			}
 			superForm = superForm.getExtendsForm();
 		}
-		parentFormsCache.set(parentFormsMap);
 		return false;
 	}
 
@@ -224,32 +205,14 @@ public class PositionComparator
 		// Get the form ancestor
 		Form form = (Form)unwrapped.getAncestor(IRepository.FORMS);
 
+		// If the persist extends another, get the ancestor form
+		if (persist instanceof ISupportExtendsID && ((ISupportExtendsID)persist).getExtendsID() != null)
+		{
+			form = form.getExtendsForm();
+		}
+
 		// Unwrap FlattenedForm to get the actual form
 		return (form instanceof FlattenedForm) ? ((FlattenedForm)form).getForm() : form;
-	}
-
-	/**
-	 * Checks if both persists are from the same parent form.
-	 * A parent form is a form that has children extending it.
-	 *
-	 * @param o1 first persist
-	 * @param o2 second persist
-	 * @return true if both persists are from the same parent form
-	 */
-	static boolean areBothFromSameParentForm(IPersist o1, IPersist o2)
-	{
-		Form form1 = getOriginalForm(o1);
-		Form form2 = getOriginalForm(o2);
-
-		if (form1 != null && form1.equals(form2))
-		{
-			Map<String, Boolean> parentFormsMap = parentFormsCache.get();
-			if (parentFormsMap != null && parentFormsMap.containsKey(form1.getUUID().toString()))
-			{
-				return true;
-			}
-		}
-		return false;
 	}
 
 }
