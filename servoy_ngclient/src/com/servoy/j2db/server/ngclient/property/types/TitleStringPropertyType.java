@@ -87,12 +87,24 @@ public class TitleStringPropertyType extends TagStringPropertyType
 					Object config = forProperty.getConfig();
 					if (config instanceof FoundsetLinkedConfig && ((FoundsetLinkedConfig)config).getForFoundsetName() != null)
 					{
-						String forFoundset = ((FoundsetLinkedConfig)config).getForFoundsetName();
+						String foundsetID = null;
 						String dataproviderID = (String)formElement.getPropertyValue(forDataprovider);
-						JSONObject foundsetValue = (JSONObject)formElement.getPropertyValue(forFoundset);
-						if (foundsetValue != null)
+
+						if (dataproviderID != null && dataproviderID.contains(".")) //$NON-NLS-1$
 						{
-							String foundsetID = foundsetValue.optString(FoundsetPropertyType.FOUNDSET_SELECTOR);
+							int lastDot = dataproviderID.lastIndexOf('.');
+							foundsetID = dataproviderID.substring(0, lastDot);
+							dataproviderID = dataproviderID.substring(lastDot + 1);
+						}
+						else
+						{
+							String forFoundset = ((FoundsetLinkedConfig)config).getForFoundsetName();
+							JSONObject foundsetValue = (JSONObject)formElement.getPropertyValue(forFoundset);
+							if (foundsetValue != null) foundsetID = foundsetValue.optString(FoundsetPropertyType.FOUNDSET_SELECTOR);
+						}
+
+						if (foundsetID != null)
+						{
 							INGApplication application = ((WebFormComponent)component.getUnderlyingWebObject()).getDataConverterContext().getApplication();
 							Form form = ((IContextProvider)component.getUnderlyingWebObject()).getDataConverterContext().getForm().getForm();
 							ITable table = FoundsetTypeSabloValue.getTableBasedOfFoundsetPropertyFromFoundsetIdentifier(foundsetID, application, form);
