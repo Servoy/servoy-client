@@ -865,7 +865,7 @@ public class J2DBClient extends ClientState
 
 	protected void initSecurityManager() throws SecurityException
 	{
-		System.setSecurityManager(null);// seems still needed for javaws(http://forum.java.sun.com/thread.jsp?thread=71233&forum=38&message=507926)
+//		System.setSecurityManager(null);// seems still needed for javaws(http://forum.java.sun.com/thread.jsp?thread=71233&forum=38&message=507926)
 	}
 
 	protected void initStreamHandlerFactory()
