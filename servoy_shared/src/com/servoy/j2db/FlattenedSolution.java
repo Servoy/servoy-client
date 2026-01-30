@@ -1381,11 +1381,10 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 			// so basically: if the "no rights unless explicitly specified" check-box in form editor/column editor -> security is
 			//     - unchecked (so it has rights by default) and the element/form is missing from at least one active group/permission - it will have the default permissions
 			//     - checked (so it does not have rights by default) and the element/form is missing from at least one active group/permission, that does not affect the explicit value that was found
-			// TODO SVY-20840 what if for a DB table column, the TRACKING flag is set explicitly in a group/permission and the check-box is unchecked (so it has rights by default) and security is not
-			// explicitly set for all the active groups/permissions? then shouldn't it keep the TRACKING flag as well which is not in defaultImplicitValue?
+			// make it an or between the explicit value and the implicit value, as it usually is done for multiple groups/permissions
 			if (explicitValue.intValue() != implicitValue && implicitValue == defaultImplicitValue &&
 				currentAccessInfo.implicitAccessIdentifiers().contains(uid))
-				return implicitValue;
+				return implicitValue | explicitValue.intValue();
 
 			return explicitValue.intValue();
 		}

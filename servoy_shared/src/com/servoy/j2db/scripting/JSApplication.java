@@ -2406,7 +2406,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 */
 	public JSMap<String, String> js_getVersionInfo()
 	{
-		JSMap<String, String> info = new JSMap<>("Map");
+		JSMap<String, String> info = new JSMap<>();
 		Solution solution = application.getSolution();
 		info.put(solution.getName(), solution.getVersion());
 		Solution[] modules = application.getFlattenedSolution().getModules();
