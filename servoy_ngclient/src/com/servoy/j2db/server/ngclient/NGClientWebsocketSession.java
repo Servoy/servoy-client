@@ -623,14 +623,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 		ScheduledExecutorService ee = (as != null ? as.getExecutor() : null);
 
 		// check for window activity each time a window is closed, after the timeout period
-		if (ee != null) ee.schedule(new Runnable()
-		{
-			@Override
-			public void run()
-			{
-				WebsocketSessionManager.closeInactiveSessions();
-			}
-		}, getWindowTimeout() * 1000 + 10, TimeUnit.MILLISECONDS);
+		if (ee != null) ee.schedule(WebsocketSessionManager::closeInactiveSessions, getWindowTimeout() * 1000 + 10, TimeUnit.MILLISECONDS);
 	}
 
 	@Override
