@@ -36,6 +36,7 @@ import org.mozilla.javascript.TopLevel;
 import org.mozilla.javascript.WrappedException;
 
 import com.servoy.j2db.Messages;
+import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IDestroyable;
 import com.servoy.j2db.util.Utils;
 
@@ -285,11 +286,31 @@ public abstract class DefaultScope implements Scriptable, IDestroyable
 
 	public void destroy()
 	{
-		List<IDestroyable> indexDestroybles = this.allIndex.values().stream().filter(object -> object instanceof IDestroyable)
-			.map(object -> (IDestroyable)object).collect(Collectors.toList());
+		List<IDestroyable> indexDestroybles = this.allIndex.values().stream().filter(object -> {
+			if (object instanceof IDestroyable)
+			{
+				if (object instanceof FormScope)
+				{
+					Debug.warn("FormScope found in " + DefaultScope.this.getClassName() + '/' + DefaultScope.this + "  destroy, skipping it!"); //$NON-NLS-1$ //$NON-NLS-2$
+					return false;
+				}
+				return true;
+			}
+			return false;
+		}).map(object -> (IDestroyable)object).collect(Collectors.toList());
 
-		List<IDestroyable> varDestroyables = this.allVars.values().stream().filter(object -> object instanceof IDestroyable).map(object -> (IDestroyable)object)
-			.collect(Collectors.toList());
+		List<IDestroyable> varDestroyables = this.allVars.values().stream().filter(object -> {
+			if (object instanceof IDestroyable)
+			{
+				if (object instanceof FormScope)
+				{
+					Debug.warn("FormScope found in " + DefaultScope.this.getClassName() + '/' + DefaultScope.this + "  destroy, skipping it!"); //$NON-NLS-1$ //$NON-NLS-2$
+					return false;
+				}
+				return true;
+			}
+			return false;
+		}).map(object -> (IDestroyable)object).collect(Collectors.toList());
 
 		this.allIndex.clear();
 		this.allVars.clear();
