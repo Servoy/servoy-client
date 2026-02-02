@@ -56,6 +56,7 @@ import com.servoy.j2db.dataprocessing.IFoundSet;
 import com.servoy.j2db.dataprocessing.IFoundSetEventListener;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.dataprocessing.IFoundSetListener;
+import com.servoy.j2db.dataprocessing.IFoundSetManagerInternal;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.ISaveConstants;
 import com.servoy.j2db.dataprocessing.ISelectionChangeListener;
@@ -1225,6 +1226,10 @@ public abstract class BasicFormController
 		{
 			((CreationalPrototype)solScope.get("forms", solScope)).removeFormPanel(this); //$NON-NLS-1$
 		}
+
+		IFoundSetManagerInternal foundSetManager = getApplication().getFoundSetManager();
+		if (foundSetManager != null)
+			foundSetManager.getEditRecordList().removeAllMarkRecords(this);
 
 		if (scriptableForm != null)
 		{
