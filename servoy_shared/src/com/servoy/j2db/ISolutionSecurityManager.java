@@ -60,7 +60,7 @@ public interface ISolutionSecurityManager extends Remote
 	 */
 	public TableAndFormSecurityAccessInfo getSecurityAccessForTablesAndForms(String clientId, UUID[] solution_uuids, int[] releaseNumbers,
 		String[] groups)
-		throws RemoteException, ServoyException;
+		throws ServoyException;
 
 	public static record TableAndFormSecurityAccessInfo(SecurityAccessInfo tableSecurityAccessInfo, SecurityAccessInfo formSecurityAccessInfo)
 	{
