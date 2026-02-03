@@ -134,7 +134,7 @@
 							<type>eclipse-plugin</type>
 							<id>sablo</id>
 							<restrictTo>
-								<version>${osgi.version}</version>
+								<versionRange>${osgi.version}</versionRange>
 							</restrictTo>
 						</filter>
 						<filter>
@@ -148,35 +148,35 @@
 							<type>eclipse-plugin</type>
 							<id>servoy_base</id>
 							<restrictTo>
-								<version>${osgi.version}</version>
+								<versionRange>${osgi.version}</versionRange>
 							</restrictTo>
 						</filter>
 						<filter>
 							<type>eclipse-plugin</type>
 							<id>servoy_ngclient</id>
 							<restrictTo>
-								<version>${osgi.version}</version>
+								<versionRange>${osgi.version}</versionRange>
 							</restrictTo>
 						</filter>
 						<filter>
 							<type>eclipse-plugin</type>
 							<id>servoy_shared</id>
 							<restrictTo>
-								<version>${osgi.version}</version>
+								<versionRange>${osgi.version}</versionRange>
 							</restrictTo>
 						</filter>
 						<filter>
 							<type>eclipse-plugin</type>
 							<id>servoy_headless_client</id>
 							<restrictTo>
-								<version>${osgi.version}</version>
+								<versionRange>${osgi.version}</versionRange>
 							</restrictTo>
 						</filter>
 						<filter>
 							<type>eclipse-plugin</type>
 							<id>servoy_smart_client</id>
 							<restrictTo>
-								<version>${osgi.version}</version>
+								<versionRange>${osgi.version}</versionRange>
 							</restrictTo>
 						</filter>
 					</filters>
