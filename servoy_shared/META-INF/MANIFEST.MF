@@ -236,11 +236,11 @@ Export-Package: com.servoy.j2db;version="2024.3.9",
  org.xhtmlrenderer.util
 Import-Package: javax.servlet;version="[4.0.0,5.0.0)",
  javax.servlet.http;version="[4.0.0,5.0.0)",
- org.sablo,
- org.sablo.specification,
- org.sablo.specification.property,
- org.sablo.specification.property.types,
- org.sablo.websocket.utils,
+ org.sablo;version="2024.3.9",
+ org.sablo.specification;version="2024.3.9",
+ org.sablo.specification.property;version="2024.3.9",
+ org.sablo.specification.property.types;version="2024.3.9",
+ org.sablo.websocket.utils;version="2024.3.9",
  org.slf4j;version="2.0.6",
  org.w3c.dom
 Automatic-Module-Name: servoy_shared
