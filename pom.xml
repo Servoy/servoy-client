@@ -12,7 +12,7 @@
 
 	<properties>
 		<tycho.version>4.0.5</tycho.version>
-		<osgi.version>[2024.3.9, 2024.3.10)</osgi.version>
+		<osgi.version>2024.3.9.qualifier</osgi.version>
 		<rhino.version>1.7.14.s7</rhino.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.source>17</maven.compiler.source>
@@ -134,7 +134,7 @@
 							<type>eclipse-plugin</type>
 							<id>sablo</id>
 							<restrictTo>
-								<versionRange>[${unqualifiedVersion}, ${unqualifiedVersion}.next)</versionRange>
+								<version>${osgi.version}</version>
 							</restrictTo>
 						</filter>
 						<filter>
@@ -148,35 +148,35 @@
 							<type>eclipse-plugin</type>
 							<id>servoy_base</id>
 							<restrictTo>
-								<versionRange>[${unqualifiedVersion}, ${unqualifiedVersion}.next)</versionRange>
+								<version>${osgi.version}</version>
 							</restrictTo>
 						</filter>
 						<filter>
 							<type>eclipse-plugin</type>
 							<id>servoy_ngclient</id>
 							<restrictTo>
-								<versionRange>[${unqualifiedVersion}, ${unqualifiedVersion}.next)</versionRange>
+								<version>${osgi.version}</version>
 							</restrictTo>
 						</filter>
 						<filter>
 							<type>eclipse-plugin</type>
 							<id>servoy_shared</id>
 							<restrictTo>
-								<versionRange>[${unqualifiedVersion}, ${unqualifiedVersion}.next)</versionRange>
+								<version>${osgi.version}</version>
 							</restrictTo>
 						</filter>
 						<filter>
 							<type>eclipse-plugin</type>
 							<id>servoy_headless_client</id>
 							<restrictTo>
-								<versionRange>[${unqualifiedVersion}, ${unqualifiedVersion}.next)</versionRange>
+								<version>${osgi.version}</version>
 							</restrictTo>
 						</filter>
 						<filter>
 							<type>eclipse-plugin</type>
 							<id>servoy_smart_client</id>
 							<restrictTo>
-								<versionRange>[${unqualifiedVersion}, ${unqualifiedVersion}.next)</versionRange>
+								<version>${osgi.version}</version>
 							</restrictTo>
 						</filter>
 					</filters>
