@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Servoy Headless Client Plug-in
 Bundle-SymbolicName: servoy_headless_client
-Bundle-Version: 2024.3.9.3952_LTS
+Bundle-Version: 2024.3.9.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ClassPath: .
 Require-Bundle: org.eclipse.dltk.javascript.rhino,
@@ -11,15 +11,15 @@ Require-Bundle: org.eclipse.dltk.javascript.rhino,
  org.jsoup,
  com.github.ua-parser.uap-java
 Bundle-Vendor: Servoy
-Export-Package: com.servoy.j2db.server.headlessclient;version="2024.3.9.3952_LTS",
- com.servoy.j2db.server.headlessclient.dataui;version="2024.3.9.3952_LTS",
- com.servoy.j2db.server.headlessclient.dnd;version="2024.3.9.3952_LTS",
- com.servoy.j2db.server.headlessclient.eventthread;version="2024.3.9.3952_LTS",
- com.servoy.j2db.server.headlessclient.jquery;version="2024.3.9.3952_LTS",
- com.servoy.j2db.server.headlessclient.mask;version="2024.3.9.3952_LTS",
- com.servoy.j2db.server.headlessclient.tinymce;version="2024.3.9.3952_LTS",
- com.servoy.j2db.server.headlessclient.util;version="2024.3.9.3952_LTS",
- com.servoy.j2db.server.headlessclient.yui;version="2024.3.9.3952_LTS"
+Export-Package: com.servoy.j2db.server.headlessclient;version="2024.3.9",
+ com.servoy.j2db.server.headlessclient.dataui;version="2024.3.9",
+ com.servoy.j2db.server.headlessclient.dnd;version="2024.3.9",
+ com.servoy.j2db.server.headlessclient.eventthread;version="2024.3.9",
+ com.servoy.j2db.server.headlessclient.jquery;version="2024.3.9",
+ com.servoy.j2db.server.headlessclient.mask;version="2024.3.9",
+ com.servoy.j2db.server.headlessclient.tinymce;version="2024.3.9",
+ com.servoy.j2db.server.headlessclient.util;version="2024.3.9",
+ com.servoy.j2db.server.headlessclient.yui;version="2024.3.9"
 Import-Package: javax.servlet;version="[4.0.0,5.0.0)",
  javax.servlet.http;version="[4.0.0,5.0.0)",
  org.slf4j;version="2.0.6"
