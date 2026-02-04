@@ -78,10 +78,9 @@
                                 </goals>
                                 <configuration>
                                     <target>
-                                        <replaceregexp
+                                         <replace
                                             file="${basedir}/pom.xml"
-                                            match="${osgi.version}" replace="${newOSGIVersion}"
-                                            byline="true" />
+                                            token="${osgi.version}" value="${newOSGIVersion}"/>
                                     </target>
                                 </configuration>
                             </execution>
