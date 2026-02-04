@@ -2,18 +2,18 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Servoy NG Client Plug-in
 Bundle-SymbolicName: servoy_ngclient;singleton:=true
-Bundle-Version: 2024.3.9.qualifier
-Export-Package: com.servoy.j2db.server.ngclient;version="2024.3.9",
- com.servoy.j2db.server.ngclient.component;version="2024.3.9",
- com.servoy.j2db.server.ngclient.endpoint;version="2024.3.9",
- com.servoy.j2db.server.ngclient.eventthread;version="2024.3.9",
- com.servoy.j2db.server.ngclient.less;version="2024.3.9",
- com.servoy.j2db.server.ngclient.less.resources;version="2024.3.9",
- com.servoy.j2db.server.ngclient.property;version="2024.3.9",
- com.servoy.j2db.server.ngclient.property.types;version="2024.3.9",
- com.servoy.j2db.server.ngclient.scripting;version="2024.3.9",
- com.servoy.j2db.server.ngclient.template;version="2024.3.9",
- com.servoy.j2db.server.ngclient.utils;version="2024.3.9"
+Bundle-Version: 2024.3.10.qualifier
+Export-Package: com.servoy.j2db.server.ngclient;version="2024.3.10",
+ com.servoy.j2db.server.ngclient.component;version="2024.3.10",
+ com.servoy.j2db.server.ngclient.endpoint;version="2024.3.10",
+ com.servoy.j2db.server.ngclient.eventthread;version="2024.3.10",
+ com.servoy.j2db.server.ngclient.less;version="2024.3.10",
+ com.servoy.j2db.server.ngclient.less.resources;version="2024.3.10",
+ com.servoy.j2db.server.ngclient.property;version="2024.3.10",
+ com.servoy.j2db.server.ngclient.property.types;version="2024.3.10",
+ com.servoy.j2db.server.ngclient.scripting;version="2024.3.10",
+ com.servoy.j2db.server.ngclient.template;version="2024.3.10",
+ com.servoy.j2db.server.ngclient.utils;version="2024.3.10"
 Require-Bundle: servoy_shared,
  servoy_smart_client,
  sablo,

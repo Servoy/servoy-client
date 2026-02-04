@@ -6,13 +6,13 @@
 		<maven>3.9.0</maven>
 	</prerequisites>
 	<artifactId>servoy-client</artifactId>
-	<version>2024.3.9-SNAPSHOT</version>
+	<version>2024.3.10-SNAPSHOT</version>
 	<groupId>com.servoy</groupId>
 	<packaging>pom</packaging>
 
 	<properties>
 		<tycho.version>4.0.5</tycho.version>
-		<osgi.version>[2024.3.9, 2024.3.10)</osgi.version>
+		<osgi.version>[2024.3.10,2024.3.11)</osgi.version>
 		<rhino.version>1.7.14.s7</rhino.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.source>17</maven.compiler.source>
