@@ -22,11 +22,11 @@ import com.servoy.j2db.util.visitor.IVisitor;
 
 /**
  * Query sort class that uses a user-defined string.
- * 
+ *
  * @author rgansevles
- * 
+ *
  */
-public final class QueryCustomSort implements IQuerySort, Immutable
+public final class QueryCustomSort implements IQuerySort, IQueryCustomSql, Immutable
 {
 	private final String sort;
 
@@ -41,6 +41,12 @@ public final class QueryCustomSort implements IQuerySort, Immutable
 	public String getSort()
 	{
 		return sort;
+	}
+
+	@Override
+	public String getSql()
+	{
+		return getSort();
 	}
 
 	@Override
