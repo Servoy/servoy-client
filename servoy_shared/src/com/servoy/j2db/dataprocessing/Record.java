@@ -322,7 +322,7 @@ public class Record implements Scriptable, SymbolScriptable, IRecordInternal, IJ
 			if (mustRecalculate && row.containsCalculation(dataProviderID))
 			{
 				// if a calculation is set, then just flag this row for recalculation so that it will be recalculated when it is asked for.
-				// but only if it was in a mustRecalculate mode before (so it was it was never calculated or some depedency was changed)
+				// but only if it was in a mustRecalculate mode before (so it was never calculated or some depedency was changed)
 				row.getRowManager().flagRowCalcForRecalculation(getPKHashKey(), dataProviderID);
 			}
 			return prevValue;
@@ -1006,10 +1006,10 @@ public class Record implements Scriptable, SymbolScriptable, IRecordInternal, IJ
 			}
 		}
 
-		Set<UsedRelation> uedRelations = usedDataProviderTracker.getRelations();
-		if (uedRelations != null)
+		Set<UsedRelation> usedRelations = usedDataProviderTracker.getRelations();
+		if (usedRelations != null)
 		{
-			for (UsedRelation usedRelation : uedRelations)
+			for (UsedRelation usedRelation : usedRelations)
 			{
 				row.getRowManager()
 					.addCalculationRelationDependency(usedRelation.whereArgsHash, usedRelation.name, parent.getDataSource(), getPKHashKey(),

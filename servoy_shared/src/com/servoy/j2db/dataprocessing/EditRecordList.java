@@ -2338,6 +2338,31 @@ public class EditRecordList
 		}
 	}
 
+	/**
+	 * @param form
+	 */
+	public void removeAllMarkRecords(IPrepareForSave form)
+	{
+		editRecordsLock.lock();
+		try
+		{
+			for (Iterator<List<IPrepareForSave>> it = recordTested.values().iterator(); it.hasNext();)
+			{
+				List<IPrepareForSave> forms = it.next();
+				forms.remove(form);
+				if (forms.isEmpty())
+				{
+					it.remove();
+				}
+			}
+		}
+		finally
+		{
+			editRecordsLock.unlock();
+		}
+	}
+
+
 	public void init()
 	{
 		editRecordsLock.lock();
