@@ -10,6 +10,5 @@
 		<version>2025.3.4.4046_LTS</version>
 	</parent>
 	<artifactId>servoy_ngclient.tests</artifactId>
-	<version>2025.3.4.4046_LTS</version>
 	<packaging>eclipse-test-plugin</packaging>
 </project>

@@ -12,7 +12,6 @@
 		<version>2025.3.4.4046_LTS</version>
 	</parent>
 	<artifactId>servoy_base</artifactId>
-	<version>2025.3.4.4046_LTS</version>
 	<packaging>eclipse-plugin</packaging>
 	<build>
 		<plugins>
