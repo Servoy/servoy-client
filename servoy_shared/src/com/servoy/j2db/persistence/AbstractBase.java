@@ -1178,6 +1178,10 @@ public abstract class AbstractBase implements IPersist
 			old = map.put(leaf, value != null ? value : JSONObject.NULL); // in case of inherited elements when put(key, null) is called we really need to write the null (which for JSONObject means writing JSONObject.NULL; if we would just put null it would be equivalent to a remove(key) which would not override key to remove parent value through inheritance)
 		}
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_CUSTOMPROPERTIES, jsonCustomProperties.getJson());
+		if (!Utils.equalObjects(old, value))
+		{
+			flagChanged();
+		}
 		return old;
 	}
 
@@ -1218,6 +1222,10 @@ public abstract class AbstractBase implements IPersist
 			else setTypedProperty(StaticContentSpecLoader.PROPERTY_CUSTOMPROPERTIES, jsonCustomProperties.getJson());
 		}
 
+		if (old != null)
+		{
+			flagChanged();
+		}
 		return old;
 
 	}
