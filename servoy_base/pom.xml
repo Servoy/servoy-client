@@ -12,7 +12,6 @@
 		<version>2025.12.1.4123</version>
 	</parent>
 	<artifactId>servoy_base</artifactId>
-	<version>2025.12.1.4123</version>
 	<packaging>eclipse-plugin</packaging>
 
 	<build>
