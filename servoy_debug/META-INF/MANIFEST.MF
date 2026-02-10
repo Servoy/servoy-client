@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Servoy Debug Core Plug-in
 Bundle-SymbolicName: servoy_debug;singleton:=true
-Bundle-Version: 2025.12.1.4123
+Bundle-Version: 2025.12.2.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-21
 Bundle-Vendor: Servoy
 Require-Bundle: servoy_headless_client,
@@ -13,9 +13,9 @@ Require-Bundle: servoy_headless_client,
  org.eclipse.swt,
  servoy_ngclient,
  sablo
-Export-Package: com.servoy.j2db.debug;version="2025.12.1.4123",
- com.servoy.j2db.debug.extensions;version="2025.12.1.4123",
- com.servoy.j2db.debug.layout;version="2025.12.1.4123"
+Export-Package: com.servoy.j2db.debug;version="2025.12.2",
+ com.servoy.j2db.debug.extensions;version="2025.12.2",
+ com.servoy.j2db.debug.layout;version="2025.12.2"
 Bundle-ActivationPolicy: lazy
 Import-Package: jakarta.servlet;version="[6.1.0,8.0.0)",
  jakarta.servlet.http;version="[6.1.0,8.0.0)"
