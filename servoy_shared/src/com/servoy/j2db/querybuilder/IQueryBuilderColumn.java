@@ -17,6 +17,8 @@
 
 package com.servoy.j2db.querybuilder;
 
+import com.servoy.j2db.scripting.IJavaScriptType;
+
 /**
  * Column in Servoy Query Objects.
  *
@@ -24,6 +26,6 @@ package com.servoy.j2db.querybuilder;
  *
  * @since 6.1
  */
-public interface IQueryBuilderColumn extends IQueryBuilderPart
+public interface IQueryBuilderColumn extends IQueryBuilderPart, IJavaScriptType
 {
 }
