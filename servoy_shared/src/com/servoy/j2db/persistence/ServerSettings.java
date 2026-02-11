@@ -16,8 +16,6 @@
  */
 package com.servoy.j2db.persistence;
 
-import static com.servoy.j2db.persistence.SortingNullprecedence.databaseDefault;
-
 import java.io.Serializable;
 
 
@@ -31,7 +29,7 @@ import java.io.Serializable;
  */
 public class ServerSettings implements Serializable
 {
-	public static final ServerSettings DEFAULT = new ServerSettings(false, databaseDefault, null, null);
+	public static final ServerSettings DEFAULT = new ServerSettings(false, null, null, null);
 
 	private final boolean sortIgnorecase;
 	private final SortingNullprecedence sortingNullprecedence; // when null the value has not been explicitly set, use value from ServerConfig
