@@ -10,6 +10,5 @@
 		<version>2026.3.0.4140_rc</version>
 	</parent>
 	<artifactId>servoy_ngclient.tests</artifactId>
-	<version>2026.3.0.4140_rc</version>
 	<packaging>eclipse-test-plugin</packaging>
 </project>
