@@ -226,6 +226,9 @@ public class NGFormServiceHandler extends FormServiceHandler
 
 			case "formvisibility" :
 			{
+				// NOTE: this code is no longer used by newer code in components - that does all this via server-side-scripting
+				// instead of this client to server call; see ServoyApiObject.show... and hide...
+
 				IWebFormController parentForm = null;
 				IWebFormController controller = null;
 				String formName = args.optString("formname", null);

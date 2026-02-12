@@ -32,9 +32,11 @@ import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.annotations.JSFunction;
 import org.sablo.Container;
 import org.sablo.eventthread.IEventDispatcher;
+import org.sablo.services.server.FormServiceHandler;
 
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.BasicFormController;
+import com.servoy.j2db.IRunnableWithEventLevel;
 import com.servoy.j2db.dataprocessing.FoundSet;
 import com.servoy.j2db.dataprocessing.FoundSetManager;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
@@ -50,6 +52,8 @@ import com.servoy.j2db.querybuilder.impl.QBSelect;
 import com.servoy.j2db.scripting.FormScope;
 import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.server.ngclient.INGApplication;
+import com.servoy.j2db.server.ngclient.INGClientWebsocketSession;
+import com.servoy.j2db.server.ngclient.INGClientWindow;
 import com.servoy.j2db.server.ngclient.IWebFormController;
 import com.servoy.j2db.server.ngclient.IWebFormUI;
 import com.servoy.j2db.server.ngclient.MediaResourcesServlet;
@@ -314,12 +318,42 @@ public class ServoyApiObject
 				}
 
 			}
+
+			// these will get invoked later, but not in a separate event but
+			// in this event's NGEvent.afterExecute()
 			Utils.invokeImmediate(app, invokeLaterRunnables);
 
 			if (ret)
 			{
-				NGClientWindow.getCurrentWindow().registerAllowedForm(formName, this.component.getFormElement());
-				NGClientWindow.getCurrentWindow().touchForm(app.getFlattenedSolution().getFlattenedForm(form), formName, true, true);
+				INGClientWindow window = NGClientWindow.getCurrentWindow();
+
+				// this is needed in case sync calls to component APIs are done by onShow handler (that,
+				// if present, is part of the runnables in the Utils.invokeImmediate(app, invokeLaterRunnables) call above)
+				window.getSession().getSabloService().setExpectFormToShowOnClient(true);
+
+				window.registerAllowedForm(formName, this.component.getFormElement());
+				window.touchForm(app.getFlattenedSolution().getFlattenedForm(form), formName, true, true);
+
+				app.invokeLater(new IRunnableWithEventLevel()
+				{
+					public void run()
+					{
+						// tell client that the form that was going to get shown is now shown
+						// this runnable runs with a high event level, so it will get executed even
+						// if a previous event is suspended by a sync-api-call-to-client from an onShow handler
+						INGClientWindow currentWindow = NGClientWindow.getCurrentWindow();
+						INGClientWebsocketSession session;
+						if (currentWindow != null && (session = currentWindow.getSession()) != null && session.isValid()) // as this executes later, make sure everything is still in an ok state
+						{
+							session.getSabloService().setExpectFormToShowOnClient(false);
+						}
+					}
+
+					public int getEventLevel()
+					{
+						return FormServiceHandler.EVENT_LEVEL_INITIAL_FORM_DATA_REQUEST;
+					}
+				});
 			}
 			return ret;
 		}
