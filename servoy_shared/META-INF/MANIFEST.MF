@@ -7,8 +7,7 @@ Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-Vendor: Servoy
 Bundle-ClassPath: .,
  lib/fs-commons.jar,
- lib/fs-parser.jar,
- lib/PBKDF2.jar
+ lib/fs-parser.jar
 Require-Bundle: org.eclipse.dltk.javascript.rhino,
  servoy_base;visibility:=reexport,
  org.apache.logging.log4j.api,
