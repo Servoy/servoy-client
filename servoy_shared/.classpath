@@ -9,6 +9,5 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="lib" path="lib/fs-commons.jar" sourcepath="libsrc/flyingsaucer-src.zip"/>
 	<classpathentry kind="lib" path="lib/fs-parser.jar" sourcepath="libsrc/flyingsaucer-src.zip"/>
-	<classpathentry kind="lib" path="lib/PBKDF2.jar" sourcepath="libsrc/PBKDF2-src.zip"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
