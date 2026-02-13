@@ -142,9 +142,9 @@ public final class QueryAggregate implements IQuerySelectValue, IQueryElement, I
 		return AGGREGATE_TYPE_HIBERNATE[type];
 	}
 
-	public String getQuantifierName()
+	public boolean isDistinct()
 	{
-		return quantifier == DISTINCT ? "distinct" : null; // "all" is default
+		return quantifier == DISTINCT;
 	}
 
 	/*
@@ -216,7 +216,7 @@ public final class QueryAggregate implements IQuerySelectValue, IQueryElement, I
 	{
 		return new StringBuilder(getAggregateName().toUpperCase()) //
 			.append('(') //
-			.append(quantifier == ALL ? "" : (getQuantifierName().toUpperCase() + " ")) //
+			.append(isDistinct() ? "DISTINCT " : "") //
 			.append(aggregee.toString()).append(") ") //
 			.append(name).append(alias == null ? "" : (" AS " + alias)) //
 			.toString();
