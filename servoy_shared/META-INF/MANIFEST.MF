@@ -7,8 +7,7 @@ Bundle-RequiredExecutionEnvironment: JavaSE-21
 Bundle-Vendor: Servoy
 Bundle-ClassPath: .,
  lib/fs-commons.jar,
- lib/fs-parser.jar,
- lib/PBKDF2.jar
+ lib/fs-parser.jar
 Require-Bundle: org.eclipse.dltk.javascript.rhino,
  servoy_base;visibility:=reexport,
  org.apache.logging.log4j.api,
@@ -69,7 +68,9 @@ Export-Package: com.servoy.j2db;version="2026.3.0",
  org.xhtmlrenderer.css.util,
  org.xhtmlrenderer.css.value,
  org.xhtmlrenderer.util
-Import-Package: jakarta.servlet;version="[6.1.0,8.0.0)",
+Import-Package: de.rtner.misc;version="[1.1.0,2.0.0)",
+ de.rtner.security.auth.spi;version="[1.1.0,2.0.0)",
+ jakarta.servlet;version="[6.1.0,8.0.0)",
  jakarta.servlet.http;version="[6.1.0,8.0.0)",
  org.apache.commons.codec;version="[1.16.0,2.0.0)",
  org.apache.commons.codec.binary;version="[1.16.0,2.0.0)",

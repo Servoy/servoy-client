@@ -238,7 +238,10 @@ public class FoundSetManager implements IFoundSetManagerInternal
 				}
 			}
 		}
-
+		if (sortingNullprecedence == null)
+		{
+			sortingNullprecedence = SortingNullprecedence.databaseDefault;
+		}
 		return SortOptions.NONE.withIgnoreCase(ignoreCase).withNullprecedence(sortingNullprecedence);
 	}
 
