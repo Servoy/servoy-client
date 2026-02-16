@@ -80,10 +80,8 @@ public abstract class JarManager
 		{
 			matched = true;
 			String commonPart = null;
-			Iterator<String> it = workingClassNames.iterator();
-			while (it.hasNext())
+			for (String className : workingClassNames)
 			{
-				String className = it.next();
 				int count = 0;
 				StringBuffer nameToCheck = new StringBuffer();
 				StringTokenizer tokenizer = new StringTokenizer(className, "."); //$NON-NLS-1$
@@ -235,10 +233,8 @@ public abstract class JarManager
 	public <C> Extension<C>[] getExtensions(ExtendableURLClassLoader loader, Class<C> searchType, List<ExtensionResource> searchURLs)
 	{
 		List<Extension<C>> extensions = new ArrayList<Extension<C>>();
-		Iterator<ExtensionResource> it = searchURLs.iterator();
-		while (it.hasNext())
+		for (ExtensionResource entry : searchURLs)
 		{
-			ExtensionResource entry = it.next();
 			URL url = entry.jarUrl;
 			InputStream is = null;
 			boolean tryWithFiles = false;
@@ -389,10 +385,8 @@ public abstract class JarManager
 			//make sure we have a predefined load order (== alphabetically)
 			Collections.sort(files);
 
-			Iterator<String> it = files.iterator();
-			while (it.hasNext())
+			for (String fileName : files)
 			{
-				String fileName = it.next();
 				if (fileName.toLowerCase().endsWith(".zip") || fileName.toLowerCase().endsWith(".jar")) //$NON-NLS-1$ //$NON-NLS-2$
 				{
 					try
@@ -574,10 +568,8 @@ public abstract class JarManager
 		}
 
 		ArrayList<String> beanNames = new ArrayList<String>();
-		Iterator<String> it2 = beans.keySet().iterator();
-		while (it2.hasNext())
+		for (String key : beans.keySet())
 		{
-			String key = it2.next();
 			beanNames.add(key);
 		}
 
@@ -632,10 +624,8 @@ public abstract class JarManager
 			jarFileName = jarFileName.substring(index + 1);
 		}
 
-		Iterator<List<ExtensionResource>> it = definitions.values().iterator();
-		while (it.hasNext())
+		for (List<ExtensionResource> exts : definitions.values())
 		{
-			List<ExtensionResource> exts = it.next();
 			for (ExtensionResource ext : exts)
 			{
 				String name = ext.jarFileName;
@@ -672,5 +662,28 @@ public abstract class JarManager
 			Debug.error(e);
 		}
 		return null;
+	}
+
+	public static List<String> getRequiredBundles(URL jarUrl)
+	{
+		ArrayList<String> lst = new ArrayList<String>();
+		try (JarInputStream jis = new JarInputStream(jarUrl.openStream(), false))
+		{
+			Manifest mf = jis.getManifest();
+			String requiredBundles = mf.getMainAttributes().getValue("Require-Bundle");
+			if (requiredBundles != null)
+			{
+				StringTokenizer st = new StringTokenizer(requiredBundles, ","); //$NON-NLS-1$
+				while (st.hasMoreTokens())
+				{
+					lst.add(st.nextToken().split(";")[0].trim()); //$NON-NLS-1$
+				}
+			}
+		}
+		catch (Exception e)
+		{
+			Debug.error(e);
+		}
+		return lst;
 	}
 }
