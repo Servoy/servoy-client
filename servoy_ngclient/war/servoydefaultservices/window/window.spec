@@ -20,7 +20,8 @@
         "shortcuts" : { "type": "shortcut[]", "tags": { "scope" :"private" }},
         "popupform": {"type": "popupform", "tags": { "scope" :"private" }},
         "popupMenus" : {"type": "Popup[]", "tags": { "scope" :"private" }},
-        "popupMenuShowCommand" : {"type": "popupMenuShowCommand", "pushToServer": "shallow", "tags": { "scope" :"private" }} 
+        "popupMenuShowCommand" : {"type": "popupMenuShowCommand", "pushToServer": "shallow", "tags": { "scope" :"private" }},
+        "servoyMenu" : {"type" :"JSMenu", "pushToServer" : "allow","tags": { "basic": true }, "extraPropertiesCategory" : "PopupMenu","extraProperties": { "autoClose": {"type" : "boolean", "default": true}}}
     },
     "api":
     {
@@ -445,7 +446,8 @@
             "accelarator": {"type" : "string", "tags": { "scope" :"private" }},
             "cssClass": {"type" : "string", "tags": { "scope" :"private" }},
             "items":  {"type" : "MenuItem[]", "tags": { "scope" :"private" }},
-            "tooltipText": "string"
+            "tooltipText": "string",
+            "autoClose": { "type": "boolean", "default": true }
         },
         "serversideapi": {
            "doClick": {
@@ -589,6 +591,11 @@
                     "name":"align",
                     "type":"int",
                     "optional":true
+                },
+                {
+                    "name":"autoClose",
+                    "type":"boolean",
+                    "optional":true
                 }
                ],
               "returns": "MenuItem"
@@ -623,6 +630,11 @@
                 {
                     "name":"align",
                     "type":"int",
+                    "optional":true
+                },
+                {
+                    "name":"autoClose",
+                    "type":"boolean",
                     "optional":true
                 }
                ],
@@ -660,6 +672,11 @@
                 {
                     "name":"align",
                     "type":"int",
+                    "optional":true
+                },
+                {
+                    "name":"autoClose",
+                    "type":"boolean",
                     "optional":true
                 }
                ],

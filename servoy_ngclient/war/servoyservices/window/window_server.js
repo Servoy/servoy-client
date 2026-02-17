@@ -27,6 +27,16 @@ var MenuItem = {
         this.accelerator = accelerator;
     },
     
+    setAutoClose: function(autoClose) {
+        this.autoClose = autoClose;
+    },
+
+    getAutoClose: function() {
+        if (this.autoClose == undefined)
+            return true;
+        return this.autoClose;
+    },
+    
     setEnabled: function(enabled)
     {
         this.enabled = enabled;
@@ -125,7 +135,7 @@ var MenuItem = {
 };
 
 var Menu = {
-    addMenuItem : function(text,callback,icon,mnemonic,enabled,align)
+    addMenuItem : function(text,callback,icon,mnemonic,enabled,align,autoClose)
     {
         var newItem = Object.create(MenuItem);
         newItem.id = menuId++ + '';
@@ -142,6 +152,7 @@ var Menu = {
         newItem.mnemonic = mnemonic;
         newItem.align = align;
         newItem.enabled = enabled;
+        newItem.autoClose = autoClose
         newItem = this.items[this.items.push(newItem) - 1]; // we set and get it back to return as that instruments the value and makes it change-aware (be able to send granular updates to browser);
         menuArgumentsInternal[newItem.id] = [newItem, null];
         return newItem;
@@ -149,14 +160,14 @@ var Menu = {
     
     addCheckBox : function(text,callback,icon,mnemonic,enabled,align)
     {
-        var checkbox = this.addMenuItem(text,callback,icon,mnemonic,enabled,align);
+        var checkbox = this.addMenuItem(text,callback,icon,mnemonic,enabled,align,autoClose);
         checkbox.cssClass = "img_checkbox";
         return checkbox;
     },
     
     addRadioButton : function(text,callback,icon,mnemonic,enabled,align)
     {
-        var radio = this.addMenuItem(text,callback,icon,mnemonic,enabled,align);
+        var radio = this.addMenuItem(text,callback,icon,mnemonic,enabled,align,autoClose);
         radio.cssClass = "img_radio_off";
         return radio;
     },

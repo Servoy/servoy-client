@@ -25,6 +25,16 @@ var MenuItem = {
     setEnabled: function(enabled) {
         this.enabled = enabled;
     },
+    
+    setAutoClose: function(autoClose) {
+        this.autoClose = autoClose;
+    },
+    
+    getAutoClose: function() {
+        if (this.autoClose == undefined)
+            return true;
+        return this.autoClose;
+    },
 
     isEnabled: function() {
         if (this.enabled == undefined)
@@ -102,7 +112,7 @@ var MenuItem = {
 };
 
 var Menu = {
-    addMenuItem: function(text, callback, icon, mnemonic, enabled, align) {
+    addMenuItem: function(text, callback, icon, mnemonic, enabled, align, autoClose) {
         var newItem = Object.create(MenuItem);
         newItem.id = menuId++ + '';
         newItem.text = text;
@@ -116,19 +126,20 @@ var Menu = {
         newItem.mnemonic = mnemonic;
         newItem.align = align;
         newItem.enabled = enabled;
+        newItem.autoClose = autoClose;
         newItem = this.items[this.items.push(newItem) - 1]; // we set and get it back to return as that instruments the value and makes it change-aware (be able to send granular updates to browser);
         menuArgumentsInternal[newItem.id] = [newItem, null];
         return newItem;
     },
 
-    addCheckBox: function(text, callback, icon, mnemonic, enabled, align) {
-        var checkbox = this.addMenuItem(text, callback, icon, mnemonic, enabled, align);
+    addCheckBox: function(text, callback, icon, mnemonic, enabled, align, autoClose) {
+        var checkbox = this.addMenuItem(text, callback, icon, mnemonic, enabled, align, autoClose);
         checkbox.cssClass = "img_checkbox";
         return checkbox;
     },
 
-    addRadioButton: function(text, callback, icon, mnemonic, enabled, align) {
-        var radio = this.addMenuItem(text, callback, icon, mnemonic, enabled, align);
+    addRadioButton: function(text, callback, icon, mnemonic, enabled, align, autoClose) {
+        var radio = this.addMenuItem(text, callback, icon, mnemonic, enabled, align, autoClose);
         radio.cssClass = "img_radio_off";
         return radio;
     },
@@ -456,10 +467,11 @@ function addJSMenuItems(popupmenu, jsmenuitems, callback, selectedItem) {
 				newmenu.tooltipText = jsmenuitem.getTooltipText();
                 addJSMenuItems(newmenu, jsmenuitem.getMenuItemsWithSecurity(), callback)
             } else {
-                var newmenuitem = popupmenu.addMenuItem(jsmenuitem.getMenuText(), callback, jsmenuitem.getIconStyleClass(), null, jsmenuitem.getEnabledWithSecurity(), null);
+                var newmenuitem = popupmenu.addMenuItem(jsmenuitem.getMenuText(), callback, jsmenuitem.getIconStyleClass(), null, jsmenuitem.getEnabledWithSecurity(), null, null);
                 newmenuitem.cssClass = jsmenuitem.getStyleClass();
 				newmenuitem.tooltipText = jsmenuitem.getTooltipText();
                 newmenuitem.methodArguments = jsmenuitem.getCallbackArguments();
+                newmenuitem.autoClose = jsmenuitem.getExtraProperty('PopupMenu', 'autoClose');
                 if (selectedItem && jsmenuitem == selectedItem) {
                     newmenuitem.setSelected(true);
                 }
