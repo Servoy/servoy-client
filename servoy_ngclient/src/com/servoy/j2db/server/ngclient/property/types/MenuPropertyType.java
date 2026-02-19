@@ -36,8 +36,8 @@ import org.sablo.specification.ValuesConfig;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IConvertedPropertyType;
 import org.sablo.specification.property.IPropertyType;
-import org.sablo.specification.property.IPropertyWithClientSideConversions;
 import org.sablo.specification.property.IPropertyWithAttachDependencies;
+import org.sablo.specification.property.IPropertyWithClientSideConversions;
 import org.sablo.specification.property.types.DefaultPropertyType;
 import org.sablo.specification.property.types.TypesRegistry;
 import org.sablo.specification.property.types.ValuesPropertyType;
@@ -45,6 +45,7 @@ import org.sablo.util.ValueReference;
 import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.j2db.FlattenedSolution;
+import com.servoy.j2db.MenuManager;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.Menu;
 import com.servoy.j2db.persistence.MenuItem;
@@ -126,6 +127,8 @@ public class MenuPropertyType extends DefaultPropertyType<MenuTypeSabloValue>
 				propertiesMapForCategory.put(key, new PropertyDescriptionBuilder().withName(key).withType(
 					propertyType).withDefaultValue(defaultValue).withHasDefault(hasDefaultValue).withConfig(config).build());
 			}
+
+			MenuManager.setExtraProperties(extraProperties);
 		}
 		return json;
 	}

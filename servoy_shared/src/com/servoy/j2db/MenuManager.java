@@ -22,6 +22,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.mozilla.javascript.annotations.JSFunction;
+import org.sablo.specification.PropertyDescription;
 
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
@@ -79,6 +80,7 @@ public class MenuManager implements IMenuManager, IReturnedTypesProvider
 	private final ClientState application;
 	private boolean initialized = false;
 	private String[] allowedPermissions;
+	private static Map<String, Map<String, PropertyDescription>> extraProperties = new HashMap<String, Map<String, PropertyDescription>>();
 
 	/**
 	 * @param clientState
@@ -162,5 +164,15 @@ public class MenuManager implements IMenuManager, IReturnedTypesProvider
 	{
 		flushMenus();
 		this.allowedPermissions = allowedPermissions;
+	}
+
+	public static void setExtraProperties(Map<String, Map<String, PropertyDescription>> extraProperties)
+	{
+		MenuManager.extraProperties = extraProperties;
+	}
+
+	public static Map<String, Map<String, PropertyDescription>> getExtraProperties()
+	{
+		return MenuManager.extraProperties;
 	}
 }
