@@ -21,7 +21,7 @@
         "popupform": {"type": "popupform", "tags": { "scope" :"private" }},
         "popupMenus" : {"type": "Popup[]", "tags": { "scope" :"private" }},
         "popupMenuShowCommand" : {"type": "popupMenuShowCommand", "pushToServer": "shallow", "tags": { "scope" :"private" }},
-        "servoyMenu" : {"type" :"JSMenu", "pushToServer" : "allow","tags": { "basic": true }, "extraPropertiesCategory" : "PopupMenu","extraProperties": { "autoClose": {"type" : "boolean", "default": true}}}
+        "servoyMenu" : {"type" :"JSMenu", "pushToServer" : "reject", "tags": { "basic": true, "scope" :"private", "doc": "Adds the 'autoClose' property to the Menu Editor" }, "extraPropertiesCategory" : "PopupMenu","extraProperties": { "autoClose": {"type" : "boolean", "default": true}}}
     },
     "api":
     {
