@@ -254,12 +254,28 @@ public class QBColumnImpl extends QBPart
 		return (QBColumn)getRoot().aggregates().sum(this);
 	}
 
+	/**
+	 * Create nullif(arg) expression
+	 * @param arg object to compare
+	 * @sample
+	 * query.result.add(query.columns.mycol.nullif('none'))
+	 *
+	 *  @return a QBColumn representing the nullif expression.
+	 */
 	@Override
 	public QBColumn nullif(Object arg)
 	{
 		return (QBColumn)getRoot().functions().nullif(this, arg);
 	}
 
+	/**
+	 * Create coalesce(arg) expression
+	 * @param value when column is null
+	 * @sample
+	 * query.result.add(query.columns.mycol.coalesce('defval'))
+	 *
+	 *  @return a QBColumn representing the coalesce expression.
+	 */
 	@Override
 	public QBColumn coalesce(Object... args)
 	{

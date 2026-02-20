@@ -900,10 +900,11 @@ function BaseMenu() {
      * @param {String} [mnemonic] the menu mnemonic
      * @param {Boolean} [enabled] the enabled state of the menu
      * @param {Number} [align] the alignment type
+     * @param {Boolean} [autoClose] whether the menu should be closed automatically after clicking the item; default is true
      *
      * @return MenuItem
      */
-     this.addMenuItem = function(name, feedback_item, icon, mnemonic, enabled, align) {};
+     this.addMenuItem = function(name, feedback_item, icon, mnemonic, enabled, align, autoClose) {};
 
     /**
      * Add a checkbox at the selected index (starting at 0) or at the end.
@@ -941,10 +942,11 @@ function BaseMenu() {
      * @param {String} [mnemonic] the checkbox mnemonic
      * @param {Boolean} [enabled] the enabled state of the checkbox
      * @param {Number} [align] the alignment type
+     * @param {Boolean} [autoClose] whether the menu should be closed automatically after clicking the checkbox; default is true
      *
      * @return CheckBox
      */
-     this.addCheckBox = function(name, feedback_item, icon, mnemonic, enabled, align) {};
+     this.addCheckBox = function(name, feedback_item, icon, mnemonic, enabled, align, autoClose) {};
  
       /**
        * Add a radiobutton at the selected index (starting at 0) or at the end.
@@ -989,10 +991,11 @@ function BaseMenu() {
         * @param {String} mnemonic the radio button mnemonic
         * @param {Boolean} enabled the enabled state of radio button
         * @param {Number} align the alignment type
+        * @param {Boolean} autoClose whether the menu should be closed automatically after clicking the radiobutton; default is true
         *
         * @return RadioButton
       */
-      this.addRadioButton = function(name, feedback_item, icon, mnemonic, enabled, align) {};
+      this.addRadioButton = function(name, feedback_item, icon, mnemonic, enabled, align, autoClose) {};
 
 
       /**

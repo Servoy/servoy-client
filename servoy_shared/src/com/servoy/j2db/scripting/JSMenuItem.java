@@ -27,8 +27,10 @@ import org.json.JSONObject;
 import org.mozilla.javascript.annotations.JSFunction;
 import org.mozilla.javascript.annotations.JSGetter;
 import org.mozilla.javascript.annotations.JSSetter;
+import org.sablo.specification.PropertyDescription;
 
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
+import com.servoy.j2db.MenuManager;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.MenuItem;
@@ -312,6 +314,12 @@ public class JSMenuItem extends JSMenu implements IConstantsObject
 		if (extraProperties != null && extraProperties.containsKey(categoryName))
 		{
 			return extraProperties.get(categoryName).get(propertyName);
+		}
+		// check if the property is defined in the component spec, if so return the default value for it
+		Map<String, Map<String, PropertyDescription>> spec = MenuManager.getExtraProperties();
+		if (spec != null && spec.containsKey(categoryName) && spec.get(categoryName).containsKey(propertyName))
+		{
+			return spec.get(categoryName).get(propertyName).getDefaultValue();
 		}
 		return null;
 	}
