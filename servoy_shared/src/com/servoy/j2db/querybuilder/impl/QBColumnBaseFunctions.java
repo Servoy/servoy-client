@@ -62,18 +62,18 @@ public interface QBColumnBaseFunctions<T extends IQueryBuilderColumn>
 	 * @sample
 	 * query.result.add(query.columns.mycol.nullif('none'))
 	 *
-	 *  @return a QBColumn representing the nullif expression.
+	 * @return a QBColumn representing the nullif expression.
 	 */
 	@JSFunction
 	T nullif(Object arg);
 
 	/**
 	 * Create coalesce(arg) expression
-	 * @param value when column is null
+	 * @param args when column is null
 	 * @sample
 	 * query.result.add(query.columns.mycol.coalesce('defval'))
 	 *
-	 *  @return a QBColumn representing the coalesce expression.
+	 * @return a QBColumn representing the coalesce expression.
 	 */
 	@JSFunction
 	T coalesce(Object... args);

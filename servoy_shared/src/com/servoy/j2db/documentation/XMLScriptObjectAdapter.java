@@ -156,10 +156,21 @@ public class XMLScriptObjectAdapter implements ITypedScriptObject
 
 	public String getJSTranslatedSignature(String methodName, Class< ? >[] argTypes)
 	{
+		return getJSTranslatedSignature(methodName, argTypes, null);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.scripting.ITypedScriptObject#getJSTranslatedSignature(java.lang.String, java.lang.Class[], java.lang.Class)
+	 */
+	@Override
+	public String getJSTranslatedSignature(String methodName, Class< ? >[] argTypes, Class returnType)
+	{
 		IFunctionDocumentation fdoc = objDoc.getFunction(methodName, argTypes);
 		if (fdoc != null)
 		{
-			return fdoc.getFullJSTranslatedSignature(false, true);
+			return fdoc.getFullJSTranslatedSignature(false, true, returnType);
 		}
 		return null;
 	}

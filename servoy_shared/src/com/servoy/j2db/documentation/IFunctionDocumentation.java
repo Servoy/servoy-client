@@ -84,6 +84,8 @@ public interface IFunctionDocumentation
 
 	public String getFullJSTranslatedSignature(boolean withNames, boolean withTypes);
 
+	public String getFullJSTranslatedSignature(boolean withNames, boolean withTypes, Class returnType);
+
 	public String getSignature(String prefix);
 
 	public boolean answersTo(String name);

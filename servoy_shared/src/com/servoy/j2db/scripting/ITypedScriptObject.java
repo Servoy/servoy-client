@@ -28,6 +28,8 @@ public interface ITypedScriptObject extends IScriptObject
 
 	public String getJSTranslatedSignature(String methodName, Class< ? >[] argTypes);
 
+	public String getJSTranslatedSignature(String methodName, Class< ? >[] argTypes, Class returnType);
+
 	public String getSample(String methodName, Class< ? >[] argTypes);
 
 	public String getSample(String methodName, ClientSupport csp);
