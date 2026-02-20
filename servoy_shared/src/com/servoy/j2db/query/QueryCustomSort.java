@@ -50,6 +50,12 @@ public final class QueryCustomSort implements IQuerySort, IQueryCustomSql, Immut
 	}
 
 	@Override
+	public Object[] getArgs()
+	{
+		return null;
+	}
+
+	@Override
 	public Object shallowClone() throws CloneNotSupportedException
 	{
 		return super.clone();

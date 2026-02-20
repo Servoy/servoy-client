@@ -26,4 +26,6 @@ package com.servoy.j2db.query;
 public interface IQueryCustomSql
 {
 	String getSql();
+
+	Object[] getArgs();
 }
