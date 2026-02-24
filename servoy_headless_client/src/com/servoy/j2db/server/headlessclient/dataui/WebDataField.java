@@ -142,6 +142,7 @@ public class WebDataField extends Component
 			}
 		};
 		this.scriptable = scriptable;
+
 	}
 
 	public void destroy()
