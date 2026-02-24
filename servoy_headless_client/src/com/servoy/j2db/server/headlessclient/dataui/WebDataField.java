@@ -242,7 +242,7 @@ public class WebDataField extends TextField<Object>
 				return super.isEnabled(component) && scriptable.getPlaceholderText() != null;
 			}
 		});
-		add(new SimpleAttributeModifier("autocomplete", "disabled"));
+		add(new SimpleAttributeModifier("autocomplete", "off"));
 
 		focusIfInvalidAttributeModifier = new FocusIfInvalidAttributeModifier(this);
 		add(focusIfInvalidAttributeModifier);
@@ -1323,9 +1323,8 @@ public class WebDataField extends TextField<Object>
 			setVisible(visible);
 			if (labels != null)
 			{
-				for (int i = 0; i < labels.size(); i++)
+				for (ILabel label : labels)
 				{
-					ILabel label = labels.get(i);
 					label.setComponentVisible(visible);
 				}
 			}
@@ -1353,9 +1352,8 @@ public class WebDataField extends TextField<Object>
 			getStylePropertyChanges().setChanged();
 			if (labels != null)
 			{
-				for (int i = 0; i < labels.size(); i++)
+				for (ILabel label : labels)
 				{
-					ILabel label = labels.get(i);
 					label.setComponentEnabled(b);
 				}
 			}
