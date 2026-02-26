@@ -77,7 +77,11 @@ import com.servoy.j2db.dataprocessing.LookupValueList;
 import com.servoy.j2db.dnd.DRAGNDROP;
 import com.servoy.j2db.dnd.JSDNDEvent;
 import com.servoy.j2db.documentation.ServoyDocumented;
+import com.servoy.j2db.persistence.AbstractRepository;
 import com.servoy.j2db.persistence.Form;
+import com.servoy.j2db.persistence.IRepository;
+import com.servoy.j2db.persistence.IRootObject;
+import com.servoy.j2db.persistence.RootObjectMetaData;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.plugins.IClientPlugin;
@@ -92,6 +96,7 @@ import com.servoy.j2db.scripting.info.NGCONSTANTS;
 import com.servoy.j2db.scripting.info.UICONSTANTS;
 import com.servoy.j2db.scripting.info.WEBCONSTANTS;
 import com.servoy.j2db.scripting.solutionmodel.ICSSPosition;
+import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IScriptRenderMethodsWithOptionalProps;
 import com.servoy.j2db.ui.ISupportValueList;
@@ -2399,24 +2404,35 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	}
 
 	/**
-	 * Get the full version information of this solution and all its modules.
-	 * This will return an object that is a map of Name(Sting)->Version(String) of the solution and all its modules.
+	 * Get the full version information of all solutions that are currently loaded in the repository.
+	 * This will return an object that is a map of Name(String)->Version(String) of all loaded solutions.
 	 *
 	 * @return {Object<String,String>} Name->Version map object.
 	 */
 	public JSMap<String, String> js_getVersionInfo()
 	{
 		JSMap<String, String> info = new JSMap<>();
-		Solution solution = application.getSolution();
-		info.put(solution.getName(), solution.getVersion());
-		Solution[] modules = application.getFlattenedSolution().getModules();
-		if (modules != null)
+		try
 		{
-			for (Solution m : modules)
+			IRepository applicationServer = ApplicationServerRegistry.get().getLocalRepository();
+			RootObjectMetaData[] smds = applicationServer.getRootObjectMetaDatasForType(IRepository.SOLUTIONS);
+			for (RootObjectMetaData element : smds)
 			{
-				info.put(m.getName(), m.getVersion());
+				if (((AbstractRepository)applicationServer).isSolutionLoaded(element.getName()))
+				{
+					IRootObject ro = applicationServer.getActiveRootObject(element.getName(), IRepository.SOLUTIONS);
+					if (ro instanceof Solution solution)
+					{
+						info.put(element.getName(), solution.getVersion());
+					}
+				}
 			}
 		}
+		catch (Exception e)
+		{
+			Debug.error(e);
+		}
+
 		return info;
 	}
 
