@@ -86,6 +86,7 @@ public class HCUtils
 			{
 				sanitizedBody = sanitizedBody.substring(6, sanitizedBody.length() - 7);
 			}
+			sanitizedBody = sanitizedBody.replace("&amp;", "&");
 			return sanitizedBody;
 		}
 
