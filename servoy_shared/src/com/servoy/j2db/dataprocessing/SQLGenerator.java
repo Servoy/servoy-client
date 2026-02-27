@@ -29,7 +29,6 @@ import static com.servoy.j2db.query.AndCondition.and;
 import static com.servoy.j2db.query.ColumnType.getColumnType;
 import static com.servoy.j2db.query.OrCondition.or;
 import static com.servoy.j2db.query.QueryFunction.QueryFunctionType.cast;
-import static com.servoy.j2db.query.QueryFunction.QueryFunctionType.castfrom;
 import static com.servoy.j2db.query.QueryFunction.QueryFunctionType.upper;
 import static com.servoy.j2db.util.Utils.iterate;
 import static com.servoy.j2db.util.Utils.stream;
@@ -1759,13 +1758,9 @@ public class SQLGenerator
 		}
 		else
 		{
-			likeSelectValue = new QueryFunction(castfrom,
-				new IQuerySelectValue[] { selectValue, new QueryColumnValue(IQueryConstants.TYPE_INTEGER, null,
-					true), new QueryColumnValue(IQueryConstants.TYPE_STRING, null, true) },
+			likeSelectValue = new QueryFunction(cast, new IQuerySelectValue[] { selectValue, new QueryColumnValue(IQueryConstants.TYPE_STRING, null, true) },
 				null);
 		}
 		return new CompareCondition(IBaseSQLCondition.LIKE_OPERATOR, likeSelectValue, value);
 	}
-
-
 }

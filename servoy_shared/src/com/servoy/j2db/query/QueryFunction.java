@@ -78,9 +78,6 @@ public final class QueryFunction implements IQuerySelectValue
 		multiply,
 		divide,
 
-		// added
-		castfrom,
-
 		// custom
 		custom
 	}
