@@ -501,10 +501,11 @@ public class OAuthHandler
 		JSONObject properties = solution.getCustomProperties();
 		if (properties != null && properties.has(StatelessLoginHandler.OAUTH_CUSTOM_PROPERTIES))
 		{
-			JSONObject auth = properties.getJSONObject(StatelessLoginHandler.OAUTH_CUSTOM_PROPERTIES);
-			OAuth20Service service = OAuthUtils.createOauthService(auth, new HashMap<>(), null);
 			try
 			{
+				Object props = properties.get(StatelessLoginHandler.OAUTH_CUSTOM_PROPERTIES);
+				JSONObject auth = props instanceof JSONObject ? (JSONObject)props : new JSONObject(props.toString());
+				OAuth20Service service = OAuthUtils.createOauthService(auth, new HashMap<>(), null);
 				if (service != null && service.getApi().getRevokeTokenEndpoint() != null)
 				{
 					service.revokeToken(jwt.getClaim(StatelessLoginHandler.REFRESH_TOKEN).asString(), TokenTypeHint.REFRESH_TOKEN);

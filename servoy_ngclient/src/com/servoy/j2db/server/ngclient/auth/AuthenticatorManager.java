@@ -34,6 +34,7 @@ import com.servoy.j2db.Credentials;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Solution;
+import com.servoy.j2db.persistence.Solution.AUTHENTICATOR_TYPE;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.server.ngclient.StatelessLoginHandler;
 import com.servoy.j2db.server.ngclient.auth.OAuthUtils.OAuthParameters;
@@ -76,7 +77,13 @@ public class AuthenticatorManager
 	}
 
 	public static boolean callAuthenticator(Pair<Boolean, String> needToLogin, HttpServletRequest request, boolean rememberUser, Solution authenticator,
-		JSONObject json, String refreshToken)
+		JSONObject json, String refreshToken, Solution solution)
+	{
+		return callAuthenticator(needToLogin, request, rememberUser, authenticator, json, refreshToken, solution, null);
+	}
+
+	private static boolean callAuthenticator(Pair<Boolean, String> needToLogin, HttpServletRequest request, boolean rememberUser, Solution authenticator,
+		JSONObject json, String refreshToken, Solution mainSolution, String state)
 	{
 		addCustomParameters(request, json);
 		Credentials credentials = new Credentials(null, authenticator.getName(), null, json.toString());
@@ -89,6 +96,11 @@ public class AuthenticatorManager
 				SvyTokenBuilder builder = new SvyTokenBuilder(login.getUserName(), login.getUserUid(), login.getUserGroups())//
 					.withRememberUser(Boolean.valueOf(rememberUser)) //
 					.withRefreshToken(refreshToken);
+				if (mainSolution.getAuthenticator() == AUTHENTICATOR_TYPE.OAUTH_AUTHENTICATOR)
+				{
+					if (state == null) state = json.optString(OAuthParameters.state.name(), null);
+					if (state != null) builder.withClaim(OAuthParameters.state.name(), state);
+				}
 				String token = builder.sign();
 				needToLogin.setLeft(Boolean.FALSE);
 				needToLogin.setRight(token);
@@ -173,9 +185,15 @@ public class AuthenticatorManager
 				JSONObject token = new JSONObject(payload);
 				json.put(SvyID.LAST_LOGIN, token);
 				refreshToken = oldToken.getStringClaim(StatelessLoginHandler.REFRESH_TOKEN);
+				if (solution.getAuthenticator() == AUTHENTICATOR_TYPE.OAUTH_AUTHENTICATOR && token.has(OAuthParameters.state.name()))
+				{
+					addParsedStateParameterToJson(token.getString(OAuthParameters.state.name()), json);
+					return callAuthenticator(needToLogin, request, remember, authenticator, json, refreshToken, solution,
+						token.getString(OAuthParameters.state.name()));
+				}
 			}
 
-			return callAuthenticator(needToLogin, request, remember, authenticator, json, refreshToken);
+			return callAuthenticator(needToLogin, request, remember, authenticator, json, refreshToken, solution);
 		}
 		else
 		{

@@ -130,8 +130,17 @@ public class StatelessLoginHandler
 							try
 							{
 								jwtVerifier.verify(id_token);
-								needToLogin.setLeft(Boolean.FALSE);
-								needToLogin.setRight(id_token);
+								if (request.getParameter(ID_TOKEN) != null)
+								{
+									checkPermissions(user, password, true, svyID, needToLogin, fs.getSolution(), request);
+								}
+								else
+								{
+									// the id_token was in the session, so we already have a client and the token is not expired
+									// => no need to check the permissions again
+									needToLogin.setLeft(Boolean.FALSE);
+									needToLogin.setRight(id_token);
+								}
 							}
 							catch (JWTVerificationException ex)
 							{
@@ -190,6 +199,57 @@ public class StatelessLoginHandler
 			{
 				verified = DefaultLoginManager.checkDefaultLoginPermissions(username, password, remember, oldToken, needToLogin);
 			}
+		}
+		if (!verified)
+		{
+			needToLogin.setLeft(Boolean.TRUE);
+			if (needToLogin.getRight() != null && !needToLogin.getRight().startsWith("<"))
+			{
+				needToLogin.setRight(null);
+			}
+		}
+	}
+
+	/**
+	 * This method is similar to checkUser, except for the OAUTH authenticator when it only calls the authenticator (does not refresh the oauth provider token)
+	 * @param user
+	 * @param password2
+	 * @param b
+	 * @param svyID
+	 * @param needToLogin
+	 * @param solution
+	 * @param request
+	 * @param reponse
+	 * @throws ServletException
+	 */
+	private static void checkPermissions(String username, String password, boolean remember, SvyID oldToken, Pair<Boolean, String> needToLogin,
+		Solution solution, HttpServletRequest request) throws ServletException
+	{
+		boolean verified = false;
+		if (solution.getAuthenticator() == AUTHENTICATOR_TYPE.OAUTH ||
+			solution.getAuthenticator() == AUTHENTICATOR_TYPE.OAUTH_AUTHENTICATOR)
+		{
+			//just call the authenticator to check the permissions, we don't want to refresh the token here
+			verified = AuthenticatorManager.checkAuthenticatorPermissions(username, password, remember, oldToken, needToLogin, solution, request);
+		}
+		else if (checkCSRFToken(request))
+		{
+			if (solution.getAuthenticator() == AUTHENTICATOR_TYPE.SERVOY_CLOUD)
+			{
+				verified = CloudStatelessAccessManager.checkCloudPermissions(username, password, remember, oldToken, needToLogin, solution, request);
+			}
+			else if (solution.getAuthenticator() == AUTHENTICATOR_TYPE.AUTHENTICATOR)
+			{
+				verified = AuthenticatorManager.checkAuthenticatorPermissions(username, password, remember, oldToken, needToLogin, solution, request);
+			}
+			else
+			{
+				verified = DefaultLoginManager.checkDefaultLoginPermissions(username, password, remember, oldToken, needToLogin);
+			}
+		}
+		else
+		{
+			throw new ServletException("Access forbidden due to failed security validation");
 		}
 		if (!verified)
 		{
@@ -360,6 +420,7 @@ public class StatelessLoginHandler
 			}, i18nProvider);
 		}
 
+		long nextLong = secureRandom.nextLong();
 		StringBuilder sb = new StringBuilder();
 		sb.append("<base href=\"");
 		sb.append(HTMLWriter.getPath(request));
@@ -373,6 +434,7 @@ public class StatelessLoginHandler
 			sb.append("\n    	document.body.style.display = 'none'; ");
 			sb.append("\n    	document.login_form.action = 'index.html'; ");
 			sb.append("\n  	    document.login_form.id_token.value = JSON.parse(window.localStorage.getItem('servoy_id_token'));  ");
+			sb.append("\n  	    document.login_form.elements['csrf_token'].value = '" + Long.toString(nextLong) + "';");
 			sb.append("\n    	document.login_form.remember.checked = true;  ");
 			sb.append("\n    	document.login_form.submit(); ");
 			sb.append("\n     } ");
@@ -417,7 +479,6 @@ public class StatelessLoginHandler
 			loginHtml = loginHtml.replaceAll("<style", "<style nonce='" + contentSecurityPolicyNonce + "\' ");
 		}
 
-		long nextLong = secureRandom.nextLong();
 		Cookie csrfCookie = new Cookie("csrf_token", Long.toString(nextLong));
 		csrfCookie.setPath("/");
 		csrfCookie.setHttpOnly(true);
