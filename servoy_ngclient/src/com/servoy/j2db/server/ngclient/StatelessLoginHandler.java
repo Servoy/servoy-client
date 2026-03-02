@@ -226,15 +226,15 @@ public class StatelessLoginHandler
 		Solution solution, HttpServletRequest request) throws ServletException
 	{
 		boolean verified = false;
-		if (solution.getAuthenticator() == AUTHENTICATOR_TYPE.OAUTH ||
-			solution.getAuthenticator() == AUTHENTICATOR_TYPE.OAUTH_AUTHENTICATOR)
+		if (checkCSRFToken(request))
 		{
-			//just call the authenticator to check the permissions, we don't want to refresh the token here
-			verified = AuthenticatorManager.checkAuthenticatorPermissions(username, password, remember, oldToken, needToLogin, solution, request);
-		}
-		else if (checkCSRFToken(request))
-		{
-			if (solution.getAuthenticator() == AUTHENTICATOR_TYPE.SERVOY_CLOUD)
+			if (solution.getAuthenticator() == AUTHENTICATOR_TYPE.OAUTH ||
+				solution.getAuthenticator() == AUTHENTICATOR_TYPE.OAUTH_AUTHENTICATOR)
+			{
+				//just call the authenticator to check the permissions, we don't want to refresh the token here
+				verified = AuthenticatorManager.checkAuthenticatorPermissions(username, password, remember, oldToken, needToLogin, solution, request);
+			}
+			else if (solution.getAuthenticator() == AUTHENTICATOR_TYPE.SERVOY_CLOUD)
 			{
 				verified = CloudStatelessAccessManager.checkCloudPermissions(username, password, remember, oldToken, needToLogin, solution, request);
 			}

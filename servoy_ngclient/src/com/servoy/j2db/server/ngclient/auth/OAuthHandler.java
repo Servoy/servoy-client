@@ -33,6 +33,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.text.StringEscapeUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.sablo.security.ContentSecurityPolicyConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,6 +67,7 @@ import com.servoy.j2db.util.Utils;
 
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -78,6 +80,7 @@ public class OAuthHandler
 	private static final String GET_OAUTH_CONFIG = "getOAuthConfig";
 
 	static final Logger log = LoggerFactory.getLogger("stateless.login");
+	private static final SecureRandom secureRandom = new SecureRandom();
 
 	public static Pair<Boolean, String> handleOauth(HttpServletRequest req, HttpServletResponse resp) throws IOException
 	{
@@ -426,6 +429,7 @@ public class OAuthHandler
 						.append("            window.location.href = '").append(authorizationUrl).append("';").append("\n")
 						.append("        }").append("\n");
 				}
+				long nextLong = secureRandom.nextLong();
 				sb.append("   }) ").append("\n")
 					.append("  </script> ").append("\n")
 					.append("    <title>Auto Login</title>").append("\n")
@@ -434,15 +438,37 @@ public class OAuthHandler
 					.append("   <form accept-charset=\"UTF-8\" role=\"form\" name=\"login_form\" method=\"post\" style=\"display: none;\">")
 					.append("\n")
 					.append("        <input type=\"hidden\" name=\"id_token\" id=\"id_token\">").append("\n")
+					.append("        <input type=\"hidden\" name=\"csrf_token\" value=\"")
+					.append(nextLong)
+					.append("\">").append("\n")
+
 					.append("   </form>").append("\n")
 					.append("\n")
 					.append("</body>").append("\n")
 					.append("</html>").append("\n");
 
+				ContentSecurityPolicyConfig contentSecurityPolicyConfig = AngularIndexPageWriter.addcontentSecurityPolicyHeader(request, response, false);
+				String contentSecurityPolicyNonce = contentSecurityPolicyConfig != null ? contentSecurityPolicyConfig.getNonce() : null;
+				String loginHtml = sb.toString();
+				if (contentSecurityPolicyNonce != null)
+				{
+					loginHtml = loginHtml.replaceAll(
+						"<script ",
+						"<script nonce='" + contentSecurityPolicyNonce + "' ");
+					loginHtml = loginHtml.replaceAll(
+						"<style",
+						"<style nonce='" + contentSecurityPolicyNonce + "' ");
+				}
+
+				Cookie csrfCookie = new Cookie("csrf_token", Long.toString(nextLong));
+				csrfCookie.setPath("/");
+				csrfCookie.setHttpOnly(true);
+				response.addCookie(csrfCookie);
+
 				response.setCharacterEncoding("UTF-8");
 				response.setContentType("text/html");
-				response.setContentLengthLong(sb.length());
-				response.getWriter().write(sb.toString());
+				response.setContentLengthLong(loginHtml.length());
+				response.getWriter().write(loginHtml);
 			}
 			catch (Exception e)
 			{
