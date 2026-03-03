@@ -85,6 +85,7 @@ public class AuthenticatorManager
 	private static boolean callAuthenticator(Pair<Boolean, String> needToLogin, HttpServletRequest request, boolean rememberUser, Solution authenticator,
 		JSONObject json, String refreshToken, Solution mainSolution, String state)
 	{
+		log.info("Calling authenticator {} for solution {}, with parameters {}", authenticator.getName(), mainSolution.getName(), json);
 		addCustomParameters(request, json);
 		Credentials credentials = new Credentials(null, authenticator.getName(), null, json.toString());
 		IApplicationServer applicationServer = ApplicationServerRegistry.getService(IApplicationServer.class);

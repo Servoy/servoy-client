@@ -225,6 +225,7 @@ public class StatelessLoginHandler
 	private static void checkPermissions(String username, String password, boolean remember, SvyID oldToken, Pair<Boolean, String> needToLogin,
 		Solution solution, HttpServletRequest request) throws ServletException
 	{
+		log.atInfo().log(() -> "Checking permissions for user " + username + " with authenticator " + solution.getAuthenticator().name());
 		boolean verified = false;
 		if (checkCSRFToken(request))
 		{
@@ -266,6 +267,7 @@ public class StatelessLoginHandler
 	 */
 	private static boolean checkCSRFToken(HttpServletRequest request)
 	{
+		log.atInfo().log(() -> "Checking CSRF token " + request.getParameter("csrf_token"));
 		String fieldToken = request.getParameter("csrf_token");
 		Cookie[] cookies = request.getCookies();
 		if (cookies == null || fieldToken == null)
