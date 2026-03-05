@@ -3817,17 +3817,17 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 */
 	@JSFunction
 	@ServoyClientSupport(ng = true, wc = true, sc = true, mc = false)
-	public String getServerUUID()
+	public UUID getServerUUID()
 	{
 		try
 		{
-			return application.getApplicationServer().getClientHost().getServerId();
+			return UUID.fromString(application.getApplicationServer().getClientHost().getServerId());
 		}
 		catch (RemoteException e)
 		{
 			Debug.error(e);
 		}
-		return "";
+		return null;
 	}
 
 	@Override
