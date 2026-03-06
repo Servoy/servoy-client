@@ -137,7 +137,8 @@ public class JWTValidator
 							Solution authenticatorModule = AuthenticatorManager.findAuthenticator(solution);
 							if (authenticatorModule != null)
 							{
-								return AuthenticatorManager.callAuthenticator(needToLogin, request, remember, authenticatorModule, token, refreshToken);
+								return AuthenticatorManager.callAuthenticator(needToLogin, request, remember, authenticatorModule, token, refreshToken,
+									solution);
 							}
 							else
 							{

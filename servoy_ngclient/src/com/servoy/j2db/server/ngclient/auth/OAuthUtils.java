@@ -223,14 +223,16 @@ public class OAuthUtils
 		String nonce = OAuthUtils.generateNonce(request.getServletContext(), auth);
 		additionalParameters.put(OAuthParameters.nonce.name(), nonce);
 		HttpSession session = request.getSession(false);
-		if (session != null && session.getAttribute("logout") != null)
+		boolean loggedOut = session != null && session.getAttribute("logout") != null;
+		if (loggedOut)
 		{
 			session.removeAttribute("logout");
 			additionalParameters.put("prompt", "consent");
 		}
 
 		StringBuilder state = new StringBuilder();
-		if (!request.getParameterMap().isEmpty() && (request.getParameter("id_token") == null && request.getParameter("code") == null))
+		//if it is a logout, then we don't want to keep the old state
+		if (!loggedOut && !request.getParameterMap().isEmpty() && (request.getParameter("id_token") == null && request.getParameter("code") == null))
 		{
 			request.getParameterMap().forEach((key, values) -> {
 				String value = String.join(",", values);

@@ -179,7 +179,8 @@ public interface ISecurityInfoManager
 	{
 		if (groupName == null || groupName.length() == 0 || accessMask == null || !isOperational)
 		{
-			Debug.error("Invalid parameters received, or manager is not operational - setTableSecurityAccess(...)");
+			Debug.error("Invalid parameters received, or manager is not operational - setTableSecurityAccess(...); " + groupName + ", " + accessMask + ", " +
+				isOperational, new RuntimeException());
 			return;
 		}
 
@@ -214,7 +215,7 @@ public interface ISecurityInfoManager
 		{
 			Debug
 				.error("Invalid parameters: permision: " + groupName + ", accessMask: " + accessMask + ", element: " + elementUUID + ", solution: " + solution +
-					" received, or manager is not operational: " + isOperational + " - setFormSecurityAccess(...)");
+					" received, or manager is not operational: " + isOperational + " - setFormSecurityAccess(...)", new RuntimeException());
 			return;
 		}
 

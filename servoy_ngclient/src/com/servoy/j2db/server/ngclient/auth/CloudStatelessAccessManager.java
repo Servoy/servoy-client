@@ -639,7 +639,8 @@ public class CloudStatelessAccessManager
 		JSONObject loginTokenJSON = res.getRight();
 		if (loginTokenJSON != null)
 		{
-			if (loginTokenJSON.has("permissions"))
+			log.atInfo().log(() -> "Extracting cloud permissions from response: " + loginTokenJSON.getJSONArray("permissions").toString(2));
+			if (loginTokenJSON.has("permissions") && loginTokenJSON.getJSONArray("permissions").length() > 0)
 			{
 				String[] permissions = null, tenants = null;
 				JSONArray permissionsArray = loginTokenJSON.getJSONArray("permissions");

@@ -365,29 +365,20 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 					{
 						String id_token = (String)getHttpSession().getAttribute(StatelessLoginHandler.ID_TOKEN);
 						SvyID token = new SvyID(id_token);
-						String[] newUserGroups = client.getUserManager().getUserGroups(client.getClientID(), token.getUserID());
-						if (Utils.equalObjects(newUserGroups, token.getPermissions()))
+						ClientInfo ci = client.getClientInfo();
+						ci.setUserUid(token.getUserID());
+						ci.setUserName(token.getUsername());
+						String[] gr = token.getPermissions();
+						if (gr != null) ci.setUserGroups(gr);
+						Object[] tenants = token.getTenants();
+						client.getFormManager().setTenantValue(tenants);
+						if (token.rememberUser())
 						{
-							ClientInfo ci = client.getClientInfo();
-							ci.setUserUid(token.getUserID());
-							ci.setUserName(token.getUsername());
-							String[] gr = token.getPermissions();
-							if (gr != null) ci.setUserGroups(gr);
-							Object[] tenants = token.getTenants();
-							client.getFormManager().setTenantValue(tenants);
-							if (token.rememberUser())
-							{
-								JSONObject obj = new JSONObject();
-								obj.put(SvyID.USERNAME, token.getUsername());
-								obj.put(StatelessLoginHandler.ID_TOKEN, id_token);
-								getClientService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("rememberUser",
-									new Object[] { obj });
-							}
-						}
-						else
-						{
-							getClientService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("clearDefaultLoginCredentials",
-								null);
+							JSONObject obj = new JSONObject();
+							obj.put(SvyID.USERNAME, token.getUsername());
+							obj.put(StatelessLoginHandler.ID_TOKEN, id_token);
+							getClientService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("rememberUser",
+								new Object[] { obj });
 						}
 					}
 					catch (Exception e)

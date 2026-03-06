@@ -53,7 +53,11 @@ public class StatelessLoginUtils
 		{
 			return null;
 		}
-
+		// if the state itself is just a UUID, then just remove it (was used to identify the config). we don't want to keep it in the url on redirect to index
+		if (state.matches("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"))
+		{
+			return null;
+		}
 		// remove svyuuid=... and state=...
 		String queryString = state.replaceAll("(?:(?<=^)|(?<=&))(state|svyuuid)=[^&]*&?", "");
 		queryString = queryString.replaceAll("^&|&$", "");
