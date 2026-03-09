@@ -965,16 +965,22 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	// Needed for solution properties editing
 	public void setAuthenticator(AUTHENTICATOR_TYPE authenticator)
 	{
-		Map<String, Object> object = new HashMap<String, Object>();
-		if (getCustomProperty(AUTHENTICATOR_CUSTOM_PROPERTY_PATH) instanceof Map< ? , ? > map)
+		if (authenticator != null)
 		{
-			object.putAll((Map<String, Object>)map);
+			Map<String, Object> object = new HashMap<String, Object>();
+			if (getCustomProperty(AUTHENTICATOR_CUSTOM_PROPERTY_PATH) instanceof Map< ? , ? > map)
+			{
+				object.putAll((Map<String, Object>)map);
+			}
+			object.put(AUTHENTICATOR_TYPE_PROPERTY, Integer.valueOf(authenticator.getValue()));
+			putCustomProperty(AUTHENTICATOR_CUSTOM_PROPERTY_PATH, object);
 		}
-		object.put(AUTHENTICATOR_TYPE_PROPERTY, Integer.valueOf(authenticator.getValue()));
-		putCustomProperty(AUTHENTICATOR_CUSTOM_PROPERTY_PATH, object);
-
+		else
+		{
+			putCustomProperty(AUTHENTICATOR_CUSTOM_PROPERTY_PATH, null);
+		}
 		// keep the old must authenticate property in sync so that the solutions metadata is also correct
-		if (authenticator == AUTHENTICATOR_TYPE.NONE)
+		if (authenticator == AUTHENTICATOR_TYPE.NONE || authenticator == null)
 		{
 			setMustAuthenticate(false);
 		}
