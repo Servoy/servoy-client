@@ -23,6 +23,7 @@ import static java.util.Collections.synchronizedList;
 
 import java.lang.ref.SoftReference;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -81,9 +82,11 @@ public final class ViewRecord implements IRecordInternal, IJSBaseSQLRecord, Scri
 	private final ViewFoundSet foundset;
 	private Exception lastException;
 	private final Map<String, SoftReference<IFoundSetInternal>> relatedFoundSets;
+	private final RowManager parent;
 
-	public ViewRecord(String[] columnNames, Object[] data, ViewFoundSet foundset)
+	public ViewRecord(RowManager parent, String[] columnNames, Object[] data, ViewFoundSet foundset)
 	{
+		this.parent = parent;
 		this.foundset = foundset;
 		for (int i = 0; i < data.length; i++)
 		{
@@ -151,6 +154,14 @@ public final class ViewRecord implements IRecordInternal, IJSBaseSQLRecord, Scri
 
 	public Object getOldVaue(String dataProviderID)
 	{
+		Object value = getOldValueImpl(dataProviderID);
+		SQLSheet sqlSheet = this.parent.getSQLSheet();
+		return sqlSheet.convertValueToObject(value, Arrays.asList(sqlSheet.getColumnNames()).indexOf(dataProviderID),
+			parent.getFoundsetManager().getColumnConverterManager());
+	}
+
+	private Object getOldValueImpl(String dataProviderID)
+	{
 		if (changes != null && changes.containsKey(dataProviderID))
 		{
 			return changes.get(dataProviderID);
@@ -160,6 +171,14 @@ public final class ViewRecord implements IRecordInternal, IJSBaseSQLRecord, Scri
 
 	@Override
 	public Object getValue(String dataProviderID, boolean converted)
+	{
+		Object value = getValueImpl(dataProviderID, converted);
+		SQLSheet sqlSheet = this.parent.getSQLSheet();
+		return sqlSheet.convertValueToObject(value, Arrays.asList(sqlSheet.getColumnNames()).indexOf(dataProviderID),
+			parent.getFoundsetManager().getColumnConverterManager());
+	}
+
+	private Object getValueImpl(String dataProviderID, boolean converted)
 	{
 		if ("foundset".equals(dataProviderID)) //$NON-NLS-1$
 		{

@@ -1153,7 +1153,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 				}
 				else
 				{
-					records.add(new ViewRecord(colNames, rowData, this));
+					records.add(new ViewRecord(manager.getRowManager(select.getTable().getDataSource()), colNames, rowData, this));
 				}
 			}
 		}
