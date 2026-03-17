@@ -87,6 +87,7 @@ import com.servoy.j2db.persistence.ISupportName;
 import com.servoy.j2db.persistence.ISupportScrollbars;
 import com.servoy.j2db.persistence.ISupportSize;
 import com.servoy.j2db.persistence.ISupportTabSeq;
+import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.Portal;
 import com.servoy.j2db.persistence.PositionComparator;
@@ -664,10 +665,14 @@ public class WebCellBasedView extends Component implements IView, IPortalCompone
 					}
 					if (dataSource != null)
 					{
-						Iterator<String> pkColumnNames = application.getFoundSetManager().getTable(dataSource).getRowIdentColumnNames();
-						while (pkColumnNames.hasNext())
+						ITable dataSourceTable = application.getFoundSetManager().getTable(dataSource);
+						if (dataSourceTable != null)
 						{
-							initialSortColumnNames.put(pkColumnNames.next(), Boolean.TRUE);
+							Iterator<String> pkColumnNames = dataSourceTable.getRowIdentColumnNames();
+							while (pkColumnNames.hasNext())
+							{
+								initialSortColumnNames.put(pkColumnNames.next(), Boolean.TRUE);
+							}
 						}
 					}
 				}
