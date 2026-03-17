@@ -19,7 +19,7 @@ package com.servoy.j2db.documentation.scripting.docs;
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
-import com.servoy.j2db.ui.runtime.IRuntimeComponent;
+import com.servoy.j2db.ui.runtime.IBaseForInterfaceRuntimeComponent;
 
 /**
  * <p>
@@ -89,7 +89,7 @@ public class FormElements
 	 * @sampleas allnames()
 	 */
 	@JSReadonlyProperty
-	public IRuntimeComponent array__indexedby_name()
+	public IBaseForInterfaceRuntimeComponent array__indexedby_name()
 	{
 		return null;
 	}
@@ -100,7 +100,7 @@ public class FormElements
 	 * @sampleas length()
 	 */
 	@JSReadonlyProperty
-	public IRuntimeComponent array__indexedby_index()
+	public IBaseForInterfaceRuntimeComponent array__indexedby_index()
 	{
 		return null;
 	}

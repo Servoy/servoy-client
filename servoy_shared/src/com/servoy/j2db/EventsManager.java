@@ -77,13 +77,16 @@ public class EventsManager implements IEventsManager, Scriptable
 			else
 			{
 				List<Pair<String, Function>> eventTypeCallbacks = callbacks.get(eventType);
-				boolean retValue = eventTypeCallbacks
-					.removeIf(pair -> (callback == null || pair.getRight() == callback) && (context == null || context.equals(pair.getLeft())));
-				if (eventTypeCallbacks.size() == 0)
+				if (eventTypeCallbacks != null)
 				{
-					callbacks.remove(eventType);
+					boolean retValue = eventTypeCallbacks
+						.removeIf(pair -> (callback == null || pair.getRight() == callback) && (context == null || context.equals(pair.getLeft())));
+					if (eventTypeCallbacks.size() == 0)
+					{
+						callbacks.remove(eventType);
+					}
+					return retValue;
 				}
-				return retValue;
 			}
 		}
 		return false;

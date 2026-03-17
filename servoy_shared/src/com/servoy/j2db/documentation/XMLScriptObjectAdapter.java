@@ -262,7 +262,12 @@ public class XMLScriptObjectAdapter implements ITypedScriptObject
 			for (IParameter parameter : parameters)
 			{
 				description = parameter.getDescription();
-				extendedTooltip = extendedTooltip + "<br/> <b>@param</b> {" + parameter.getType() + "} " + parameter.getName() + " " +
+				extendedTooltip = extendedTooltip + "<br/> <b>@param</b> ";
+				if (parameter.getType() != null)
+				{
+					extendedTooltip = extendedTooltip + "{" + parameter.getType() + "} ";
+				}
+				extendedTooltip = extendedTooltip + parameter.getName() + " " +
 					(description != null ? HtmlUtils.applyDescriptionMagic(description) : "");
 			}
 		}
