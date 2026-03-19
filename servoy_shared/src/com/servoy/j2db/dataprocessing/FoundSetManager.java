@@ -92,6 +92,7 @@ import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.ColumnInfo;
 import com.servoy.j2db.persistence.ColumnName;
+import com.servoy.j2db.persistence.ConstantDataProvider;
 import com.servoy.j2db.persistence.EnumDataProvider;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IColumn;
@@ -829,7 +830,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			{
 				value = ((LiteralDataprovider)args[i]).getValue();
 			}
-			else if (args[i] instanceof EnumDataProvider)
+			else if (args[i] instanceof EnumDataProvider || args[i] instanceof ConstantDataProvider)
 			{
 				value = getScopesScopeProvider().getDataProviderValue(args[i].getDataProviderID());
 			}

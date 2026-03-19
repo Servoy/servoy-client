@@ -448,6 +448,14 @@ public class ScriptVariable extends AbstractBase implements IVariable, IDataProv
 		return getComment() != null && getComment().indexOf("@enum") != -1;
 	}
 
+	/**
+	 * @return
+	 */
+	public boolean isConstant()
+	{
+		return getComment() != null && getComment().indexOf("@constant") != -1;
+	}
+
 	public String getKeyword()
 	{
 		return (String)getCustomProperty(new String[] { "keyword" });

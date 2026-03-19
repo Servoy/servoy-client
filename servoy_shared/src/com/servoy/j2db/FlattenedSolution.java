@@ -61,6 +61,7 @@ import com.servoy.j2db.persistence.ChangeHandler;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.ColumnInfo;
 import com.servoy.j2db.persistence.ColumnWrapper;
+import com.servoy.j2db.persistence.ConstantDataProvider;
 import com.servoy.j2db.persistence.ContentSpec.Element;
 import com.servoy.j2db.persistence.EnumDataProvider;
 import com.servoy.j2db.persistence.FlattenedForm;
@@ -1591,6 +1592,22 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 			if (globalDataProvider instanceof ScriptVariable && ((ScriptVariable)globalDataProvider).isEnum())
 			{
 				return new EnumDataProvider(id, 0); // untyped
+			}
+		}
+
+		return null;
+	}
+
+	protected IDataProvider getConstantDataProvider(String id) throws RepositoryException
+	{
+		// Note: this method is overridden in developer to add the correct type to EnumDataProviders
+		String[] constantsParts = id.split("\\."); //$NON-NLS-1$
+		if (constantsParts.length > 3)
+		{
+			IDataProvider globalDataProvider = getGlobalDataProvider(constantsParts[0] + '.' + constantsParts[1] + '.' + constantsParts[2]);
+			if (globalDataProvider instanceof ScriptVariable && ((ScriptVariable)globalDataProvider).isConstant())
+			{
+				return new ConstantDataProvider(id, 0); // untyped
 			}
 		}
 
