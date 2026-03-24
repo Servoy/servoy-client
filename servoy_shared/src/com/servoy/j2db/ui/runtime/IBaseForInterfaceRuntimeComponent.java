@@ -29,7 +29,7 @@ import com.servoy.j2db.scripting.IScriptable;
 @ServoyClientSupport(ng = true, mc = false, wc = true, sc = true)
 public interface IBaseForInterfaceRuntimeComponent
 	extends IBaseRuntimeComponent, IScriptable, HasRuntimeClientProperty, HasRuntimeFormName, HasRuntimeName, HasRuntimeElementType,
-	HasRuntimeDesignTimeProperty
+	HasRuntimeDesignTimeProperty, HasRuntimeVisible, HasRuntimeEnabled
 {
 
 }
