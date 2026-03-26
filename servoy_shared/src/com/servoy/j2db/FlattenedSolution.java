@@ -61,6 +61,7 @@ import com.servoy.j2db.persistence.ChangeHandler;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.ColumnInfo;
 import com.servoy.j2db.persistence.ColumnWrapper;
+import com.servoy.j2db.persistence.ConstantDataProvider;
 import com.servoy.j2db.persistence.ContentSpec.Element;
 import com.servoy.j2db.persistence.EnumDataProvider;
 import com.servoy.j2db.persistence.FlattenedForm;
@@ -1524,7 +1525,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 				return global;
 			}
 			// try @enum global variables
-			return getEnumDataProvider(id);
+			return getEnumOrConstantDataProvider(id);
 		}
 
 		int indx = id.lastIndexOf('.'); // in case of multi-level relations we have more that 1 dot
@@ -1581,19 +1582,25 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		return null;
 	}
 
-	protected IDataProvider getEnumDataProvider(String id) throws RepositoryException
+	protected IDataProvider getEnumOrConstantDataProvider(String id) throws RepositoryException
 	{
 		// Note: this method is overridden in developer to add the correct type to EnumDataProviders
 		String[] enumParts = id.split("\\."); //$NON-NLS-1$
 		if (enumParts.length > 3)
 		{
 			IDataProvider globalDataProvider = getGlobalDataProvider(enumParts[0] + '.' + enumParts[1] + '.' + enumParts[2]);
-			if (globalDataProvider instanceof ScriptVariable && ((ScriptVariable)globalDataProvider).isEnum())
+			if (globalDataProvider instanceof ScriptVariable)
 			{
-				return new EnumDataProvider(id, 0); // untyped
+				if (((ScriptVariable)globalDataProvider).isEnum())
+				{
+					return new EnumDataProvider(id, 0); // untyped
+				}
+				else if (((ScriptVariable)globalDataProvider).isConstant())
+				{
+					return new ConstantDataProvider(id, 0);
+				}
 			}
 		}
-
 		return null;
 	}
 

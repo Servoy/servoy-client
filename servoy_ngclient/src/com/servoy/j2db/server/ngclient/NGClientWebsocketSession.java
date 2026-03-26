@@ -313,7 +313,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 							if (currentForm.isFormVisible())
 							{
 								client.getFormManager().getCachedFormControllers().stream().filter(f -> f != currentForm && f.isFormVisible())
-									.forEach(f -> NGClientWindow.getCurrentWindow().touchForm(f.getForm(), f.getName(), true, true));
+									.forEach(f -> NGClientWindow.getCurrentWindow().touchForm(f.getForm(), f.getName(), true, false));
 							}
 						}
 						finally
