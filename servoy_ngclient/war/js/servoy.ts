@@ -596,7 +596,7 @@ angular.module('servoy', ['sabloApp', 'servoyformat', 'servoytooltip', 'servoyfi
         return {
             restrict: 'A', // only activate on element attribute
             require: '?ngModel', // get a hold of NgModelController
-            link: function(scope, element, attrs, ngModel: angular.INgModelController) {
+            link: function(scope, element, attrs, ngModel: angular.IController) {
                 if (!ngModel || element.attr("svy-autoapply-disabled")) return; // do nothing if no ng-model
                 var dataproviderString = attrs['ngModel'];
                 var index = 0;
@@ -1688,7 +1688,7 @@ angular.module('servoy', ['sabloApp', 'servoyformat', 'servoytooltip', 'servoyfi
         return {
             restrict: 'A',
             require: 'ng-Model',
-            link: function(scope, element, attrs, ngModelController: angular.INgModelController) {
+            link: function(scope, element, attrs, ngModelController: angular.IController) {
                 var vlAccessor = $parse(attrs['svyFormatvldisplay'])
                 ngModelController.$formatters.push(function(dpValue) {
                     var valueList = vlAccessor(scope);
