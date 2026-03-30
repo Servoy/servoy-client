@@ -38,6 +38,8 @@ public interface IBaseColumn
 	static final int SORT_ASC_NULLS_LAST = 1 << 8;
 	static final int NO_DATA_LOG_COLUMN = 1 << 9;
 	static final int VECTOR_COLUMN = 1 << 10;
+	static final int JSON_COLUMN = 1 << 11;
+	static final int JSONB_COLUMN = 1 << 12;
 
 	static final int IDENT_COLUMNS = PK_COLUMN + USER_ROWID_COLUMN;
 	static final int NON_IDENT_COLUMNS = ~IDENT_COLUMNS;
