@@ -1,8 +1,11 @@
 {
     "compilerOptions": {
         "module": "commonjs",
-        "lib": ["ES6", "DOM"],
-        "sourceMap": false
+        "lib": ["es2022", "DOM"],
+        "sourceMap": false,
+	"noImplicitAny": false,
+	"noImplicitThis": false,
+	"strictNullChecks": false
     },
 	"include": [
 		"war/**/*.ts"
