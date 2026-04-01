@@ -999,7 +999,7 @@ public class ValueListTypeSabloValue
 	{
 		this.handledIDForResponse = Long.valueOf(newJSONValue.getLong(ID_KEY));
 		Object realValue = newJSONValue.opt(DISPLAYVALUE);
-		if (this.realAreDates && realValue != null) realValue = this.convertToDate(realValue.toString());
+		if (this.realAreDates && realValue != null && !realValue.toString().isEmpty()) realValue = this.convertToDate(realValue.toString());
 		displayValue = realValue;
 		int realValueIndex = valueList.realValueIndexOf(realValue);
 		if (realValueIndex != -1)
@@ -1045,10 +1045,9 @@ public class ValueListTypeSabloValue
 		if (findMode != newFindMode)
 		{
 			findMode = newFindMode;
-			if (filteredValuelist != null)
-			{
-				filteredValuelist = createFilteredValueList();
-			}
+			realAreDates = false;
+			filteredValuelist = null;
+			displayValue = NULL_VALUE;
 			changeMonitor.markFullyChanged(true);
 		}
 
