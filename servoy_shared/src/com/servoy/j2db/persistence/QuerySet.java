@@ -20,6 +20,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 import com.servoy.base.query.BaseAbstractBaseQuery;
 
@@ -36,10 +37,19 @@ import com.servoy.base.query.BaseAbstractBaseQuery;
  */
 public class QuerySet implements Serializable
 {
+	private final UUID sessionUUID = UUID.randomUUID();
 	private List<QueryString> prepares = null;
 	private QueryString select = null;
 	private QueryString update = null;
 	private List<QueryString> cleanups = null;
+
+	/**
+	 * @return the sessionUUID
+	 */
+	public UUID getSessionUUID()
+	{
+		return sessionUUID;
+	}
 
 	public void setSelect(QueryString select)
 	{
