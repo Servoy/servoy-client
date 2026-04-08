@@ -49,6 +49,7 @@ import com.servoy.j2db.persistence.IRelation;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.server.ngclient.IContextProvider;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -450,6 +451,15 @@ public class FoundsetTreeTypeSabloValue implements ISmartPropertyValue, TableMod
 				IFoundSetInternal relFoundset = record.getRelatedFoundSet(relationName, sortColumns);
 				if (relFoundset != null)
 				{
+					// Force reload to ensure we have fresh data
+					try
+					{
+						relFoundset.loadAllRecords();
+					}
+					catch (ServoyException e)
+					{
+						Debug.error("Error loading related foundset records for tree view: " + relationName, e);
+					}
 					relatedFoundsets.add(relFoundset);
 					if (addChangeListener) this.addFoundsetToBinding(relFoundset, binding);
 				}
