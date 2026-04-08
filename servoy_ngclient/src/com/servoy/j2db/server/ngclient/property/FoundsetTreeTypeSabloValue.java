@@ -63,6 +63,7 @@ public class FoundsetTreeTypeSabloValue implements ISmartPropertyValue, TableMod
 	private final String CHILDREN = "getChildren";
 	private final String UPDATESELECTION = "updateSelection";
 	private final String UPDATECHECKBOX = "updateCheckboxValue";
+	private final String UPDATEEXPANDED = "updateExpandedNodes";
 	private final String LEVEL = "level";
 
 	private Long handledIDForResponse;
@@ -75,6 +76,7 @@ public class FoundsetTreeTypeSabloValue implements ISmartPropertyValue, TableMod
 	public ArrayList<IFoundSetInternal> roots = new ArrayList<IFoundSetInternal>();
 	public Map<String, FoundsetTreeBinding> bindings = new HashMap<String, FoundsetTreeBinding>();
 	private Object[] selectionPath;
+	private List<String[]> expandedNodePaths;
 	private IChangeListener changeMonitor;
 	private int levelVisible = 0;
 	private boolean levelVisibility;
@@ -150,8 +152,11 @@ public class FoundsetTreeTypeSabloValue implements ISmartPropertyValue, TableMod
 							IRecordInternal record = foundset.getRecord(recordIndex);
 							if (record != null)
 							{
+								// Build parent path for tracking expanded nodes
+								List<Object> parentPath = new ArrayList<Object>();
+								parentPath.add(record.getPK()[0]);
 								relChildren = getRelatedFoundsetData(this.getRelatedFoundsets(relatedBinding, record, true),
-									this.parentLevel);
+									this.parentLevel, parentPath);
 							}
 						}
 					}
@@ -252,6 +257,39 @@ public class FoundsetTreeTypeSabloValue implements ISmartPropertyValue, TableMod
 				}
 			}
 		}
+		else if (newJSONValue.has(UPDATEEXPANDED))
+		{
+			JSONArray pathsArray = newJSONValue.optJSONArray(UPDATEEXPANDED);
+			List<String[]> expandedPaths = new ArrayList<String[]>();
+			if (pathsArray != null)
+			{
+				for (int i = 0; i < pathsArray.length(); i++)
+				{
+					String pathString = pathsArray.getString(i);
+					// Path format: "/foundsetID_pkHash/foundsetID_pkHash/..."
+					// Split by "/" and extract PK values (like updateSelection does)
+					String[] segments = pathString.split("/");
+					List<String> pkValues = new ArrayList<String>();
+					for (String segment : segments)
+					{
+						if (segment.length() > 0 && segment.contains("_"))
+						{
+							// Extract PK hash like: "3901676118989_1_1.123;" -> "1_1.123;"
+							String pkhash = segment.split("_")[1];
+							// Extract just the PK value: "1_1.123;" -> "123"
+							// Same logic as UPDATESELECTION
+							String pkValue = pkhash.substring(pkhash.indexOf('.') + 1, pkhash.length() - 1);
+							pkValues.add(pkValue);
+						}
+					}
+					if (pkValues.size() > 0)
+					{
+						expandedPaths.add(pkValues.toArray(new String[0]));
+					}
+				}
+			}
+			this.expandedNodePaths = expandedPaths;
+		}
 	}
 
 	private List<Map<String, Object>> getJavaValueForJSON() // TODO this should return TypedData<List<Map<String, Object>>> instead
@@ -306,12 +344,38 @@ public class FoundsetTreeTypeSabloValue implements ISmartPropertyValue, TableMod
 					}
 				}
 				newJavaValueForJSON.add(recordData);
+				
+				// Check if this root node should be expanded BEFORE checking if we should load children
+				boolean isNodeExpanded = false;
+				if (this.expandedNodePaths != null)
+				{
+					for (String[] expandedPath : this.expandedNodePaths)
+					{
+						if (expandedPath.length >= 1)
+						{
+							Object currentPK = record.getPK()[0];
+							String expandedPK = expandedPath[0];
+							boolean matches = Utils.equalObjects(currentPK, expandedPK) || 
+								Utils.equalObjects(String.valueOf(currentPK), expandedPK);
+							if (matches)
+							{
+								isNodeExpanded = true;
+								recordData.put("expanded", true);
+								break;
+							}
+						}
+					}
+				}
+				
 				ArrayList<IFoundSetInternal> relatedFoundsets = getRelatedFoundsets(binding, record, false);
 				if (relatedFoundsets.size() > 0)
 				{
-					if (this.levelVisibility && this.levelVisible >= 1)
+					if ((this.levelVisibility && this.levelVisible >= 1) || isNodeExpanded)
 					{
-						List<Map<String, Object>> relChildren = getRelatedFoundsetData(relatedFoundsets, 1);
+						// Pass root node PK as parentPath so children can build full paths
+						List<Object> rootPath = new ArrayList<Object>();
+						rootPath.add(record.getPK()[0]);
+						List<Map<String, Object>> relChildren = getRelatedFoundsetData(relatedFoundsets, 1, rootPath);
 						if (relChildren.size() > 0)
 						{
 							recordData.put("hasChildren", true);
@@ -394,7 +458,7 @@ public class FoundsetTreeTypeSabloValue implements ISmartPropertyValue, TableMod
 		return relatedFoundsets;
 	}
 
-	private List<Map<String, Object>> getRelatedFoundsetData(ArrayList<IFoundSetInternal> relatedFoundsets, int parentlevel)
+	private List<Map<String, Object>> getRelatedFoundsetData(ArrayList<IFoundSetInternal> relatedFoundsets, int parentlevel, List<Object> parentPath)
 	{
 		List<Map<String, Object>> relChildren = new ArrayList<Map<String, Object>>();
 		if (relatedFoundsets != null)
@@ -456,15 +520,52 @@ public class FoundsetTreeTypeSabloValue implements ISmartPropertyValue, TableMod
 					{
 						relRecordData.put("active", true);
 					}
+					
+					// Build current path for this node
+					List<Object> currentPath = new ArrayList<Object>(parentPath);
+					currentPath.add(relRecord.getPK()[0]);
+					
+					// Check if this node should be expanded BEFORE deciding whether to load children
+					boolean isNodeExpanded = false;
+					if (this.expandedNodePaths != null)
+					{
+						for (String[] expandedPath : this.expandedNodePaths)
+						{
+							if (expandedPath.length >= currentPath.size())
+							{
+								boolean pathMatches = true;
+								for (int pathIdx = 0; pathIdx < currentPath.size(); pathIdx++)
+								{
+									Object currentPK = currentPath.get(pathIdx);
+									String expandedPK = expandedPath[pathIdx];
+									// Convert expandedPK string to match currentPK type for comparison
+									boolean matches = Utils.equalObjects(currentPK, expandedPK) || 
+										Utils.equalObjects(String.valueOf(currentPK), expandedPK);
+									if (!matches)
+									{
+										pathMatches = false;
+										break;
+									}
+								}
+								if (pathMatches)
+								{
+									isNodeExpanded = true;
+									relRecordData.put("expanded", true);
+									break;
+								}
+							}
+						}
+					}
+					
 					if (relatedBinding.relationInfos.size() > 0)
 					{
 
 						ArrayList<IFoundSetInternal> childRelatedFoundsets = getRelatedFoundsets(relatedBinding, relRecord, false);
 						if (childRelatedFoundsets.size() > 0)
 						{
-							if (this.levelVisibility && this.levelVisible >= parentlevel + 1)
+							if ((this.levelVisibility && this.levelVisible >= parentlevel + 1) || isNodeExpanded)
 							{
-								List<Map<String, Object>> innerRelChildren = getRelatedFoundsetData(childRelatedFoundsets, parentlevel + 1);
+								List<Map<String, Object>> innerRelChildren = getRelatedFoundsetData(childRelatedFoundsets, parentlevel + 1, currentPath);
 								if (innerRelChildren.size() > 0)
 								{
 									relRecordData.put("hasChildren", true);
