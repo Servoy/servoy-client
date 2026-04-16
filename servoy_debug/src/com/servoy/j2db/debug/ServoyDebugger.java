@@ -25,6 +25,7 @@ import java.util.Stack;
 
 import org.eclipse.dltk.rhino.dbgp.DBGPDebugFrame;
 import org.eclipse.dltk.rhino.dbgp.DBGPDebugger;
+import org.mozilla.javascript.BeanProperty;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.JavaMembers;
 import org.mozilla.javascript.Scriptable;
@@ -250,7 +251,7 @@ public class ServoyDebugger extends DBGPDebugger
 			if (javaMembers != null)
 			{
 				Object field = javaMembers.getField(id, false);
-				if (field instanceof JavaMembers.BeanProperty beanProperty)
+				if (field instanceof BeanProperty beanProperty)
 				{
 					AnnotationManagerReflection annotationManager = AnnotationManagerReflection.getInstance();
 					JSReadonlyProperty annotation = annotationManager.getAnnotation(beanProperty.getGetter(), clss, JSReadonlyProperty.class);

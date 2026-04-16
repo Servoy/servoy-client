@@ -25,10 +25,10 @@ import java.util.Map;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.TimeoutException;
 
-import org.mozilla.javascript.IdScriptableObject;
 import org.mozilla.javascript.NativeArray;
 import org.mozilla.javascript.NativeObject;
 import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.ScriptableObject;
 import org.mozilla.javascript.annotations.JSFunction;
 import org.sablo.Container;
 import org.sablo.eventthread.IEventDispatcher;
@@ -398,7 +398,7 @@ public class ServoyApiObject
 	 * @return a copy of the value object, the same as constructing the object in javascript from scratch
 	 */
 	@JSFunction
-	public IdScriptableObject copyObject(Object value)
+	public ScriptableObject copyObject(Object value)
 	{
 		if (value instanceof NativeObject)
 		{

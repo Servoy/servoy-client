@@ -29,6 +29,7 @@ import org.mozilla.javascript.NativeJavaMethod;
 import org.mozilla.javascript.ScriptRuntime;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.annotations.JSFunction;
+import org.mozilla.javascript.lc.type.TypeInfoFactory;
 
 import com.servoy.j2db.scripting.annotations.AnnotationManagerReflection;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
@@ -189,7 +190,8 @@ public abstract class DefaultJavaScope extends DefaultScope implements IJavaScri
 					}
 					else
 					{
-						nativeJavaMethod = new NativeJavaMethod(Utils.arrayAdd(nativeJavaMethod.getMethods(), new MemberBox(method), true), name);
+						nativeJavaMethod = new NativeJavaMethod(
+							Utils.arrayAdd(nativeJavaMethod.getMethods(), new MemberBox(method, TypeInfoFactory.GLOBAL), true), name);
 					}
 					jsFunctions.put(name, nativeJavaMethod);
 				}
