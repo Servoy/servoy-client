@@ -79,7 +79,7 @@ import jakarta.servlet.http.HttpServletResponse;
  * @author emera
  */
 @SuppressWarnings("nls")
-public class CloudStatelessAccessManager
+public class CloudStatelessAccessManager extends AbstractAuthenticatorManager
 {
 	private static final String SVY_REDIRECT = "svyRedirect";
 
@@ -93,6 +93,10 @@ public class CloudStatelessAccessManager
 	public static final URI CLOUD_OAUTH_URL = URI.create(BASE_CLOUD_URL + "/servoy-service/rest_ws/api/login_auth/validateOAuthUser");
 	public static final String CLOUD_OAUTH_ENDPOINT = "endpoint";
 
+	public CloudStatelessAccessManager(Solution solution)
+	{
+		super(solution);
+	}
 
 	public static boolean checkCloudOAuthPermissions(HttpServletRequest request, HttpServletResponse response, Pair<Boolean, String> needToLogin,
 		Solution solution, String payload, Boolean rememberUser,
@@ -139,9 +143,12 @@ public class CloudStatelessAccessManager
 		return false;
 	}
 
-	public static boolean checkCloudPermissions(String username, String password, boolean remember,
-		SvyID oldToken, Pair<Boolean, String> needToLogin,
-		Solution solution,
+	//TODO rem old
+//	public static boolean checkCloudPermissions(String username, String password, boolean remember,
+//		SvyID oldToken, Pair<Boolean, String> needToLogin,
+//		Solution solution,
+//		HttpServletRequest request)
+	public boolean checkPermissions(String username, String password, boolean remember, SvyID oldToken, Pair<Boolean, String> needToLogin,
 		HttpServletRequest request)
 	{
 		HttpRequest.Builder builder = HttpRequest.newBuilder()
@@ -739,6 +746,7 @@ public class CloudStatelessAccessManager
 		return loginHtml;
 	}
 
+	//TODO this should be non static and it should override the parent method, but that requires some refactoring of the login flow
 	public static ContentSecurityPolicyConfig addcontentSecurityPolicyHeader(HttpServletRequest request, HttpServletResponse response)
 	{
 		ContentSecurityPolicyConfig contentSecurityPolicyConfig = AngularIndexPageWriter.getContentSecurityPolicyConfig(request);

@@ -48,8 +48,13 @@ import jakarta.servlet.http.HttpServletRequest;
 /**
  * @author emera
  */
-public class AuthenticatorManager
+public class AuthenticatorManager extends AbstractAuthenticatorManager
 {
+	public AuthenticatorManager(Solution solution)
+	{
+		super(solution);
+	}
+
 	private static final Logger log = LoggerFactory.getLogger("stateless.login");
 
 	public static Solution findAuthenticator(Solution solution)
@@ -169,8 +174,7 @@ public class AuthenticatorManager
 		json.put("query", originalQuery);
 	}
 
-	public static boolean checkAuthenticatorPermissions(String username, String password, boolean remember, SvyID oldToken, Pair<Boolean, String> needToLogin,
-		Solution solution,
+	public boolean checkPermissions(String username, String password, boolean remember, SvyID oldToken, Pair<Boolean, String> needToLogin,
 		HttpServletRequest request)
 	{
 		Solution authenticator = findAuthenticator(solution);

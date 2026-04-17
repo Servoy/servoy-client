@@ -74,13 +74,18 @@ import jakarta.servlet.http.HttpServletResponse;
 /**
  * @author emera
  */
-public class OAuthHandler
+public class OAuthHandler extends AuthenticatorManager //TODO check!
 {
 	private static final String CODE = "code";
 	private static final String GET_OAUTH_CONFIG = "getOAuthConfig";
 
 	static final Logger log = LoggerFactory.getLogger("stateless.login");
 	private static final SecureRandom secureRandom = new SecureRandom();
+
+	public OAuthHandler(Solution solution)
+	{
+		super(solution);
+	}
 
 	public static Pair<Boolean, String> handleOauth(HttpServletRequest req, HttpServletResponse resp) throws IOException
 	{

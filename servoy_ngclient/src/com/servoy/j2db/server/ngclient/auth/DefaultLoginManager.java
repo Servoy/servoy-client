@@ -22,18 +22,27 @@ import java.util.Arrays;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.util.Pair;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * @author emera
  */
-public class DefaultLoginManager
+public class DefaultLoginManager extends AbstractAuthenticatorManager
 {
 	private static final Logger log = LoggerFactory.getLogger("stateless.login");
 
-	public static boolean checkDefaultLoginPermissions(String username, String password, boolean rememberUser, SvyID oldToken,
-		Pair<Boolean, String> needToLogin)
+	public DefaultLoginManager(Solution solution)
+	{
+		super(solution);
+	}
+
+
+	public boolean checkPermissions(String username, String password, boolean remember, SvyID oldToken, Pair<Boolean, String> needToLogin,
+		HttpServletRequest request)
 	{
 		try
 		{
@@ -58,7 +67,7 @@ public class DefaultLoginManager
 				if (permissions.length > 0 && (oldToken == null || Arrays.equals(oldToken.getPermissions(), permissions)))
 				{
 					SvyTokenBuilder builder = new SvyTokenBuilder(username, uid, permissions)//
-						.withRememberUser(Boolean.valueOf(rememberUser));
+						.withRememberUser(Boolean.valueOf(remember));
 					String token = builder.sign();
 					needToLogin.setLeft(Boolean.FALSE);
 					needToLogin.setRight(token);
@@ -72,5 +81,4 @@ public class DefaultLoginManager
 		}
 		return false;
 	}
-
 }
