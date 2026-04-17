@@ -143,7 +143,7 @@ public class SPDataSourceServer extends DefaultJavaScope implements LazyInitScop
 								if (datasets.length == 1)
 								{
 									// single dataset
-									return cx.getWrapFactory().wrap(cx, scope, datasets[0], null);
+									return cx.getWrapFactory().wrap(cx, scope, datasets[0], datasets[0].getClass());
 								}
 
 								// return an object with result keys and array-index
@@ -152,7 +152,7 @@ public class SPDataSourceServer extends DefaultJavaScope implements LazyInitScop
 								List<String> keys = new ArrayList<>(pr.getColumns().keySet());
 								for (int i = 0; i < datasets.length; i++)
 								{
-									Object wrapped = cx.getWrapFactory().wrap(cx, scope, datasets[i], null);
+									Object wrapped = cx.getWrapFactory().wrap(cx, scope, datasets[i], datasets[i].getClass());
 									obj.put(i, obj, wrapped);
 									if (i < keys.size())
 									{

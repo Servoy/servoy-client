@@ -20,6 +20,7 @@ import java.lang.reflect.Field;
 import java.util.Iterator;
 import java.util.List;
 
+import org.mozilla.javascript.BeanProperty;
 import org.mozilla.javascript.JavaMembers;
 import org.mozilla.javascript.NativeJavaMethod;
 import org.mozilla.javascript.Scriptable;
@@ -37,18 +38,9 @@ public final class DeclaringClassJavaMembers extends JavaMembers
 		this.clazz = clazz;
 	}
 
-	/**
-	 * @see org.mozilla.javascript.JavaMembers#shouldDeleteGetAndSetMethods()
-	 */
-	@Override
-	protected boolean shouldDeleteGetAndSetMethods()
-	{
-		return true;
-	}
-
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.mozilla.javascript.JavaMembers#getFieldIds(boolean)
 	 */
 	@Override
@@ -59,9 +51,9 @@ public final class DeclaringClassJavaMembers extends JavaMembers
 		{
 			String id = (String)iter.next();
 			Object property = getField(id, isStatic);
-			if (property instanceof JavaMembers.BeanProperty)
+			if (property instanceof BeanProperty)
 			{
-				JavaMembers.BeanProperty beanProperty = (JavaMembers.BeanProperty)property;
+				BeanProperty beanProperty = (BeanProperty)property;
 				if (beanProperty.getGetter().getDeclaringClass() != clazz && beanProperty.getSetter().getDeclaringClass() != clazz)
 				{
 					iter.remove();
@@ -80,7 +72,7 @@ public final class DeclaringClassJavaMembers extends JavaMembers
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.mozilla.javascript.JavaMembers#getMethodIds(boolean)
 	 */
 	@Override

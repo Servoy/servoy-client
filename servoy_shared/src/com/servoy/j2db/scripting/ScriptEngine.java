@@ -30,11 +30,10 @@ import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ContextFactory;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.ImporterTopLevel;
+import org.mozilla.javascript.JSFunction;
 import org.mozilla.javascript.JavaScriptException;
-import org.mozilla.javascript.NativeFunction;
 import org.mozilla.javascript.NativeJavaClass;
 import org.mozilla.javascript.NativeJavaObject;
-import org.mozilla.javascript.NativeWith;
 import org.mozilla.javascript.ScriptRuntime;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Undefined;
@@ -864,17 +863,17 @@ public class ScriptEngine implements IScriptSupport
 			userUidBefore = application.getClientInfo().getUserUid();
 		}
 		Context cx = Context.enter();
-		int level = cx.getOptimizationLevel();
+		boolean interpretedMode = cx.isInterpretedMode();
 		try
 		{
 			Object o = null;
-			cx.setOptimizationLevel(-1);
+			cx.setInterpretedMode(true);
 			Function compileFunction = cx.compileFunction(scope, "function evalFunction(){}", "evalFunction", 0, null); //$NON-NLS-1$ //$NON-NLS-2$
 			if (compileFunction instanceof FunctionWrapper) compileFunction = ((FunctionWrapper)compileFunction).getWrappedFunction();
 
-			if (compileFunction instanceof NativeFunction)
+			if (compileFunction instanceof JSFunction jsFunction)
 			{
-				o = cx.evaluateString(ScriptRuntime.createFunctionActivation((NativeFunction)compileFunction, scope, null), eval_string, "internal_anon", 1, //$NON-NLS-1$
+				o = cx.evaluateString(ScriptRuntime.createFunctionActivation(jsFunction, cx, scope, null, false, false, false), eval_string, "internal_anon", 1, //$NON-NLS-1$
 					null);
 			}
 			else
@@ -916,7 +915,7 @@ public class ScriptEngine implements IScriptSupport
 		}
 		finally
 		{
-			cx.setOptimizationLevel(level);
+			cx.setInterpretedMode(interpretedMode);
 			Context.exit();
 			testClientUidChange(scope, userUidBefore);
 		}
@@ -1170,19 +1169,6 @@ final class ProfilingDebugFrame implements DebugFrame
 			performanceData.endAction(pfId, application.getClientID());
 			pfId = null;
 		}
-	}
-
-	@Override
-	public void onNativeWithEnter(Context cx, NativeWith withScope)
-	{
-		// no need to profile in block scopes (for loops)
-	}
-
-
-	@Override
-	public void onNativeWithExit(Context cx, NativeWith withScope)
-	{
-		// no need to profile in block scopes (for loops)
 	}
 
 	@Override

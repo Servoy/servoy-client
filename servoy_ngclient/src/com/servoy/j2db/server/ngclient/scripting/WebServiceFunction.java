@@ -70,11 +70,11 @@ public class WebServiceFunction extends WebBaseFunction
 
 			if (isSyncCall)
 			{
-				return cx.getWrapFactory().wrap(cx, scope,
-					NGConversions.INSTANCE.convertSabloComponentToRhinoValue(
-						session.getClientService(serviceName).executeServiceCall(definition.getName(), args), retPD,
-						(IWebObjectContext)session.getClientService(serviceName), thisObj),
-					null);
+				Object value = NGConversions.INSTANCE.convertSabloComponentToRhinoValue(
+					session.getClientService(serviceName).executeServiceCall(definition.getName(), args), retPD,
+					(IWebObjectContext)session.getClientService(serviceName), thisObj);
+				if (value == null) return null;
+				return cx.getWrapFactory().wrap(cx, scope, value, value.getClass());
 			}
 			else return null;
 		}

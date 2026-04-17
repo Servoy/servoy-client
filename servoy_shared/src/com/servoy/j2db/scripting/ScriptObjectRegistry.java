@@ -29,6 +29,7 @@ import org.mozilla.javascript.Context;
 import org.mozilla.javascript.JavaMembers;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
+import org.mozilla.javascript.lc.type.TypeInfoFactory;
 
 import com.servoy.j2db.dataprocessing.DataException;
 import com.servoy.j2db.documentation.ServoyDocumented;
@@ -254,12 +255,12 @@ public class ScriptObjectRegistry
 					ijm = new InstanceJavaMembers(realScope, clss)
 					{
 						@Override
-						protected void reflectField(Scriptable scope, Field field)
+						protected void reflectField(Scriptable scope, TypeInfoFactory typeFactory, Field field)
 						{
 							if (field.getDeclaringClass() == cl && IConstantsObject.class.isAssignableFrom(cl) && Modifier.isStatic(field.getModifiers()) &&
 								Modifier.isFinal(field.getModifiers()) && Modifier.isPublic(field.getModifiers()))
 							{
-								super.reflectField(scope, field);
+								super.reflectField(scope, typeFactory, field);
 							}
 						}
 

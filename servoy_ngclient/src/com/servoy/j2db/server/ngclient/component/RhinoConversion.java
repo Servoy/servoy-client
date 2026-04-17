@@ -213,7 +213,7 @@ public class RhinoConversion
 					}
 				};
 
-				ScriptableObject.putProperty(newObject, "length", array.size());
+				ScriptableObject.putProperty(newObject, "length", ScriptRuntime.wrapNumber(array.size()));
 				ScriptRuntime.setBuiltinProtoAndParent((NativeArray)newObject, startScriptable, TopLevel.Builtins.Array);
 				for (int i = 0; i < array.size(); i++)
 				{
@@ -426,7 +426,7 @@ public class RhinoConversion
 					}
 				};
 
-				ScriptableObject.putProperty(newObject, "length", array.length());
+				ScriptableObject.putProperty(newObject, "length", ScriptRuntime.wrapNumber(array.length()));
 				ScriptRuntime.setBuiltinProtoAndParent(newObject, startScriptable,
 					TopLevel.Builtins.Array);
 				for (int i = 0; i < array.length(); i++)

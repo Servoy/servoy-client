@@ -23,10 +23,12 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.mozilla.javascript.BeanProperty;
 import org.mozilla.javascript.ClassCache;
 import org.mozilla.javascript.ClassCache.CacheKey;
 import org.mozilla.javascript.JavaMembers;
@@ -37,6 +39,7 @@ import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.annotations.JSFunction;
 import org.mozilla.javascript.annotations.JSGetter;
 import org.mozilla.javascript.annotations.JSSetter;
+import org.mozilla.javascript.lc.type.TypeInfoFactory;
 
 import com.servoy.j2db.scripting.annotations.AnnotationManagerReflection;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
@@ -59,19 +62,19 @@ public class InstanceJavaMembers extends JavaMembers_jdk11
 	 */
 	public InstanceJavaMembers(Scriptable scope, Class< ? > cl)
 	{
-		super(scope, cl, false);
+		super(scope == null ? new DummyScope() : scope, cl, false);
 	}
 
 	/**
 	 * @see JavaMembers#reflectField(Scriptable, Field)
 	 */
 	@Override
-	protected void reflectField(Scriptable scope, Field field)
+	protected void reflectField(Scriptable scope, TypeInfoFactory typeFactory, Field field)
 	{
 		if (IConstantsObject.class.isAssignableFrom(cl) && Modifier.isStatic(field.getModifiers()) && Modifier.isFinal(field.getModifiers()) &&
 			Modifier.isPublic(field.getModifiers()))
 		{
-			super.reflectField(scope, field);
+			super.reflectField(scope, typeFactory, field);
 		}
 	}
 
@@ -109,11 +112,10 @@ public class InstanceJavaMembers extends JavaMembers_jdk11
 	 */
 	@SuppressWarnings("nls")
 	@Override
-	protected void makeBeanProperties(boolean isStatic, boolean includePrivate)
+	protected Map<String, BeanProperty> extractBeaning(Map<String, Object> members, boolean isStatic, boolean includePrivate)
 	{
-		Map<String, Object> ht = isStatic ? staticMembers : members;
-		Map<String, Object> copy = new HashMap<String, Object>(ht);
-		for (Entry<String, Object> entry : ht.entrySet())
+		HashMap<String, Object> copy = new HashMap<>(members);
+		for (Entry<String, Object> entry : members.entrySet())
 		{
 			String name = entry.getKey();
 			String newName = null;
@@ -188,19 +190,27 @@ public class InstanceJavaMembers extends JavaMembers_jdk11
 			}
 		}
 
-		ht = copy;
-		if (isStatic)
-		{
-			staticMembers = ht;
-		}
-		else
-		{
-			members = ht;
-		}
-		super.makeBeanProperties(isStatic, includePrivate);
+		Map<String, BeanProperty> beans = super.extractBeaning(copy, isStatic, includePrivate);
 
-		copy = new HashMap<String, Object>(ht);
-		for (Entry<String, Object> entry : ht.entrySet())
+		// filter out the beans that only have a set or getter.
+		Iterator<BeanProperty> beansIterator = beans.values().iterator();
+		while (beansIterator.hasNext())
+		{
+			BeanProperty beanProperty = beansIterator.next();
+			if (beanProperty.getGetter() == null || beanProperty.getSetter() == null)
+			{
+				beansIterator.remove();
+			}
+			else
+			{
+				addMethodToHide(beanProperty.getGetter().getName());
+				addMethodToHide(beanProperty.getSetter().getName());
+			}
+		}
+
+		HashMap<String, Object> iterable = copy;
+		copy = new HashMap<>(copy);
+		for (Entry<String, Object> entry : iterable.entrySet())
 		{
 			String name = entry.getKey();
 			if (name.startsWith("jsFunction_")) //$NON-NLS-1$
@@ -214,9 +224,9 @@ public class InstanceJavaMembers extends JavaMembers_jdk11
 			else
 			{
 				Object member = entry.getValue();
-				if (member instanceof NativeJavaMethod && ((NativeJavaMethod)member).getMethods().length == 1)
+				if (member instanceof NativeJavaMethod njm && ((NativeJavaMethod)member).getMethods().length == 1)
 				{
-					MemberBox mb = ((NativeJavaMethod)member).getMethods()[0];
+					MemberBox mb = njm.getMethods()[0];
 					if (mb.isMethod())
 					{
 						// make bean property
@@ -232,7 +242,8 @@ public class InstanceJavaMembers extends JavaMembers_jdk11
 								propertyName = name;
 							}
 
-							Object oldValue = copy.put(propertyName, new BeanProperty(mb, null, null));
+							BeanProperty bp = new BeanProperty(propertyName, njm);
+							Object oldValue = copy.put(propertyName, bp);
 							if (oldValue instanceof NativeJavaMethod)
 							{
 								// allow the method to be called directly as well
@@ -241,7 +252,7 @@ public class InstanceJavaMembers extends JavaMembers_jdk11
 								{
 									copy.put(functionName, oldValue);
 									// but do not show it
-									addMethodToDelete(functionName);
+									addMethodToHide(functionName);
 								}
 							}
 						}
@@ -249,14 +260,9 @@ public class InstanceJavaMembers extends JavaMembers_jdk11
 				}
 			}
 		}
-		if (isStatic)
-		{
-			staticMembers = copy;
-		}
-		else
-		{
-			members = copy;
-		}
+		members.clear();
+		members.putAll(copy);
+		return beans;
 	}
 
 	/**
@@ -285,41 +291,46 @@ public class InstanceJavaMembers extends JavaMembers_jdk11
 		}
 	}
 
-	/**
-	 * @see JavaMembers#shouldDeleteGetAndSetMethods()
-	 */
-	@Override
-	protected boolean shouldDeleteGetAndSetMethods()
-	{
-		return true;
-	}
+//	/**
+//	 * @see JavaMembers#shouldDeleteGetAndSetMethods()
+//	 */
+//	@Override
+//	protected boolean shouldDeleteGetAndSetMethods()
+//	{
+//		return true;
+//	}
+//
+//	@SuppressWarnings("unchecked")
+//	@Override
+//	protected void deleteGetAndSetMethods(boolean isStatic, List toRemove)
+//	{
+//		if (gettersAndSettersToHide == null)
+//		{
+//			gettersAndSettersToHide = new ArrayList<String>(toRemove);
+//		}
+//		else
+//		{
+//			gettersAndSettersToHide.addAll(toRemove);
+//		}
+//	}
 
-	@SuppressWarnings("unchecked")
-	@Override
-	protected void deleteGetAndSetMethods(boolean isStatic, List toRemove)
-	{
-		if (gettersAndSettersToHide == null)
-		{
-			gettersAndSettersToHide = new ArrayList<String>(toRemove);
-		}
-		else
-		{
-			gettersAndSettersToHide.addAll(toRemove);
-		}
-	}
-
-	protected void addMethodToDelete(String name)
+	protected void addMethodToHide(String name)
 	{
 		if (gettersAndSettersToHide == null)
 		{
 			gettersAndSettersToHide = new ArrayList<String>();
 		}
-		gettersAndSettersToHide.add(name);
+		String newName = name;
+		if (newName.startsWith("js_")) //$NON-NLS-1$
+		{
+			newName = newName.substring(3);
+		}
+		gettersAndSettersToHide.add(newName);
 	}
 
 	public List<String> getGettersAndSettersToHide()
 	{
-		return Collections.<String> unmodifiableList(gettersAndSettersToHide);
+		return gettersAndSettersToHide == null ? Collections.<String> emptyList() : Collections.<String> unmodifiableList(gettersAndSettersToHide);
 	}
 
 	static void registerClass(Scriptable scope, Class< ? > cls, InstanceJavaMembers ijm)

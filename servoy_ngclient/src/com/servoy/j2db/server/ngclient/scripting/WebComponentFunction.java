@@ -45,8 +45,9 @@ public class WebComponentFunction extends WebBaseFunction
 	{
 		// first do rhino conversion on the types (form scope -> name, native object -> dimension, ...)
 		Object[] args = convertArguments(arguments, component);
-		return cx.getWrapFactory().wrap(cx, scope,
-			NGConversions.INSTANCE.convertSabloComponentToRhinoValue(component.invokeApi(definition, args), definition.getReturnType(), component, thisObj),
-			null);
+		Object value = NGConversions.INSTANCE.convertSabloComponentToRhinoValue(component.invokeApi(definition, args), definition.getReturnType(), component,
+			thisObj);
+		if (value == null) return null;
+		return cx.getWrapFactory().wrap(cx, scope, value, value.getClass());
 	}
 }
