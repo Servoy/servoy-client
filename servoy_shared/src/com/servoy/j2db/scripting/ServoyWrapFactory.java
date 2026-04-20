@@ -222,7 +222,7 @@ public final class ServoyWrapFactory extends WrapFactory
 			: ScriptObjectRegistry.getJavaMembers(staticType.asClass(), scope);
 		if (members != null)
 		{
-			return new NativeJavaObject(scope, javaObject, members);
+			return new NativeJavaObject(scope, javaObject, members, staticType);
 		}
 		return super.wrapAsJavaObject(cx, scope, javaObject, staticType);
 	}
