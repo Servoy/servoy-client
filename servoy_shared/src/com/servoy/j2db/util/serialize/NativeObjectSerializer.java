@@ -25,7 +25,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.mozilla.javascript.Function;
-import org.mozilla.javascript.IdScriptableObject;
 import org.mozilla.javascript.NativeArray;
 import org.mozilla.javascript.NativeObject;
 import org.mozilla.javascript.Scriptable;
@@ -90,7 +89,7 @@ public class NativeObjectSerializer extends AbstractSerializer
 
 		// else NativeObject
 
-		IdScriptableObject no = (IdScriptableObject)o;
+		NativeObject no = (NativeObject)o;
 		JSONObject obj = new JSONObject();
 
 		Object[] noIDs = no.getIds();
