@@ -354,8 +354,7 @@ public class FoundsetTreeTypeSabloValue implements ISmartPropertyValue, TableMod
 						{
 							Object currentPK = record.getPK()[0];
 							String expandedPK = expandedPath[0];
-							boolean matches = Utils.equalObjects(currentPK, expandedPK) || 
-								Utils.equalObjects(String.valueOf(currentPK), expandedPK);
+							boolean matches = matchesPK(currentPK, expandedPK);
 							if (matches)
 							{
 								isNodeExpanded = true;
@@ -403,7 +402,7 @@ public class FoundsetTreeTypeSabloValue implements ISmartPropertyValue, TableMod
 					recordData.put("hasChildren", false);
 				}
 				if (this.selectionPath != null && this.selectionPath.length == 1 &&
-					Utils.equalObjects(this.selectionPath[0], record.getPK()[0]))
+					matchesPK(this.selectionPath[0], record.getPK()[0]))
 				{
 					recordData.put("active", true);
 				}
@@ -515,7 +514,7 @@ public class FoundsetTreeTypeSabloValue implements ISmartPropertyValue, TableMod
 					}
 					relRecordData.put("hasChildren", false);
 					if (this.selectionPath != null && this.selectionPath.length == parentlevel + 1 &&
-						Utils.equalObjects(this.selectionPath[this.selectionPath.length - 1], relRecord.getPK()[0]))
+						matchesPK(this.selectionPath[this.selectionPath.length - 1], relRecord.getPK()[0]))
 					{
 						relRecordData.put("active", true);
 					}
@@ -538,8 +537,7 @@ public class FoundsetTreeTypeSabloValue implements ISmartPropertyValue, TableMod
 									Object currentPK = currentPath.get(pathIdx);
 									String expandedPK = expandedPath[pathIdx];
 									// Convert expandedPK string to match currentPK type for comparison
-									boolean matches = Utils.equalObjects(currentPK, expandedPK) || 
-										Utils.equalObjects(String.valueOf(currentPK), expandedPK);
+									boolean matches = matchesPK(currentPK, expandedPK);
 									if (!matches)
 									{
 										pathMatches = false;
@@ -657,6 +655,20 @@ public class FoundsetTreeTypeSabloValue implements ISmartPropertyValue, TableMod
 		if (pkarray != null && index < pkarray.length)
 		{
 			record = foundset.getRecord(new Object[] { pkarray[index] });
+
+			// If not found and PK is a string, try opposite case
+			if (record == null && pkarray[index] instanceof String)
+			{
+				String pk = (String)pkarray[index];
+				if (pk.equals(pk.toLowerCase()))
+				{
+					record = foundset.getRecord(new Object[] { pk.toUpperCase() });
+				}
+				else
+				{
+					record = foundset.getRecord(new Object[] { pk.toLowerCase() });
+				}
+			}
 		}
 		if (record != null)
 		{
@@ -779,6 +791,27 @@ public class FoundsetTreeTypeSabloValue implements ISmartPropertyValue, TableMod
 	private boolean containsValue(Object[] array, Object value)
 	{
 		return Arrays.stream(array).anyMatch(item -> Utils.equalObjects(item, value));
+	}
+
+	/**
+	 * Checks if two PKs match, handling case-insensitive comparison for string PKs (e.g., UUIDs).
+	 */
+	private boolean matchesPK(Object pk1, Object pk2)
+	{
+		// Direct object comparison
+		if (Utils.equalObjects(pk1, pk2)) return true;
+
+		// String conversion comparison
+		if (Utils.equalObjects(String.valueOf(pk1), String.valueOf(pk2))) return true;
+
+		// Case-insensitive comparison for string PKs (handles UUID case differences)
+		if (pk1 instanceof String && pk2 instanceof String)
+		{
+			return ((String)pk1).equalsIgnoreCase((String)pk2);
+		}
+
+
+		return false;
 	}
 
 	public static class FoundsetTreeBinding
