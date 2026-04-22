@@ -22,7 +22,7 @@ import java.util.Iterator;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONWriter;
-import org.mozilla.javascript.NativeFunction;
+import org.mozilla.javascript.BaseFunction;
 import org.mozilla.javascript.Scriptable;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IBrowserConverterContext;
@@ -131,14 +131,14 @@ public class ServoyFunctionPropertyType extends FunctionPropertyType
 				addScriptMethodToMap(sm, writer, fs, fe, formComponent);
 				writer.endObject();
 			}
-			else if (object instanceof NativeFunction nf)
+			else if (object instanceof BaseFunction nf)
 			{
 				JSONUtils.addKeyIfPresent(writer, key);
 				writer.object();
 				nativeFunctionToJSON(nf, writer, fs, dataConverterContext);
 				writer.endObject();
 			}
-			else if (object instanceof FunctionWrapper fw && fw.getWrappedFunction() instanceof NativeFunction nf)
+			else if (object instanceof FunctionWrapper fw && fw.getWrappedFunction() instanceof BaseFunction nf)
 			{
 				JSONUtils.addKeyIfPresent(writer, key);
 				writer.object();
@@ -205,7 +205,7 @@ public class ServoyFunctionPropertyType extends FunctionPropertyType
 		}
 	}
 
-	private void nativeFunctionToJSON(NativeFunction function, JSONWriter writer, FlattenedSolution fs, IBrowserConverterContext dataConverterContext)
+	private void nativeFunctionToJSON(BaseFunction function, JSONWriter writer, FlattenedSolution fs, IBrowserConverterContext dataConverterContext)
 		throws Exception
 	{
 		Object functionName = function.get("_methodname_", function);
