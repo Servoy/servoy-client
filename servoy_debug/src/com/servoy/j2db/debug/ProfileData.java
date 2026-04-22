@@ -255,7 +255,7 @@ public final class ProfileData
 
 	public long getOwnTime()
 	{
-		int childtime = 0;
+		long childtime = 0L;
 		for (ProfileData pd : children)
 		{
 			childtime += pd.time;
