@@ -34,9 +34,11 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -344,7 +346,8 @@ public class CloudStatelessAccessManager
 			String baseUriString = CLOUD_REST_API_GET + endpoint;
 
 			// 2. Build the query string from parameters
-			String queryString = buildQueryString(request.getParameterMap());
+			Set<String> allowedParams = Collections.emptySet();
+			String queryString = buildQueryString(request.getParameterMap(), allowedParams);
 
 			// 3. Combine base URI and query string into a final URI object
 			// This handles the final URI construction, ensuring proper encoding for the whole URI.
@@ -379,14 +382,15 @@ public class CloudStatelessAccessManager
 	}
 
 	@SuppressWarnings("nls")
-	private static String buildQueryString(Map<String, String[]> params)
+	private static String buildQueryString(Map<String, String[]> params, Set<String> allowedParams)
 	{
-		if (params == null || params.isEmpty())
+		if (params == null || params.isEmpty() || allowedParams == null || allowedParams.isEmpty())
 		{
 			return "";
 		}
 
 		return params.entrySet().stream()
+			.filter(entry -> allowedParams.contains(entry.getKey()))
 			.flatMap(entry -> {
 				String key = URLEncoder.encode(entry.getKey(), StandardCharsets.UTF_8);
 				return List.of(entry.getValue()).stream().filter(value -> !StringUtils.isBlank(value))
