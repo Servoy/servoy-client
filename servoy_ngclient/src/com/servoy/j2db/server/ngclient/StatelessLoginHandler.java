@@ -427,46 +427,67 @@ public class StatelessLoginHandler
 		sb.append("<base href=\"");
 		sb.append(HTMLWriter.getPath(request));
 		sb.append("\">");
+		sb.append("\n    <style>");
+		sb.append(
+			"\n      #servoy_loader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: white; z-index: 9999; }");
+		sb.append(
+			"\n      .spinner { border: 4px solid #f3f3f3; border-top: 4px solid #3498db; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }");
+		sb.append("\n      @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }");
+		sb.append("\n      form { display: none !important; }");
+		sb.append("\n    </style>");
+
+		String scriptInit = "\n  <script type='text/javascript'>" +
+			"\n    window.addEventListener('load', () => { " +
+			"\n      const forms = document.querySelectorAll('form');" +
+			"\n      const loader = document.getElementById('servoy_loader');" +
+			"\n      const show = () => { if(loader) loader.style.display='none'; forms.forEach(f => f.style.setProperty('display', 'block', 'important')); };";
+
+		sb.append(scriptInit);
+
 		if (request.getParameter(ID_TOKEN) == null && request.getParameter(USERNAME) == null)
 		{
 			//we check the local storage for the token or username only once (if both are null)
-			sb.append("\n  	 <script type='text/javascript'>");
-			sb.append("\n    window.addEventListener('load', () => { ");
 			sb.append("\n     if (window.localStorage.getItem('servoy_id_token')) { ");
-			sb.append("\n    	document.body.style.display = 'none'; ");
 			sb.append("\n    	document.login_form.action = 'index.html'; ");
 			sb.append("\n  	    document.login_form.id_token.value = JSON.parse(window.localStorage.getItem('servoy_id_token'));  ");
 			sb.append("\n  	    document.login_form.elements['csrf_token'].value = '" + Long.toString(nextLong) + "';");
 			sb.append("\n    	document.login_form.remember.checked = true;  ");
 			sb.append("\n    	document.login_form.submit(); ");
-			sb.append("\n     } ");
-			sb.append("\n     if (window.localStorage.getItem('servoy_username')) { ");
-			sb.append("\n  	    document.login_form.username.value = JSON.parse(window.localStorage.getItem('servoy_username'));  ");
+			sb.append("\n     } else { ");
+			sb.append("\n        if(loader) loader.style.display = 'none';");
+			sb.append("\n        forms.forEach(f => f.style.setProperty('display', 'block', 'important')); ");
+			sb.append("\n        if (window.localStorage.getItem('servoy_username')) { ");
+			sb.append("\n  	       document.login_form.username.value = JSON.parse(window.localStorage.getItem('servoy_username'));  ");
+			sb.append("\n        } ");
 			sb.append("\n     } ");
 			sb.append("\n   }) ");
 			sb.append("\n  </script> ");
 		}
 		else if (!StringUtils.isBlank(id_token))
 		{
-			sb.append("\n  	 <script type='text/javascript'>");
-			sb.append("\n    window.addEventListener('load', () => { ");
 			sb.append("\n     window.localStorage.removeItem('servoy_id_token');");
+			sb.append("\n     if(loader) loader.style.display = 'none';");
+			sb.append("\n     forms.forEach(f => f.style.setProperty('display', 'block', 'important')); ");
 			sb.append("\n   }) ");
 			sb.append("\n  </script> ");
 		}
 		else if (!StringUtils.isBlank(request.getParameter(USERNAME)))
 		{
-			sb.append("\n  	 <script type='text/javascript'>");
-			sb.append("\n    window.addEventListener('load', () => { ");
-			sb.append("\n  	    document.login_form.username.value = '");
-			sb.append(StringEscapeUtils.escapeEcmaScript(request.getParameter(USERNAME)));
-			sb.append("'");
-			sb.append("\n  	    if (document.getElementById('errorlabel')) document.getElementById('errorlabel').style.display='block';");
+			sb.append("\n     document.login_form.username.value = '" + StringEscapeUtils.escapeEcmaScript(request.getParameter(USERNAME)) + "';");
+			sb.append("\n     if (document.getElementById('errorlabel')) document.getElementById('errorlabel').style.display='block';");
+			sb.append("\n     if(loader) loader.style.display = 'none';");
+			sb.append("\n     forms.forEach(f => f.style.setProperty('display', 'block', 'important')); ");
 			sb.append("\n   }) ");
 			sb.append("\n  </script> ");
 		}
+		else
+		{
+			sb.append("\n      show();");
+		}
 
 		loginHtml = loginHtml.replace("<base href=\"/\">", sb.toString());
+		String loaderHtml = "<div id='servoy_loader'><div class='spinner'></div></div>";
+		loginHtml = loginHtml.replaceFirst("(?i)<body[^>]*>", "$0" + loaderHtml);
 
 		String requestLanguage = request.getHeader("accept-language");
 		if (requestLanguage != null)

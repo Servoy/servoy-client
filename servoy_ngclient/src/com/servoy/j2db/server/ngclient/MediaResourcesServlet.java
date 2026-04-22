@@ -405,7 +405,7 @@ public class MediaResourcesServlet extends AbstractMediaResourceServlet
 						int tempFileThreshold = Utils.getAsInteger(settings.getProperty("servoy.ng_web_client.tempfile.threshold", "50"), false) * 1000;
 
 						Builder builder = DiskFileItemFactory.builder().setFileCleaningTracker(FILE_CLEANING_TRACKER)
-							.setBufferSize(tempFileThreshold);
+							.setThreshold(tempFileThreshold);
 						if (fileUploadDir != null)
 						{
 							builder.setPath(fileUploadDir.toPath());
@@ -420,7 +420,7 @@ public class MediaResourcesServlet extends AbstractMediaResourceServlet
 						{
 							maxUpload = Utils.getAsLong(settings.getProperty("servoy.webclient.maxuploadsize", "0"), false);
 						}
-						if (maxUpload > 0) upload.setFileSizeMax(maxUpload * 1024);
+						if (maxUpload > 0) upload.setMaxFileSize(maxUpload * 1024);
 
 						final List<FileUploadData> aFileUploadData = new ArrayList<FileUploadData>();
 						List<DiskFileItem> formFields = new ArrayList<>();
@@ -682,9 +682,9 @@ public class MediaResourcesServlet extends AbstractMediaResourceServlet
 
 		public byte[] getBytes()
 		{
-			try
+			try (InputStream in = item.getInputStream())
 			{
-				return item.get();
+				return in.readAllBytes();
 			}
 			catch (IOException e)
 			{

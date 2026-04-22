@@ -33,6 +33,7 @@ import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.TopLevel;
 import org.mozilla.javascript.Undefined;
 import org.mozilla.javascript.WrapFactory;
+import org.mozilla.javascript.lc.type.TypeInfo;
 
 import com.servoy.j2db.ExitScriptException;
 import com.servoy.j2db.FormController;
@@ -65,7 +66,7 @@ public final class ServoyWrapFactory extends WrapFactory
 	 * @see org.mozilla.javascript.WrapFactory#wrap(org.mozilla.javascript.Context, org.mozilla.javascript.Scriptable, java.lang.Object, java.lang.Class)
 	 */
 	@Override
-	public Object wrap(Context cx, Scriptable scope, Object obj, Class staticType)
+	public Object wrap(Context cx, Scriptable scope, Object obj, TypeInfo staticType)
 	{
 		if (application.getSolution() == null)
 		{
@@ -215,13 +216,13 @@ public final class ServoyWrapFactory extends WrapFactory
 	 * java.lang.Class)
 	 */
 	@Override
-	public Scriptable wrapAsJavaObject(Context cx, Scriptable scope, Object javaObject, Class< ? > staticType)
+	public Scriptable wrapAsJavaObject(Context cx, Scriptable scope, Object javaObject, TypeInfo staticType)
 	{
 		JavaMembers members = javaObject != null ? ScriptObjectRegistry.getJavaMembers(javaObject.getClass(), scope)
-			: ScriptObjectRegistry.getJavaMembers(staticType, scope);
+			: ScriptObjectRegistry.getJavaMembers(staticType.asClass(), scope);
 		if (members != null)
 		{
-			return new NativeJavaObject(scope, javaObject, members);
+			return new NativeJavaObject(scope, javaObject, members, staticType);
 		}
 		return super.wrapAsJavaObject(cx, scope, javaObject, staticType);
 	}
