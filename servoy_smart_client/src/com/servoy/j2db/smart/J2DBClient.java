@@ -1238,7 +1238,6 @@ public class J2DBClient extends ClientState
 		Toolbar browseToolbar = new Toolbar("edit", Messages.getString("servoy.edittoolbar.label"), true); //$NON-NLS-1$//$NON-NLS-2$
 
 		list.add(new Toolbar.ToolbarKey(editPlace, editIndex, editVisible, browseToolbar));
-		list.add(new Toolbar.ToolbarKey(textPlace, textIndex, textVisible, new TextToolbar(this, actions)));
 	}
 
 	public IToolbarPanel getToolbarPanel()

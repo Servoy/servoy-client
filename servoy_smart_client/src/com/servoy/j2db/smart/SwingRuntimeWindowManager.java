@@ -165,16 +165,6 @@ public class SwingRuntimeWindowManager extends RuntimeWindowManager
 		}
 
 		@Override
-		public TextToolbar getTextToolbar()
-		{
-			if (textToolbar == null)
-			{
-				textToolbar = (TextToolbar)getApplication().getToolbarPanel().getToolBar("text"); //$NON-NLS-1$
-			}
-			return super.getTextToolbar();
-		}
-
-		@Override
 		public void showTextToolbar(boolean value)
 		{
 			// does not affect main app. window

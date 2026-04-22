@@ -48,7 +48,6 @@ import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.persistence.Solution;
-import com.servoy.j2db.printing.PrintPreview;
 import com.servoy.j2db.scripting.FunctionDefinition;
 import com.servoy.j2db.smart.cmd.MenuMethodsAction;
 import com.servoy.j2db.smart.scripting.ScriptMenuItem;
@@ -475,31 +474,7 @@ public class SwingFormManager extends FormManager implements ISwingFormManager, 
 			currentContainer.add(ui, afp.getName());
 		}
 
-		try
-		{
-			final PrintPreview printPreview = new PrintPreview((ISmartClientApplication)getApplication(), afp, foundset, zoomFactor, printJob);
-			Runnable r = new Runnable()
-			{
-				public void run()
-				{
-					printPreviews.put(currentContainer, new PrintPreviewHolder(printPreview, fc));
-					currentContainer.add(printPreview, "@preview"); //$NON-NLS-1$
-					currentContainer.show("@preview"); //$NON-NLS-1$
 
-					//handle navigator propertly
-					List invokeLaterRunnables = new ArrayList();
-					afp.showNavigator(invokeLaterRunnables);
-					Utils.invokeLater(getApplication(), invokeLaterRunnables);
-
-					printPreview.showPages();
-				}
-			};
-			getApplication().invokeLater(r);
-		}
-		catch (Exception ex)
-		{
-			getApplication().reportError(Messages.getString("servoy.formManager.error.PrintPreview"), ex); //$NON-NLS-1$
-		}
 	}
 
 	@Override
@@ -510,14 +485,6 @@ public class SwingFormManager extends FormManager implements ISwingFormManager, 
 
 	protected FormController removePreview(IMainContainer container)
 	{
-		PrintPreviewHolder printPreviewHolder = (PrintPreviewHolder)printPreviews.remove(container);
-		if (printPreviewHolder != null)
-		{
-			container.remove(printPreviewHolder.printPreview);
-			printPreviewHolder.printPreview.destroy();
-			return printPreviewHolder.formBeforePrintPreview;
-		}
-		//currentMainShowingForm
 		return container.getController();//just return current
 	}
 
@@ -544,18 +511,6 @@ public class SwingFormManager extends FormManager implements ISwingFormManager, 
 			containers.put(name, container);
 		}
 		return container;
-	}
-
-	private class PrintPreviewHolder
-	{
-		private final PrintPreview printPreview;
-		private final FormController formBeforePrintPreview;
-
-		private PrintPreviewHolder(PrintPreview printPreview, FormController formBeforePrintPreview)
-		{
-			this.printPreview = printPreview;
-			this.formBeforePrintPreview = formBeforePrintPreview;
-		}
 	}
 
 }

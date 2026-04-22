@@ -11,7 +11,6 @@ Export-Package: com.servoy.j2db;version="2026.6.0",
  com.servoy.j2db.gui;version="2026.6.0",
  com.servoy.j2db.gui.editlist;version="2026.6.0",
  com.servoy.j2db.preference;version="2026.6.0",
- com.servoy.j2db.printing;version="2026.6.0",
  com.servoy.j2db.property;version="2026.6.0",
  com.servoy.j2db.smart;version="2026.6.0",
  com.servoy.j2db.smart.cmd;version="2026.6.0",
@@ -21,7 +20,6 @@ Export-Package: com.servoy.j2db;version="2026.6.0",
  com.servoy.j2db.util;version="2026.6.0",
  com.servoy.j2db.util.editlist;version="2026.6.0",
  com.servoy.j2db.util.gui;version="2026.6.0",
- com.servoy.j2db.util.rtf;version="2026.6.0",
  com.servoy.j2db.util.wizard;version="2026.6.0"
 Bundle-ClassPath: .
 Automatic-Module-Name: servoy_smart_client
