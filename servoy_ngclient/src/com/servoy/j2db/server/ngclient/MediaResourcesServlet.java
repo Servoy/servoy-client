@@ -420,7 +420,7 @@ public class MediaResourcesServlet extends AbstractMediaResourceServlet
 						{
 							maxUpload = Utils.getAsLong(settings.getProperty("servoy.webclient.maxuploadsize", "0"), false);
 						}
-						if (maxUpload > 0) upload.setFileSizeMax(maxUpload * 1024);
+						if (maxUpload > 0) upload.setMaxFileSize(maxUpload * 1024);
 
 						final List<FileUploadData> aFileUploadData = new ArrayList<FileUploadData>();
 						List<DiskFileItem> formFields = new ArrayList<>();
