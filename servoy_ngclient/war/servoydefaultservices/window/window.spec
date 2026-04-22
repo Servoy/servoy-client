@@ -777,7 +777,8 @@
       "Menu": {
           "extends": "BaseMenu",
           "model": {
-            "text" : "string"
+            "text" : "string",
+            "tooltipText": "string"
           },
           "serversideapi": {
             "doClick": {
