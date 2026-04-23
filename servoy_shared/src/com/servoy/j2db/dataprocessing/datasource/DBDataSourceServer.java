@@ -201,7 +201,7 @@ public class DBDataSourceServer extends DefaultJavaScope implements LazyInitScop
 	 *
 	 * @since 2021.06
 	 *
-	 * @return DBDataSourceServer server
+	 * @return JSConnectionDefinition the connection definition for this server, or null if the server cannot be found or an error occurs while trying to define the client connection.
 	 */
 	@JSFunction
 	public JSConnectionDefinition defineClientConnection()
