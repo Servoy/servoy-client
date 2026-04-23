@@ -28,7 +28,7 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
  * @since 2019.12
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "containers", scriptingName = "containers")
-@ServoyClientSupport(mc = false, wc = false, sc = false, ng = true)
+@ServoyClientSupport(mc = true, wc = false, sc = false, ng = true)
 public class RuntimeContainers
 {
 

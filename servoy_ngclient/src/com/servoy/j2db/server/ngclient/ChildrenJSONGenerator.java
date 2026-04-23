@@ -622,9 +622,9 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 				}
 			}
 		}
-		if (formUI != null && layoutContainer.getName() != null)
+		if (layoutContainer.getName() != null)
 		{
-			attributes.put("name", formUI.getName() + "." + layoutContainer.getName());
+			attributes.put("name", formUI != null ? formUI.getName() : form.getName() + "." + layoutContainer.getName());
 		}
 		if (designer)
 		{
