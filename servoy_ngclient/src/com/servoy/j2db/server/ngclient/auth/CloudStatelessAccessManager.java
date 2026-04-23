@@ -723,8 +723,9 @@ public class CloudStatelessAccessManager
 					if (loginHtml != null && loginHtml.contains("</form>"))
 					{
 						String queryString = request.getQueryString() != null ? "?" + Encode.forHtmlAttribute(request.getQueryString()) : "";
+						String requestURL = Encode.forHtmlAttribute(request.getRequestURL().toString());
 						loginHtml = loginHtml.replace("</form>", "<input type='hidden' name='" + SVY_REDIRECT + "' value='" +
-							request.getRequestURL() + queryString + "'></form>");
+							requestURL + queryString + "'></form>");
 					}
 				}
 			}
