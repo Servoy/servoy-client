@@ -23,7 +23,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URLDecoder;
-import java.net.URLEncoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpRequest.BodyPublishers;
@@ -37,6 +36,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -44,7 +44,6 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -343,11 +342,21 @@ public class CloudStatelessAccessManager
 		{
 			String baseUriString = CLOUD_REST_API_GET + endpoint;
 
-			// 2. Build the query string from parameters
-			String queryString = buildQueryString(request.getParameterMap());
+			// 2. Build the query string from parameters using QuerySanitizer
+			String queryString;
+			try
+			{
+				queryString = QuerySanitizer.buildQueryString(request.getParameterMap(), Set.of(SVY_REDIRECT));
+			}
+			catch (IllegalArgumentException e)
+			{
+				// Sanitization failure or oversized parameters: log and abort the request to cloud
+				log.warn("Request parameters rejected when building query string for cloud endpoint {}: {}", endpoint, e.getMessage());
+				return null;
+			}
 
 			// 3. Combine base URI and query string into a final URI object
-			// This handles the final URI construction, ensuring proper encoding for the whole URI.
+			// Use the trusted base URI components for scheme/authority/path so query cannot override host/authority.
 			URI finalUri;
 			if (queryString.isEmpty())
 			{
@@ -355,8 +364,9 @@ public class CloudStatelessAccessManager
 			}
 			else
 			{
-				// Ensure the baseUriString itself is valid, then append query
-				finalUri = URI.create(baseUriString + '?' + queryString);
+				// Parse the base URI and rebuild with the sanitized query
+				URI base = URI.create(baseUriString);
+				finalUri = new URI(base.getScheme(), base.getAuthority(), base.getPath(), queryString, null);
 			}
 
 
@@ -376,23 +386,6 @@ public class CloudStatelessAccessManager
 			log.error("Can't execute cloud get request", e);
 		}
 		return null;
-	}
-
-	@SuppressWarnings("nls")
-	private static String buildQueryString(Map<String, String[]> params)
-	{
-		if (params == null || params.isEmpty())
-		{
-			return "";
-		}
-
-		return params.entrySet().stream()
-			.flatMap(entry -> {
-				String key = URLEncoder.encode(entry.getKey(), StandardCharsets.UTF_8);
-				return List.of(entry.getValue()).stream().filter(value -> !StringUtils.isBlank(value))
-					.map(value -> key + '=' + URLEncoder.encode(value, StandardCharsets.UTF_8));
-			})
-			.collect(Collectors.joining("&"));
 	}
 
 	public static void revokeToken(Solution solution, DecodedJWT jwt)
