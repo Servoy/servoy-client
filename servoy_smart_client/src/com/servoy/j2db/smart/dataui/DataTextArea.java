@@ -67,7 +67,6 @@ import com.servoy.j2db.dataprocessing.IEditListener;
 import com.servoy.j2db.dataprocessing.TagResolver;
 import com.servoy.j2db.dnd.FormDataTransferHandler;
 import com.servoy.j2db.dnd.ISupportDragNDropTextTransfer;
-import com.servoy.j2db.printing.IFixedPreferredWidth;
 import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.IEditProvider;
 import com.servoy.j2db.ui.IEventExecutor;
@@ -95,7 +94,7 @@ import com.servoy.j2db.util.docvalidator.ValidatingDocument;
  * @author jblok
  */
 public class DataTextArea extends EnableScrollPanel
-	implements IDisplayData, IFieldComponent, IScrollPane, IFixedPreferredWidth, ISupplyFocusChildren<Component>, ISupportCachedLocationAndSize,
+	implements IDisplayData, IFieldComponent, IScrollPane, ISupplyFocusChildren<Component>, ISupportCachedLocationAndSize,
 	ISupportDragNDropTextTransfer, ISupportEditProvider, ISupportPlaceholderText, ISupportOnRender
 {
 	private final JTextArea enclosedComponent;

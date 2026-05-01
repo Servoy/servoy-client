@@ -27,6 +27,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.text.StringEscapeUtils;
 import org.json.JSONObject;
 import org.sablo.specification.PackageSpecification;
 import org.sablo.specification.PropertyDescription;
@@ -247,6 +248,7 @@ public class FormLayoutGenerator
 	public static void generateFormStartTag(PrintWriter writer, Form form, String realFormName, boolean responsiveMode, boolean design,
 		IServoyDataConverterContext context)
 	{
+		String escapedRealFormName = StringEscapeUtils.escapeHtml4(realFormName);
 		if (design)
 		{
 			writer.print("<div ng-controller='DesignFormController' id='svyDesignForm' ");
@@ -290,10 +292,10 @@ public class FormLayoutGenerator
 			}
 
 		}
-		else writer.print(String.format("<svy-formload formname=\"%1$s\"><div ng-controller=\"%1$s\" ", realFormName));
+		else writer.print(String.format("<svy-formload formname=\"%1$s\"><div ng-controller=\"%1$s\" ", escapedRealFormName));
 		if (Utils.isInTestingMode(context != null ? context.getApplication() : null))
 		{
-			writer.print(String.format("data-svy-name=\"%1$s\" ", realFormName));
+			writer.print(String.format("data-svy-name=\"%1$s\" ", escapedRealFormName));
 		}
 
 		if (!form.isResponsiveLayout() && !responsiveMode)

@@ -73,8 +73,6 @@ import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.Portal;
 import com.servoy.j2db.persistence.Relation;
-import com.servoy.j2db.printing.ISupportXMLOutput;
-import com.servoy.j2db.printing.XMLPrintHelper;
 import com.servoy.j2db.scripting.IScriptable;
 import com.servoy.j2db.scripting.IScriptableProvider;
 import com.servoy.j2db.smart.TableView;
@@ -105,8 +103,8 @@ import com.servoy.j2db.util.gui.AutoTransferFocusListener;
  * Runtime swing portal component
  * @author jblok
  */
-public class PortalComponent extends EnableScrollPanel implements ListSelectionListener, ISkinnable, IScrollPane, TableModelListener, ISupportXMLOutput,
-	IPortalComponent, IFocusCycleRoot<Component>, ISupportFocusTransfer
+public class PortalComponent extends EnableScrollPanel
+	implements ListSelectionListener, ISkinnable, IScrollPane, TableModelListener, IPortalComponent, IFocusCycleRoot<Component>, ISupportFocusTransfer
 {
 	private static final long serialVersionUID = 1L;
 
@@ -818,38 +816,12 @@ public class PortalComponent extends EnableScrollPanel implements ListSelectionL
 			if (table == null)
 			{
 				w.write("<ROWS count=\"" + currentData.getSize() + "\" >"); //$NON-NLS-1$ //$NON-NLS-2$
-				DataRenderer formRenderer = (DataRenderer)list.getCellRenderer();
-				for (int ii = 0; ii < currentData.getSize(); ii++)
-				{
-					w.write("<ROW>"); //$NON-NLS-1$
-					IRecordInternal state = currentData.getRecord(ii);
-					formRenderer.getDataAdapterList().setRecord(state, true);
-					Component[] comps = formRenderer.getComponents();
-					for (Component component : comps)
-					{
-						XMLPrintHelper.handleComponent(w, component, component.getBounds(), null);
-					}
-					w.write("</ROW>"); //$NON-NLS-1$
-				}
 				w.write("</ROWS>"); //$NON-NLS-1$
 			}
 			else
 			{
 				w.write("<ROWS count=\"" + currentData.getSize() + "\" >"); //$NON-NLS-1$//$NON-NLS-2$
-				for (int ii = 0; ii < currentData.getSize(); ii++)
-				{
-					w.write("<ROW>"); //$NON-NLS-1$
-					IRecordInternal state = currentData.getRecord(ii);
-					TableColumnModel tcm = table.getColumnModel();
-					for (int i = 0; i < tcm.getColumnCount(); i++)
-					{
-						CellAdapter ca = (CellAdapter)tcm.getColumn(i);
-						String dataProviderID = ca.getDataProviderID();
-						Component component = ca.getRenderer();
-						XMLPrintHelper.handleComponent(w, component, component.getBounds(), state.getValue(dataProviderID));
-					}
-					w.write("</ROW>"); //$NON-NLS-1$
-				}
+
 				w.write("</ROWS>"); //$NON-NLS-1$
 			}
 			w.write("</ROWSCOMPONENT>"); //$NON-NLS-1$

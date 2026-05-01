@@ -60,7 +60,6 @@ public class SwingRuntimeWindow extends RuntimeWindow implements ISmartRuntimeWi
 	protected volatile Window wrappedWindow = null; // will be null before the JSWindow is first shown or after the JSWindow is destroyed; can be JFrame (in case of main app. frame), FormFrame or FormDialog
 	protected JMenuBar wrappedWindowMenuBar = null;
 	private boolean createdNewWindow;
-	protected TextToolbar textToolbar;
 	protected ToolbarPanel toolbarPanel;
 
 	private boolean boundsSet = false;
@@ -326,7 +325,6 @@ public class SwingRuntimeWindow extends RuntimeWindow implements ISmartRuntimeWi
 			else if (wrappedWindow instanceof JFrame) ((JFrame)wrappedWindow).getContentPane().removeAll();
 			wrappedWindow.dispose();
 			wrappedWindow = null;
-			textToolbar = null;
 			toolbarPanel = null;
 		}
 	}
@@ -943,29 +941,11 @@ public class SwingRuntimeWindow extends RuntimeWindow implements ISmartRuntimeWi
 		return frame;
 	}
 
-	public TextToolbar getTextToolbar()
-	{
-		return textToolbar;
-	}
-
 	private void applyToolbar(RootPaneContainer window)
 	{
 		if (showTextToolbar)
 		{
-			if (textToolbar == null)
-			{
-				textToolbar = new TextToolbar(getApplication());
-			}
 			if (toolbarPanel == null) toolbarPanel = new ToolbarPanel(Settings.INITIAL_CLIENT_WIDTH - 200);
-			toolbarPanel.addToolbar(textToolbar, 0);
-		}
-		else
-		{
-			if (textToolbar != null)
-			{
-				toolbarPanel.remove(textToolbar);
-				textToolbar = null;
-			}
 		}
 		//if there is a toolbar show the pannel
 		if (toolbarPanel != null)

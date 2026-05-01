@@ -16,7 +16,6 @@
 */
 package com.servoy.j2db.scripting;
 
-import java.lang.reflect.Field;
 import java.util.Iterator;
 import java.util.List;
 
@@ -24,6 +23,7 @@ import org.mozilla.javascript.BeanProperty;
 import org.mozilla.javascript.JavaMembers;
 import org.mozilla.javascript.NativeJavaMethod;
 import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.lc.member.NativeJavaField;
 
 /**
  * Moved out of DebuggerTreeView.
@@ -44,12 +44,12 @@ public final class DeclaringClassJavaMembers extends JavaMembers
 	 * @see org.mozilla.javascript.JavaMembers#getFieldIds(boolean)
 	 */
 	@Override
-	public List getFieldIds(boolean isStatic)
+	public List<String> getFieldIds(boolean isStatic)
 	{
-		List lst = super.getFieldIds(isStatic);
-		for (Iterator iter = lst.iterator(); iter.hasNext();)
+		List<String> lst = super.getFieldIds(isStatic);
+		for (Iterator<String> iter = lst.iterator(); iter.hasNext();)
 		{
-			String id = (String)iter.next();
+			String id = iter.next();
 			Object property = getField(id, isStatic);
 			if (property instanceof BeanProperty)
 			{
@@ -59,9 +59,9 @@ public final class DeclaringClassJavaMembers extends JavaMembers
 					iter.remove();
 				}
 			}
-			else if (property instanceof Field)
+			else if (property instanceof NativeJavaField njf)
 			{
-				if (((Field)property).getDeclaringClass() != clazz)
+				if (njf.raw().getDeclaringClass() != clazz)
 				{
 					iter.remove();
 				}
@@ -76,12 +76,12 @@ public final class DeclaringClassJavaMembers extends JavaMembers
 	 * @see org.mozilla.javascript.JavaMembers#getMethodIds(boolean)
 	 */
 	@Override
-	public List getMethodIds(boolean isStatic)
+	public List<String> getMethodIds(boolean isStatic)
 	{
-		List list = super.getMethodIds(isStatic);
-		for (Iterator iter = list.iterator(); iter.hasNext();)
+		List<String> list = super.getMethodIds(isStatic);
+		for (Iterator<String> iter = list.iterator(); iter.hasNext();)
 		{
-			String id = (String)iter.next();
+			String id = iter.next();
 			NativeJavaMethod method = getMethod(id, isStatic);
 			if (method.getMethods()[0].getDeclaringClass() != clazz)
 			{

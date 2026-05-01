@@ -157,7 +157,7 @@ public class JSConnectionDefinition implements IJavaScriptType, IDestroyable, Se
 	 *  Registers this JSConnectionDefinition to the server with the current configuration.
 	 *  After this call all connections to that database will use the configuration of this definition.
 	 *
-	 * @return The this if it could be created, this will return null if there was a creating this definition (check logs)
+	 * @return The this if it could be created, this will return null if there was a exception creating this definition (check logs)
 	 */
 	@JSFunction
 	public JSConnectionDefinition create()

@@ -217,9 +217,7 @@ public class SwingItemFactory implements ItemFactory
 	public IFieldComponent createDataTextEditor(AbstractRuntimeTextEditor<IFieldComponent, JEditorPane> scriptable, String name, int type,
 		boolean willBeEditable)
 	{
-		DataTextEditor dte = new DataTextEditor(application, scriptable, type);
-		dte.setName(name);
-		return dte;
+		return null;
 	}
 
 	/*

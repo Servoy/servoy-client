@@ -122,9 +122,6 @@ import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.FormElementGroup;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.Table;
-import com.servoy.j2db.printing.FormPreviewPanel;
-import com.servoy.j2db.printing.PageList;
-import com.servoy.j2db.printing.PrintPreview;
 import com.servoy.j2db.scripting.ElementScope;
 import com.servoy.j2db.scripting.IScriptable;
 import com.servoy.j2db.scripting.IScriptableProvider;
@@ -1151,10 +1148,6 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 				fs = fs.copyCurrentRecordFoundSet();
 			}
 
-			FormPreviewPanel fpp = new FormPreviewPanel(application, formController, fs);
-			fpp.process();
-			PrintPreview.startPrinting(application, fpp.getPageable(), printerJob, formController.getPreferredPrinterName(), showPrinterSelectDialog, false);
-			fpp.destroy();
 		}
 		catch (Exception ex)
 		{
@@ -1261,11 +1254,7 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 				fs = fs.copyCurrentRecordFoundSet();
 			}
 
-			FormPreviewPanel fpp = new FormPreviewPanel(application, formController, fs);
-			fpp.process();
 			StringWriter w = new StringWriter();
-			((PageList)fpp.getPageable()).toXML(w);
-			fpp.destroy();
 			return w.toString();
 		}
 		catch (Throwable ex)

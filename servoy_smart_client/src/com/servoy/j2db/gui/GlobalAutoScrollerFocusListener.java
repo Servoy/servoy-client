@@ -33,14 +33,13 @@ import com.servoy.j2db.smart.dataui.DataChoice;
 import com.servoy.j2db.smart.dataui.DataComboBox;
 import com.servoy.j2db.smart.dataui.DataImgMediaField;
 import com.servoy.j2db.smart.dataui.DataTextArea;
-import com.servoy.j2db.smart.dataui.DataTextEditor;
 import com.servoy.j2db.smart.dataui.ScriptButton;
 import com.servoy.j2db.smart.dataui.SpecialTabPanel;
 
 /**
  * Listens to focus change in smart client and makes sure that the focused
  * component is always visible on the screen.
- * 
+ *
  * @author gerzse
  */
 public class GlobalAutoScrollerFocusListener implements PropertyChangeListener
@@ -122,7 +121,7 @@ public class GlobalAutoScrollerFocusListener implements PropertyChangeListener
 				if (parent instanceof JViewport)
 				{
 					parent = parent.getParent();
-					if ((parent instanceof DataChoice) || (parent instanceof DataTextArea) || (parent instanceof DataTextEditor) ||
+					if ((parent instanceof DataChoice) || (parent instanceof DataTextArea) ||
 						(parent instanceof DataImgMediaField)) return parent;
 				}
 			}
@@ -149,7 +148,8 @@ public class GlobalAutoScrollerFocusListener implements PropertyChangeListener
 			(!((c instanceof JScrollPane) && (prev != ((JScrollPane)c).getColumnHeader()) && (prev != ((JScrollPane)c).getRowHeader()) &&
 				(prev != ((JScrollPane)c).getCorner(ScrollPaneConstants.LOWER_LEFT_CORNER)) &&
 				(prev != ((JScrollPane)c).getCorner(ScrollPaneConstants.LOWER_RIGHT_CORNER)) &&
-				(prev != ((JScrollPane)c).getCorner(ScrollPaneConstants.UPPER_LEFT_CORNER)) && (prev != ((JScrollPane)c).getCorner(ScrollPaneConstants.UPPER_RIGHT_CORNER)))))
+				(prev != ((JScrollPane)c).getCorner(ScrollPaneConstants.UPPER_LEFT_CORNER)) &&
+				(prev != ((JScrollPane)c).getCorner(ScrollPaneConstants.UPPER_RIGHT_CORNER)))))
 		{
 			prev = c;
 			c = c.getParent();

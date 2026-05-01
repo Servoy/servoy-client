@@ -25,7 +25,6 @@ import java.awt.Rectangle;
 import java.awt.print.PrinterJob;
 import java.io.ByteArrayOutputStream;
 import java.io.StringWriter;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -34,14 +33,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.WeakHashMap;
 
-import javax.print.Doc;
 import javax.print.DocFlavor;
-import javax.print.SimpleDoc;
-import javax.print.StreamPrintService;
 import javax.print.StreamPrintServiceFactory;
-import javax.print.attribute.HashPrintRequestAttributeSet;
-import javax.print.attribute.PrintRequestAttributeSet;
-import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 
 import org.apache.wicket.Component;
@@ -79,9 +72,6 @@ import com.servoy.j2db.persistence.ISupportAnchors;
 import com.servoy.j2db.persistence.ISupportBounds;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.TabPanel;
-import com.servoy.j2db.printing.FormPreviewPanel;
-import com.servoy.j2db.printing.PageList;
-import com.servoy.j2db.printing.PrintPreview;
 import com.servoy.j2db.scripting.ElementScope;
 import com.servoy.j2db.scripting.IScriptableProvider;
 import com.servoy.j2db.scripting.RuntimeGroup;
@@ -971,45 +961,12 @@ public class WebForm extends Component
 				Thread.currentThread().setContextClassLoader(savedClassLoader);
 			}
 
-			try
-			{
-				FormPreviewPanel fpp = new FormPreviewPanel(application, formController, fs);
-				// AWT stuff happens here, so execute it in the AWT Event Thread - else exceptions can occur
-				// for example in JEditorPane while getting the preferred size & stuff
-				processFppInAWTEventQueue(fpp, application);
-				StreamPrintService sps = factories[0].getPrintService(baos);
-				Doc doc = new SimpleDoc(fpp.getPageable(), flavor, null);
-				PrintRequestAttributeSet pras = new HashPrintRequestAttributeSet();
-				sps.createPrintJob().print(doc, pras);
-				fpp.destroy();
-			}
-			catch (Exception ex)
-			{
-				application.reportError(application.getI18NMessage("servoy.formPanel.error.printDocument"), ex); //$NON-NLS-1$
-			}
-
 			String contentType = "application/pdf"; //$NON-NLS-1$
 			// Safari for windows (maybe for MAC too - can't say) does not download files
 			// of "application/pdf" content-type; it only opens a blank page; to make it
 			// work, for Safari we will change "application/pdf" to "application/octet-stream" (seems to trigger download)
 			// BTW, "application/octet-stream" works for all browsers, but it is not that accurate
 
-		}
-		else
-		{
-			try
-			{
-				FormPreviewPanel fpp = new FormPreviewPanel(application, formController, fs);
-				// AWT stuff happens here, so execute it in the AWT Event Thread - else exceptions can occur
-				// for example in JEditorPane while getting the preferred size & stuff
-				processFppInAWTEventQueue(fpp, application);
-				PrintPreview.startPrinting(application, fpp.getPageable(), printerJob, formController.getPreferredPrinterName(), false, true);
-				fpp.destroy();
-			}
-			catch (Exception ex)
-			{
-				application.reportError(application.getI18NMessage("servoy.formPanel.error.printDocument"), ex); //$NON-NLS-1$
-			}
 		}
 	}
 
@@ -1035,13 +992,7 @@ public class WebForm extends Component
 				fs = fs.copyCurrentRecordFoundSet();
 			}
 
-			FormPreviewPanel fpp = new FormPreviewPanel(application, formController, fs);
-			// AWT stuff happens here, so execute it in the AWT Event Thread - else exceptions can occur
-			// for example in JEditorPane while getting the preferred size & stuff
-			processFppInAWTEventQueue(fpp, application);
 			StringWriter w = new StringWriter();
-			((PageList)fpp.getPageable()).toXML(w);
-			fpp.destroy();
 			return w.toString();
 		}
 		catch (Throwable ex)
@@ -1049,32 +1000,6 @@ public class WebForm extends Component
 			application.reportError(application.getI18NMessage("servoy.formPanel.error.printDocument"), ex); //$NON-NLS-1$
 		}
 		return null;
-	}
-
-	private void processFppInAWTEventQueue(final FormPreviewPanel fpp, final IApplication application) throws InterruptedException, InvocationTargetException
-	{
-		SwingUtilities.invokeAndWait(new Runnable()
-		{
-			public void run()
-			{
-				// because some wicket widget properties are being used in the process() call, we need to set up
-				// the thread local variables that they need in order to function - do this by using application.invoke...
-				application.invokeAndWait(new Runnable()
-				{
-					public void run()
-					{
-						try
-						{
-							fpp.process();
-						}
-						catch (Exception e)
-						{
-							application.reportError(application.getI18NMessage("servoy.formPanel.error.printDocument"), e); //$NON-NLS-1$
-						}
-					}
-				});
-			}
-		});
 	}
 
 	@Override

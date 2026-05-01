@@ -22,6 +22,7 @@ import java.io.UnsupportedEncodingException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import org.owasp.encoder.Encode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,7 +67,7 @@ public class HTMLWriter
 		int i = 0;
 		while (i < p.getNameCount() - 1 && !StatelessLoginUtils.SVYLOGIN_PATH.equals(p.getName(i).toString()))
 		{
-			path += p.getName(i) + "/";
+			path += Encode.forUriComponent(p.getName(i).toString()) + "/";
 			i++;
 		}
 		return path;
