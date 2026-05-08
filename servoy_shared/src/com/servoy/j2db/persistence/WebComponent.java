@@ -22,15 +22,21 @@ import java.awt.Point;
 import java.beans.IntrospectionException;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.WebComponentSpecProvider;
+import org.sablo.specification.WebObjectSpecification;
+import org.sablo.specification.property.ICustomType;
 
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.PersistHelper;
+import com.servoy.j2db.util.ServoyJSONArray;
 import com.servoy.j2db.util.ServoyJSONObject;
 import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
@@ -38,29 +44,15 @@ import com.servoy.j2db.util.Utils;
 /**
  * @author gboros
  */
-public class WebComponent extends BaseComponent implements IWebComponent
+public class WebComponent extends BaseComponent implements IWebComponent, ICommonWebComponent
 {
 
 	private static final long serialVersionUID = 1L;
-
-	private static final boolean sabloLoaded;
 
 	protected static Set<String> purePersistPropertyNames;
 
 	static
 	{
-		boolean loaded = false;
-		try
-		{
-			Class.forName("org.sablo.BaseWebObject");
-			loaded = true;
-		}
-		catch (ClassNotFoundException e)
-		{
-			// it's not found so sablo is not loaded
-		}
-		sabloLoaded = loaded;
-
 		try
 		{
 			purePersistPropertyNames = RepositoryHelper.getSettersViaIntrospection(WebComponent.class).keySet();
@@ -72,103 +64,90 @@ public class WebComponent extends BaseComponent implements IWebComponent
 		}
 	}
 
-	protected transient WebObjectBasicImpl webObjectImpl;
+	protected boolean customTypesInitialized = false;
 
 	protected WebComponent(ISupportChilds parent, UUID uuid)
 	{
 		super(IRepository.WEBCOMPONENTS, parent, uuid);
-		webObjectImpl = createWebObjectImpl();
 	}
 
-	public WebObjectBasicImpl getImplementation()
-	{
-		return webObjectImpl;
-	}
-
-	// we can't add this here! this class should never use classes from org.sablo as it might end up in smart client which doesn't have those classes, not just in ngclient
-//	@Override
-//	public PropertyDescription getPropertyDescription()
-//	{
-//		return webObjectImpl instanceof WebObjectImpl ? ((WebObjectImpl)webObjectImpl).getPropertyDescription() : null;
-//	}
-
-	protected WebObjectBasicImpl createWebObjectImpl()
-	{
-		return sabloLoaded ? new WebObjectImpl(this) : new WebObjectBasicImpl(this);
-	}
-
-	private void writeObject(java.io.ObjectOutputStream stream) throws java.io.IOException
-	{
-		stream.defaultWriteObject();
-	}
-
-	private void readObject(java.io.ObjectInputStream stream) throws java.io.IOException, ClassNotFoundException
-	{
-		stream.defaultReadObject();
-		webObjectImpl = createWebObjectImpl();
-	}
-
-	@Override
-	public IWebComponent getParentComponent()
-	{
-		return this;
-	}
-
-	@Override
-	public void clearChanged()
-	{
-		super.clearChanged();
-		for (IChildWebObject x : getAllPersistMappedProperties())
-		{
-			if (x != null && x.isChanged()) x.clearChanged();
-		}
-	}
-
-	@Override
-	public void updateJSON()
-	{
-		webObjectImpl.updateJSONFromPersistMappedProperties();
-	}
 
 	@Override
 	public void setProperty(String propertyName, Object val)
 	{
 		if (hasPersistProperty(propertyName)) super.setProperty(propertyName, val);
-		else webObjectImpl.setProperty(propertyName, val);
+		else PersistHelper.setWebComponentProperty(this, propertyName, val);
 	}
 
 	@Override
 	protected void setPropertyInternal(String propertyName, Object val)
 	{
 		super.setPropertyInternal(propertyName, val);
-		webObjectImpl.setProperty(propertyName, val);
+		PersistHelper.setWebComponentProperty(this, propertyName, val);
 	}
+
 
 	@Override
 	public void clearProperty(String propertyName)
 	{
 		if (IContentSpecConstants.PROPERTY_TYPENAME.equals(propertyName)) return;
 		super.clearProperty(propertyName);
-		webObjectImpl.clearProperty(propertyName);
+		PersistHelper.clearWebComponentProperty(this, propertyName);
 	}
 
 	@Override
 	public Object getProperty(String propertyName)
 	{
-		Object value = null;
-		if (webObjectImpl == null || hasPersistProperty(propertyName)) value = super.getProperty(propertyName);
-		if (value == null) value = webObjectImpl.getProperty(propertyName);
-		return value;
+		if (!customTypesInitialized && !IContentSpecConstants.PROPERTY_JSON.equals(propertyName))
+		{
+			// is it ok to initialize custom types here?
+			initCustomTypes();
+		}
+		if (hasPersistProperty(propertyName)) return super.getProperty(propertyName);
+		return PersistHelper.getWebComponentProperty(this, propertyName);
+	}
+
+	@Override
+	public List<IPersist> getAllObjectsAsList()
+	{
+		if (!customTypesInitialized)
+		{
+			// is it ok to initialize custom types here?
+			initCustomTypes();
+		}
+		return super.getAllObjectsAsList();
 	}
 
 	@Override
 	public Object getOwnPropertyOrDefault(String propertyName)
 	{
 		Object value = null;
-		if (webObjectImpl == null || hasPersistProperty(propertyName)) value = getOwnProperty(propertyName);
-		if (value == null && webObjectImpl != null)
+		if (hasPersistProperty(propertyName)) value = getOwnProperty(propertyName);
+		if (value == null)
 		{
-			value = makeCopy(webObjectImpl.getOwnProperty(propertyName));
+			JSONObject json = getJson();
+			if (json != null)
+			{
+				Object object = json.opt(propertyName);
+				if (object != null)
+				{
+					PropertyDescription propertyDescription = getPropertyDescription();
+					if (propertyDescription != null)
+					{
+						PropertyDescription childPd = propertyDescription.getProperty(propertyName);
+						if (childPd == null && propertyDescription instanceof WebObjectSpecification &&
+							((WebObjectSpecification)propertyDescription).getHandler(propertyName) != null)
+						{
+							childPd = ((WebObjectSpecification)propertyDescription).getHandler(propertyName).getAsPropertyDescription();
+						}
+						if (childPd != null)
+						{
+							object = PersistHelper.convertToJavaType(childPd, object, this);
+						}
+					}
+				}
+				value = makeCopy(object);
+			}
 		}
 		return value != null ? value : super.getOwnPropertyOrDefault(propertyName);
 	}
@@ -176,19 +155,27 @@ public class WebComponent extends BaseComponent implements IWebComponent
 	@Override
 	public Object getPropertyDefaultValueClone(String propertyName)
 	{
-		return webObjectImpl != null ? webObjectImpl.getPropertyDefaultValue(propertyName) : null;
+		PropertyDescription pd = getPropertyDescription();
+		PropertyDescription propPD = pd != null ? pd.getProperty(propertyName) : null;
+		return propPD != null && propPD.hasDefault() ? ServoyJSONObject.deepCloneJSONArrayOrObj(propPD.getDefaultValue()) : null;
 	}
 
 	@Override
 	public boolean hasProperty(String propertyName)
 	{
 		boolean hasIt = false;
-		if (webObjectImpl == null) hasIt = super.hasProperty(propertyName);
-		else
+		PropertyDescription propertyDescription = getPropertyDescription();
+		if (propertyDescription != null)
 		{
-			hasIt = webObjectImpl.hasProperty(propertyName);
-			if (!hasIt) hasIt = super.hasProperty(propertyName);
+			PropertyDescription childPd = propertyDescription.getProperty(propertyName);
+			if (childPd != null)
+			{
+				JSONObject json = getJson();
+				hasIt = (json != null && json.has(propertyName));
+			}
 		}
+		if (!hasIt) hasIt = super.hasProperty(propertyName);
+
 		return hasIt;
 	}
 
@@ -197,27 +184,19 @@ public class WebComponent extends BaseComponent implements IWebComponent
 		return purePersistPropertyNames.contains(propertyName);
 	}
 
-	/**
-	 * Returns all direct child typed properties or array of such typed properties.
-	 */
-	protected List<IChildWebObject> getAllPersistMappedProperties()
-	{
-		return webObjectImpl.getAllPersistMappedProperties();
-	}
-
-//	public Map<String, Object> getPersistMappedPropertiesReadOnly()
-//	{
-//		return webObjectImpl.getPersistMappedPropertiesReadOnly();
-//	}
-
 	public void setTypeName(String arg)
 	{
-		webObjectImpl.setTypeName(arg);
+		String oldTypeName = getTypeName();
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_TYPENAME, arg);
+		if (!customTypesInitialized || !Utils.equalObjects(oldTypeName, arg))
+		{
+			initCustomTypes();
+		}
 	}
 
 	public String getTypeName()
 	{
-		return webObjectImpl.getTypeName();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_TYPENAME);
 	}
 
 	/**
@@ -227,12 +206,68 @@ public class WebComponent extends BaseComponent implements IWebComponent
 	public void setJson(JSONObject arg)
 	{
 		if (arg != null && !(arg instanceof ServoyJSONObject)) throw new RuntimeException("ServoyJSONObject is needed here in order to make it serializable");
-		webObjectImpl.setJson(arg);
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_JSON, arg);
+		if (!customTypesInitialized)
+		{
+			initCustomTypes();
+		}
+		else
+		{
+			// just update the custom types based on the new json, without clearing them first
+			PropertyDescription propertyDescription = getPropertyDescription();
+			for (String propertyName : propertyDescription.getAllPropertiesNames())
+			{
+				PropertyDescription childPd = propertyDescription.getProperty(propertyName);
+				if (PersistHelper.isPersistMappedProperty(childPd))
+				{
+					Object customTypesJSON = arg.opt(propertyName);
+					if (customTypesJSON != null)
+					{
+						if (customTypesJSON instanceof JSONObject jsonObject)
+						{
+							UUID childUUID = Utils.getAsUUID(jsonObject.optString(IChildWebObject.UUID_KEY, null), false);
+							WebCustomType existingCustomType = (WebCustomType)getChild(childUUID);
+							if (existingCustomType != null)
+							{
+								existingCustomType.setJson(jsonObject);
+							}
+							else
+							{
+								WebCustomType.createNewInstance(this, (childPd.getType() instanceof ICustomType< ? >)
+									? ((ICustomType< ? >)childPd.getType()).getCustomJSONTypeDefinition() : childPd, propertyName, -1,
+									childUUID);
+							}
+						}
+						else if (customTypesJSON instanceof JSONArray arr)
+						{
+							for (int i = 0; i < arr.length(); i++)
+							{
+								if (arr.opt(i) instanceof JSONObject jsonObject)
+								{
+									UUID childUUID = Utils.getAsUUID(jsonObject.optString(IChildWebObject.UUID_KEY, null), false);
+									WebCustomType existingCustomType = (WebCustomType)getChild(childUUID);
+									if (existingCustomType != null)
+									{
+										existingCustomType.setJson(jsonObject);
+									}
+									else
+									{
+										WebCustomType.createNewInstance(this, (childPd.getType() instanceof ICustomType< ? >)
+											? ((ICustomType< ? >)childPd.getType()).getCustomJSONTypeDefinition() : childPd, propertyName, i,
+											Utils.getAsUUID(jsonObject.optString(IChildWebObject.UUID_KEY, null), false));
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
 	}
 
 	public JSONObject getJson()
 	{
-		JSONObject x = webObjectImpl.getJson();
+		JSONObject x = getTypedProperty(StaticContentSpecLoader.PROPERTY_JSON);
 		try
 		{
 			return x == null ? x : new ServoyJSONObject(x, ServoyJSONObject.getNames(x), false, true);
@@ -246,91 +281,63 @@ public class WebComponent extends BaseComponent implements IWebComponent
 
 	public JSONObject getFlattenedJson()
 	{
-		JSONObject json = getJson();
-		IPersist superPersist = PersistHelper.getSuperPersist(this);
-		if (superPersist instanceof WebComponent)
-		{
-			JSONObject superJson = ((WebComponent)superPersist).getFlattenedJson();
-			if (superJson != null)
-			{
-				if (json != null)
-				{
-					Iterator it = json.keys();
-					while (it.hasNext())
-					{
-						String key = (String)it.next();
-						try
-						{
-							superJson.put(key, json.get(key));
-						}
-						catch (JSONException e)
-						{
-							Debug.error(e);
-						}
-					}
-				}
-				json = superJson;
-			}
-		}
-		return json;
+		return PersistHelper.getFlattenedJSON(this);
 	}
 
 	@Override
 	protected void internalRemoveChild(IPersist obj)
 	{
-		webObjectImpl.internalRemoveChild(obj);
+		super.internalRemoveChild(obj);
+		PersistHelper.removeChildWebComponent(this, obj);
 	}
 
 	@Override
-	public void internalAddChild(IPersist obj)
+	public void addChild(IPersist obj, int index)
 	{
-		webObjectImpl.setChild(obj);
-	}
+		super.addChild(obj, index);
+		if (obj instanceof WebCustomType customType)
+		{
+			JSONObject json = (JSONObject)getOwnProperty(StaticContentSpecLoader.PROPERTY_JSON.getPropertyName());
+			if (json == null)
+			{
+				json = new ServoyJSONObject();
+				setJson(json);
+			}
+			if (PersistHelper.isArrayOfCustomJSONObject(getPropertyDescription().getProperty(customType.getJsonKey()).getType()))
+			{
+				JSONArray customTypesArray = json.optJSONArray(customType.getJsonKey());
+				if (customTypesArray == null)
+				{
+					customTypesArray = new ServoyJSONArray();
+					json.put(customType.getJsonKey(), customTypesArray);
+				}
+				if (index >= 0)
+				{
+					if (index >= customTypesArray.length() || customTypesArray.opt(index) == null)
+					{
+						customTypesArray.put(index, customType.getFullJsonInFrmFile());
+					}
+					else
+					{
+						// move the element to the correct index
+						for (int i = customTypesArray.length() - 1; i >= index; i--)
+						{
+							customTypesArray.put(i + 1, customTypesArray.opt(i));
+						}
+						customTypesArray.put(index, customType.getFullJsonInFrmFile());
+					}
+				}
+				else
+				{
+					customTypesArray.put(customType.getFullJsonInFrmFile());
+				}
+			}
+			else
+			{
+				json.put(customType.getJsonKey(), customType.getFullJsonInFrmFile());
+			}
+		}
 
-	@Override
-	public void setChild(IChildWebObject child)
-	{
-		webObjectImpl.setChild(child);
-		afterChildWasAdded(child);
-	}
-
-	@Override
-	public void insertChild(IChildWebObject child)
-	{
-		webObjectImpl.insertChild(child);
-		afterChildWasAdded(child);
-	}
-
-	@Override
-	public Iterator<IPersist> getAllObjects()
-	{
-		return webObjectImpl.getAllObjects();
-	}
-
-	@Override
-	public List<IPersist> getAllObjectsAsList()
-	{
-		return Utils.asList(getAllObjects());
-	}
-
-	@Override
-	public <T extends IPersist> Iterator<T> getObjects(int tp)
-	{
-		return webObjectImpl.getObjects(tp);
-	}
-
-	@Override
-	public IPersist getChild(UUID childUuid)
-	{
-		return webObjectImpl.getChild(childUuid);
-	}
-
-	@Override
-	protected void fillClone(AbstractBase cloned)
-	{
-		if (cloned instanceof WebComponent)
-			((WebComponent)cloned).webObjectImpl = sabloLoaded ? new WebObjectImpl((WebComponent)cloned) : new WebObjectBasicImpl((WebComponent)cloned);
-		super.fillClone(cloned);
 	}
 
 	@Override
@@ -362,7 +369,6 @@ public class WebComponent extends BaseComponent implements IWebComponent
 					return IPersistVisitor.CONTINUE_TRAVERSAL;
 				}
 			});
-			wcClone.updateJSON();
 			for (WebCustomType customType : types)
 			{
 				clone.getRootObject().getChangeHandler().fireIPersistChanged(customType);
@@ -382,13 +388,6 @@ public class WebComponent extends BaseComponent implements IWebComponent
 			});
 		}
 		return clone;
-	}
-
-	@Override
-	public void setExtendsID(String arg)
-	{
-		super.setExtendsID(arg);
-		webObjectImpl.reload(true);
 	}
 
 	/**
@@ -438,8 +437,104 @@ public class WebComponent extends BaseComponent implements IWebComponent
 	}
 
 	@Override
+	public Map<String, Object> getFlattenedPropertiesMap()
+	{
+		return PersistHelper.getFlattenedPropertiesMap(this);
+	}
+
+	protected void initCustomTypes()
+	{
+		internalClearAllObjects();
+		PropertyDescription propertyDescription = getPropertyDescription();
+		if (propertyDescription == null) return;
+		JSONObject json = (JSONObject)getOwnProperty(StaticContentSpecLoader.PROPERTY_JSON.getPropertyName());
+		if (json == null) return;
+		customTypesInitialized = true;
+		if (json.length() > 0)
+		{
+			for (String propertyName : propertyDescription.getAllPropertiesNames())
+			{
+				PropertyDescription childPd = propertyDescription.getProperty(propertyName);
+				if (PersistHelper.isPersistMappedProperty(childPd))
+				{
+					Object customTypesJSON = json.opt(propertyName);
+					if (customTypesJSON != null)
+					{
+						if (customTypesJSON instanceof JSONObject jsonObject)
+						{
+							WebCustomType.createNewInstance(this, (childPd.getType() instanceof ICustomType< ? >)
+								? ((ICustomType< ? >)childPd.getType()).getCustomJSONTypeDefinition() : childPd, propertyName, -1,
+								Utils.getAsUUID(jsonObject.optString(IChildWebObject.UUID_KEY, null), false));
+						}
+						else if (customTypesJSON instanceof JSONArray arr)
+						{
+							for (int i = 0; i < arr.length(); i++)
+							{
+								if (arr.opt(i) instanceof JSONObject jsonObject)
+								{
+									WebCustomType.createNewInstance(this, (childPd.getType() instanceof ICustomType< ? >)
+										? ((ICustomType< ? >)childPd.getType()).getCustomJSONTypeDefinition() : childPd, propertyName, i,
+										Utils.getAsUUID(jsonObject.optString(IChildWebObject.UUID_KEY, null), false));
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		// handle the old implementation of custom types inheritance , based only on the index; set(guess) the correct extendsID
+		IPersist superPersist = PersistHelper.getSuperPersist(this);
+		if (superPersist != null)
+		{
+			List<IPersist> allObjectsAsList = getAllObjectsAsList();
+			List<IPersist> superAllObjectsAsList = ((AbstractBase)superPersist).getAllObjectsAsList();
+			if (allObjectsAsList.size() > 0 && allObjectsAsList.size() == superAllObjectsAsList.size())
+			{
+				boolean containsExtendsID = allObjectsAsList.stream()
+					.anyMatch(persist -> persist instanceof ISupportExtendsID supportsExtendsIDPersist && supportsExtendsIDPersist.getExtendsID() != null);
+				if (!containsExtendsID)
+				{
+					for (int i = 0; i < allObjectsAsList.size(); i++)
+					{
+						IPersist persist = allObjectsAsList.get(i);
+						IPersist superPersistAtIndex = superAllObjectsAsList.get(i);
+						if (persist instanceof ISupportExtendsID supportsExtendsIDPersist)
+						{
+							supportsExtendsIDPersist.setExtendsID(superPersistAtIndex.getUUID().toString());
+						}
+					}
+				}
+			}
+		}
+	}
+
+	private boolean gettingTypeName;
+
+	public PropertyDescription getPropertyDescription()
+	{
+		if (!gettingTypeName && WebComponentSpecProvider.isLoaded())
+		{
+			gettingTypeName = true;
+			try
+			{
+				return WebComponentSpecProvider.getSpecProviderState().getWebObjectSpecification(getTypeName());
+			}
+			finally
+			{
+				gettingTypeName = false;
+			}
+		}
+		return null;
+	}
+
+	@Override
 	public String toString()
 	{
-		return webObjectImpl.toString();
+		String name = getName();
+		if (name == null || name.trim().length() == 0)
+		{
+			return getTypeName();
+		}
+		return name + " [" + getTypeName() + ']'; //$NON-NLS-1$
 	}
 }

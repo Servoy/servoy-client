@@ -40,6 +40,15 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.StringTokenizer;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.WebObjectSpecification;
+import org.sablo.specification.property.ICustomType;
+import org.sablo.specification.property.IPropertyType;
+import org.sablo.websocket.utils.PropertyUtils;
+
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.MediaURLStreamHandler;
 import com.servoy.j2db.persistence.AbstractBase;
@@ -48,7 +57,12 @@ import com.servoy.j2db.persistence.CSSPositionLayoutContainer;
 import com.servoy.j2db.persistence.FlattenedCSSPositionLayoutContainer;
 import com.servoy.j2db.persistence.FlattenedForm;
 import com.servoy.j2db.persistence.FlattenedLayoutContainer;
+import com.servoy.j2db.persistence.FlattenedWebComponent;
 import com.servoy.j2db.persistence.Form;
+import com.servoy.j2db.persistence.IBasicWebObject;
+import com.servoy.j2db.persistence.IChildWebObject;
+import com.servoy.j2db.persistence.ICommonWebComponent;
+import com.servoy.j2db.persistence.IDesignValueConverter;
 import com.servoy.j2db.persistence.IFlattenedPersistWrapper;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IRepository;
@@ -59,6 +73,8 @@ import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
+import com.servoy.j2db.persistence.WebComponent;
+import com.servoy.j2db.persistence.WebCustomType;
 
 /**
  * Helper class to the repository model persist side
@@ -1109,9 +1125,203 @@ public class PersistHelper
 		List<AbstractBase> hierarchy = PersistHelper.getOverrideHierarchy(extendable);
 		for (int i = hierarchy.size() - 1; i >= 0; i--)
 		{
-			map.putAll(hierarchy.get(i).getPropertiesMap());
+			AbstractBase persist = hierarchy.get(i);
+			map.putAll(persist.getPropertiesMap());
+			if (persist instanceof IBasicWebObject webObject)
+			{
+				JSONObject json = webObject.getJson();
+				if (json != null)
+				{
+					addJsonToMap(extendable, json, map);
+				}
+			}
 		}
 		return map;
+	}
+
+	private static void addJsonToMap(ISupportExtendsID extendable, JSONObject json, Map<String, Object> map)
+	{
+		Iterator<String> keys = json.keys();
+		while (keys.hasNext())
+		{
+			String key = keys.next();
+			try
+			{
+				Object childValue = json.get(key);
+				Object superValue = map.get(key);
+				if (childValue != null && superValue != null && extendable instanceof ICommonWebComponent &&
+					PersistHelper.isPersistMappedProperty(((ICommonWebComponent)extendable).getPropertyDescription(), key))
+				{
+					childValue = mergePersistBasedValue(childValue, superValue);
+				}
+				map.put(key, childValue);
+			}
+			catch (JSONException e)
+			{
+				Debug.error(e);
+			}
+		}
+	}
+
+	public static JSONObject getFlattenedJSON(IBasicWebObject webObject)
+	{
+		JSONObject json = webObject.getJson();
+		IPersist superPersist = webObject instanceof ISupportExtendsID ? PersistHelper.getSuperPersist((ISupportExtendsID)webObject) : null;
+		if (superPersist instanceof IBasicWebObject parentWebObject)
+		{
+			JSONObject superJson = parentWebObject.getFlattenedJson();
+			if (superJson != null)
+			{
+				if (json != null)
+				{
+					Iterator it = json.keys();
+					while (it.hasNext())
+					{
+						String key = (String)it.next();
+						try
+						{
+							Object value = json.get(key);
+							if (PersistHelper.isPersistMappedProperty(((ICommonWebComponent)webObject).getPropertyDescription(), key))
+							{
+								if (superJson.has(key))
+								{
+									value = mergePersistBasedValue(value, superJson.get(key));
+								}
+							}
+							superJson.put(key, value);
+						}
+						catch (JSONException e)
+						{
+							Debug.error(e);
+						}
+					}
+				}
+				json = superJson;
+			}
+		}
+		return json;
+	}
+
+	private static Object mergePersistBasedValue(Object childValue, Object superValue)
+	{
+		if (childValue == null || superValue == null) return childValue;
+		Object value = childValue;
+		if (value instanceof JSONObject jsonObject && superValue instanceof JSONObject superJsonObject)
+		{
+			value = mergeJSONObjects(superJsonObject, jsonObject);
+		}
+		if (value instanceof JSONArray jsonArray && superValue instanceof JSONArray superJsonArray)
+		{
+			JSONArray mergedArray = new JSONArray();
+			for (int i = 0; i < jsonArray.length(); i++)
+			{
+				Object v1 = jsonArray.opt(i);
+				if (v1 instanceof JSONObject childJSONObject)
+				{
+					JSONObject parentJSONObject = null;
+					if (childJSONObject.has(StaticContentSpecLoader.PROPERTY_EXTENDSID.getPropertyName()))
+					{
+						String extendsId = childJSONObject.optString(StaticContentSpecLoader.PROPERTY_EXTENDSID.getPropertyName());
+						if (extendsId != null)
+						{
+							for (int j = 0; j < superJsonArray.length(); j++)
+							{
+								Object sv = superJsonArray.opt(j);
+								if (sv instanceof JSONObject superObj && extendsId.equals(superObj.optString(IChildWebObject.UUID_KEY)))
+								{
+									parentJSONObject = superObj;
+									break;
+								}
+							}
+						}
+					}
+					if (parentJSONObject != null)
+					{
+						mergedArray.put(i, mergeJSONObjects(parentJSONObject, childJSONObject));
+					}
+					else
+					{
+						mergedArray.put(i, childJSONObject);
+					}
+				}
+				else
+				{
+					mergedArray.put(i, v1);
+				}
+			}
+			value = mergedArray;
+		}
+		return value;
+	}
+
+	private static JSONObject mergeJSONObjects(JSONObject obj1, JSONObject obj2)
+	{
+		JSONObject mergedObj = new JSONObject();
+		Iterator<String> valueKeysIte = obj1.keys();
+		while (valueKeysIte.hasNext())
+		{
+			String valueKey = valueKeysIte.next();
+			mergedObj.put(valueKey, obj1.opt(valueKey));
+		}
+		valueKeysIte = obj2.keys();
+		while (valueKeysIte.hasNext())
+		{
+			String valueKey = valueKeysIte.next();
+			Object v1 = mergedObj.opt(valueKey);
+			Object v2 = obj2.opt(valueKey);
+			if (v1 instanceof JSONArray && v2 instanceof JSONArray)
+			{
+				JSONArray mergedValue = new JSONArray();
+				for (int i = 0; i < ((JSONArray)v2).length(); i++)
+				{
+					Object vv1 = i < ((JSONArray)v1).length() ? ((JSONArray)v1).opt(i) : null;
+					Object vv2 = ((JSONArray)v2).opt(i);
+					if (vv1 instanceof JSONObject && vv2 instanceof JSONObject)
+					{
+						mergedValue.put(i, mergeJSONObjects((JSONObject)vv1, (JSONObject)vv2));
+					}
+					else
+					{
+						mergedValue.put(i, vv2);
+					}
+				}
+				mergedObj.put(valueKey, mergedValue);
+			}
+			else if (v1 instanceof JSONObject && v2 instanceof JSONObject)
+			{
+				mergedObj.put(valueKey, mergeJSONObjects((JSONObject)v1, (JSONObject)v2));
+			}
+			else
+			{
+				mergedObj.put(valueKey, v2);
+			}
+		}
+		return mergedObj;
+	}
+
+	public static Object convertToJavaType(PropertyDescription childPd, Object val, IPersist persist)
+	{
+		Object value = val;
+		IDesignValueConverter< ? > converter = null;
+		if (value != null && childPd != null && (converter = getConverter(childPd)) != null)
+		{
+			value = converter.fromDesignValue(value, childPd, persist);
+		}
+		return (value != JSONObject.NULL) ? value : null;
+	}
+
+	public static Object convertFromJavaType(PropertyDescription pd, Object value)
+	{
+		if (pd != null && getConverter(pd) != null)
+		{
+			return getConverter(pd).toDesignValue(value, pd);
+		}
+		return value;
+	}
+
+	private static IDesignValueConverter< ? > getConverter(PropertyDescription pd)
+	{
+		return (pd.getType() instanceof IDesignValueConverter< ? >) ? (IDesignValueConverter< ? >)pd.getType() : null;
 	}
 
 	public static List<String> getOrderedStyleSheets(FlattenedSolution fs)
@@ -1188,6 +1398,10 @@ public class PersistHelper
 				: flattenedSolution.createFlattenedForm(parent);
 			flattenedPersist = new FlattenedLayoutContainer(ff, (LayoutContainer)flattenedPersist);
 		}
+		else if (flattenedPersist instanceof WebComponent wc && !(flattenedPersist instanceof FlattenedWebComponent))
+		{
+			flattenedPersist = new FlattenedWebComponent(wc);
+		}
 		return flattenedPersist;
 	}
 
@@ -1204,5 +1418,202 @@ public class PersistHelper
 		}
 		return null;
 
+	}
+
+	public static boolean isPersistMappedProperty(PropertyDescription childPd)
+	{
+		return isCustomJSONObjectOrArrayOfCustomJSONObject(childPd);
+	}
+
+	public static boolean isPersistMappedProperty(PropertyDescription propertyDescription, String key)
+	{
+		if (propertyDescription == null) return false;
+
+		PropertyDescription childPd = propertyDescription.getProperty(key);
+		return isCustomJSONObjectOrArrayOfCustomJSONObject(childPd);
+	}
+
+	protected static boolean isCustomJSONObjectOrArrayOfCustomJSONObject(PropertyDescription childPd)
+	{
+		if (childPd != null)
+		{
+			IPropertyType< ? > propertyType = childPd.getType();
+			return PropertyUtils.isCustomJSONObjectProperty(propertyType) || isArrayOfCustomJSONObject(propertyType);
+		}
+		return false;
+	}
+
+	public static boolean isArrayOfCustomJSONObject(IPropertyType< ? > propertyType)
+	{
+		boolean arrayReturnType = PropertyUtils.isCustomJSONArrayPropertyType(propertyType);
+		if (arrayReturnType)
+		{
+			PropertyDescription elementPD = (propertyType instanceof ICustomType< ? >) ? ((ICustomType< ? >)propertyType).getCustomJSONTypeDefinition() : null;
+			if (elementPD != null && PropertyUtils.isCustomJSONObjectProperty(elementPD.getType()))
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public static void removeChildWebComponent(ICommonWebComponent parent, IPersist child)
+	{
+		if (parent instanceof AbstractBase && child instanceof IChildWebObject customType)
+		{
+			JSONObject json = (JSONObject)((AbstractBase)parent).getOwnProperty(StaticContentSpecLoader.PROPERTY_JSON.getPropertyName());
+			if (json != null)
+			{
+				PropertyDescription propertyDescription = parent.getPropertyDescription();
+				if (propertyDescription != null)
+				{
+					PropertyDescription childPd = propertyDescription.getProperty(customType.getJsonKey());
+					if (PersistHelper.isArrayOfCustomJSONObject(childPd.getType()))
+					{
+						JSONArray array = json.optJSONArray(customType.getJsonKey());
+						if (array != null)
+						{
+							Iterator<Object> it = array.iterator();
+							while (it.hasNext())
+							{
+								Object o = it.next();
+								if (o instanceof JSONObject &&
+									Utils.equalObjects(((JSONObject)o).optString(IChildWebObject.UUID_KEY), customType.getUUID().toString()))
+								{
+									it.remove();
+									break;
+								}
+							}
+						}
+						else
+						{
+							json.remove(customType.getJsonKey());
+						}
+					}
+				}
+			}
+		}
+	}
+
+	public static void clearWebComponentProperty(AbstractBase webComponent, String propertyName)
+	{
+		boolean removed = false;
+		JSONObject json = (JSONObject)webComponent.getOwnProperty(StaticContentSpecLoader.PROPERTY_JSON.getPropertyName());
+		if (json != null)
+		{
+			removed = (json.remove(propertyName) != null);
+		}
+		if (removed)
+		{
+			webComponent.flagChanged();
+		}
+		List<IPersist> toRemove = new ArrayList<IPersist>();
+		webComponent.getObjects(IRepository.WEBCUSTOMTYPES).forEachRemaining(customType -> {
+			if (customType instanceof WebCustomType wct && Utils.equalObjects(wct.getJsonKey(), propertyName))
+			{
+				toRemove.add(customType);
+			}
+		});
+		for (IPersist r : toRemove)
+		{
+			webComponent.removeChild(r);
+		}
+	}
+
+	public static Object getWebComponentProperty(AbstractBase webComponent, String propertyName)
+	{
+		PropertyDescription propertyDescription = ((ICommonWebComponent)webComponent).getPropertyDescription();
+		if (propertyDescription != null)
+		{
+			PropertyDescription childPd = propertyDescription.getProperty(propertyName);
+			if (PersistHelper.isPersistMappedProperty(childPd))
+			{
+				List<IPersist> customTypes = new ArrayList<IPersist>();
+				webComponent.getAllObjects().forEachRemaining(customType -> {
+					if (customType instanceof IChildWebObject childWebObject && Utils.equalObjects(childWebObject.getJsonKey(), propertyName))
+					{
+						customTypes.add(customType);
+					}
+				});
+				if (PersistHelper.isArrayOfCustomJSONObject(childPd.getType()))
+				{
+					return customTypes.toArray(new IChildWebObject[customTypes.size()]);
+				}
+				else if (customTypes.size() > 0)
+				{
+					return customTypes.get(0);
+				}
+			}
+			else
+			{
+				JSONObject json = ((IBasicWebObject)webComponent).getFlattenedJson();
+				if (json != null && json.has(propertyName))
+				{
+					return PersistHelper.convertToJavaType(childPd, json.get(propertyName), webComponent);
+				}
+			}
+		}
+		return null;
+	}
+
+	public static void setWebComponentProperty(AbstractBase webComponent, String propertyName, Object val)
+	{
+		PropertyDescription propertyDescription = ((ICommonWebComponent)webComponent).getPropertyDescription();
+		if (propertyDescription != null)
+		{
+			PropertyDescription childPd = propertyDescription.getProperty(propertyName);
+			if (childPd == null && propertyDescription.getType() instanceof ICustomType customTypeDefinition)
+			{
+				childPd = customTypeDefinition.getCustomJSONTypeDefinition().getProperty(propertyName);
+			}
+			if (childPd == null && propertyDescription instanceof WebObjectSpecification &&
+				((WebObjectSpecification)propertyDescription).getHandler(propertyName) != null)
+				childPd = ((WebObjectSpecification)propertyDescription).getHandler(propertyName).getAsPropertyDescription();
+			if (childPd != null)
+			{
+				JSONObject json = (JSONObject)webComponent.getOwnProperty(StaticContentSpecLoader.PROPERTY_JSON.getPropertyName());
+				if (json == null)
+				{
+					json = new ServoyJSONObject();
+					((IBasicWebObject)webComponent).setJson(json);
+				}
+				IPropertyType< ? > propertyType = childPd.getType();
+				if ((val == null && PersistHelper.isPersistMappedProperty(childPd)) ||
+					(val instanceof WebCustomType && PropertyUtils.isCustomJSONObjectProperty(propertyType)) ||
+					(val instanceof IChildWebObject[] && PersistHelper.isArrayOfCustomJSONObject(propertyType)))
+				{
+					List<IPersist> toRemove = new ArrayList<IPersist>();
+					webComponent.getAllObjects().forEachRemaining(customType -> {
+						if (customType instanceof IChildWebObject childWebObject && Utils.equalObjects(childWebObject.getJsonKey(), propertyName))
+						{
+							toRemove.add(customType);
+						}
+					});
+					for (IPersist r : toRemove)
+					{
+						webComponent.removeChild(r);
+					}
+					if (val instanceof IChildWebObject[] children)
+					{
+						for (IChildWebObject child : children)
+						{
+							// add child adds it in json
+							webComponent.addChild(child);
+						}
+					}
+					else if (val instanceof IChildWebObject child)
+					{
+						// add child adds it in json
+						webComponent.addChild(child);
+					}
+				}
+				else
+				{
+					// it is a json property defined in spec, but it's not mapping to a persist
+					json.put(propertyName, ServoyJSONObject.nullToJsonNull(PersistHelper.convertFromJavaType(childPd, val)));
+				}
+				webComponent.flagChanged();
+			}
+		}
 	}
 }

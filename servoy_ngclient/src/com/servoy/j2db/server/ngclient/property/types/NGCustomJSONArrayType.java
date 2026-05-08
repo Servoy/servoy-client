@@ -42,7 +42,6 @@ import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.persistence.IDesignValueConverter;
 import com.servoy.j2db.persistence.IPersist;
-import com.servoy.j2db.persistence.WebObjectImpl;
 import com.servoy.j2db.scripting.DefaultScope;
 import com.servoy.j2db.scripting.solutionmodel.JSNGWebComponent;
 import com.servoy.j2db.scripting.solutionmodel.JSWebComponent;
@@ -61,6 +60,7 @@ import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloCompon
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.InitialToJSONConverter;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IRhinoDesignConverter;
+import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.ServoyJSONArray;
 import com.servoy.j2db.util.ServoyJSONObject;
 
@@ -362,7 +362,7 @@ public class NGCustomJSONArrayType<SabloT, SabloWT> extends CustomJSONArrayType<
 			Object[] java_arr = new Object[arr.length()];
 			for (int i = 0; i < arr.length(); i++)
 			{
-				java_arr[i] = WebObjectImpl.convertToJavaType(elementPD, arr.opt(i), persit);
+				java_arr[i] = PersistHelper.convertToJavaType(elementPD, arr.opt(i), persit);
 			}
 			return java_arr;
 		}
@@ -379,7 +379,7 @@ public class NGCustomJSONArrayType<SabloT, SabloWT> extends CustomJSONArrayType<
 			JSONArray jsonArray = new ServoyJSONArray();
 			for (int i = 0; i < arr.length; i++)
 			{
-				jsonArray.put(i, WebObjectImpl.convertFromJavaType(elementPD, arr[i]));
+				jsonArray.put(i, PersistHelper.convertFromJavaType(elementPD, arr[i]));
 			}
 			return jsonArray;
 		}

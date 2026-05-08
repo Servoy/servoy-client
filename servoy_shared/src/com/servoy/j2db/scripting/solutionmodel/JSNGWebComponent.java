@@ -145,28 +145,18 @@ public class JSNGWebComponent extends JSWebComponent
 	public Object getJSONProperty(String propertyName)
 	{
 		WebComponent webComponent = getBaseComponent(false);
-		JSONObject json = webComponent.getFlattenedJson();
-		if (json == null) return Context.getUndefinedValue();
 
-		Object value;
+		Object value = webComponent.getProperty(propertyName);
 		WebObjectSpecification spec = WebComponentSpecProvider.getSpecProviderState().getWebObjectSpecification(webComponent.getTypeName());
 		if (spec != null)
 		{
 			Pair<PropertyDescription, String> propAndName = getPropertyDescriptionAndName(propertyName, spec);
-			if (!json.has(propAndName.getRight()) && propAndName.getLeft() != null && propAndName.getLeft().hasDefault())
+			if (value == null && propAndName.getLeft() != null && propAndName.getLeft().hasDefault())
 			{
 				value = propAndName.getLeft().getDefaultValue();
 			}
-			else
-			{
-				value = json.opt(propAndName.getRight());
-			}
 			value = fromDesignToRhinoValue(value, propAndName.getLeft(), application, this, propertyName);
 			// JSONArray and JSONObject are automatically wrapped when going to Rhino through ServoyWrapFactory, so no need to treat them specially here
-		}
-		else
-		{
-			value = json.opt(propertyName);
 		}
 		// need to convert to plain because WrapFactory doesnt do this on purpose
 		// and at deployment this could be a ServoyJSONObject, but in developer it is a JSONObject

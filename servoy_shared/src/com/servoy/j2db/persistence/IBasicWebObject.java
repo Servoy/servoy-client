@@ -46,11 +46,9 @@ public interface IBasicWebObject extends ISupportChilds
 
 	Object getPropertyDefaultValueClone(String propertyName);
 
-	IBasicWebComponent getParentComponent();
-
-	void updateJSON();
-
 	JSONObject getJson();
+
+	void setJson(JSONObject arg);
 
 	void clearChanged();
 

@@ -36,7 +36,7 @@ public interface IDeveloperRepository extends IRepository, IPersistFactory
 
 	public void deleteObject(IPersist persist) throws RepositoryException;
 
-	public void undeleteObject(ISupportChilds parent, IPersist persist) throws RepositoryException;
+	public void undeleteObject(ISupportChilds parent, IPersist persist, int index) throws RepositoryException;
 
 	public Map<String, Object> getPersistAsValueMap(IPersist persist) throws RepositoryException;
 
