@@ -34,8 +34,8 @@ import org.sablo.specification.WebObjectApiFunctionDefinition;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IConvertedPropertyType;
 import org.sablo.specification.property.IPropertyType;
-import org.sablo.specification.property.IPropertyWithClientSideConversions;
 import org.sablo.specification.property.IPropertyWithAttachDependencies;
+import org.sablo.specification.property.IPropertyWithClientSideConversions;
 import org.sablo.specification.property.ISupportsGranularUpdates;
 import org.sablo.specification.property.types.DefaultPropertyType;
 import org.sablo.util.ValueReference;
@@ -43,7 +43,6 @@ import org.sablo.websocket.TypedData;
 import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.j2db.FlattenedSolution;
-import com.servoy.j2db.persistence.ChildWebComponent;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.TabPanel;
 import com.servoy.j2db.server.ngclient.AngularFormGenerator;
@@ -75,13 +74,16 @@ public class ComponentPropertyType extends DefaultPropertyType<ComponentTypeSabl
 	IFormElementToTemplateJSON<ComponentTypeFormElementValue, ComponentTypeSabloValue>,
 	IFormElementToSabloComponent<ComponentTypeFormElementValue, ComponentTypeSabloValue>, IConvertedPropertyType<ComponentTypeSabloValue>,
 	ISabloComponentToRhino<ComponentTypeSabloValue>, ISupportsGranularUpdates<ComponentTypeSabloValue>, ITemplateValueUpdaterType<ComponentTypeSabloValue>,
-	II18NPropertyType<ComponentTypeSabloValue>, IPropertyWithClientSideConversions<ComponentTypeSabloValue>, IPropertyWithAttachDependencies<ComponentTypeSabloValue>
+	II18NPropertyType<ComponentTypeSabloValue>, IPropertyWithClientSideConversions<ComponentTypeSabloValue>,
+	IPropertyWithAttachDependencies<ComponentTypeSabloValue>
 {
 
 
 	public static final ComponentPropertyType INSTANCE = new ComponentPropertyType();
 
-	public static final String TYPE_NAME = ChildWebComponent.COMPONENT_PROPERTY_TYPE_NAME;
+	public static final String TYPE_NAME = "component";
+	public final static String TYPE_NAME_KEY = "typeName";
+	public final static String DEFINITION_KEY = "definition";
 
 	// START keys and values used in JSON
 	public final static String API_CALL_TYPES_KEY = "apiCallTypes";
@@ -134,8 +136,8 @@ public class ComponentPropertyType extends DefaultPropertyType<ComponentTypeSabl
 	{
 		try
 		{
-			FormElement element = new FormElement((String)designValue.get(ChildWebComponent.TYPE_NAME_KEY),
-				(JSONObject)designValue.get(ChildWebComponent.DEFINITION_KEY), fe.getForm(), fe.getName() + (uniqueId++), flattenedSolution, propertyPath,
+			FormElement element = new FormElement((String)designValue.get(TYPE_NAME_KEY),
+				(JSONObject)designValue.get(DEFINITION_KEY), fe.getForm(), fe.getName() + (uniqueId++), flattenedSolution, propertyPath,
 				fe.getDesignId() != null);
 
 			return getFormElementValue(designValue.optJSONArray(API_CALL_TYPES_KEY), pd, propertyPath, element, flattenedSolution);

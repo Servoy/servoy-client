@@ -323,12 +323,6 @@ public class Bean extends BaseComponent implements ISupportTabSeq, IBasicWebComp
 	}
 
 	@Override
-	public void updateJSON()
-	{
-		// not supported by legacy Bean impl of web components
-	}
-
-	@Override
 	public String getTypeName()
 	{
 		return getBeanClassName();
@@ -338,12 +332,6 @@ public class Bean extends BaseComponent implements ISupportTabSeq, IBasicWebComp
 	public void setTypeName(String arg)
 	{
 		setBeanClassName(arg);
-	}
-
-	@Override
-	public IBasicWebComponent getParentComponent()
-	{
-		return this;
 	}
 
 }

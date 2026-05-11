@@ -18,14 +18,13 @@
 package com.servoy.j2db.persistence;
 
 import org.json.JSONObject;
-import org.sablo.specification.PropertyDescription;
 
 /**
  * An {@link IBasicWebObject} that is always a child/property of a parent component or WebCustomType. It is aware of it's location in parent (property name and maybe index as well in case of array)
  *
  * @author acostescu
  */
-public interface IChildWebObject extends IBasicWebObject
+public interface IChildWebObject extends IBasicWebObject, ICommonWebComponent
 {
 
 	public final static String UUID_KEY = "svyUUID";
@@ -37,15 +36,7 @@ public interface IChildWebObject extends IBasicWebObject
 
 	void setJsonKey(String newJsonKey);
 
-	/**
-	 * In case this persist is nested inside a WebComponent or a WebCustomType via an array property, the index is the index of this persist inside the parent's array property specified by {@link #getJsonKey()}.
-	 */
 	int getIndex();
-
-	/**
-	 * @see #getIndex()
-	 */
-	public void setIndex(int i);
 
 	/**
 	 * Some WebObjects hold in their (full) .frm JSON representation more then their json properties. In this case {@link #getFullJsonInFrmFile()} differs from {@link #getJson()}.
@@ -54,8 +45,6 @@ public interface IChildWebObject extends IBasicWebObject
 	 * to the component's properties, while {@link #getFullJsonInFrmFile()} refers to what the content is directly in the .frm file.
 	 */
 	JSONObject getFullJsonInFrmFile();
-
-	PropertyDescription getPropertyDescription();
 
 	@Override
 	IBasicWebObject getParent();

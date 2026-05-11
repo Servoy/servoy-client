@@ -34,7 +34,6 @@ import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -282,51 +281,6 @@ public abstract class AbstractBase implements IPersist
 		}
 	}
 
-	private static JSONObject mergeJSONObjects(JSONObject obj1, JSONObject obj2)
-	{
-		JSONObject mergedObj = new JSONObject();
-		Iterator<String> valueKeysIte = obj1.keys();
-		while (valueKeysIte.hasNext())
-		{
-			String valueKey = valueKeysIte.next();
-			mergedObj.put(valueKey, obj1.opt(valueKey));
-		}
-		valueKeysIte = obj2.keys();
-		while (valueKeysIte.hasNext())
-		{
-			String valueKey = valueKeysIte.next();
-			Object v1 = mergedObj.opt(valueKey);
-			Object v2 = obj2.opt(valueKey);
-			if (v1 instanceof JSONArray && v2 instanceof JSONArray)
-			{
-				JSONArray mergedValue = new JSONArray();
-				for (int i = 0; i < ((JSONArray)v2).length(); i++)
-				{
-					Object vv1 = i < ((JSONArray)v1).length() ? ((JSONArray)v1).opt(i) : null;
-					Object vv2 = ((JSONArray)v2).opt(i);
-					if (vv1 instanceof JSONObject && vv2 instanceof JSONObject)
-					{
-						mergedValue.put(i, mergeJSONObjects((JSONObject)vv1, (JSONObject)vv2));
-					}
-					else
-					{
-						mergedValue.put(i, vv2);
-					}
-				}
-				mergedObj.put(valueKey, mergedValue);
-			}
-			else if (v1 instanceof JSONObject && v2 instanceof JSONObject)
-			{
-				mergedObj.put(valueKey, mergeJSONObjects((JSONObject)v1, (JSONObject)v2));
-			}
-			else
-			{
-				mergedObj.put(valueKey, v2);
-			}
-		}
-		return mergedObj;
-	}
-
 	/**
 	 * This returns  the own property of this persist this is a copy, so adjusting it will not mutate the internal state.
 	 *
@@ -370,76 +324,31 @@ public abstract class AbstractBase implements IPersist
 	public Object getProperty(String propertyName)
 	{
 		Object value = null;
-		boolean isInPropertiesMap = false;
 		if (bufferPropertiesMap != null && bufferPropertiesMap.containsKey(propertyName))
 		{
 			value = bufferPropertiesMap.get(propertyName);
-			isInPropertiesMap = true;
 		}
 		else if (propertiesMap.containsKey(propertyName))
 		{
 			value = propertiesMap.get(propertyName);
-			isInPropertiesMap = true;
 		}
-
-		if (!isInPropertiesMap || value instanceof JSONObject)
+		else if (!StaticContentSpecLoader.PROPERTY_CUSTOMPROPERTIES.getPropertyName().equals(propertyName) && this instanceof ISupportExtendsID &&
+			PersistHelper.isOverrideElement(this))
 		{
-			if (!StaticContentSpecLoader.PROPERTY_CUSTOMPROPERTIES.getPropertyName().equals(propertyName) && PersistHelper.isOverrideElement(this))
+			IPersist superPersist = PersistHelper.getSuperPersist((ISupportExtendsID)this);
+			if (superPersist != null)
 			{
-				IPersist superPersist = PersistHelper.getSuperPersist((ISupportExtendsID)this);
-				if (superPersist != null)
-				{
-					Object propertyValue = ((AbstractBase)superPersist).getProperty(propertyName);
-					if (value instanceof JSONObject)
-					{
-						if (propertyValue instanceof JSONObject)
-						{
-							return mergeJSONObjects((JSONObject)propertyValue, (JSONObject)value);
-						}
-					}
-					else
-					{
-						return propertyValue;
-					}
-				}
+				return ((AbstractBase)superPersist).getProperty(propertyName);
+			}
 
-				Element element = StaticContentSpecLoader.getContentSpec().getPropertyForObjectTypeByName(getTypeID(), propertyName);
-				if (element != null)
-				{
-					Object propertyValue = element.getDefaultClassValue();
-					if (value instanceof JSONObject)
-					{
-						if (propertyValue instanceof JSONObject)
-						{
-							value = mergeJSONObjects((JSONObject)propertyValue, (JSONObject)value);
-						}
-					}
-					else
-					{
-						value = propertyValue;
-					}
-				}
-			}
-			else
-			{
-				// content spec default value
-				Element element = StaticContentSpecLoader.getContentSpec().getPropertyForObjectTypeByName(getTypeID(), propertyName);
-				if (element != null)
-				{
-					Object propertyValue = element.getDefaultClassValue();
-					if (value instanceof JSONObject)
-					{
-						if (propertyValue instanceof JSONObject)
-						{
-							value = mergeJSONObjects((JSONObject)propertyValue, (JSONObject)value);
-						}
-					}
-					else
-					{
-						value = propertyValue;
-					}
-				}
-			}
+			Element element = StaticContentSpecLoader.getContentSpec().getPropertyForObjectTypeByName(getTypeID(), propertyName);
+			if (element != null) value = element.getDefaultClassValue();
+		}
+		else
+		{
+			// content spec default value
+			Element element = StaticContentSpecLoader.getContentSpec().getPropertyForObjectTypeByName(getTypeID(), propertyName);
+			if (element != null) value = element.getDefaultClassValue();
 		}
 
 
@@ -696,10 +605,6 @@ public abstract class AbstractBase implements IPersist
 		if (allobjects == null)
 		{
 			allobjects = new CopyOnWriteArrayList<IPersist>();
-		}
-		if (obj != null && obj.getParent() == this)
-		{
-			internalRemoveChild(obj);
 		}
 		if (index < 0 || index > allobjects.size()) allobjects.add(obj);
 		else allobjects.add(index, obj);

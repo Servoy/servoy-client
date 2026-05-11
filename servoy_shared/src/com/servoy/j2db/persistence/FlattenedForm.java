@@ -221,6 +221,10 @@ public class FlattenedForm extends Form implements IFlattenedPersistWrapper<Form
 						{
 							internalAddChild(new FlattenedLayoutContainer(this, (LayoutContainer)ip));
 						}
+						else if (ip instanceof WebComponent wc)
+						{
+							internalAddChild(new FlattenedWebComponent(wc));
+						}
 						else
 						{
 							internalAddChild(ip);

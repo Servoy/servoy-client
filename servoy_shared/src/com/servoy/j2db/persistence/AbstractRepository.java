@@ -606,7 +606,7 @@ public abstract class AbstractRepository extends AbstractPersistFactory implemen
 	 *
 	 * @throws RepositoryException
 	 */
-	public void undeleteObject(ISupportChilds parent, IPersist persist) throws RepositoryException
+	public void undeleteObject(ISupportChilds parent, IPersist persist, int index) throws RepositoryException
 	{
 		persist.acceptVisitor(new IPersistVisitor()
 		{
@@ -620,14 +620,7 @@ public abstract class AbstractRepository extends AbstractPersistFactory implemen
 				return IPersistVisitor.CONTINUE_TRAVERSAL;
 			}
 		});
-		if (parent instanceof WebComponent && persist instanceof IChildWebObject)
-		{
-			((WebComponent)parent).insertChild((IChildWebObject)persist);
-		}
-		else
-		{
-			parent.addChild(persist);
-		}
+		((AbstractBase)parent).addChild(persist, index);
 	}
 
 	public abstract IRootObject createNewRootObject(String name, int objectTypeId, UUID uuid) throws RepositoryException;

@@ -455,7 +455,7 @@ public class DebugUtils
 											Collection<PropertyDescription> properties = spec.getProperties(RelationPropertyType.INSTANCE);
 											for (PropertyDescription pd : properties)
 											{
-												if (Utils.equalObjects(webComponent.getFlattenedJson().opt(pd.getName()), finalRelation.getName()))
+												if (Utils.equalObjects(webComponent.getProperty(pd.getName()), finalRelation.getName()))
 												{
 													formsToReload.add(finalController);
 													return o;
@@ -503,7 +503,7 @@ public class DebugUtils
 									Collection<PropertyDescription> properties = spec.getProperties(ValueListPropertyType.INSTANCE);
 									for (PropertyDescription pd : properties)
 									{
-										if (Utils.equalObjects(webComponent.getFlattenedJson().opt(pd.getName()), finalValuelist.getUUID().toString()))
+										if (Utils.equalObjects(webComponent.getProperty(pd.getName()), finalValuelist.getUUID().toString()))
 										{
 											formsToReload.add(finalController);
 											return o;
@@ -539,7 +539,7 @@ public class DebugUtils
 									Collection<PropertyDescription> properties = spec.getProperties(MenuPropertyType.INSTANCE);
 									for (PropertyDescription pd : properties)
 									{
-										if (Utils.equalObjects(webComponent.getFlattenedJson().opt(pd.getName()), menu.getUUID()))
+										if (Utils.equalObjects(webComponent.getProperty(pd.getName()), menu.getUUID()))
 										{
 											formsToReload.add(finalController);
 											return o;
