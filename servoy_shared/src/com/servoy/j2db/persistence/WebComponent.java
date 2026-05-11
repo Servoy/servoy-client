@@ -20,6 +20,9 @@ package com.servoy.j2db.persistence;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.beans.IntrospectionException;
+import java.io.InvalidObjectException;
+import java.io.ObjectStreamException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -64,11 +67,51 @@ public class WebComponent extends BaseComponent implements IWebComponent, ICommo
 		}
 	}
 
-	protected boolean customTypesInitialized = false;
+	protected transient boolean customTypesInitialized = false;
 
 	protected WebComponent(ISupportChilds parent, UUID uuid)
 	{
 		super(IRepository.WEBCOMPONENTS, parent, uuid);
+	}
+
+	/**
+	 * Serialize WebComponent through a proxy so inherited child caches are not serialized.
+	 */
+	private Object writeReplace()
+	{
+		return new SerializationProxy(this);
+	}
+
+	private static final class SerializationProxy implements Serializable
+	{
+		private static final long serialVersionUID = 1L;
+
+		private final ISupportChilds parent;
+		private final UUID uuid;
+		private final Map<String, Object> properties;
+
+		private SerializationProxy(WebComponent component)
+		{
+			parent = component.getParent();
+			uuid = component.getUUID();
+			properties = component.getPropertiesMap();
+		}
+
+		private Object readResolve() throws ObjectStreamException
+		{
+			try
+			{
+				WebComponent component = new WebComponent(parent, uuid);
+				component.copyPropertiesMap(properties, true);
+				return component;
+			}
+			catch (RuntimeException e)
+			{
+				InvalidObjectException ex = new InvalidObjectException("Failed to deserialize WebComponent from proxy");
+				ex.initCause(e);
+				throw ex;
+			}
+		}
 	}
 
 
