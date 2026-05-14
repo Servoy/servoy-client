@@ -263,13 +263,13 @@ public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 			{
 				PersistHelper.getFlattenedPersist(flattenedSolution, form, zoomedInContainer).acceptVisitor(new ChildrenJSONGenerator(writer,
 					servoyDataConverterContext, form, null,
-					null, form, true, isDesigner), PositionComparator.XY_PERSIST_COMPARATOR);
+					null, form, true, isDesigner), PositionComparator.RESPONSIVE_PERSIST_COMPARATOR);
 			}
 			else
 			{
 				form.acceptVisitor(new ChildrenJSONGenerator(writer,
 					servoyDataConverterContext, form, null,
-					null, form, true, isDesigner), PositionComparator.XY_PERSIST_COMPARATOR);
+					null, form, true, isDesigner), PositionComparator.RESPONSIVE_PERSIST_COMPARATOR);
 			}
 
 		}

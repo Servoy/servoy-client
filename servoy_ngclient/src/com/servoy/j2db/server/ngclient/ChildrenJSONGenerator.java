@@ -239,7 +239,7 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 										}
 										return FormElementHelper.INSTANCE.getFormElement(component, flattendSol, path, design);
 									}
-								}, null, this.form, false, designer), PositionComparator.XY_PERSIST_COMPARATOR);
+								}, null, this.form, false, designer), PositionComparator.RESPONSIVE_PERSIST_COMPARATOR);
 							}
 							else
 							{
@@ -277,11 +277,11 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 				o.acceptVisitor(new ChildrenJSONGenerator(writer, context, o, cache, null, this.form, false, designer),
 					ChildrenJSONGenerator.FORM_INDEX_WITH_HIERARCHY_COMPARATOR);
 			}
-			else
-			{
-				o.acceptVisitor(new ChildrenJSONGenerator(writer, context, o, cache, null, this.form, false, designer),
-					PositionComparator.XY_PERSIST_COMPARATOR);
-			}
+		else
+		{
+			o.acceptVisitor(new ChildrenJSONGenerator(writer, context, o, cache, null, this.form, false, designer),
+				PositionComparator.RESPONSIVE_PERSIST_COMPARATOR);
+		}
 			writer.endArray();
 			writer.endObject();
 			return IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER;

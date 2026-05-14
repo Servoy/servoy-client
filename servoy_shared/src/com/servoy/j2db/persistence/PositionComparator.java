@@ -115,6 +115,18 @@ public class PositionComparator
 		}
 	}
 
+	public static final Comparator< ? super IPersist> RESPONSIVE_PERSIST_COMPARATOR = new Comparator<IPersist>()
+	{
+		public int compare(IPersist o1, IPersist o2)
+		{
+			if (o1 instanceof LayoutContainer || o2 instanceof LayoutContainer)
+			{
+				return YX_PERSIST_COMPARATOR.compare(o1, o2);
+			}
+			return XY_PERSIST_COMPARATOR.compare(o1, o2);
+		}
+	};
+
 	public static int comparePoint(boolean xy, Point p1, Point p2)
 	{
 		if (p1 != null && p2 != null)
