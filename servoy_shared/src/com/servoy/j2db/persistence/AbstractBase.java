@@ -770,9 +770,9 @@ public abstract class AbstractBase implements IPersist
 			throw new RuntimeException(e);
 		}
 		if (newParent != null) newParent.addChild(cloned);
-		fillClone(cloned);
 		setRuntimeProperty(Cloned, Boolean.TRUE);
 		cloned.setRuntimeProperty(AClone, Boolean.TRUE);
+		fillClone(cloned);
 		return cloned;
 	}
 
