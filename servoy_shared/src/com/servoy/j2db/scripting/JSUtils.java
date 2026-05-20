@@ -367,13 +367,38 @@ public class JSUtils implements IJSUtils
 		return parseDate(date, format, application.getTimeZone(), application.getLocale());
 	}
 
+	/**
+	 * Parse a string to a date object and choose whether parsing should be lenient.
+	 *
+	 * When lenient is false, invalid calendar values (for example month 20 in MM/dd/yyyy)
+	 * will be rejected and this method will return null.
+	 *
+	 * @sample
+	 * var strictDate = utils.parseDate('20/15/2026', 'MM/dd/yyyy', false); // returns null
+	 *
+	 * @param date the date as text
+	 * @param format the format to parse the date
+	 * @param lenient true to allow calendar rollover for out-of-range values, false for strict parsing
+	 * @return the date as date object
+	 */
+	public Date js_parseDate(String date, String format, boolean lenient)
+	{
+		return parseDate(date, format, application.getTimeZone(), application.getLocale(), lenient);
+	}
+
 	private Date parseDate(String date, String format, TimeZone zone, Locale locale)
+	{
+		return parseDate(date, format, zone, locale, true);
+	}
+
+	private Date parseDate(String date, String format, TimeZone zone, Locale locale, boolean lenient)
 	{
 		if (format != null && date != null)
 		{
 			try
 			{
 				SimpleDateFormat simpleDateFormat = new SimpleDateFormat(format, locale);
+				simpleDateFormat.setLenient(lenient);
 				simpleDateFormat.setTimeZone(zone);
 				return simpleDateFormat.parse(date);
 			}
