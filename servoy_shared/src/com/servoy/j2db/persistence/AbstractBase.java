@@ -22,6 +22,7 @@ import java.awt.Insets;
 import java.awt.Point;
 import java.io.Serializable;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
@@ -629,10 +630,12 @@ public abstract class AbstractBase implements IPersist
 		return allobjects == null ? Collections.<IPersist> emptyList() : Collections.unmodifiableList(allobjects);
 	}
 
-	public void internalClearAllObjects()
+	public List<IPersist> internalClearAllObjects()
 	{
+		List<IPersist> deletedobjects = allobjects == null ? Collections.<IPersist> emptyList() : new ArrayList<IPersist>(allobjects);
 		allobjects = null;
 		allobjectsMap = null;
+		return deletedobjects;
 	}
 
 	private void flushAllObjectsMap()

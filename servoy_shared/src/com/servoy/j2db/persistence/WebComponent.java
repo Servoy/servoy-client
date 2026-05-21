@@ -490,7 +490,12 @@ public class WebComponent extends BaseComponent implements IWebComponent, ICommo
 
 	protected void initCustomTypes()
 	{
-		internalClearAllObjects();
+		internalClearAllObjects().forEach(o -> {
+			if (getRootObject().getChangeHandler() != null)
+			{
+				getRootObject().getChangeHandler().fireIPersistRemoved(o);
+			}
+		});
 		PropertyDescription propertyDescription = getPropertyDescription();
 		if (propertyDescription == null) return;
 		JSONObject json = (JSONObject)getOwnProperty(StaticContentSpecLoader.PROPERTY_JSON.getPropertyName());
