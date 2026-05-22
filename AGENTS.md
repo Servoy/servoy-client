@@ -74,11 +74,8 @@ Since this workspace is a complex, multi-project Eclipse environment, **always p
 ## 3. Commit Message Convention `[ai]`
 
 To maintain clarity and transparency about the origin of codebase changes, any Git commit consisting primarily of AI-generated or AI-assisted changes must follow this rule:
-- **The commit subject line must end with ` [ai]`** (case-insensitive, space followed by bracketed `ai`).
-
-### Examples:
-- `Fix NullPointerException during client initialization [ai]`
-- `Implement support for modern TLS protocols in server connection [ai]`
+- **The commit subject line must end with ` [ai]`** (case-insensitive, space followed by bracketed `ai`). Examples: `Fix NullPointerException during client initialization [ai]` or `Implement support for modern TLS protocols in server connection [ai]`
+- **Commit messages for cases:** When a commit is related to a Jira case, the case number (e.g. `SVY-123`, `SVYX-456`, `SERVOY-293`) must be included in the commit subject line. Example: `SERVOY-293 fix NPE in WAR export copyRequiredBundles [ai]`
 
 ---
 
