@@ -203,6 +203,8 @@ public class StatelessLoginHandler
 		}
 		if (!verified)
 		{
+			String ip = request.getRemoteAddr();
+			log.atWarn().log(() -> "Authentication failed for user '" + username + "' from " + ip);
 			needToLogin.setLeft(Boolean.TRUE);
 			if (needToLogin.getRight() != null && !needToLogin.getRight().startsWith("<"))
 			{
@@ -255,6 +257,8 @@ public class StatelessLoginHandler
 		}
 		if (!verified)
 		{
+			String ip = request.getRemoteAddr();
+			log.atWarn().log(() -> "Authentication failed for user '" + username + "' from " + ip);
 			needToLogin.setLeft(Boolean.TRUE);
 			if (needToLogin.getRight() != null && !needToLogin.getRight().startsWith("<"))
 			{

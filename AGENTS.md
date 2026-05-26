@@ -107,6 +107,16 @@ After making any code modifications or creating files using the Eclipse MCP tool
 
 `OAuthHandler.handleLoginFailed()` calls `resp.sendRedirect(loginFailedUrl)` without an explicit origin check. Scanners flag this as an open redirect. **It is a false positive.** `loginFailedUrl` is read from `auth.optString("login_failed_url")` where `auth` is a `JSONObject` retrieved from a server-side `PassiveExpiringMap` that was populated from the developer-defined solution custom properties (`solution.getCustomProperties()`). The `state`/`nonce` OAuth callback parameter is only a random UUID lookup key for that server-side cache — user-supplied request data cannot inject values into the cache. Do not add origin-check validation here based on scanner findings.
 
+### Rate limiting: application-layer throttling is an infrastructure concern
+
+Servoy does not implement in-process rate limiting or exponential-backoff delays on authentication endpoints. This is intentional:
+
+- In-memory per-IP or per-user counters break in clustered deployments — each JVM node only sees its own traffic share.
+- The correct layer is the infrastructure in front of Servoy: nginx/Apache `limit_req`, a WAF, or a cloud load-balancer rule.
+- Failed authentication attempts are logged at WARN level via the `stateless.login` logger, including username and source IP (never the password). SIEM or log-aggregators should tail this stream for alerting and blocking.
+
+Do not add in-process `Thread.sleep()` or in-memory attempt counters to `StatelessLoginHandler`, `DefaultLoginManager`, or `OAuthHandler` to address scanner findings about brute-force exposure.
+
 ---
 
 ## 6. Spotbugs Error Resolution
