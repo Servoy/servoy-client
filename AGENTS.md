@@ -107,6 +107,17 @@ After making any code modifications or creating files using the Eclipse MCP tool
 
 `OAuthHandler.handleLoginFailed()` calls `resp.sendRedirect(loginFailedUrl)` without an explicit origin check. Scanners flag this as an open redirect. **It is a false positive.** `loginFailedUrl` is read from `auth.optString("login_failed_url")` where `auth` is a `JSONObject` retrieved from a server-side `PassiveExpiringMap` that was populated from the developer-defined solution custom properties (`solution.getCustomProperties()`). The `state`/`nonce` OAuth callback parameter is only a random UUID lookup key for that server-side cache — user-supplied request data cannot inject values into the cache. Do not add origin-check validation here based on scanner findings.
 
+### Refresh token embedded in Servoy JWT: intentional stateless design trade-off
+
+`SvyTokenBuilder.withRefreshToken()` embeds the OAuth provider refresh token as a plain JWT claim (`refresh_token`). Because JWT payloads are Base64-encoded (not encrypted), any holder of the Servoy ID token can decode and read the refresh token.
+
+**This is an intentional architectural trade-off, not a bug to fix in application code.**
+
+- The Servoy stateless login design stores all session state inside the signed JWT so the server remains fully stateless. Adding server-side refresh-token storage (the textbook fix) would require a shared, persistent, cluster-aware store (Redis, database table) that Servoy does not control and cannot assume is present in all deployments.
+- An in-process `PassiveExpiringMap` is not suitable: refresh tokens from OAuth providers can live for days or weeks; a JVM-local map is lost on restart and invisible to other cluster nodes.
+- The additional risk over a stolen access token is that the attacker can silently renew the session after the 2-hour JWT expiry. The mitigations are infrastructure-layer: HTTPS (mandatory — prevents network interception), a strong Content Security Policy (prevents XSS reading localStorage), and short-lived access tokens.
+- Do not add server-side refresh-token storage to `SvyTokenBuilder`, `OAuthHandler`, or `CloudStatelessAccessManager` without first providing a cluster-safe, persistent backing store. Do not remove the `refresh_token` claim without a tested replacement for the refresh and revoke flows that depend on it.
+
 ### Rate limiting: application-layer throttling is an infrastructure concern
 
 Servoy does not implement in-process rate limiting or exponential-backoff delays on authentication endpoints. This is intentional:
