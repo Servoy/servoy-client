@@ -103,6 +103,10 @@ After making any code modifications or creating files using the Eclipse MCP tool
 - Replacing the algorithm or key would silently break every existing customer deployment. All `servoy.properties` files that contain encrypted passwords would fail to decrypt with no migration path short of asking every customer to re-enter all credentials.
 - Automated security scanners will flag `SecuritySupport.java` and `background.gif`. Those findings are accepted and should be suppressed/dismissed, not actioned.
 
+### OAuthHandler: `sendRedirect(loginFailedUrl)` is NOT an open redirect
+
+`OAuthHandler.handleLoginFailed()` calls `resp.sendRedirect(loginFailedUrl)` without an explicit origin check. Scanners flag this as an open redirect. **It is a false positive.** `loginFailedUrl` is read from `auth.optString("login_failed_url")` where `auth` is a `JSONObject` retrieved from a server-side `PassiveExpiringMap` that was populated from the developer-defined solution custom properties (`solution.getCustomProperties()`). The `state`/`nonce` OAuth callback parameter is only a random UUID lookup key for that server-side cache — user-supplied request data cannot inject values into the cache. Do not add origin-check validation here based on scanner findings.
+
 ---
 
 ## 6. Spotbugs Error Resolution
