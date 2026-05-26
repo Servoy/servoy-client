@@ -82,6 +82,12 @@ public class AngularIndexPageFilter implements Filter
 	{
 		HttpServletRequest request = (HttpServletRequest)servletRequest;
 		HttpServletResponse response = (HttpServletResponse)servletResponse;
+		response.setHeader("X-Content-Type-Options", "nosniff");
+		response.setHeader("X-Frame-Options", "SAMEORIGIN");
+		if (request.isSecure())
+		{
+			response.setHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
+		}
 		String requestURI = request.getRequestURI();
 		String solutionName = getSolutionNameFromURI(requestURI);
 		if (("GET".equalsIgnoreCase(request.getMethod()) || "POST".equalsIgnoreCase(request.getMethod())) && solutionName != null)
