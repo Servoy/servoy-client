@@ -272,7 +272,6 @@ public class StatelessLoginHandler
 	 */
 	private static boolean checkCSRFToken(HttpServletRequest request)
 	{
-		log.atInfo().log(() -> "Checking CSRF token " + request.getParameter("csrf_token"));
 		String fieldToken = request.getParameter("csrf_token");
 		Cookie[] cookies = request.getCookies();
 		if (cookies == null || fieldToken == null)
