@@ -22,6 +22,7 @@ import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.security.SecureRandom;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.Optional;
 import java.util.Properties;
@@ -299,7 +300,9 @@ public class StatelessLoginHandler
 		{
 			log.atWarn().log(() -> "A servoy property '" + StatelessLoginUtils.JWT_Password + //$NON-NLS-1$
 				"' is added the the servoy properties file, this needs to be the same over redeploys, so make sure to add this in the servoy.properties that is used to deploy the WAR"); //$NON-NLS-1$
-			settings.put(StatelessLoginUtils.JWT_Password, "pwd" + Math.random());
+			byte[] keyBytes = new byte[32];
+			secureRandom.nextBytes(keyBytes);
+			settings.put(StatelessLoginUtils.JWT_Password, Base64.getEncoder().encodeToString(keyBytes));
 			try
 			{
 				settings.save();
