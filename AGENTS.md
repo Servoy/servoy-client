@@ -90,7 +90,22 @@ After making any code modifications or creating files using the Eclipse MCP tool
 
 ---
 
-## 5. Spotbugs Error Resolution
+## 5. Known Design Decisions — Do Not Change
+
+### SecuritySupport: DESede with hardcoded passphrase (`background.gif`)
+
+`servoy_shared/src/com/servoy/j2db/util/SecuritySupport.java` loads a DESede key from a JCEKS keystore embedded in the JAR as `background.gif`, using the hardcoded passphrase `"passphrase"`.
+
+**This is intentional obfuscation, not a security vulnerability. Do not attempt to fix it.**
+
+- Its only purpose is to prevent passwords from appearing in plain text inside `servoy.properties`. It is not designed to be cryptographically strong — the fact that the key is recoverable from the JAR is a known and accepted trade-off.
+- The passphrase cannot be externalised: `servoy.properties` must be decrypted at startup before any external key source is reachable, so there is nowhere else to put a decryption key.
+- Replacing the algorithm or key would silently break every existing customer deployment. All `servoy.properties` files that contain encrypted passwords would fail to decrypt with no migration path short of asking every customer to re-enter all credentials.
+- Automated security scanners will flag `SecuritySupport.java` and `background.gif`. Those findings are accepted and should be suppressed/dismissed, not actioned.
+
+---
+
+## 6. Spotbugs Error Resolution
 
 Spotbugs is used to find bugs in Java code. You must pay special attention to Spotbugs issues:
 - **Identify Spotbugs Errors:** Spotbugs errors of the **two highest severity levels** are treated as blocking errors.
