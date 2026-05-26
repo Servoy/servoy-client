@@ -463,6 +463,7 @@ public class OAuthHandler
 				Cookie csrfCookie = new Cookie("csrf_token", Long.toString(nextLong));
 				csrfCookie.setPath("/");
 				csrfCookie.setHttpOnly(true);
+				csrfCookie.setSecure(request.isSecure());
 				response.addCookie(csrfCookie);
 
 				response.setCharacterEncoding("UTF-8");

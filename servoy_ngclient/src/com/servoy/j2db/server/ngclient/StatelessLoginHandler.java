@@ -508,6 +508,7 @@ public class StatelessLoginHandler
 		Cookie csrfCookie = new Cookie("csrf_token", Long.toString(nextLong));
 		csrfCookie.setPath("/");
 		csrfCookie.setHttpOnly(true);
+		csrfCookie.setSecure(request.isSecure());
 		response.addCookie(csrfCookie);
 
 		loginHtml = loginHtml.replaceAll("(?i)</form>", "<input type='hidden' name='csrf_token' value='" + nextLong + "'></form>");
