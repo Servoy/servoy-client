@@ -1963,14 +1963,14 @@ public final class Utils
 
 	public static String calculateAndPrefixPBKDF2PasswordHash(String password)
 	{
-		return PBKDF2_PREFIX + calculatePBKDF2(password, 9999);
+		return PBKDF2_PREFIX + calculatePBKDF2(password, 600_000);
 	}
 
 	/**
 	 * Hashes the given string with the PKCS/PBKDF2 algoritme see http://en.wikipedia.org/wiki/PBKDF2 for more information
 	 *
 	 * @param textString The string to hash
-	 * @param iterations Number of hash iterations to be done (should be higher then 10000)
+	 * @param iterations Number of hash iterations to be done (should be 600,000 or higher per NIST SP 800-63B 2024)
 	 * @return the hash of the string
 	 */
 	@SuppressWarnings("nls")
