@@ -39,6 +39,7 @@ import org.apache.commons.fileupload2.core.DiskFileItemFactory;
 import org.apache.commons.fileupload2.core.DiskFileItemFactory.Builder;
 import org.apache.commons.fileupload2.core.FileUploadException;
 import org.apache.commons.fileupload2.core.FileUploadFileCountLimitException;
+import org.apache.commons.fileupload2.core.FileSizeLimitExceededException;
 import org.apache.commons.fileupload2.jakarta.servlet6.JakartaServletDiskFileUpload;
 import org.apache.commons.io.IOUtils;
 import org.sablo.util.HTTPUtils;
@@ -480,6 +481,12 @@ public class MediaResourcesServlet extends AbstractMediaResourceServlet
 					}
 				}
 				catch (FileUploadFileCountLimitException ex)
+				{
+					res.setStatus(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE);
+					if (wsSession != null) res.getWriter().print(
+						wsSession.getClient().getI18NMessage("servoy.filechooser.sizeExceeded", new Object[] { ex.getPermitted() / 1024 + "KB" }));
+				}
+				catch (FileSizeLimitExceededException ex)
 				{
 					res.setStatus(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE);
 					if (wsSession != null) res.getWriter().print(
