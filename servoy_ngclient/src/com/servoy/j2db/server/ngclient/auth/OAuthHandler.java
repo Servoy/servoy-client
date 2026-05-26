@@ -24,7 +24,6 @@ import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.SecureRandom;
-import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -45,7 +44,6 @@ import com.github.scribejava.core.oauth.AccessTokenRequestParams;
 import com.github.scribejava.core.oauth.AuthorizationUrlBuilder;
 import com.github.scribejava.core.oauth.OAuth20Service;
 import com.github.scribejava.core.pkce.PKCE;
-import com.github.scribejava.core.pkce.PKCECodeChallengeMethod;
 import com.github.scribejava.core.revoke.TokenTypeHint;
 import com.servoy.base.util.ITagResolver;
 import com.servoy.base.util.TagParser;
@@ -484,28 +482,13 @@ public class OAuthHandler
 
 	private static void setPKCE(AuthorizationUrlBuilder authorizationUrlBuilder, JSONObject auth)
 	{
-		String codeChallengeMethod = auth.optString(OAuthParameters.code_challenge_method.name(), "S256");
-		String codeVerifier = null;
-		if ("S256".equalsIgnoreCase(codeChallengeMethod))
+		String configured = auth.optString(OAuthParameters.code_challenge_method.name(), "S256");
+		if (!"S256".equalsIgnoreCase(configured))
 		{
-			authorizationUrlBuilder = authorizationUrlBuilder.initPKCE();
-			PKCE pkce = authorizationUrlBuilder.getPkce();
-			codeVerifier = pkce.getCodeVerifier();
+			log.atWarn().log(() -> "Ignoring unsupported code_challenge_method '" + configured + "'; S256 is required. PLAIN provides no security benefit and is not supported.");
 		}
-		else
-		{
-			//plain, but is not recommended
-			byte[] randomBytes = new byte[32];
-			new SecureRandom().nextBytes(randomBytes);
-			codeVerifier = Base64.getUrlEncoder().withoutPadding().encodeToString(randomBytes);
-
-			// plain = challenge == verifier
-			PKCE pkce = new PKCE();
-			pkce.setCodeVerifier(codeVerifier);
-			pkce.setCodeChallengeMethod(PKCECodeChallengeMethod.PLAIN);
-			authorizationUrlBuilder = authorizationUrlBuilder.pkce(pkce);
-		}
-		auth.put(OAuthParameters.code_verifier.name(), codeVerifier);
+		authorizationUrlBuilder = authorizationUrlBuilder.initPKCE();
+		auth.put(OAuthParameters.code_verifier.name(), authorizationUrlBuilder.getPkce().getCodeVerifier());
 	}
 
 	public static void redirectToOAuthLogin(HttpServletRequest request, HttpServletResponse response, Solution solution)
