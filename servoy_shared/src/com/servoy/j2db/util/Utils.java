@@ -107,6 +107,7 @@ import org.mozilla.javascript.Undefined;
 import org.mozilla.javascript.Wrapper;
 import org.mozilla.javascript.xml.XMLObject;
 
+import com.servoy.base.query.TypeInfo;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IEventDelegator;
 import com.servoy.j2db.INGClientApplication;
@@ -751,6 +752,24 @@ public final class Utils
 			return ((BigDecimal)number).round(mathContext);
 		}
 		return new BigDecimal(Utils.getAsDouble(number, throwOnFail)).round(mathContext);
+	}
+
+	public static Object[] castParametersToColumnType(Object[] params, TypeInfo[] typeInfo)
+	{
+		if (params == null || typeInfo == null) return params;
+		Object[] result = params.clone();
+		for (int i = 0; i < result.length && i < typeInfo.length; i++)
+		{
+			if (typeInfo[i] != null && typeInfo[i].getColumnType() != null)
+			{
+				int sqlType = typeInfo[i].getColumnType().getSqlType();
+				if (sqlType == java.sql.Types.BIT || sqlType == java.sql.Types.BOOLEAN)
+				{
+					result[i] = Boolean.valueOf(Utils.getAsBoolean(result[i]));
+				}
+			}
+		}
+		return result;
 	}
 
 

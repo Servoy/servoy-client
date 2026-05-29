@@ -725,7 +725,7 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 		Object[][] qsParams = querySet.getSelect().getParameters();
 		if (qsParams != null && qsParams.length > 0)
 		{
-			return qsParams[0];
+			return Utils.castParametersToColumnType(qsParams[0], querySet.getSelect().getTypeInfo());
 		}
 
 		return null;
