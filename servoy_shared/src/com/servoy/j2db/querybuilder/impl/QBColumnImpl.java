@@ -505,6 +505,7 @@ public class QBColumnImpl extends QBPart
 		var denormalizedMinScore = new QBFunctionImpl(getRoot(), getParent(), _denormalize_vector_score,
 			new IQuerySelectValue[] { createOperand(normalizedScore) });
 
+		// LessThen, not GreaterOrEqual because vector_score: higher is better, but cosine_distance (denormalized_score): lower is better
 		return denormalizedScore.lt(denormalizedMinScore);
 	}
 
