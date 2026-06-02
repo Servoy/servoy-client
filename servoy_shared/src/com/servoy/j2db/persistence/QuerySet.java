@@ -40,7 +40,7 @@ public class QuerySet implements Serializable
 	private final UUID sessionUUID = UUID.randomUUID();
 	private List<QueryString> prepares = null;
 	private QueryString select = null;
-	private QueryString update = null;
+	private List<QueryString> updates = null;
 	private List<QueryString> cleanups = null;
 
 	/**
@@ -53,28 +53,24 @@ public class QuerySet implements Serializable
 
 	public void setSelect(QueryString select)
 	{
-		setSelectOrUpdate(select, true);
+		if (this.select != null)
+		{
+			throw new IllegalArgumentException("Multiple select queries in query set"); //$NON-NLS-1$
+		}
+		this.select = select;
 	}
 
 	public void setUpdate(QueryString update)
 	{
-		setSelectOrUpdate(update, false);
+		setUpdates(update == null ? List.of() : List.of(update));
 	}
 
-	private void setSelectOrUpdate(QueryString selectOrUpdate, boolean isSelect)
+	/**
+	 * @param updates the updates to set
+	 */
+	public void setUpdates(List<QueryString> updates)
 	{
-		if ((this.select != null || this.update != null) && selectOrUpdate != null)
-		{
-			throw new IllegalArgumentException("Multiple select/update queries in query set"); //$NON-NLS-1$
-		}
-		if (isSelect)
-		{
-			this.select = selectOrUpdate;
-		}
-		else
-		{
-			this.update = selectOrUpdate;
-		}
+		this.updates = updates == null || updates.isEmpty() ? null : new ArrayList<>(updates);
 	}
 
 	public QueryString getSelect()
@@ -82,16 +78,11 @@ public class QuerySet implements Serializable
 		return select;
 	}
 
-	public QueryString getUpdate()
-	{
-		return update;
-	}
-
 	public void addPrepare(QueryString prepare)
 	{
 		if (prepares == null)
 		{
-			prepares = new ArrayList<QueryString>();
+			prepares = new ArrayList<>();
 		}
 		prepares.add(prepare);
 	}
@@ -100,19 +91,29 @@ public class QuerySet implements Serializable
 	{
 		if (cleanups == null)
 		{
-			cleanups = new ArrayList<QueryString>();
+			cleanups = new ArrayList<>();
 		}
 		cleanups.add(cleanup);
 	}
 
+	public boolean hasUpdates()
+	{
+		return updates != null && updates.size() > 0;
+	}
+
+	public QueryString[] getUpdates()
+	{
+		return updates == null ? null : updates.toArray(new QueryString[updates.size()]);
+	}
+
 	public QueryString[] getCleanups()
 	{
-		return cleanups == null ? null : (QueryString[])cleanups.toArray(new QueryString[cleanups.size()]);
+		return cleanups == null ? null : cleanups.toArray(new QueryString[cleanups.size()]);
 	}
 
 	public QueryString[] getPrepares()
 	{
-		return prepares == null ? null : (QueryString[])prepares.toArray(new QueryString[prepares.size()]);
+		return prepares == null ? null : prepares.toArray(new QueryString[prepares.size()]);
 	}
 
 	/**
@@ -137,13 +138,13 @@ public class QuerySet implements Serializable
 		{
 			if (prepares == null)
 			{
-				prepares = new ArrayList<QueryString>();
+				prepares = new ArrayList<>();
 			}
 			prepares.addAll(Arrays.asList(newPrepares));
 		}
-		if (set.getUpdate() != null)
+		if (set.updates != null)
 		{
-			addPrepare(set.getUpdate());
+			set.updates.forEach(this::addPrepare);
 		}
 
 		QueryString[] newCleanups = set.getCleanups();
@@ -151,7 +152,7 @@ public class QuerySet implements Serializable
 		{
 			if (cleanups == null)
 			{
-				cleanups = new ArrayList<QueryString>();
+				cleanups = new ArrayList<>();
 			}
 			cleanups.addAll(Arrays.asList(newCleanups));
 		}
@@ -176,10 +177,12 @@ public class QuerySet implements Serializable
 			sb.append(", select = "); //$NON-NLS-1$
 			sb.append(BaseAbstractBaseQuery.toString(select));
 		}
-		if (update != null)
+		if (updates != null)
 		{
-			sb.append(", update = "); //$NON-NLS-1$
-			sb.append(BaseAbstractBaseQuery.toString(update));
+			updates.forEach(update -> {
+				sb.append(", update = "); //$NON-NLS-1$
+				sb.append(BaseAbstractBaseQuery.toString(update));
+			});
 		}
 		sb.append(", cleanups = "); //$NON-NLS-1$
 		sb.append(BaseAbstractBaseQuery.toString(cleanups));

@@ -17,6 +17,8 @@
 
 package com.servoy.j2db.debug;
 
+import static com.servoy.j2db.util.Utils.stream;
+
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -179,8 +181,15 @@ public class ProfileDataServer extends AbstractDelegateDataServer
 		}
 		finally
 		{
-			QuerySet set = getSQLQuerySet(server_name, sqlSelect, filters, startRow, rowsToRetrieve, false, false);
-			informListeners("Query", server_name, set.getSelect().getSql(), transaction_id, startTime, set.getSelect().getParameters());
+			try
+			{
+				QuerySet set = getSQLQuerySet(server_name, sqlSelect, filters, startRow, rowsToRetrieve, false, false);
+				informListeners("Query", server_name, set.getSelect().getSql(), transaction_id, startTime, set.getSelect().getParameters());
+			}
+			catch (RepositoryException e)
+			{
+				Debug.error(e);
+			}
 		}
 	}
 
@@ -242,9 +251,16 @@ public class ProfileDataServer extends AbstractDelegateDataServer
 		}
 		finally
 		{
-			QuerySet set = getSQLQuerySet(server_name, sqlSelect, filters, startRow, rowsToRetrieve, false, false);
-			informListeners("Query[" + PerformanceTiming.getTypeString(type) + ']', server_name, set.getSelect().getSql(), transaction_id, startTime,
-				set.getSelect().getParameters());
+			try
+			{
+				QuerySet set = getSQLQuerySet(server_name, sqlSelect, filters, startRow, rowsToRetrieve, false, false);
+				informListeners("Query[" + PerformanceTiming.getTypeString(type) + ']', server_name, set.getSelect().getSql(), transaction_id, startTime,
+					set.getSelect().getParameters());
+			}
+			catch (RepositoryException e)
+			{
+				Debug.error(e);
+			}
 		}
 	}
 
@@ -261,9 +277,16 @@ public class ProfileDataServer extends AbstractDelegateDataServer
 		}
 		finally
 		{
-			QuerySet set = getSQLQuerySet(server_name, sqlSelect, filters, startRow, rowsToRetrieve, false, false);
-			informListeners("Query[" + PerformanceTiming.getTypeString(type) + ']', server_name, set.getSelect().getSql(), transaction_id, startTime,
-				set.getSelect().getParameters());
+			try
+			{
+				QuerySet set = getSQLQuerySet(server_name, sqlSelect, filters, startRow, rowsToRetrieve, false, false);
+				informListeners("Query[" + PerformanceTiming.getTypeString(type) + ']', server_name, set.getSelect().getSql(), transaction_id, startTime,
+					set.getSelect().getParameters());
+			}
+			catch (RepositoryException e)
+			{
+				Debug.error(e);
+			}
 		}
 	}
 
@@ -325,8 +348,15 @@ public class ProfileDataServer extends AbstractDelegateDataServer
 		}
 		finally
 		{
-			QuerySet set = getSQLQuerySet(server_name, sqlSelect, filters, startRow, rowsToRetrieve, false, false);
-			informListeners("Query", server_name, set.getSelect().getSql(), transaction_id, startTime, set.getSelect().getParameters());
+			try
+			{
+				QuerySet set = getSQLQuerySet(server_name, sqlSelect, filters, startRow, rowsToRetrieve, false, false);
+				informListeners("Query", server_name, set.getSelect().getSql(), transaction_id, startTime, set.getSelect().getParameters());
+			}
+			catch (RepositoryException e)
+			{
+				Debug.error(e);
+			}
 		}
 	}
 
@@ -384,8 +414,15 @@ public class ProfileDataServer extends AbstractDelegateDataServer
 		}
 		finally
 		{
-			QuerySet set = getSQLQuerySet(server_name, sqlSelect, filters, 0, 1, false, false);
-			informListeners("Query", server_name, set.getSelect().getSql(), transaction_id, startTime, set.getSelect().getParameters());
+			try
+			{
+				QuerySet set = getSQLQuerySet(server_name, sqlSelect, filters, 0, 1, false, false);
+				informListeners("Query", server_name, set.getSelect().getSql(), transaction_id, startTime, set.getSelect().getParameters());
+			}
+			catch (RepositoryException e)
+			{
+				Debug.error(e);
+			}
 		}
 	}
 
@@ -401,8 +438,15 @@ public class ProfileDataServer extends AbstractDelegateDataServer
 		}
 		finally
 		{
-			QuerySet set = getSQLQuerySet(server_name, sqlSelect, filters, 0, 1, false, false);
-			informListeners("Query", server_name, set.getSelect().getSql(), transaction_id, startTime, set.getSelect().getParameters());
+			try
+			{
+				QuerySet set = getSQLQuerySet(server_name, sqlSelect, filters, 0, 1, false, false);
+				informListeners("Query", server_name, set.getSelect().getSql(), transaction_id, startTime, set.getSelect().getParameters());
+			}
+			catch (RepositoryException e)
+			{
+				Debug.error(e);
+			}
 		}
 	}
 
@@ -417,8 +461,15 @@ public class ProfileDataServer extends AbstractDelegateDataServer
 		}
 		finally
 		{
-			QuerySet set = getSQLQuerySet(server_name, sqlSelect, filters, 0, 1, false, false);
-			informListeners("Query", server_name, set.getSelect().getSql(), transaction_id, startTime, set.getSelect().getParameters());
+			try
+			{
+				QuerySet set = getSQLQuerySet(server_name, sqlSelect, filters, 0, 1, false, false);
+				informListeners("Query", server_name, set.getSelect().getSql(), transaction_id, startTime, set.getSelect().getParameters());
+			}
+			catch (RepositoryException e)
+			{
+				Debug.error(e);
+			}
 		}
 	}
 
@@ -433,15 +484,23 @@ public class ProfileDataServer extends AbstractDelegateDataServer
 		}
 		finally
 		{
-			int counter = 0;
-			long timePerQuery = (System.currentTimeMillis() - startTime) / array.length;
-			for (QueryData queryData : array)
+			try
 			{
-				long time = System.currentTimeMillis() - timePerQuery;
-				QuerySet set = getSQLQuerySet(server_name, queryData.getSqlSelect(), queryData.getFilters(), queryData.getStartRow(),
-					queryData.getRowsToRetrieve(), false, false);
-				informListeners(PerformanceTiming.getTypeString(queryData.getType()) + " Combined Query[" + (counter++) + '/' + array.length + ']', server_name,
-					set.getSelect().getSql(), transaction_id, time, set.getSelect().getParameters());
+				int counter = 0;
+				long timePerQuery = (System.currentTimeMillis() - startTime) / array.length;
+				for (QueryData queryData : array)
+				{
+					long time = System.currentTimeMillis() - timePerQuery;
+					QuerySet set = getSQLQuerySet(server_name, queryData.getSqlSelect(), queryData.getFilters(), queryData.getStartRow(),
+						queryData.getRowsToRetrieve(), false, false);
+					informListeners(PerformanceTiming.getTypeString(queryData.getType()) + " Combined Query[" + (counter++) + '/' + array.length + ']',
+						server_name,
+						set.getSelect().getSql(), transaction_id, time, set.getSelect().getParameters());
+				}
+			}
+			catch (RepositoryException e)
+			{
+				Debug.error(e);
 			}
 		}
 	}
@@ -485,11 +544,11 @@ public class ProfileDataServer extends AbstractDelegateDataServer
 		}
 		finally
 		{
-			QuerySet set;
 			try
 			{
-				set = getSQLQuerySet(server_name, sqlUpdate, filters, -1, -1, false, false);
-				informListeners("Query", server_name, set.getUpdate().getSql(), tid, startTime, set.getUpdate().getParameters());
+				QuerySet set = getSQLQuerySet(server_name, sqlUpdate, filters, -1, -1, false, false);
+				stream(set.getUpdates())
+					.forEach(update -> informListeners("Update", server_name, update.getSql(), tid, startTime, update.getParameters()));
 			}
 			catch (RepositoryException e)
 			{
@@ -516,15 +575,21 @@ public class ProfileDataServer extends AbstractDelegateDataServer
 		}
 		finally
 		{
-			for (ISQLStatement statement : statements)
+			try
 			{
-				QuerySet set = getSQLQuerySet(statement.getServerName(), statement.getUpdate(), null, -1, -1, false, false);
-
-				informListeners("Update", statement.getServerName() + '.' + statement.getTableName(), set.getUpdate().getSql(), statement.getTransactionID(),
-					startTime, set.getUpdate().getParameters());
+				for (ISQLStatement statement : statements)
+				{
+					QuerySet set = getSQLQuerySet(statement.getServerName(), statement.getUpdate(), null, -1, -1, false, false);
+					stream(set.getUpdates())
+						.forEach(update -> informListeners("Update", statement.getServerName() + '.' + statement.getTableName(), update.getSql(),
+							statement.getTransactionID(), startTime, update.getParameters()));
+				}
+			}
+			catch (RepositoryException e)
+			{
+				Debug.error(e);
 			}
 		}
-
 	}
 
 	/**
@@ -549,8 +614,15 @@ public class ProfileDataServer extends AbstractDelegateDataServer
 		}
 		finally
 		{
-			QuerySet set = getSQLQuerySet(serverName, blobSelect, filters, 0, 1, false, false);
-			informListeners("BlobLoad", serverName, set.getSelect().getSql(), tid, startTime, set.getSelect().getParameters());
+			try
+			{
+				QuerySet set = getSQLQuerySet(serverName, blobSelect, filters, 0, 1, false, false);
+				informListeners("BlobLoad", serverName, set.getSelect().getSql(), tid, startTime, set.getSelect().getParameters());
+			}
+			catch (RepositoryException e)
+			{
+				Debug.error(e);
+			}
 		}
 	}
 
@@ -698,8 +770,15 @@ public class ProfileDataServer extends AbstractDelegateDataServer
 		}
 		finally
 		{
-			QuerySet set = getSQLQuerySet(queryServerName, sqlSelect, filters, startRow, rowsToRetrieve, false, false);
-			informListeners("FillDataSource", queryServerName, set.getSelect().getSql(), queryTid, startTime, set.getSelect().getParameters());
+			try
+			{
+				QuerySet set = getSQLQuerySet(queryServerName, sqlSelect, filters, startRow, rowsToRetrieve, false, false);
+				informListeners("FillDataSource", queryServerName, set.getSelect().getSql(), queryTid, startTime, set.getSelect().getParameters());
+			}
+			catch (RepositoryException e)
+			{
+				Debug.error(e);
+			}
 		}
 	}
 
