@@ -78,7 +78,7 @@ import jakarta.servlet.http.HttpServletResponse;
  * @author emera
  */
 @SuppressWarnings("nls")
-public class CloudStatelessAccessManager
+public class CloudStatelessAccessManager extends AbstractAuthenticatorManager implements ITokenRevocable
 {
 	private static final String SVY_REDIRECT = "svyRedirect";
 
@@ -92,6 +92,10 @@ public class CloudStatelessAccessManager
 	public static final URI CLOUD_OAUTH_URL = URI.create(BASE_CLOUD_URL + "/servoy-service/rest_ws/api/login_auth/validateOAuthUser");
 	public static final String CLOUD_OAUTH_ENDPOINT = "endpoint";
 
+	public CloudStatelessAccessManager(Solution solution)
+	{
+		super(solution);
+	}
 
 	public static boolean checkCloudOAuthPermissions(HttpServletRequest request, HttpServletResponse response, Pair<Boolean, String> needToLogin,
 		Solution solution, String payload, Boolean rememberUser,
@@ -138,10 +142,21 @@ public class CloudStatelessAccessManager
 		return false;
 	}
 
-	public static boolean checkCloudPermissions(String username, String password, boolean remember,
-		SvyID oldToken, Pair<Boolean, String> needToLogin,
-		Solution solution,
-		HttpServletRequest request)
+	@Override
+	protected String getLoginHTML(HttpServletRequest request, String customHTML) throws IOException
+	{
+		if (customHTML != null && customHTML.startsWith("<"))
+		{
+			return customHTML;
+		}
+		String loginHtml = getCloudLoginPage(request);
+		if (loginHtml != null) return loginHtml;
+		return super.getLoginHTML(request, customHTML);
+	}
+
+	@Override
+	public boolean checkPermissions(String username, String password, boolean remember, SvyID oldToken,
+		Pair<Boolean, String> needToLogin, HttpServletRequest request)
 	{
 		HttpRequest.Builder builder = HttpRequest.newBuilder()
 			.uri(oldToken != null ? REFRESH_TOKEN_CLOUD_URL : CLOUD_URL)
@@ -219,6 +234,13 @@ public class CloudStatelessAccessManager
 			log.error("Can't validate user with the Servoy Cloud", e);
 		}
 		return false;
+	}
+
+	@Override
+	public boolean checkUser(String username, String password, boolean remember, SvyID oldToken,
+		Pair<Boolean, String> needToLogin, HttpServletRequest request, HttpServletResponse response)
+	{
+		return checkPermissions(username, password, remember, oldToken, needToLogin, request);
 	}
 
 	private static JSONObject getOAuthConfigFromTheCloud(Solution solution, HttpServletRequest request, String provider)
@@ -388,7 +410,8 @@ public class CloudStatelessAccessManager
 		return null;
 	}
 
-	public static void revokeToken(Solution solution, DecodedJWT jwt)
+	@Override
+	public void logoutAndRevokeToken(Solution solution, DecodedJWT jwt)
 	{
 		String provider = jwt.getClaim(CLOUD_OAUTH_ENDPOINT).asString();
 		if (provider != null)
@@ -530,7 +553,8 @@ public class CloudStatelessAccessManager
 			{
 				log.atInfo()
 					.log(() -> "Showing the login page. The cloud returned " + status + " http status and unknown response format:" + json);
-				StatelessLoginHandler.writeLoginPage(request, response, solution.getName(), html); //TODO refactor
+				// Fall back to the default login page (solution media or classpath)
+				new CloudStatelessAccessManager(solution).writeLoginPage(request, response, html);
 				return;
 			}
 			writeHTML(request, response, initialURL, html);
@@ -544,7 +568,7 @@ public class CloudStatelessAccessManager
 		if (htmlToWrite != null)
 		{
 			String html = htmlToWrite;
-			ContentSecurityPolicyConfig contentSecurityPolicyConfig = CloudStatelessAccessManager.addcontentSecurityPolicyHeader(request, response);
+			ContentSecurityPolicyConfig contentSecurityPolicyConfig = addCloudCspHeader(request, response);
 			String contentSecurityPolicyNonce = contentSecurityPolicyConfig != null ? contentSecurityPolicyConfig.getNonce() : null;
 			if (contentSecurityPolicyNonce != null)
 			{
@@ -708,7 +732,7 @@ public class CloudStatelessAccessManager
 		return permissions;
 	}
 
-	public static String getCloudLoginPage(HttpServletRequest request, Solution solution, String loginHtml) throws IOException
+	private String getCloudLoginPage(HttpServletRequest request) throws IOException
 	{
 		try (HttpClient httpclient = HttpClient.newHttpClient())
 		{
@@ -719,7 +743,7 @@ public class CloudStatelessAccessManager
 				JSONObject res = result.getRight();
 				if (status == HttpURLConnection.HTTP_OK && res != null)
 				{
-					loginHtml = res.optString("html", null);
+					String loginHtml = res.optString("html", null);
 					if (loginHtml != null && loginHtml.contains("</form>"))
 					{
 						String queryString = request.getQueryString() != null ? "?" + Encode.forHtmlAttribute(request.getQueryString()) : "";
@@ -727,13 +751,20 @@ public class CloudStatelessAccessManager
 						loginHtml = loginHtml.replace("</form>", "<input type='hidden' name='" + SVY_REDIRECT + "' value='" +
 							requestURL + queryString + "'></form>");
 					}
+					return loginHtml;
 				}
 			}
 		}
-		return loginHtml;
+		return null;
 	}
 
-	public static ContentSecurityPolicyConfig addcontentSecurityPolicyHeader(HttpServletRequest request, HttpServletResponse response)
+	@Override
+	public ContentSecurityPolicyConfig addContentSecurityPolicyHeader(HttpServletRequest request, HttpServletResponse response)
+	{
+		return addCloudCspHeader(request, response);
+	}
+
+	private static ContentSecurityPolicyConfig addCloudCspHeader(HttpServletRequest request, HttpServletResponse response)
 	{
 		ContentSecurityPolicyConfig contentSecurityPolicyConfig = AngularIndexPageWriter.getContentSecurityPolicyConfig(request);
 		if (contentSecurityPolicyConfig != null)

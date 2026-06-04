@@ -22,17 +22,42 @@ import java.util.Arrays;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.util.Pair;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
 /**
+ * Default login manager that authenticates against the Servoy built-in user manager.
+ *
  * @author emera
  */
-public class DefaultLoginManager
+public class DefaultLoginManager extends AbstractAuthenticatorManager
 {
 	private static final Logger log = LoggerFactory.getLogger("stateless.login");
 
-	public static boolean checkDefaultLoginPermissions(String username, String password, boolean rememberUser, SvyID oldToken,
+	public DefaultLoginManager(Solution solution)
+	{
+		super(solution);
+	}
+
+	@Override
+	public boolean checkPermissions(String username, String password, boolean remember, SvyID oldToken,
+		Pair<Boolean, String> needToLogin, HttpServletRequest request)
+	{
+		return checkDefaultLoginPermissions(username, password, remember, oldToken, needToLogin);
+	}
+
+	@Override
+	public boolean checkUser(String username, String password, boolean remember, SvyID oldToken,
+		Pair<Boolean, String> needToLogin, HttpServletRequest request, HttpServletResponse response)
+	{
+		return checkDefaultLoginPermissions(username, password, remember, oldToken, needToLogin);
+	}
+
+	private boolean checkDefaultLoginPermissions(String username, String password, boolean rememberUser, SvyID oldToken,
 		Pair<Boolean, String> needToLogin)
 	{
 		try
@@ -72,5 +97,4 @@ public class DefaultLoginManager
 		}
 		return false;
 	}
-
 }
