@@ -32,6 +32,7 @@ import java.io.Writer;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
@@ -72,6 +73,9 @@ import jakarta.servlet.http.HttpSession;
 public class AngularIndexPageWriter
 {
 	public static final String SOLUTIONS_PATH = "/solution/";
+
+	private record MessageCacheKey(UUID solutionUUID, Locale locale, String key) { }
+	private static final ConcurrentHashMap<MessageCacheKey, String> SOLUTION_DEFAULT_MESSAGE_CACHE = new ConcurrentHashMap<>();
 
 //	public static void writeStartupJs(HttpServletRequest request, HttpServletResponse response, String solutionName)
 //		throws IOException, ServletException
@@ -372,8 +376,8 @@ public class AngularIndexPageWriter
 
 	public static String getSolutionDefaultMessage(Solution solution, Locale locale, String key)
 	{
-		// removed the cache, if this gets called more often we may add it again
-		return getSolutionDefaultMessageNotCached(solution.getUUID(), locale, key);
+		MessageCacheKey cacheKey = new MessageCacheKey(solution.getUUID(), locale == null ? Locale.ENGLISH : locale, key);
+		return SOLUTION_DEFAULT_MESSAGE_CACHE.computeIfAbsent(cacheKey, k -> getSolutionDefaultMessageNotCached(k.solutionUUID(), k.locale(), k.key()));
 	}
 
 	public static String getSolutionDefaultMessageNotCached(UUID solutionUUID, Locale locale, String key)
