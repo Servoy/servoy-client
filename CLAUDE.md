@@ -116,6 +116,37 @@ servoy_ngclient     servoy_smart_client     servoy_headless_client     servoy_de
 
 Affected files: `SecuritySupport.java`, `background.gif` (both in `servoy_shared`).
 
+### OAuthHandler: `sendRedirect(loginFailedUrl)` is NOT an open redirect
+
+`OAuthHandler.handleLoginFailed()` calls `resp.sendRedirect(loginFailedUrl)` without an explicit origin check. Automated scanners flag this as an open redirect (bug-007). **It is not.** The full data flow:
+
+1. When an OAuth flow is initiated, `OAuthUtils.generateNonce()` stores the developer-defined `auth` JSON (from `solution.getCustomProperties()`) in a server-side `PassiveExpiringMap` keyed by a random UUID nonce.
+2. On the OAuth callback, the `state`/`nonce` request parameter is just that UUID — it is used only as a lookup key to retrieve the cached `auth` object from the `ServletContext`.
+3. `loginFailedUrl` is read from that server-side cached `auth` object via `auth.optString("login_failed_url")` — the value was set by the developer in the solution configuration, not from any user request.
+
+An attacker cannot forge or inject a value into the nonce cache. Do not add origin-check validation here based on scanner findings alone.
+
+### Refresh token embedded in Servoy JWT: intentional stateless design trade-off
+
+`SvyTokenBuilder.withRefreshToken()` embeds the OAuth provider refresh token as a plain JWT claim (`refresh_token`). Because JWT payloads are Base64-encoded (not encrypted), any holder of the Servoy ID token can decode and read the refresh token.
+
+**This is an intentional architectural trade-off, not a bug to fix in application code.**
+
+- The stateless login design stores all session state inside the signed JWT so the server stays fully stateless. Adding server-side refresh-token storage requires a shared, persistent, cluster-aware store (Redis, DB table) that Servoy does not control and cannot assume is present in all deployments.
+- An in-process `PassiveExpiringMap` is not suitable: refresh tokens can live for days or weeks; a JVM-local map is lost on restart and invisible to other cluster nodes.
+- The additional risk vs. a stolen access token is silent session renewal after the 2-hour JWT expiry. Mitigations are infrastructure-layer: HTTPS (mandatory), strong CSP headers (prevent XSS reading localStorage).
+- Do not remove the `refresh_token` claim or add server-side storage without a tested cluster-safe backing store and a migration path for the refresh/revoke flows in `OAuthHandler` and `CloudStatelessAccessManager`.
+
+### Rate limiting: application-layer throttling is an infrastructure concern
+
+Servoy does not implement in-process rate limiting or exponential-backoff delays on authentication endpoints. This is intentional:
+
+- In-memory per-IP or per-user counters break in clustered deployments — each JVM node only sees its own traffic share.
+- The correct layer is the infrastructure in front of Servoy: nginx/Apache `limit_req`, a WAF, or a cloud load-balancer rule.
+- Failed authentication attempts are logged at WARN level via the `stateless.login` logger, including username and source IP (never the password). SIEM or log-aggregators should tail this stream for alerting and blocking.
+
+Do not add in-process `Thread.sleep()` or in-memory attempt counters to `StatelessLoginHandler`, `DefaultLoginManager`, or `OAuthHandler`.
+
 ### CryptUtils: legacy `createCipher` kept for backward compatibility
 
 `servoy_shared/src/com/servoy/j2db/util/CryptUtils.java` contains a `@Deprecated` method `createCipher()` that uses MD5 key derivation and AES/ECB. It is intentionally kept because `fileDecryption()` falls back to it when decrypting solution files encrypted before the AES-256-GCM migration (format detected by the `SENC` magic prefix).
