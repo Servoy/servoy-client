@@ -32,6 +32,7 @@ import java.io.Writer;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
@@ -73,22 +74,11 @@ public class AngularIndexPageWriter
 {
 	public static final String SOLUTIONS_PATH = "/solution/";
 
-//	public static void writeStartupJs(HttpServletRequest request, HttpServletResponse response, String solutionName)
-//		throws IOException, ServletException
-//	{
-//		if (request.getCharacterEncoding() == null) request.setCharacterEncoding("UTF8");
-//		String uri = request.getRequestURI();
-//		Integer clientnr = getClientNr(uri, request);
-//		Pair<FlattenedSolution, Boolean> pair = getFlattenedSolution(solutionName, clientnr, request, response);
-//		StringBuilder sb = new StringBuilder();
-//		generateStartupData(request, pair.getLeft(), sb);
-//		response.setCharacterEncoding("UTF-8");
-//		response.setContentType("application/javascript");
-//		response.setContentLengthLong(sb.length());
-//		response.getWriter().write(sb.toString());
-//		if (pair.getRight().booleanValue()) pair.getLeft().close(null);
-//	}
+	private record MessageCacheKey(UUID solutionUUID, Locale locale, String key)
+	{
+	}
 
+	private static final ConcurrentHashMap<MessageCacheKey, String> SOLUTION_DEFAULT_MESSAGE_CACHE = new ConcurrentHashMap<>();
 
 	/**
 	 * @param request
@@ -372,8 +362,8 @@ public class AngularIndexPageWriter
 
 	public static String getSolutionDefaultMessage(Solution solution, Locale locale, String key)
 	{
-		// removed the cache, if this gets called more often we may add it again
-		return getSolutionDefaultMessageNotCached(solution.getUUID(), locale, key);
+		MessageCacheKey cacheKey = new MessageCacheKey(solution.getUUID(), locale == null ? Locale.ENGLISH : locale, key);
+		return SOLUTION_DEFAULT_MESSAGE_CACHE.computeIfAbsent(cacheKey, k -> getSolutionDefaultMessageNotCached(k.solutionUUID(), k.locale(), k.key()));
 	}
 
 	public static String getSolutionDefaultMessageNotCached(UUID solutionUUID, Locale locale, String key)
