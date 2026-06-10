@@ -6,9 +6,6 @@ Absolute-Layout: True
 Bundle-Name: Servoy Core
 Bundle-SymbolicName: servoycore
 
-Name: portal/portal.spec
-Web-Component: True
-
 Name: errorbean/errorbean.spec
 Web-Component: True
 
