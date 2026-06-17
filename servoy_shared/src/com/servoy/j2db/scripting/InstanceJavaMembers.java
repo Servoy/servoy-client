@@ -203,8 +203,8 @@ public class InstanceJavaMembers extends JavaMembers_jdk11
 			}
 			else
 			{
-				addMethodToHide(beanProperty.getGetter().getName());
-				addMethodToHide(beanProperty.getSetter().getName());
+				addMethodToHide(beanProperty.getGetter().getName(), true);
+				addMethodToHide(beanProperty.getSetter().getName(), true);
 			}
 		}
 
@@ -252,7 +252,7 @@ public class InstanceJavaMembers extends JavaMembers_jdk11
 								{
 									copy.put(functionName, oldValue);
 									// but do not show it
-									addMethodToHide(functionName);
+									addMethodToHide(functionName, false);
 								}
 							}
 						}
@@ -291,37 +291,37 @@ public class InstanceJavaMembers extends JavaMembers_jdk11
 		}
 	}
 
-//	/**
-//	 * @see JavaMembers#shouldDeleteGetAndSetMethods()
-//	 */
-//	@Override
-//	protected boolean shouldDeleteGetAndSetMethods()
-//	{
-//		return true;
-//	}
-//
-//	@SuppressWarnings("unchecked")
-//	@Override
-//	protected void deleteGetAndSetMethods(boolean isStatic, List toRemove)
-//	{
-//		if (gettersAndSettersToHide == null)
-//		{
-//			gettersAndSettersToHide = new ArrayList<String>(toRemove);
-//		}
-//		else
-//		{
-//			gettersAndSettersToHide.addAll(toRemove);
-//		}
-//	}
+	//	/**
+	//	 * @see JavaMembers#shouldDeleteGetAndSetMethods()
+	//	 */
+	//	@Override
+	//	protected boolean shouldDeleteGetAndSetMethods()
+	//	{
+	//		return true;
+	//	}
+	//
+	//	@SuppressWarnings("unchecked")
+	//	@Override
+	//	protected void deleteGetAndSetMethods(boolean isStatic, List toRemove)
+	//	{
+	//		if (gettersAndSettersToHide == null)
+	//		{
+	//			gettersAndSettersToHide = new ArrayList<String>(toRemove);
+	//		}
+	//		else
+	//		{
+	//			gettersAndSettersToHide.addAll(toRemove);
+	//		}
+	//	}
 
-	protected void addMethodToHide(String name)
+	protected void addMethodToHide(String name, boolean stripJsPrefix)
 	{
 		if (gettersAndSettersToHide == null)
 		{
 			gettersAndSettersToHide = new ArrayList<String>();
 		}
 		String newName = name;
-		if (newName.startsWith("js_")) //$NON-NLS-1$
+		if (stripJsPrefix && newName.startsWith("js_")) //$NON-NLS-1$
 		{
 			newName = newName.substring(3);
 		}
