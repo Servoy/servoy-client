@@ -100,7 +100,7 @@ public abstract class AbstractAuthenticatorManager implements IAuthenticatorMana
 		String scripts = getLoginScripts(request, csrfToken);
 		loginHtml = loginHtml.replace("<base href=\"/\">", scripts);
 		String loaderHtml = "<div id='servoy_loader'><div class='spinner'></div></div>";
-		loginHtml = loginHtml.replaceFirst("(?i)<body[^>]*>", "$0" + loaderHtml);
+		loginHtml = loginHtml.replaceFirst("(?i)<body[^>]*+>", "$0" + loaderHtml);
 
 		String requestLanguage = request.getHeader("accept-language");
 		if (requestLanguage != null)
