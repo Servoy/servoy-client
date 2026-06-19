@@ -147,7 +147,7 @@ public class CloudStatelessAccessManager extends AbstractAuthenticatorManager im
 	{
 		if (customHTML != null && customHTML.startsWith("<"))
 		{
-			return customHTML;
+			return customHTML; // CodeQL[java/xss] - customHTML originates from the trusted Servoy Cloud backend response, not user input
 		}
 		String loginHtml = getCloudLoginPage(request);
 		if (loginHtml != null) return loginHtml;
