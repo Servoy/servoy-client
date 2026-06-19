@@ -43,49 +43,14 @@ import com.servoy.j2db.server.shared.IApplicationServer;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.Utils;
 
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * @author emera
  */
-public class AuthenticatorManager extends AbstractAuthenticatorManager
+public class AuthenticatorManager
 {
 	private static final Logger log = LoggerFactory.getLogger("stateless.login");
-
-	public AuthenticatorManager(Solution solution)
-	{
-		super(solution);
-	}
-
-	@Override
-	public void writeLoginPage(HttpServletRequest request, HttpServletResponse response, String customHTML)
-		throws ServletException, java.io.UnsupportedEncodingException, java.io.IOException
-	{
-		if (solution.getAuthenticator() == AUTHENTICATOR_TYPE.OAUTH_AUTHENTICATOR)
-		{
-			if (request.getCharacterEncoding() == null) request.setCharacterEncoding("UTF8");
-			org.sablo.util.HTTPUtils.setNoCacheHeaders(response);
-			OAuthHandler.redirectToAuthenticator(request, response, solution);
-			return;
-		}
-		super.writeLoginPage(request, response, customHTML);
-	}
-
-	@Override
-	public boolean checkPermissions(String username, String password, boolean remember, SvyID oldToken,
-		Pair<Boolean, String> needToLogin, HttpServletRequest request)
-	{
-		return checkAuthenticatorPermissions(username, password, remember, oldToken, needToLogin, solution, request);
-	}
-
-	@Override
-	public boolean checkUser(String username, String password, boolean remember, SvyID oldToken,
-		Pair<Boolean, String> needToLogin, HttpServletRequest request, HttpServletResponse response)
-	{
-		return checkAuthenticatorPermissions(username, password, remember, oldToken, needToLogin, solution, request);
-	}
 
 	public static Solution findAuthenticator(Solution solution)
 	{
@@ -120,12 +85,6 @@ public class AuthenticatorManager extends AbstractAuthenticatorManager
 	private static boolean callAuthenticator(Pair<Boolean, String> needToLogin, HttpServletRequest request, boolean rememberUser, Solution authenticator,
 		JSONObject json, String refreshToken, Solution mainSolution, String state)
 	{
-		if (authenticator.getOnOpenMethodID() == null)
-		{
-			log.error("The authenticator '{}' does not have an onOpen method configured. Please set the onOpen event in the solution properties.",
-				authenticator.getName());
-			return false;
-		}
 		log.info("Calling authenticator {} for solution {}, with parameters {}", authenticator.getName(), mainSolution.getName(), json);
 		addCustomParameters(request, json);
 		Credentials credentials = new Credentials(null, authenticator.getName(), null, json.toString());
