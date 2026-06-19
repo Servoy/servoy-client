@@ -551,7 +551,11 @@ public class CloudStatelessAccessManager
 				html = html.replace("<script ", "<script nonce='" + contentSecurityPolicyNonce + '\'');
 				html = html.replace("<style", "<style nonce='" + contentSecurityPolicyNonce + '\'');
 			}
-			if (initialURL != null) html = html.replace("</form>", "<input type='hidden' name='" + SVY_REDIRECT + "' value='" + initialURL + "'></form>");
+			if (initialURL != null)
+			{
+				String encodedInitialURL = Encode.forHtmlAttribute(initialURL);
+				html = html.replace("</form>", "<input type='hidden' name='" + SVY_REDIRECT + "' value='" + encodedInitialURL + "'></form>");
+			}
 			HTMLWriter.writeHTML(request, response, html);
 		}
 		else
