@@ -40,12 +40,21 @@ public class BaseColumnType implements Serializable
 	{
 		this.sqlType = sqlType;
 		this.length = length;
-		this.scale = scale;
+		this.scale = determineScale(sqlType, scale);
 		this.subType = subType;
 	}
 
 	protected BaseColumnType()
 	{
+	}
+
+	private static int determineScale(int sqlType, int scale)
+	{
+		return switch (sqlType)
+		{
+			case Types.FLOAT, Types.DOUBLE, Types.REAL -> 0; // scale has no meaning for SQL floating point types
+			default -> scale;
+		};
 	}
 
 	public int getLength()
