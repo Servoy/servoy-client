@@ -6,14 +6,4 @@ paths-ignore:
   - "**/dialogs/bootbox.js"
   - "**/js/angular.js"
   - "**/js/Window.js"
-
-query-filters:
-  - exclude:
-      id: java/weak-cryptographic-algorithm
-      paths:
-        - "**/util/SecuritySupport.java"
-        - "**/util/Settings.java"
-  - exclude:
-      id: js/redos
-      paths:
-        - "**/js/servoyformat.ts"
+  - "**/js/servoyformat.ts"
