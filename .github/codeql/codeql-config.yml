@@ -1,0 +1,19 @@
+paths-ignore:
+  - "**/js/jquery-ui.js"
+  - "**/js/numeral.js"
+  - "**/js/angular-webstorage.js"
+  - "**/htmlarea/htmlarea.js"
+  - "**/dialogs/bootbox.js"
+  - "**/js/angular.js"
+  - "**/js/Window.js"
+
+query-filters:
+  - exclude:
+      id: java/weak-cryptographic-algorithm
+      paths:
+        - "**/util/SecuritySupport.java"
+        - "**/util/Settings.java"
+  - exclude:
+      id: js/redos
+      paths:
+        - "**/js/servoyformat.ts"
