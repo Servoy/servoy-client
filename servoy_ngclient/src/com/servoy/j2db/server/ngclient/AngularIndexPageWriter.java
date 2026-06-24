@@ -517,12 +517,12 @@ public class AngularIndexPageWriter
 	{
 		if (isShortSolutionRequest(request))
 		{
-			StringBuffer url = request.getRequestURL();
-			if (!url.toString().endsWith("/")) url.append("/");
-			url.append("index.html");
+			StringBuilder redirectPath = new StringBuilder(request.getRequestURI());
+			if (!redirectPath.toString().endsWith("/")) redirectPath.append("/");
+			redirectPath.append("index.html");
 			String queryString = request.getQueryString();
-			if (queryString != null) url.append("?").append(queryString);
-			response.sendRedirect(url.toString());
+			if (queryString != null) redirectPath.append("?").append(queryString);
+			response.sendRedirect(redirectPath.toString());
 			return true;
 		}
 
