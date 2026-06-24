@@ -7,3 +7,6 @@ paths-ignore:
   - "**/js/angular.js"
   - "**/js/Window.js"
   - "**/js/servoyformat.ts"
+  - "**/lib/angular-mocks.js"
+  - "**/js/jquery-migrate-3.3.2.js"
+  - "**/lib/jquery.js"
