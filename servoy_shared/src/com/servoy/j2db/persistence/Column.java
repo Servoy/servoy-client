@@ -44,6 +44,7 @@ import com.servoy.base.persistence.IBaseColumn;
 import com.servoy.base.persistence.constants.IColumnTypeConstants;
 import com.servoy.base.query.BaseColumnType;
 import com.servoy.base.query.BaseQueryTable;
+import com.servoy.base.query.TypeInfo;
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.Messages;
@@ -769,6 +770,11 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 	public ColumnType getColumnType()
 	{
 		return columnType;
+	}
+
+	public TypeInfo getTypeInfo()
+	{
+		return new TypeInfo(getColumnType(), getNativeTypename());
 	}
 
 	@Override

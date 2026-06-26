@@ -464,21 +464,8 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 		{
 			return null;
 		}
-		if (validateInlineString(string))
-		{
-			return new QueryColumnValue(new StringBuilder().append(QUOTE).append(string).append(QUOTE).toString(), null, true);
-		}
-		// not valid, make it a parameterized query
-		return new QueryColumnValue(string, null, false);
-	}
-
-	/**
-	 * Validate whether the string is safe to be put in a query, protecting from sql injection.
-	 */
-	private static boolean validateInlineString(String string)
-	{
-		// if it does not contain a quote or escape we are safe
-		return string == null || (string.indexOf(QUOTE) == -1 && string.indexOf('\\') == -1);
+		// The underlying hibernate library adds quotes if needed to protects against sql injection
+		return new QueryColumnValue(string, null, true);
 	}
 
 	/**

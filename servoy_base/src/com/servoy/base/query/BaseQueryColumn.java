@@ -123,6 +123,11 @@ public class BaseQueryColumn implements IBaseQuerySelectValue
 		return flags;
 	}
 
+	public TypeInfo getTypeInfo()
+	{
+		return new TypeInfo(columnType, nativeTypename);
+	}
+
 	@Override
 	public int hashCode()
 	{
@@ -171,5 +176,4 @@ public class BaseQueryColumn implements IBaseQuerySelectValue
 		}
 		return sb.toString();
 	}
-
 }
