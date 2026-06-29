@@ -799,15 +799,18 @@ public abstract class AbstractBase implements IPersist
 			// would be nicer to make the copy on write with the full copy of the list
 			// but that is not possible we seem to need to call addChild(clone)
 			cloned.allobjects = new CopyOnWriteArrayList<IPersist>();
-			for (IPersist persist : allobjects)
+			if (allobjects != null)
 			{
-				if (persist instanceof ICloneable)
+				for (IPersist persist : allobjects)
 				{
-					((ICloneable)persist).clonePersist(cloned);
-				}
-				else
-				{
-					cloned.allobjects.add(persist);
+					if (persist instanceof ICloneable)
+					{
+						((ICloneable)persist).clonePersist(cloned);
+					}
+					else
+					{
+						cloned.allobjects.add(persist);
+					}
 				}
 			}
 		}
