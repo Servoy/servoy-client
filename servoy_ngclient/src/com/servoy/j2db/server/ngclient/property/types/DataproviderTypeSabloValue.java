@@ -702,6 +702,10 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 						// TODO don't we have to apply the UI converter's toObject here as well in the unlikely case of a valuelist + UI converter? and also
 						// when searching we should then use the fromObject(uiValue) rather then uiValue directly I think
 						uiValue = valuelistSabloValue.getValueList().getElementAt(valuelistSabloValue.getValueList().realValueIndexOf(uiValue));
+						if (uiValue instanceof String possibleI18N && possibleI18N.startsWith("i18n:"))
+						{
+							uiValue = dataAdapterList.getApplication().getI18NMessage(possibleI18N.substring(5));
+						}
 					}
 					catch (Exception ex)
 					{
