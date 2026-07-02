@@ -457,17 +457,17 @@ public class AngularIndexPageWriter
 
 	public static boolean handleDeeplink(HttpServletRequest request, HttpServletResponse response) throws IOException
 	{
-		String url = request.getRequestURL().toString();
-		int index = url.indexOf(SOLUTIONS_PATH);
+		String requestUri = request.getRequestURI();
+		int index = requestUri.indexOf(SOLUTIONS_PATH);
 		if (index >= 0)
 		{
-			String solutionAndRest = url.substring(index + SOLUTIONS_PATH.length());
+			String solutionAndRest = requestUri.substring(index + SOLUTIONS_PATH.length());
 			int solutionEnd = solutionAndRest.indexOf('/');
 			String rest = solutionAndRest.substring(solutionEnd + 1);
 			if (rest.indexOf('/') != -1)
 			{
 				// it has deeplinks, need to rewrite url.
-				StringBuffer redirectUrl = new StringBuffer(url.subSequence(0, index + SOLUTIONS_PATH.length() + solutionEnd));
+				StringBuffer redirectUrl = new StringBuffer(requestUri.subSequence(0, index + SOLUTIONS_PATH.length() + solutionEnd));
 				redirectUrl.append("/index.html");
 				String queryString = request.getQueryString();
 				String[] args = rest.split("/");
