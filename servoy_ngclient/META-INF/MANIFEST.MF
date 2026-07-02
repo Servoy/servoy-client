@@ -18,8 +18,7 @@ Export-Package: com.servoy.j2db.server.ngclient;version="2026.9.0",
 Require-Bundle: servoy_shared,
  sablo,
  org.eclipse.dltk.javascript.rhino,
- servoy_headless_client,
- org.apache.tomcat;bundle-version="11.0.11"
+ servoy_headless_client
 Bundle-RequiredExecutionEnvironment: JavaSE-21
 Bundle-ClassPath: .
 Bundle-Vendor: Servoy
