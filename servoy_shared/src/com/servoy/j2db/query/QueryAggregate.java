@@ -122,6 +122,10 @@ public final class QueryAggregate implements IQuerySelectValue, IQueryElement, I
 	{
 		if (type == COUNT)
 		{
+			if (aggregee instanceof QueryColumnValue queryColumnValue)
+			{
+				return queryColumnValue.getColumnType();
+			}
 			return ColumnType.getColumnType(IColumnTypes.INTEGER);
 		}
 		return aggregee == null ? null : aggregee.getColumnType();

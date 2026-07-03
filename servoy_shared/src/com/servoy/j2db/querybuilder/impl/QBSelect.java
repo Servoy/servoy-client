@@ -33,6 +33,7 @@ import org.mozilla.javascript.annotations.JSSetter;
 
 import com.servoy.base.query.BaseColumnType;
 import com.servoy.base.query.BaseQueryTable;
+import com.servoy.base.query.TypeInfo;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.dataprocessing.FoundSet;
 import com.servoy.j2db.dataprocessing.IGlobalValueEntry;
@@ -911,18 +912,18 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 		return queryTable;
 	}
 
-	IQuerySelectValue[] createOperands(Object[] values, BaseColumnType columnType, int flags)
+	IQuerySelectValue[] createOperands(Object[] values, TypeInfo typeInfo, int flags)
 	{
 		IQuerySelectValue[] operands = new IQuerySelectValue[values.length];
 		for (int i = 0; i < values.length; i++)
 		{
-			operands[i] = createOperand(values[i], columnType, flags);
+			operands[i] = createOperand(values[i], typeInfo, flags);
 		}
 
 		return operands;
 	}
 
-	IQuerySelectValue createOperand(Object value, BaseColumnType columnType, int flags)
+	IQuerySelectValue createOperand(Object value, TypeInfo typeInfo, int flags)
 	{
 		if (value instanceof QBColumnImpl qbColumn)
 		{
@@ -940,7 +941,7 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 			}
 			val = placeholder == null ? new Placeholder(key) : placeholder;
 		}
-		else if (columnType == null)
+		else if (typeInfo == null)
 		{
 			if (value instanceof Date && !(value instanceof Timestamp) && !(value instanceof Time))
 			{
@@ -951,7 +952,7 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 		else if (!(value instanceof IQuerySelectValue))
 		{
 			// convert the value (especially UUID) to the type of the column
-			val = getAsRightType(value, columnType, flags);
+			val = getAsRightType(value, typeInfo.getColumnType(), flags);
 		}
 
 		if (val instanceof IQuerySelectValue)
@@ -959,7 +960,7 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 			return (IQuerySelectValue)val;
 		}
 
-		return new QueryColumnValue(val, null);
+		return new QueryColumnValue(val, null, false, typeInfo == null ? null : typeInfo.getNativeTypename());
 	}
 
 	private Object getAsRightType(Object value, BaseColumnType columnType, int flags)

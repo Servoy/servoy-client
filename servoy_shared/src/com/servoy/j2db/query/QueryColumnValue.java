@@ -101,7 +101,7 @@ public final class QueryColumnValue implements IQuerySelectValue
 		{
 			return ColumnType.getColumnType(IColumnTypes.NUMBER);
 		}
-		if (value instanceof String)
+		if (value instanceof String || value instanceof Character)
 		{
 			return ColumnType.getColumnType(IColumnTypes.TEXT);
 		}

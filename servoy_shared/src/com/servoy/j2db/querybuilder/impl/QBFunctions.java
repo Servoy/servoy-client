@@ -54,6 +54,7 @@ import static java.util.Arrays.stream;
 
 import org.mozilla.javascript.annotations.JSFunction;
 
+import com.servoy.base.query.TypeInfo;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.query.ColumnType;
 import com.servoy.j2db.query.IQuerySelectValue;
@@ -200,7 +201,7 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 
 		return new QBFunctionImpl(getRoot(), getParent(), trim, new IQuerySelectValue[] { //
 			QueryTrimSpecification.fromSpecification(specification), //
-			new QueryColumnValue(Character.valueOf(character.charAt(0)), null, true), //
+			new QueryColumnValue(Character.valueOf(character.charAt(0)), null, false), //
 			createOperand(value, TEXT)
 		});
 	}
@@ -244,7 +245,7 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	protected IQuerySelectValue createOperand(Object value, int type)
 	{
 		warnIgnoredNegatedColumn(value);
-		return getRoot().createOperand(value, ColumnType.getColumnType(type), 0);
+		return getRoot().createOperand(value, new TypeInfo(ColumnType.getColumnType(type), null), 0);
 	}
 
 	/**
