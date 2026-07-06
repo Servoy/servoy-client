@@ -34,6 +34,7 @@ import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.WebLayoutSpecification;
 import org.sablo.specification.WebObjectSpecification;
+import org.sablo.specification.property.BrowserConverterContext;
 import org.sablo.specification.property.types.DimensionPropertyType;
 import org.sablo.websocket.CurrentWindow;
 import org.sablo.websocket.TypedData;
@@ -64,6 +65,7 @@ import com.servoy.j2db.persistence.TabSeqComparator;
 import com.servoy.j2db.persistence.WebComponent;
 import com.servoy.j2db.server.ngclient.FormElementHelper.FormComponentCache;
 import com.servoy.j2db.server.ngclient.property.types.FormComponentPropertyType;
+import com.servoy.j2db.server.ngclient.property.types.FormComponentSabloValue;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.FormElementToJSON;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IDesignerDefaultWriter;
 import com.servoy.j2db.server.ngclient.property.types.PropertyPath;
@@ -204,6 +206,7 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 						List<String> children = new ArrayList<>();
 						for (PropertyDescription pd : properties)
 						{
+							if (Utils.getAsBoolean(pd.getTag("skipRendering"))) continue;
 							Object propertyValue = fe.getPropertyValue(pd.getName());
 							Form frm = FormComponentPropertyType.INSTANCE.getForm(propertyValue, context.getSolution());
 							if (frm == null) continue;
@@ -254,10 +257,13 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 							}
 							writer.endArray();
 						}
-						writer.key("formComponent");
-						writer.array();
-						children.stream().forEach((child) -> writer.value(child));
-						writer.endArray();
+						if (children.size() > 0)
+						{
+							writer.key("formComponent");
+							writer.array();
+							children.stream().forEach((child) -> writer.value(child));
+							writer.endArray();
+						}
 					}
 				}
 			}
@@ -373,6 +379,25 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 			TypedData<Map<String, Object>> templateProperties = fe.propertiesForTemplateJSON();
 			// remove from the templates properties all the properties that are current "live" in the component
 			templateProperties.content.keySet().removeAll(properties.content.keySet());
+			// write skipRendering formcomponent properties through their proper serializer
+			WebObjectSpecification spec = fe.getWebComponentSpec();
+			if (spec != null)
+			{
+				for (PropertyDescription pd : spec.getProperties(FormComponentPropertyType.INSTANCE))
+				{
+					if (Utils.getAsBoolean(pd.getTag("skipRendering")) && !properties.content.containsKey(pd.getName()))
+					{
+						Object sabloValue = webComponent.getRawPropertyValue(pd.getName());
+						if (sabloValue instanceof FormComponentSabloValue)
+						{
+							templateProperties.content.remove(pd.getName());
+							writer.key(pd.getName());
+							((FormComponentSabloValue)sabloValue).fullToJSON(writer, FormComponentPropertyType.INSTANCE,
+								new BrowserConverterContext(webComponent, pd.getPushToServer()));
+						}
+					}
+				}
+			}
 			templateProperties.content.keySet().remove(IContentSpecConstants.PROPERTY_ATTRIBUTES);
 			if (properties.content.containsKey(IContentSpecConstants.PROPERTY_ATTRIBUTES))
 			{
@@ -485,6 +510,7 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 				boolean isResponsive = false;
 				for (PropertyDescription pd : properties)
 				{
+					if (Utils.getAsBoolean(pd.getTag("skipRendering"))) continue;
 					Object propertyValue = fe.getPropertyValue(pd.getName());
 					Form frm = FormComponentPropertyType.INSTANCE.getForm(propertyValue, context.getSolution());
 					if (frm == null) continue;

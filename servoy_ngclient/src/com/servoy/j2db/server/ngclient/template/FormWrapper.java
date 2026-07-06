@@ -213,6 +213,7 @@ public class FormWrapper
 			{
 				for (PropertyDescription pd : properties)
 				{
+					if (Utils.getAsBoolean(pd.getTag("skipRendering"))) continue;
 					Object config = pd.getConfig();
 					boolean isRepeating = config instanceof ComponentTypeConfig && ((ComponentTypeConfig)config).forFoundset != null;
 					Object propertyValue = formComponentFormElement.getPropertyValue(pd.getName());

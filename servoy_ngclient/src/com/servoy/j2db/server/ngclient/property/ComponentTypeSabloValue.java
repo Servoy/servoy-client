@@ -654,6 +654,51 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 		// get template model values
 		final TypedData<Map<String, Object>> formElementProperties = fe.propertiesForTemplateJSON();
 
+		if (childComponent == null)
+		{
+			// child component not yet created (e.g. skipRendering formcomponent with uninitialized foundset)
+			// write template-only data — keep record-based properties so client knows the dataprovider column mappings
+			IWebFormUI formUI = getParentComponent() != null ? getParentComponent().findParent(IWebFormUI.class) : null;
+			final FormElementContext formElementContext = formUI != null
+				? new FormElementContext(fe, new ServoyDataConverterContext(formUI.getController()), null)
+				: new FormElementContext(fe);
+
+			// Extract record-based property values before they get filtered by template serialization
+			final Map<String, Object> recordBasedPropertyValues = new HashMap<>();
+			if (recordBasedProperties != null)
+			{
+				recordBasedProperties.forEach(propertyName -> {
+					Object val = formElementProperties.content.get(propertyName);
+					if (val != null)
+					{
+						recordBasedPropertyValues.put(propertyName, val);
+					}
+				});
+			}
+
+			componentPropertyType.writeTemplateJSONContent(writer, formElementValue, forFoundsetTypedPropertyName, formElementContext, new IModelWriter()
+			{
+				@Override
+				public void writeComponentModel() throws JSONException
+				{
+					writer.object();
+					JSONUtils.writeData(FormElementToJSON.INSTANCE, writer, formElementProperties.content, formElementProperties.contentType, formElementContext);
+					// Write record-based properties that were skipped by template serialization
+					for (Map.Entry<String, Object> entry : recordBasedPropertyValues.entrySet())
+					{
+						if (entry.getValue() instanceof String)
+						{
+							writer.key(entry.getKey()).value(entry.getValue());
+						}
+					}
+					writer.endObject();
+				}
+			}, recordBasedProperties, false);
+			if (forFoundsetTypedPropertyName != null) recordBasedProperties.clearChanged();
+			writer.endObject();
+			return writer;
+		}
+
 		// we'll need to update them with runtime values
 		final TypedData<Map<String, Object>> runtimeProperties = childComponent.getProperties();
 		childComponent.clearChanges();
