@@ -25,6 +25,7 @@ import java.io.ObjectOutputStream;
 import java.rmi.RemoteException;
 import java.sql.Types;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
@@ -349,6 +350,7 @@ public class SessionClient extends AbstractApplication implements ISessionClient
 	public void shutDown(boolean force)
 	{
 		shuttingDown = true;
+		discardWaitingInvocations();
 		IServiceProvider prev = null;
 		try
 		{
@@ -845,11 +847,33 @@ public class SessionClient extends AbstractApplication implements ISessionClient
 		return true;
 	}
 
-	private final ReentrantLock executing = new ReentrantLock();
+	private final AccessibleReentrantLock executing = new AccessibleReentrantLock();
+
+	private static class AccessibleReentrantLock extends ReentrantLock
+	{
+		@Override
+		public Collection<Thread> getQueuedThreads()
+		{
+			return super.getQueuedThreads();
+		}
+	}
 
 	protected boolean isExecutionLocked()
 	{
 		return executing.isLocked();
+	}
+
+	public void discardWaitingInvocations()
+	{
+		Collection<Thread> waitingThreads = executing.getQueuedThreads();
+		if (!waitingThreads.isEmpty())
+		{
+			Debug.warn("Interrupting " + waitingThreads.size() + " threads waiting on SessionClient lock");
+			for (Thread t : waitingThreads)
+			{
+				t.interrupt();
+			}
+		}
 	}
 
 	// invoke later can't add it to a runnable or something. It is not the same thing as invokelater on
@@ -864,7 +888,17 @@ public class SessionClient extends AbstractApplication implements ISessionClient
 	{
 		IServiceProvider prev = testThreadLocals();
 		// We test here for printing, WebForm.processFppInAWTEventQueue(..) will call SwingUtilities.invokeAndWait() to print in awt thread.
-		if (!SwingUtilities.isEventDispatchThread()) executing.lock();
+		try
+		{
+			if (!SwingUtilities.isEventDispatchThread()) executing.lockInterruptibly();
+		}
+		catch (InterruptedException e)
+		{
+			Debug.warn("Thread interrupted while waiting for SessionClient lock: " + Thread.currentThread().getName());
+			Thread.currentThread().interrupt();
+			unsetThreadLocals(prev);
+			return;
+		}
 		try
 		{
 			r.run();
