@@ -326,6 +326,19 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	}
 
 	/**
+	 * Set the user name for the current credentials. Only supported in mobile client.
+	 *
+	 * @param username the new user name to set
+	 *
+	 * @return true if the user name was successfully set, false otherwise
+	 */
+	@JSFunction
+	public boolean setUserName(String username)
+	{
+		return false;
+	}
+
+	/**
 	 * Get the current user name (null if not logged in), finds the user name for given user UID if passed as parameter.
 	 *
 	 * @sample
