@@ -35,4 +35,7 @@ public interface IJSSecurity
 	void logout();
 
 	String getUserName() throws Exception;
+
+	@ServoyClientSupport(ng = false, mc = true, wc = false, sc = false)
+	boolean setUserName(String username);
 }
