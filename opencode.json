@@ -3,35 +3,35 @@
   "mcp": {
     "eclipse-ide": {
       "type": "remote",
-      "url": "http://localhost:8081/mcp/eclipse-ide"
+      "url": "http://localhost:8087/mcp/eclipse-ide"
     },
     "time": {
       "type": "remote",
-      "url": "http://localhost:8081/mcp/time"
+      "url": "http://localhost:8087/mcp/time"
     },
     "memory": {
       "type": "remote",
-      "url": "http://localhost:8081/mcp/memory"
+      "url": "http://localhost:8087/mcp/memory"
     },
     "eclipse-coder": {
       "type": "remote",
-      "url": "http://localhost:8081/mcp/eclipse-coder"
+      "url": "http://localhost:8087/mcp/eclipse-coder"
     },
     "eclipse-runner": {
       "type": "remote",
-      "url": "http://localhost:8081/mcp/eclipse-runner"
+      "url": "http://localhost:8087/mcp/eclipse-runner"
     },
     "eclipse-context": {
       "type": "remote",
-      "url": "http://localhost:8081/mcp/eclipse-context"
+      "url": "http://localhost:8087/mcp/eclipse-context"
     },
     "eclipse-git": {
       "type": "remote",
-      "url": "http://localhost:8081/mcp/eclipse-git"
+      "url": "http://localhost:8087/mcp/eclipse-git"
     },
     "eclipse-pde": {
       "type": "remote",
-      "url": "http://localhost:8081/mcp/eclipse-pde"
+      "url": "http://localhost:8087/mcp/eclipse-pde"
     },
     "atlassian": {
        "type": "remote",
