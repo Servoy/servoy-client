@@ -1,0 +1,44 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "eclipse-ide": {
+      "type": "remote",
+      "url": "http://localhost:8081/mcp/eclipse-ide"
+    },
+    "time": {
+      "type": "remote",
+      "url": "http://localhost:8081/mcp/time"
+    },
+    "memory": {
+      "type": "remote",
+      "url": "http://localhost:8081/mcp/memory"
+    },
+    "eclipse-coder": {
+      "type": "remote",
+      "url": "http://localhost:8081/mcp/eclipse-coder"
+    },
+    "eclipse-runner": {
+      "type": "remote",
+      "url": "http://localhost:8081/mcp/eclipse-runner"
+    },
+    "eclipse-context": {
+      "type": "remote",
+      "url": "http://localhost:8081/mcp/eclipse-context"
+    },
+    "eclipse-git": {
+      "type": "remote",
+      "url": "http://localhost:8081/mcp/eclipse-git"
+    },
+    "eclipse-pde": {
+      "type": "remote",
+      "url": "http://localhost:8081/mcp/eclipse-pde"
+    },
+    "atlassian": {
+       "type": "remote",
+       "url": "https://mcp.atlassian.com/v1/mcp",
+       "headers": {
+          "Authorization": "Basic {env:ATLASSIAN_AUTH_BASIC}"
+       }
+     }
+  }
+}
