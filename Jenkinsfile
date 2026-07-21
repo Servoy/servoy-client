@@ -16,7 +16,7 @@ pipeline {
             regexpFilterExpression: "^refs/heads/${env.BRANCH}\$"
         )
     }
-    
+
     parameters {
         string(name: 'goals', defaultValue: 'clean install', trim: false)
     }
