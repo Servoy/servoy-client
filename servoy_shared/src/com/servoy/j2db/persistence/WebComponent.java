@@ -401,6 +401,7 @@ public class WebComponent extends BaseComponent implements IWebComponent, ICommo
 					wcClone.setProperty(IContentSpecConstants.PROPERTY_JSON, flattenedJson);
 				}
 			}
+			wcClone.customTypesInitialized = false;
 			List<WebCustomType> types = new ArrayList<WebCustomType>();
 			clone.acceptVisitor(new IPersistVisitor()
 			{
