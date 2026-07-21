@@ -26,11 +26,6 @@ pipeline {
     }
     
     stages {
-        stage('Checkout') {
-            steps {
-                checkout scm
-            }
-        }
         stage('Generate Documentation') {
             steps {
                 configFileProvider([
