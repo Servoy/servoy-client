@@ -196,7 +196,7 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	{
 		if (character == null || character.length() != 1)
 		{
-			throw new IllegalArgumentException("caharacter argument must be one single character");
+			throw new IllegalArgumentException("character argument must be one single character");
 		}
 
 		return new QBFunctionImpl(getRoot(), getParent(), trim, new IQuerySelectValue[] { //
