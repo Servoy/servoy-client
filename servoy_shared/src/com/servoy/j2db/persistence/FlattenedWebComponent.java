@@ -83,6 +83,24 @@ public class FlattenedWebComponent extends WebComponent implements IFlattenedPer
 	}
 
 	@Override
+	public Object getProperty(String propertyName)
+	{
+		return webComponent.getProperty(propertyName);
+	}
+
+	@Override
+	public void setProperty(String propertyName, Object val)
+	{
+		webComponent.setProperty(propertyName, val);
+	}
+
+	@Override
+	public void clearProperty(String propertyName)
+	{
+		webComponent.clearProperty(propertyName);
+	}
+
+	@Override
 	protected void initCustomTypes()
 	{
 		// do not initialize custom types, fill method does this

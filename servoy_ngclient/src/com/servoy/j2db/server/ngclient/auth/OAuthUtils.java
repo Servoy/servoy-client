@@ -19,11 +19,15 @@ package com.servoy.j2db.server.ngclient.auth;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.UUID;
 
 import org.json.JSONObject;
 import org.owasp.encoder.Encode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.github.scribejava.apis.GoogleApi20;
 import com.github.scribejava.apis.LinkedInApi20;
@@ -34,6 +38,7 @@ import com.github.scribejava.core.builder.api.DefaultApi20;
 import com.github.scribejava.core.extractors.TokenExtractor;
 import com.github.scribejava.core.model.OAuth2AccessToken;
 import com.github.scribejava.core.oauth.OAuth20Service;
+import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.util.Debug;
 
 import jakarta.servlet.ServletContext;
@@ -47,6 +52,7 @@ import jakarta.servlet.http.HttpSession;
 public class OAuthUtils
 {
 	private static final String OAUTHCONFIGREQUEST = "oauthconfigrequest";
+	public static final Logger log = LoggerFactory.getLogger("stateless.login");
 
 	public enum Provider
 	{
@@ -274,6 +280,28 @@ public class OAuthUtils
 
 	public static OAuth20Service createOauthService(JSONObject auth, Map<String, String> additionalParameters, String serverURL)
 	{
+		// Resolve %%key%% placeholders before reading any field values
+		try
+		{
+			Properties settings = ApplicationServerRegistry.get().getServerAccess().getSettings();
+			// Check for unresolved placeholders BEFORE resolution (on the original auth)
+			List<String> unresolved = OAuthPropertyResolver.findUnresolved(auth, settings);
+			if (!unresolved.isEmpty())
+			{
+				log.error("The following %%key%% placeholders in the OAuth config could not be resolved " +
+					"because they are not defined in servoy.properties: " + unresolved +
+					". Configure them on the Servoy Admin Panel under 'Servoy Server Home' → 'oauth.properties'. " +
+					"Until then, OAuth login will fail with 'invalid_client'.");
+			}
+			auth = OAuthPropertyResolver.resolve(auth, settings);
+		}
+		catch (Exception e)
+		{
+			log.error("Could not resolve %%key%% property placeholders in OAuth config. " +
+				"If your OAuth config uses %%propertyName%% syntax, make sure the application server is fully started " +
+				"and the properties are defined on the Admin Panel under 'Servoy Server Home' → 'oauth.properties'.", e);
+		}
+
 		ServiceBuilder builder = new ServiceBuilder(auth.optString(OAuthParameters.clientId.name()));
 		String api = null;
 		for (String key : auth.keySet())

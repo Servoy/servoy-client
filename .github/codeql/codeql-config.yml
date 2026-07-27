@@ -1,0 +1,12 @@
+paths-ignore:
+  - "**/js/jquery-ui.js"
+  - "**/js/numeral.js"
+  - "**/js/angular-webstorage.js"
+  - "**/htmlarea/htmlarea.js"
+  - "**/dialogs/bootbox.js"
+  - "**/js/angular.js"
+  - "**/js/Window.js"
+  - "**/js/servoyformat.ts"
+  - "**/lib/angular-mocks.js"
+  - "**/js/jquery-migrate-3.3.2.js"
+  - "**/lib/jquery.js"

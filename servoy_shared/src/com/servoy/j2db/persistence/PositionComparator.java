@@ -21,6 +21,9 @@ import java.awt.Component;
 import java.awt.Point;
 import java.util.Comparator;
 
+import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.Utils;
+
 /**
  * @author jblok
  */
@@ -114,6 +117,36 @@ public class PositionComparator
 			return 1;
 		}
 	}
+
+	public static final Comparator< ? super IPersist> RESPONSIVE_PERSIST_COMPARATOR = new Comparator<IPersist>()
+	{
+		public int compare(IPersist o1, IPersist o2)
+		{
+			int retValue;
+			if (o1 instanceof LayoutContainer || o2 instanceof LayoutContainer)
+			{
+				retValue = YX_PERSIST_COMPARATOR.compare(o1, o2);
+			}
+			retValue = XY_PERSIST_COMPARATOR.compare(o1, o2);
+			if (retValue == 0)
+			{
+				Form form1 = (Form)o1.getAncestor(IRepository.FORMS);
+				Form form2 = (Form)o2.getAncestor(IRepository.FORMS);
+				// first sort on the hierarchy, elements of super-forms are sorted before elements of sub-forms
+				if (!Utils.equalObjects(form1, form2))
+				{
+					boolean isChildForm = FlattenedForm.hasFormInHierarchy(form1, form2);
+					if (isChildForm == FlattenedForm.hasFormInHierarchy(form2, form1))
+					{
+						// how can this happen, transitivity is not respected
+						Debug.error("Cannot sort elements in position comparator, transitivity is not respected for forms:" + form1 + " and " + form2);
+					}
+					retValue = isChildForm ? 1 : -1;
+				}
+			}
+			return retValue;
+		}
+	};
 
 	public static int comparePoint(boolean xy, Point p1, Point p2)
 	{

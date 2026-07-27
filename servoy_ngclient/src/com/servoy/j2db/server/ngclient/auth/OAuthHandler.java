@@ -24,7 +24,6 @@ import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.SecureRandom;
-import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -45,7 +44,6 @@ import com.github.scribejava.core.oauth.AccessTokenRequestParams;
 import com.github.scribejava.core.oauth.AuthorizationUrlBuilder;
 import com.github.scribejava.core.oauth.OAuth20Service;
 import com.github.scribejava.core.pkce.PKCE;
-import com.github.scribejava.core.pkce.PKCECodeChallengeMethod;
 import com.github.scribejava.core.revoke.TokenTypeHint;
 import com.servoy.base.util.ITagResolver;
 import com.servoy.base.util.TagParser;
@@ -74,13 +72,47 @@ import jakarta.servlet.http.HttpServletResponse;
 /**
  * @author emera
  */
-public class OAuthHandler
+public class OAuthHandler extends AbstractAuthenticatorManager implements ITokenRevocable
 {
 	private static final String CODE = "code";
 	private static final String GET_OAUTH_CONFIG = "getOAuthConfig";
 
 	static final Logger log = LoggerFactory.getLogger("stateless.login");
 	private static final SecureRandom secureRandom = new SecureRandom();
+
+	public OAuthHandler(Solution solution)
+	{
+		super(solution);
+	}
+
+	@Override
+	public void writeLoginPage(HttpServletRequest request, HttpServletResponse response, String customHTML)
+		throws ServletException, java.io.UnsupportedEncodingException, IOException
+	{
+		if (request.getCharacterEncoding() == null) request.setCharacterEncoding("UTF8");
+		org.sablo.util.HTTPUtils.setNoCacheHeaders(response);
+		redirectToOAuthLogin(request, response, solution);
+	}
+
+	@Override
+	public boolean checkPermissions(String username, String password, boolean remember, SvyID oldToken,
+		Pair<Boolean, String> needToLogin, HttpServletRequest request)
+	{
+		return AuthenticatorManager.checkAuthenticatorPermissions(username, password, remember, oldToken, needToLogin, solution, request);
+	}
+
+	@Override
+	public boolean checkUser(String username, String password, boolean remember, SvyID oldToken,
+		Pair<Boolean, String> needToLogin, HttpServletRequest request, HttpServletResponse response)
+	{
+		return refreshOAuthTokenIfPossible(needToLogin, oldToken, request, response);
+	}
+
+	@Override
+	public boolean requiresCSRFForCheckUser()
+	{
+		return false;
+	}
 
 	public static Pair<Boolean, String> handleOauth(HttpServletRequest req, HttpServletResponse resp) throws IOException
 	{
@@ -327,7 +359,7 @@ public class OAuthHandler
 		return null;
 	}
 
-	public static boolean refreshOAuthTokenIfPossible(Pair<Boolean, String> needToLogin, Solution solution, SvyID oldToken, HttpServletRequest request,
+	private boolean refreshOAuthTokenIfPossible(Pair<Boolean, String> needToLogin, SvyID oldToken, HttpServletRequest request,
 		HttpServletResponse response)
 	{
 		String refresh_token = oldToken.getStringClaim(StatelessLoginHandler.REFRESH_TOKEN);
@@ -448,27 +480,7 @@ public class OAuthHandler
 					.append("</html>").append("\n");
 
 				ContentSecurityPolicyConfig contentSecurityPolicyConfig = AngularIndexPageWriter.addcontentSecurityPolicyHeader(request, response, false);
-				String contentSecurityPolicyNonce = contentSecurityPolicyConfig != null ? contentSecurityPolicyConfig.getNonce() : null;
-				String loginHtml = sb.toString();
-				if (contentSecurityPolicyNonce != null)
-				{
-					loginHtml = loginHtml.replaceAll(
-						"<script ",
-						"<script nonce='" + contentSecurityPolicyNonce + "' ");
-					loginHtml = loginHtml.replaceAll(
-						"<style",
-						"<style nonce='" + contentSecurityPolicyNonce + "' ");
-				}
-
-				Cookie csrfCookie = new Cookie("csrf_token", Long.toString(nextLong));
-				csrfCookie.setPath("/");
-				csrfCookie.setHttpOnly(true);
-				response.addCookie(csrfCookie);
-
-				response.setCharacterEncoding("UTF-8");
-				response.setContentType("text/html");
-				response.setContentLengthLong(loginHtml.length());
-				response.getWriter().write(loginHtml);
+				writeSecuredHtmlResponse(request, response, sb.toString(), nextLong, contentSecurityPolicyConfig);
 			}
 			catch (Exception e)
 			{
@@ -483,28 +495,13 @@ public class OAuthHandler
 
 	private static void setPKCE(AuthorizationUrlBuilder authorizationUrlBuilder, JSONObject auth)
 	{
-		String codeChallengeMethod = auth.optString(OAuthParameters.code_challenge_method.name(), "S256");
-		String codeVerifier = null;
-		if ("S256".equalsIgnoreCase(codeChallengeMethod))
+		String configured = auth.optString(OAuthParameters.code_challenge_method.name(), "S256");
+		if (!"S256".equalsIgnoreCase(configured))
 		{
-			authorizationUrlBuilder = authorizationUrlBuilder.initPKCE();
-			PKCE pkce = authorizationUrlBuilder.getPkce();
-			codeVerifier = pkce.getCodeVerifier();
+			log.atWarn().log(() -> "Ignoring unsupported code_challenge_method '" + configured + "'; S256 is required. PLAIN provides no security benefit and is not supported.");
 		}
-		else
-		{
-			//plain, but is not recommended
-			byte[] randomBytes = new byte[32];
-			new SecureRandom().nextBytes(randomBytes);
-			codeVerifier = Base64.getUrlEncoder().withoutPadding().encodeToString(randomBytes);
-
-			// plain = challenge == verifier
-			PKCE pkce = new PKCE();
-			pkce.setCodeVerifier(codeVerifier);
-			pkce.setCodeChallengeMethod(PKCECodeChallengeMethod.PLAIN);
-			authorizationUrlBuilder = authorizationUrlBuilder.pkce(pkce);
-		}
-		auth.put(OAuthParameters.code_verifier.name(), codeVerifier);
+		authorizationUrlBuilder = authorizationUrlBuilder.initPKCE();
+		auth.put(OAuthParameters.code_verifier.name(), authorizationUrlBuilder.getPkce().getCodeVerifier());
 	}
 
 	public static void redirectToOAuthLogin(HttpServletRequest request, HttpServletResponse response, Solution solution)
@@ -542,6 +539,12 @@ public class OAuthHandler
 				log.error("Could not revoke the refresh token.", e);
 			}
 		}
+	}
+
+	@Override
+	public void logoutAndRevokeToken(Solution solution, DecodedJWT jwt)
+	{
+		revokeToken(solution, jwt);
 	}
 
 	public static void redirectToAuthenticator(HttpServletRequest request, HttpServletResponse response, Solution solution) throws ServletException

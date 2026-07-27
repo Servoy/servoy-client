@@ -32,6 +32,7 @@ import java.io.Writer;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
@@ -72,6 +73,9 @@ import jakarta.servlet.http.HttpSession;
 public class AngularIndexPageWriter
 {
 	public static final String SOLUTIONS_PATH = "/solution/";
+
+	private record MessageCacheKey(UUID solutionUUID, Locale locale, String key) { }
+	private static final ConcurrentHashMap<MessageCacheKey, String> SOLUTION_DEFAULT_MESSAGE_CACHE = new ConcurrentHashMap<>();
 
 //	public static void writeStartupJs(HttpServletRequest request, HttpServletResponse response, String solutionName)
 //		throws IOException, ServletException
@@ -372,8 +376,8 @@ public class AngularIndexPageWriter
 
 	public static String getSolutionDefaultMessage(Solution solution, Locale locale, String key)
 	{
-		// removed the cache, if this gets called more often we may add it again
-		return getSolutionDefaultMessageNotCached(solution.getUUID(), locale, key);
+		MessageCacheKey cacheKey = new MessageCacheKey(solution.getUUID(), locale == null ? Locale.ENGLISH : locale, key);
+		return SOLUTION_DEFAULT_MESSAGE_CACHE.computeIfAbsent(cacheKey, k -> getSolutionDefaultMessageNotCached(k.solutionUUID(), k.locale(), k.key()));
 	}
 
 	public static String getSolutionDefaultMessageNotCached(UUID solutionUUID, Locale locale, String key)
@@ -453,17 +457,17 @@ public class AngularIndexPageWriter
 
 	public static boolean handleDeeplink(HttpServletRequest request, HttpServletResponse response) throws IOException
 	{
-		String url = request.getRequestURL().toString();
-		int index = url.indexOf(SOLUTIONS_PATH);
+		String requestUri = request.getRequestURI();
+		int index = requestUri.indexOf(SOLUTIONS_PATH);
 		if (index >= 0)
 		{
-			String solutionAndRest = url.substring(index + SOLUTIONS_PATH.length());
+			String solutionAndRest = requestUri.substring(index + SOLUTIONS_PATH.length());
 			int solutionEnd = solutionAndRest.indexOf('/');
 			String rest = solutionAndRest.substring(solutionEnd + 1);
 			if (rest.indexOf('/') != -1)
 			{
 				// it has deeplinks, need to rewrite url.
-				StringBuffer redirectUrl = new StringBuffer(url.subSequence(0, index + SOLUTIONS_PATH.length() + solutionEnd));
+				StringBuffer redirectUrl = new StringBuffer(requestUri.subSequence(0, index + SOLUTIONS_PATH.length() + solutionEnd));
 				redirectUrl.append("/index.html");
 				String queryString = request.getQueryString();
 				String[] args = rest.split("/");
@@ -513,12 +517,12 @@ public class AngularIndexPageWriter
 	{
 		if (isShortSolutionRequest(request))
 		{
-			StringBuffer url = request.getRequestURL();
-			if (!url.toString().endsWith("/")) url.append("/");
-			url.append("index.html");
+			StringBuilder redirectPath = new StringBuilder(request.getRequestURI());
+			if (!redirectPath.toString().endsWith("/")) redirectPath.append("/");
+			redirectPath.append("index.html");
 			String queryString = request.getQueryString();
-			if (queryString != null) url.append("?").append(queryString);
-			response.sendRedirect(url.toString());
+			if (queryString != null) redirectPath.append("?").append(queryString);
+			response.sendRedirect(redirectPath.toString());
 			return true;
 		}
 

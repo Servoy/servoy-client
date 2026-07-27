@@ -40,27 +40,39 @@ public class ScriptParameter implements IParameter
 	 */
 	public ScriptParameter(String name, String typePrefix, Class< ? > realType, String description, boolean optional, boolean vararg)
 	{
+		this(name, typePrefix, realType, null, description, optional, vararg);
+	}
+
+	public ScriptParameter(String name, String typePrefix, Class< ? > realType, String jsType, String description, boolean optional, boolean vararg)
+	{
 		this.name = name;
 		this.realType = realType;
 		this.description = description;
 		this.optional = optional;
 		this.vararg = vararg;
 
-		String translatedType = DocumentationUtil.getJavaToJSTypeTranslator().translateJavaClassToJSTypeName(realType);
-		if (translatedType != null)
+		if (jsType != null && !jsType.isEmpty())
 		{
-			if (typePrefix != null)
-			{
-				type = typePrefix + translatedType;
-			}
-			else
-			{
-				type = translatedType;
-			}
+			type = jsType;
 		}
 		else
 		{
-			type = null;
+			String translatedType = DocumentationUtil.getJavaToJSTypeTranslator().translateJavaClassToJSTypeName(realType);
+			if (translatedType != null)
+			{
+				if (typePrefix != null)
+				{
+					type = typePrefix + translatedType;
+				}
+				else
+				{
+					type = translatedType;
+				}
+			}
+			else
+			{
+				type = null;
+			}
 		}
 	}
 

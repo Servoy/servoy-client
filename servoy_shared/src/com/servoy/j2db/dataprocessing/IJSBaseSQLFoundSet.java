@@ -24,6 +24,7 @@ import org.mozilla.javascript.annotations.JSSetter;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.QuerySet;
+import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.scripting.annotations.JSSignature;
 import com.servoy.j2db.util.ServoyException;
 
@@ -184,7 +185,7 @@ public interface IJSBaseSQLFoundSet extends IJSBaseFoundSet
 			{
 				return null;
 			}
-			return qsParams[0];
+			return Utils.castParametersToColumnType(qsParams[0], querySet.getSelect().getTypeInfo());
 		}
 		return null;
 	}

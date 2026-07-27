@@ -91,6 +91,16 @@ public final class Settings extends SortedProperties
 		FILE_NAME = pFile;
 	}
 
+	public static File resolvePropertiesFile(String applicationServerDir)
+	{
+		File propertyFile = new File(FILE_NAME);
+		if (propertyFile.isAbsolute())
+		{
+			return propertyFile;
+		}
+		return new File(applicationServerDir, FILE_NAME);
+	}
+
 	private final static Settings me = new Settings();
 
 	private Settings()

@@ -40,12 +40,11 @@ import com.servoy.j2db.util.Utils;
 public class EncryptionHandler
 {
 	private static final String CRYPT_METHOD = "AES/GCM/NoPadding";
+	private static final int GCM_IV_LENGTH = 12;
+	private static final SecureRandom secureRandom = new SecureRandom();
 
 	private final SecretKey secretString;
-	private final GCMParameterSpec gcmParameterSpecStr;
-
 	private final SecretKey secretScript;
-	private final GCMParameterSpec gcmParameterSpecScript;
 
 	public EncryptionHandler()
 	{
@@ -63,12 +62,6 @@ public class EncryptionHandler
 		}
 		secretString = key1;
 		secretScript = key2;
-
-		byte[] iv = new byte[16];
-		new SecureRandom().nextBytes(iv);
-		gcmParameterSpecStr = new GCMParameterSpec(128, iv);
-		new SecureRandom().nextBytes(iv);
-		gcmParameterSpecScript = new GCMParameterSpec(128, iv);
 	}
 
 	public String encryptString(String value) throws Exception
@@ -84,21 +77,26 @@ public class EncryptionHandler
 			if (urlSafe) return SecuritySupport.encryptUrlSafe(value);
 			return SecuritySupport.encrypt(value);
 		}
+		byte[] iv = new byte[GCM_IV_LENGTH];
+		secureRandom.nextBytes(iv);
 		Cipher cipher = Cipher.getInstance(CRYPT_METHOD);
-		cipher.init(Cipher.ENCRYPT_MODE, secretString, gcmParameterSpecStr);
-		byte[] bytes = cipher.doFinal(value.getBytes());
-		if (urlSafe) return Base64.encodeBase64URLSafeString(bytes);
-
-		return Utils.encodeBASE64(bytes);
+		cipher.init(Cipher.ENCRYPT_MODE, secretString, new GCMParameterSpec(128, iv));
+		byte[] ciphertext = cipher.doFinal(value.getBytes());
+		byte[] output = new byte[GCM_IV_LENGTH + ciphertext.length];
+		System.arraycopy(iv, 0, output, 0, GCM_IV_LENGTH);
+		System.arraycopy(ciphertext, 0, output, GCM_IV_LENGTH, ciphertext.length);
+		if (urlSafe) return Base64.encodeBase64URLSafeString(output);
+		return Utils.encodeBASE64(output);
 	}
 
 	public String decryptString(String value) throws Exception
 	{
 		if (value == null) return value;
 		if (secretString == null) return SecuritySupport.decrypt(value);
+		byte[] decoded = Base64.decodeBase64(value);
 		Cipher cipher = Cipher.getInstance(CRYPT_METHOD);
-		cipher.init(Cipher.DECRYPT_MODE, secretString, gcmParameterSpecStr);
-		return new String(cipher.doFinal(Utils.decodeBASE64(value)));
+		cipher.init(Cipher.DECRYPT_MODE, secretString, new GCMParameterSpec(128, decoded, 0, GCM_IV_LENGTH));
+		return new String(cipher.doFinal(decoded, GCM_IV_LENGTH, decoded.length - GCM_IV_LENGTH));
 	}
 
 	public String encryptScript(String value) throws Exception
@@ -108,20 +106,25 @@ public class EncryptionHandler
 		{
 			return SecuritySupport.encrypt(value);
 		}
+		byte[] iv = new byte[GCM_IV_LENGTH];
+		secureRandom.nextBytes(iv);
 		Cipher cipher = Cipher.getInstance(CRYPT_METHOD);
-		cipher.init(Cipher.ENCRYPT_MODE, secretScript, gcmParameterSpecScript);
-		byte[] bytes = cipher.doFinal(value.getBytes());
-
-		return Utils.encodeBASE64(bytes);
+		cipher.init(Cipher.ENCRYPT_MODE, secretScript, new GCMParameterSpec(128, iv));
+		byte[] ciphertext = cipher.doFinal(value.getBytes());
+		byte[] output = new byte[GCM_IV_LENGTH + ciphertext.length];
+		System.arraycopy(iv, 0, output, 0, GCM_IV_LENGTH);
+		System.arraycopy(ciphertext, 0, output, GCM_IV_LENGTH, ciphertext.length);
+		return Utils.encodeBASE64(output);
 	}
 
 	public String decryptScript(String value) throws Exception
 	{
 		if (value == null) return value;
 		if (secretScript == null) return SecuritySupport.decrypt(value);
+		byte[] decoded = Base64.decodeBase64(value);
 		Cipher cipher = Cipher.getInstance(CRYPT_METHOD);
-		cipher.init(Cipher.DECRYPT_MODE, secretScript, gcmParameterSpecScript);
-		return new String(cipher.doFinal(Utils.decodeBASE64(value)));
+		cipher.init(Cipher.DECRYPT_MODE, secretScript, new GCMParameterSpec(128, decoded, 0, GCM_IV_LENGTH));
+		return new String(cipher.doFinal(decoded, GCM_IV_LENGTH, decoded.length - GCM_IV_LENGTH));
 	}
 
 }

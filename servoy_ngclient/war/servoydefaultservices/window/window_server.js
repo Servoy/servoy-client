@@ -465,12 +465,14 @@ function addJSMenuItems(popupmenu, jsmenuitems, callback, selectedItem) {
                 var newmenu = popupmenu.addMenu(jsmenuitem.getMenuText());
                 newmenu.cssClass = jsmenuitem.getStyleClass();
 				newmenu.tooltipText = jsmenuitem.getTooltipText();
+				newmenu.enabled = jsmenuitem.getEnabledWithSecurity();
                 addJSMenuItems(newmenu, jsmenuitem.getMenuItemsWithSecurity(), callback)
             } else {
                 var newmenuitem = popupmenu.addMenuItem(jsmenuitem.getMenuText(), callback, jsmenuitem.getIconStyleClass(), null, jsmenuitem.getEnabledWithSecurity(), null, null);
                 newmenuitem.cssClass = jsmenuitem.getStyleClass();
 				newmenuitem.tooltipText = jsmenuitem.getTooltipText();
                 newmenuitem.methodArguments = jsmenuitem.getCallbackArguments();
+				newmenuitem.enabled = jsmenuitem.getEnabledWithSecurity();
                 newmenuitem.autoClose = jsmenuitem.getExtraProperty('PopupMenu', 'autoClose');
                 if (selectedItem && jsmenuitem == selectedItem) {
                     newmenuitem.setSelected(true);

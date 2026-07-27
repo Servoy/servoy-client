@@ -225,6 +225,7 @@ public class DebugUtils
 
 	private static boolean isReferenceFormUsedInForm(final ClientState clientState, final Form referenceForm, Form form)
 	{
+		if (form == null) return false;
 		final boolean[] isReferenceFormUsedInForm = { false };
 		form.acceptVisitor(new IPersistVisitor()
 		{

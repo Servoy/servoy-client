@@ -366,7 +366,12 @@ public class WebCustomType extends AbstractBase implements IChildWebObject, ISup
 
 	private void initCustomTypes()
 	{
-		internalClearAllObjects();
+		internalClearAllObjects().forEach(o -> {
+			if (getRootObject().getChangeHandler() != null)
+			{
+				getRootObject().getChangeHandler().fireIPersistRemoved(o);
+			}
+		});
 		JSONObject json = (JSONObject)getOwnProperty(StaticContentSpecLoader.PROPERTY_JSON.getPropertyName());
 		if (propertyDescription != null && json != null && json.length() > 0)
 		{

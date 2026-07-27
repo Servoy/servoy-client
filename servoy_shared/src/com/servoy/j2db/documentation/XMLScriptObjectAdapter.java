@@ -137,7 +137,7 @@ public class XMLScriptObjectAdapter implements ITypedScriptObject
 //					varargs = argTypes[i].isArray() && !argTypes[i].getComponentType().isPrimitive();
 					varargs = fdoc.isVarargs();
 				}
-				params[i++] = new ScriptParameter(name, null, argDoc.getType(), description, optional, varargs);
+				params[i++] = new ScriptParameter(name, null, argDoc.getType(), argDoc.getJSType(), description, optional, varargs);
 			}
 			return params;
 		}

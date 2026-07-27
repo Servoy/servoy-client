@@ -1,0 +1,61 @@
+pipeline {
+    agent any
+    
+    options {
+        quietPeriod(120)
+        // Log-rotatie specifiek voor de doc-build (5 dagen bewaren, max 10 builds)
+        buildDiscarder(logRotator(daysToKeepStr: '5', numToKeepStr: '10'))
+    }
+    
+    triggers {
+        // De dagelijkse timer: draait elke avond automatisch tussen 21:00 en 23:00
+        cron('H H(21-23) * * *')
+    }
+    
+    parameters {
+        string(name: 'goals', defaultValue: 'clean install -Pdoc', trim: false)
+    }
+    
+    environment {
+        TEAMS_WEBHOOK = credentials('servoy-teams-webhook')
+    }
+    
+    tools {
+        jdk 'Java 21'
+        maven 'Maven 3.9.16'
+    }
+    
+    stages {
+        stage('Generate Documentation') {
+            steps {
+                configFileProvider([
+                    configFile(fileId: 'master_mvn_repo', variable: 'MAVEN_SETTINGS'),
+                    configFile(fileId: 'maven_toolchain', variable: 'TOOLCHAIN')
+                ]) {
+                    sh 'mvn -B -s "$MAVEN_SETTINGS" -t "$TOOLCHAIN" $goals'
+                }
+            }
+        }
+    }
+    
+    post {
+        success {
+            // Trigger downstream project servoy-eclipse (of servoy-eclipse_pipe) met de juiste parameters
+            build job: 'servoy-eclipse', 
+                  parameters: [string(name: 'goals', value: 'clean install')], 
+                  wait: false
+        }
+        
+        failure {
+            office365ConnectorSend webhookUrl: TEAMS_WEBHOOK, status: 'Failed'
+        }
+        
+        unstable {
+            office365ConnectorSend webhookUrl: TEAMS_WEBHOOK, status: 'Unstable'
+        }
+        
+        fixed {
+            office365ConnectorSend webhookUrl: TEAMS_WEBHOOK, status: 'Back to Normal'
+        }
+    }
+}

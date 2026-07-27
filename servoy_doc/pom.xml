@@ -7,7 +7,7 @@
 	</prerequisites>
 	<parent>
 		<artifactId>servoy-client</artifactId>
-		<version>2026.6.0-SNAPSHOT</version>
+		<version>2026.9.0-SNAPSHOT</version>
 		<groupId>com.servoy</groupId>
 	</parent>
 
@@ -120,8 +120,8 @@
 			<build>
 				<plugins>
 					<plugin>
-						<groupId>org.eclipse.tycho.extras</groupId>
-						<artifactId>tycho-eclipserun-plugin</artifactId>
+                        <groupId>org.eclipse.tycho</groupId>
+                        <artifactId>tycho-eclipse-plugin</artifactId>
 						<version>${tycho.version}</version>
 						<configuration>
 							<repositories>
@@ -264,8 +264,8 @@
 			<build>
 				<plugins>
 					<plugin>
-						<groupId>org.eclipse.tycho.extras</groupId>
-						<artifactId>tycho-eclipserun-plugin</artifactId>
+						<groupId>org.eclipse.tycho</groupId>
+						<artifactId>tycho-eclipse-plugin</artifactId>
 						<version>${tycho.version}</version>
 						<configuration>
 							<repositories>

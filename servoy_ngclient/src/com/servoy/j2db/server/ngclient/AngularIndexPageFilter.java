@@ -82,6 +82,12 @@ public class AngularIndexPageFilter implements Filter
 	{
 		HttpServletRequest request = (HttpServletRequest)servletRequest;
 		HttpServletResponse response = (HttpServletResponse)servletResponse;
+		response.setHeader("X-Content-Type-Options", "nosniff");
+		response.setHeader("X-Frame-Options", "SAMEORIGIN");
+		if (request.isSecure())
+		{
+			response.setHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
+		}
 		String requestURI = request.getRequestURI();
 		String solutionName = getSolutionNameFromURI(requestURI);
 		if (("GET".equalsIgnoreCase(request.getMethod()) || "POST".equalsIgnoreCase(request.getMethod())) && solutionName != null)
@@ -118,7 +124,16 @@ public class AngularIndexPageFilter implements Filter
 							if (showLogin.getRight() == null) return; // oauth was successful but the cloud returned html
 							request.getSession().setAttribute(StatelessLoginHandler.ID_TOKEN, showLogin.getRight());
 							String queryString = StatelessLoginUtils.checkForPossibleSavedDeeplink(request);
-							response.sendRedirect(request.getRequestURI().replace("/svy_oauth", "") + (queryString != null ? "?" + queryString : ""));
+							String redirectBasePath = request.getRequestURI().replace("/svy_oauth", "");
+							if (!redirectBasePath.startsWith("/") || redirectBasePath.startsWith("//"))
+							{
+								redirectBasePath = "/";
+							}
+
+							boolean hasSafeQuery = queryString != null && queryString.indexOf('\r') == -1 && queryString.indexOf('\n') == -1 &&
+								!queryString.startsWith("//") && !queryString.contains("://");
+							String redirectTarget = hasSafeQuery ? (redirectBasePath + "?" + queryString) : redirectBasePath;
+							response.sendRedirect(redirectTarget);
 							return;
 						}
 					}

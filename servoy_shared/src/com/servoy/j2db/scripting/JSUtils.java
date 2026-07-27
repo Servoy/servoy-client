@@ -367,13 +367,38 @@ public class JSUtils implements IJSUtils
 		return parseDate(date, format, application.getTimeZone(), application.getLocale());
 	}
 
+	/**
+	 * Parse a string to a date object and choose whether parsing should be lenient.
+	 *
+	 * When lenient is false, invalid calendar values (for example month 20 in MM/dd/yyyy)
+	 * will be rejected and this method will return null.
+	 *
+	 * @sample
+	 * var strictDate = utils.parseDate('20/15/2026', 'MM/dd/yyyy', false); // returns null
+	 *
+	 * @param date the date as text
+	 * @param format the format to parse the date
+	 * @param lenient true to allow calendar rollover for out-of-range values, false for strict parsing
+	 * @return the date as date object
+	 */
+	public Date js_parseDate(String date, String format, boolean lenient)
+	{
+		return parseDate(date, format, application.getTimeZone(), application.getLocale(), lenient);
+	}
+
 	private Date parseDate(String date, String format, TimeZone zone, Locale locale)
+	{
+		return parseDate(date, format, zone, locale, true);
+	}
+
+	private Date parseDate(String date, String format, TimeZone zone, Locale locale, boolean lenient)
 	{
 		if (format != null && date != null)
 		{
 			try
 			{
 				SimpleDateFormat simpleDateFormat = new SimpleDateFormat(format, locale);
+				simpleDateFormat.setLenient(lenient);
 				simpleDateFormat.setTimeZone(zone);
 				return simpleDateFormat.parse(date);
 			}
@@ -1155,7 +1180,7 @@ public class JSUtils implements IJSUtils
 
 	/**
 	 * Returns the PBKDF2 hash for specified text. This method is preferred above the old MD5 hash for enhanced security.
-	 * It uses a default of 9999 iterations. The string that is returned can only be used in the utils.validatePBKDF2Hash(password,thisReturnValue)
+	 * It uses a default of 600,000 iterations (NIST SP 800-63B 2024 minimum). The string that is returned can only be used in the utils.validatePBKDF2Hash(password,thisReturnValue)
 	 * to check if this hash is a result of that password.
 	 * This will always be false: utils.stringPBKDF2Hash("test") == utils.stringPBKDF2Hash("test"). Because for the same string in multiply calls it will not generate the same hash.
 	 * So you can only check it like this: utils.validatePBKDF2Hash("test",utils.stringPBKDF2Hash("test"))
@@ -1170,7 +1195,7 @@ public class JSUtils implements IJSUtils
 	{
 		if (textString != null && !"".equals(textString))
 		{
-			return Utils.calculatePBKDF2(textString.toString(), 9999);
+			return Utils.calculatePBKDF2(textString.toString(), 600_000);
 		}
 		return null;
 	}
@@ -1179,13 +1204,13 @@ public class JSUtils implements IJSUtils
 	 * Returns the PBKDF2 hash for specified text. This method is preferred above the old MD5 hash for enhanced security.
 	 * From Servoy 2024.3.1 on this method will use SHA256 (HmacSHA256) as the Hash Algorithm.
 	 * Before that it did use SHA1 (HmacSHA1) as the Hash Algorithm, this does result in the a different length of the hash.
-	 * The total hash length (including interations of 9999) for SHA256 is 87 that was 63. So you need to make sure you can store at least 87 characters in your database. (but make sure you can handle more for future updates)
+	 * The total hash length (including 600,000 iterations) for SHA256 is 89 that was 87 for 9999 iterations and 63 for SHA1. So you need to make sure you can store at least 89 characters in your database. (but make sure you can handle more for future updates)
 	 *
 	 * NOTE: PBKDF2 is the key hash function for the PKCS (Public-Key Cryptography) standard, for more info see: http://en.wikipedia.org/wiki/PBKDF2
-	 * @sample var hashed_password = utils.stringPBKDF2Hash(user_password,9999)
+	 * @sample var hashed_password = utils.stringPBKDF2Hash(user_password, 600000)
 	 *
 	 * @param textString the text to process
-	 * @param iterations how many hash iterations should be done, minimum should be 1000 or higher.
+	 * @param iterations how many hash iterations should be done, minimum should be 600,000 or higher (NIST SP 800-63B 2024).
 	 * @return the resulting hashString
 	 */
 	public String js_stringPBKDF2Hash(String textString, int iterations)

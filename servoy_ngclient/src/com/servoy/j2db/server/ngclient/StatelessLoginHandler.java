@@ -18,21 +18,15 @@
 package com.servoy.j2db.server.ngclient;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.Charset;
 import java.security.SecureRandom;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.collections4.map.PassiveExpiringMap;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.text.StringEscapeUtils;
-import org.sablo.security.ContentSecurityPolicyConfig;
-import org.sablo.util.HTTPUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,20 +37,15 @@ import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.auth0.jwt.interfaces.JWTVerifier;
-import com.servoy.base.util.ITagResolver;
-import com.servoy.base.util.TagParser;
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.persistence.IRepository;
-import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.Solution.AUTHENTICATOR_TYPE;
-import com.servoy.j2db.server.ngclient.auth.AuthenticatorManager;
-import com.servoy.j2db.server.ngclient.auth.CloudStatelessAccessManager;
-import com.servoy.j2db.server.ngclient.auth.DefaultLoginManager;
+import com.servoy.j2db.server.ngclient.auth.AuthenticatorManagerCreator;
 import com.servoy.j2db.server.ngclient.auth.HTMLWriter;
-import com.servoy.j2db.server.ngclient.auth.I18NTagResolver;
-import com.servoy.j2db.server.ngclient.auth.OAuthHandler;
+import com.servoy.j2db.server.ngclient.auth.IAuthenticatorManager;
+import com.servoy.j2db.server.ngclient.auth.ITokenRevocable;
 import com.servoy.j2db.server.ngclient.auth.OAuthUtils.OAuthParameters;
 import com.servoy.j2db.server.ngclient.auth.StatelessLoginUtils;
 import com.servoy.j2db.server.ngclient.auth.SvyID;
@@ -181,27 +170,15 @@ public class StatelessLoginHandler
 		HttpServletRequest request, HttpServletResponse response)
 	{
 		boolean verified = false;
-		if (solution.getAuthenticator() == AUTHENTICATOR_TYPE.OAUTH)
+		IAuthenticatorManager authenticatorManager = AuthenticatorManagerCreator.getAuthenticatorManager(solution);
+		if (!authenticatorManager.requiresCSRFForCheckUser() || checkCSRFToken(request))
 		{
-			verified = OAuthHandler.refreshOAuthTokenIfPossible(needToLogin, solution, oldToken, request, response);
-		}
-		else if (checkCSRFToken(request))
-		{
-			if (solution.getAuthenticator() == AUTHENTICATOR_TYPE.SERVOY_CLOUD)
-			{
-				verified = CloudStatelessAccessManager.checkCloudPermissions(username, password, remember, oldToken, needToLogin, solution, request);
-			}
-			else if (solution.getAuthenticator() == AUTHENTICATOR_TYPE.AUTHENTICATOR)
-			{
-				verified = AuthenticatorManager.checkAuthenticatorPermissions(username, password, remember, oldToken, needToLogin, solution, request);
-			}
-			else
-			{
-				verified = DefaultLoginManager.checkDefaultLoginPermissions(username, password, remember, oldToken, needToLogin);
-			}
+			verified = authenticatorManager.checkUser(username, password, remember, oldToken, needToLogin, request, response);
 		}
 		if (!verified)
 		{
+			String ip = request.getRemoteAddr();
+			log.atWarn().log(() -> "Authentication failed for user '" + username + "' from " + ip);
 			needToLogin.setLeft(Boolean.TRUE);
 			if (needToLogin.getRight() != null && !needToLogin.getRight().startsWith("<"))
 			{
@@ -212,15 +189,6 @@ public class StatelessLoginHandler
 
 	/**
 	 * This method is similar to checkUser, except for the OAUTH authenticator when it only calls the authenticator (does not refresh the oauth provider token)
-	 * @param user
-	 * @param password2
-	 * @param b
-	 * @param svyID
-	 * @param needToLogin
-	 * @param solution
-	 * @param request
-	 * @param reponse
-	 * @throws ServletException
 	 */
 	private static void checkPermissions(String username, String password, boolean remember, SvyID oldToken, Pair<Boolean, String> needToLogin,
 		Solution solution, HttpServletRequest request) throws ServletException
@@ -229,24 +197,8 @@ public class StatelessLoginHandler
 		boolean verified = false;
 		if (checkCSRFToken(request))
 		{
-			if (solution.getAuthenticator() == AUTHENTICATOR_TYPE.OAUTH ||
-				solution.getAuthenticator() == AUTHENTICATOR_TYPE.OAUTH_AUTHENTICATOR)
-			{
-				//just call the authenticator to check the permissions, we don't want to refresh the token here
-				verified = AuthenticatorManager.checkAuthenticatorPermissions(username, password, remember, oldToken, needToLogin, solution, request);
-			}
-			else if (solution.getAuthenticator() == AUTHENTICATOR_TYPE.SERVOY_CLOUD)
-			{
-				verified = CloudStatelessAccessManager.checkCloudPermissions(username, password, remember, oldToken, needToLogin, solution, request);
-			}
-			else if (solution.getAuthenticator() == AUTHENTICATOR_TYPE.AUTHENTICATOR)
-			{
-				verified = AuthenticatorManager.checkAuthenticatorPermissions(username, password, remember, oldToken, needToLogin, solution, request);
-			}
-			else
-			{
-				verified = DefaultLoginManager.checkDefaultLoginPermissions(username, password, remember, oldToken, needToLogin);
-			}
+			IAuthenticatorManager authenticatorManager = AuthenticatorManagerCreator.getAuthenticatorManager(solution);
+			verified = authenticatorManager.checkPermissions(username, password, remember, oldToken, needToLogin, request);
 		}
 		else
 		{
@@ -254,6 +206,8 @@ public class StatelessLoginHandler
 		}
 		if (!verified)
 		{
+			String ip = request.getRemoteAddr();
+			log.atWarn().log(() -> "Authentication failed for user '" + username + "' from " + ip);
 			needToLogin.setLeft(Boolean.TRUE);
 			if (needToLogin.getRight() != null && !needToLogin.getRight().startsWith("<"))
 			{
@@ -267,7 +221,6 @@ public class StatelessLoginHandler
 	 */
 	private static boolean checkCSRFToken(HttpServletRequest request)
 	{
-		log.atInfo().log(() -> "Checking CSRF token " + request.getParameter("csrf_token"));
 		String fieldToken = request.getParameter("csrf_token");
 		Cookie[] cookies = request.getCookies();
 		if (cookies == null || fieldToken == null)
@@ -299,7 +252,9 @@ public class StatelessLoginHandler
 		{
 			log.atWarn().log(() -> "A servoy property '" + StatelessLoginUtils.JWT_Password + //$NON-NLS-1$
 				"' is added the the servoy properties file, this needs to be the same over redeploys, so make sure to add this in the servoy.properties that is used to deploy the WAR"); //$NON-NLS-1$
-			settings.put(StatelessLoginUtils.JWT_Password, "pwd" + Math.random());
+			byte[] keyBytes = new byte[32];
+			secureRandom.nextBytes(keyBytes);
+			settings.put(StatelessLoginUtils.JWT_Password, Base64.getEncoder().encodeToString(keyBytes));
 			try
 			{
 				settings.save();
@@ -323,14 +278,10 @@ public class StatelessLoginHandler
 			DecodedJWT jwt = JWT.decode(id_token);
 			if (jwt.getClaim(REFRESH_TOKEN).asString() != null)
 			{
-				AUTHENTICATOR_TYPE authenticator = solution.getAuthenticator();
-				if (authenticator == AUTHENTICATOR_TYPE.OAUTH || authenticator == AUTHENTICATOR_TYPE.OAUTH_AUTHENTICATOR)
+				IAuthenticatorManager authenticatorManager = AuthenticatorManagerCreator.getAuthenticatorManager(solution);
+				if (authenticatorManager instanceof ITokenRevocable tokenRevocable)
 				{
-					OAuthHandler.revokeToken(solution, jwt);
-				}
-				else if (authenticator == AUTHENTICATOR_TYPE.SERVOY_CLOUD)
-				{
-					CloudStatelessAccessManager.revokeToken(solution, jwt);
+					tokenRevocable.logoutAndRevokeToken(solution, jwt);
 				}
 			}
 		}
@@ -339,10 +290,6 @@ public class StatelessLoginHandler
 	public static void writeLoginPage(HttpServletRequest request, HttpServletResponse response, String solutionName, String customHTML)
 		throws IOException, ServletException
 	{
-		if (request.getCharacterEncoding() == null) request.setCharacterEncoding("UTF8");
-		HTTPUtils.setNoCacheHeaders(response);
-
-		String id_token = HTMLWriter.getExistingIdToken(request);
 		Solution solution = null;
 		try
 		{
@@ -359,160 +306,8 @@ public class StatelessLoginHandler
 			log.error("The solution is null " + solutionName);
 			return;
 		}
-		if (solution.getAuthenticator() == AUTHENTICATOR_TYPE.OAUTH)
-		{
-			OAuthHandler.redirectToOAuthLogin(request, response, solution);
-			return;
-		}
 
-		if (solution.getAuthenticator() == AUTHENTICATOR_TYPE.OAUTH_AUTHENTICATOR)
-		{
-			OAuthHandler.redirectToAuthenticator(request, response, solution);
-			return;
-		}
-
-		ContentSecurityPolicyConfig contentSecurityPolicyConfig = null;
-		String loginHtml = null;
-		if (solution.getAuthenticator() == AUTHENTICATOR_TYPE.SERVOY_CLOUD)
-		{
-			if (customHTML != null && customHTML.startsWith("<"))
-			{
-				HTMLWriter.writeHTML(request, response, customHTML);
-				return;
-			}
-			else
-			{
-				loginHtml = CloudStatelessAccessManager.getCloudLoginPage(request, solution, loginHtml);
-				contentSecurityPolicyConfig = CloudStatelessAccessManager.addcontentSecurityPolicyHeader(request, response);
-			}
-		}
-		else
-		{
-			contentSecurityPolicyConfig = AngularIndexPageWriter.addcontentSecurityPolicyHeader(request, response, false);
-		}
-		if (solution != null && loginHtml == null)
-		{
-			Media media = solution.getMedia("login.html");
-			if (media != null) loginHtml = new String(media.getMediaData(), Charset.forName("UTF-8"));
-		}
-		if (loginHtml == null)
-		{
-			try (InputStream rs = HTMLWriter.class.getResourceAsStream("login.html"))
-			{
-				loginHtml = IOUtils.toString(rs, Charset.forName("UTF-8"));
-			}
-		}
-		if (solution != null)
-		{
-			Solution sol = solution;
-			I18NTagResolver i18nProvider = new I18NTagResolver(request.getLocale(), sol);
-			loginHtml = TagParser.processTags(loginHtml, new ITagResolver()
-			{
-				@Override
-				public String getStringValue(String name)
-				{
-					if ("solutionTitle".equals(name))
-					{
-						String titleText = sol.getTitleText();
-						if (titleText == null) titleText = sol.getName();
-						return i18nProvider.getI18NMessageIfPrefixed(titleText);
-					}
-					return name;
-				}
-			}, i18nProvider);
-		}
-
-		long nextLong = secureRandom.nextLong();
-		StringBuilder sb = new StringBuilder();
-		sb.append("<base href=\"");
-		sb.append(HTMLWriter.getPath(request));
-		sb.append("\">");
-		sb.append("\n    <style>");
-		sb.append(
-			"\n      #servoy_loader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: white; z-index: 9999; }");
-		sb.append(
-			"\n      .spinner { border: 4px solid #f3f3f3; border-top: 4px solid #3498db; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }");
-		sb.append("\n      @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }");
-		sb.append("\n      form { display: none !important; }");
-		sb.append("\n    </style>");
-
-		String scriptInit = "\n  <script type='text/javascript'>" +
-			"\n    window.addEventListener('load', () => { " +
-			"\n      const forms = document.querySelectorAll('form');" +
-			"\n      const loader = document.getElementById('servoy_loader');" +
-			"\n      const show = () => { if(loader) loader.style.display='none'; forms.forEach(f => f.style.setProperty('display', 'block', 'important')); };";
-
-		sb.append(scriptInit);
-
-		if (request.getParameter(ID_TOKEN) == null && request.getParameter(USERNAME) == null)
-		{
-			//we check the local storage for the token or username only once (if both are null)
-			sb.append("\n     if (window.localStorage.getItem('servoy_id_token')) { ");
-			sb.append("\n    	document.login_form.action = 'index.html'; ");
-			sb.append("\n  	    document.login_form.id_token.value = JSON.parse(window.localStorage.getItem('servoy_id_token'));  ");
-			sb.append("\n  	    document.login_form.elements['csrf_token'].value = '" + Long.toString(nextLong) + "';");
-			sb.append("\n    	document.login_form.remember.checked = true;  ");
-			sb.append("\n    	document.login_form.submit(); ");
-			sb.append("\n     } else { ");
-			sb.append("\n        if(loader) loader.style.display = 'none';");
-			sb.append("\n        forms.forEach(f => f.style.setProperty('display', 'block', 'important')); ");
-			sb.append("\n        if (window.localStorage.getItem('servoy_username')) { ");
-			sb.append("\n  	       document.login_form.username.value = JSON.parse(window.localStorage.getItem('servoy_username'));  ");
-			sb.append("\n        } ");
-			sb.append("\n     } ");
-			sb.append("\n   }) ");
-			sb.append("\n  </script> ");
-		}
-		else if (!StringUtils.isBlank(id_token))
-		{
-			sb.append("\n     window.localStorage.removeItem('servoy_id_token');");
-			sb.append("\n     if(loader) loader.style.display = 'none';");
-			sb.append("\n     forms.forEach(f => f.style.setProperty('display', 'block', 'important')); ");
-			sb.append("\n   }) ");
-			sb.append("\n  </script> ");
-		}
-		else if (!StringUtils.isBlank(request.getParameter(USERNAME)))
-		{
-			sb.append("\n     document.login_form.username.value = '" + StringEscapeUtils.escapeEcmaScript(request.getParameter(USERNAME)) + "';");
-			sb.append("\n     if (document.getElementById('errorlabel')) document.getElementById('errorlabel').style.display='block';");
-			sb.append("\n     if(loader) loader.style.display = 'none';");
-			sb.append("\n     forms.forEach(f => f.style.setProperty('display', 'block', 'important')); ");
-			sb.append("\n   }) ");
-			sb.append("\n  </script> ");
-		}
-		else
-		{
-			sb.append("\n      show();");
-		}
-
-		loginHtml = loginHtml.replace("<base href=\"/\">", sb.toString());
-		String loaderHtml = "<div id='servoy_loader'><div class='spinner'></div></div>";
-		loginHtml = loginHtml.replaceFirst("(?i)<body[^>]*>", "$0" + loaderHtml);
-
-		String requestLanguage = request.getHeader("accept-language");
-		if (requestLanguage != null)
-		{
-			loginHtml = loginHtml.replace("lang=\"en\"", "lang=\"" + request.getLocale().getLanguage() + "\"");
-		}
-
-		String contentSecurityPolicyNonce = contentSecurityPolicyConfig != null ? contentSecurityPolicyConfig.getNonce() : null;
-		if (contentSecurityPolicyNonce != null)
-		{
-			loginHtml = loginHtml.replaceAll("<script ", "<script nonce='" + contentSecurityPolicyNonce + "\' ");
-			loginHtml = loginHtml.replaceAll("<style", "<style nonce='" + contentSecurityPolicyNonce + "\' ");
-		}
-
-		Cookie csrfCookie = new Cookie("csrf_token", Long.toString(nextLong));
-		csrfCookie.setPath("/");
-		csrfCookie.setHttpOnly(true);
-		response.addCookie(csrfCookie);
-
-		loginHtml = loginHtml.replaceAll("(?i)</form>", "<input type='hidden' name='csrf_token' value='" + nextLong + "'></form>");
-
-		response.setCharacterEncoding("UTF-8");
-		response.setContentType("text/html");
-		response.setContentLengthLong(loginHtml.length());
-		response.getWriter().write(loginHtml);
-		return;
+		IAuthenticatorManager authenticatorManager = AuthenticatorManagerCreator.getAuthenticatorManager(solution);
+		authenticatorManager.writeLoginPage(request, response, customHTML);
 	}
 }

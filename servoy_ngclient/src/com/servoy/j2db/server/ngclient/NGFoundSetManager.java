@@ -19,12 +19,14 @@ package com.servoy.j2db.server.ngclient;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 import java.util.WeakHashMap;
 
 import org.json.JSONObject;
+import org.sablo.WebComponent;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.PropertyDescriptionBuilder;
 import org.sablo.specification.property.BrowserConverterContext;
@@ -37,25 +39,29 @@ import org.sablo.websocket.utils.JSONUtils.EmbeddableJSONWriter;
 import org.sablo.websocket.utils.JSONUtils.FullValueToJSONConverter;
 
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.IFormController;
 import com.servoy.j2db.dataprocessing.FoundSetManager;
 import com.servoy.j2db.dataprocessing.FoundSetManagerConfig;
 import com.servoy.j2db.dataprocessing.IFoundSetFactory;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
+import com.servoy.j2db.dataprocessing.ViewFoundSet;
+import com.servoy.j2db.server.ngclient.property.FoundsetPropertyType;
 import com.servoy.j2db.server.ngclient.property.FoundsetPropertyTypeConfig;
 import com.servoy.j2db.server.ngclient.property.FoundsetTypeSabloValue;
 import com.servoy.j2db.server.ngclient.property.types.FoundsetReferencePropertyTypeOld;
 
 /**
  * @author gboros
- *
- * @deprecated now you can use a combination of "to server-side component scripting calls" combined with foundset ref (new one, not old one) and record ref types
- * to do what you need with foundsets in any component; there is no need for this service anymore - and this service uses lots of hard-coded stuff...
- * see SVY-10825 for more information
  */
-@Deprecated
 public class NGFoundSetManager extends FoundSetManager implements IServerService
 {
+	/**
+	 * @deprecated now you can use a combination of "to server-side component scripting calls" combined with foundset ref (new one, not old one) and record ref types
+	 * to do what you need with foundsets in any component; there is no need for this service anymore - and this service uses lots of hard-coded stuff...
+	 * see SVY-10825 for more information
+	 */
+	@Deprecated
 	public static final String FOUNDSET_SERVICE = "$foundsetManager"; //$NON-NLS-1$
 
 	public NGFoundSetManager(IApplication app, FoundSetManagerConfig config, IFoundSetFactory factory)
@@ -64,6 +70,7 @@ public class NGFoundSetManager extends FoundSetManager implements IServerService
 		((NGClient)getApplication()).getWebsocketSession().registerServerService(FOUNDSET_SERVICE, this);
 	}
 
+	@Deprecated
 	@SuppressWarnings("nls")
 	@Override
 	public Object executeMethod(String methodName, JSONObject args) throws Exception
@@ -203,6 +210,7 @@ public class NGFoundSetManager extends FoundSetManager implements IServerService
 		return null;
 	}
 
+	@Deprecated
 	public void removeFoundSetTypeSabloValue(IFoundSetInternal foundset)
 	{
 		if (foundset != null)
@@ -232,6 +240,46 @@ public class NGFoundSetManager extends FoundSetManager implements IServerService
 	}
 
 	@Override
+	public boolean registerViewFoundSet(ViewFoundSet foundset, boolean onlyWeak)
+	{
+		boolean result = super.registerViewFoundSet(foundset, onlyWeak);
+		if (foundset != null)
+		{
+			updateComponentFoundsetProperties(foundset);
+		}
+		return result;
+	}
+
+	private void updateComponentFoundsetProperties(ViewFoundSet foundset)
+	{
+		for (IFormController controller : getApplication().getFormManager().getCachedFormControllers())
+		{
+			IWebFormUI formUI = ((IWebFormController)controller).getFormUI();
+			if (formUI instanceof WebFormUI)
+			{
+				for (WebComponent component : ((WebFormUI)formUI).getAllComponents())
+				{
+					Collection<PropertyDescription> foundsetProperties = component.getSpecification().getProperties(FoundsetPropertyType.INSTANCE);
+					for (PropertyDescription pd : foundsetProperties)
+					{
+						Object propValue = component.getRawPropertyValue(pd.getName());
+						if (propValue instanceof FoundsetTypeSabloValue)
+						{
+							FoundsetTypeSabloValue fsValue = (FoundsetTypeSabloValue)propValue;
+							IFoundSetInternal currentFoundset = fsValue.getFoundset();
+							if (currentFoundset instanceof ViewFoundSet && currentFoundset != foundset &&
+								currentFoundset.getDataSource().equals(foundset.getDataSource()))
+							{
+								fsValue.updateFoundset(foundset);
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	@Override
 	public void flushCachedItems()
 	{
 		for (IFoundSetInternal foundset : foundsetTypeSabloValueMap.keySet().toArray(new IFoundSetInternal[foundsetTypeSabloValueMap.size()]))
@@ -241,8 +289,10 @@ public class NGFoundSetManager extends FoundSetManager implements IServerService
 		super.flushCachedItems();
 	}
 
+	@Deprecated
 	private final WeakHashMap<IFoundSetInternal, List<FoundsetTypeSabloValue>> foundsetTypeSabloValueMap = new WeakHashMap<IFoundSetInternal, List<FoundsetTypeSabloValue>>();
 
+	@Deprecated
 	private FoundsetTypeSabloValue getFoundsetTypeSabloValue(IFoundSetInternal foundset, JSONObject dataproviders)
 	{
 		List<FoundsetTypeSabloValue> foundsetTypeSabloValueList = foundsetTypeSabloValueMap.get(foundset);

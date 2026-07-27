@@ -258,46 +258,49 @@ public class WebComponent extends BaseComponent implements IWebComponent, ICommo
 		{
 			// just update the custom types based on the new json, without clearing them first
 			PropertyDescription propertyDescription = getPropertyDescription();
-			for (String propertyName : propertyDescription.getAllPropertiesNames())
+			if (propertyDescription != null)
 			{
-				PropertyDescription childPd = propertyDescription.getProperty(propertyName);
-				if (PersistHelper.isPersistMappedProperty(childPd))
+				for (String propertyName : propertyDescription.getAllPropertiesNames())
 				{
-					Object customTypesJSON = arg.opt(propertyName);
-					if (customTypesJSON != null)
+					PropertyDescription childPd = propertyDescription.getProperty(propertyName);
+					if (PersistHelper.isPersistMappedProperty(childPd))
 					{
-						if (customTypesJSON instanceof JSONObject jsonObject)
+						Object customTypesJSON = arg.opt(propertyName);
+						if (customTypesJSON != null)
 						{
-							UUID childUUID = Utils.getAsUUID(jsonObject.optString(IChildWebObject.UUID_KEY, null), false);
-							WebCustomType existingCustomType = (WebCustomType)getChild(childUUID);
-							if (existingCustomType != null)
+							if (customTypesJSON instanceof JSONObject jsonObject)
 							{
-								existingCustomType.setJson(jsonObject);
-							}
-							else
-							{
-								WebCustomType.createNewInstance(this, (childPd.getType() instanceof ICustomType< ? >)
-									? ((ICustomType< ? >)childPd.getType()).getCustomJSONTypeDefinition() : childPd, propertyName, -1,
-									childUUID);
-							}
-						}
-						else if (customTypesJSON instanceof JSONArray arr)
-						{
-							for (int i = 0; i < arr.length(); i++)
-							{
-								if (arr.opt(i) instanceof JSONObject jsonObject)
+								UUID childUUID = Utils.getAsUUID(jsonObject.optString(IChildWebObject.UUID_KEY, null), false);
+								WebCustomType existingCustomType = (WebCustomType)getChild(childUUID);
+								if (existingCustomType != null)
 								{
-									UUID childUUID = Utils.getAsUUID(jsonObject.optString(IChildWebObject.UUID_KEY, null), false);
-									WebCustomType existingCustomType = (WebCustomType)getChild(childUUID);
-									if (existingCustomType != null)
+									existingCustomType.setJson(jsonObject);
+								}
+								else
+								{
+									WebCustomType.createNewInstance(this, (childPd.getType() instanceof ICustomType< ? >)
+										? ((ICustomType< ? >)childPd.getType()).getCustomJSONTypeDefinition() : childPd, propertyName, -1,
+										childUUID);
+								}
+							}
+							else if (customTypesJSON instanceof JSONArray arr)
+							{
+								for (int i = 0; i < arr.length(); i++)
+								{
+									if (arr.opt(i) instanceof JSONObject jsonObject)
 									{
-										existingCustomType.setJson(jsonObject);
-									}
-									else
-									{
-										WebCustomType.createNewInstance(this, (childPd.getType() instanceof ICustomType< ? >)
-											? ((ICustomType< ? >)childPd.getType()).getCustomJSONTypeDefinition() : childPd, propertyName, i,
-											Utils.getAsUUID(jsonObject.optString(IChildWebObject.UUID_KEY, null), false));
+										UUID childUUID = Utils.getAsUUID(jsonObject.optString(IChildWebObject.UUID_KEY, null), false);
+										WebCustomType existingCustomType = (WebCustomType)getChild(childUUID);
+										if (existingCustomType != null)
+										{
+											existingCustomType.setJson(jsonObject);
+										}
+										else
+										{
+											WebCustomType.createNewInstance(this, (childPd.getType() instanceof ICustomType< ? >)
+												? ((ICustomType< ? >)childPd.getType()).getCustomJSONTypeDefinition() : childPd, propertyName, i,
+												Utils.getAsUUID(jsonObject.optString(IChildWebObject.UUID_KEY, null), false));
+										}
 									}
 								}
 							}
@@ -398,6 +401,7 @@ public class WebComponent extends BaseComponent implements IWebComponent, ICommo
 					wcClone.setProperty(IContentSpecConstants.PROPERTY_JSON, flattenedJson);
 				}
 			}
+			wcClone.customTypesInitialized = false;
 			List<WebCustomType> types = new ArrayList<WebCustomType>();
 			clone.acceptVisitor(new IPersistVisitor()
 			{
@@ -487,7 +491,12 @@ public class WebComponent extends BaseComponent implements IWebComponent, ICommo
 
 	protected void initCustomTypes()
 	{
-		internalClearAllObjects();
+		internalClearAllObjects().forEach(o -> {
+			if (getRootObject().getChangeHandler() != null)
+			{
+				getRootObject().getChangeHandler().fireIPersistRemoved(o);
+			}
+		});
 		PropertyDescription propertyDescription = getPropertyDescription();
 		if (propertyDescription == null) return;
 		JSONObject json = (JSONObject)getOwnProperty(StaticContentSpecLoader.PROPERTY_JSON.getPropertyName());

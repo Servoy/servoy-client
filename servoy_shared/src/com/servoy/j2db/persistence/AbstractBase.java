@@ -22,6 +22,7 @@ import java.awt.Insets;
 import java.awt.Point;
 import java.io.Serializable;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
@@ -629,10 +630,12 @@ public abstract class AbstractBase implements IPersist
 		return allobjects == null ? Collections.<IPersist> emptyList() : Collections.unmodifiableList(allobjects);
 	}
 
-	public void internalClearAllObjects()
+	public List<IPersist> internalClearAllObjects()
 	{
+		List<IPersist> deletedobjects = allobjects == null ? Collections.<IPersist> emptyList() : new ArrayList<IPersist>(allobjects);
 		allobjects = null;
 		allobjectsMap = null;
+		return deletedobjects;
 	}
 
 	private void flushAllObjectsMap()
@@ -770,9 +773,9 @@ public abstract class AbstractBase implements IPersist
 			throw new RuntimeException(e);
 		}
 		if (newParent != null) newParent.addChild(cloned);
-		fillClone(cloned);
 		setRuntimeProperty(Cloned, Boolean.TRUE);
 		cloned.setRuntimeProperty(AClone, Boolean.TRUE);
+		fillClone(cloned);
 		return cloned;
 	}
 
@@ -796,15 +799,18 @@ public abstract class AbstractBase implements IPersist
 			// would be nicer to make the copy on write with the full copy of the list
 			// but that is not possible we seem to need to call addChild(clone)
 			cloned.allobjects = new CopyOnWriteArrayList<IPersist>();
-			for (IPersist persist : allobjects)
+			if (allobjects != null)
 			{
-				if (persist instanceof ICloneable)
+				for (IPersist persist : allobjects)
 				{
-					((ICloneable)persist).clonePersist(cloned);
-				}
-				else
-				{
-					cloned.allobjects.add(persist);
+					if (persist instanceof ICloneable)
+					{
+						((ICloneable)persist).clonePersist(cloned);
+					}
+					else
+					{
+						cloned.allobjects.add(persist);
+					}
 				}
 			}
 		}

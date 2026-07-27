@@ -91,7 +91,7 @@ public class TusServlet extends AbstractMediaResourceServlet
 		}
 		if (maxUpload > 0)
 		{
-			tusFileUploadService = tusFileUploadService.withMaxUploadSize(Long.valueOf(maxUpload));
+			tusFileUploadService = tusFileUploadService.withMaxUploadSize(Long.valueOf(maxUpload * 1024));
 		}
 	}
 
