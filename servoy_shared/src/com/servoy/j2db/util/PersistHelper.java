@@ -1457,6 +1457,52 @@ public class PersistHelper
 		return false;
 	}
 
+	public static void addChildWebComponent(ICommonWebComponent parent, IPersist child, int index)
+	{
+		if (parent instanceof AbstractBase parentBase && child instanceof WebCustomType customType)
+		{
+			JSONObject json = (JSONObject)parentBase.getOwnProperty(StaticContentSpecLoader.PROPERTY_JSON.getPropertyName());
+			if (json == null)
+			{
+				json = new ServoyJSONObject();
+				((IBasicWebObject)parent).setJson(json);
+			}
+			PropertyDescription childPd = parent.getPropertyDescription().getProperty(customType.getJsonKey());
+			if (childPd != null && PersistHelper.isArrayOfCustomJSONObject(childPd.getType()))
+			{
+				JSONArray customTypesArray = json.optJSONArray(customType.getJsonKey());
+				if (customTypesArray == null)
+				{
+					customTypesArray = new ServoyJSONArray();
+					json.put(customType.getJsonKey(), customTypesArray);
+				}
+				if (index >= 0)
+				{
+					if (index >= customTypesArray.length() || customTypesArray.opt(index) == null)
+					{
+						customTypesArray.put(index, customType.getFullJsonInFrmFile());
+					}
+					else
+					{
+						for (int i = customTypesArray.length() - 1; i >= index; i--)
+						{
+							customTypesArray.put(i + 1, customTypesArray.opt(i));
+						}
+						customTypesArray.put(index, customType.getFullJsonInFrmFile());
+					}
+				}
+				else
+				{
+					customTypesArray.put(customType.getFullJsonInFrmFile());
+				}
+			}
+			else
+			{
+				json.put(customType.getJsonKey(), customType.getFullJsonInFrmFile());
+			}
+		}
+	}
+
 	public static void removeChildWebComponent(ICommonWebComponent parent, IPersist child)
 	{
 		if (parent instanceof AbstractBase && child instanceof IChildWebObject customType)
