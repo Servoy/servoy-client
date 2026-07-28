@@ -312,6 +312,13 @@ public class WebCustomType extends AbstractBase implements IChildWebObject, ISup
 	}
 
 	@Override
+	public void addChild(IPersist obj, int index)
+	{
+		super.addChild(obj, index);
+		PersistHelper.addChildWebComponent(this, obj, index);
+	}
+
+	@Override
 	public JSONObject getFullJsonInFrmFile()
 	{
 		return (JSONObject)getPropertiesMap().get(StaticContentSpecLoader.PROPERTY_JSON.getPropertyName());
