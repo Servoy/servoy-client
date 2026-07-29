@@ -43,7 +43,9 @@ pipeline {
                     def queue = jenkins.model.Jenkins.get().queue
                     
                     queue.items.each { item ->
-                        if (item.task.fullName == currentJob) {
+                        // ownerTask.fullName works for boht WorkflowJob or  PlaceholderTask objects
+                        def queuedJobName = item.task.ownerTask?.fullName
+                        if (queuedJobName == currentJob) {
                             echo "Removing pending queued build for ${currentJob} (Queue ID #${item.id})..."
                             queue.cancel(item)
                         }
