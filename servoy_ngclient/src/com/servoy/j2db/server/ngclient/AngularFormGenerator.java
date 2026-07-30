@@ -359,7 +359,7 @@ public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 						Part prt = form.getPartAt(((IFormElement)o).getLocation().y);
 						if (prt != null)
 						{
-							int prtEnd = form.getPartEndYPos(prt.getID());
+							int prtEnd = prt.getHeight();
 							if (prtEnd > form.getSize().height) prtEnd = form.getSize().height;
 							partHeight = prtEnd - form.getPartStartYPos(prt.getID());
 						}
