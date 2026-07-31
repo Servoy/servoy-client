@@ -19,7 +19,6 @@ package com.servoy.j2db.query;
 import static com.servoy.j2db.query.AndCondition.and;
 import static com.servoy.j2db.query.OrCondition.or;
 import static com.servoy.j2db.util.Utils.stream;
-import static java.util.Arrays.asList;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -29,7 +28,6 @@ import java.util.Objects;
 import java.util.Optional;
 
 import com.servoy.base.query.BaseQueryTable;
-import com.servoy.j2db.query.QueryFunction.QueryFunctionType;
 import com.servoy.j2db.util.TypePredicate;
 import com.servoy.j2db.util.serialize.ReplacedObject;
 import com.servoy.j2db.util.visitor.IVisitor;
@@ -515,40 +513,12 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 		return super.clone();
 	}
 
-	public QuerySelect getSelectCount(String name, boolean distinctCount)
+	public ISQLSelect getSelectCount(String name, boolean distinctCount)
 	{
 		QuerySelect selectCount = deepClone(this);
-
 		selectCount.clearSorts();
-
-		// remove unused joins
 		selectCount.removeUnusedJoins(true, true);
-
-		IQuerySelectValue agregee;
-		int aggregateQuantifier;
-		if (selectCount.joins != null && (selectCount.distinct || distinctCount))
-		{
-			aggregateQuantifier = QueryAggregate.DISTINCT;
-			ArrayList<IQuerySelectValue> selectColumns = selectCount.getColumns();
-			IQuerySelectValue[] cols = selectColumns.toArray(new IQuerySelectValue[selectColumns.size()]);
-			if (cols.length == 1)
-			{
-				agregee = cols[0];
-			}
-			else
-			{
-				agregee = new QueryFunction(QueryFunctionType.concat, cols, null);
-			}
-		}
-		else
-		{
-			aggregateQuantifier = QueryAggregate.ALL;
-			agregee = new QueryColumnValue(QueryAggregate.ASTERIX, null, true);
-		}
-
-		selectCount.setColumns(
-			new ArrayList<IQuerySelectValue>(asList(new QueryAggregate(QueryAggregate.COUNT, aggregateQuantifier, agregee, name, null, false))));
-		return selectCount;
+		return new QuerySelectCountFrom(selectCount, name, selectCount.joins != null && (selectCount.distinct || distinctCount));
 	}
 
 	/**

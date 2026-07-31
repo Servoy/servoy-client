@@ -2397,7 +2397,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 				{
 					String serverName = getDataSourceServerName(sqlString.getTable().getDataSource());
 					String transaction_id = getTransactionID(serverName);
-					QuerySelect selectCountSQLString = sqlString.getSelectCount("n", true); //$NON-NLS-1$
+					ISQLSelect selectCountSQLString = sqlString.getSelectCount("n", true); //$NON-NLS-1$
 					IDataSet set = ds.performQuery(application.getClientID(), serverName, transaction_id, selectCountSQLString, null,
 						getTableFilterParams(serverName, selectCountSQLString), false, 0, 10, IDataServer.FOUNDSET_LOAD_QUERY);
 					if (Debug.tracing())
