@@ -33,7 +33,7 @@ public final class QuerySelectCountFrom implements ISQLSelect
 
 	private static final long serialVersionUID = 1L;
 
-	private final String name;
+	private String name;
 
 	private boolean distinctCount;
 
@@ -150,7 +150,7 @@ public final class QuerySelectCountFrom implements ISQLSelect
 	public Object writeReplace()
 	{
 		// Note: when this serialized structure changes, make sure that old data (maybe saved as serialized xml) can still be deserialized!
-		return new ReplacedObject(QUERY_SERIALIZE_DOMAIN, getClass(), new Object[] { select, name });
+		return new ReplacedObject(QUERY_SERIALIZE_DOMAIN, getClass(), new Object[] { select, name, Boolean.valueOf(distinctCount) });
 	}
 
 	public QuerySelectCountFrom(ReplacedObject s)
@@ -159,5 +159,6 @@ public final class QuerySelectCountFrom implements ISQLSelect
 		int i = 0;
 		this.select = (QuerySelect)members[i++];
 		this.name = (String)members[i++];
+		this.distinctCount = ((Boolean)members[i++]).booleanValue();
 	}
 }
