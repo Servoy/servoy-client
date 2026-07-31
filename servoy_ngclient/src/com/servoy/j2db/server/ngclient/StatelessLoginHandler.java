@@ -46,6 +46,7 @@ import com.servoy.j2db.server.ngclient.auth.AuthenticatorManagerCreator;
 import com.servoy.j2db.server.ngclient.auth.HTMLWriter;
 import com.servoy.j2db.server.ngclient.auth.IAuthenticatorManager;
 import com.servoy.j2db.server.ngclient.auth.ITokenRevocable;
+import com.servoy.j2db.server.ngclient.auth.LoginResult;
 import com.servoy.j2db.server.ngclient.auth.OAuthUtils.OAuthParameters;
 import com.servoy.j2db.server.ngclient.auth.StatelessLoginUtils;
 import com.servoy.j2db.server.ngclient.auth.SvyID;
@@ -78,32 +79,33 @@ public class StatelessLoginHandler
 	private static final SecureRandom secureRandom = new SecureRandom();
 
 	@SuppressWarnings({ "boxing" })
-	public static Pair<Boolean, String> mustAuthenticate(HttpServletRequest request, HttpServletResponse reponse, String solutionName)
+	public static LoginResult mustAuthenticate(HttpServletRequest request, HttpServletResponse reponse, String solutionName)
 		throws ServletException
 	{
-		Pair<Boolean, String> needToLogin = new Pair<>(Boolean.FALSE, null);
+		LoginResult result = LoginResult.authenticated(null);
 		String requestURI = request.getRequestURI();
-		if (requestURI.contains("/designer")) return needToLogin;
+		if (requestURI.contains("/designer")) return result;
 
 		if (solutionName != null && (requestURI.endsWith("/") ||
 			requestURI.endsWith("/" + solutionName) || requestURI.toLowerCase().endsWith("/index.html")))
 		{
 			Pair<FlattenedSolution, Boolean> _fs = AngularIndexPageWriter.getFlattenedSolution(solutionName, null, request, reponse);
 			FlattenedSolution fs = _fs.getLeft();
-			if (fs == null) return needToLogin;
+			if (fs == null) return result;
 			try
 			{
 				AUTHENTICATOR_TYPE authenticator = fs.getSolution().getAuthenticator();
-				needToLogin.setLeft(authenticator != AUTHENTICATOR_TYPE.NONE && fs.getSolution().getLoginFormID() == null &&
-					fs.getSolution().getLoginSolutionName() == null);
-				if (needToLogin.getLeft())
+				boolean needsLogin = authenticator != AUTHENTICATOR_TYPE.NONE && fs.getSolution().getLoginFormID() == null &&
+					fs.getSolution().getLoginSolutionName() == null;
+				if (needsLogin)
 				{
+					result = LoginResult.needsLogin();
 					String user = request.getParameter(USERNAME);
 					String password = request.getParameter(PASSWORD);
 					if (!Utils.stringIsEmpty(user) && !Utils.stringIsEmpty(password))
 					{
-						checkUser(user, password, "on".equals(request.getParameter("remember")), null, needToLogin, fs.getSolution(), request, reponse);
-						if (!needToLogin.getLeft()) return needToLogin;
+						checkUser(user, password, "on".equals(request.getParameter("remember")), null, result, fs.getSolution(), request, reponse);
+						if (result.isAuthenticated()) return result;
 					}
 
 					String id_token = HTMLWriter.getExistingIdToken(request);
@@ -121,14 +123,14 @@ public class StatelessLoginHandler
 								jwtVerifier.verify(id_token);
 								if (request.getParameter(ID_TOKEN) != null)
 								{
-									checkPermissions(user, password, true, svyID, needToLogin, fs.getSolution(), request);
+									checkPermissions(user, password, true, svyID, result, fs.getSolution(), request);
 								}
 								else
 								{
 									// the id_token was in the session, so we already have a client and the token is not expired
 									// => no need to check the permissions again
-									needToLogin.setLeft(Boolean.FALSE);
-									needToLogin.setRight(id_token);
+									result.setAuthenticated(true);
+									result.setToken(id_token);
 								}
 							}
 							catch (JWTVerificationException ex)
@@ -139,7 +141,7 @@ public class StatelessLoginHandler
 									{
 										try
 										{
-											checkUser(user, password, true, svyID, needToLogin, fs.getSolution(), request, reponse);
+											checkUser(user, password, true, svyID, result, fs.getSolution(), request, reponse);
 										}
 										catch (Exception e)
 										{
@@ -153,7 +155,7 @@ public class StatelessLoginHandler
 						catch (JWTDecodeException e)
 						{
 							log.atError().setCause(e).log(() -> "Not a valid JWT format");
-							needToLogin.setLeft(Boolean.TRUE);
+							result.setAuthenticated(false);
 						}
 					}
 				}
@@ -163,26 +165,26 @@ public class StatelessLoginHandler
 				throw new ServletException(e);
 			}
 		}
-		return needToLogin;
+		return result;
 	}
 
-	private static void checkUser(String username, String password, boolean remember, SvyID oldToken, Pair<Boolean, String> needToLogin, Solution solution,
+	private static void checkUser(String username, String password, boolean remember, SvyID oldToken, LoginResult result, Solution solution,
 		HttpServletRequest request, HttpServletResponse response)
 	{
 		boolean verified = false;
 		IAuthenticatorManager authenticatorManager = AuthenticatorManagerCreator.getAuthenticatorManager(solution);
 		if (!authenticatorManager.requiresCSRFForCheckUser() || checkCSRFToken(request))
 		{
-			verified = authenticatorManager.checkUser(username, password, remember, oldToken, needToLogin, request, response);
+			verified = authenticatorManager.checkUser(username, password, remember, oldToken, result, request, response);
 		}
 		if (!verified)
 		{
 			String ip = request.getRemoteAddr();
 			log.atWarn().log(() -> "Authentication failed for user '" + username + "' from " + ip);
-			needToLogin.setLeft(Boolean.TRUE);
-			if (needToLogin.getRight() != null && !needToLogin.getRight().startsWith("<"))
+			result.setAuthenticated(false);
+			if (result.getToken() != null && !result.getToken().startsWith("<"))
 			{
-				needToLogin.setRight(null);
+				result.setToken(null);
 			}
 		}
 	}
@@ -190,7 +192,7 @@ public class StatelessLoginHandler
 	/**
 	 * This method is similar to checkUser, except for the OAUTH authenticator when it only calls the authenticator (does not refresh the oauth provider token)
 	 */
-	private static void checkPermissions(String username, String password, boolean remember, SvyID oldToken, Pair<Boolean, String> needToLogin,
+	private static void checkPermissions(String username, String password, boolean remember, SvyID oldToken, LoginResult result,
 		Solution solution, HttpServletRequest request) throws ServletException
 	{
 		log.atInfo().log(() -> "Checking permissions for user " + username + " with authenticator " + solution.getAuthenticator().name());
@@ -198,7 +200,7 @@ public class StatelessLoginHandler
 		if (checkCSRFToken(request))
 		{
 			IAuthenticatorManager authenticatorManager = AuthenticatorManagerCreator.getAuthenticatorManager(solution);
-			verified = authenticatorManager.checkPermissions(username, password, remember, oldToken, needToLogin, request);
+			verified = authenticatorManager.checkPermissions(username, password, remember, oldToken, result, request);
 		}
 		else
 		{
@@ -208,10 +210,10 @@ public class StatelessLoginHandler
 		{
 			String ip = request.getRemoteAddr();
 			log.atWarn().log(() -> "Authentication failed for user '" + username + "' from " + ip);
-			needToLogin.setLeft(Boolean.TRUE);
-			if (needToLogin.getRight() != null && !needToLogin.getRight().startsWith("<"))
+			result.setAuthenticated(false);
+			if (result.getToken() != null && !result.getToken().startsWith("<"))
 			{
-				needToLogin.setRight(null);
+				result.setToken(null);
 			}
 		}
 	}
@@ -287,7 +289,7 @@ public class StatelessLoginHandler
 		}
 	}
 
-	public static void writeLoginPage(HttpServletRequest request, HttpServletResponse response, String solutionName, String customHTML)
+	public static void writeLoginPage(HttpServletRequest request, HttpServletResponse response, String solutionName, LoginResult loginResult)
 		throws IOException, ServletException
 	{
 		Solution solution = null;
@@ -308,6 +310,6 @@ public class StatelessLoginHandler
 		}
 
 		IAuthenticatorManager authenticatorManager = AuthenticatorManagerCreator.getAuthenticatorManager(solution);
-		authenticatorManager.writeLoginPage(request, response, customHTML);
+		authenticatorManager.writeLoginPage(request, response, loginResult);
 	}
 }

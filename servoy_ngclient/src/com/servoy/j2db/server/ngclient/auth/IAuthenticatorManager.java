@@ -20,8 +20,6 @@ package com.servoy.j2db.server.ngclient.auth;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
-import com.servoy.j2db.util.Pair;
-
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -40,9 +38,9 @@ public interface IAuthenticatorManager
 	 *
 	 * @param request the HTTP request
 	 * @param response the HTTP response
-	 * @param customHTML optional custom HTML to render instead of the default login page
+	 * @param loginResult the login result containing custom HTML and return value for tag resolution
 	 */
-	void writeLoginPage(HttpServletRequest request, HttpServletResponse response, String customHTML)
+	void writeLoginPage(HttpServletRequest request, HttpServletResponse response, LoginResult loginResult)
 		throws ServletException, UnsupportedEncodingException, IOException;
 
 	/**
@@ -61,12 +59,12 @@ public interface IAuthenticatorManager
 	 * @param password the password
 	 * @param remember whether to remember the user
 	 * @param oldToken the existing token (if any, e.g. for refresh)
-	 * @param needToLogin pair indicating whether login is needed and the token
+	 * @param result the login result object to populate
 	 * @param request the HTTP request
 	 * @return true if the permissions were verified successfully
 	 */
 	boolean checkPermissions(String username, String password, boolean remember, SvyID oldToken,
-		Pair<Boolean, String> needToLogin, HttpServletRequest request);
+		LoginResult result, HttpServletRequest request);
 
 	/**
 	 * Check user credentials. This is called when the user submits the login form
@@ -76,13 +74,13 @@ public interface IAuthenticatorManager
 	 * @param password the password
 	 * @param remember whether to remember the user
 	 * @param oldToken the existing token (if any, e.g. for refresh)
-	 * @param needToLogin pair indicating whether login is needed and the token
+	 * @param result the login result object to populate
 	 * @param request the HTTP request
 	 * @param response the HTTP response
 	 * @return true if the user was verified successfully
 	 */
 	boolean checkUser(String username, String password, boolean remember, SvyID oldToken,
-		Pair<Boolean, String> needToLogin, HttpServletRequest request, HttpServletResponse response);
+		LoginResult result, HttpServletRequest request, HttpServletResponse response);
 
 	default boolean requiresCSRFForCheckUser()
 	{

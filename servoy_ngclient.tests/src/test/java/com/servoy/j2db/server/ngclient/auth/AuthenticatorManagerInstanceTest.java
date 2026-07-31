@@ -263,7 +263,7 @@ public class AuthenticatorManagerInstanceTest extends Log4JToConsoleTest
 	public void statelessLoginHandler_checkUser_noAuthenticatorTypeReference() throws Exception
 	{
 		Method method = com.servoy.j2db.server.ngclient.StatelessLoginHandler.class.getDeclaredMethod(
-			"checkUser", String.class, String.class, boolean.class, SvyID.class, Pair.class,
+			"checkUser", String.class, String.class, boolean.class, SvyID.class, LoginResult.class,
 			Solution.class, HttpServletRequest.class, HttpServletResponse.class);
 		method.setAccessible(true);
 
@@ -369,14 +369,14 @@ public class AuthenticatorManagerInstanceTest extends Log4JToConsoleTest
 
 		@Override
 		public boolean checkPermissions(String username, String password, boolean remember, SvyID oldToken,
-			Pair<Boolean, String> needToLogin, HttpServletRequest request)
+			LoginResult result, HttpServletRequest request)
 		{
 			return false;
 		}
 
 		@Override
 		public boolean checkUser(String username, String password, boolean remember, SvyID oldToken,
-			Pair<Boolean, String> needToLogin, HttpServletRequest request, HttpServletResponse response)
+			LoginResult result, HttpServletRequest request, HttpServletResponse response)
 		{
 			return false;
 		}

@@ -20,7 +20,6 @@ import com.servoy.j2db.persistence.RootObjectMetaData;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.Solution.AUTHENTICATOR_TYPE;
 import com.servoy.j2db.server.ngclient.property.Log4JToConsoleTest;
-import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.UUID;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -177,13 +176,13 @@ public class AuthenticatorManagerUtilsTest extends Log4JToConsoleTest
 		assertNull("onOpenMethodID must be null for this test", authenticator.getOnOpenMethodID());
 
 		Solution mainSolution = createSolution();
-		Pair<Boolean, String> needToLogin = new Pair<>(Boolean.FALSE, null);
+		LoginResult needToLogin = LoginResult.authenticated(null);
 
 		boolean result = AuthenticatorManager.callAuthenticator(needToLogin, null, false,
 			authenticator, new JSONObject(), null, mainSolution);
 
 		assertFalse("Must return false when authenticator has no onOpen method", result);
-		assertFalse("needToLogin.left must stay false", needToLogin.getLeft());
+		assertFalse("needToLogin must not be authenticated", needToLogin.isAuthenticated());
 	}
 
 	// =========================================================================
@@ -286,7 +285,7 @@ public class AuthenticatorManagerUtilsTest extends Log4JToConsoleTest
 	public void defaultLoginManager_checkUser_methodExists() throws Exception
 	{
 		Method m = DefaultLoginManager.class.getDeclaredMethod("checkUser",
-			String.class, String.class, boolean.class, SvyID.class, Pair.class,
+			String.class, String.class, boolean.class, SvyID.class, LoginResult.class,
 			jakarta.servlet.http.HttpServletRequest.class, jakarta.servlet.http.HttpServletResponse.class);
 		assertNotNull(m);
 		assertTrue("checkUser must be public", java.lang.reflect.Modifier.isPublic(m.getModifiers()));
@@ -296,7 +295,7 @@ public class AuthenticatorManagerUtilsTest extends Log4JToConsoleTest
 	public void defaultLoginManager_checkPermissions_methodExists() throws Exception
 	{
 		Method m = DefaultLoginManager.class.getDeclaredMethod("checkPermissions",
-			String.class, String.class, boolean.class, SvyID.class, Pair.class,
+			String.class, String.class, boolean.class, SvyID.class, LoginResult.class,
 			jakarta.servlet.http.HttpServletRequest.class);
 		assertNotNull(m);
 		assertTrue("checkPermissions must be public", java.lang.reflect.Modifier.isPublic(m.getModifiers()));

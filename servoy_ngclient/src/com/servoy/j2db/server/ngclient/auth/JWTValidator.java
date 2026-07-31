@@ -40,7 +40,6 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.Solution.AUTHENTICATOR_TYPE;
 import com.servoy.j2db.server.ngclient.auth.OAuthUtils.OAuthParameters;
-import com.servoy.j2db.util.Pair;
 
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpServletRequest;
@@ -103,7 +102,7 @@ public class JWTValidator
 		return null;
 	}
 
-	static boolean checkOauthIdToken(Pair<Boolean, String> needToLogin, Solution solution, AUTHENTICATOR_TYPE authenticator,
+	static boolean checkOauthIdToken(LoginResult result, Solution solution, AUTHENTICATOR_TYPE authenticator,
 		DecodedJWT decodedJWT, HttpServletRequest request, HttpServletResponse response, String refreshToken, boolean checkNonce)
 	{
 		if (!"svy".equals(decodedJWT.getIssuer()))
@@ -137,7 +136,7 @@ public class JWTValidator
 							Solution authenticatorModule = AuthenticatorManager.findAuthenticator(solution);
 							if (authenticatorModule != null)
 							{
-								return AuthenticatorManager.callAuthenticator(needToLogin, request, remember, authenticatorModule, token, refreshToken,
+								return AuthenticatorManager.callAuthenticator(result, request, remember, authenticatorModule, token, refreshToken,
 									solution);
 							}
 							else
@@ -148,7 +147,7 @@ public class JWTValidator
 						}
 						else if (authenticator == AUTHENTICATOR_TYPE.SERVOY_CLOUD)
 						{
-							return CloudStatelessAccessManager.checkCloudOAuthPermissions(request, response, needToLogin, solution, payload, remember,
+							return CloudStatelessAccessManager.checkCloudOAuthPermissions(request, response, result, solution, payload, remember,
 								refreshToken,
 								auth.getString(CloudStatelessAccessManager.CLOUD_OAUTH_ENDPOINT)); //TODO where to move?
 						}

@@ -21,7 +21,6 @@ import org.sablo.security.ContentSecurityPolicyConfig;
 
 import com.servoy.j2db.server.ngclient.StatelessLoginHandler;
 import com.servoy.j2db.server.ngclient.property.Log4JToConsoleTest;
-import com.servoy.j2db.util.Pair;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -309,14 +308,14 @@ public class StatelessLoginHandlerCSRFTest extends Log4JToConsoleTest
 
 		@Override
 		public boolean checkPermissions(String username, String password, boolean remember, SvyID oldToken,
-			Pair<Boolean, String> needToLogin, HttpServletRequest request)
+			LoginResult result, HttpServletRequest request)
 		{
 			return false;
 		}
 
 		@Override
 		public boolean checkUser(String username, String password, boolean remember, SvyID oldToken,
-			Pair<Boolean, String> needToLogin, HttpServletRequest request, HttpServletResponse response)
+			LoginResult result, HttpServletRequest request, HttpServletResponse response)
 		{
 			return false;
 		}

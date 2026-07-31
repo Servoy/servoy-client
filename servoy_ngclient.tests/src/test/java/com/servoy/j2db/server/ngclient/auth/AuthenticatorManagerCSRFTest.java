@@ -16,7 +16,6 @@ import org.junit.Test;
 import org.sablo.security.ContentSecurityPolicyConfig;
 
 import com.servoy.j2db.server.ngclient.property.Log4JToConsoleTest;
-import com.servoy.j2db.util.Pair;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -60,7 +59,7 @@ public class AuthenticatorManagerCSRFTest extends Log4JToConsoleTest
 		IAuthenticatorManager manager = new IAuthenticatorManager()
 		{
 			@Override
-			public void writeLoginPage(HttpServletRequest request, HttpServletResponse response, String customHTML)
+			public void writeLoginPage(HttpServletRequest request, HttpServletResponse response, LoginResult loginResult)
 				throws ServletException, UnsupportedEncodingException, IOException
 			{
 			}
@@ -73,14 +72,14 @@ public class AuthenticatorManagerCSRFTest extends Log4JToConsoleTest
 
 			@Override
 			public boolean checkPermissions(String username, String password, boolean remember, SvyID oldToken,
-				Pair<Boolean, String> needToLogin, HttpServletRequest request)
+				LoginResult result, HttpServletRequest request)
 			{
 				return false;
 			}
 
 			@Override
 			public boolean checkUser(String username, String password, boolean remember, SvyID oldToken,
-				Pair<Boolean, String> needToLogin, HttpServletRequest request, HttpServletResponse response)
+				LoginResult result, HttpServletRequest request, HttpServletResponse response)
 			{
 				return false;
 			}
