@@ -23,7 +23,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
-import com.servoy.j2db.util.Pair;
 
 /**
  * @author emera
@@ -33,7 +32,7 @@ public class DefaultLoginManager
 	private static final Logger log = LoggerFactory.getLogger("stateless.login");
 
 	public static boolean checkDefaultLoginPermissions(String username, String password, boolean rememberUser, SvyID oldToken,
-		Pair<Boolean, String> needToLogin)
+		LoginResult result)
 	{
 		try
 		{
@@ -44,8 +43,8 @@ public class DefaultLoginManager
 					oldToken.getUserID());
 				if (passwordLastChagedTime > oldToken.getLongClaim(SvyID.LAST_LOGIN))
 				{
-					needToLogin.setLeft(Boolean.TRUE);
-					needToLogin.setRight(null);
+					result.setAuthenticated(false);
+					result.setToken(null);
 					return false;
 				}
 			}
@@ -60,8 +59,8 @@ public class DefaultLoginManager
 					SvyTokenBuilder builder = new SvyTokenBuilder(username, uid, permissions)//
 						.withRememberUser(Boolean.valueOf(rememberUser));
 					String token = builder.sign();
-					needToLogin.setLeft(Boolean.FALSE);
-					needToLogin.setRight(token);
+					result.setAuthenticated(true);
+					result.setToken(token);
 					return true;
 				}
 			}

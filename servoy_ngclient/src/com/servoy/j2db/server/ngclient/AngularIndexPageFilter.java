@@ -29,10 +29,10 @@ import org.sablo.security.ContentSecurityPolicyConfig;
 import org.sablo.websocket.WebsocketSessionManager;
 
 import com.servoy.j2db.server.ngclient.auth.CloudStatelessAccessManager;
+import com.servoy.j2db.server.ngclient.auth.LoginResult;
 import com.servoy.j2db.server.ngclient.auth.OAuthHandler;
 import com.servoy.j2db.server.ngclient.auth.StatelessLoginUtils;
 import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.Pair;
 
 import jakarta.servlet.DispatcherType;
 import jakarta.servlet.Filter;
@@ -109,14 +109,17 @@ public class AngularIndexPageFilter implements Filter
 				HttpServletRequest req = request;
 				try
 				{
-					Pair<Boolean, String> showLogin = null;
+					LoginResult showLogin = null;
 					if (OAuthHandler.isOAuthRequest(request))
 					{
 						showLogin = OAuthHandler.handleOauth(request, response);
-						if (Boolean.FALSE.equals(showLogin.getLeft()))
+						if (showLogin.isResponseHandled())
 						{
-							if (showLogin.getRight() == null) return; // oauth was successful but the cloud returned html
-							request.getSession().setAttribute(StatelessLoginHandler.ID_TOKEN, showLogin.getRight());
+							return;
+						}
+						if (showLogin.isAuthenticated())
+						{
+							request.getSession().setAttribute(StatelessLoginHandler.ID_TOKEN, showLogin.getToken());
 							String queryString = StatelessLoginUtils.checkForPossibleSavedDeeplink(request);
 							response.sendRedirect(request.getRequestURI().replace("/svy_oauth", "") + (queryString != null ? "?" + queryString : ""));
 							return;
@@ -127,15 +130,15 @@ public class AngularIndexPageFilter implements Filter
 						showLogin = StatelessLoginHandler.mustAuthenticate(request, response, solutionName);
 					}
 
-					if (showLogin.getLeft().booleanValue())
+					if (!showLogin.isAuthenticated())
 					{
-						StatelessLoginHandler.writeLoginPage(request, response, solutionName, showLogin.getRight());
+						StatelessLoginHandler.writeLoginPage(request, response, solutionName, showLogin);
 						return;
 					}
-					if (showLogin.getRight() != null)
+					if (showLogin.getToken() != null)
 					{
 						HttpSession session = request.getSession(); // we know we are logged in so we can make a session now
-						session.setAttribute(StatelessLoginHandler.ID_TOKEN, showLogin.getRight());
+						session.setAttribute(StatelessLoginHandler.ID_TOKEN, showLogin.getToken());
 					}
 				}
 				catch (Exception e)
