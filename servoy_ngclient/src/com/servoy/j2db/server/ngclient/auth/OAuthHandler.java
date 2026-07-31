@@ -58,10 +58,10 @@ import com.servoy.j2db.server.ngclient.StatelessLoginHandler;
 import com.servoy.j2db.server.ngclient.auth.OAuthUtils.OAuthParameters;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.server.shared.IApplicationServer;
-import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.ScopesUtils;
 import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
+import com.servoy.j2db.util.Pair;
 
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletException;
@@ -80,24 +80,23 @@ public class OAuthHandler
 	static final Logger log = LoggerFactory.getLogger("stateless.login");
 	private static final SecureRandom secureRandom = new SecureRandom();
 
-	public static Pair<Boolean, String> handleOauth(HttpServletRequest req, HttpServletResponse resp) throws IOException
+	public static LoginResult handleOauth(HttpServletRequest req, HttpServletResponse resp) throws IOException
 	{
 		String reqUrl = req.getRequestURL().toString();
-		Pair<Boolean, String> showLogin = new Pair<>(Boolean.TRUE, null);
+		LoginResult result = LoginResult.needsLogin();
 		if (req.getParameter("id_token") != null || req.getParameter(CODE) != null)
 		{
-			checkToken(req, resp, reqUrl, showLogin);
+			checkToken(req, resp, reqUrl, result);
 		}
 		else if (reqUrl.contains("/svy_oauth/"))
 		{
-			//could be that the id token is in the fragment
-			showLogin.setLeft(Boolean.FALSE);
 			extractFromFragment(req, resp, reqUrl);
+			result = LoginResult.handled();
 		}
-		return showLogin;
+		return result;
 	}
 
-	private static Pair<Boolean, String> checkToken(HttpServletRequest req, HttpServletResponse resp, String reqUrl, Pair<Boolean, String> showLogin)
+	private static LoginResult checkToken(HttpServletRequest req, HttpServletResponse resp, String reqUrl, LoginResult result)
 	{
 		String solutionName = getSolutionNameFromURI(reqUrl);
 		Pair<FlattenedSolution, Boolean> _fs = AngularIndexPageWriter.getFlattenedSolution(solutionName, null, req, resp);
@@ -105,7 +104,7 @@ public class OAuthHandler
 		if (fs == null)
 		{
 			log.error("The solution could not be found.");
-			return showLogin;
+			return result;
 		}
 
 		String id_token = req.getParameter("id_token");
@@ -121,7 +120,7 @@ public class OAuthHandler
 				if (auth == null)
 				{
 					log.error("Cannot get the oauth config. The nonce/state is not valid.");
-					return showLogin;
+					return result;
 				}
 			}
 			OAuth20Service service = OAuthUtils.createOauthService(req, auth, new HashMap<>());
@@ -144,14 +143,14 @@ public class OAuthHandler
 					if (id_token == null)
 					{
 						log.error("The id_token is not retrieved.");
-						return showLogin;
+						return result;
 					}
 				}
 			}
 			catch (Exception e)
 			{
 				log.error("Could not get the id and refresh tokens.");
-				return showLogin;
+				return result;
 			}
 		}
 		else
@@ -166,17 +165,17 @@ public class OAuthHandler
 			{
 				refreshToken = decodedJWT.getClaim(StatelessLoginHandler.REFRESH_TOKEN).asString();
 			}
-			if (JWTValidator.checkOauthIdToken(showLogin, fs.getSolution(), fs.getSolution().getAuthenticator(), decodedJWT, req, resp, refreshToken,
+			if (JWTValidator.checkOauthIdToken(result, fs.getSolution(), fs.getSolution().getAuthenticator(), decodedJWT, req, resp, refreshToken,
 				true))
 			{
-				return showLogin;
+				return result;
 			}
 			else if (fs.getSolution().getAuthenticator() != AUTHENTICATOR_TYPE.SERVOY_CLOUD)
 			{
 				handleLoginFailed(req, resp, _fs, auth);
 			}
 		}
-		return showLogin;
+		return result;
 	}
 
 	private static void handleLoginFailed(HttpServletRequest req, HttpServletResponse resp, Pair<FlattenedSolution, Boolean> _fs, JSONObject auth)
@@ -325,7 +324,7 @@ public class OAuthHandler
 		return null;
 	}
 
-	public static boolean refreshOAuthTokenIfPossible(Pair<Boolean, String> needToLogin, Solution solution, SvyID oldToken, HttpServletRequest request,
+	public static boolean refreshOAuthTokenIfPossible(LoginResult result, Solution solution, SvyID oldToken, HttpServletRequest request,
 		HttpServletResponse response)
 	{
 		String refresh_token = oldToken.getStringClaim(StatelessLoginHandler.REFRESH_TOKEN);
@@ -343,7 +342,7 @@ public class OAuthHandler
 						OpenIdOAuth2AccessToken token = (OpenIdOAuth2AccessToken)service.refreshAccessToken(refresh_token);
 						String id_token = token.getOpenIdToken();
 						DecodedJWT decodedJWT = JWT.decode(id_token);
-						return JWTValidator.checkOauthIdToken(needToLogin, solution, solution.getAuthenticator(), decodedJWT, request, response, refresh_token,
+						return JWTValidator.checkOauthIdToken(result, solution, solution.getAuthenticator(), decodedJWT, request, response, refresh_token,
 							false);
 					}
 					catch (Exception e)

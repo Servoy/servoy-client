@@ -93,7 +93,7 @@ public class CloudStatelessAccessManager
 	public static final String CLOUD_OAUTH_ENDPOINT = "endpoint";
 
 
-	public static boolean checkCloudOAuthPermissions(HttpServletRequest request, HttpServletResponse response, Pair<Boolean, String> needToLogin,
+	public static boolean checkCloudOAuthPermissions(HttpServletRequest request, HttpServletResponse response, LoginResult result,
 		Solution solution, String payload, Boolean rememberUser,
 		String refresh_token, String provider)
 	{
@@ -139,7 +139,7 @@ public class CloudStatelessAccessManager
 	}
 
 	public static boolean checkCloudPermissions(String username, String password, boolean remember,
-		SvyID oldToken, Pair<Boolean, String> needToLogin,
+		SvyID oldToken, LoginResult result,
 		Solution solution,
 		HttpServletRequest request)
 	{
@@ -209,8 +209,8 @@ public class CloudStatelessAccessManager
 				if (oldToken != null) tokenBuilder.withRefreshToken(oldToken.getStringClaim(StatelessLoginHandler.REFRESH_TOKEN));
 				tokenBuilder.withClaim(CLOUD_OAUTH_ENDPOINT, provider);
 				String svyToken = tokenBuilder.sign();
-				needToLogin.setLeft(Boolean.FALSE);
-				needToLogin.setRight(svyToken);
+				result.setAuthenticated(true);
+				result.setToken(svyToken);
 				return true;
 			}
 		}
@@ -487,7 +487,7 @@ public class CloudStatelessAccessManager
 			else if (json.has("permissions"))
 			{
 				log.atInfo().log(() -> "The cloud returned permissions: " + json.getJSONArray("permissions").toString(2));
-				Pair<Boolean, String> showLogin = new Pair<>(Boolean.TRUE, null);
+				LoginResult loginResult = LoginResult.needsLogin();
 				SvyTokenBuilder tokenBuilder = extractPermissionFromResponse(res, json.optString(SvyID.USERNAME, ""));
 				if (tokenBuilder != null)
 				{
@@ -497,23 +497,23 @@ public class CloudStatelessAccessManager
 						.withRefreshToken(json.optString(StatelessLoginHandler.REFRESH_TOKEN, refresh_token))//
 						.withClaim(CLOUD_OAUTH_ENDPOINT, json.optString(CLOUD_OAUTH_ENDPOINT, provider));
 					String svyToken = tokenBuilder.sign();
-					showLogin.setLeft(Boolean.FALSE);
-					showLogin.setRight(svyToken);
+					loginResult.setAuthenticated(true);
+					loginResult.setToken(svyToken);
 				}
-				if (!showLogin.getLeft().booleanValue() && showLogin.getRight() != null)
+				if (loginResult.isAuthenticated() && loginResult.getToken() != null)
 				{
-					request.getSession().setAttribute(StatelessLoginHandler.ID_TOKEN, showLogin.getRight());
+					request.getSession().setAttribute(StatelessLoginHandler.ID_TOKEN, loginResult.getToken());
 					response.sendRedirect(initialURL != null ? StringEscapeUtils.unescapeHtml4(initialURL) : request.getContextPath() + "/index.html");
 					return;
 				}
 				else
 				{
-					if (showLogin.getLeft().booleanValue())
+					if (!loginResult.isAuthenticated())
 					{
-						if (showLogin.getRight() != null && showLogin.getRight().startsWith("<"))
+						if (loginResult.getToken() != null && loginResult.getToken().startsWith("<"))
 						{
-							log.atInfo().log(() -> "Display html result from the cloud." + showLogin.getRight());
-							html = showLogin.getRight();
+							log.atInfo().log(() -> "Display html result from the cloud." + loginResult.getToken());
+							html = loginResult.getToken();
 						}
 						else
 						{
@@ -530,7 +530,7 @@ public class CloudStatelessAccessManager
 			{
 				log.atInfo()
 					.log(() -> "Showing the login page. The cloud returned " + status + " http status and unknown response format:" + json);
-				StatelessLoginHandler.writeLoginPage(request, response, solution.getName(), html); //TODO refactor
+				StatelessLoginHandler.writeLoginPage(request, response, solution.getName(), LoginResult.needsLogin()); //TODO refactor
 				return;
 			}
 			writeHTML(request, response, initialURL, html);

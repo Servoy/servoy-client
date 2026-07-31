@@ -40,7 +40,6 @@ import com.servoy.j2db.server.ngclient.StatelessLoginHandler;
 import com.servoy.j2db.server.ngclient.auth.OAuthUtils.OAuthParameters;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.server.shared.IApplicationServer;
-import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.Utils;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -76,13 +75,13 @@ public class AuthenticatorManager
 		return authenticator;
 	}
 
-	public static boolean callAuthenticator(Pair<Boolean, String> needToLogin, HttpServletRequest request, boolean rememberUser, Solution authenticator,
+	public static boolean callAuthenticator(LoginResult result, HttpServletRequest request, boolean rememberUser, Solution authenticator,
 		JSONObject json, String refreshToken, Solution solution)
 	{
-		return callAuthenticator(needToLogin, request, rememberUser, authenticator, json, refreshToken, solution, null);
+		return callAuthenticator(result, request, rememberUser, authenticator, json, refreshToken, solution, null);
 	}
 
-	private static boolean callAuthenticator(Pair<Boolean, String> needToLogin, HttpServletRequest request, boolean rememberUser, Solution authenticator,
+	private static boolean callAuthenticator(LoginResult result, HttpServletRequest request, boolean rememberUser, Solution authenticator,
 		JSONObject json, String refreshToken, Solution mainSolution, String state)
 	{
 		log.info("Calling authenticator {} for solution {}, with parameters {}", authenticator.getName(), mainSolution.getName(), json);
@@ -94,18 +93,22 @@ public class AuthenticatorManager
 			ClientLogin login = applicationServer.login(credentials);
 			if (login != null)
 			{
-				SvyTokenBuilder builder = new SvyTokenBuilder(login.getUserName(), login.getUserUid(), login.getUserGroups())//
-					.withRememberUser(Boolean.valueOf(rememberUser)) //
-					.withRefreshToken(refreshToken);
-				if (mainSolution.getAuthenticator() == AUTHENTICATOR_TYPE.OAUTH_AUTHENTICATOR)
+				if (login.getUserUid() != null)
 				{
-					if (state == null) state = json.optString(OAuthParameters.state.name(), null);
-					if (state != null) builder.withClaim(OAuthParameters.state.name(), state);
+					SvyTokenBuilder builder = new SvyTokenBuilder(login.getUserName(), login.getUserUid(), login.getUserGroups())//
+						.withRememberUser(Boolean.valueOf(rememberUser)) //
+						.withRefreshToken(refreshToken);
+					if (mainSolution.getAuthenticator() == AUTHENTICATOR_TYPE.OAUTH_AUTHENTICATOR)
+					{
+						if (state == null) state = json.optString(OAuthParameters.state.name(), null);
+						if (state != null) builder.withClaim(OAuthParameters.state.name(), state);
+					}
+					String token = builder.sign();
+					result.setAuthenticated(true);
+					result.setToken(token);
 				}
-				String token = builder.sign();
-				needToLogin.setLeft(Boolean.FALSE);
-				needToLogin.setRight(token);
-				return true;
+				result.setReturnValue(login.getJsReturn());
+				return login.getUserUid() != null;
 			}
 		}
 		catch (RemoteException | RepositoryException e)
@@ -169,7 +172,7 @@ public class AuthenticatorManager
 		json.put("query", originalQuery);
 	}
 
-	public static boolean checkAuthenticatorPermissions(String username, String password, boolean remember, SvyID oldToken, Pair<Boolean, String> needToLogin,
+	public static boolean checkAuthenticatorPermissions(String username, String password, boolean remember, SvyID oldToken, LoginResult result,
 		Solution solution,
 		HttpServletRequest request)
 	{
@@ -189,12 +192,12 @@ public class AuthenticatorManager
 				if (solution.getAuthenticator() == AUTHENTICATOR_TYPE.OAUTH_AUTHENTICATOR && token.has(OAuthParameters.state.name()))
 				{
 					addParsedStateParameterToJson(token.getString(OAuthParameters.state.name()), json);
-					return callAuthenticator(needToLogin, request, remember, authenticator, json, refreshToken, solution,
+					return callAuthenticator(result, request, remember, authenticator, json, refreshToken, solution,
 						token.getString(OAuthParameters.state.name()));
 				}
 			}
 
-			return callAuthenticator(needToLogin, request, remember, authenticator, json, refreshToken, solution);
+			return callAuthenticator(result, request, remember, authenticator, json, refreshToken, solution);
 		}
 		else
 		{

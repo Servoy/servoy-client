@@ -24,6 +24,8 @@ import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
@@ -32,8 +34,8 @@ import org.apache.commons.collections4.map.PassiveExpiringMap;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
+import org.json.JSONObject;
 import org.sablo.security.ContentSecurityPolicyConfig;
-import org.sablo.util.HTTPUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,11 +59,13 @@ import com.servoy.j2db.server.ngclient.auth.CloudStatelessAccessManager;
 import com.servoy.j2db.server.ngclient.auth.DefaultLoginManager;
 import com.servoy.j2db.server.ngclient.auth.HTMLWriter;
 import com.servoy.j2db.server.ngclient.auth.I18NTagResolver;
+import com.servoy.j2db.server.ngclient.auth.LoginResult;
 import com.servoy.j2db.server.ngclient.auth.OAuthHandler;
 import com.servoy.j2db.server.ngclient.auth.OAuthUtils.OAuthParameters;
 import com.servoy.j2db.server.ngclient.auth.StatelessLoginUtils;
 import com.servoy.j2db.server.ngclient.auth.SvyID;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
+import com.servoy.j2db.util.HTTPUtils;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.Utils;
@@ -89,33 +93,33 @@ public class StatelessLoginHandler
 
 	private static final SecureRandom secureRandom = new SecureRandom();
 
-	@SuppressWarnings({ "boxing" })
-	public static Pair<Boolean, String> mustAuthenticate(HttpServletRequest request, HttpServletResponse reponse, String solutionName)
+	public static LoginResult mustAuthenticate(HttpServletRequest request, HttpServletResponse reponse, String solutionName)
 		throws ServletException
 	{
-		Pair<Boolean, String> needToLogin = new Pair<>(Boolean.FALSE, null);
+		LoginResult result = LoginResult.authenticated(null);
 		String requestURI = request.getRequestURI();
-		if (requestURI.contains("/designer")) return needToLogin;
+		if (requestURI.contains("/designer")) return result;
 
 		if (solutionName != null && (requestURI.endsWith("/") ||
 			requestURI.endsWith("/" + solutionName) || requestURI.toLowerCase().endsWith("/index.html")))
 		{
 			Pair<FlattenedSolution, Boolean> _fs = AngularIndexPageWriter.getFlattenedSolution(solutionName, null, request, reponse);
 			FlattenedSolution fs = _fs.getLeft();
-			if (fs == null) return needToLogin;
+			if (fs == null) return result;
 			try
 			{
 				AUTHENTICATOR_TYPE authenticator = fs.getSolution().getAuthenticator();
-				needToLogin.setLeft(authenticator != AUTHENTICATOR_TYPE.NONE && fs.getSolution().getLoginFormID() == null &&
-					fs.getSolution().getLoginSolutionName() == null);
-				if (needToLogin.getLeft())
+				boolean needsLogin = authenticator != AUTHENTICATOR_TYPE.NONE && fs.getSolution().getLoginFormID() == null &&
+					fs.getSolution().getLoginSolutionName() == null;
+				result.setAuthenticated(!needsLogin);
+				if (needsLogin)
 				{
 					String user = request.getParameter(USERNAME);
 					String password = request.getParameter(PASSWORD);
 					if (!Utils.stringIsEmpty(user) && !Utils.stringIsEmpty(password))
 					{
-						checkUser(user, password, "on".equals(request.getParameter("remember")), null, needToLogin, fs.getSolution(), request, reponse);
-						if (!needToLogin.getLeft()) return needToLogin;
+						checkUser(user, password, "on".equals(request.getParameter("remember")), null, result, fs.getSolution(), request, reponse);
+						if (result.isAuthenticated()) return result;
 					}
 
 					String id_token = HTMLWriter.getExistingIdToken(request);
@@ -133,14 +137,14 @@ public class StatelessLoginHandler
 								jwtVerifier.verify(id_token);
 								if (request.getParameter(ID_TOKEN) != null)
 								{
-									checkPermissions(user, password, true, svyID, needToLogin, fs.getSolution(), request);
+									checkPermissions(user, password, true, svyID, result, fs.getSolution(), request);
 								}
 								else
 								{
 									// the id_token was in the session, so we already have a client and the token is not expired
 									// => no need to check the permissions again
-									needToLogin.setLeft(Boolean.FALSE);
-									needToLogin.setRight(id_token);
+									result.setAuthenticated(true);
+									result.setToken(id_token);
 								}
 							}
 							catch (JWTVerificationException ex)
@@ -151,7 +155,7 @@ public class StatelessLoginHandler
 									{
 										try
 										{
-											checkUser(user, password, true, svyID, needToLogin, fs.getSolution(), request, reponse);
+											checkUser(user, password, true, svyID, result, fs.getSolution(), request, reponse);
 										}
 										catch (Exception e)
 										{
@@ -165,7 +169,7 @@ public class StatelessLoginHandler
 						catch (JWTDecodeException e)
 						{
 							log.atError().setCause(e).log(() -> "Not a valid JWT format");
-							needToLogin.setLeft(Boolean.TRUE);
+							result.setAuthenticated(false);
 						}
 					}
 				}
@@ -175,40 +179,40 @@ public class StatelessLoginHandler
 				throw new ServletException(e);
 			}
 		}
-		return needToLogin;
+		return result;
 	}
 
-	private static void checkUser(String username, String password, boolean remember, SvyID oldToken, Pair<Boolean, String> needToLogin, Solution solution,
+	private static void checkUser(String username, String password, boolean remember, SvyID oldToken, LoginResult result, Solution solution,
 		HttpServletRequest request, HttpServletResponse response)
 	{
 		boolean verified = false;
 		if (solution.getAuthenticator() == AUTHENTICATOR_TYPE.OAUTH)
 		{
-			verified = OAuthHandler.refreshOAuthTokenIfPossible(needToLogin, solution, oldToken, request, response);
+			verified = OAuthHandler.refreshOAuthTokenIfPossible(result, solution, oldToken, request, response);
 		}
 		else if (checkCSRFToken(request))
 		{
 			if (solution.getAuthenticator() == AUTHENTICATOR_TYPE.SERVOY_CLOUD)
 			{
-				verified = CloudStatelessAccessManager.checkCloudPermissions(username, password, remember, oldToken, needToLogin, solution, request);
+				verified = CloudStatelessAccessManager.checkCloudPermissions(username, password, remember, oldToken, result, solution, request);
 			}
 			else if (solution.getAuthenticator() == AUTHENTICATOR_TYPE.AUTHENTICATOR)
 			{
-				verified = AuthenticatorManager.checkAuthenticatorPermissions(username, password, remember, oldToken, needToLogin, solution, request);
+				verified = AuthenticatorManager.checkAuthenticatorPermissions(username, password, remember, oldToken, result, solution, request);
 			}
 			else
 			{
-				verified = DefaultLoginManager.checkDefaultLoginPermissions(username, password, remember, oldToken, needToLogin);
+				verified = DefaultLoginManager.checkDefaultLoginPermissions(username, password, remember, oldToken, result);
 			}
 		}
 		if (!verified)
 		{
 			String ip = request.getRemoteAddr();
 			log.atWarn().log(() -> "Authentication failed for user '" + username + "' from " + ip);
-			needToLogin.setLeft(Boolean.TRUE);
-			if (needToLogin.getRight() != null && !needToLogin.getRight().startsWith("<"))
+			result.setAuthenticated(false);
+			if (result.getCustomHtml() == null && result.getToken() != null && !result.getToken().startsWith("<"))
 			{
-				needToLogin.setRight(null);
+				result.setToken(null);
 			}
 		}
 	}
@@ -225,7 +229,7 @@ public class StatelessLoginHandler
 	 * @param reponse
 	 * @throws ServletException
 	 */
-	private static void checkPermissions(String username, String password, boolean remember, SvyID oldToken, Pair<Boolean, String> needToLogin,
+	private static void checkPermissions(String username, String password, boolean remember, SvyID oldToken, LoginResult result,
 		Solution solution, HttpServletRequest request) throws ServletException
 	{
 		log.atInfo().log(() -> "Checking permissions for user " + username + " with authenticator " + solution.getAuthenticator().name());
@@ -236,19 +240,19 @@ public class StatelessLoginHandler
 				solution.getAuthenticator() == AUTHENTICATOR_TYPE.OAUTH_AUTHENTICATOR)
 			{
 				//just call the authenticator to check the permissions, we don't want to refresh the token here
-				verified = AuthenticatorManager.checkAuthenticatorPermissions(username, password, remember, oldToken, needToLogin, solution, request);
+				verified = AuthenticatorManager.checkAuthenticatorPermissions(username, password, remember, oldToken, result, solution, request);
 			}
 			else if (solution.getAuthenticator() == AUTHENTICATOR_TYPE.SERVOY_CLOUD)
 			{
-				verified = CloudStatelessAccessManager.checkCloudPermissions(username, password, remember, oldToken, needToLogin, solution, request);
+				verified = CloudStatelessAccessManager.checkCloudPermissions(username, password, remember, oldToken, result, solution, request);
 			}
 			else if (solution.getAuthenticator() == AUTHENTICATOR_TYPE.AUTHENTICATOR)
 			{
-				verified = AuthenticatorManager.checkAuthenticatorPermissions(username, password, remember, oldToken, needToLogin, solution, request);
+				verified = AuthenticatorManager.checkAuthenticatorPermissions(username, password, remember, oldToken, result, solution, request);
 			}
 			else
 			{
-				verified = DefaultLoginManager.checkDefaultLoginPermissions(username, password, remember, oldToken, needToLogin);
+				verified = DefaultLoginManager.checkDefaultLoginPermissions(username, password, remember, oldToken, result);
 			}
 		}
 		else
@@ -259,10 +263,10 @@ public class StatelessLoginHandler
 		{
 			String ip = request.getRemoteAddr();
 			log.atWarn().log(() -> "Authentication failed for user '" + username + "' from " + ip);
-			needToLogin.setLeft(Boolean.TRUE);
-			if (needToLogin.getRight() != null && !needToLogin.getRight().startsWith("<"))
+			result.setAuthenticated(false);
+			if (result.getCustomHtml() == null && result.getToken() != null && !result.getToken().startsWith("<"))
 			{
-				needToLogin.setRight(null);
+				result.setToken(null);
 			}
 		}
 	}
@@ -342,7 +346,7 @@ public class StatelessLoginHandler
 		}
 	}
 
-	public static void writeLoginPage(HttpServletRequest request, HttpServletResponse response, String solutionName, String customHTML)
+	public static void writeLoginPage(HttpServletRequest request, HttpServletResponse response, String solutionName, LoginResult loginResult)
 		throws IOException, ServletException
 	{
 		if (request.getCharacterEncoding() == null) request.setCharacterEncoding("UTF8");
@@ -377,6 +381,7 @@ public class StatelessLoginHandler
 			return;
 		}
 
+		String customHTML = loginResult != null ? loginResult.getCustomHtml() : null;
 		ContentSecurityPolicyConfig contentSecurityPolicyConfig = null;
 		String loginHtml = null;
 		if (solution.getAuthenticator() == AUTHENTICATOR_TYPE.SERVOY_CLOUD)
@@ -412,6 +417,12 @@ public class StatelessLoginHandler
 		{
 			Solution sol = solution;
 			I18NTagResolver i18nProvider = new I18NTagResolver(request.getLocale(), sol);
+			Map<String, String> returnValueMap = null;
+			if (loginResult != null && loginResult.getReturnValue() != null)
+			{
+				returnValueMap = convertReturnValueToMap(loginResult.getReturnValue());
+			}
+			final Map<String, String> resolvedMap = returnValueMap;
 			loginHtml = TagParser.processTags(loginHtml, new ITagResolver()
 			{
 				@Override
@@ -423,7 +434,11 @@ public class StatelessLoginHandler
 						if (titleText == null) titleText = sol.getName();
 						return i18nProvider.getI18NMessageIfPrefixed(titleText);
 					}
-					return name;
+					if (resolvedMap != null && resolvedMap.containsKey(name))
+					{
+						return i18nProvider.getI18NMessageIfPrefixed(resolvedMap.get(name));
+					}
+					return "";
 				}
 			}, i18nProvider);
 		}
@@ -521,5 +536,24 @@ public class StatelessLoginHandler
 		response.setContentLengthLong(loginHtml.length());
 		response.getWriter().write(loginHtml);
 		return;
+	}
+
+	private static Map<String, String> convertReturnValueToMap(String returnValue)
+	{
+		Map<String, String> map = new HashMap<>();
+		try
+		{
+			JSONObject json = new JSONObject(returnValue);
+			for (String key : json.keySet())
+			{
+				Object value = json.get(key);
+				map.put(key, value != null ? value.toString() : "");
+			}
+		}
+		catch (Exception e)
+		{
+			map.put("returnValue", returnValue);
+		}
+		return map;
 	}
 }
