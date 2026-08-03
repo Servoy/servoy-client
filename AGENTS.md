@@ -138,4 +138,10 @@ Spotbugs is used to find bugs in Java code. You must pay special attention to Sp
 
 ---
 
+## 7. Jira API
+
+When asked to create, update, or link Jira issues, load the instructions from `JIRA.md` in this repository.
+
+---
+
 *Thank you for keeping the Servoy Runtime codebase healthy, compilation-error free, and highly consistent!*
