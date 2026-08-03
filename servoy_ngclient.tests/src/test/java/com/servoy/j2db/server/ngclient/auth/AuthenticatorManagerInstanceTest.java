@@ -27,7 +27,6 @@ import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.Solution.AUTHENTICATOR_TYPE;
 import com.servoy.j2db.server.ngclient.property.Log4JToConsoleTest;
 import com.servoy.j2db.server.ngclient.property.TestRepository;
-import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.UUID;
 
 import jakarta.servlet.http.Cookie;
@@ -120,7 +119,7 @@ public class AuthenticatorManagerInstanceTest extends Log4JToConsoleTest
 	public void oauthHandler_refreshOAuthTokenIfPossible_isNotStatic() throws Exception
 	{
 		Method method = OAuthHandler.class.getDeclaredMethod("refreshOAuthTokenIfPossible",
-			Pair.class, SvyID.class, HttpServletRequest.class, HttpServletResponse.class);
+			LoginResult.class, SvyID.class, HttpServletRequest.class, HttpServletResponse.class);
 		assertFalse("refreshOAuthTokenIfPossible must not be static", Modifier.isStatic(method.getModifiers()));
 	}
 
@@ -128,7 +127,7 @@ public class AuthenticatorManagerInstanceTest extends Log4JToConsoleTest
 	public void oauthHandler_refreshOAuthTokenIfPossible_isPrivate() throws Exception
 	{
 		Method method = OAuthHandler.class.getDeclaredMethod("refreshOAuthTokenIfPossible",
-			Pair.class, SvyID.class, HttpServletRequest.class, HttpServletResponse.class);
+			LoginResult.class, SvyID.class, HttpServletRequest.class, HttpServletResponse.class);
 		assertTrue("refreshOAuthTokenIfPossible must be private", Modifier.isPrivate(method.getModifiers()));
 	}
 

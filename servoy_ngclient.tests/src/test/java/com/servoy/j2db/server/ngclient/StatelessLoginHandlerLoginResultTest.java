@@ -15,6 +15,7 @@ import org.junit.Test;
 import com.servoy.base.util.I18NProvider;
 import com.servoy.base.util.ITagResolver;
 import com.servoy.base.util.TagParser;
+import com.servoy.j2db.server.ngclient.auth.AbstractAuthenticatorManager;
 import com.servoy.j2db.server.ngclient.auth.LoginResult;
 
 @SuppressWarnings("nls")
@@ -22,7 +23,7 @@ public class StatelessLoginHandlerLoginResultTest
 {
 	private Map<String, String> invokeConvertReturnValueToMap(String returnValue) throws Exception
 	{
-		Method method = StatelessLoginHandler.class.getDeclaredMethod("convertReturnValueToMap", String.class);
+		Method method = AbstractAuthenticatorManager.class.getDeclaredMethod("convertReturnValueToMap", String.class);
 		method.setAccessible(true);
 		@SuppressWarnings("unchecked")
 		Map<String, String> result = (Map<String, String>)method.invoke(null, returnValue);

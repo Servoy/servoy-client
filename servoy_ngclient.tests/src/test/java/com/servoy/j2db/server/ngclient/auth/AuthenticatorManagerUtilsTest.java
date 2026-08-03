@@ -176,7 +176,7 @@ public class AuthenticatorManagerUtilsTest extends Log4JToConsoleTest
 		assertNull("onOpenMethodID must be null for this test", authenticator.getOnOpenMethodID());
 
 		Solution mainSolution = createSolution();
-		LoginResult needToLogin = LoginResult.authenticated(null);
+		LoginResult needToLogin = LoginResult.needsLogin();
 
 		boolean result = AuthenticatorManager.callAuthenticator(needToLogin, null, false,
 			authenticator, new JSONObject(), null, mainSolution);
