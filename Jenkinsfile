@@ -21,6 +21,9 @@ pipeline {
     }
 
     parameters {
+        // New boolean toggle for manual workspace wiping
+        booleanParam(name: 'WIPE_WORKSPACE', defaultValue: false, description: 'Check this box to completely wipe the workspace BEFORE running the build.')
+
         string(name: 'goals', defaultValue: 'clean install', trim: false)
     }
     
@@ -51,6 +54,17 @@ pipeline {
                         }
                     }
                 }
+            }
+        }
+
+         // This stage executes first, but only if you checked the box in the UI
+        stage('Manual UI Workspace Wipe') {
+            when {
+                expression { params.WIPE_WORKSPACE }
+            }
+            steps {
+                echo "âš ï¸� Manual workspace wipe requested via UI toggle. Cleaning up..."
+                cleanWs()
             }
         }
 
