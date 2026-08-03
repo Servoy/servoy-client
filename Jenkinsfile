@@ -105,11 +105,11 @@ pipeline {
         }
         
         failure {
-            office365ConnectorSend webhookUrl: TEAMS_WEBHOOK, status: 'Failed'
+            office365ConnectorSend webhookUrl: TEAMS_WEBHOOK, status: 'Failed', adaptiveCards: true
         }
         
         unstable {
-            office365ConnectorSend webhookUrl: TEAMS_WEBHOOK, status: 'Unstable'
+            office365ConnectorSend webhookUrl: TEAMS_WEBHOOK, status: 'Unstable', adaptiveCards: true
             script {
                 if (!params.WIPE_WORKSPACE) {
                     build job: 'build', wait: false
@@ -118,7 +118,7 @@ pipeline {
         }
         
         fixed {
-            office365ConnectorSend webhookUrl: TEAMS_WEBHOOK, status: 'Back to Normal'
+            office365ConnectorSend webhookUrl: TEAMS_WEBHOOK, status: 'Back to Normal', adaptiveCards: true
         }
         
         success {
