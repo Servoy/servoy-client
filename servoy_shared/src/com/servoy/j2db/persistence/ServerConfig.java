@@ -28,7 +28,8 @@ import com.servoy.j2db.serverconfigtemplates.EmptyTemplate;
 import com.servoy.j2db.serverconfigtemplates.FilemakerTemplate;
 import com.servoy.j2db.serverconfigtemplates.FireBirdTemplate;
 import com.servoy.j2db.serverconfigtemplates.FoxProTemplate;
-import com.servoy.j2db.serverconfigtemplates.InMemoryTemplate;
+import com.servoy.j2db.serverconfigtemplates.InMemoryH2Template;
+import com.servoy.j2db.serverconfigtemplates.InMemoryHSQLTemplate;
 import com.servoy.j2db.serverconfigtemplates.InformixTemplate;
 import com.servoy.j2db.serverconfigtemplates.MSSQLFreeTDSTemplate;
 import com.servoy.j2db.serverconfigtemplates.MSSQLTemplate;
@@ -442,7 +443,7 @@ public class ServerConfig implements Serializable, Comparable<ServerConfig>
 
 	public boolean isInMemDriver()
 	{
-		return driver.toLowerCase().indexOf("hsqldb") != -1; //$NON-NLS-1$
+		return driver.toLowerCase().indexOf("hsqldb") != -1 || driver.toLowerCase().indexOf("org.h2") != -1; //$NON-NLS-1$
 	}
 
 	public static String getConnectionValidationTypeAsString(int connectionValidationType)
@@ -472,7 +473,8 @@ public class ServerConfig implements Serializable, Comparable<ServerConfig>
 		map.put("FoxPro DBF", new FoxProTemplate());
 		map.put("Filemaker", new FilemakerTemplate());
 		map.put("FireBird", new FireBirdTemplate());
-		map.put("In Memory", new InMemoryTemplate());
+		map.put("In Memory (HSQL)", new InMemoryHSQLTemplate());
+		map.put("In Memory (H2)", new InMemoryH2Template());
 		map.put("Informix", new InformixTemplate());
 		map.put("MS SQL", new MSSQLTemplate());
 		map.put("MS SQL (freetds)", new MSSQLFreeTDSTemplate());
