@@ -6,7 +6,7 @@ description: "Use when the user wants to run the full Spec-Driven Development pi
 # SDD — Spec-Driven Development Pipeline (opencode)
 
 You are the **orchestrator** for the full SDD pipeline:
-PM Agent → Coding → Code Review → Test Gen → Test Review → Commit.
+Triage → PM Agent → Coding → Code Review → Test Gen → Test Review → Commit.
 
 You collect output from each phase, show summaries to the user at approval gates,
 and thread context forward **selectively** to maintain isolation between phases.
@@ -14,6 +14,7 @@ and thread context forward **selectively** to maintain isolation between phases.
 ## Context isolation principle
 
 Each phase runs as a `task` subagent with a **fresh context**. This prevents bias:
+- The Triage agent evaluates the problem free of any spec-writing incentive
 - The Coder only sees the spec, not the PM's internal analysis
 - The Code Reviewer only sees the spec + actual code, not the Coder's reasoning
 - The Test Generator only sees the spec + implementation, not review findings
@@ -32,6 +33,152 @@ Record the issue key as `ISSUE_KEY` and the extra text (if any) as `USER_CONTEXT
 
 ---
 
+## Phase 0 — Triage & Root-Cause Investigation
+
+Before writing any spec, run an isolated triage agent whose only mandate is to find
+the *actual* root cause and decide whether — and how — the problem should be addressed.
+This prevents the pipeline from taking the ticket's proposed solution at face value.
+
+Read the file `.opencode/skills/sdd/phases/triage.md` and pass its full content as
+instructions in a `task` prompt:
+
+```
+task(subagent_type='general', prompt="""
+<contents of phases/triage.md>
+
+Issue: ISSUE_KEY
+User context: USER_CONTEXT (or "None" if the user provided no extra text)
+""")
+```
+
+**Important:** Pass ONLY the issue key + user context. The triage agent must investigate
+the codebase and git history itself and form an independent judgement — do not hand it a
+proposed solution.
+
+The task's output will be the relative path to the triage report it created. Record that
+as `TRIAGE_PATH`. Read the report to obtain its **verdict** (`PROCEED`, `NO_ACTION`, or
+`NEEDS_INPUT`) and recommendation.
+
+**HUMAN GATE — Triage decision**
+
+Display a short summary of the triage report (verdict + recommendation), then use the
+`question` tool:
+- Header: "Triage Decision"
+- Question: "Phase 0 complete. Triage report at `TRIAGE_PATH` (verdict: <VERDICT>). Please review it, then choose how to proceed:"
+- Options:
+  - "Proceed to spec" — accept the recommended approach and run the PM Agent
+  - "No action — stop pipeline" — end the pipeline; nothing further is generated
+  - "Redirect approach" — provide a different direction; I'll run the PM Agent with that
+
+**The AI recommends, the human decides.** Never auto-stop on `NO_ACTION` — always route
+through this gate and let the user confirm.
+
+Handle the choice:
+- **"Proceed to spec"** — record the recommended approach from the report as
+  `APPROVED_APPROACH` and continue to Phase 1.
+- **"No action — stop pipeline"** — inform the user the pipeline has ended with no changes
+  and stop. Do not run any further phase.
+- **"Redirect approach"** — record the user's direction as `APPROVED_APPROACH` and continue
+  to Phase 1.
+
+If the verdict is **`NEEDS_INPUT`**, the report contains a "Questions for the reporter"
+section with the specific information needed. Present these to the user via the
+`question` tool with these options:
+
+- Header: "Missing Information"
+- Question: "Triage needs the following information before a spec can be written:\n\n<numbered list from the report's 'Questions for the reporter' section>\n\nHow would you like to proceed?"
+- Options:
+  - "Answer here" — I'll provide the answers now
+  - "Post questions to Jira" — post these questions as a comment on the case
+  - "Stop pipeline" — end here
+
+Handle the choice:
+- **"Answer here"** — ask the user for answers (via the `question` tool), record
+  their answers as `USER_CONTEXT` additions, then present the main Triage Decision
+  gate above. The answers feed **forward** into the PM Agent — do **not** loop back
+  into Triage.
+- **"Post questions to Jira"** — follow the Jira comment posting flow below, then
+  inform the user the pipeline is paused pending a reply on the ticket.
+- **"Stop pipeline"** — inform the user the pipeline has ended and stop.
+
+### Jira comment posting flow (NEEDS_INPUT only)
+
+**Guardrail:** Reads are free; posting a comment is a Jira write — always proposed
+first with exact text shown, posted only on explicit approval. Never post internal
+triage reasoning or root-cause analysis — only the reporter-facing questions.
+
+1. **Compose the comment.** Build a clean, numbered list of questions from the
+   report's "Questions for the reporter" section. Add a trailing attribution line:
+   `— posted by triage assistant`
+
+2. **Show the exact text.** Display the full comment body to the user and ask:
+   - Header: "Confirm Jira Comment"
+   - Question: "I will post the following comment on <ISSUE_KEY>:\n\n```\n<comment text>\n```\n\nPost this comment?"
+   - Options:
+     - "Yes, post it" — proceed with the POST
+     - "Edit first" — let me revise the text before posting
+     - "Cancel" — do not post; return to the Missing Information gate
+
+   If "Edit first": ask the user for their revised text, then show it again for
+   confirmation (loop until "Yes, post it" or "Cancel").
+
+3. **Post via curl.** Use the Jira REST API. Build the ADF body as a PowerShell
+   hashtable, serialize with `-Compress`, write to a UTF-8 temp file, and pass
+   `-d "@file"` to curl (inline `-d` breaks on PowerShell due to quoting):
+
+   ```powershell
+   $token = $env:ATLASSIAN_AUTH_BASIC
+   $bodyObj = @{
+     body = @{
+       type = "doc"; version = 1
+       content = @(
+         @{ type = "paragraph"; content = @(
+           @{ type = "text"; text = "Hi," }
+         )},
+         @{ type = "paragraph"; content = @(
+           @{ type = "text"; text = "Could you please clarify:" }
+         )},
+         @{ type = "orderedList"; attrs = @{ order = 1 }; content = @(
+           @{ type = "listItem"; content = @(@{ type = "paragraph"; content = @(
+             @{ type = "text"; text = "<question 1>" }
+           )})},
+           @{ type = "listItem"; content = @(@{ type = "paragraph"; content = @(
+             @{ type = "text"; text = "<question 2>" }
+           )})}
+           # ... one listItem per question
+         )},
+         @{ type = "paragraph"; content = @(
+           @{ type = "text"; text = "-- posted by triage assistant" }
+         )}
+       )
+     }
+   }
+   $json = $bodyObj | ConvertTo-Json -Depth 10 -Compress
+   $tmpFile = "$env:TEMP\jira_comment.json"
+   [System.IO.File]::WriteAllText($tmpFile, $json, [System.Text.Encoding]::UTF8)
+   & curl.exe -s -X POST `
+     -H "Authorization: Basic $token" `
+     -H "Content-Type: application/json" `
+     -d "@$tmpFile" `
+     "https://api.atlassian.com/ex/jira/7c2b3b79-12a3-4f2c-81e2-0d61b19464b3/rest/api/3/issue/{ISSUE_KEY}/comment"
+   Remove-Item $tmpFile -ErrorAction SilentlyContinue
+   ```
+
+   **Important:** Use `orderedList` with `listItem` nodes for the questions — Jira
+   renders these as a numbered list. A single plain `paragraph` with newlines does NOT
+   produce a list in the Jira UI.
+
+4. **Handle the response:**
+   - **2xx** — success. Inform the user: "Comment posted on <ISSUE_KEY>. Pipeline
+     paused — re-run `/sdd <ISSUE_KEY>` when the reporter replies."
+   - **401/403** — the configured token appears to be read-only or lacks comment
+     permission. Inform the user: "Could not post — token lacks write permission.
+     You can post the questions manually, or provide the answers here." Fall back to
+     the "Answer here" path.
+   - **Other errors** — report the HTTP status and body, offer "Answer here" fallback.
+
+---
+
 ## Phase 1 — PM Agent: Jira → Spec
 
 Read the file `.opencode/skills/sdd/phases/pm-agent.md` and pass its full content
@@ -43,8 +190,15 @@ task(subagent_type='general', prompt="""
 
 Issue: ISSUE_KEY
 User context: USER_CONTEXT (or "None" if the user provided no extra text)
+Triage report: TRIAGE_PATH
+Approved approach: APPROVED_APPROACH
 """)
 ```
+
+**Important:** Pass the triage report path and the human-approved approach. These are
+**authoritative** — the PM Agent must bound the spec to the approved approach rather than
+the raw ticket, and reuse the triage's root-cause findings instead of re-investigating
+from scratch.
 
 The task's output will be the relative path to the spec file it created.
 Record that as `SPEC_PATH`.
