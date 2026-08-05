@@ -299,6 +299,8 @@ namespace ngclient.propertyTypes {
 	class FoundsetLinkedValue extends Array<any> {
 
         private __internalState: FSLinkedInternalState;
+
+        static get [Symbol.species]() { return Array; }
         
 		/** Initializes internal state of a new value */
 		constructor (sabloConverters: sablo.ISabloConverters,

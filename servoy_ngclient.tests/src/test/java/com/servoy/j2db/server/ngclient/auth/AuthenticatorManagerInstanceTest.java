@@ -27,7 +27,6 @@ import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.Solution.AUTHENTICATOR_TYPE;
 import com.servoy.j2db.server.ngclient.property.Log4JToConsoleTest;
 import com.servoy.j2db.server.ngclient.property.TestRepository;
-import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.UUID;
 
 import jakarta.servlet.http.Cookie;
@@ -120,7 +119,7 @@ public class AuthenticatorManagerInstanceTest extends Log4JToConsoleTest
 	public void oauthHandler_refreshOAuthTokenIfPossible_isNotStatic() throws Exception
 	{
 		Method method = OAuthHandler.class.getDeclaredMethod("refreshOAuthTokenIfPossible",
-			Pair.class, SvyID.class, HttpServletRequest.class, HttpServletResponse.class);
+			LoginResult.class, SvyID.class, HttpServletRequest.class, HttpServletResponse.class);
 		assertFalse("refreshOAuthTokenIfPossible must not be static", Modifier.isStatic(method.getModifiers()));
 	}
 
@@ -128,7 +127,7 @@ public class AuthenticatorManagerInstanceTest extends Log4JToConsoleTest
 	public void oauthHandler_refreshOAuthTokenIfPossible_isPrivate() throws Exception
 	{
 		Method method = OAuthHandler.class.getDeclaredMethod("refreshOAuthTokenIfPossible",
-			Pair.class, SvyID.class, HttpServletRequest.class, HttpServletResponse.class);
+			LoginResult.class, SvyID.class, HttpServletRequest.class, HttpServletResponse.class);
 		assertTrue("refreshOAuthTokenIfPossible must be private", Modifier.isPrivate(method.getModifiers()));
 	}
 
@@ -263,7 +262,7 @@ public class AuthenticatorManagerInstanceTest extends Log4JToConsoleTest
 	public void statelessLoginHandler_checkUser_noAuthenticatorTypeReference() throws Exception
 	{
 		Method method = com.servoy.j2db.server.ngclient.StatelessLoginHandler.class.getDeclaredMethod(
-			"checkUser", String.class, String.class, boolean.class, SvyID.class, Pair.class,
+			"checkUser", String.class, String.class, boolean.class, SvyID.class, LoginResult.class,
 			Solution.class, HttpServletRequest.class, HttpServletResponse.class);
 		method.setAccessible(true);
 
@@ -369,14 +368,14 @@ public class AuthenticatorManagerInstanceTest extends Log4JToConsoleTest
 
 		@Override
 		public boolean checkPermissions(String username, String password, boolean remember, SvyID oldToken,
-			Pair<Boolean, String> needToLogin, HttpServletRequest request)
+			LoginResult result, HttpServletRequest request)
 		{
 			return false;
 		}
 
 		@Override
 		public boolean checkUser(String username, String password, boolean remember, SvyID oldToken,
-			Pair<Boolean, String> needToLogin, HttpServletRequest request, HttpServletResponse response)
+			LoginResult result, HttpServletRequest request, HttpServletResponse response)
 		{
 			return false;
 		}

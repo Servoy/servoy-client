@@ -26,7 +26,6 @@ import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.server.ngclient.StatelessLoginHandler;
 import com.servoy.j2db.server.ngclient.property.Log4JToConsoleTest;
 import com.servoy.j2db.server.ngclient.property.TestRepository;
-import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.UUID;
 
 import jakarta.servlet.ServletException;
@@ -447,11 +446,11 @@ public class AbstractAuthenticatorManagerBehaviourTest extends Log4JToConsoleTes
 
 		@Override
 		public boolean checkPermissions(String u, String p, boolean r, SvyID t,
-			Pair<Boolean, String> n, HttpServletRequest req) { return false; }
+			LoginResult result, HttpServletRequest req) { return false; }
 
 		@Override
 		public boolean checkUser(String u, String p, boolean r, SvyID t,
-			Pair<Boolean, String> n, HttpServletRequest req, HttpServletResponse res) { return false; }
+			LoginResult result, HttpServletRequest req, HttpServletResponse res) { return false; }
 
 		@Override
 		protected ContentSecurityPolicyConfig addContentSecurityPolicyHeader(

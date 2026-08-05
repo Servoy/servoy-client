@@ -86,7 +86,7 @@ public class OAuthHandler extends AbstractAuthenticatorManager implements IToken
 	}
 
 	@Override
-	public void writeLoginPage(HttpServletRequest request, HttpServletResponse response, String customHTML)
+	public void writeLoginPage(HttpServletRequest request, HttpServletResponse response, LoginResult loginResult)
 		throws ServletException, java.io.UnsupportedEncodingException, IOException
 	{
 		if (request.getCharacterEncoding() == null) request.setCharacterEncoding("UTF8");
@@ -96,16 +96,16 @@ public class OAuthHandler extends AbstractAuthenticatorManager implements IToken
 
 	@Override
 	public boolean checkPermissions(String username, String password, boolean remember, SvyID oldToken,
-		Pair<Boolean, String> needToLogin, HttpServletRequest request)
+		LoginResult result, HttpServletRequest request)
 	{
-		return AuthenticatorManager.checkAuthenticatorPermissions(username, password, remember, oldToken, needToLogin, solution, request);
+		return AuthenticatorManager.checkAuthenticatorPermissions(username, password, remember, oldToken, result, solution, request);
 	}
 
 	@Override
 	public boolean checkUser(String username, String password, boolean remember, SvyID oldToken,
-		Pair<Boolean, String> needToLogin, HttpServletRequest request, HttpServletResponse response)
+		LoginResult result, HttpServletRequest request, HttpServletResponse response)
 	{
-		return refreshOAuthTokenIfPossible(needToLogin, oldToken, request, response);
+		return refreshOAuthTokenIfPossible(result, oldToken, request, response);
 	}
 
 	@Override
@@ -114,24 +114,24 @@ public class OAuthHandler extends AbstractAuthenticatorManager implements IToken
 		return false;
 	}
 
-	public static Pair<Boolean, String> handleOauth(HttpServletRequest req, HttpServletResponse resp) throws IOException
+	public static LoginResult handleOauth(HttpServletRequest req, HttpServletResponse resp) throws IOException
 	{
 		String reqUrl = req.getRequestURL().toString();
-		Pair<Boolean, String> showLogin = new Pair<>(Boolean.TRUE, null);
+		LoginResult result = LoginResult.needsLogin();
 		if (req.getParameter("id_token") != null || req.getParameter(CODE) != null)
 		{
-			checkToken(req, resp, reqUrl, showLogin);
+			checkToken(req, resp, reqUrl, result);
 		}
 		else if (reqUrl.contains("/svy_oauth/"))
 		{
 			//could be that the id token is in the fragment
-			showLogin.setLeft(Boolean.FALSE);
+			result.setResponseHandled(true);
 			extractFromFragment(req, resp, reqUrl);
 		}
-		return showLogin;
+		return result;
 	}
 
-	private static Pair<Boolean, String> checkToken(HttpServletRequest req, HttpServletResponse resp, String reqUrl, Pair<Boolean, String> showLogin)
+	private static LoginResult checkToken(HttpServletRequest req, HttpServletResponse resp, String reqUrl, LoginResult result)
 	{
 		String solutionName = getSolutionNameFromURI(reqUrl);
 		Pair<FlattenedSolution, Boolean> _fs = AngularIndexPageWriter.getFlattenedSolution(solutionName, null, req, resp);
@@ -139,7 +139,7 @@ public class OAuthHandler extends AbstractAuthenticatorManager implements IToken
 		if (fs == null)
 		{
 			log.error("The solution could not be found.");
-			return showLogin;
+			return result;
 		}
 
 		String id_token = req.getParameter("id_token");
@@ -155,7 +155,7 @@ public class OAuthHandler extends AbstractAuthenticatorManager implements IToken
 				if (auth == null)
 				{
 					log.error("Cannot get the oauth config. The nonce/state is not valid.");
-					return showLogin;
+					return result;
 				}
 			}
 			OAuth20Service service = OAuthUtils.createOauthService(req, auth, new HashMap<>());
@@ -178,14 +178,14 @@ public class OAuthHandler extends AbstractAuthenticatorManager implements IToken
 					if (id_token == null)
 					{
 						log.error("The id_token is not retrieved.");
-						return showLogin;
+						return result;
 					}
 				}
 			}
 			catch (Exception e)
 			{
 				log.error("Could not get the id and refresh tokens.");
-				return showLogin;
+				return result;
 			}
 		}
 		else
@@ -200,17 +200,17 @@ public class OAuthHandler extends AbstractAuthenticatorManager implements IToken
 			{
 				refreshToken = decodedJWT.getClaim(StatelessLoginHandler.REFRESH_TOKEN).asString();
 			}
-			if (JWTValidator.checkOauthIdToken(showLogin, fs.getSolution(), fs.getSolution().getAuthenticator(), decodedJWT, req, resp, refreshToken,
+			if (JWTValidator.checkOauthIdToken(result, fs.getSolution(), fs.getSolution().getAuthenticator(), decodedJWT, req, resp, refreshToken,
 				true))
 			{
-				return showLogin;
+				return result;
 			}
 			else if (fs.getSolution().getAuthenticator() != AUTHENTICATOR_TYPE.SERVOY_CLOUD)
 			{
 				handleLoginFailed(req, resp, _fs, auth);
 			}
 		}
-		return showLogin;
+		return result;
 	}
 
 	private static void handleLoginFailed(HttpServletRequest req, HttpServletResponse resp, Pair<FlattenedSolution, Boolean> _fs, JSONObject auth)
@@ -359,7 +359,7 @@ public class OAuthHandler extends AbstractAuthenticatorManager implements IToken
 		return null;
 	}
 
-	private boolean refreshOAuthTokenIfPossible(Pair<Boolean, String> needToLogin, SvyID oldToken, HttpServletRequest request,
+	private boolean refreshOAuthTokenIfPossible(LoginResult result, SvyID oldToken, HttpServletRequest request,
 		HttpServletResponse response)
 	{
 		String refresh_token = oldToken.getStringClaim(StatelessLoginHandler.REFRESH_TOKEN);
@@ -377,7 +377,7 @@ public class OAuthHandler extends AbstractAuthenticatorManager implements IToken
 						OpenIdOAuth2AccessToken token = (OpenIdOAuth2AccessToken)service.refreshAccessToken(refresh_token);
 						String id_token = token.getOpenIdToken();
 						DecodedJWT decodedJWT = JWT.decode(id_token);
-						return JWTValidator.checkOauthIdToken(needToLogin, solution, solution.getAuthenticator(), decodedJWT, request, response, refresh_token,
+						return JWTValidator.checkOauthIdToken(result, solution, solution.getAuthenticator(), decodedJWT, request, response, refresh_token,
 							false);
 					}
 					catch (Exception e)

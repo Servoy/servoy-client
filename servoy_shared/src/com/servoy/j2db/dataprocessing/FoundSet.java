@@ -3465,6 +3465,8 @@ public abstract class FoundSet
 	 * The function based sorting does not work with printing.
 	 * It is just a temporary in-memory sort.
 	 *
+	 * WARNING: This is an in memory sort, this will result in the foundset being fully loaded.
+	 *
 	 * NOTE: starting with 7.2 release this function doesn't save the data anymore
 	 *
 	 * @sample

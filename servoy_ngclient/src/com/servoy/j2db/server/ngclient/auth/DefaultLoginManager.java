@@ -24,7 +24,6 @@ import org.slf4j.LoggerFactory;
 
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
-import com.servoy.j2db.util.Pair;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -45,20 +44,20 @@ public class DefaultLoginManager extends AbstractAuthenticatorManager
 
 	@Override
 	public boolean checkPermissions(String username, String password, boolean remember, SvyID oldToken,
-		Pair<Boolean, String> needToLogin, HttpServletRequest request)
+		LoginResult result, HttpServletRequest request)
 	{
-		return checkDefaultLoginPermissions(username, password, remember, oldToken, needToLogin);
+		return checkDefaultLoginPermissions(username, password, remember, oldToken, result);
 	}
 
 	@Override
 	public boolean checkUser(String username, String password, boolean remember, SvyID oldToken,
-		Pair<Boolean, String> needToLogin, HttpServletRequest request, HttpServletResponse response)
+		LoginResult result, HttpServletRequest request, HttpServletResponse response)
 	{
-		return checkDefaultLoginPermissions(username, password, remember, oldToken, needToLogin);
+		return checkDefaultLoginPermissions(username, password, remember, oldToken, result);
 	}
 
 	private boolean checkDefaultLoginPermissions(String username, String password, boolean rememberUser, SvyID oldToken,
-		Pair<Boolean, String> needToLogin)
+		LoginResult result)
 	{
 		try
 		{
@@ -69,8 +68,8 @@ public class DefaultLoginManager extends AbstractAuthenticatorManager
 					oldToken.getUserID());
 				if (passwordLastChagedTime > oldToken.getLongClaim(SvyID.LAST_LOGIN))
 				{
-					needToLogin.setLeft(Boolean.TRUE);
-					needToLogin.setRight(null);
+					result.setAuthenticated(false);
+					result.setToken(null);
 					return false;
 				}
 			}
@@ -85,8 +84,8 @@ public class DefaultLoginManager extends AbstractAuthenticatorManager
 					SvyTokenBuilder builder = new SvyTokenBuilder(username, uid, permissions)//
 						.withRememberUser(Boolean.valueOf(rememberUser));
 					String token = builder.sign();
-					needToLogin.setLeft(Boolean.FALSE);
-					needToLogin.setRight(token);
+					result.setAuthenticated(true);
+					result.setToken(token);
 					return true;
 				}
 			}

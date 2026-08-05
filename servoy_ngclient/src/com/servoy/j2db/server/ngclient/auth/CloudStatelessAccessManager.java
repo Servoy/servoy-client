@@ -97,7 +97,7 @@ public class CloudStatelessAccessManager extends AbstractAuthenticatorManager im
 		super(solution);
 	}
 
-	public static boolean checkCloudOAuthPermissions(HttpServletRequest request, HttpServletResponse response, Pair<Boolean, String> needToLogin,
+	public static boolean checkCloudOAuthPermissions(HttpServletRequest request, HttpServletResponse response, LoginResult result,
 		Solution solution, String payload, Boolean rememberUser,
 		String refresh_token, String provider)
 	{
@@ -156,7 +156,7 @@ public class CloudStatelessAccessManager extends AbstractAuthenticatorManager im
 
 	@Override
 	public boolean checkPermissions(String username, String password, boolean remember, SvyID oldToken,
-		Pair<Boolean, String> needToLogin, HttpServletRequest request)
+		LoginResult result, HttpServletRequest request)
 	{
 		HttpRequest.Builder builder = HttpRequest.newBuilder()
 			.uri(oldToken != null ? REFRESH_TOKEN_CLOUD_URL : CLOUD_URL)
@@ -224,8 +224,8 @@ public class CloudStatelessAccessManager extends AbstractAuthenticatorManager im
 				if (oldToken != null) tokenBuilder.withRefreshToken(oldToken.getStringClaim(StatelessLoginHandler.REFRESH_TOKEN));
 				tokenBuilder.withClaim(CLOUD_OAUTH_ENDPOINT, provider);
 				String svyToken = tokenBuilder.sign();
-				needToLogin.setLeft(Boolean.FALSE);
-				needToLogin.setRight(svyToken);
+				result.setAuthenticated(true);
+				result.setToken(svyToken);
 				return true;
 			}
 		}
@@ -238,9 +238,9 @@ public class CloudStatelessAccessManager extends AbstractAuthenticatorManager im
 
 	@Override
 	public boolean checkUser(String username, String password, boolean remember, SvyID oldToken,
-		Pair<Boolean, String> needToLogin, HttpServletRequest request, HttpServletResponse response)
+		LoginResult result, HttpServletRequest request, HttpServletResponse response)
 	{
-		return checkPermissions(username, password, remember, oldToken, needToLogin, request);
+		return checkPermissions(username, password, remember, oldToken, result, request);
 	}
 
 	private static JSONObject getOAuthConfigFromTheCloud(Solution solution, HttpServletRequest request, String provider)
@@ -554,7 +554,7 @@ public class CloudStatelessAccessManager extends AbstractAuthenticatorManager im
 				log.atInfo()
 					.log(() -> "Showing the login page. The cloud returned " + status + " http status and unknown response format:" + json);
 				// Fall back to the default login page (solution media or classpath)
-				new CloudStatelessAccessManager(solution).writeLoginPage(request, response, html);
+				new CloudStatelessAccessManager(solution).writeLoginPage(request, response, LoginResult.needsLogin(html));
 				return;
 			}
 			writeHTML(request, response, initialURL, html);

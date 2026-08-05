@@ -341,49 +341,7 @@ public class WebComponent extends BaseComponent implements IWebComponent, ICommo
 	public void addChild(IPersist obj, int index)
 	{
 		super.addChild(obj, index);
-		if (obj instanceof WebCustomType customType)
-		{
-			JSONObject json = (JSONObject)getOwnProperty(StaticContentSpecLoader.PROPERTY_JSON.getPropertyName());
-			if (json == null)
-			{
-				json = new ServoyJSONObject();
-				setJson(json);
-			}
-			if (PersistHelper.isArrayOfCustomJSONObject(getPropertyDescription().getProperty(customType.getJsonKey()).getType()))
-			{
-				JSONArray customTypesArray = json.optJSONArray(customType.getJsonKey());
-				if (customTypesArray == null)
-				{
-					customTypesArray = new ServoyJSONArray();
-					json.put(customType.getJsonKey(), customTypesArray);
-				}
-				if (index >= 0)
-				{
-					if (index >= customTypesArray.length() || customTypesArray.opt(index) == null)
-					{
-						customTypesArray.put(index, customType.getFullJsonInFrmFile());
-					}
-					else
-					{
-						// move the element to the correct index
-						for (int i = customTypesArray.length() - 1; i >= index; i--)
-						{
-							customTypesArray.put(i + 1, customTypesArray.opt(i));
-						}
-						customTypesArray.put(index, customType.getFullJsonInFrmFile());
-					}
-				}
-				else
-				{
-					customTypesArray.put(customType.getFullJsonInFrmFile());
-				}
-			}
-			else
-			{
-				json.put(customType.getJsonKey(), customType.getFullJsonInFrmFile());
-			}
-		}
-
+		PersistHelper.addChildWebComponent(this, obj, index);
 	}
 
 	@Override

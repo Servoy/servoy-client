@@ -18,7 +18,6 @@ import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.Solution.AUTHENTICATOR_TYPE;
 import com.servoy.j2db.server.ngclient.StatelessLoginHandler;
 import com.servoy.j2db.server.ngclient.property.Log4JToConsoleTest;
-import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.UUID;
 
 import jakarta.servlet.ServletException;
@@ -146,11 +145,11 @@ public class OAuthHandlerUtilsTest extends Log4JToConsoleTest
 		AbstractAuthenticatorManagerBehaviourTest.StubRequest request = new AbstractAuthenticatorManagerBehaviourTest.StubRequest();
 		// no CSRF cookie, no parameter
 
-		Pair<Boolean, String> needToLogin = new Pair<>(Boolean.FALSE, null);
+		LoginResult result = LoginResult.needsLogin();
 
 		try
 		{
-			invokeCheckPermissions("user", "pass", false, null, needToLogin, solution, request);
+			invokeCheckPermissions("user", "pass", false, null, result, solution, request);
 			fail("Expected ServletException due to missing CSRF token");
 		}
 		catch (ServletException e)
@@ -170,13 +169,14 @@ public class OAuthHandlerUtilsTest extends Log4JToConsoleTest
 	{
 		Solution solution = createSolutionWithAuthType(AUTHENTICATOR_TYPE.DEFAULT);
 		AbstractAuthenticatorManagerBehaviourTest.StubRequest request = new AbstractAuthenticatorManagerBehaviourTest.StubRequest();
-		// no CSRF token in request â checkCSRFToken returns false
+		// no CSRF token in request - checkCSRFToken returns false
 
-		Pair<Boolean, String> needToLogin = new Pair<>(Boolean.FALSE, "some-token");
-		invokeCheckUser("user", "pass", false, null, needToLogin, solution, request, new StatelessLoginHandlerCSRFTest.StubHttpServletResponse(
+		LoginResult result = LoginResult.needsLogin();
+		result.setToken("some-token");
+		invokeCheckUser("user", "pass", false, null, result, solution, request, new StatelessLoginHandlerCSRFTest.StubHttpServletResponse(
 			new java.io.StringWriter(), new java.util.ArrayList<>()));
 
-		assertTrue("needToLogin.left must be true when CSRF fails", needToLogin.getLeft());
+		assertFalse("result must not be authenticated when CSRF fails", result.isAuthenticated());
 	}
 
 	@Test
@@ -185,11 +185,12 @@ public class OAuthHandlerUtilsTest extends Log4JToConsoleTest
 		Solution solution = createSolutionWithAuthType(AUTHENTICATOR_TYPE.DEFAULT);
 		AbstractAuthenticatorManagerBehaviourTest.StubRequest request = new AbstractAuthenticatorManagerBehaviourTest.StubRequest();
 
-		Pair<Boolean, String> needToLogin = new Pair<>(Boolean.FALSE, "some-plain-token");
-		invokeCheckUser("user", "pass", false, null, needToLogin, solution, request, new StatelessLoginHandlerCSRFTest.StubHttpServletResponse(
+		LoginResult result = LoginResult.needsLogin();
+		result.setToken("some-plain-token");
+		invokeCheckUser("user", "pass", false, null, result, solution, request, new StatelessLoginHandlerCSRFTest.StubHttpServletResponse(
 			new java.io.StringWriter(), new java.util.ArrayList<>()));
 
-		assertNull("right must be cleared when it is not HTML", needToLogin.getRight());
+		assertNull("token must be cleared when it is not HTML", result.getToken());
 	}
 
 	@Test
@@ -199,23 +200,22 @@ public class OAuthHandlerUtilsTest extends Log4JToConsoleTest
 		AbstractAuthenticatorManagerBehaviourTest.StubRequest request = new AbstractAuthenticatorManagerBehaviourTest.StubRequest();
 
 		String htmlRight = "<html>error page</html>";
-		Pair<Boolean, String> needToLogin = new Pair<>(Boolean.FALSE, htmlRight);
-		invokeCheckUser("user", "pass", false, null, needToLogin, solution, request, new StatelessLoginHandlerCSRFTest.StubHttpServletResponse(
+		LoginResult result = LoginResult.needsLogin();
+		result.setToken(htmlRight);
+		invokeCheckUser("user", "pass", false, null, result, solution, request, new StatelessLoginHandlerCSRFTest.StubHttpServletResponse(
 			new java.io.StringWriter(), new java.util.ArrayList<>()));
 
-		assertEquals("right must be preserved when it starts with <", htmlRight, needToLogin.getRight());
+		assertEquals("token must be preserved when it starts with <", htmlRight, result.getToken());
 	}
+
 
 	@Test
 	public void checkUser_oauthType_csrfNotRequired_doesNotSetNeedsLoginDueToCsrf() throws Exception
 	{
-		// For OAuth, CSRF is not required â missing CSRF must NOT cause needToLogin.left = true
+		// For OAuth, CSRF is not required - missing CSRF must NOT cause result.isAuthenticated() = false
 		// by itself. The manager's checkUser (refreshOAuthTokenIfPossible) will return false
-		// due to null oldToken, which WILL set needToLogin.left = true. But the reason is the
-		// missing token, not the CSRF. We verify by checking that with a non-OAuth type and the
-		// same null oldToken, the same result occurs.
-		// The key distinction: both return left=true, but OAuth path goes through checkUser,
-		// non-OAuth without CSRF does NOT call checkUser at all.
+		// due to null oldToken, which WILL set authenticated=false. But the reason is the
+		// missing token, not the CSRF.
 
 		// Verify that OAuthHandler.requiresCSRFForCheckUser() is false (already tested elsewhere)
 		// and that checkUser still calls the manager (which then returns false due to null oldToken).
@@ -223,17 +223,16 @@ public class OAuthHandlerUtilsTest extends Log4JToConsoleTest
 		AbstractAuthenticatorManagerBehaviourTest.StubRequest request = new AbstractAuthenticatorManagerBehaviourTest.StubRequest();
 		// deliberately no CSRF cookie/param
 
-		Pair<Boolean, String> needToLogin = new Pair<>(Boolean.FALSE, null);
+		LoginResult result = LoginResult.needsLogin();
 		try
 		{
-			invokeCheckUser("user", "pass", false, null, needToLogin, solution, request,
+			invokeCheckUser("user", "pass", false, null, result, solution, request,
 				new StatelessLoginHandlerCSRFTest.StubHttpServletResponse(new java.io.StringWriter(), new java.util.ArrayList<>()));
 		}
 		catch (Exception e)
 		{
 			// NullPointerException from null oldToken in OAuthHandler is acceptable
 		}
-		// left may be true (from manager returning false) but NOT because of CSRF rejection alone
 		// The fact that we reached the catch and not a CSRF-fail-early proves the path was taken
 	}
 
@@ -249,15 +248,15 @@ public class OAuthHandlerUtilsTest extends Log4JToConsoleTest
 	}
 
 	private void invokeCheckPermissions(String username, String password, boolean remember,
-		SvyID oldToken, Pair<Boolean, String> needToLogin, Solution solution, HttpServletRequest request)
+		SvyID oldToken, LoginResult result, Solution solution, HttpServletRequest request)
 		throws Exception
 	{
 		Method m = StatelessLoginHandler.class.getDeclaredMethod("checkPermissions",
-			String.class, String.class, boolean.class, SvyID.class, Pair.class, Solution.class, HttpServletRequest.class);
+			String.class, String.class, boolean.class, SvyID.class, LoginResult.class, Solution.class, HttpServletRequest.class);
 		m.setAccessible(true);
 		try
 		{
-			m.invoke(null, username, password, remember, oldToken, needToLogin, solution, request);
+			m.invoke(null, username, password, remember, oldToken, result, solution, request);
 		}
 		catch (java.lang.reflect.InvocationTargetException e)
 		{
@@ -267,16 +266,16 @@ public class OAuthHandlerUtilsTest extends Log4JToConsoleTest
 	}
 
 	private void invokeCheckUser(String username, String password, boolean remember,
-		SvyID oldToken, Pair<Boolean, String> needToLogin, Solution solution,
+		SvyID oldToken, LoginResult result, Solution solution,
 		HttpServletRequest request, jakarta.servlet.http.HttpServletResponse response) throws Exception
 	{
 		Method m = StatelessLoginHandler.class.getDeclaredMethod("checkUser",
-			String.class, String.class, boolean.class, SvyID.class, Pair.class, Solution.class,
+			String.class, String.class, boolean.class, SvyID.class, LoginResult.class, Solution.class,
 			HttpServletRequest.class, jakarta.servlet.http.HttpServletResponse.class);
 		m.setAccessible(true);
 		try
 		{
-			m.invoke(null, username, password, remember, oldToken, needToLogin, solution, request, response);
+			m.invoke(null, username, password, remember, oldToken, result, solution, request, response);
 		}
 		catch (java.lang.reflect.InvocationTargetException e)
 		{
@@ -284,6 +283,7 @@ public class OAuthHandlerUtilsTest extends Log4JToConsoleTest
 			throw e;
 		}
 	}
+
 
 	private Solution createSolutionWithAuthType(AUTHENTICATOR_TYPE type) throws Exception
 	{

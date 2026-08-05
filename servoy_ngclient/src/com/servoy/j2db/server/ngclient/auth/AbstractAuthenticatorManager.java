@@ -22,10 +22,13 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.security.SecureRandom;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
+import org.json.JSONObject;
 import org.sablo.security.ContentSecurityPolicyConfig;
 import org.sablo.util.HTTPUtils;
 
@@ -63,12 +66,13 @@ public abstract class AbstractAuthenticatorManager implements IAuthenticatorMana
 	}
 
 	@Override
-	public void writeLoginPage(HttpServletRequest request, HttpServletResponse response, String customHTML)
+	public void writeLoginPage(HttpServletRequest request, HttpServletResponse response, LoginResult loginResult)
 		throws ServletException, UnsupportedEncodingException, IOException
 	{
 		if (request.getCharacterEncoding() == null) request.setCharacterEncoding("UTF8");
 		HTTPUtils.setNoCacheHeaders(response);
 
+		String customHTML = loginResult != null ? loginResult.getCustomHtml() : null;
 		String loginHtml = getLoginHTML(request, customHTML);
 		if (loginHtml == null)
 		{
@@ -81,6 +85,12 @@ public abstract class AbstractAuthenticatorManager implements IAuthenticatorMana
 		{
 			Solution sol = solution;
 			I18NTagResolver i18nProvider = new I18NTagResolver(request.getLocale(), sol);
+			Map<String, String> returnValueMap = null;
+			if (loginResult != null && loginResult.getReturnValue() != null)
+			{
+				returnValueMap = convertReturnValueToMap(loginResult.getReturnValue());
+			}
+			final Map<String, String> resolvedMap = returnValueMap;
 			loginHtml = TagParser.processTags(loginHtml, new ITagResolver()
 			{
 				@Override
@@ -92,7 +102,11 @@ public abstract class AbstractAuthenticatorManager implements IAuthenticatorMana
 						if (titleText == null) titleText = sol.getName();
 						return i18nProvider.getI18NMessageIfPrefixed(titleText);
 					}
-					return name;
+					if (resolvedMap != null && resolvedMap.containsKey(name))
+					{
+						return i18nProvider.getI18NMessageIfPrefixed(resolvedMap.get(name));
+					}
+					return "";
 				}
 			}, i18nProvider);
 		}
@@ -191,7 +205,8 @@ public abstract class AbstractAuthenticatorManager implements IAuthenticatorMana
 		}
 		else if (!StringUtils.isBlank(request.getParameter(StatelessLoginHandler.USERNAME)))
 		{
-			sb.append("\n     document.login_form.username.value = '" + StringEscapeUtils.escapeEcmaScript(request.getParameter(StatelessLoginHandler.USERNAME)) + "';");
+			sb.append("\n     document.login_form.username.value = '" +
+				StringEscapeUtils.escapeEcmaScript(request.getParameter(StatelessLoginHandler.USERNAME)) + "';");
 			sb.append("\n     if (document.getElementById('errorlabel')) document.getElementById('errorlabel').style.display='block';");
 			sb.append("\n     if(loader) loader.style.display = 'none';");
 			sb.append("\n     forms.forEach(f => f.style.setProperty('display', 'block', 'important')); ");
@@ -238,5 +253,24 @@ public abstract class AbstractAuthenticatorManager implements IAuthenticatorMana
 		response.setContentType("text/html");
 		response.setContentLengthLong(result.length());
 		response.getWriter().write(result);
+	}
+
+	private static Map<String, String> convertReturnValueToMap(String returnValue)
+	{
+		Map<String, String> map = new HashMap<>();
+		try
+		{
+			JSONObject json = new JSONObject(returnValue);
+			for (String key : json.keySet())
+			{
+				Object value = json.get(key);
+				map.put(key, value != null ? value.toString() : "");
+			}
+		}
+		catch (Exception e)
+		{
+			map.put("returnValue", returnValue);
+		}
+		return map;
 	}
 }

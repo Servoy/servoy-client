@@ -23,9 +23,9 @@ import com.servoy.j2db.persistence.ServerConfig;
  * @author gboros
  *
  */
-public class InMemoryTemplate extends ServerTemplateDefinition
+public class InMemoryHSQLTemplate extends ServerTemplateDefinition
 {
-	public InMemoryTemplate()
+	public InMemoryHSQLTemplate()
 	{
 		super(new ServerConfig.Builder()
 			.setServerName("new_inmem")
