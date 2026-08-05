@@ -95,9 +95,9 @@ public abstract class AbstractBase implements IPersist
 	 */
 	private transient JSONWrapperMap jsonCustomProperties = null;
 
-/*
- * _____________________________________________________________ Declaration and definition of constructors
- */
+	/*
+	 * _____________________________________________________________ Declaration and definition of constructors
+	 */
 	public AbstractBase(int type, ISupportChilds parent, UUID uuid)
 	{
 		this.type = type;
@@ -658,6 +658,7 @@ public abstract class AbstractBase implements IPersist
 
 	public IPersist getChild(UUID childUuid)
 	{
+		if (childUuid == null) return null;
 		if (allobjectsMap == null && allobjects != null && allobjects.size() > 0)
 		{
 			allobjectsMap = new ConcurrentHashMap<UUID, IPersist>(allobjects.size(), 0.9f, 16);
