@@ -46,7 +46,7 @@ import com.servoy.j2db.util.Utils;
 public class WebCustomType extends AbstractBase implements IChildWebObject, ISupportExtendsID
 {
 
-//	private static final long serialVersionUID = 1L; // this shouldn't get serialized anyway for now; parent WebComponent just serializes it's json
+	//	private static final long serialVersionUID = 1L; // this shouldn't get serialized anyway for now; parent WebComponent just serializes it's json
 
 	protected static Set<String> purePersistPropertyNames;
 
@@ -362,6 +362,13 @@ public class WebCustomType extends AbstractBase implements IChildWebObject, ISup
 	public ISupportChilds getRealParent()
 	{
 		return PersistHelper.getRealParent(this);
+	}
+
+	@Override
+	protected void fillClone(AbstractBase cloned)
+	{
+		cloned.internalClearAllObjects();
+		cloned.copyPropertiesMap(getPropertiesMap(), true);
 	}
 
 	private void initCustomTypes()
