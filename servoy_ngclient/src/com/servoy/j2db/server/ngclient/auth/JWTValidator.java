@@ -52,8 +52,28 @@ public class JWTValidator
 {
 	static final Logger log = LoggerFactory.getLogger("stateless.login");
 
+	private static java.util.function.BiPredicate<DecodedJWT, String> jwtVerifier = null;
+
+	/**
+	 * Test hook: override the JWT verification logic.
+	 * @param verifier a BiPredicate that takes (decodedJWT, jwks_uri) and returns true if valid
+	 */
+	static void setJWTVerifier(java.util.function.BiPredicate<DecodedJWT, String> verifier)
+	{
+		jwtVerifier = verifier;
+	}
+
+	static void resetJWTVerifier()
+	{
+		jwtVerifier = null;
+	}
+
 	public static boolean verifyJWT(DecodedJWT decodedJWT, String jwks_uri) throws MalformedURLException
 	{
+		if (jwtVerifier != null)
+		{
+			return jwtVerifier.test(decodedJWT, jwks_uri);
+		}
 		try
 		{
 			final JwkProvider jwkStore = new UrlJwkProvider(new URL(jwks_uri));
