@@ -2,6 +2,9 @@ package com.servoy.j2db.persistence;
 
 import static org.junit.Assert.*;
 
+import java.util.Iterator;
+import java.util.List;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Before;
@@ -468,6 +471,118 @@ public class WebCustomTypeAddChildTest
 		assertEquals(nested1.getUUID().toString(), nestedArray.getJSONObject(1).getString(IChildWebObject.UUID_KEY));
 	}
 
+	@Test
+	public void testGetChildWithNullReturnsNull()
+	{
+		TestableWebComponent wc = createWebComponent();
+		WebCustomType.createNewInstance(wc, columnType.getCustomJSONTypeDefinition(), "columns", 0);
+		assertNull(wc.getChild(null));
+	}
+
+	@Test
+	public void testGetChildNullOnEmptyComponent()
+	{
+		TestableWebComponent wc = createWebComponent();
+		assertNull(wc.getChild(null));
+	}
+
+	@Test
+	public void testClonePersistWithColumns()
+	{
+		TestableWebComponent wc = createWebComponent();
+		WebCustomType.createNewInstance(wc, columnType.getCustomJSONTypeDefinition(), "columns", 0);
+		WebCustomType.createNewInstance(wc, columnType.getCustomJSONTypeDefinition(), "columns", 1);
+		WebCustomType.createNewInstance(wc, columnType.getCustomJSONTypeDefinition(), "columns", 2);
+		WebComponent clonedWc = (WebComponent)wc.clonePersist(null);
+		assertEquals(3, clonedWc.getAllObjectsAsList().size());
+	}
+
+	@Test
+	public void testClonedChildrenShareParentJsonEntries()
+	{
+		TestableWebComponent wc = createWebComponent();
+		WebCustomType.createNewInstance(wc, columnType.getCustomJSONTypeDefinition(), "columns", 0);
+		WebCustomType.createNewInstance(wc, columnType.getCustomJSONTypeDefinition(), "columns", 1);
+
+		WebComponent clonedWc = (WebComponent)wc.clonePersist(null);
+		JSONObject clonedJson = (JSONObject)clonedWc.getOwnProperty(
+			StaticContentSpecLoader.PROPERTY_JSON.getPropertyName());
+		JSONArray clonedColumns = clonedJson.optJSONArray("columns");
+		assertNotNull(clonedColumns);
+
+		java.util.List<IPersist> children = clonedWc.getAllObjectsAsList();
+		assertEquals(2, children.size());
+		for (int i = 0; i < children.size(); i++)
+		{
+			WebCustomType child = (WebCustomType)children.get(i);
+			assertEquals(child.getUUID().toString(),
+				clonedColumns.getJSONObject(i).getString(IChildWebObject.UUID_KEY));
+		}
+	}
+
+	@Test
+	public void testClonedJsonPreservesData()
+	{
+		TestableWebComponent wc = createWebComponent();
+		WebCustomType.createNewInstance(wc, columnType.getCustomJSONTypeDefinition(), "columns", 0);
+
+		WebComponent clonedWc = (WebComponent)wc.clonePersist(null);
+		JSONObject clonedJson = (JSONObject)clonedWc.getOwnProperty(
+			StaticContentSpecLoader.PROPERTY_JSON.getPropertyName());
+		assertNotNull(clonedJson);
+		assertNotNull(clonedJson.optJSONArray("columns"));
+		assertEquals(1, clonedJson.optJSONArray("columns").length());
+	}
+
+	@Test
+	public void testClonePersistWithNestedCustomType()
+	{
+		TestableWebComponent wc = createWebComponent();
+		WebCustomType col = WebCustomType.createNewInstance(wc, columnType.getCustomJSONTypeDefinition(), "columns", 0);
+		WebCustomType.createNewInstance(col, nestedType.getCustomJSONTypeDefinition(), "singleNested", -1);
+		wc.clonePersist(null);
+	}
+
+	@Test
+	public void testClonedNestedChildrenHaveCorrectJsonRefs()
+	{
+		TestableWebComponent wc = createWebComponent();
+		WebCustomType col = WebCustomType.createNewInstance(wc, columnType.getCustomJSONTypeDefinition(), "columns", 0);
+		WebCustomType.createNewInstance(col, nestedType.getCustomJSONTypeDefinition(), "singleNested", -1);
+
+		WebComponent clonedWc = (WebComponent)wc.clonePersist(null);
+		java.util.List<IPersist> clonedChildren = clonedWc.getAllObjectsAsList();
+		assertEquals(1, clonedChildren.size());
+
+		WebCustomType clonedCol = (WebCustomType)clonedChildren.get(0);
+		java.util.List<IPersist> nestedChildren = clonedCol.getAllObjectsAsList();
+		assertEquals(1, nestedChildren.size());
+
+		WebCustomType clonedNested = (WebCustomType)nestedChildren.get(0);
+		JSONObject colJson = clonedCol.getJson();
+		JSONObject nestedJsonFromParent = colJson.optJSONObject("singleNested");
+		assertNotNull(nestedJsonFromParent);
+		assertEquals(clonedNested.getUUID().toString(),
+			nestedJsonFromParent.getString(IChildWebObject.UUID_KEY));
+	}
+
+	@Test
+	public void testClonePersistWithJsonEntriesLackingSvyUUID()
+	{
+		TestableWebComponent wc = createWebComponent();
+
+		JSONObject wcJson = (JSONObject)wc.getOwnProperty(StaticContentSpecLoader.PROPERTY_JSON.getPropertyName());
+		JSONArray columnsArray = new JSONArray();
+		columnsArray.put(new JSONObject().put("text", "col1"));
+		columnsArray.put(new JSONObject().put("text", "col2"));
+		columnsArray.put(new JSONObject().put("text", "col3"));
+		wcJson.put("columns", columnsArray);
+
+		WebComponent clonedWc = (WebComponent)wc.clonePersist(null);
+		assertEquals(3, clonedWc.getAllObjectsAsList().size());
+	}
+
+
 	private static class DummySolution extends AbstractRootObject implements ISupportChilds
 	{
 		DummySolution()
@@ -490,6 +605,11 @@ public class WebCustomTypeAddChildTest
 		public PropertyDescription getPropertyDescription()
 		{
 			return pd;
+		}
+
+		void setCustomTypesInitialized(boolean value)
+		{
+			this.customTypesInitialized = value;
 		}
 
 		@Override

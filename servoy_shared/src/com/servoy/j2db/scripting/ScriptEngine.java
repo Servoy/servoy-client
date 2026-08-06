@@ -126,52 +126,9 @@ public class ScriptEngine implements IScriptSupport
 	private final static Pattern docStripper = Pattern.compile(
 		"\\A\\s*(?:/\\*[^*]*\\*+(?:[^/*][^*]*\\*+)*/)?\\s*function\\s*(?:/\\*[^*]*\\*+(?:[^/*][^*]*\\*+)*/)*\\s*([\\w\\$]+)"); //$NON-NLS-1$
 
-	private final static ContextFactory.Listener contextListener = new ContextFactory.Listener()
-	{
-		public void contextCreated(Context cx)
-		{
-			IServiceProvider sp = J2DBGlobals.getServiceProvider();
-			if (sp instanceof IApplication && sp.isSolutionLoaded())
-			{
-				IApplication application = (IApplication)sp;
-				cx.setApplicationClassLoader(application.getPluginManager().getClassLoader(), false);
-				cx.setWrapFactory(new ServoyWrapFactory(application));
-
-				String version = application.getSettings().getProperty("servoy.javascript.version", Integer.toString(Context.VERSION_ES6)); //$NON-NLS-1$
-
-				if (version != null && version.length() > 0)
-				{
-					try
-					{
-						cx.setLanguageVersion(Integer.parseInt(version));
-					}
-					catch (Exception e)
-					{
-						Debug.error("Error parsing value of 'servoy.javascript.version' property to an integer value: " + version); //$NON-NLS-1$
-					}
-				}
-				// if there is no debugger yet (for a real debug client) then attach a profiling debugger when the profiler is enabled on the admin page.
-				PerformanceData performanceData;
-				if (cx.getDebugger() == null &&
-					(performanceData = application instanceof IPerformanceDataProvider
-						? ((IPerformanceDataProvider)application).getPerformanceData() : null) != null)
-				{
-					cx.setDebugger(new ProfilingDebugger(performanceData, application), null);
-				}
-			}
-
-		}
-
-		public void contextReleased(Context cx)
-		{
-			cx.setApplicationClassLoader(null, false);
-		}
-	};
-
 	static
 	{
-		ContextFactory.initGlobal(new ServoyContextFactory());
-		ContextFactory.getGlobal().addListener(contextListener);
+		ServoyContextFactory.init();
 	}
 
 	protected IApplication application;

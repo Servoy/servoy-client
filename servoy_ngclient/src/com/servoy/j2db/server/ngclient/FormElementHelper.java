@@ -546,7 +546,7 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 				if (pd != null) pd = ((CustomJSONArrayType< ? , ? >)pd.getType()).getCustomJSONTypeDefinition();
 				if (pd == null)
 				{
-					Debug.error(new RuntimeException("Cannot find component definition special type to use for portal."));
+					Debug.trace(new RuntimeException("Cannot find component definition special type to use for portal."));
 					return null;
 				}
 				ComponentPropertyType type = ((ComponentPropertyType)pd.getType());
