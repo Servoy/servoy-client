@@ -93,6 +93,18 @@ public class CloudStatelessAccessManager
 	public static final URI CLOUD_OAUTH_URL = URI.create(BASE_CLOUD_URL + "/servoy-service/rest_ws/api/login_auth/validateOAuthUser");
 	public static final String CLOUD_OAUTH_ENDPOINT = "endpoint";
 
+	private static java.util.function.Supplier<HttpClient> httpClientFactory = HttpClient::newHttpClient;
+
+	static void setHttpClientFactory(java.util.function.Supplier<HttpClient> factory)
+	{
+		httpClientFactory = factory;
+	}
+
+	static void resetHttpClientFactory()
+	{
+		httpClientFactory = HttpClient::newHttpClient;
+	}
+
 
 	public static boolean checkCloudOAuthPermissions(HttpServletRequest request, HttpServletResponse response, LoginResult result,
 		Solution solution, String payload, Boolean rememberUser,
@@ -102,7 +114,7 @@ public class CloudStatelessAccessManager
 			.setHeader("uuid", sanitizeHeader(solution.getUUID().toString())).POST(BodyPublishers.ofString(payload)).build();
 
 
-		try (HttpClient httpclient = HttpClient.newHttpClient())
+		try (HttpClient httpclient = httpClientFactory.get())
 		{
 			Pair<Integer, JSONObject> res = httpclient.send(post, new CloudResponseHandler("validateOAuthUser")).body();
 			if (res.getLeft().intValue() == HttpURLConnection.HTTP_OK)
@@ -198,7 +210,7 @@ public class CloudStatelessAccessManager
 		builder.setHeader("Accept", "application/json");
 		builder.setHeader("uuid", sanitizeHeader(solution.getUUID().toString()));
 
-		try (HttpClient httpclient = HttpClient.newHttpClient())
+		try (HttpClient httpclient = httpClientFactory.get())
 		{
 			Pair<Integer, JSONObject> res = httpclient.send(builder.build(), new CloudResponseHandler("login_auth")).body();
 			if (res.getLeft().intValue() == HttpURLConnection.HTTP_OK)
@@ -225,7 +237,7 @@ public class CloudStatelessAccessManager
 	private static JSONObject getOAuthConfigFromTheCloud(Solution solution, HttpServletRequest request, String provider)
 	{
 		JSONObject oauth = null;
-		try (HttpClient httpclient = HttpClient.newHttpClient())
+		try (HttpClient httpclient = httpClientFactory.get())
 		{
 			String[] parts = provider.split("\\?");
 			String endpoint = parts[0];
@@ -255,7 +267,7 @@ public class CloudStatelessAccessManager
 			{
 				if (fs.getSolution().getAuthenticator() == AUTHENTICATOR_TYPE.SERVOY_CLOUD)
 				{
-					try (HttpClient httpclient = HttpClient.newHttpClient())
+					try (HttpClient httpclient = httpClientFactory.get())
 					{
 						Solution solution = fs.getSolution();
 						Pair<Integer, JSONObject> res = null;
@@ -717,7 +729,7 @@ public class CloudStatelessAccessManager
 
 	public static String getCloudLoginPage(HttpServletRequest request, Solution solution, String loginHtml) throws IOException
 	{
-		try (HttpClient httpclient = HttpClient.newHttpClient())
+		try (HttpClient httpclient = httpClientFactory.get())
 		{
 			Pair<Integer, JSONObject> result = executeCloudGetRequest(httpclient, solution, "login", request);
 			if (result != null)
