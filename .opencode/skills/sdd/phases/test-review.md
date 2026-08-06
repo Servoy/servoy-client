@@ -54,6 +54,8 @@ For each test class:
 **Naming & readability**
 - [ ] Test names describe the scenario and expected outcome
 - [ ] Test bodies are concise
+- [ ] `@DisplayName` is only used on `@Test` methods, NOT on test classes or `@Nested` classes
+      (class-level `@DisplayName` breaks Jenkins package grouping — tests end up in `(root)`)
 
 **Edge cases**
 - [ ] Null / empty inputs tested where applicable

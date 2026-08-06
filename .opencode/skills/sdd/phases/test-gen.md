@@ -48,7 +48,11 @@ import static org.junit.jupiter.api.Assertions.*;
 
 **Test class structure:**
 - Use `@Nested` inner classes to group related tests by scenario or method
-- Use `@DisplayName` for human-readable test descriptions
+- Use `@DisplayName` **only on `@Test` methods** for human-readable test descriptions
+- **Do NOT use `@DisplayName` on the test class or `@Nested` classes** — Tycho-surefire
+  uses display names as the classname in JUnit XML reports. Without `@DisplayName` on
+  classes, the physical fully-qualified class name is used, which gives Jenkins proper
+  package hierarchy grouping. With `@DisplayName` on classes, tests end up in `(root)`.
 - No `public` modifier on test classes or methods (Jupiter doesn't require it)
 - Use `@BeforeEach` / `@AfterEach` for setup/teardown, never static state
 
@@ -71,7 +75,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 **Example structure:**
 ```java
-@DisplayName("MyService")
 class MyServiceTest {
 
     private MyService service;
@@ -82,7 +85,6 @@ class MyServiceTest {
     }
 
     @Nested
-    @DisplayName("when processing valid input")
     class ValidInput {
 
         @Test
@@ -101,7 +103,6 @@ class MyServiceTest {
     }
 
     @Nested
-    @DisplayName("when input is invalid")
     class InvalidInput {
 
         @Test
@@ -199,7 +200,7 @@ Cover all of:
 For each test class:
 - Name: `<ClassUnderTest>Test` for unit tests, `<ClassUnderTest>IntegrationTest` for OSGi tests
 - Use `@Nested` classes to group by scenario
-- Use `@DisplayName` on class and methods
+- Use `@DisplayName` only on `@Test` methods (never on class or `@Nested` classes)
 - One assertion concept per test (use `assertAll` for related checks)
 - No `public` modifier needed
 
