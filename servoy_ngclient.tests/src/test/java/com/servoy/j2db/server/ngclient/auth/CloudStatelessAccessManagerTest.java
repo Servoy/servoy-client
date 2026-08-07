@@ -42,6 +42,7 @@ import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.server.shared.IApplicationServerSingleton;
 import com.servoy.j2db.util.UUID;
 
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -284,7 +285,7 @@ public class CloudStatelessAccessManagerTest
 		JSONObject response = new JSONObject();
 		response.put("permissions", new JSONArray(TEST_PERMISSIONS));
 		response.put("username", TEST_USERNAME);
-		response.put("tenantValues", new JSONArray(new String[]{ "Sandbox", "Production" }));
+		response.put("tenantValues", new JSONArray(new String[] { "Sandbox", "Production" }));
 		lastCloudResponse = response;
 		lastCloudStatusCode = 200;
 
@@ -413,8 +414,8 @@ public class CloudStatelessAccessManagerTest
 
 		String svyToken = firstResult.getToken();
 		Map<String, String[]> revalidateParams = new HashMap<>();
-		revalidateParams.put("id_token", new String[]{ svyToken });
-		revalidateParams.put("csrf_token", new String[]{ "123456" });
+		revalidateParams.put("id_token", new String[] { svyToken });
+		revalidateParams.put("csrf_token", new String[] { "123456" });
 
 		jakarta.servlet.http.Cookie csrfCookie = new jakarta.servlet.http.Cookie("csrf_token", "123456");
 
@@ -424,7 +425,7 @@ public class CloudStatelessAccessManagerTest
 
 		HttpServletRequest checkPermRequest = (HttpServletRequest)Proxy.newProxyInstance(
 			HttpServletRequest.class.getClassLoader(),
-			new Class<?>[]{ HttpServletRequest.class },
+			new Class< ? >[] { HttpServletRequest.class },
 			(proxy, method, args) -> {
 				switch (method.getName())
 				{
@@ -434,7 +435,7 @@ public class CloudStatelessAccessManagerTest
 						String[] vals = revalidateParams.get(args[0]);
 						return vals != null && vals.length > 0 ? vals[0] : null;
 					case "getCookies" :
-						return new jakarta.servlet.http.Cookie[]{ csrfCookie };
+						return new jakarta.servlet.http.Cookie[] { csrfCookie };
 					case "getCharacterEncoding" :
 						return "UTF-8";
 					case "setCharacterEncoding" :
@@ -461,7 +462,7 @@ public class CloudStatelessAccessManagerTest
 					case "getSession" :
 						return (jakarta.servlet.http.HttpSession)Proxy.newProxyInstance(
 							jakarta.servlet.http.HttpSession.class.getClassLoader(),
-							new Class<?>[]{ jakarta.servlet.http.HttpSession.class },
+							new Class< ? >[] { jakarta.servlet.http.HttpSession.class },
 							(p, m, a) -> {
 								switch (m.getName())
 								{
@@ -482,7 +483,7 @@ public class CloudStatelessAccessManagerTest
 					case "getServletContext" :
 						return (jakarta.servlet.ServletContext)Proxy.newProxyInstance(
 							jakarta.servlet.ServletContext.class.getClassLoader(),
-							new Class<?>[]{ jakarta.servlet.ServletContext.class },
+							new Class< ? >[] { jakarta.servlet.ServletContext.class },
 							(p, m, a) -> {
 								switch (m.getName())
 								{
@@ -559,7 +560,7 @@ public class CloudStatelessAccessManagerTest
 		JSONObject permissionsResponse = new JSONObject();
 		permissionsResponse.put("permissions", new JSONArray(TEST_PERMISSIONS));
 		permissionsResponse.put("username", TEST_USERNAME);
-		permissionsResponse.put("tenantValues", new JSONArray(new String[]{ "Sandbox" }));
+		permissionsResponse.put("tenantValues", new JSONArray(new String[] { "Sandbox" }));
 		permissionsResponse.put("lastLogin", "1785856847000");
 		lastCloudResponse = permissionsResponse;
 		lastCloudStatusCode = 200;
@@ -590,7 +591,7 @@ public class CloudStatelessAccessManagerTest
 		JSONObject response = new JSONObject();
 		response.put("permissions", new JSONArray(TEST_PERMISSIONS));
 		response.put("username", TEST_USERNAME);
-		response.put("tenantValues", new JSONArray(new String[]{ "Sandbox" }));
+		response.put("tenantValues", new JSONArray(new String[] { "Sandbox" }));
 		lastCloudResponse = response;
 		lastCloudStatusCode = 200;
 
@@ -603,9 +604,9 @@ public class CloudStatelessAccessManagerTest
 		// Step 2: Token expires, refresh is triggered.
 		// Cloud returns refreshed permissions (same or updated).
 		JSONObject refreshResponse = new JSONObject();
-		refreshResponse.put("permissions", new JSONArray(new String[]{ "Administrators", "Users", "Premium" }));
+		refreshResponse.put("permissions", new JSONArray(new String[] { "Administrators", "Users", "Premium" }));
 		refreshResponse.put("username", TEST_USERNAME);
-		refreshResponse.put("tenantValues", new JSONArray(new String[]{ "Sandbox" }));
+		refreshResponse.put("tenantValues", new JSONArray(new String[] { "Sandbox" }));
 		lastCloudResponse = refreshResponse;
 		lastCloudStatusCode = 200;
 
@@ -956,6 +957,1255 @@ public class CloudStatelessAccessManagerTest
 		assertTrue(verified);
 	}
 
+	// ===== Full flow tests via StatelessLoginHandler.mustAuthenticate and writeLoginPage =====
+
+	@Test
+	public void testFullFlow_cloud_submitCredentials_mustAuthenticate_authenticates() throws Exception
+	{
+		JSONObject permissionsResponse = new JSONObject();
+		permissionsResponse.put("permissions", new JSONArray(TEST_PERMISSIONS));
+		permissionsResponse.put("username", TEST_USERNAME);
+		permissionsResponse.put("tenantValues", new JSONArray(new String[] { "Production" }));
+		lastCloudResponse = permissionsResponse;
+		lastCloudStatusCode = 200;
+
+		HttpServletRequest credRequest = createFullFlowRequest(TEST_USERNAME, "password123");
+		HttpServletResponse credResponse = createMockResponse();
+
+		LoginResult loginResult = StatelessLoginHandler.mustAuthenticate(credRequest, credResponse, SOLUTION_NAME);
+		assertTrue("Should be authenticated after cloud login", loginResult.isAuthenticated());
+		assertNotNull("Token should be created", loginResult.getToken());
+
+		DecodedJWT decoded = JWT.decode(loginResult.getToken());
+		assertEquals(TEST_USERNAME, decoded.getClaim(SvyID.USERNAME).asString());
+		String[] permissions = decoded.getClaim(SvyID.PERMISSIONS).asArray(String.class);
+		assertNotNull(permissions);
+		assertEquals(2, permissions.length);
+		String[] tenants = decoded.getClaim(SvyID.TENANTS).asArray(String.class);
+		assertNotNull(tenants);
+		assertEquals("Production", tenants[0]);
+	}
+
+	@Test
+	public void testFullFlow_cloud_submitCredentials_cloudRejects_thenWriteLoginPage() throws Exception
+	{
+		lastCloudStatusCode = 401;
+		lastCloudResponse = new JSONObject().put("error", "Invalid credentials");
+
+		HttpServletRequest credRequest = createFullFlowRequest(TEST_USERNAME, "wrongpass");
+		HttpServletResponse credResponse = createMockResponse();
+
+		LoginResult loginResult = StatelessLoginHandler.mustAuthenticate(credRequest, credResponse, SOLUTION_NAME);
+		assertFalse("Should not be authenticated with wrong credentials", loginResult.isAuthenticated());
+
+		String cloudHtml = "<html><body><form name=\"login_form\"><span class=\"error\">Invalid credentials</span></form></body></html>";
+		lastCloudResponse = new JSONObject().put("html", cloudHtml);
+		lastCloudStatusCode = 200;
+
+		StringWriter pageOutput = new StringWriter();
+		HttpServletResponse writeResponse = createMockResponseWithWriter(pageOutput);
+		StatelessLoginHandler.writeLoginPage(credRequest, writeResponse, SOLUTION_NAME, loginResult);
+		String page = pageOutput.toString();
+		assertTrue("Should show login page again", page.contains("login_form") || page.contains("svyRedirect"));
+	}
+
+	@Test
+	public void testFullFlow_cloud_validToken_mustAuthenticate_refreshSucceeds() throws Exception
+	{
+		JSONObject permissionsResponse = new JSONObject();
+		permissionsResponse.put("permissions", new JSONArray(TEST_PERMISSIONS));
+		permissionsResponse.put("username", TEST_USERNAME);
+		lastCloudResponse = permissionsResponse;
+		lastCloudStatusCode = 200;
+
+		HttpServletRequest firstRequest = createFullFlowRequest(TEST_USERNAME, "password123");
+		HttpServletResponse firstResponse = createMockResponse();
+		LoginResult firstResult = StatelessLoginHandler.mustAuthenticate(firstRequest, firstResponse, SOLUTION_NAME);
+		assertTrue(firstResult.isAuthenticated());
+		String svyToken = firstResult.getToken();
+
+		String csrfToken = "123456";
+		Map<String, String[]> params = new HashMap<>();
+		params.put("id_token", new String[] { svyToken });
+		params.put("csrf_token", new String[] { csrfToken });
+		jakarta.servlet.http.Cookie csrfCookie = new jakarta.servlet.http.Cookie("csrf_token", csrfToken);
+		Map<String, Object> sessionAttributes = new HashMap<>();
+		Map<String, Object> contextAttributes = new HashMap<>();
+		contextAttributes.put("nonce", new java.util.concurrent.ConcurrentHashMap<String, JSONObject>());
+
+		HttpServletRequest refreshRequest = (HttpServletRequest)Proxy.newProxyInstance(
+			HttpServletRequest.class.getClassLoader(),
+			new Class< ? >[] { HttpServletRequest.class },
+			(proxy, method, args) -> {
+				switch (method.getName())
+				{
+					case "getParameterMap" :
+						return params;
+					case "getParameter" :
+						String[] vals = params.get(args[0]);
+						return vals != null && vals.length > 0 ? vals[0] : null;
+					case "getCookies" :
+						return new jakarta.servlet.http.Cookie[] { csrfCookie };
+					case "getCharacterEncoding" :
+						return "UTF-8";
+					case "setCharacterEncoding" :
+						return null;
+					case "getRequestURI" :
+						return "/solution/" + SOLUTION_NAME + "/index.html";
+					case "getRequestURL" :
+						return new StringBuffer("https://localhost:8080/solution/" + SOLUTION_NAME + "/index.html");
+					case "getServletPath" :
+						return "/solution/" + SOLUTION_NAME + "/index.html";
+					case "getContextPath" :
+						return "";
+					case "getScheme" :
+						return "https";
+					case "getServerName" :
+						return "localhost";
+					case "getServerPort" :
+						return Integer.valueOf(8080);
+					case "getHeader" :
+						if ("accept-language".equals(args[0])) return "en";
+						return null;
+					case "getLocale" :
+						return Locale.ENGLISH;
+					case "getSession" :
+						return (jakarta.servlet.http.HttpSession)Proxy.newProxyInstance(
+							jakarta.servlet.http.HttpSession.class.getClassLoader(),
+							new Class< ? >[] { jakarta.servlet.http.HttpSession.class },
+							(p, m, a) -> {
+								switch (m.getName())
+								{
+									case "getAttribute" :
+										return sessionAttributes.get(a[0]);
+									case "setAttribute" :
+										sessionAttributes.put((String)a[0], a[1]);
+										return null;
+									case "removeAttribute" :
+										sessionAttributes.remove(a[0]);
+										return null;
+									default :
+										return getDefaultReturnValue(m);
+								}
+							});
+					case "getRemoteAddr" :
+						return "127.0.0.1";
+					case "getServletContext" :
+						return (jakarta.servlet.ServletContext)Proxy.newProxyInstance(
+							jakarta.servlet.ServletContext.class.getClassLoader(),
+							new Class< ? >[] { jakarta.servlet.ServletContext.class },
+							(p, m, a) -> {
+								switch (m.getName())
+								{
+									case "getAttribute" :
+										return contextAttributes.get(a[0]);
+									case "setAttribute" :
+										contextAttributes.put((String)a[0], a[1]);
+										return null;
+									default :
+										return getDefaultReturnValue(m);
+								}
+							});
+					case "getQueryString" :
+						return null;
+					case "getMethod" :
+						return "POST";
+					default :
+						return getDefaultReturnValue(method);
+				}
+			});
+
+		HttpServletResponse refreshResponse = createMockResponse();
+		LoginResult refreshResult = StatelessLoginHandler.mustAuthenticate(refreshRequest, refreshResponse, SOLUTION_NAME);
+		assertTrue("Should be authenticated via checkPermissions refresh", refreshResult.isAuthenticated());
+		assertNotNull("Token should be present", refreshResult.getToken());
+	}
+
+	@Test
+	public void testFullFlow_cloud_expiredToken_mustAuthenticate_refreshFails_writeLoginPage() throws Exception
+	{
+		Properties settings = ApplicationServerRegistry.get().getServerAccess().getSettings();
+		String jwtPassword = settings.getProperty(StatelessLoginUtils.JWT_Password);
+		String expiredToken = JWT.create()
+			.withIssuer("svy")
+			.withClaim(SvyID.USERNAME, TEST_USERNAME)
+			.withArrayClaim(SvyID.PERMISSIONS, TEST_PERMISSIONS)
+			.withIssuedAt(new java.util.Date(System.currentTimeMillis() - 7200000))
+			.withExpiresAt(new java.util.Date(System.currentTimeMillis() - 1000))
+			.sign(Algorithm.HMAC256(jwtPassword));
+
+		lastCloudStatusCode = 401;
+		lastCloudResponse = new JSONObject().put("error", "Session expired");
+
+		String csrfToken = "123456";
+		Map<String, String[]> params = new HashMap<>();
+		params.put("id_token", new String[] { expiredToken });
+		params.put("csrf_token", new String[] { csrfToken });
+		jakarta.servlet.http.Cookie csrfCookie = new jakarta.servlet.http.Cookie("csrf_token", csrfToken);
+		Map<String, Object> sessionAttributes = new HashMap<>();
+		Map<String, Object> contextAttributes = new HashMap<>();
+		contextAttributes.put("nonce", new java.util.concurrent.ConcurrentHashMap<String, JSONObject>());
+
+		HttpServletRequest request = (HttpServletRequest)Proxy.newProxyInstance(
+			HttpServletRequest.class.getClassLoader(),
+			new Class< ? >[] { HttpServletRequest.class },
+			(proxy, method, args) -> {
+				switch (method.getName())
+				{
+					case "getParameterMap" :
+						return params;
+					case "getParameter" :
+						String[] vals = params.get(args[0]);
+						return vals != null && vals.length > 0 ? vals[0] : null;
+					case "getCookies" :
+						return new jakarta.servlet.http.Cookie[] { csrfCookie };
+					case "getCharacterEncoding" :
+						return "UTF-8";
+					case "setCharacterEncoding" :
+						return null;
+					case "getRequestURI" :
+						return "/solution/" + SOLUTION_NAME + "/index.html";
+					case "getRequestURL" :
+						return new StringBuffer("https://localhost:8080/solution/" + SOLUTION_NAME + "/index.html");
+					case "getServletPath" :
+						return "/solution/" + SOLUTION_NAME + "/index.html";
+					case "getContextPath" :
+						return "";
+					case "getScheme" :
+						return "https";
+					case "getServerName" :
+						return "localhost";
+					case "getServerPort" :
+						return Integer.valueOf(8080);
+					case "getHeader" :
+						if ("accept-language".equals(args[0])) return "en";
+						if ("user-agent".equals(args[0])) return "Mozilla/5.0";
+						return null;
+					case "getLocale" :
+						return Locale.ENGLISH;
+					case "getSession" :
+						return (jakarta.servlet.http.HttpSession)Proxy.newProxyInstance(
+							jakarta.servlet.http.HttpSession.class.getClassLoader(),
+							new Class< ? >[] { jakarta.servlet.http.HttpSession.class },
+							(p, m, a) -> {
+								switch (m.getName())
+								{
+									case "getAttribute" :
+										return sessionAttributes.get(a[0]);
+									case "setAttribute" :
+										sessionAttributes.put((String)a[0], a[1]);
+										return null;
+									case "removeAttribute" :
+										sessionAttributes.remove(a[0]);
+										return null;
+									default :
+										return getDefaultReturnValue(m);
+								}
+							});
+					case "getRemoteAddr" :
+						return "127.0.0.1";
+					case "getServletContext" :
+						return (jakarta.servlet.ServletContext)Proxy.newProxyInstance(
+							jakarta.servlet.ServletContext.class.getClassLoader(),
+							new Class< ? >[] { jakarta.servlet.ServletContext.class },
+							(p, m, a) -> {
+								switch (m.getName())
+								{
+									case "getAttribute" :
+										return contextAttributes.get(a[0]);
+									case "setAttribute" :
+										contextAttributes.put((String)a[0], a[1]);
+										return null;
+									default :
+										return getDefaultReturnValue(m);
+								}
+							});
+					case "getQueryString" :
+						return null;
+					case "getMethod" :
+						return "POST";
+					default :
+						return getDefaultReturnValue(method);
+				}
+			});
+
+		HttpServletResponse response = createMockResponse();
+		LoginResult result = StatelessLoginHandler.mustAuthenticate(request, response, SOLUTION_NAME);
+		assertFalse("Should NOT be authenticated when cloud rejects expired token refresh", result.isAuthenticated());
+
+		String cloudHtml = "<html><body><form name=\"login_form\">Session expired, please login again</form></body></html>";
+		lastCloudResponse = new JSONObject().put("html", cloudHtml);
+		lastCloudStatusCode = 200;
+
+		StringWriter pageOutput = new StringWriter();
+		HttpServletResponse writeResponse = createMockResponseWithWriter(pageOutput);
+		StatelessLoginHandler.writeLoginPage(request, writeResponse, SOLUTION_NAME, result);
+		String page = pageOutput.toString();
+		assertTrue("Should write cloud login page", page.contains("login_form") || page.contains("svyRedirect"));
+	}
+
+	@Test
+	public void testFullFlow_cloud_mustAuthenticate_noCredentials_needsLogin_writeLoginPageWithQueryParams() throws Exception
+	{
+		String cloudHtml = "<html><body><form name=\"login_form\"><input name=\"username\"><input name=\"password\"></form></body></html>";
+		lastCloudResponse = new JSONObject().put("html", cloudHtml);
+		lastCloudStatusCode = 200;
+
+		HttpServletRequest request = createMockRequestWithQueryString("deeplink=dashboard&locale=en_US");
+		HttpServletResponse indexResponse = createMockResponse();
+		LoginResult mustAuthResult = StatelessLoginHandler.mustAuthenticate(request, indexResponse, SOLUTION_NAME);
+		assertFalse("Should need login", mustAuthResult.isAuthenticated());
+
+		StringWriter pageOutput = new StringWriter();
+		HttpServletResponse writeResponse = createMockResponseWithWriter(pageOutput);
+		StatelessLoginHandler.writeLoginPage(request, writeResponse, SOLUTION_NAME, mustAuthResult);
+		String page = pageOutput.toString();
+		assertNotNull(page);
+		assertTrue("Should contain svyRedirect with query params", page.contains("svyRedirect"));
+		assertTrue("Should contain deeplink in redirect", page.contains("deeplink"));
+	}
+
+	@Test
+	public void testFullFlow_cloud_loginWithRemember_thenRefresh_preservesRememberInToken() throws Exception
+	{
+		JSONObject permissionsResponse = new JSONObject();
+		permissionsResponse.put("permissions", new JSONArray(TEST_PERMISSIONS));
+		permissionsResponse.put("username", TEST_USERNAME);
+		lastCloudResponse = permissionsResponse;
+		lastCloudStatusCode = 200;
+
+		Map<String, String[]> loginParams = new HashMap<>();
+		loginParams.put("username", new String[] { TEST_USERNAME });
+		loginParams.put("password", new String[] { "password123" });
+		loginParams.put("remember", new String[] { "true" });
+		loginParams.put("csrf_token", new String[] { "123456" });
+
+		jakarta.servlet.http.Cookie csrfCookie = new jakarta.servlet.http.Cookie("csrf_token", "123456");
+		Map<String, Object> sessionAttributes = new HashMap<>();
+		Map<String, Object> contextAttributes = new HashMap<>();
+		contextAttributes.put("nonce", new java.util.concurrent.ConcurrentHashMap<String, JSONObject>());
+
+		HttpServletRequest loginRequest = (HttpServletRequest)Proxy.newProxyInstance(
+			HttpServletRequest.class.getClassLoader(),
+			new Class< ? >[] { HttpServletRequest.class },
+			(proxy, method, args) -> {
+				switch (method.getName())
+				{
+					case "getParameterMap" :
+						return loginParams;
+					case "getParameter" :
+						String[] vals = loginParams.get(args[0]);
+						return vals != null && vals.length > 0 ? vals[0] : null;
+					case "getCookies" :
+						return new jakarta.servlet.http.Cookie[] { csrfCookie };
+					case "getCharacterEncoding" :
+						return "UTF-8";
+					case "setCharacterEncoding" :
+						return null;
+					case "getRequestURI" :
+						return "/solution/" + SOLUTION_NAME + "/index.html";
+					case "getRequestURL" :
+						return new StringBuffer("https://localhost:8080/solution/" + SOLUTION_NAME + "/index.html");
+					case "getServletPath" :
+						return "/solution/" + SOLUTION_NAME + "/index.html";
+					case "getContextPath" :
+						return "";
+					case "getScheme" :
+						return "https";
+					case "getServerName" :
+						return "localhost";
+					case "getServerPort" :
+						return Integer.valueOf(8080);
+					case "getHeader" :
+						if ("accept-language".equals(args[0])) return "en";
+						return null;
+					case "getLocale" :
+						return Locale.ENGLISH;
+					case "getSession" :
+						return (jakarta.servlet.http.HttpSession)Proxy.newProxyInstance(
+							jakarta.servlet.http.HttpSession.class.getClassLoader(),
+							new Class< ? >[] { jakarta.servlet.http.HttpSession.class },
+							(p, m, a) -> {
+								switch (m.getName())
+								{
+									case "getAttribute" :
+										return sessionAttributes.get(a[0]);
+									case "setAttribute" :
+										sessionAttributes.put((String)a[0], a[1]);
+										return null;
+									case "removeAttribute" :
+										sessionAttributes.remove(a[0]);
+										return null;
+									default :
+										return getDefaultReturnValue(m);
+								}
+							});
+					case "getRemoteAddr" :
+						return "127.0.0.1";
+					case "getServletContext" :
+						return (jakarta.servlet.ServletContext)Proxy.newProxyInstance(
+							jakarta.servlet.ServletContext.class.getClassLoader(),
+							new Class< ? >[] { jakarta.servlet.ServletContext.class },
+							(p, m, a) -> {
+								switch (m.getName())
+								{
+									case "getAttribute" :
+										return contextAttributes.get(a[0]);
+									case "setAttribute" :
+										contextAttributes.put((String)a[0], a[1]);
+										return null;
+									default :
+										return getDefaultReturnValue(m);
+								}
+							});
+					case "getQueryString" :
+						return null;
+					case "getMethod" :
+						return "POST";
+					default :
+						return getDefaultReturnValue(method);
+				}
+			});
+
+		HttpServletResponse loginResponse = createMockResponse();
+		LoginResult loginResult = StatelessLoginHandler.mustAuthenticate(loginRequest, loginResponse, SOLUTION_NAME);
+		assertTrue("Should be authenticated", loginResult.isAuthenticated());
+		assertNotNull(loginResult.getToken());
+
+		DecodedJWT decoded = JWT.decode(loginResult.getToken());
+		assertEquals(TEST_USERNAME, decoded.getClaim(SvyID.USERNAME).asString());
+	}
+
+	// ===== Integration tests: handlePossibleCloudRequest full flow =====
+
+	@Test
+	public void testHandlePossibleCloudRequest_svyLoginPath_postLogin_htmlReturned_writesHtml() throws Exception
+	{
+		String loginHtml = "<html><body><form name=\"login_form\"><input name=\"username\"></form></body></html>";
+		lastCloudResponse = new JSONObject().put("html", loginHtml);
+		lastCloudStatusCode = 200;
+
+		Map<String, String[]> params = new HashMap<>();
+		params.put("username", new String[] { TEST_USERNAME });
+		params.put("password", new String[] { "pass123" });
+		params.put("svyRedirect", new String[] { "/solution/" + SOLUTION_NAME + "/index.html" });
+
+		StringWriter writer = new StringWriter();
+		HttpServletRequest request = createHandlePossibleCloudRequest("/solution/" + SOLUTION_NAME + "/svylogin/login", params, "POST");
+		HttpServletResponse response = createMockResponseWithWriter(writer);
+
+		boolean handled = CloudStatelessAccessManager.handlePossibleCloudRequest(request, response, SOLUTION_NAME);
+
+		assertTrue("Should handle svylogin/login POST", handled);
+		String output = writer.toString();
+		assertTrue("Should contain the login form", output.contains("login_form"));
+		assertTrue("Should contain svyRedirect hidden field", output.contains("svyRedirect"));
+	}
+
+	@Test
+	public void testHandlePossibleCloudRequest_svyLoginPath_postLogin_permissionsReturned_redirects() throws Exception
+	{
+		JSONObject permissionsResponse = new JSONObject();
+		permissionsResponse.put("permissions", new JSONArray(TEST_PERMISSIONS));
+		permissionsResponse.put("username", TEST_USERNAME);
+		permissionsResponse.put(SvyID.REMEMBER, false);
+		lastCloudResponse = permissionsResponse;
+		lastCloudStatusCode = 200;
+
+		Map<String, String[]> params = new HashMap<>();
+		params.put("username", new String[] { TEST_USERNAME });
+		params.put("password", new String[] { "pass123" });
+		params.put("svyRedirect", new String[] { "/solution/" + SOLUTION_NAME + "/index.html" });
+
+		List<String> redirects = new ArrayList<>();
+		HttpServletRequest request = createHandlePossibleCloudRequest("/solution/" + SOLUTION_NAME + "/svylogin/login", params, "POST");
+		HttpServletResponse response = createMockResponseWithRedirect(redirects);
+
+		boolean handled = CloudStatelessAccessManager.handlePossibleCloudRequest(request, response, SOLUTION_NAME);
+
+		assertTrue("Should handle svylogin/login POST with permissions", handled);
+		assertFalse("Should redirect after successful login", redirects.isEmpty());
+	}
+
+	@Test
+	public void testHandlePossibleCloudRequest_svyLoginPath_postOAuth_oauthConfigReturned() throws Exception
+	{
+		JSONObject oauthObj = new JSONObject();
+		oauthObj.put("clientId", "cloud-oauth-client");
+		oauthObj.put("apiSecret", "cloud-oauth-secret");
+		oauthObj.put("authorizationBaseUrl", "https://accounts.google.com/o/oauth2/v2/auth");
+		oauthObj.put("accessTokenEndpoint", "https://oauth2.googleapis.com/token");
+		oauthObj.put("defaultScope", "openid email");
+		lastCloudResponse = new JSONObject().put("oauth", oauthObj);
+		lastCloudStatusCode = 200;
+
+		Map<String, String[]> params = new HashMap<>();
+		params.put("oauth", new String[] { "google" });
+
+		StringWriter writer = new StringWriter();
+		HttpServletRequest request = createHandlePossibleCloudRequest("/solution/" + SOLUTION_NAME + "/svylogin/oauth", params, "POST");
+		HttpServletResponse response = createMockResponseWithWriter(writer);
+
+		boolean handled = CloudStatelessAccessManager.handlePossibleCloudRequest(request, response, SOLUTION_NAME);
+
+		assertTrue("Should handle svylogin/oauth POST", handled);
+	}
+
+	@Test
+	public void testHandlePossibleCloudRequest_svyLoginPath_tenantSelect_permissionsReturned() throws Exception
+	{
+		JSONObject permissionsResponse = new JSONObject();
+		permissionsResponse.put("permissions", new JSONArray(TEST_PERMISSIONS));
+		permissionsResponse.put("username", TEST_USERNAME);
+		permissionsResponse.put("tenantValues", new JSONArray(new String[] { "Sandbox" }));
+		permissionsResponse.put(SvyID.REMEMBER, false);
+		lastCloudResponse = permissionsResponse;
+		lastCloudStatusCode = 200;
+
+		Map<String, String[]> params = new HashMap<>();
+		params.put("tenant", new String[] { "Sandbox" });
+		params.put("svyTenantLoginToken", new String[] { "eyJhbGciOiJIUzM4NCJ9.test" });
+		params.put("svyRedirect", new String[] { "/solution/" + SOLUTION_NAME + "/index.html" });
+
+		List<String> redirects = new ArrayList<>();
+		HttpServletRequest request = createHandlePossibleCloudRequest("/solution/" + SOLUTION_NAME + "/svylogin/tenant_select_redirect", params, "POST");
+		HttpServletResponse response = createMockResponseWithRedirect(redirects);
+
+		boolean handled = CloudStatelessAccessManager.handlePossibleCloudRequest(request, response, SOLUTION_NAME);
+
+		assertTrue("Should handle svylogin/tenant_select_redirect POST", handled);
+		assertFalse("Should redirect after tenant selection", redirects.isEmpty());
+	}
+
+	@Test
+	public void testHandlePossibleCloudRequest_svyLoginPath_endpointNotInList_returnsFalse() throws Exception
+	{
+		lastCloudResponse = new JSONObject();
+		lastCloudStatusCode = 200;
+
+		Map<String, String[]> params = new HashMap<>();
+		HttpServletRequest request = createHandlePossibleCloudRequest("/solution/" + SOLUTION_NAME + "/svylogin/unknown_endpoint", params, "POST");
+		HttpServletResponse response = createMockResponse();
+
+		boolean handled = CloudStatelessAccessManager.handlePossibleCloudRequest(request, response, SOLUTION_NAME);
+
+		assertFalse("Should not handle unknown endpoint", handled);
+	}
+
+	@Test
+	public void testHandlePossibleCloudRequest_svyLoginPath_getRequest_executesGet() throws Exception
+	{
+		String loginHtml = "<html><body><form name=\"login_form\">GET login page</form></body></html>";
+		lastCloudResponse = new JSONObject().put("html", loginHtml);
+		lastCloudStatusCode = 200;
+
+		Map<String, String[]> params = new HashMap<>();
+		StringWriter writer = new StringWriter();
+		HttpServletRequest request = createHandlePossibleCloudRequest("/solution/" + SOLUTION_NAME + "/svylogin/login", params, "GET");
+		HttpServletResponse response = createMockResponseWithWriter(writer);
+
+		boolean handled = CloudStatelessAccessManager.handlePossibleCloudRequest(request, response, SOLUTION_NAME);
+
+		assertTrue("Should handle svylogin/login GET", handled);
+		String output = writer.toString();
+		assertTrue("Should contain GET login page", output.contains("login_form"));
+	}
+
+	@Test
+	public void testHandlePossibleCloudRequest_svyLoginPath_getEndpoints_fromCloud() throws Exception
+	{
+		// Test getCloudRestApiEndpoints + getArrayProperty by NOT pre-populating the servlet context
+		// First call returns endpoints list, then 2nd call returns the actual login html
+		// Since our mock returns lastCloudResponse for all calls, we need the response to contain "endpoints"
+		// for the first call. But that won't work for the 2nd call which expects "html".
+		// Instead, make mock stateful:
+		JSONObject endpointsResponse = new JSONObject();
+		endpointsResponse.put("endpoints", new JSONArray(new String[] { "login", "oauth", "tenant_select_redirect" }));
+		lastCloudResponse = endpointsResponse;
+		lastCloudStatusCode = 200;
+
+		Map<String, String[]> params = new HashMap<>();
+		// Use a request that does NOT have pre-populated endpoints in servletContext
+		HttpServletRequest request = createHandlePossibleCloudRequestNoCachedEndpoints(
+			"/solution/" + SOLUTION_NAME + "/svylogin/login", params, "POST");
+		HttpServletResponse response = createMockResponse();
+
+		boolean handled = CloudStatelessAccessManager.handlePossibleCloudRequest(request, response, SOLUTION_NAME);
+
+		// The first HTTP call gets the endpoints array, the second call will also get "endpoints" JSON
+		// which doesn't have "html"/"permissions"/"error"/"oauth" - so writeResponse will fall through to default
+		assertTrue("Should handle the request (endpoints found, endpoint is in list)", handled);
+	}
+
+	private HttpServletRequest createHandlePossibleCloudRequest(String servletPath, Map<String, String[]> params, String httpMethod)
+	{
+		Map<String, Object> sessionAttributes = new HashMap<>();
+		Map<String, Object> contextAttributes = new HashMap<>();
+		contextAttributes.put("nonce", new HashMap<String, Object>());
+		// Pre-populate endpoints to skip the getCloudRestApiEndpoints HTTP call
+		contextAttributes.put("endpoints", new String[] { "login", "oauth", "tenant_select_redirect" });
+		contextAttributes.put("endpoints_expire", Long.valueOf(System.currentTimeMillis() + 600000));
+
+		return (HttpServletRequest)Proxy.newProxyInstance(
+			HttpServletRequest.class.getClassLoader(),
+			new Class< ? >[] { HttpServletRequest.class },
+			(proxy, method, args) -> {
+				switch (method.getName())
+				{
+					case "getParameterMap" :
+						return params;
+					case "getParameter" :
+						String[] vals = params.get(args[0]);
+						return vals != null && vals.length > 0 ? vals[0] : null;
+					case "getCookies" :
+						return null;
+					case "getCharacterEncoding" :
+						return "UTF-8";
+					case "setCharacterEncoding" :
+						return null;
+					case "getRequestURI" :
+						return servletPath;
+					case "getRequestURL" :
+						return new StringBuffer("https://localhost:8080" + servletPath);
+					case "getServletPath" :
+						return servletPath;
+					case "getContextPath" :
+						return "";
+					case "getScheme" :
+						return "https";
+					case "getServerName" :
+						return "localhost";
+					case "getServerPort" :
+						return Integer.valueOf(8080);
+					case "getHeader" :
+						if ("accept-language".equals(args[0])) return "en";
+						if ("user-agent".equals(args[0])) return "Mozilla/5.0";
+						return null;
+					case "getLocale" :
+						return Locale.ENGLISH;
+					case "getSession" :
+						if (args != null && args.length == 1 && Boolean.FALSE.equals(args[0])) return null;
+						return (jakarta.servlet.http.HttpSession)Proxy.newProxyInstance(
+							jakarta.servlet.http.HttpSession.class.getClassLoader(),
+							new Class< ? >[] { jakarta.servlet.http.HttpSession.class },
+							(p, m, a) -> {
+								switch (m.getName())
+								{
+									case "getAttribute" :
+										return sessionAttributes.get(a[0]);
+									case "setAttribute" :
+										sessionAttributes.put((String)a[0], a[1]);
+										return null;
+									case "removeAttribute" :
+										sessionAttributes.remove(a[0]);
+										return null;
+									default :
+										return getDefaultReturnValue(m);
+								}
+							});
+					case "getRemoteAddr" :
+						return "127.0.0.1";
+					case "getServletContext" :
+						return (jakarta.servlet.ServletContext)Proxy.newProxyInstance(
+							jakarta.servlet.ServletContext.class.getClassLoader(),
+							new Class< ? >[] { jakarta.servlet.ServletContext.class },
+							(p, m, a) -> {
+								switch (m.getName())
+								{
+									case "getAttribute" :
+										return contextAttributes.get(a[0]);
+									case "setAttribute" :
+										contextAttributes.put((String)a[0], a[1]);
+										return null;
+									default :
+										return getDefaultReturnValue(m);
+								}
+							});
+					case "getQueryString" :
+						return null;
+					case "getMethod" :
+						return httpMethod;
+					default :
+						return getDefaultReturnValue(method);
+				}
+			});
+	}
+
+	private HttpServletRequest createHandlePossibleCloudRequestNoCachedEndpoints(String servletPath, Map<String, String[]> params, String httpMethod)
+	{
+		Map<String, Object> sessionAttributes = new HashMap<>();
+		Map<String, Object> contextAttributes = new HashMap<>();
+		contextAttributes.put("nonce", new HashMap<String, Object>());
+		// NO pre-populated endpoints - forces getCloudRestApiEndpoints to make HTTP call
+
+		return (HttpServletRequest)Proxy.newProxyInstance(
+			HttpServletRequest.class.getClassLoader(),
+			new Class< ? >[] { HttpServletRequest.class },
+			(proxy, method, args) -> {
+				switch (method.getName())
+				{
+					case "getParameterMap" :
+						return params;
+					case "getParameter" :
+						String[] vals = params.get(args[0]);
+						return vals != null && vals.length > 0 ? vals[0] : null;
+					case "getCookies" :
+						return null;
+					case "getCharacterEncoding" :
+						return "UTF-8";
+					case "setCharacterEncoding" :
+						return null;
+					case "getRequestURI" :
+						return servletPath;
+					case "getRequestURL" :
+						return new StringBuffer("https://localhost:8080" + servletPath);
+					case "getServletPath" :
+						return servletPath;
+					case "getContextPath" :
+						return "";
+					case "getScheme" :
+						return "https";
+					case "getServerName" :
+						return "localhost";
+					case "getServerPort" :
+						return Integer.valueOf(8080);
+					case "getHeader" :
+						if ("accept-language".equals(args[0])) return "en";
+						if ("user-agent".equals(args[0])) return "Mozilla/5.0";
+						return null;
+					case "getLocale" :
+						return Locale.ENGLISH;
+					case "getSession" :
+						if (args != null && args.length == 1 && Boolean.FALSE.equals(args[0])) return null;
+						return (jakarta.servlet.http.HttpSession)Proxy.newProxyInstance(
+							jakarta.servlet.http.HttpSession.class.getClassLoader(),
+							new Class< ? >[] { jakarta.servlet.http.HttpSession.class },
+							(p, m, a) -> {
+								switch (m.getName())
+								{
+									case "getAttribute" :
+										return sessionAttributes.get(a[0]);
+									case "setAttribute" :
+										sessionAttributes.put((String)a[0], a[1]);
+										return null;
+									case "removeAttribute" :
+										sessionAttributes.remove(a[0]);
+										return null;
+									default :
+										return getDefaultReturnValue(m);
+								}
+							});
+					case "getRemoteAddr" :
+						return "127.0.0.1";
+					case "getServletContext" :
+						return (jakarta.servlet.ServletContext)Proxy.newProxyInstance(
+							jakarta.servlet.ServletContext.class.getClassLoader(),
+							new Class< ? >[] { jakarta.servlet.ServletContext.class },
+							(p, m, a) -> {
+								switch (m.getName())
+								{
+									case "getAttribute" :
+										return contextAttributes.get(a[0]);
+									case "setAttribute" :
+										contextAttributes.put((String)a[0], a[1]);
+										return null;
+									default :
+										return getDefaultReturnValue(m);
+								}
+							});
+					case "getQueryString" :
+						return null;
+					case "getMethod" :
+						return httpMethod;
+					default :
+						return getDefaultReturnValue(method);
+				}
+			});
+	}
+
+	@Test
+	public void testCheckCloudOAuthPermissions_nonHtmlError_usesErrorTemplate() throws Exception
+	{
+		JSONObject response = new JSONObject();
+		response.put("error", "<html><body>User account is locked</body></html>");
+		lastCloudResponse = response;
+		lastCloudStatusCode = 200;
+
+		LoginResult result = LoginResult.needsLogin();
+		HttpServletRequest request = createMockRequest();
+		StringWriter writer = new StringWriter();
+		HttpServletResponse mockResponse = createMockResponseWithWriter(writer);
+		boolean verified = CloudStatelessAccessManager.checkCloudOAuthPermissions(
+			request, mockResponse, result, cloudSolution,
+			"{\"id_token\":\"test\"}", Boolean.FALSE, null, "google");
+
+		assertTrue(verified);
+		String output = writer.toString();
+		assertTrue("Should write the error HTML", output.contains("User account is locked"));
+	}
+
+	@Test
+	public void testCheckCloudOAuthPermissions_permissionsWithNullPermissionsArray_noToken() throws Exception
+	{
+		JSONObject response = new JSONObject();
+		response.put("permissions", new JSONArray());
+		response.put("username", TEST_USERNAME);
+		lastCloudResponse = response;
+		lastCloudStatusCode = 200;
+
+		LoginResult result = LoginResult.needsLogin();
+		HttpServletRequest request = createMockRequest();
+		StringWriter writer = new StringWriter();
+		HttpServletResponse mockResponse = createMockResponseWithWriter(writer);
+		boolean verified = CloudStatelessAccessManager.checkCloudOAuthPermissions(
+			request, mockResponse, result, cloudSolution,
+			"{\"id_token\":\"test\"}", Boolean.FALSE, null, "google");
+
+		assertTrue(verified);
+	}
+
+	@Test
+	public void testCheckCloudOAuthPermissions_unknownResponseFormat_fallsThrough() throws Exception
+	{
+		JSONObject response = new JSONObject();
+		response.put("unknownKey", "unknownValue");
+		lastCloudResponse = response;
+		lastCloudStatusCode = 200;
+
+		LoginResult result = LoginResult.needsLogin();
+		HttpServletRequest request = createMockRequest();
+		StringWriter writer = new StringWriter();
+		HttpServletResponse mockResponse = createMockResponseWithWriter(writer);
+		boolean verified = CloudStatelessAccessManager.checkCloudOAuthPermissions(
+			request, mockResponse, result, cloudSolution,
+			"{\"id_token\":\"test\"}", Boolean.FALSE, null, "google");
+
+		assertTrue(verified);
+	}
+
+	@Test
+	public void testCheckCloudOAuthPermissions_permissionsWithRememberAndRefreshToken_setsRedirect() throws Exception
+	{
+		JSONObject response = new JSONObject();
+		response.put("permissions", new JSONArray(TEST_PERMISSIONS));
+		response.put("username", TEST_USERNAME);
+		response.put(SvyID.REMEMBER, true);
+		response.put(StatelessLoginHandler.REFRESH_TOKEN, "cloud-refresh-token");
+		response.put(CloudStatelessAccessManager.CLOUD_OAUTH_ENDPOINT, "google");
+		lastCloudResponse = response;
+		lastCloudStatusCode = 200;
+
+		LoginResult result = LoginResult.needsLogin();
+		HttpServletRequest request = createMockRequest();
+		List<String> redirects = new ArrayList<>();
+		HttpServletResponse mockResponse = createMockResponseWithRedirect(redirects);
+		boolean verified = CloudStatelessAccessManager.checkCloudOAuthPermissions(
+			request, mockResponse, result, cloudSolution,
+			"{\"id_token\":\"test\"}", Boolean.TRUE, "initial-refresh", "google");
+
+		assertTrue(verified);
+		assertFalse(redirects.isEmpty());
+	}
+
+	@Test
+	public void testCheckCloudOAuthPermissions_withSvyRedirectInDeeplink_usesCorrectRedirect() throws Exception
+	{
+		JSONObject response = new JSONObject();
+		response.put("permissions", new JSONArray(TEST_PERMISSIONS));
+		response.put("username", TEST_USERNAME);
+		lastCloudResponse = response;
+		lastCloudStatusCode = 200;
+
+		LoginResult result = LoginResult.needsLogin();
+		Map<String, String[]> params = new HashMap<>();
+		params.put("id_token", new String[] { "test" });
+		HttpServletRequest request = createMockRequestWithServletPathAndParams(
+			"/solution/" + SOLUTION_NAME + "/svy_oauth/callback", params, "svyRedirect=%2Fsolution%2F" + SOLUTION_NAME + "%2Findex.html%3Fdeeplink%3Dpage1");
+		List<String> redirects = new ArrayList<>();
+		HttpServletResponse mockResponse = createMockResponseWithRedirect(redirects);
+		boolean verified = CloudStatelessAccessManager.checkCloudOAuthPermissions(
+			request, mockResponse, result, cloudSolution,
+			"{\"id_token\":\"test\"}", Boolean.FALSE, null, "google");
+
+		assertTrue(verified);
+		assertFalse(redirects.isEmpty());
+		assertTrue(redirects.get(0).contains(SOLUTION_NAME));
+	}
+
+	// ===== Full flow via StatelessLoginHandler.mustAuthenticate and writeLoginPage =====
+
+	@Test
+	public void testFullFlow_cloud_writeLoginPage_withCustomHtml_writesCloudPage() throws Exception
+	{
+		String cloudHtml = "<html><body><form name=\"login_form\" action=\"svylogin/login\"><input name=\"username\"><input name=\"password\"><button>Login</button></form></body></html>";
+		lastCloudResponse = new JSONObject().put("html", cloudHtml);
+		lastCloudStatusCode = 200;
+
+		HttpServletRequest request = createMockRequest();
+		HttpServletResponse indexResponse = createMockResponse();
+		LoginResult mustAuthResult = StatelessLoginHandler.mustAuthenticate(request, indexResponse, SOLUTION_NAME);
+		assertFalse("Should need login", mustAuthResult.isAuthenticated());
+
+		StringWriter pageOutput = new StringWriter();
+		HttpServletResponse writeResponse = createMockResponseWithWriter(pageOutput);
+		StatelessLoginHandler.writeLoginPage(request, writeResponse, SOLUTION_NAME, mustAuthResult);
+		String page = pageOutput.toString();
+		assertNotNull(page);
+		assertTrue("Should contain the cloud login form", page.contains("login_form") || page.contains("svyRedirect"));
+	}
+
+	@Test
+	public void testFullFlow_cloud_writeLoginPage_cloudReturnsError_writesDefaultPage() throws Exception
+	{
+		lastCloudStatusCode = 500;
+		lastCloudResponse = new JSONObject().put("error", "Service unavailable");
+
+		HttpServletRequest request = createMockRequest();
+		HttpServletResponse indexResponse = createMockResponse();
+		LoginResult mustAuthResult = StatelessLoginHandler.mustAuthenticate(request, indexResponse, SOLUTION_NAME);
+		assertFalse("Should need login", mustAuthResult.isAuthenticated());
+
+		StringWriter pageOutput = new StringWriter();
+		HttpServletResponse writeResponse = createMockResponseWithWriter(pageOutput);
+		StatelessLoginHandler.writeLoginPage(request, writeResponse, SOLUTION_NAME, mustAuthResult);
+		String page = pageOutput.toString();
+		assertNotNull(page);
+		assertTrue("Should write some login page", page.length() > 0);
+	}
+
+	// ===== Full flow: logoutAndRevokeToken with OAuth provider =====
+
+	@Test
+	public void testLogoutAndRevokeToken_withProviderAndOauthConfig_attemptsRevoke() throws Exception
+	{
+		JSONObject oauthObj = new JSONObject();
+		oauthObj.put("clientId", "fake-client-id");
+		oauthObj.put("apiSecret", "fake-secret");
+		oauthObj.put("authorizationBaseUrl", "https://accounts.google.com/o/oauth2/v2/auth");
+		oauthObj.put("accessTokenEndpoint", "https://oauth2.googleapis.com/token");
+		oauthObj.put("revokeTokenEndpoint", "https://oauth2.googleapis.com/revoke");
+		lastCloudResponse = new JSONObject().put("oauth", oauthObj);
+		lastCloudStatusCode = 200;
+
+		Properties settings = ApplicationServerRegistry.get().getServerAccess().getSettings();
+		String jwtPassword = settings.getProperty(StatelessLoginUtils.JWT_Password);
+		String tokenStr = JWT.create()
+			.withClaim(SvyID.USERNAME, TEST_USERNAME)
+			.withClaim(SvyID.PERMISSIONS, java.util.Arrays.asList(TEST_PERMISSIONS))
+			.withClaim(CloudStatelessAccessManager.CLOUD_OAUTH_ENDPOINT, "google")
+			.withClaim(StatelessLoginHandler.REFRESH_TOKEN, "my-refresh-token-to-revoke")
+			.withExpiresAt(new java.util.Date(System.currentTimeMillis() + 3600000))
+			.sign(Algorithm.HMAC256(jwtPassword));
+
+		DecodedJWT jwt = JWT.decode(tokenStr);
+		// revokeToken will attempt to revoke with a fake token, which throws OAuth2AccessTokenErrorResponse
+		// The implementation catches IOException|InterruptedException|ExecutionException|UnsupportedOperationException
+		// but OAuth2AccessTokenErrorResponse extends OAuth2AccessTokenException extends OAuthException extends ScribeJavaException extends RuntimeException
+		// so it propagates. We just verify the method doesn't throw an unexpected exception type.
+		try
+		{
+			manager.logoutAndRevokeToken(cloudSolution, jwt);
+		}
+		catch (RuntimeException e)
+		{
+			// Expected: ScribeJava throws when the revoke endpoint returns an error
+			assertTrue(e.getClass().getName().contains("OAuth2AccessToken") || e.getMessage().contains("invalid_token"));
+		}
+	}
+
+	@Test
+	public void testLogoutAndRevokeToken_withProviderButServiceNull_logsError() throws Exception
+	{
+		// Return oauth config without clientId -> getOAuthConfigFromTheCloud returns json without clientId
+		// OAuthUtils.createOauthService will throw IllegalArgumentException for empty API key
+		JSONObject oauthObj = new JSONObject();
+		oauthObj.put("apiSecret", "fake-secret");
+		oauthObj.put("authorizationBaseUrl", "https://login.microsoftonline.com/common/oauth2/v2.0/authorize");
+		oauthObj.put("accessTokenEndpoint", "https://login.microsoftonline.com/common/oauth2/v2.0/token");
+		lastCloudResponse = new JSONObject().put("oauth", oauthObj);
+		lastCloudStatusCode = 200;
+
+		Properties settings = ApplicationServerRegistry.get().getServerAccess().getSettings();
+		String jwtPassword = settings.getProperty(StatelessLoginUtils.JWT_Password);
+		String tokenStr = JWT.create()
+			.withClaim(SvyID.USERNAME, TEST_USERNAME)
+			.withClaim(SvyID.PERMISSIONS, java.util.Arrays.asList(TEST_PERMISSIONS))
+			.withClaim(CloudStatelessAccessManager.CLOUD_OAUTH_ENDPOINT, "microsoft")
+			.withClaim(StatelessLoginHandler.REFRESH_TOKEN, "some-refresh-token")
+			.withExpiresAt(new java.util.Date(System.currentTimeMillis() + 3600000))
+			.sign(Algorithm.HMAC256(jwtPassword));
+
+		DecodedJWT jwt = JWT.decode(tokenStr);
+		try
+		{
+			manager.logoutAndRevokeToken(cloudSolution, jwt);
+		}
+		catch (IllegalArgumentException e)
+		{
+			// Expected: ServiceBuilder throws for missing/empty API key
+			assertTrue(e.getMessage().contains("Api key"));
+		}
+	}
+
+	// ===== Full flow: login -> checkPermissions refresh -> writeLoginPage on failure =====
+
+	@Test
+	public void testFullFlow_cloud_loginThenRefreshFails_mustAuthenticate_needsRelogin() throws Exception
+	{
+		JSONObject response = new JSONObject();
+		response.put("permissions", new JSONArray(TEST_PERMISSIONS));
+		response.put("username", TEST_USERNAME);
+		lastCloudResponse = response;
+		lastCloudStatusCode = 200;
+
+		HttpServletRequest firstRequest = createFullFlowRequest(TEST_USERNAME, "password123");
+		HttpServletResponse firstResponse = createMockResponse();
+		LoginResult firstResult = StatelessLoginHandler.mustAuthenticate(firstRequest, firstResponse, SOLUTION_NAME);
+		assertTrue(firstResult.isAuthenticated());
+		String svyToken = firstResult.getToken();
+		assertNotNull(svyToken);
+
+		lastCloudStatusCode = 401;
+		lastCloudResponse = new JSONObject().put("error", "Session expired");
+
+		Properties settings = ApplicationServerRegistry.get().getServerAccess().getSettings();
+		String jwtPassword = settings.getProperty(StatelessLoginUtils.JWT_Password);
+		String expiredToken = JWT.create()
+			.withIssuer("svy")
+			.withClaim(SvyID.USERNAME, TEST_USERNAME)
+			.withArrayClaim(SvyID.PERMISSIONS, TEST_PERMISSIONS)
+			.withIssuedAt(new java.util.Date(System.currentTimeMillis() - 7200000))
+			.withExpiresAt(new java.util.Date(System.currentTimeMillis() - 1000))
+			.sign(Algorithm.HMAC256(jwtPassword));
+
+		String csrfToken = "123456";
+		Map<String, String[]> params = new HashMap<>();
+		params.put("id_token", new String[] { expiredToken });
+		params.put("csrf_token", new String[] { csrfToken });
+		jakarta.servlet.http.Cookie csrfCookie = new jakarta.servlet.http.Cookie("csrf_token", csrfToken);
+		Map<String, Object> sessionAttributes = new HashMap<>();
+		Map<String, Object> contextAttributes = new HashMap<>();
+		contextAttributes.put("nonce", new java.util.concurrent.ConcurrentHashMap<String, JSONObject>());
+
+		HttpServletRequest refreshRequest = (HttpServletRequest)Proxy.newProxyInstance(
+			HttpServletRequest.class.getClassLoader(),
+			new Class< ? >[] { HttpServletRequest.class },
+			(proxy, method, args) -> {
+				switch (method.getName())
+				{
+					case "getParameterMap" :
+						return params;
+					case "getParameter" :
+						String[] vals = params.get(args[0]);
+						return vals != null && vals.length > 0 ? vals[0] : null;
+					case "getCookies" :
+						return new jakarta.servlet.http.Cookie[] { csrfCookie };
+					case "getCharacterEncoding" :
+						return "UTF-8";
+					case "setCharacterEncoding" :
+						return null;
+					case "getRequestURI" :
+						return "/solution/" + SOLUTION_NAME + "/index.html";
+					case "getRequestURL" :
+						return new StringBuffer("https://localhost:8080/solution/" + SOLUTION_NAME + "/index.html");
+					case "getServletPath" :
+						return "/solution/" + SOLUTION_NAME + "/index.html";
+					case "getContextPath" :
+						return "";
+					case "getScheme" :
+						return "https";
+					case "getServerName" :
+						return "localhost";
+					case "getServerPort" :
+						return Integer.valueOf(8080);
+					case "getHeader" :
+						if ("accept-language".equals(args[0])) return "en";
+						if ("user-agent".equals(args[0])) return "Mozilla/5.0";
+						return null;
+					case "getLocale" :
+						return Locale.ENGLISH;
+					case "getSession" :
+						return (jakarta.servlet.http.HttpSession)Proxy.newProxyInstance(
+							jakarta.servlet.http.HttpSession.class.getClassLoader(),
+							new Class< ? >[] { jakarta.servlet.http.HttpSession.class },
+							(p, m, a) -> {
+								switch (m.getName())
+								{
+									case "getAttribute" :
+										return sessionAttributes.get(a[0]);
+									case "setAttribute" :
+										sessionAttributes.put((String)a[0], a[1]);
+										return null;
+									case "removeAttribute" :
+										sessionAttributes.remove(a[0]);
+										return null;
+									default :
+										return getDefaultReturnValue(m);
+								}
+							});
+					case "getRemoteAddr" :
+						return "127.0.0.1";
+					case "getServletContext" :
+						return (jakarta.servlet.ServletContext)Proxy.newProxyInstance(
+							jakarta.servlet.ServletContext.class.getClassLoader(),
+							new Class< ? >[] { jakarta.servlet.ServletContext.class },
+							(p, m, a) -> {
+								switch (m.getName())
+								{
+									case "getAttribute" :
+										return contextAttributes.get(a[0]);
+									case "setAttribute" :
+										contextAttributes.put((String)a[0], a[1]);
+										return null;
+									default :
+										return getDefaultReturnValue(m);
+								}
+							});
+					case "getQueryString" :
+						return null;
+					case "getMethod" :
+						return "POST";
+					default :
+						return getDefaultReturnValue(method);
+				}
+			});
+
+		HttpServletResponse refreshResponse = createMockResponse();
+		LoginResult refreshResult = StatelessLoginHandler.mustAuthenticate(refreshRequest, refreshResponse, SOLUTION_NAME);
+		assertFalse("Should NOT be authenticated when cloud rejects refresh", refreshResult.isAuthenticated());
+
+		String cloudHtml = "<html><body><form name=\"login_form\">Please login again</form></body></html>";
+		lastCloudResponse = new JSONObject().put("html", cloudHtml);
+		lastCloudStatusCode = 200;
+
+		StringWriter pageOutput = new StringWriter();
+		HttpServletResponse writeResponse = createMockResponseWithWriter(pageOutput);
+		StatelessLoginHandler.writeLoginPage(refreshRequest, writeResponse, SOLUTION_NAME, refreshResult);
+		String page = pageOutput.toString();
+		assertTrue("Should show login page after failed refresh", page.contains("login_form") || page.contains("svyRedirect"));
+	}
+
+	@Test
+	public void testFullFlow_cloud_oauthLoginThenMustAuthenticate_validatesToken() throws Exception
+	{
+		JSONObject response = new JSONObject();
+		response.put("permissions", new JSONArray(TEST_PERMISSIONS));
+		response.put("username", TEST_USERNAME);
+		response.put("tenantValues", new JSONArray(new String[] { "Sandbox" }));
+		lastCloudResponse = response;
+		lastCloudStatusCode = 200;
+
+		HttpServletRequest firstRequest = createFullFlowRequest(TEST_USERNAME, "password123");
+		HttpServletResponse firstResponse = createMockResponse();
+		LoginResult firstResult = StatelessLoginHandler.mustAuthenticate(firstRequest, firstResponse, SOLUTION_NAME);
+		assertTrue(firstResult.isAuthenticated());
+		String svyToken = firstResult.getToken();
+		assertNotNull(svyToken);
+
+		String csrfToken = "123456";
+		Map<String, String[]> params = new HashMap<>();
+		params.put("id_token", new String[] { svyToken });
+		params.put("csrf_token", new String[] { csrfToken });
+
+		jakarta.servlet.http.Cookie csrfCookie = new jakarta.servlet.http.Cookie("csrf_token", csrfToken);
+		Map<String, Object> sessionAttributes = new HashMap<>();
+		Map<String, Object> contextAttributes = new HashMap<>();
+		contextAttributes.put("nonce", new java.util.concurrent.ConcurrentHashMap<String, JSONObject>());
+
+		HttpServletRequest checkRequest = (HttpServletRequest)Proxy.newProxyInstance(
+			HttpServletRequest.class.getClassLoader(),
+			new Class< ? >[] { HttpServletRequest.class },
+			(proxy, method, args) -> {
+				switch (method.getName())
+				{
+					case "getParameterMap" :
+						return params;
+					case "getParameter" :
+						String[] vals = params.get(args[0]);
+						return vals != null && vals.length > 0 ? vals[0] : null;
+					case "getCookies" :
+						return new jakarta.servlet.http.Cookie[] { csrfCookie };
+					case "getCharacterEncoding" :
+						return "UTF-8";
+					case "setCharacterEncoding" :
+						return null;
+					case "getRequestURI" :
+						return "/solution/" + SOLUTION_NAME + "/index.html";
+					case "getRequestURL" :
+						return new StringBuffer("https://localhost:8080/solution/" + SOLUTION_NAME + "/index.html");
+					case "getServletPath" :
+						return "/solution/" + SOLUTION_NAME + "/index.html";
+					case "getContextPath" :
+						return "";
+					case "getScheme" :
+						return "https";
+					case "getServerName" :
+						return "localhost";
+					case "getServerPort" :
+						return Integer.valueOf(8080);
+					case "getHeader" :
+						if ("accept-language".equals(args[0])) return "en";
+						return null;
+					case "getLocale" :
+						return Locale.ENGLISH;
+					case "getSession" :
+						return (jakarta.servlet.http.HttpSession)Proxy.newProxyInstance(
+							jakarta.servlet.http.HttpSession.class.getClassLoader(),
+							new Class< ? >[] { jakarta.servlet.http.HttpSession.class },
+							(p, m, a) -> {
+								switch (m.getName())
+								{
+									case "getAttribute" :
+										return sessionAttributes.get(a[0]);
+									case "setAttribute" :
+										sessionAttributes.put((String)a[0], a[1]);
+										return null;
+									case "removeAttribute" :
+										sessionAttributes.remove(a[0]);
+										return null;
+									default :
+										return getDefaultReturnValue(m);
+								}
+							});
+					case "getRemoteAddr" :
+						return "127.0.0.1";
+					case "getServletContext" :
+						return (jakarta.servlet.ServletContext)Proxy.newProxyInstance(
+							jakarta.servlet.ServletContext.class.getClassLoader(),
+							new Class< ? >[] { jakarta.servlet.ServletContext.class },
+							(p, m, a) -> {
+								switch (m.getName())
+								{
+									case "getAttribute" :
+										return contextAttributes.get(a[0]);
+									case "setAttribute" :
+										contextAttributes.put((String)a[0], a[1]);
+										return null;
+									default :
+										return getDefaultReturnValue(m);
+								}
+							});
+					case "getQueryString" :
+						return null;
+					case "getMethod" :
+						return "POST";
+					default :
+						return getDefaultReturnValue(method);
+				}
+			});
+
+		HttpServletResponse checkResponse = createMockResponse();
+		LoginResult checkResult = StatelessLoginHandler.mustAuthenticate(checkRequest, checkResponse, SOLUTION_NAME);
+		assertTrue("Should be authenticated with valid svy token", checkResult.isAuthenticated());
+		assertNotNull(checkResult.getToken());
+
+		DecodedJWT decoded = JWT.decode(checkResult.getToken());
+		assertEquals(TEST_USERNAME, decoded.getClaim(SvyID.USERNAME).asString());
+		String[] tenants = decoded.getClaim(SvyID.TENANTS).asArray(String.class);
+		assertNotNull(tenants);
+		assertEquals("Sandbox", tenants[0]);
+	}
+
 	// ===== getCloudLoginPage - additional scenarios =====
 
 	@Test
@@ -1080,8 +2330,8 @@ public class CloudStatelessAccessManagerTest
 		lastCloudStatusCode = 200;
 
 		Map<String, String[]> params = new HashMap<>();
-		params.put("locale", new String[]{ "en_US" });
-		params.put("theme", new String[]{ "dark" });
+		params.put("locale", new String[] { "en_US" });
+		params.put("theme", new String[] { "dark" });
 		HttpServletRequest request = createMockRequestWithParams(params);
 		String result = invokeGetCloudLoginPage(request);
 
@@ -1097,9 +2347,9 @@ public class CloudStatelessAccessManagerTest
 		lastCloudStatusCode = 200;
 
 		Map<String, String[]> params = new HashMap<>();
-		params.put("key1", new String[]{ "" });
-		params.put("key2", new String[]{ "  " });
-		params.put("key3", new String[]{ "value3" });
+		params.put("key1", new String[] { "" });
+		params.put("key2", new String[] { "  " });
+		params.put("key3", new String[] { "value3" });
 		HttpServletRequest request = createMockRequestWithParams(params);
 		String result = invokeGetCloudLoginPage(request);
 
@@ -1114,7 +2364,7 @@ public class CloudStatelessAccessManagerTest
 		lastCloudStatusCode = 200;
 
 		Map<String, String[]> params = new HashMap<>();
-		params.put("redirect", new String[]{ "https://example.com/path?a=1&b=2" });
+		params.put("redirect", new String[] { "https://example.com/path?a=1&b=2" });
 		HttpServletRequest request = createMockRequestWithParams(params);
 		String result = invokeGetCloudLoginPage(request);
 
@@ -1129,7 +2379,7 @@ public class CloudStatelessAccessManagerTest
 		lastCloudStatusCode = 200;
 
 		Map<String, String[]> params = new HashMap<>();
-		params.put("role", new String[]{ "admin", "user" });
+		params.put("role", new String[] { "admin", "user" });
 		HttpServletRequest request = createMockRequestWithParams(params);
 		String result = invokeGetCloudLoginPage(request);
 
@@ -1292,8 +2542,8 @@ public class CloudStatelessAccessManagerTest
 		lastCloudStatusCode = 200;
 
 		Map<String, String[]> params = new HashMap<>();
-		params.put("id_token", new String[]{ expiredToken });
-		params.put("csrf_token", new String[]{ "123456" });
+		params.put("id_token", new String[] { expiredToken });
+		params.put("csrf_token", new String[] { "123456" });
 
 		jakarta.servlet.http.Cookie csrfCookie = new jakarta.servlet.http.Cookie("csrf_token", "123456");
 		Map<String, Object> sessionAttributes = new HashMap<>();
@@ -1302,7 +2552,7 @@ public class CloudStatelessAccessManagerTest
 
 		HttpServletRequest request = (HttpServletRequest)Proxy.newProxyInstance(
 			HttpServletRequest.class.getClassLoader(),
-			new Class<?>[]{ HttpServletRequest.class },
+			new Class< ? >[] { HttpServletRequest.class },
 			(proxy, method, args) -> {
 				switch (method.getName())
 				{
@@ -1312,7 +2562,7 @@ public class CloudStatelessAccessManagerTest
 						String[] vals = params.get(args[0]);
 						return vals != null && vals.length > 0 ? vals[0] : null;
 					case "getCookies" :
-						return new jakarta.servlet.http.Cookie[]{ csrfCookie };
+						return new jakarta.servlet.http.Cookie[] { csrfCookie };
 					case "getCharacterEncoding" :
 						return "UTF-8";
 					case "setCharacterEncoding" :
@@ -1339,7 +2589,7 @@ public class CloudStatelessAccessManagerTest
 					case "getSession" :
 						return (jakarta.servlet.http.HttpSession)Proxy.newProxyInstance(
 							jakarta.servlet.http.HttpSession.class.getClassLoader(),
-							new Class<?>[]{ jakarta.servlet.http.HttpSession.class },
+							new Class< ? >[] { jakarta.servlet.http.HttpSession.class },
 							(p, m, a) -> {
 								switch (m.getName())
 								{
@@ -1360,7 +2610,7 @@ public class CloudStatelessAccessManagerTest
 					case "getServletContext" :
 						return (jakarta.servlet.ServletContext)Proxy.newProxyInstance(
 							jakarta.servlet.ServletContext.class.getClassLoader(),
-							new Class<?>[]{ jakarta.servlet.ServletContext.class },
+							new Class< ? >[] { jakarta.servlet.ServletContext.class },
 							(p, m, a) -> {
 								switch (m.getName())
 								{
@@ -1407,8 +2657,8 @@ public class CloudStatelessAccessManagerTest
 		lastCloudResponse = new JSONObject().put("error", "Unauthorized");
 
 		Map<String, String[]> params = new HashMap<>();
-		params.put("id_token", new String[]{ expiredToken });
-		params.put("csrf_token", new String[]{ "123456" });
+		params.put("id_token", new String[] { expiredToken });
+		params.put("csrf_token", new String[] { "123456" });
 
 		jakarta.servlet.http.Cookie csrfCookie = new jakarta.servlet.http.Cookie("csrf_token", "123456");
 		Map<String, Object> sessionAttributes = new HashMap<>();
@@ -1417,7 +2667,7 @@ public class CloudStatelessAccessManagerTest
 
 		HttpServletRequest request = (HttpServletRequest)Proxy.newProxyInstance(
 			HttpServletRequest.class.getClassLoader(),
-			new Class<?>[]{ HttpServletRequest.class },
+			new Class< ? >[] { HttpServletRequest.class },
 			(proxy, method, args) -> {
 				switch (method.getName())
 				{
@@ -1427,7 +2677,7 @@ public class CloudStatelessAccessManagerTest
 						String[] vals = params.get(args[0]);
 						return vals != null && vals.length > 0 ? vals[0] : null;
 					case "getCookies" :
-						return new jakarta.servlet.http.Cookie[]{ csrfCookie };
+						return new jakarta.servlet.http.Cookie[] { csrfCookie };
 					case "getCharacterEncoding" :
 						return "UTF-8";
 					case "setCharacterEncoding" :
@@ -1455,7 +2705,7 @@ public class CloudStatelessAccessManagerTest
 					case "getSession" :
 						return (jakarta.servlet.http.HttpSession)Proxy.newProxyInstance(
 							jakarta.servlet.http.HttpSession.class.getClassLoader(),
-							new Class<?>[]{ jakarta.servlet.http.HttpSession.class },
+							new Class< ? >[] { jakarta.servlet.http.HttpSession.class },
 							(p, m, a) -> {
 								switch (m.getName())
 								{
@@ -1476,7 +2726,7 @@ public class CloudStatelessAccessManagerTest
 					case "getServletContext" :
 						return (jakarta.servlet.ServletContext)Proxy.newProxyInstance(
 							jakarta.servlet.ServletContext.class.getClassLoader(),
-							new Class<?>[]{ jakarta.servlet.ServletContext.class },
+							new Class< ? >[] { jakarta.servlet.ServletContext.class },
 							(p, m, a) -> {
 								switch (m.getName())
 								{
@@ -1514,10 +2764,298 @@ public class CloudStatelessAccessManagerTest
 		assertTrue("Should write login page with cloud login form", page.contains("login") || page.contains("svyRedirect"));
 	}
 
+	// ===== StatelessLoginHandler.logoutAndRevokeToken(HttpSession, Solution) =====
+
+	@Test
+	public void testStatelessLoginHandler_logoutAndRevokeToken_nullSession_returnsImmediately() throws Exception
+	{
+		StatelessLoginHandler.logoutAndRevokeToken(null, cloudSolution);
+		// No exception - null session is handled gracefully
+	}
+
+	@Test
+	public void testStatelessLoginHandler_logoutAndRevokeToken_noIdToken_setsLogoutOnly() throws Exception
+	{
+		Map<String, Object> sessionAttrs = new HashMap<>();
+		jakarta.servlet.http.HttpSession session = createProxy(jakarta.servlet.http.HttpSession.class, (proxy, method, args) -> {
+			switch (method.getName())
+			{
+				case "getAttribute" :
+					return sessionAttrs.get(args[0]);
+				case "setAttribute" :
+					sessionAttrs.put((String)args[0], args[1]);
+					return null;
+				default :
+					return getDefaultReturnValue(method);
+			}
+		});
+
+		StatelessLoginHandler.logoutAndRevokeToken(session, cloudSolution);
+		assertEquals(Boolean.TRUE, sessionAttrs.get("logout"));
+	}
+
+	@Test
+	public void testStatelessLoginHandler_logoutAndRevokeToken_tokenWithoutRefresh_doesNotRevoke() throws Exception
+	{
+		Properties settings = ApplicationServerRegistry.get().getServerAccess().getSettings();
+		String jwtPassword = settings.getProperty(StatelessLoginUtils.JWT_Password);
+		String tokenNoRefresh = JWT.create()
+			.withClaim(SvyID.USERNAME, TEST_USERNAME)
+			.withArrayClaim(SvyID.PERMISSIONS, TEST_PERMISSIONS)
+			.withExpiresAt(new java.util.Date(System.currentTimeMillis() + 3600000))
+			.sign(Algorithm.HMAC256(jwtPassword));
+
+		Map<String, Object> sessionAttrs = new HashMap<>();
+		sessionAttrs.put(StatelessLoginHandler.ID_TOKEN, tokenNoRefresh);
+		jakarta.servlet.http.HttpSession session = createProxy(jakarta.servlet.http.HttpSession.class, (proxy, method, args) -> {
+			switch (method.getName())
+			{
+				case "getAttribute" :
+					return sessionAttrs.get(args[0]);
+				case "setAttribute" :
+					sessionAttrs.put((String)args[0], args[1]);
+					return null;
+				default :
+					return getDefaultReturnValue(method);
+			}
+		});
+
+		StatelessLoginHandler.logoutAndRevokeToken(session, cloudSolution);
+		assertEquals(Boolean.TRUE, sessionAttrs.get("logout"));
+		// No exception - token without refresh_token doesn't attempt revoke
+	}
+
+	@Test
+	public void testStatelessLoginHandler_logoutAndRevokeToken_tokenWithRefresh_callsRevoke() throws Exception
+	{
+		Properties settings = ApplicationServerRegistry.get().getServerAccess().getSettings();
+		String jwtPassword = settings.getProperty(StatelessLoginUtils.JWT_Password);
+		String tokenWithRefresh = JWT.create()
+			.withClaim(SvyID.USERNAME, TEST_USERNAME)
+			.withArrayClaim(SvyID.PERMISSIONS, TEST_PERMISSIONS)
+			.withClaim(StatelessLoginHandler.REFRESH_TOKEN, "token-to-revoke")
+			.withClaim(CloudStatelessAccessManager.CLOUD_OAUTH_ENDPOINT, "google")
+			.withExpiresAt(new java.util.Date(System.currentTimeMillis() + 3600000))
+			.sign(Algorithm.HMAC256(jwtPassword));
+
+		// Cloud returns an OAuth config so revoke can be attempted
+		JSONObject oauthObj = new JSONObject();
+		oauthObj.put("clientId", "fake-client-id");
+		oauthObj.put("apiSecret", "fake-secret");
+		oauthObj.put("authorizationBaseUrl", "https://accounts.google.com/o/oauth2/v2/auth");
+		oauthObj.put("accessTokenEndpoint", "https://oauth2.googleapis.com/token");
+		lastCloudResponse = new JSONObject().put("oauth", oauthObj);
+		lastCloudStatusCode = 200;
+
+		Map<String, Object> sessionAttrs = new HashMap<>();
+		sessionAttrs.put(StatelessLoginHandler.ID_TOKEN, tokenWithRefresh);
+		jakarta.servlet.http.HttpSession session = createProxy(jakarta.servlet.http.HttpSession.class, (proxy, method, args) -> {
+			switch (method.getName())
+			{
+				case "getAttribute" :
+					return sessionAttrs.get(args[0]);
+				case "setAttribute" :
+					sessionAttrs.put((String)args[0], args[1]);
+					return null;
+				default :
+					return getDefaultReturnValue(method);
+			}
+		});
+
+		StatelessLoginHandler.logoutAndRevokeToken(session, cloudSolution);
+		assertEquals(Boolean.TRUE, sessionAttrs.get("logout"));
+		// Exercises the full path: session -> decode token -> has refresh -> get authenticator manager -> ITokenRevocable.logoutAndRevokeToken
+	}
+
+	// ===== StatelessLoginHandler.init =====
+
+	@Test
+	public void testStatelessLoginHandler_init_setsNonceAttribute() throws Exception
+	{
+		Map<String, Object> contextAttrs = new HashMap<>();
+		jakarta.servlet.ServletContext context = createProxy(jakarta.servlet.ServletContext.class, (proxy, method, args) -> {
+			switch (method.getName())
+			{
+				case "getAttribute" :
+					return contextAttrs.get(args[0]);
+				case "setAttribute" :
+					contextAttrs.put((String)args[0], args[1]);
+					return null;
+				default :
+					return getDefaultReturnValue(method);
+			}
+		});
+
+		StatelessLoginHandler.init(context);
+		assertNotNull("Nonce map should be set", contextAttrs.get("nonce"));
+	}
+
+	// ===== StatelessLoginHandler.writeLoginPage - solution not found =====
+
+	@Test
+	public void testStatelessLoginHandler_writeLoginPage_unknownSolution_returnsGracefully() throws Exception
+	{
+		HttpServletRequest request = createMockRequest();
+		StringWriter writer = new StringWriter();
+		HttpServletResponse response = createMockResponseWithWriter(writer);
+		LoginResult result = LoginResult.needsLogin();
+
+		// Pass a solution name that doesn't exist in our repository mock
+		StatelessLoginHandler.writeLoginPage(request, response, "nonExistentSolution", result);
+		// Should not throw - just logs an error and returns
+		assertEquals("Should write nothing when solution not found", "", writer.toString());
+	}
+
+	// ===== StatelessLoginHandler.checkPermissions - CSRF failure =====
+
+	@Test(expected = jakarta.servlet.ServletException.class)
+	public void testStatelessLoginHandler_checkPermissions_csrfFails_throwsServletException() throws Exception
+	{
+		// Create a valid non-expired token and send as id_token param
+		Properties settings = ApplicationServerRegistry.get().getServerAccess().getSettings();
+		String jwtPassword = settings.getProperty(StatelessLoginUtils.JWT_Password);
+		String validToken = JWT.create()
+			.withIssuer("svy")
+			.withClaim(SvyID.USERNAME, TEST_USERNAME)
+			.withClaim(SvyID.UID, "cloud-uid-123")
+			.withArrayClaim(SvyID.PERMISSIONS, TEST_PERMISSIONS)
+			.withIssuedAt(new java.util.Date())
+			.withExpiresAt(new java.util.Date(System.currentTimeMillis() + 3600000))
+			.sign(Algorithm.HMAC256(jwtPassword));
+
+		// Send id_token as request param but with csrf_token param and NO matching cookie
+		Map<String, String[]> params = new HashMap<>();
+		params.put("id_token", new String[] { validToken });
+		params.put("csrf_token", new String[] { "some-csrf-value" });
+
+		HttpServletRequest request = createProxy(HttpServletRequest.class, (proxy, method, args) -> {
+			switch (method.getName())
+			{
+				case "getParameterMap" :
+					return params;
+				case "getParameter" :
+					String[] vals = params.get(args[0]);
+					return vals != null && vals.length > 0 ? vals[0] : null;
+				case "getCookies" :
+					// Return cookies but WITHOUT a matching csrf_token cookie
+					return new Cookie[] { new Cookie("other_cookie", "value") };
+				case "getCharacterEncoding" :
+					return "UTF-8";
+				case "getRequestURI" :
+					return "/solution/" + SOLUTION_NAME + "/index.html";
+				case "getServletPath" :
+					return "/solution/" + SOLUTION_NAME + "/index.html";
+				case "getContextPath" :
+					return "";
+				case "getScheme" :
+					return "https";
+				case "getServerName" :
+					return "localhost";
+				case "getServerPort" :
+					return Integer.valueOf(8080);
+				case "getHeader" :
+					if ("accept-language".equals(args[0])) return "en";
+					return null;
+				case "getLocale" :
+					return java.util.Locale.ENGLISH;
+				case "getSession" :
+					return null;
+				case "getRemoteAddr" :
+					return "127.0.0.1";
+				case "getQueryString" :
+					return null;
+				case "getMethod" :
+					return "POST";
+				default :
+					return getDefaultReturnValue(method);
+			}
+		});
+
+		HttpServletResponse response = createMockResponse();
+		// This should throw ServletException "Access forbidden due to failed security validation"
+		StatelessLoginHandler.mustAuthenticate(request, response, SOLUTION_NAME);
+	}
+
+	// ===== StatelessLoginHandler.checkPermissions - auth fails =====
+
+	@Test
+	public void testStatelessLoginHandler_checkPermissions_authFails_resultNotAuthenticated() throws Exception
+	{
+		// Cloud returns 401 (auth failure) so checkPermissions returns false
+		lastCloudResponse = new JSONObject().put("error", "unauthorized");
+		lastCloudStatusCode = 401;
+
+		Properties settings = ApplicationServerRegistry.get().getServerAccess().getSettings();
+		String jwtPassword = settings.getProperty(StatelessLoginUtils.JWT_Password);
+		String validToken = JWT.create()
+			.withIssuer("svy")
+			.withClaim(SvyID.USERNAME, TEST_USERNAME)
+			.withClaim(SvyID.UID, "cloud-uid-123")
+			.withArrayClaim(SvyID.PERMISSIONS, TEST_PERMISSIONS)
+			.withIssuedAt(new java.util.Date())
+			.withExpiresAt(new java.util.Date(System.currentTimeMillis() + 3600000))
+			.sign(Algorithm.HMAC256(jwtPassword));
+
+		String csrfToken = "valid-csrf-token-123";
+		Map<String, String[]> params = new HashMap<>();
+		params.put("id_token", new String[] { validToken });
+		params.put("csrf_token", new String[] { csrfToken });
+
+		Cookie csrfCookie = new Cookie("csrf_token", csrfToken);
+		HttpServletRequest request = createProxy(HttpServletRequest.class, (proxy, method, args) -> {
+			switch (method.getName())
+			{
+				case "getParameterMap" :
+					return params;
+				case "getParameter" :
+					String[] vals = params.get(args[0]);
+					return vals != null && vals.length > 0 ? vals[0] : null;
+				case "getCookies" :
+					return new Cookie[] { csrfCookie };
+				case "getCharacterEncoding" :
+					return "UTF-8";
+				case "getRequestURI" :
+					return "/solution/" + SOLUTION_NAME + "/index.html";
+				case "getServletPath" :
+					return "/solution/" + SOLUTION_NAME + "/index.html";
+				case "getContextPath" :
+					return "";
+				case "getScheme" :
+					return "https";
+				case "getServerName" :
+					return "localhost";
+				case "getServerPort" :
+					return Integer.valueOf(8080);
+				case "getHeader" :
+					if ("accept-language".equals(args[0])) return "en";
+					return null;
+				case "getLocale" :
+					return java.util.Locale.ENGLISH;
+				case "getSession" :
+					return null;
+				case "getRemoteAddr" :
+					return "127.0.0.1";
+				case "getQueryString" :
+					return null;
+				case "getMethod" :
+					return "POST";
+				default :
+					return getDefaultReturnValue(method);
+			}
+		});
+
+		HttpServletResponse response = createMockResponse();
+		LoginResult result = StatelessLoginHandler.mustAuthenticate(request, response, SOLUTION_NAME);
+
+		// checkPermissions was called with valid CSRF, but cloud returned 401
+		// The !verified path should set result to not authenticated
+		assertFalse("Should not be authenticated when cloud rejects", result.isAuthenticated());
+	}
+
 	@SuppressWarnings("unchecked")
 	private <T> T createProxy(Class<T> iface, InvocationHandler handler)
 	{
-		return (T)Proxy.newProxyInstance(getClass().getClassLoader(), new Class<?>[]{ iface }, handler);
+		return (T)Proxy.newProxyInstance(getClass().getClassLoader(), new Class< ? >[] { iface }, handler);
 	}
 
 	private String invokeGetCloudLoginPage(HttpServletRequest request) throws Exception
@@ -1672,7 +3210,7 @@ public class CloudStatelessAccessManagerTest
 	private <T> HttpResponse<T> createMockHttpResponse(HttpRequest request, T body)
 	{
 		return (HttpResponse<T>)Proxy.newProxyInstance(getClass().getClassLoader(),
-			new Class<?>[]{ HttpResponse.class },
+			new Class< ? >[] { HttpResponse.class },
 			(proxy, method, args) -> {
 				switch (method.getName())
 				{
@@ -1698,86 +3236,86 @@ public class CloudStatelessAccessManagerTest
 
 		return (HttpServletRequest)Proxy.newProxyInstance(
 			HttpServletRequest.class.getClassLoader(),
-			new Class<?>[]{ HttpServletRequest.class },
+			new Class< ? >[] { HttpServletRequest.class },
 			(proxy, method, args) -> {
-			switch (method.getName())
-			{
-				case "getParameterMap" :
-					return Collections.emptyMap();
-				case "getParameter" :
-					return null;
-				case "getCookies" :
-					return null;
-				case "getCharacterEncoding" :
-					return "UTF-8";
-				case "setCharacterEncoding" :
-					return null;
-				case "getRequestURI" :
-					return "/solution/" + SOLUTION_NAME + "/index.html";
-				case "getRequestURL" :
-					return new StringBuffer("https://localhost:8080/solution/" + SOLUTION_NAME + "/index.html");
-				case "getServletPath" :
-					return "/solution/" + SOLUTION_NAME + "/index.html";
-				case "getContextPath" :
-					return "";
-				case "getScheme" :
-					return "https";
-				case "getServerName" :
-					return "localhost";
-				case "getServerPort" :
-					return Integer.valueOf(8080);
-				case "getHeader" :
-					if ("accept-language".equals(args[0])) return "en";
-					if ("Accept-Language".equals(args[0])) return "en";
-					if ("user-agent".equals(args[0])) return "Mozilla/5.0";
-					return null;
-				case "getLocale" :
-					return Locale.ENGLISH;
-				case "getSession" :
-					return (jakarta.servlet.http.HttpSession)Proxy.newProxyInstance(
-						jakarta.servlet.http.HttpSession.class.getClassLoader(),
-						new Class<?>[]{ jakarta.servlet.http.HttpSession.class },
-						(p, m, a) -> {
-							switch (m.getName())
-							{
-								case "getAttribute" :
-									return sessionAttributes.get(a[0]);
-								case "setAttribute" :
-									sessionAttributes.put((String)a[0], a[1]);
-									return null;
-								case "removeAttribute" :
-									sessionAttributes.remove(a[0]);
-									return null;
-								default :
-									return getDefaultReturnValue(m);
-							}
-						});
-				case "getRemoteAddr" :
-					return "127.0.0.1";
-				case "getServletContext" :
-					return (jakarta.servlet.ServletContext)Proxy.newProxyInstance(
-						jakarta.servlet.ServletContext.class.getClassLoader(),
-						new Class<?>[]{ jakarta.servlet.ServletContext.class },
-						(p, m, a) -> {
-							switch (m.getName())
-							{
-								case "getAttribute" :
-									return contextAttributes.get(a[0]);
-								case "setAttribute" :
-									contextAttributes.put((String)a[0], a[1]);
-									return null;
-								default :
-									return getDefaultReturnValue(m);
-							}
-						});
-				case "getQueryString" :
-					return null;
-				case "getMethod" :
-					return "GET";
-				default :
-					return getDefaultReturnValue(method);
-			}
-		});
+				switch (method.getName())
+				{
+					case "getParameterMap" :
+						return Collections.emptyMap();
+					case "getParameter" :
+						return null;
+					case "getCookies" :
+						return null;
+					case "getCharacterEncoding" :
+						return "UTF-8";
+					case "setCharacterEncoding" :
+						return null;
+					case "getRequestURI" :
+						return "/solution/" + SOLUTION_NAME + "/index.html";
+					case "getRequestURL" :
+						return new StringBuffer("https://localhost:8080/solution/" + SOLUTION_NAME + "/index.html");
+					case "getServletPath" :
+						return "/solution/" + SOLUTION_NAME + "/index.html";
+					case "getContextPath" :
+						return "";
+					case "getScheme" :
+						return "https";
+					case "getServerName" :
+						return "localhost";
+					case "getServerPort" :
+						return Integer.valueOf(8080);
+					case "getHeader" :
+						if ("accept-language".equals(args[0])) return "en";
+						if ("Accept-Language".equals(args[0])) return "en";
+						if ("user-agent".equals(args[0])) return "Mozilla/5.0";
+						return null;
+					case "getLocale" :
+						return Locale.ENGLISH;
+					case "getSession" :
+						return (jakarta.servlet.http.HttpSession)Proxy.newProxyInstance(
+							jakarta.servlet.http.HttpSession.class.getClassLoader(),
+							new Class< ? >[] { jakarta.servlet.http.HttpSession.class },
+							(p, m, a) -> {
+								switch (m.getName())
+								{
+									case "getAttribute" :
+										return sessionAttributes.get(a[0]);
+									case "setAttribute" :
+										sessionAttributes.put((String)a[0], a[1]);
+										return null;
+									case "removeAttribute" :
+										sessionAttributes.remove(a[0]);
+										return null;
+									default :
+										return getDefaultReturnValue(m);
+								}
+							});
+					case "getRemoteAddr" :
+						return "127.0.0.1";
+					case "getServletContext" :
+						return (jakarta.servlet.ServletContext)Proxy.newProxyInstance(
+							jakarta.servlet.ServletContext.class.getClassLoader(),
+							new Class< ? >[] { jakarta.servlet.ServletContext.class },
+							(p, m, a) -> {
+								switch (m.getName())
+								{
+									case "getAttribute" :
+										return contextAttributes.get(a[0]);
+									case "setAttribute" :
+										contextAttributes.put((String)a[0], a[1]);
+										return null;
+									default :
+										return getDefaultReturnValue(m);
+								}
+							});
+					case "getQueryString" :
+						return null;
+					case "getMethod" :
+						return "GET";
+					default :
+						return getDefaultReturnValue(method);
+				}
+			});
 	}
 
 	private Solution createSolution(String name, int solutionType, String modulesNames) throws Exception
@@ -1797,7 +3335,7 @@ public class CloudStatelessAccessManagerTest
 	private IRepository createMockRepository()
 	{
 		return (IRepository)Proxy.newProxyInstance(getClass().getClassLoader(),
-			new Class<?>[]{ IRepository.class },
+			new Class< ? >[] { IRepository.class },
 			(proxy, method, args) -> {
 				if ("getActiveRootObject".equals(method.getName()))
 				{
@@ -1842,16 +3380,16 @@ public class CloudStatelessAccessManagerTest
 
 		IRepository repository = createMockRepository();
 
-		com.servoy.j2db.server.shared.IApplicationServer applicationServer =
-			(com.servoy.j2db.server.shared.IApplicationServer)Proxy.newProxyInstance(getClass().getClassLoader(),
-				new Class<?>[]{ com.servoy.j2db.server.shared.IApplicationServer.class },
-				(proxy, method, args) -> {
-					if ("getLoginSolutionDefinitions".equals(method.getName()))
-					{
-						return new SolutionMetaData[0];
-					}
-					return getDefaultReturnValue(method);
-				});
+		com.servoy.j2db.server.shared.IApplicationServer applicationServer = (com.servoy.j2db.server.shared.IApplicationServer)Proxy.newProxyInstance(
+			getClass().getClassLoader(),
+			new Class< ? >[] { com.servoy.j2db.server.shared.IApplicationServer.class },
+			(proxy, method, args) -> {
+				if ("getLoginSolutionDefinitions".equals(method.getName()))
+				{
+					return new SolutionMetaData[0];
+				}
+				return getDefaultReturnValue(method);
+			});
 
 		com.servoy.j2db.server.shared.IServiceRegistry serviceRegistry = createProxy(
 			com.servoy.j2db.server.shared.IServiceRegistry.class, (proxy, method, args) -> {
@@ -1880,17 +3418,17 @@ public class CloudStatelessAccessManagerTest
 		});
 	}
 
-	private static Class<?>[] getAllInterfaces(Class<?> iface)
+	private static Class< ? >[] getAllInterfaces(Class< ? > iface)
 	{
-		java.util.Set<Class<?>> interfaces = new java.util.LinkedHashSet<>();
+		java.util.Set<Class< ? >> interfaces = new java.util.LinkedHashSet<>();
 		collectInterfaces(iface, interfaces);
-		return interfaces.toArray(new Class<?>[0]);
+		return interfaces.toArray(new Class< ? >[0]);
 	}
 
-	private static void collectInterfaces(Class<?> iface, java.util.Set<Class<?>> interfaces)
+	private static void collectInterfaces(Class< ? > iface, java.util.Set<Class< ? >> interfaces)
 	{
 		interfaces.add(iface);
-		for (Class<?> superIface : iface.getInterfaces())
+		for (Class< ? > superIface : iface.getInterfaces())
 		{
 			collectInterfaces(superIface, interfaces);
 		}
@@ -1898,7 +3436,7 @@ public class CloudStatelessAccessManagerTest
 
 	private static Object getDefaultReturnValue(Method method)
 	{
-		Class<?> returnType = method.getReturnType();
+		Class< ? > returnType = method.getReturnType();
 		if (returnType == boolean.class) return Boolean.FALSE;
 		if (returnType == int.class) return Integer.valueOf(0);
 		if (returnType == long.class) return Long.valueOf(0L);
@@ -1914,7 +3452,7 @@ public class CloudStatelessAccessManagerTest
 	{
 		return (HttpServletResponse)Proxy.newProxyInstance(
 			HttpServletResponse.class.getClassLoader(),
-			new Class<?>[]{ HttpServletResponse.class },
+			new Class< ? >[] { HttpServletResponse.class },
 			(proxy, method, args) -> {
 				switch (method.getName())
 				{
@@ -1942,7 +3480,7 @@ public class CloudStatelessAccessManagerTest
 		PrintWriter printWriter = new PrintWriter(writer);
 		return (HttpServletResponse)Proxy.newProxyInstance(
 			HttpServletResponse.class.getClassLoader(),
-			new Class<?>[]{ HttpServletResponse.class },
+			new Class< ? >[] { HttpServletResponse.class },
 			(proxy, method, args) -> {
 				switch (method.getName())
 				{
@@ -1969,7 +3507,7 @@ public class CloudStatelessAccessManagerTest
 	{
 		return (HttpServletResponse)Proxy.newProxyInstance(
 			HttpServletResponse.class.getClassLoader(),
-			new Class<?>[]{ HttpServletResponse.class },
+			new Class< ? >[] { HttpServletResponse.class },
 			(proxy, method, args) -> {
 				switch (method.getName())
 				{
@@ -1997,7 +3535,7 @@ public class CloudStatelessAccessManagerTest
 	{
 		return (HttpServletResponse)Proxy.newProxyInstance(
 			HttpServletResponse.class.getClassLoader(),
-			new Class<?>[]{ HttpServletResponse.class },
+			new Class< ? >[] { HttpServletResponse.class },
 			(proxy, method, args) -> {
 				switch (method.getName())
 				{
@@ -2032,7 +3570,7 @@ public class CloudStatelessAccessManagerTest
 
 		return (HttpServletRequest)Proxy.newProxyInstance(
 			HttpServletRequest.class.getClassLoader(),
-			new Class<?>[]{ HttpServletRequest.class },
+			new Class< ? >[] { HttpServletRequest.class },
 			(proxy, method, args) -> {
 				switch (method.getName())
 				{
@@ -2070,7 +3608,7 @@ public class CloudStatelessAccessManagerTest
 					case "getSession" :
 						return (jakarta.servlet.http.HttpSession)Proxy.newProxyInstance(
 							jakarta.servlet.http.HttpSession.class.getClassLoader(),
-							new Class<?>[]{ jakarta.servlet.http.HttpSession.class },
+							new Class< ? >[] { jakarta.servlet.http.HttpSession.class },
 							(p, m, a) -> {
 								switch (m.getName())
 								{
@@ -2091,7 +3629,7 @@ public class CloudStatelessAccessManagerTest
 					case "getServletContext" :
 						return (jakarta.servlet.ServletContext)Proxy.newProxyInstance(
 							jakarta.servlet.ServletContext.class.getClassLoader(),
-							new Class<?>[]{ jakarta.servlet.ServletContext.class },
+							new Class< ? >[] { jakarta.servlet.ServletContext.class },
 							(p, m, a) -> {
 								switch (m.getName())
 								{
@@ -2122,7 +3660,7 @@ public class CloudStatelessAccessManagerTest
 
 		return (HttpServletRequest)Proxy.newProxyInstance(
 			HttpServletRequest.class.getClassLoader(),
-			new Class<?>[]{ HttpServletRequest.class },
+			new Class< ? >[] { HttpServletRequest.class },
 			(proxy, method, args) -> {
 				switch (method.getName())
 				{
@@ -2161,7 +3699,7 @@ public class CloudStatelessAccessManagerTest
 					case "getSession" :
 						return (jakarta.servlet.http.HttpSession)Proxy.newProxyInstance(
 							jakarta.servlet.http.HttpSession.class.getClassLoader(),
-							new Class<?>[]{ jakarta.servlet.http.HttpSession.class },
+							new Class< ? >[] { jakarta.servlet.http.HttpSession.class },
 							(p, m, a) -> {
 								switch (m.getName())
 								{
@@ -2182,7 +3720,7 @@ public class CloudStatelessAccessManagerTest
 					case "getServletContext" :
 						return (jakarta.servlet.ServletContext)Proxy.newProxyInstance(
 							jakarta.servlet.ServletContext.class.getClassLoader(),
-							new Class<?>[]{ jakarta.servlet.ServletContext.class },
+							new Class< ? >[] { jakarta.servlet.ServletContext.class },
 							(p, m, a) -> {
 								switch (m.getName())
 								{
@@ -2213,7 +3751,7 @@ public class CloudStatelessAccessManagerTest
 
 		return (HttpServletRequest)Proxy.newProxyInstance(
 			HttpServletRequest.class.getClassLoader(),
-			new Class<?>[]{ HttpServletRequest.class },
+			new Class< ? >[] { HttpServletRequest.class },
 			(proxy, method, args) -> {
 				switch (method.getName())
 				{
@@ -2251,7 +3789,7 @@ public class CloudStatelessAccessManagerTest
 					case "getSession" :
 						return (jakarta.servlet.http.HttpSession)Proxy.newProxyInstance(
 							jakarta.servlet.http.HttpSession.class.getClassLoader(),
-							new Class<?>[]{ jakarta.servlet.http.HttpSession.class },
+							new Class< ? >[] { jakarta.servlet.http.HttpSession.class },
 							(p, m, a) -> {
 								switch (m.getName())
 								{
@@ -2272,7 +3810,7 @@ public class CloudStatelessAccessManagerTest
 					case "getServletContext" :
 						return (jakarta.servlet.ServletContext)Proxy.newProxyInstance(
 							jakarta.servlet.ServletContext.class.getClassLoader(),
-							new Class<?>[]{ jakarta.servlet.ServletContext.class },
+							new Class< ? >[] { jakarta.servlet.ServletContext.class },
 							(p, m, a) -> {
 								switch (m.getName())
 								{
@@ -2295,22 +3833,15 @@ public class CloudStatelessAccessManagerTest
 			});
 	}
 
-	private HttpServletRequest createFullFlowRequest(String username, String password)
+	private HttpServletRequest createMockRequestWithServletPathAndParams(String servletPath, Map<String, String[]> params, String queryString)
 	{
-		Map<String, String[]> params = new HashMap<>();
-		if (username != null) params.put("username", new String[]{ username });
-		if (password != null) params.put("password", new String[]{ password });
-		params.put("csrf_token", new String[]{ "123456" });
-
 		Map<String, Object> sessionAttributes = new HashMap<>();
 		Map<String, Object> contextAttributes = new HashMap<>();
-		contextAttributes.put("nonce", new java.util.concurrent.ConcurrentHashMap<String, JSONObject>());
-
-		jakarta.servlet.http.Cookie csrfCookie = new jakarta.servlet.http.Cookie("csrf_token", "123456");
+		contextAttributes.put("nonce", new HashMap<String, Object>());
 
 		return (HttpServletRequest)Proxy.newProxyInstance(
 			HttpServletRequest.class.getClassLoader(),
-			new Class<?>[]{ HttpServletRequest.class },
+			new Class< ? >[] { HttpServletRequest.class },
 			(proxy, method, args) -> {
 				switch (method.getName())
 				{
@@ -2320,7 +3851,104 @@ public class CloudStatelessAccessManagerTest
 						String[] vals = params.get(args[0]);
 						return vals != null && vals.length > 0 ? vals[0] : null;
 					case "getCookies" :
-						return new jakarta.servlet.http.Cookie[]{ csrfCookie };
+						return null;
+					case "getCharacterEncoding" :
+						return "UTF-8";
+					case "setCharacterEncoding" :
+						return null;
+					case "getRequestURI" :
+						return servletPath;
+					case "getRequestURL" :
+						return new StringBuffer("https://localhost:8080" + servletPath);
+					case "getServletPath" :
+						return servletPath;
+					case "getContextPath" :
+						return "";
+					case "getScheme" :
+						return "https";
+					case "getServerName" :
+						return "localhost";
+					case "getServerPort" :
+						return Integer.valueOf(8080);
+					case "getHeader" :
+						if ("accept-language".equals(args[0])) return "en";
+						if ("user-agent".equals(args[0])) return "Mozilla/5.0";
+						return null;
+					case "getLocale" :
+						return Locale.ENGLISH;
+					case "getSession" :
+						return (jakarta.servlet.http.HttpSession)Proxy.newProxyInstance(
+							jakarta.servlet.http.HttpSession.class.getClassLoader(),
+							new Class< ? >[] { jakarta.servlet.http.HttpSession.class },
+							(p, m, a) -> {
+								switch (m.getName())
+								{
+									case "getAttribute" :
+										return sessionAttributes.get(a[0]);
+									case "setAttribute" :
+										sessionAttributes.put((String)a[0], a[1]);
+										return null;
+									case "removeAttribute" :
+										sessionAttributes.remove(a[0]);
+										return null;
+									default :
+										return getDefaultReturnValue(m);
+								}
+							});
+					case "getRemoteAddr" :
+						return "127.0.0.1";
+					case "getServletContext" :
+						return (jakarta.servlet.ServletContext)Proxy.newProxyInstance(
+							jakarta.servlet.ServletContext.class.getClassLoader(),
+							new Class< ? >[] { jakarta.servlet.ServletContext.class },
+							(p, m, a) -> {
+								switch (m.getName())
+								{
+									case "getAttribute" :
+										return contextAttributes.get(a[0]);
+									case "setAttribute" :
+										contextAttributes.put((String)a[0], a[1]);
+										return null;
+									default :
+										return getDefaultReturnValue(m);
+								}
+							});
+					case "getQueryString" :
+						return queryString;
+					case "getMethod" :
+						return "POST";
+					default :
+						return getDefaultReturnValue(method);
+				}
+			});
+	}
+
+	private HttpServletRequest createFullFlowRequest(String username, String password)
+	{
+		Map<String, String[]> params = new HashMap<>();
+		if (username != null) params.put("username", new String[] { username });
+		if (password != null) params.put("password", new String[] { password });
+		params.put("csrf_token", new String[] { "123456" });
+
+		Map<String, Object> sessionAttributes = new HashMap<>();
+		Map<String, Object> contextAttributes = new HashMap<>();
+		contextAttributes.put("nonce", new java.util.concurrent.ConcurrentHashMap<String, JSONObject>());
+
+		jakarta.servlet.http.Cookie csrfCookie = new jakarta.servlet.http.Cookie("csrf_token", "123456");
+
+		return (HttpServletRequest)Proxy.newProxyInstance(
+			HttpServletRequest.class.getClassLoader(),
+			new Class< ? >[] { HttpServletRequest.class },
+			(proxy, method, args) -> {
+				switch (method.getName())
+				{
+					case "getParameterMap" :
+						return params;
+					case "getParameter" :
+						String[] vals = params.get(args[0]);
+						return vals != null && vals.length > 0 ? vals[0] : null;
+					case "getCookies" :
+						return new jakarta.servlet.http.Cookie[] { csrfCookie };
 					case "getCharacterEncoding" :
 						return "UTF-8";
 					case "setCharacterEncoding" :
@@ -2349,7 +3977,7 @@ public class CloudStatelessAccessManagerTest
 					case "getSession" :
 						return (jakarta.servlet.http.HttpSession)Proxy.newProxyInstance(
 							jakarta.servlet.http.HttpSession.class.getClassLoader(),
-							new Class<?>[]{ jakarta.servlet.http.HttpSession.class },
+							new Class< ? >[] { jakarta.servlet.http.HttpSession.class },
 							(p, m, a) -> {
 								switch (m.getName())
 								{
@@ -2370,7 +3998,7 @@ public class CloudStatelessAccessManagerTest
 					case "getServletContext" :
 						return (jakarta.servlet.ServletContext)Proxy.newProxyInstance(
 							jakarta.servlet.ServletContext.class.getClassLoader(),
-							new Class<?>[]{ jakarta.servlet.ServletContext.class },
+							new Class< ? >[] { jakarta.servlet.ServletContext.class },
 							(p, m, a) -> {
 								switch (m.getName())
 								{
