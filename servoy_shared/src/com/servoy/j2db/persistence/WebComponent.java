@@ -254,7 +254,7 @@ public class WebComponent extends BaseComponent implements IWebComponent, ICommo
 		{
 			initCustomTypes();
 		}
-		else
+		else if (arg != null)
 		{
 			// just update the custom types based on the new json, without clearing them first
 			PropertyDescription propertyDescription = getPropertyDescription();
@@ -308,6 +308,15 @@ public class WebComponent extends BaseComponent implements IWebComponent, ICommo
 					}
 				}
 			}
+		}
+		else
+		{
+			internalClearAllObjects().forEach(o -> {
+				if (getRootObject().getChangeHandler() != null)
+				{
+					getRootObject().getChangeHandler().fireIPersistRemoved(o);
+				}
+			});
 		}
 	}
 
@@ -403,6 +412,7 @@ public class WebComponent extends BaseComponent implements IWebComponent, ICommo
 			wc.customTypesInitialized = false;
 		}
 		cloned.internalClearAllObjects();
+		cloned.internalClearPropertiesMap();
 		cloned.copyPropertiesMap(getPropertiesMap(), true);
 	}
 
