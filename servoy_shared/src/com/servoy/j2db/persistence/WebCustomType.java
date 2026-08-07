@@ -375,6 +375,7 @@ public class WebCustomType extends AbstractBase implements IChildWebObject, ISup
 	protected void fillClone(AbstractBase cloned)
 	{
 		cloned.internalClearAllObjects();
+		cloned.internalClearPropertiesMap();
 		cloned.copyPropertiesMap(getPropertiesMap(), true);
 	}
 
