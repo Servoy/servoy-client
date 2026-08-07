@@ -19,10 +19,8 @@ package com.servoy.j2db.server.ngclient;
 
 import java.io.IOException;
 import java.security.SecureRandom;
-import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collections;
-import java.util.Optional;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
@@ -57,7 +55,6 @@ import com.servoy.j2db.util.Utils;
 
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
@@ -173,7 +170,7 @@ public class StatelessLoginHandler
 	{
 		boolean verified = false;
 		IAuthenticatorManager authenticatorManager = AuthenticatorManagerCreator.getAuthenticatorManager(solution);
-		if (!authenticatorManager.requiresCSRFForCheckUser() || checkCSRFToken(request))
+		if (!authenticatorManager.requiresCSRFForCheckUser() || StatelessLoginUtils.checkCSRFToken(request))
 		{
 			verified = authenticatorManager.checkUser(username, password, remember, oldToken, result, request, response);
 		}
@@ -197,7 +194,7 @@ public class StatelessLoginHandler
 	{
 		log.atInfo().log(() -> "Checking permissions for user " + username + " with authenticator " + solution.getAuthenticator().name());
 		boolean verified = false;
-		if (checkCSRFToken(request))
+		if (StatelessLoginUtils.checkCSRFToken(request))
 		{
 			IAuthenticatorManager authenticatorManager = AuthenticatorManagerCreator.getAuthenticatorManager(solution);
 			verified = authenticatorManager.checkPermissions(username, password, remember, oldToken, result, request);
@@ -218,31 +215,6 @@ public class StatelessLoginHandler
 		}
 	}
 
-	/**
-	 * @param request
-	 */
-	private static boolean checkCSRFToken(HttpServletRequest request)
-	{
-		String fieldToken = request.getParameter("csrf_token");
-		Cookie[] cookies = request.getCookies();
-		if (cookies == null || fieldToken == null)
-		{
-			// just return false here don't allow the login
-			log.warn("no CSRF token (cookie or hidden field) in the request");
-			return false;
-		}
-
-		Optional<Cookie> first = Arrays.asList(cookies).stream().filter(cookie -> "csrf_token".equals(cookie.getName())).findFirst();
-		if (!first.isPresent())
-		{
-			log.warn("no CSRF cookie in the request");
-			return false;
-		}
-		Cookie cookie = first.get();
-		boolean match = fieldToken.equals(cookie.getValue());
-		if (!match) log.atWarn().log(() -> "CSRF token mismatch, cookie: " + cookie.getValue() + " field: " + fieldToken);
-		return match;
-	}
 
 	/**
 	 *

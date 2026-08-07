@@ -391,6 +391,193 @@ public class CloudStatelessAccessManagerTest
 	}
 
 	@Test
+	public void testFullFlow_cloud_loginFails_errorPageWithForm_retrySucceeds() throws Exception
+	{
+		// Full flow: login page -> wrong credentials via svylogin path -> error page with form + CSRF -> retry succeeds
+		// Step 1: writeLoginPage renders initial login form
+		HttpServletRequest indexRequest = createFullFlowRequest(null, null);
+		HttpServletResponse indexResponse = createMockResponse();
+
+		LoginResult mustAuthResult = StatelessLoginHandler.mustAuthenticate(indexRequest, indexResponse, SOLUTION_NAME);
+		assertFalse("Should need login", mustAuthResult.isAuthenticated());
+
+		String loginPageHtml = "<!DOCTYPE html><html><body>" +
+			"<form name=\"login_form\" method=\"post\" action=\"svylogin/login\">" +
+			"<input name=\"username\"><input name=\"password\"></form></body></html>";
+		lastCloudResponse = new JSONObject().put("html", loginPageHtml);
+		lastCloudStatusCode = 200;
+
+		StringWriter pageOutput = new StringWriter();
+		HttpServletResponse writeResp = createMockResponseWithWriter(pageOutput);
+		StatelessLoginHandler.writeLoginPage(indexRequest, writeResp, SOLUTION_NAME, mustAuthResult);
+		String initialPage = pageOutput.toString();
+		// writeLoginPage injects csrf into the form
+		assertTrue("Should have csrf_token in form", initialPage.contains("csrf_token"));
+
+		// Step 2: User submits wrong credentials -> handlePossibleCloudRequest -> cloud returns error HTML with form
+		String errorLoginHtml = "<!DOCTYPE html><html><body>" +
+			"<div class='error'>Invalid credentials</div>" +
+			"<form name=\"login_form\" method=\"post\" action=\"svylogin/login\">" +
+			"<input name=\"username\"><input name=\"password\"></form></body></html>";
+		lastCloudResponse = new JSONObject().put("html", errorLoginHtml);
+		lastCloudStatusCode = 200;
+
+		// Set up the context with endpoints cached
+		Map<String, Object> contextAttributes = new HashMap<>();
+		contextAttributes.put("nonce", new java.util.concurrent.ConcurrentHashMap<String, JSONObject>());
+		contextAttributes.put("endpoints", new String[]{ "login", "tenant_select_redirect" });
+		contextAttributes.put("endpoints_expire", Long.valueOf(System.currentTimeMillis() + 600000));
+
+		String csrfToken = "123456";
+		Map<String, String[]> loginParams = new HashMap<>();
+		loginParams.put("username", new String[]{ TEST_USERNAME });
+		loginParams.put("password", new String[]{ "wrong-password" });
+		loginParams.put("csrf_token", new String[]{ csrfToken });
+
+		jakarta.servlet.http.Cookie csrfCookie = new jakarta.servlet.http.Cookie("csrf_token", csrfToken);
+		Map<String, Object> sessionAttributes = new HashMap<>();
+		final List<jakarta.servlet.http.Cookie> responseCookies = new ArrayList<>();
+
+		HttpServletRequest cloudPostRequest = (HttpServletRequest)Proxy.newProxyInstance(
+			HttpServletRequest.class.getClassLoader(),
+			new Class< ? >[]{ HttpServletRequest.class },
+			(proxy, method, args) -> {
+				switch (method.getName())
+				{
+					case "getParameterMap" :
+						return loginParams;
+					case "getParameter" :
+						String[] vals = loginParams.get(args[0]);
+						return vals != null && vals.length > 0 ? vals[0] : null;
+					case "getCookies" :
+						return new jakarta.servlet.http.Cookie[]{ csrfCookie };
+					case "getCharacterEncoding" :
+						return "UTF-8";
+					case "setCharacterEncoding" :
+						return null;
+					case "getRequestURI" :
+						return "/solution/" + SOLUTION_NAME + "/svylogin/login";
+					case "getRequestURL" :
+						return new StringBuffer("https://localhost:8080/solution/" + SOLUTION_NAME + "/svylogin/login");
+					case "getServletPath" :
+						return "/solution/" + SOLUTION_NAME + "/svylogin/login";
+					case "getContextPath" :
+						return "";
+					case "getScheme" :
+						return "https";
+					case "getServerName" :
+						return "localhost";
+					case "getServerPort" :
+						return Integer.valueOf(8080);
+					case "getHeader" :
+						if ("accept-language".equals(args[0])) return "en";
+						return null;
+					case "getLocale" :
+						return Locale.ENGLISH;
+					case "getSession" :
+						return (jakarta.servlet.http.HttpSession)Proxy.newProxyInstance(
+							jakarta.servlet.http.HttpSession.class.getClassLoader(),
+							new Class< ? >[]{ jakarta.servlet.http.HttpSession.class },
+							(p, m, a) -> {
+								switch (m.getName())
+								{
+									case "getAttribute" :
+										return sessionAttributes.get(a[0]);
+									case "setAttribute" :
+										sessionAttributes.put((String)a[0], a[1]);
+										return null;
+									default :
+										return getDefaultReturnValue(m);
+								}
+							});
+					case "getRemoteAddr" :
+						return "127.0.0.1";
+					case "getServletContext" :
+						return (jakarta.servlet.ServletContext)Proxy.newProxyInstance(
+							jakarta.servlet.ServletContext.class.getClassLoader(),
+							new Class< ? >[]{ jakarta.servlet.ServletContext.class },
+							(p, m, a) -> {
+								switch (m.getName())
+								{
+									case "getAttribute" :
+										return contextAttributes.get(a[0]);
+									case "setAttribute" :
+										contextAttributes.put((String)a[0], a[1]);
+										return null;
+									default :
+										return getDefaultReturnValue(m);
+								}
+							});
+					case "getQueryString" :
+						return null;
+					case "getMethod" :
+						return "POST";
+					default :
+						return getDefaultReturnValue(method);
+				}
+			});
+
+		StringWriter errorPageOutput = new StringWriter();
+		PrintWriter errorPrintWriter = new PrintWriter(errorPageOutput);
+		HttpServletResponse cloudPostResponse = (HttpServletResponse)Proxy.newProxyInstance(
+			HttpServletResponse.class.getClassLoader(),
+			new Class< ? >[]{ HttpServletResponse.class },
+			(proxy, method, args) -> {
+				switch (method.getName())
+				{
+					case "getWriter" :
+						return errorPrintWriter;
+					case "addCookie" :
+						responseCookies.add((jakarta.servlet.http.Cookie)args[0]);
+						return null;
+					case "setCharacterEncoding" :
+					case "setContentType" :
+					case "setContentLengthLong" :
+					case "addHeader" :
+					case "setHeader" :
+					case "setStatus" :
+					case "sendRedirect" :
+						return null;
+					case "getCharacterEncoding" :
+						return "UTF-8";
+					default :
+						return getDefaultReturnValue(method);
+				}
+			});
+
+		boolean handled = CloudStatelessAccessManager.handlePossibleCloudRequest(cloudPostRequest, cloudPostResponse, SOLUTION_NAME);
+		assertTrue("Should be handled by cloud manager", handled);
+
+		String errorPage = errorPageOutput.toString();
+		// The error page should have the CSRF token injected
+		assertTrue("Error page should contain csrf_token hidden field", errorPage.contains("csrf_token"));
+		assertTrue("Error page should contain error message", errorPage.contains("Invalid credentials"));
+
+		// Verify a new CSRF cookie was set
+		boolean csrfCookieSet = responseCookies.stream().anyMatch(c -> "csrf_token".equals(c.getName()));
+		assertTrue("Should have set a new csrf_token cookie", csrfCookieSet);
+
+		// Step 3: User retries with correct credentials using the new CSRF token
+		String newCsrfValue = responseCookies.stream()
+			.filter(c -> "csrf_token".equals(c.getName()))
+			.findFirst().get().getValue();
+
+		JSONObject permissionsResponse = new JSONObject();
+		permissionsResponse.put("permissions", new JSONArray(TEST_PERMISSIONS));
+		permissionsResponse.put("username", TEST_USERNAME);
+		lastCloudResponse = permissionsResponse;
+		lastCloudStatusCode = 200;
+
+		// Now submit with new CSRF
+		HttpServletRequest retryRequest = createFullFlowRequest(TEST_USERNAME, "correct-password");
+		HttpServletResponse retryResponse = createMockResponse();
+
+		LoginResult retryResult = StatelessLoginHandler.mustAuthenticate(retryRequest, retryResponse, SOLUTION_NAME);
+		assertTrue("Should be authenticated on retry", retryResult.isAuthenticated());
+		assertNotNull("Should have token", retryResult.getToken());
+	}
+
+	@Test
 	public void testFullFlow_cloud_checkPermissions_validToken_revalidates() throws Exception
 	{
 		// Step 1: Login to get a valid svy token
@@ -1389,6 +1576,7 @@ public class CloudStatelessAccessManagerTest
 		params.put("username", new String[] { TEST_USERNAME });
 		params.put("password", new String[] { "pass123" });
 		params.put("svyRedirect", new String[] { "/solution/" + SOLUTION_NAME + "/index.html" });
+		params.put("csrf_token", new String[] { "123456" });
 
 		StringWriter writer = new StringWriter();
 		HttpServletRequest request = createHandlePossibleCloudRequest("/solution/" + SOLUTION_NAME + "/svylogin/login", params, "POST");
@@ -1416,6 +1604,7 @@ public class CloudStatelessAccessManagerTest
 		params.put("username", new String[] { TEST_USERNAME });
 		params.put("password", new String[] { "pass123" });
 		params.put("svyRedirect", new String[] { "/solution/" + SOLUTION_NAME + "/index.html" });
+		params.put("csrf_token", new String[] { "123456" });
 
 		List<String> redirects = new ArrayList<>();
 		HttpServletRequest request = createHandlePossibleCloudRequest("/solution/" + SOLUTION_NAME + "/svylogin/login", params, "POST");
@@ -1441,6 +1630,7 @@ public class CloudStatelessAccessManagerTest
 
 		Map<String, String[]> params = new HashMap<>();
 		params.put("oauth", new String[] { "google" });
+		params.put("csrf_token", new String[] { "123456" });
 
 		StringWriter writer = new StringWriter();
 		HttpServletRequest request = createHandlePossibleCloudRequest("/solution/" + SOLUTION_NAME + "/svylogin/oauth", params, "POST");
@@ -1466,6 +1656,7 @@ public class CloudStatelessAccessManagerTest
 		params.put("tenant", new String[] { "Sandbox" });
 		params.put("svyTenantLoginToken", new String[] { "eyJhbGciOiJIUzM4NCJ9.test" });
 		params.put("svyRedirect", new String[] { "/solution/" + SOLUTION_NAME + "/index.html" });
+		params.put("csrf_token", new String[] { "123456" });
 
 		List<String> redirects = new ArrayList<>();
 		HttpServletRequest request = createHandlePossibleCloudRequest("/solution/" + SOLUTION_NAME + "/svylogin/tenant_select_redirect", params, "POST");
@@ -1484,6 +1675,7 @@ public class CloudStatelessAccessManagerTest
 		lastCloudStatusCode = 200;
 
 		Map<String, String[]> params = new HashMap<>();
+		params.put("csrf_token", new String[] { "123456" });
 		HttpServletRequest request = createHandlePossibleCloudRequest("/solution/" + SOLUTION_NAME + "/svylogin/unknown_endpoint", params, "POST");
 		HttpServletResponse response = createMockResponse();
 
@@ -1525,6 +1717,7 @@ public class CloudStatelessAccessManagerTest
 		lastCloudStatusCode = 200;
 
 		Map<String, String[]> params = new HashMap<>();
+		params.put("csrf_token", new String[]{ "123456" });
 		// Use a request that does NOT have pre-populated endpoints in servletContext
 		HttpServletRequest request = createHandlePossibleCloudRequestNoCachedEndpoints(
 			"/solution/" + SOLUTION_NAME + "/svylogin/login", params, "POST");
@@ -1546,6 +1739,9 @@ public class CloudStatelessAccessManagerTest
 		contextAttributes.put("endpoints", new String[] { "login", "oauth", "tenant_select_redirect" });
 		contextAttributes.put("endpoints_expire", Long.valueOf(System.currentTimeMillis() + 600000));
 
+		String csrfValue = params.containsKey("csrf_token") ? params.get("csrf_token")[0] : "123456";
+		jakarta.servlet.http.Cookie csrfCookie = new jakarta.servlet.http.Cookie("csrf_token", csrfValue);
+
 		return (HttpServletRequest)Proxy.newProxyInstance(
 			HttpServletRequest.class.getClassLoader(),
 			new Class< ? >[] { HttpServletRequest.class },
@@ -1558,7 +1754,7 @@ public class CloudStatelessAccessManagerTest
 						String[] vals = params.get(args[0]);
 						return vals != null && vals.length > 0 ? vals[0] : null;
 					case "getCookies" :
-						return null;
+						return new jakarta.servlet.http.Cookie[]{ csrfCookie };
 					case "getCharacterEncoding" :
 						return "UTF-8";
 					case "setCharacterEncoding" :
@@ -1638,6 +1834,9 @@ public class CloudStatelessAccessManagerTest
 		contextAttributes.put("nonce", new HashMap<String, Object>());
 		// NO pre-populated endpoints - forces getCloudRestApiEndpoints to make HTTP call
 
+		String csrfValue = params.containsKey("csrf_token") ? params.get("csrf_token")[0] : "123456";
+		jakarta.servlet.http.Cookie csrfCookie = new jakarta.servlet.http.Cookie("csrf_token", csrfValue);
+
 		return (HttpServletRequest)Proxy.newProxyInstance(
 			HttpServletRequest.class.getClassLoader(),
 			new Class< ? >[] { HttpServletRequest.class },
@@ -1650,7 +1849,7 @@ public class CloudStatelessAccessManagerTest
 						String[] vals = params.get(args[0]);
 						return vals != null && vals.length > 0 ? vals[0] : null;
 					case "getCookies" :
-						return null;
+						return new jakarta.servlet.http.Cookie[]{ csrfCookie };
 					case "getCharacterEncoding" :
 						return "UTF-8";
 					case "setCharacterEncoding" :

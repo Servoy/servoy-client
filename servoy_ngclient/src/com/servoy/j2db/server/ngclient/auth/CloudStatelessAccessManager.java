@@ -71,6 +71,7 @@ import com.servoy.j2db.util.Utils;
 
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -301,6 +302,11 @@ public class CloudStatelessAccessManager extends AbstractAuthenticatorManager im
 								String svyRedirect = Encode.forHtmlAttribute(request.getParameter(SVY_REDIRECT));
 								if ("POST".equalsIgnoreCase(request.getMethod()))
 								{
+									if (!StatelessLoginUtils.checkCSRFToken(request))
+									{
+										log.warn("CSRF token validation failed for cloud request");
+										return false;
+									}
 									res = executeCloudPostRequest(httpclient, solution, endpoint, request,
 										request.getParameterMap());
 								}
@@ -592,6 +598,15 @@ public class CloudStatelessAccessManager extends AbstractAuthenticatorManager im
 				String encodedInitialURL = Encode.forHtmlAttribute(initialURL);
 				html = html.replace("</form>", "<input type='hidden' name='" + SVY_REDIRECT + "' value='" + encodedInitialURL + "'></form>");
 			}
+
+			// Add CSRF token to all forms in the cloud HTML
+			long csrfToken = new java.security.SecureRandom().nextLong();
+			html = html.replaceAll("(?i)</form>", "<input type='hidden' name='csrf_token' value='" + csrfToken + "'></form>");
+			Cookie csrfCookie = new Cookie("csrf_token", Long.toString(csrfToken));
+			csrfCookie.setPath("/");
+			csrfCookie.setHttpOnly(true);
+			response.addCookie(csrfCookie);
+
 			HTMLWriter.writeHTML(request, response, html);
 		}
 		else
