@@ -17,9 +17,13 @@
 
 package com.servoy.j2db.server.ngclient.auth;
 
+import java.util.Arrays;
+import java.util.Optional;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 
 /**
@@ -62,5 +66,32 @@ public class StatelessLoginUtils
 		String queryString = state.replaceAll("(?:(?<=^)|(?<=&))(state|svyuuid)=[^&]*&?", "");
 		queryString = queryString.replaceAll("^&|&$", "");
 		return queryString;
+	}
+
+	/**
+	 * Validates the CSRF token from the request parameter against the CSRF cookie.
+	 * @param request
+	 * @return true if the CSRF token matches
+	 */
+	public static boolean checkCSRFToken(HttpServletRequest request)
+	{
+		String fieldToken = request.getParameter("csrf_token");
+		Cookie[] cookies = request.getCookies();
+		if (cookies == null || fieldToken == null)
+		{
+			log.warn("no CSRF token (cookie or hidden field) in the request");
+			return false;
+		}
+
+		Optional<Cookie> first = Arrays.asList(cookies).stream().filter(cookie -> "csrf_token".equals(cookie.getName())).findFirst();
+		if (!first.isPresent())
+		{
+			log.warn("no CSRF cookie in the request");
+			return false;
+		}
+		Cookie cookie = first.get();
+		boolean match = fieldToken.equals(cookie.getValue());
+		if (!match) log.atWarn().log(() -> "CSRF token mismatch, cookie: " + cookie.getValue() + " field: " + fieldToken);
+		return match;
 	}
 }
