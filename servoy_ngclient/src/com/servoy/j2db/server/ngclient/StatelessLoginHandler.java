@@ -21,12 +21,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.security.SecureRandom;
-import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
@@ -190,7 +188,7 @@ public class StatelessLoginHandler
 		{
 			verified = OAuthHandler.refreshOAuthTokenIfPossible(result, solution, oldToken, request, response);
 		}
-		else if (checkCSRFToken(request))
+		else if (StatelessLoginUtils.checkCSRFToken(request))
 		{
 			if (solution.getAuthenticator() == AUTHENTICATOR_TYPE.SERVOY_CLOUD)
 			{
@@ -234,7 +232,7 @@ public class StatelessLoginHandler
 	{
 		log.atInfo().log(() -> "Checking permissions for user " + username + " with authenticator " + solution.getAuthenticator().name());
 		boolean verified = false;
-		if (checkCSRFToken(request))
+		if (StatelessLoginUtils.checkCSRFToken(request))
 		{
 			if (solution.getAuthenticator() == AUTHENTICATOR_TYPE.OAUTH ||
 				solution.getAuthenticator() == AUTHENTICATOR_TYPE.OAUTH_AUTHENTICATOR)
@@ -269,32 +267,6 @@ public class StatelessLoginHandler
 				result.setToken(null);
 			}
 		}
-	}
-
-	/**
-	 * @param request
-	 */
-	private static boolean checkCSRFToken(HttpServletRequest request)
-	{
-		String fieldToken = request.getParameter("csrf_token");
-		Cookie[] cookies = request.getCookies();
-		if (cookies == null || fieldToken == null)
-		{
-			// just return false here don't allow the login
-			log.warn("no CSRF token (cookie or hidden field) in the request");
-			return false;
-		}
-
-		Optional<Cookie> first = Arrays.asList(cookies).stream().filter(cookie -> "csrf_token".equals(cookie.getName())).findFirst();
-		if (!first.isPresent())
-		{
-			log.warn("no CSRF cookie in the request");
-			return false;
-		}
-		Cookie cookie = first.get();
-		boolean match = fieldToken.equals(cookie.getValue());
-		if (!match) log.atWarn().log(() -> "CSRF token mismatch, cookie: " + cookie.getValue() + " field: " + fieldToken);
-		return match;
 	}
 
 	/**
