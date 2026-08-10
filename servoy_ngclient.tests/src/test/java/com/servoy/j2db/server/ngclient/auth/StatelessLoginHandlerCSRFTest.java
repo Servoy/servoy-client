@@ -7,7 +7,6 @@ import static org.junit.Assert.assertTrue;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -19,7 +18,6 @@ import java.util.Map;
 import org.junit.Test;
 import org.sablo.security.ContentSecurityPolicyConfig;
 
-import com.servoy.j2db.server.ngclient.StatelessLoginHandler;
 import com.servoy.j2db.server.ngclient.property.Log4JToConsoleTest;
 
 import jakarta.servlet.http.Cookie;
@@ -41,7 +39,7 @@ public class StatelessLoginHandlerCSRFTest extends Log4JToConsoleTest
 		request.setParameter("csrf_token", "abc123");
 		request.setCookies(new Cookie[] { csrfCookie });
 
-		assertTrue(invokeCheckCSRFToken(request));
+		assertTrue(StatelessLoginUtils.checkCSRFToken(request));
 	}
 
 	@Test
@@ -52,7 +50,7 @@ public class StatelessLoginHandlerCSRFTest extends Log4JToConsoleTest
 		request.setParameter("csrf_token", "different_value");
 		request.setCookies(new Cookie[] { csrfCookie });
 
-		assertFalse(invokeCheckCSRFToken(request));
+		assertFalse(StatelessLoginUtils.checkCSRFToken(request));
 	}
 
 	@Test
@@ -62,7 +60,7 @@ public class StatelessLoginHandlerCSRFTest extends Log4JToConsoleTest
 		request.setParameter("csrf_token", "abc123");
 		request.setCookies(null);
 
-		assertFalse(invokeCheckCSRFToken(request));
+		assertFalse(StatelessLoginUtils.checkCSRFToken(request));
 	}
 
 	@Test
@@ -72,7 +70,7 @@ public class StatelessLoginHandlerCSRFTest extends Log4JToConsoleTest
 		StubHttpServletRequest request = new StubHttpServletRequest(false);
 		request.setCookies(new Cookie[] { csrfCookie });
 
-		assertFalse(invokeCheckCSRFToken(request));
+		assertFalse(StatelessLoginUtils.checkCSRFToken(request));
 	}
 
 	@Test
@@ -83,7 +81,7 @@ public class StatelessLoginHandlerCSRFTest extends Log4JToConsoleTest
 		request.setParameter("csrf_token", "abc123");
 		request.setCookies(new Cookie[] { otherCookie });
 
-		assertFalse(invokeCheckCSRFToken(request));
+		assertFalse(StatelessLoginUtils.checkCSRFToken(request));
 	}
 
 	@Test
@@ -95,7 +93,7 @@ public class StatelessLoginHandlerCSRFTest extends Log4JToConsoleTest
 		request.setParameter("csrf_token", "correct_token");
 		request.setCookies(new Cookie[] { otherCookie, csrfCookie });
 
-		assertTrue(invokeCheckCSRFToken(request));
+		assertTrue(StatelessLoginUtils.checkCSRFToken(request));
 	}
 
 	// =========================================================================
@@ -267,17 +265,6 @@ public class StatelessLoginHandlerCSRFTest extends Log4JToConsoleTest
 		Cookie csrfCookie = cookies.stream().filter(c -> "csrf_token".equals(c.getName())).findFirst().orElse(null);
 		assertTrue("Hidden field must contain same value as cookie",
 			result.contains("value='" + csrfCookie.getValue() + "'"));
-	}
-
-	// =========================================================================
-	// Helper: invoke private static checkCSRFToken via reflection
-	// =========================================================================
-
-	private boolean invokeCheckCSRFToken(HttpServletRequest request) throws Exception
-	{
-		Method method = StatelessLoginHandler.class.getDeclaredMethod("checkCSRFToken", HttpServletRequest.class);
-		method.setAccessible(true);
-		return (boolean)method.invoke(null, request);
 	}
 
 	// =========================================================================
