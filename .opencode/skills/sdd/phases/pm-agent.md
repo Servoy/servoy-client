@@ -27,39 +27,11 @@ approach. This means:
 
 ## Jira API Access
 
-Use the Jira REST API v3 with Basic authentication via curl. The base URL is
-`https://servoy-cloud.atlassian.net` and authentication uses the `ATLASSIAN_AUTH_BASIC`
-environment variable (base64-encoded `email:api-token`).
+Read `JIRA.md` (in the repository root) for full API instructions — authentication,
+platform-specific commands (PowerShell vs bash), error handling, and common mistakes.
 
-### Reading an issue
-
-```bash
-curl -s -H "Authorization: Basic $ATLASSIAN_AUTH_BASIC" \
-  "https://api.atlassian.com/ex/jira/7c2b3b79-12a3-4f2c-81e2-0d61b19464b3/rest/api/3/issue/{ISSUE_KEY}?fields=summary,description,comment,attachment,issuelinks,subtasks,status,priority,components,fixVersions,labels"
-```
-
-### Downloading an attachment
-
-```bash
-curl -s -L -H "Authorization: Basic $ATLASSIAN_AUTH_BASIC" \
-  "https://api.atlassian.com/ex/jira/7c2b3b79-12a3-4f2c-81e2-0d61b19464b3/rest/api/3/attachment/content/{ATTACHMENT_ID}"
-```
-
-### Searching issues (JQL)
-
-```bash
-curl -s -H "Authorization: Basic $ATLASSIAN_AUTH_BASIC" \
-  "https://api.atlassian.com/ex/jira/7c2b3b79-12a3-4f2c-81e2-0d61b19464b3/rest/api/3/search?jql={URL_ENCODED_JQL}&fields=summary,status"
-```
-
-### PowerShell note
-
-In PowerShell, use `$env:ATLASSIAN_AUTH_BASIC` instead of `$ATLASSIAN_AUTH_BASIC`:
-
-```powershell
-$token = $env:ATLASSIAN_AUTH_BASIC
-curl -s -H "Authorization: Basic $token" "https://api.atlassian.com/ex/jira/7c2b3b79-12a3-4f2c-81e2-0d61b19464b3/rest/api/3/issue/SVY-21080"
-```
+Use the "Reading an issue" section to fetch the ticket. Use "Downloading an
+attachment" for log files or screenshots. Use "Searching issues" for JQL queries.
 
 ## Steps
 
@@ -69,7 +41,7 @@ Parse the input to get the bare issue key (e.g. `SVY-21080`).
 
 ### 2. Read the Jira issue
 
-Use the curl command above to fetch the issue. Parse the JSON response to extract:
+Fetch the issue using the commands from `JIRA.md`. Parse the JSON response to extract:
 - Summary and description
 - Acceptance criteria (custom field or embedded in description)
 - Comments (especially from architects or product leads)
@@ -115,8 +87,8 @@ in the triage report under "Git history findings". **Do not repeat the full dig.
 Read those findings and, if needed, do a lightweight confirmation of the specific
 line(s) your approved approach will change:
 
-```powershell
-cd "<project-dir>" && git blame -L <start>,<end> "<file-path>"
+```
+git blame -L <start>,<end> "<file-path>"
 ```
 
 Carry the relevant git-history findings from the triage report into the spec under a
@@ -125,7 +97,7 @@ understand constraints.
 
 ### 6. Write the spec file
 
-**File location:** `docs/<KEY>-<slug>.spec.md`
+**File location:** `docs/<KEY>-<slug>.spec.md` — relative to the **git repository root**, NOT an Eclipse project folder. Use the `write` tool with an absolute path to the repo root's `docs/` directory, or use `eclipse-coder_createFile` on the root project (e.g. `Servoy-Copilot`). Never create this file inside a bundle project.
 The slug is 3–5 words from the summary, lowercase, hyphen-separated.
 Example: `docs/SVY-21080-embedded-opencode.spec.md`
 

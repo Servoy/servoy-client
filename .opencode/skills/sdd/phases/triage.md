@@ -18,32 +18,11 @@ Treat user context as authoritative supplementary information.
 
 ## Jira API Access
 
-Use the Jira REST API v3 with Basic authentication via curl. The base URL is
-`https://servoy-cloud.atlassian.net` and authentication uses the `ATLASSIAN_AUTH_BASIC`
-environment variable (base64-encoded `email:api-token`).
+Read `JIRA.md` (in the repository root) for full API instructions — authentication,
+platform-specific commands (PowerShell vs bash), error handling, and common mistakes.
 
-### Reading an issue
-
-```bash
-curl -s -H "Authorization: Basic $ATLASSIAN_AUTH_BASIC" \
-  "https://api.atlassian.com/ex/jira/7c2b3b79-12a3-4f2c-81e2-0d61b19464b3/rest/api/3/issue/{ISSUE_KEY}?fields=summary,description,comment,attachment,issuelinks,subtasks,status,priority,components,fixVersions,labels"
-```
-
-### Downloading an attachment
-
-```bash
-curl -s -L -H "Authorization: Basic $ATLASSIAN_AUTH_BASIC" \
-  "https://api.atlassian.com/ex/jira/7c2b3b79-12a3-4f2c-81e2-0d61b19464b3/rest/api/3/attachment/content/{ATTACHMENT_ID}"
-```
-
-### PowerShell note
-
-In PowerShell, use `$env:ATLASSIAN_AUTH_BASIC` instead of `$ATLASSIAN_AUTH_BASIC`:
-
-```powershell
-$token = $env:ATLASSIAN_AUTH_BASIC
-curl -s -H "Authorization: Basic $token" "https://api.atlassian.com/ex/jira/7c2b3b79-12a3-4f2c-81e2-0d61b19464b3/rest/api/3/issue/SVY-21080"
-```
+Use the "Reading an issue" section to fetch the ticket. Use "Downloading an
+attachment" for log files or screenshots. Use "Searching issues" for JQL queries.
 
 ## Steps
 
@@ -139,7 +118,7 @@ orchestrator always confirms with a human.
 
 ### 7. Write the triage report
 
-**File location:** `docs/<KEY>-triage.md` (same flat `docs/` folder as specs, no subfolder).
+**File location:** `docs/<KEY>-triage.md` — relative to the **git repository root**, NOT an Eclipse project folder. Use the `write` tool with an absolute path to the repo root's `docs/` directory, or use `eclipse-coder_createFile` on the root project (e.g. `Servoy-Copilot`). Never create this file inside a bundle project like `com.servoy.eclipse.developer.mcp/docs/`.
 
 Use this structure:
 
