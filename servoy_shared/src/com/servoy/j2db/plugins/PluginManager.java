@@ -27,6 +27,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -198,8 +199,20 @@ public class PluginManager extends JarManager implements IPluginManagerInternal,
 		List<Extension<T>> extensions = new ArrayList<Extension<T>>();
 
 		ServiceLoader<IPlugin> pluginsLoader = ServiceLoader.load(IPlugin.class, getClassLoader());
-		for (IPlugin plugin : pluginsLoader)
+		Iterator<IPlugin> pluginIterator = pluginsLoader.iterator();
+		while (true)
 		{
+			IPlugin plugin;
+			try
+			{
+				if (!pluginIterator.hasNext()) break;
+				plugin = pluginIterator.next();
+			}
+			catch (Throwable e)
+			{
+				Debug.error("Cannot load a plugin contributed as a service (skipping):", e);
+				continue;
+			}
 			try
 			{
 				CodeSource codeSource = plugin.getClass().getProtectionDomain().getCodeSource();
@@ -244,7 +257,7 @@ public class PluginManager extends JarManager implements IPluginManagerInternal,
 				{
 				}
 			}
-			catch (ServiceConfigurationError e) // can be thrown by iterator.next() in case of malformed manifests or other reasons that make instantiating a service fail
+			catch (ServiceConfigurationError e)
 			{
 				Debug.error("Cannot use a plugin contributed as a service:", e);
 			}
@@ -403,51 +416,58 @@ public class PluginManager extends JarManager implements IPluginManagerInternal,
 		synchronized (initLock)
 		{
 			loadedClientPlugins = new HashMap<String, IClientPlugin>();
-			if (application == null || !application.isRunningRemote()) //Servoy developer loading
+			try
 			{
-				Extension<IClientPlugin>[] exts = loadClientPluginDefs();
-				if (exts != null)
+				if (application == null || !application.isRunningRemote()) //Servoy developer loading
 				{
-					for (Extension<IClientPlugin> element : exts)
+					Extension<IClientPlugin>[] exts = loadClientPluginDefs();
+					if (exts != null)
 					{
-						try
+						for (Extension<IClientPlugin> element : exts)
 						{
-							loadClientPlugin(element.instanceClass);
+							try
+							{
+								loadClientPlugin(element.instanceClass);
+							}
+							catch (Throwable th)
+							{
+								Debug.error("Error occured loading client plugin class " + element.instanceClass.getName(), th); //$NON-NLS-1$
+							}
 						}
-						catch (Throwable th)
+					}
+				}
+				else
+				//Servoy client loading
+				{
+					int count = 0;
+					Settings settings = Settings.getInstance();
+					String sCount = settings.getProperty("com.servoy.j2db.plugins.PluginManager.PluginCount"); //$NON-NLS-1$
+					if (sCount != null)
+					{
+						count = new Integer(sCount).intValue();
+					}
+					Debug.trace("plugin count " + count); //$NON-NLS-1$
+
+					for (int x = 0; x < count; x++)
+					{
+						String clazzName = settings.getProperty("com.servoy.j2db.plugins.PluginManager.Plugin." + x + ".className"); //$NON-NLS-1$ //$NON-NLS-2$
+						if (clazzName != null && clazzName.length() != 0)
 						{
-							Debug.error("Error occured loading client plugin class " + element.instanceClass.getName(), th); //$NON-NLS-1$
+							try
+							{
+								loadClientPlugin((Class<IClientPlugin>)Class.forName(clazzName.trim()));
+							}
+							catch (Throwable th)
+							{
+								Debug.error("Error occured loading client plugin class " + clazzName, th); //$NON-NLS-1$
+							}
 						}
 					}
 				}
 			}
-			else
-			//Servoy client loading
+			catch (Throwable th)
 			{
-				int count = 0;
-				Settings settings = Settings.getInstance();
-				String sCount = settings.getProperty("com.servoy.j2db.plugins.PluginManager.PluginCount"); //$NON-NLS-1$
-				if (sCount != null)
-				{
-					count = new Integer(sCount).intValue();
-				}
-				Debug.trace("plugin count " + count); //$NON-NLS-1$
-
-				for (int x = 0; x < count; x++)
-				{
-					String clazzName = settings.getProperty("com.servoy.j2db.plugins.PluginManager.Plugin." + x + ".className"); //$NON-NLS-1$ //$NON-NLS-2$
-					if (clazzName != null && clazzName.length() != 0)
-					{
-						try
-						{
-							loadClientPlugin((Class<IClientPlugin>)Class.forName(clazzName.trim()));
-						}
-						catch (Throwable th)
-						{
-							Debug.error("Error occured loading client plugin class " + clazzName, th); //$NON-NLS-1$
-						}
-					}
-				}
+				Debug.error("Error occurred during plugin loading (some plugins may not be available):", th);
 			}
 
 			columnConverterManager = new ConverterManager<IColumnConverter>();
