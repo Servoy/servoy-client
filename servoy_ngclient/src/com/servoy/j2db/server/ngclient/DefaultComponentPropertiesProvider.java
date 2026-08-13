@@ -23,10 +23,7 @@ import org.json.JSONObject;
 import org.sablo.specification.IDefaultComponentPropertiesProvider;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.PropertyDescriptionBuilder;
-import org.sablo.specification.property.types.DimensionPropertyType;
 import org.sablo.specification.property.types.EnabledPropertyType;
-import org.sablo.specification.property.types.IntPropertyType;
-import org.sablo.specification.property.types.PointPropertyType;
 import org.sablo.specification.property.types.TypesRegistry;
 import org.sablo.specification.property.types.VisiblePropertyType;
 
@@ -52,34 +49,34 @@ public class DefaultComponentPropertiesProvider implements IDefaultComponentProp
 	@Override
 	public void addDefaultComponentProperties(Map<String, PropertyDescription> properties)
 	{
-		if (!properties.containsKey("location"))
-		{
-			properties.put("location",
-				new PropertyDescriptionBuilder().withName("location").withType(TypesRegistry.getType(PointPropertyType.TYPE_NAME))
-					.withTags(new JSONObject().put("internal", true)).build());
-		}
-		if (!properties.containsKey("size"))
-		{
-			properties.put("size",
-				new PropertyDescriptionBuilder().withName("size").withType(TypesRegistry.getType(DimensionPropertyType.TYPE_NAME))
-					.withTags(new JSONObject().put("internal", true)).build());
-		}
-		if (!properties.containsKey("anchors"))
-		{
-			properties.put("anchors",
-				new PropertyDescriptionBuilder().withName("anchors").withType(IntPropertyType.INSTANCE_NULL_DEFAULT)
-					.withTags(new JSONObject().put("internal", true)).build());
-		}
-		if (!properties.containsKey("formIndex"))
-		{
-			properties.put("formIndex",
-				new PropertyDescriptionBuilder().withName("formIndex").withType(IntPropertyType.INSTANCE_NULL_DEFAULT)
-					.withTags(new JSONObject().put(PropertyDescription.DOCUMENTATION_TAG_FOR_PROP_OR_KEY_FOR_HANDLERS,
-						"The Z index of this component. If two components overlap, then the component with higher Z index is displayed above the component with lower Z index.")
-						.put("internal", true))
-					.build());
-
-		}
+//		if (!properties.containsKey("location"))
+//		{
+//			properties.put("location",
+//				new PropertyDescriptionBuilder().withName("location").withType(TypesRegistry.getType(PointPropertyType.TYPE_NAME))
+//					.withTags(new JSONObject().put("internal", true)).build());
+//		}
+//		if (!properties.containsKey("size"))
+//		{
+//			properties.put("size",
+//				new PropertyDescriptionBuilder().withName("size").withType(TypesRegistry.getType(DimensionPropertyType.TYPE_NAME))
+//					.withTags(new JSONObject().put("internal", true)).build());
+//		}
+//		if (!properties.containsKey("anchors"))
+//		{
+//			properties.put("anchors",
+//				new PropertyDescriptionBuilder().withName("anchors").withType(IntPropertyType.INSTANCE_NULL_DEFAULT)
+//					.withTags(new JSONObject().put("internal", true)).build());
+//		}
+//		if (!properties.containsKey("formIndex"))
+//		{
+//			properties.put("formIndex",
+//				new PropertyDescriptionBuilder().withName("formIndex").withType(IntPropertyType.INSTANCE_NULL_DEFAULT)
+//					.withTags(new JSONObject().put(PropertyDescription.DOCUMENTATION_TAG_FOR_PROP_OR_KEY_FOR_HANDLERS,
+//						"The Z index of this component. If two components overlap, then the component with higher Z index is displayed above the component with lower Z index.")
+//						.put("internal", true))
+//					.build());
+//
+//		}
 		if (!properties.containsKey(IContentSpecConstants.PROPERTY_CSS_POSITION))
 		{
 			properties.put(IContentSpecConstants.PROPERTY_CSS_POSITION,

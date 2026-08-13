@@ -13,7 +13,6 @@
 	        "enabled" : { "type": "enabled", "blockingOn": false, "default": true, "for": ["dataProviderID","onActionMethodID","onDataChangeMethodID","onFocusGainedMethodID","onFocusLostMethodID","onRightClickMethodID"] }, 
 	        "foreground" : "color", 
 	        "lineSize" : "int", 
-	        "location" : "point", 
 	        "roundedRadius" : "int", 
 	        "shapeType" : "int", 
 	        "size" : "dimension", 
