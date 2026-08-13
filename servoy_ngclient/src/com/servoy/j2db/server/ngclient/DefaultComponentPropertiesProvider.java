@@ -86,7 +86,7 @@ public class DefaultComponentPropertiesProvider implements IDefaultComponentProp
 						"CSS position is a replacement for anchoring system making it more intuitive to place a component.\r\n" +
 							"CSS position should be set on form, an absolute position form can either work with anchoring or with css position.\r\n" +
 							"This is only working in NGClient.")
-						.put("internal", true))
+						.put("serveronly", true))
 					.build());
 		}
 		if (!properties.containsKey(IContentSpecConstants.PROPERTY_ATTRIBUTES))
@@ -105,7 +105,7 @@ public class DefaultComponentPropertiesProvider implements IDefaultComponentProp
 				TypesRegistry.getType(DataproviderPropertyType.TYPE_NAME))
 				.withTags(new JSONObject().put(PropertyDescription.DOCUMENTATION_TAG_FOR_PROP_OR_KEY_FOR_HANDLERS,
 					"Component enabled state can be controlled through enabled property(boolean) and an enabled dataprovider (optional) that should evaluate to true/false. If enabled dataprovider is set then the component enabled state will be a logical and between the two values. Disabled components prevent any user interaction.")
-					.put("internal", true))
+					.put("serveronly", true))
 				.build());
 		}
 		if (properties.values().stream().anyMatch(p -> p.getType() instanceof VisiblePropertyType))
@@ -114,7 +114,7 @@ public class DefaultComponentPropertiesProvider implements IDefaultComponentProp
 				TypesRegistry.getType(DataproviderPropertyType.TYPE_NAME))
 				.withTags(new JSONObject().put(PropertyDescription.DOCUMENTATION_TAG_FOR_PROP_OR_KEY_FOR_HANDLERS,
 					"Component visibility can be controlled through visible property(boolean) and a visible dataprovider (optional) that should evaluate to true/false. If visible dataprovider is set then the component visibility will be a logical and between the two values.")
-					.put("internal", true))
+					.put("serveronly", true))
 				.build());
 		}
 	}
