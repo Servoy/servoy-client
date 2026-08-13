@@ -69,6 +69,12 @@ Since this workspace is a complex, multi-project Eclipse environment, **always p
 - **Git Operations:** Use `eclipse-git_*` tools instead of standard shell `git` commands in `bash`.
 - **Testing:** Prefer `eclipse-ide_runAllTests`, `eclipse-ide_runClassTests`, `eclipse-ide_runTestMethod`, or `eclipse-pde_runJUnitPluginTests` over generic shell test commands.
 
+### Refactoring
+- **Use `eclipse-coder_refactorRenameJavaType`** to rename classes, interfaces, enums, or records — this updates all references across the workspace.
+- **Use `eclipse-coder_refactorRenamePackage`** to rename packages — updates all package declarations and references.
+- **Use `eclipse-coder_refactorMoveJavaType`** to move types between packages.
+- **For method, field, and variable renames:** use `eclipse-ide_findReferences` first to find all usages, then apply the rename consistently. Prefer Eclipse refactor tools over manual find-and-replace to ensure all references are updated correctly.
+
 ### Navigation & Discovery Tools
 
 For quick codebase orientation and type/method lookup, use the JDT-powered search tools:
