@@ -1,5 +1,6 @@
 {
 	"name": "servoycore-defaultLoadingIndicator",
+	"deprecated": "true",
 	"displayName": "Default loading indicator",
 	"definition": "servoycore/defaultloadingindicator/defaultloadingindicator.js",
 	"libraries": [{ "name": "servoycore-defaultLoadingIndicator-css", "version": "1.0", "url": "servoycore/defaultloadingindicator/defaultloadingindicator.css", "mimetype": "text/css" }],
