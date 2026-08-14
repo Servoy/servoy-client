@@ -25,7 +25,7 @@
 	        "tabs" : {"type":"tab[]", "pushToServer": "shallow", "droppable":true}, 
 	        "transparent" : "boolean", 
 	        "visible" : "visible",
-			"activeTabIndex": { "type": "int", "default": 0, "tags": { "scope": "private" }, "pushToServer": "shallow" }
+			"activeTabIndex": { "type": "int", "default": 0, "tags": { "scope": "private", "serveronly": true }, "pushToServer": "shallow" }
 	},
 
 	"handlers": {

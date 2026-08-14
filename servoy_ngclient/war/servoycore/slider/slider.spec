@@ -11,13 +11,13 @@
 	
 	"model":
 	{
-		"animate": "string",
+		"animate": { "type": "string", "tags": { "serveronly": true }},
 	    "dataProviderID": { "type":"dataprovider", "tags": { "wizard": true }, "pushToServer": "allow"}, 
-	   "enabled" : { "type": "enabled", "blockingOn": false, "default": true },
+	   "enabled" : { "type": "enabled", "blockingOn": false, "default": true , "tags": { "serveronly": true }},
 	    "max": {"type":"long", "default":100},
 	    "min": {"type":"long", "default":0},
 	    "orientation": {"type":"string", "values":["horizontal", "vertical"], "default":"horizontal"},
-	    "range": {"type":"string", "values":["min", "max"], "default":"min"},
+	    "range": {"type":"string", "values":["min", "max"], "default":"min", "tags": { "serveronly": true }},
 	    "step": {"type":"long", "default":1},
 	    "visible": "visible"
 	},

@@ -628,6 +628,89 @@ public class String
 	}
 
 	/**
+	 * returns a new string with all matches of the given regexp replaced by newSubStr.
+	 * Unlike replace(), replaceAll() replaces every occurrence of the pattern.
+	 *
+	 * @sample string.replaceAll(/apples/g, 'oranges');
+	 *
+	 * @param regexp
+	 * @param newSubStr
+	 *
+	 * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/replaceAll
+	 */
+	public String js_replaceAll(RegExp regexp, String newSubStr)
+	{
+		return null;
+	}
+
+	/**
+	 * returns a new string with all matches of the given regexp replaced by the return value of the function.
+	 * Unlike replace(), replaceAll() replaces every occurrence of the pattern.
+	 * The function parameter is the function to be invoked to create the new substring (to put in place of the substring received from parameter #1).
+	 *
+	 * @sample
+	 * //the callback definition
+	 * function replacer(match, p1, p2, p3, offset, string){
+	 * 		// match is the matched substring
+	 * 		// p1 is non-digits, p2 digits, and p3 non-alphanumerics
+	 * 		// offset is the offset of the matched substring within the total string being examined
+	 * 		// string is the total string being examined
+	 *  	return [p1, p2, p3].join(' - ');
+	 * }
+	 * // using replaceAll method with replacer callback
+	 * newString = "abc12345#$*%abc12345#$*%".replaceAll(/([^\d]*)(\d*)([^\w]*)/g, replacer);
+	 *
+	 * @param regexp
+	 * @param function
+	 *
+	 * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/replaceAll
+	 */
+	public String js_replaceAll(RegExp regexp, Function function)
+	{
+		return null;
+	}
+
+	/**
+	 * returns a new string with all occurrences of the given substr replaced by newSubStr.
+	 * Unlike replace(), replaceAll() replaces every occurrence of the substring.
+	 *
+	 * @sample string.replaceAll('apples', 'oranges');
+	 *
+	 * @param substr
+	 * @param newSubStr
+	 *
+	 * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/replaceAll
+	 */
+	public String js_replaceAll(String substr, String newSubStr)
+	{
+		return null;
+	}
+
+	/**
+	 * returns a new string with all occurrences of the given substr replaced by the return value of the function.
+	 * Unlike replace(), replaceAll() replaces every occurrence of the substring.
+	 * The function parameter is the function to be invoked to create the new substring (to put in place of the substring received from parameter #1).
+	 *
+	 * @sample
+	 * // the callback definition
+	 * function replacer(match){
+	 * 		return match.toUpperCase()
+	 * }
+	 * // using replaceAll method with replacer callback
+	 * var newString = "abcabc".replaceAll("a", replacer);
+	 *
+	 * @param substr
+	 * @param function
+	 *
+	 * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/replaceAll
+	 */
+	public String js_replaceAll(String substr, Function function)
+	{
+		return null;
+	}
+
+
+	/**
 	 * returns an index where the first match is found of the regexp
 	 *
 	 * @sample string.search(regexpr);

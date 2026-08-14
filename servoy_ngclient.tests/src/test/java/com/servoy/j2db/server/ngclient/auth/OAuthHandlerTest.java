@@ -1099,6 +1099,240 @@ public class OAuthHandlerTest
 		});
 	}
 
+	// ===== Full flow: checkUser via mustAuthenticate with expired token =====
+
+	@Test
+	public void testFullFlow_expiredToken_mustAuthenticate_callsCheckUser_refreshFails() throws Exception
+	{
+		// Setup: solution with OAuth config so refreshOAuthTokenIfPossible can create a service
+		JSONObject oauthConfig = new JSONObject();
+		oauthConfig.put("authorizationBaseUrl", "https://fakeoauth.example.com/authorize");
+		oauthConfig.put("accessTokenEndpoint", "https://fakeoauth.example.com/token");
+		oauthConfig.put("clientId", "fake-client-id");
+		oauthConfig.put("apiSecret", "fake-secret");
+		oauthConfig.put("defaultScope", "openid email");
+		mainSolution.getCustomProperties().put(StatelessLoginHandler.OAUTH_CUSTOM_PROPERTIES, oauthConfig);
+
+		// Create an expired svy token with a refresh_token claim
+		Properties settings = ApplicationServerRegistry.get().getServerAccess().getSettings();
+		String jwtPassword = settings.getProperty(StatelessLoginUtils.JWT_Password);
+		String expiredToken = JWT.create()
+			.withIssuer("svy")
+			.withClaim(SvyID.USERNAME, TEST_USERNAME)
+			.withClaim(SvyID.UID, TEST_USER_UID)
+			.withArrayClaim(SvyID.PERMISSIONS, TEST_PERMISSIONS)
+			.withClaim(StatelessLoginHandler.REFRESH_TOKEN, "fake-refresh-token")
+			.withIssuedAt(new java.util.Date(System.currentTimeMillis() - 7200000))
+			.withExpiresAt(new java.util.Date(System.currentTimeMillis() - 1000))
+			.sign(com.auth0.jwt.algorithms.Algorithm.HMAC256(jwtPassword));
+
+		// Submit the expired token via mustAuthenticate (no CSRF needed since requiresCSRFForCheckUser returns false)
+		Map<String, String[]> params = new HashMap<>();
+		params.put("id_token", new String[]{ expiredToken });
+
+		Map<String, Object> contextAttributes = new HashMap<>();
+		ServletContext servletContext = createMockServletContext(contextAttributes);
+
+		HttpServletRequest request = createProxy(HttpServletRequest.class, (proxy, method, args) -> {
+			switch (method.getName())
+			{
+				case "getParameterMap" :
+					return params;
+				case "getParameter" :
+					String[] vals = params.get(args[0]);
+					return vals != null && vals.length > 0 ? vals[0] : null;
+				case "getCookies" :
+					return null;
+				case "getCharacterEncoding" :
+					return "UTF-8";
+				case "setCharacterEncoding" :
+					return null;
+				case "getRequestURI" :
+					return "/solution/" + MAIN_SOLUTION_NAME + "/index.html";
+				case "getRequestURL" :
+					return new StringBuffer("https://localhost:8080/solution/" + MAIN_SOLUTION_NAME + "/index.html");
+				case "getServletPath" :
+					return "/solution/" + MAIN_SOLUTION_NAME + "/index.html";
+				case "getContextPath" :
+					return "";
+				case "getScheme" :
+					return "https";
+				case "getServerName" :
+					return "localhost";
+				case "getServerPort" :
+					return Integer.valueOf(8080);
+				case "getHeader" :
+					if ("accept-language".equals(args[0])) return "en";
+					return null;
+				case "getLocale" :
+					return Locale.ENGLISH;
+				case "getSession" :
+					return null;
+				case "getRemoteAddr" :
+					return "127.0.0.1";
+				case "getServletContext" :
+					return servletContext;
+				case "getQueryString" :
+					return null;
+				case "getMethod" :
+					return "POST";
+				default :
+					return getDefaultReturnValue(method);
+			}
+		});
+
+		HttpServletResponse response = createMockResponse();
+		LoginResult result = StatelessLoginHandler.mustAuthenticate(request, response, MAIN_SOLUTION_NAME);
+
+		// The refresh will fail (no real OAuth provider), so checkUser returns false
+		// This exercises: requiresCSRFForCheckUser() -> checkUser() -> refreshOAuthTokenIfPossible()
+		assertFalse("Should not be authenticated when OAuth refresh fails", result.isAuthenticated());
+	}
+
+	@Test
+	public void testFullFlow_expiredToken_noOAuthConfig_checkUser_returnsFalse() throws Exception
+	{
+		// Setup: solution WITHOUT OAuth config - refreshOAuthTokenIfPossible returns false immediately
+		// (exercises the "no custom properties" branch)
+
+		Properties settings = ApplicationServerRegistry.get().getServerAccess().getSettings();
+		String jwtPassword = settings.getProperty(StatelessLoginUtils.JWT_Password);
+		String expiredToken = JWT.create()
+			.withIssuer("svy")
+			.withClaim(SvyID.USERNAME, TEST_USERNAME)
+			.withClaim(SvyID.UID, TEST_USER_UID)
+			.withArrayClaim(SvyID.PERMISSIONS, TEST_PERMISSIONS)
+			.withClaim(StatelessLoginHandler.REFRESH_TOKEN, "fake-refresh-token")
+			.withIssuedAt(new java.util.Date(System.currentTimeMillis() - 7200000))
+			.withExpiresAt(new java.util.Date(System.currentTimeMillis() - 1000))
+			.sign(com.auth0.jwt.algorithms.Algorithm.HMAC256(jwtPassword));
+
+		Map<String, String[]> params = new HashMap<>();
+		params.put("id_token", new String[]{ expiredToken });
+
+		Map<String, Object> contextAttributes = new HashMap<>();
+		ServletContext servletContext = createMockServletContext(contextAttributes);
+
+		HttpServletRequest request = createProxy(HttpServletRequest.class, (proxy, method, args) -> {
+			switch (method.getName())
+			{
+				case "getParameterMap" :
+					return params;
+				case "getParameter" :
+					String[] vals = params.get(args[0]);
+					return vals != null && vals.length > 0 ? vals[0] : null;
+				case "getCookies" :
+					return null;
+				case "getCharacterEncoding" :
+					return "UTF-8";
+				case "setCharacterEncoding" :
+					return null;
+				case "getRequestURI" :
+					return "/solution/" + MAIN_SOLUTION_NAME + "/index.html";
+				case "getRequestURL" :
+					return new StringBuffer("https://localhost:8080/solution/" + MAIN_SOLUTION_NAME + "/index.html");
+				case "getServletPath" :
+					return "/solution/" + MAIN_SOLUTION_NAME + "/index.html";
+				case "getContextPath" :
+					return "";
+				case "getScheme" :
+					return "https";
+				case "getServerName" :
+					return "localhost";
+				case "getServerPort" :
+					return Integer.valueOf(8080);
+				case "getHeader" :
+					if ("accept-language".equals(args[0])) return "en";
+					return null;
+				case "getLocale" :
+					return Locale.ENGLISH;
+				case "getSession" :
+					return null;
+				case "getRemoteAddr" :
+					return "127.0.0.1";
+				case "getServletContext" :
+					return servletContext;
+				case "getQueryString" :
+					return null;
+				case "getMethod" :
+					return "POST";
+				default :
+					return getDefaultReturnValue(method);
+			}
+		});
+
+		HttpServletResponse response = createMockResponse();
+		LoginResult result = StatelessLoginHandler.mustAuthenticate(request, response, MAIN_SOLUTION_NAME);
+
+		assertFalse("Should not be authenticated when no OAuth config", result.isAuthenticated());
+	}
+
+	@Test
+	public void testFullFlow_logoutAndRevokeToken_oauth_callsRevokeToken() throws Exception
+	{
+		// Setup: solution with OAuth config
+		JSONObject oauthConfig = new JSONObject();
+		oauthConfig.put("authorizationBaseUrl", "https://fakeoauth.example.com/authorize");
+		oauthConfig.put("accessTokenEndpoint", "https://fakeoauth.example.com/token");
+		oauthConfig.put("clientId", "fake-client-id");
+		oauthConfig.put("apiSecret", "fake-secret");
+		oauthConfig.put("defaultScope", "openid email");
+		mainSolution.putCustomProperty(new String[]{ StatelessLoginHandler.OAUTH_CUSTOM_PROPERTIES }, oauthConfig.toString());
+
+		// Create a token with refresh_token
+		String tokenStr = new SvyTokenBuilder(TEST_USERNAME, TEST_USER_UID, TEST_PERMISSIONS)
+			.withRefreshToken("refresh-token-to-revoke").sign();
+		com.auth0.jwt.interfaces.DecodedJWT jwt = JWT.decode(tokenStr);
+
+		// Call logoutAndRevokeToken directly (as StatelessLoginHandler.logout would)
+		OAuthHandler handler = new OAuthHandler(mainSolution);
+		handler.logoutAndRevokeToken(mainSolution, jwt);
+		// Should not throw - exercises logoutAndRevokeToken -> revokeToken
+	}
+
+	@Test
+	public void testFullFlow_oauthCallback_withCodeAndState_usesNonce() throws Exception
+	{
+		// This test covers getNonce by manually populating the nonce cache
+		// then sending a callback with "code" and "state" params
+		JWTValidator.setJWTVerifier((jwt, jwksUri) -> true);
+		try
+		{
+			JSONObject oauthConfig = new JSONObject();
+			oauthConfig.put("jwks_uri", "https://accounts.google.com/.well-known/jwks.json");
+			oauthConfig.put("authorizationBaseUrl", "https://accounts.google.com/o/oauth2/v2/auth");
+			oauthConfig.put("accessTokenEndpoint", "https://oauth2.googleapis.com/token");
+			oauthConfig.put("clientId", "test-client-id");
+			oauthConfig.put("apiSecret", "test-secret");
+			oauthConfig.put("defaultScope", "openid email");
+			mainSolution.putCustomProperty(new String[]{ StatelessLoginHandler.OAUTH_CUSTOM_PROPERTIES }, oauthConfig.toString());
+
+			// Manually populate the nonce cache (simulating what generateOauthCall would do)
+			Map<String, Object> contextAttributes = new HashMap<>();
+			String fakeState = "test-state-nonce-12345";
+			Map<String, JSONObject> nonceCache = new java.util.concurrent.ConcurrentHashMap<>();
+			nonceCache.put(fakeState, oauthConfig);
+			contextAttributes.put("nonce", nonceCache);
+
+			// --- OAuth callback with "code" and "state" ---
+			Map<String, String[]> callbackParams = new HashMap<>();
+			callbackParams.put("code", new String[]{ "fake-auth-code" });
+			callbackParams.put("state", new String[]{ fakeState });
+
+			HttpServletRequest callbackRequest = createFullFlowRequest(
+				"https://localhost:8080/solution/" + MAIN_SOLUTION_NAME + "/svy_oauth/callback", callbackParams, contextAttributes);
+			HttpServletResponse callbackResponse = createMockResponse();
+
+			LoginResult result = OAuthHandler.handleOauth(callbackRequest, callbackResponse);
+			// The code exchange will fail (no real OAuth provider), but getNonce was exercised
+			assertFalse("Should not be authenticated (code exchange fails)", result.isAuthenticated());
+		}
+		finally
+		{
+			JWTValidator.resetJWTVerifier();
+		}
+	}
+
 	// ===== Helper methods =====
 
 	private boolean invokeRefreshOAuthTokenIfPossible(Solution solution, LoginResult result, SvyID oldToken, HttpServletRequest request,

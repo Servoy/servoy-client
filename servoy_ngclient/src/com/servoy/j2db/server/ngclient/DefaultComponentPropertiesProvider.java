@@ -23,10 +23,7 @@ import org.json.JSONObject;
 import org.sablo.specification.IDefaultComponentPropertiesProvider;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.PropertyDescriptionBuilder;
-import org.sablo.specification.property.types.DimensionPropertyType;
 import org.sablo.specification.property.types.EnabledPropertyType;
-import org.sablo.specification.property.types.IntPropertyType;
-import org.sablo.specification.property.types.PointPropertyType;
 import org.sablo.specification.property.types.TypesRegistry;
 import org.sablo.specification.property.types.VisiblePropertyType;
 
@@ -41,7 +38,7 @@ import com.servoy.j2db.server.ngclient.property.types.ServoyAttributesPropertyTy
  */
 public class DefaultComponentPropertiesProvider implements IDefaultComponentPropertiesProvider
 {
-	public static DefaultComponentPropertiesProvider instance = new DefaultComponentPropertiesProvider();
+	public static final DefaultComponentPropertiesProvider instance = new DefaultComponentPropertiesProvider();
 	public static final String ENABLED_DATAPROVIDER_NAME = "enabledDataProvider";
 	public static final String VISIBLE_DATAPROVIDER_NAME = "visibleDataProvider";
 
@@ -52,30 +49,34 @@ public class DefaultComponentPropertiesProvider implements IDefaultComponentProp
 	@Override
 	public void addDefaultComponentProperties(Map<String, PropertyDescription> properties)
 	{
-		if (!properties.containsKey("location"))
-		{
-			properties.put("location",
-				new PropertyDescriptionBuilder().withName("location").withType(TypesRegistry.getType(PointPropertyType.TYPE_NAME)).build());
-		}
-		if (!properties.containsKey("size"))
-		{
-			properties.put("size",
-				new PropertyDescriptionBuilder().withName("size").withType(TypesRegistry.getType(DimensionPropertyType.TYPE_NAME)).build());
-		}
-		if (!properties.containsKey("anchors"))
-		{
-			properties.put("anchors",
-				new PropertyDescriptionBuilder().withName("anchors").withType(IntPropertyType.INSTANCE_NULL_DEFAULT).build());
-		}
-		if (!properties.containsKey("formIndex"))
-		{
-			properties.put("formIndex",
-				new PropertyDescriptionBuilder().withName("formIndex").withType(IntPropertyType.INSTANCE_NULL_DEFAULT)
-					.withTags(new JSONObject().put(PropertyDescription.DOCUMENTATION_TAG_FOR_PROP_OR_KEY_FOR_HANDLERS,
-						"The Z index of this component. If two components overlap, then the component with higher Z index is displayed above the component with lower Z index."))
-					.build());
-
-		}
+//		if (!properties.containsKey("location"))
+//		{
+//			properties.put("location",
+//				new PropertyDescriptionBuilder().withName("location").withType(TypesRegistry.getType(PointPropertyType.TYPE_NAME))
+//					.withTags(new JSONObject().put("internal", true)).build());
+//		}
+//		if (!properties.containsKey("size"))
+//		{
+//			properties.put("size",
+//				new PropertyDescriptionBuilder().withName("size").withType(TypesRegistry.getType(DimensionPropertyType.TYPE_NAME))
+//					.withTags(new JSONObject().put("internal", true)).build());
+//		}
+//		if (!properties.containsKey("anchors"))
+//		{
+//			properties.put("anchors",
+//				new PropertyDescriptionBuilder().withName("anchors").withType(IntPropertyType.INSTANCE_NULL_DEFAULT)
+//					.withTags(new JSONObject().put("internal", true)).build());
+//		}
+//		if (!properties.containsKey("formIndex"))
+//		{
+//			properties.put("formIndex",
+//				new PropertyDescriptionBuilder().withName("formIndex").withType(IntPropertyType.INSTANCE_NULL_DEFAULT)
+//					.withTags(new JSONObject().put(PropertyDescription.DOCUMENTATION_TAG_FOR_PROP_OR_KEY_FOR_HANDLERS,
+//						"The Z index of this component. If two components overlap, then the component with higher Z index is displayed above the component with lower Z index.")
+//						.put("internal", true))
+//					.build());
+//
+//		}
 		if (!properties.containsKey(IContentSpecConstants.PROPERTY_CSS_POSITION))
 		{
 			properties.put(IContentSpecConstants.PROPERTY_CSS_POSITION,
@@ -84,7 +85,8 @@ public class DefaultComponentPropertiesProvider implements IDefaultComponentProp
 					.withTags(new JSONObject().put(PropertyDescription.DOCUMENTATION_TAG_FOR_PROP_OR_KEY_FOR_HANDLERS,
 						"CSS position is a replacement for anchoring system making it more intuitive to place a component.\r\n" +
 							"CSS position should be set on form, an absolute position form can either work with anchoring or with css position.\r\n" +
-							"This is only working in NGClient."))
+							"This is only working in NGClient.")
+						.put("serveronly", true))
 					.build());
 		}
 		if (!properties.containsKey(IContentSpecConstants.PROPERTY_ATTRIBUTES))
@@ -102,7 +104,8 @@ public class DefaultComponentPropertiesProvider implements IDefaultComponentProp
 			properties.put(ENABLED_DATAPROVIDER_NAME, new PropertyDescriptionBuilder().withName(ENABLED_DATAPROVIDER_NAME).withType(
 				TypesRegistry.getType(DataproviderPropertyType.TYPE_NAME))
 				.withTags(new JSONObject().put(PropertyDescription.DOCUMENTATION_TAG_FOR_PROP_OR_KEY_FOR_HANDLERS,
-					"Component enabled state can be controlled through enabled property(boolean) and an enabled dataprovider (optional) that should evaluate to true/false. If enabled dataprovider is set then the component enabled state will be a logical and between the two values. Disabled components prevent any user interaction."))
+					"Component enabled state can be controlled through enabled property(boolean) and an enabled dataprovider (optional) that should evaluate to true/false. If enabled dataprovider is set then the component enabled state will be a logical and between the two values. Disabled components prevent any user interaction.")
+					.put("serveronly", true))
 				.build());
 		}
 		if (properties.values().stream().anyMatch(p -> p.getType() instanceof VisiblePropertyType))
@@ -110,7 +113,8 @@ public class DefaultComponentPropertiesProvider implements IDefaultComponentProp
 			properties.put(VISIBLE_DATAPROVIDER_NAME, new PropertyDescriptionBuilder().withName(VISIBLE_DATAPROVIDER_NAME).withType(
 				TypesRegistry.getType(DataproviderPropertyType.TYPE_NAME))
 				.withTags(new JSONObject().put(PropertyDescription.DOCUMENTATION_TAG_FOR_PROP_OR_KEY_FOR_HANDLERS,
-					"Component visibility can be controlled through visible property(boolean) and a visible dataprovider (optional) that should evaluate to true/false. If visible dataprovider is set then the component visibility will be a logical and between the two values."))
+					"Component visibility can be controlled through visible property(boolean) and a visible dataprovider (optional) that should evaluate to true/false. If visible dataprovider is set then the component visibility will be a logical and between the two values.")
+					.put("serveronly", true))
 				.build());
 		}
 	}

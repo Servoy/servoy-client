@@ -22,6 +22,7 @@ import java.util.List;
 
 import org.mozilla.javascript.Scriptable;
 
+import com.servoy.base.query.IBaseSQLCondition;
 import com.servoy.j2db.ApplicationException;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.dataprocessing.SQLSheet.VariableInfo;
@@ -30,6 +31,7 @@ import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.Table;
+import com.servoy.j2db.query.QueryColumn;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.query.QueryUpdate;
 import com.servoy.j2db.scripting.IJavaScriptType;
@@ -201,6 +203,11 @@ public class JSFoundSetUpdater implements IReturnedTypesProvider, IJavaScriptTyp
 				sqlParts = foundset.getPksAndRecords().getQuerySelectForReading();
 				currentPKs = foundset.getPksAndRecords().getPks();
 			}
+			if (currentPKs == null || currentPKs.getRowCount() == 0)
+			{
+				clear();
+				return true;
+			}
 			FoundSetManager fsm = (FoundSetManager)application.getFoundSetManager();
 
 			if (rowsToUpdate == -1 && !foundset.hasAccess(IRepository.TRACKING) && sqlParts.getJoins() == null &&
@@ -230,10 +237,23 @@ public class JSFoundSetUpdater implements IReturnedTypesProvider, IJavaScriptTyp
 
 					sqlUpdate.addValue(c.queryColumn(sqlParts.getTable()), val);
 				}
-				sqlUpdate.setCondition(sqlParts.getWhereClone());
+				boolean allFoundsetRecordsLoaded = currentPKs != null && currentPKs.getRowCount() <= fsm.config.pkChunkSize() && !currentPKs.hadMoreRows();
+				if (allFoundsetRecordsLoaded)
+				{
+					List<Column> pkColumns = table.getRowIdentColumns();
+					QueryColumn[] pkQueryColumns = pkColumns.stream()
+						.map(c -> c.queryColumn(sqlParts.getTable()))
+						.toArray(QueryColumn[]::new);
+					sqlUpdate.setCondition(
+						SQLGenerator.createSetConditionFromPKs(
+							IBaseSQLCondition.EQUALS_OPERATOR, pkQueryColumns, pkColumns, currentPKs));
+				}
+				else
+				{
+					sqlUpdate.setCondition(sqlParts.getWhereClone());
+				}
 
 				IDataSet pks;
-				boolean allFoundsetRecordsLoaded = currentPKs != null && currentPKs.getRowCount() <= fsm.config.pkChunkSize() && !currentPKs.hadMoreRows();
 				if (allFoundsetRecordsLoaded)
 				{
 					pks = currentPKs;

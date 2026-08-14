@@ -1,5 +1,6 @@
 {
 	"name": "servoycore-errorbean",
+	"deprecated": "true",
 	"displayName": "Error Bean",
 	"definition": "servoycore/errorbean/errorbean.js",
 	"doc": "servoycore/errorbean/errorbean_doc.js",

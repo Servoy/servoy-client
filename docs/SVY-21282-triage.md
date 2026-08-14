@@ -4,63 +4,102 @@
 
 ## Reported problem
 
-`solutionModel.cloneForm()` throws a `NullPointerException` (logged, not raised to client) when the source form contains a web component whose custom type array properties (e.g. `columns` on `aggrid-groupingtable`) were set from script via `setJSONProperty` without explicit `svyUUID` values. Additionally, phantom JSON array entries containing only `{"svyUUID":"..."}` are inserted into the cloned component's JSON, corrupting the data structure.
+`solutionModel.cloneForm()` throws a `NullPointerException` when the source form contains a web component whose custom type properties (e.g. `columns` on `aggrid-groupingtable`) were set from script without explicit `svyUUID` values.
+
+A previous fix (commit `f7733d3178a1e9a00b9ed62cd510da9b5cbc321b`) addressed the NPE but introduced a **severe regression**: the `fillClone` overrides in `WebComponent` and `WebCustomType` omit `propertiesMap` initialization, causing the clone to share the same `HashMap` instance with the source. Any property write on either object mutates both, corrupting the original form persist.
 
 ## Root-cause assessment
 
-The NPE occurs in `AbstractBase.getChild(UUID)` (`AbstractBase.java:672`) when called with a `null` argument. `ConcurrentHashMap.get(null)` throws NPE by contract.
+### The regression (commit f7733d3)
 
-**Full call chain during cloning:**
+The previous fix added `fillClone` overrides in `WebComponent` (line 397) and `WebCustomType` (line 374) that skip the `allobjects` child-cloning step (correct intent — children are rebuilt from JSON via `initCustomTypes`). However, both overrides omit the critical `propertiesMap` initialization that `AbstractBase.fillClone` performs at line 796:
 
-1. `AbstractBase.clonePersist()` shallow-clones the WebComponent (copying `customTypesInitialized = true` from the source).
-2. `AbstractBase.fillClone()` clears `propertiesMap` and calls `copyPropertiesMap(getPropertiesMap(), true)`.
-3. `copyPropertiesMap` iterates properties and calls `setProperty("json", jsonValue)` on the clone.
-4. `WebComponent.setProperty` identifies `"json"` as a persist property → invokes `setJson(JSONObject)` via reflection.
-5. In `setJson()` (`WebComponent.java:253`), because `customTypesInitialized == true` (inherited from shallow clone), the **else branch** (lines 257–311) is taken instead of `initCustomTypes()`.
-6. The else branch iterates the JSON array entries for persist-mapped properties (e.g. `columns`). For each entry it reads the `svyUUID` key (`WebComponent.java:292`).
-7. When the user set columns from script without providing `svyUUID`, `jsonObject.optString(UUID_KEY, null)` returns `null` → `Utils.getAsUUID(null, false)` returns `null` → `getChild(null)` is called.
-8. `AbstractBase.getChild(null)` at line 672: if `allobjectsMap` is non-null (populated from a previous iteration that created a child), `allobjectsMap.get(null)` throws **NullPointerException** because `ConcurrentHashMap` forbids null keys.
+```java
+cloned.propertiesMap = new HashMap<String, Object>();  // MISSING in overrides
+```
 
-**Why the source form doesn't throw during `setJSONProperty`:**
+`clonePersist` (line 770) uses `Object.clone()` — a shallow copy. After clone, `cloned.propertiesMap` and `this.propertiesMap` reference the **same HashMap instance**. Without creating a new map, `cloned.copyPropertiesMap(getPropertiesMap(), true)` operates on the shared map, and all subsequent property writes on the clone mutate the original.
 
-When `setJSONProperty('columns', [...])` is called from script, the flow goes through `PersistHelper.setWebComponentProperty` (line 1659) which does `json.put(propertyName, value)` — a direct JSON mutation that does NOT call `setJson()` and does NOT create `WebCustomType` children. However, if the JSON property didn't exist yet, `setJson(new ServoyJSONObject())` is called on the empty json first (line 1624), which sets `customTypesInitialized = true` without processing any columns. The result: the source has `customTypesInitialized = true`, columns in the JSON without `svyUUID`, and no child `WebCustomType` objects.
+**Why the override author missed this:** `propertiesMap` is `private` in `AbstractBase` (line 90). The base `fillClone` can access it (same-class access), but subclass overrides in `WebComponent`/`WebCustomType` **cannot** — there is no protected accessor to create a fresh map. The previous implementation simply had no way to include this step without modifying `AbstractBase`.
 
-**Secondary issue — phantom array entries:**
+### The original NPE (still relevant)
 
-In the `setJson` else branch (and also in `initCustomTypes`), when a UUID is not found in the JSON, `WebCustomType.createNewInstance` is called. The `WebCustomType` constructor (`WebCustomType.java:124–147`) creates a new empty `ServoyJSONObject` and **inserts it at the target index, shifting existing array elements**. This produces ghost entries like `{"svyUUID":"..."}` that have no actual column data.
+During cloning, `setJson()` is called on the clone via `copyPropertiesMap → setProperty → setJson`. If `customTypesInitialized` is `true` (inherited from shallow clone), `setJson` enters the else branch (line 257) which calls `arg.opt(propertyName)` at line 268. Two NPE paths exist:
+
+1. **Null UUID in JSON entries:** When columns lack `svyUUID`, `getChild(null)` is called → `ConcurrentHashMap.get(null)` throws NPE. Fixed by the null guard added in `AbstractBase.getChild` (line 661) — this part of the commit is correct.
+
+2. **Null arg in setJson else branch:** If `setJson(null)` is called (via `clearProperty` from other paths like `JSBase.getOverridePersistIfNeeded`), line 268 dereferences `arg` without a null check. This path is not exercised during `fillClone` (because the new empty propertiesMap means no clearProperty calls happen), but remains unguarded for other callers.
 
 ## Ticket premise check
 
-The ticket correctly identifies the bug as a regression in 2026.6, correctly identifies the triggering condition (custom type properties set from script without explicit `svyUUID`), and correctly notes that adding `svyUUID` explicitly avoids the error. No incorrect solution is proposed — it's a pure bug report.
+The ticket correctly identifies the NPE bug. The previous fix (commit f7733d3) correctly identified that the `fillClone` override is needed to prevent duplicate children, and correctly added the null guard in `getChild` and UUID stamping in `initCustomTypes`. However, it failed to account for the `private propertiesMap` field that subclass overrides cannot reinitialize, introducing the shared-map regression.
 
 ## Approaches considered
 
-1. **Null-guard in `AbstractBase.getChild(UUID)` + fix `setJson` else branch** — Add `if (childUuid == null) return null;` in `getChild`. In `setJson` else branch, when `childUUID` is null, skip `getChild` call and go directly to `createNewInstance`. Additionally fix the `WebCustomType` constructor to reuse the existing JSON entry at the given index rather than creating a phantom and shifting.
-   - Pros: Fixes the NPE, fixes the phantom entries, defensive against any other caller passing null to `getChild`.
-   - Cons: Requires changes in 3 locations.
+1. **Add a protected helper method in `AbstractBase` to reset `propertiesMap` for clone** — Introduce `protected void initClonedPropertiesMap(AbstractBase cloned) { cloned.propertiesMap = new HashMap<>(); }`. Both overrides call this before `copyPropertiesMap`. Also add null guard in `setJson` else branch.
+   - Pros: Minimal change; clear intent; no visibility changes to the field; follows existing pattern of AbstractBase managing its own private state.
+   - Cons: Adds a new protected method to AbstractBase API.
 
-2. **Override `fillClone` in WebComponent to reset `customTypesInitialized = false`** — Forces the clone to use `initCustomTypes()` (the fresh-initialization path) instead of the update path.
-   - Pros: Simple one-line fix for the clone NPE.
-   - Cons: Does NOT fix the phantom entry problem in `initCustomTypes` itself (same constructor issue exists there). Also doesn't protect other callers of `getChild(null)`.
+2. **Change `propertiesMap` visibility from `private` to package-private** — Allows same-package subclasses to assign directly.
+   - Pros: Simplest code change; no new methods.
+   - Cons: Widens field access beyond what's necessary; any class in the persistence package could write to it; violates existing encapsulation pattern.
 
-3. **Fix only `WebCustomType` constructor to use existing array entry at index** — When `fullJSONInFrmFile` is null after UUID search, check if `customTypesArray.opt(index)` is a valid JSONObject and use it directly instead of creating+inserting a phantom.
-   - Pros: Fixes the root of the phantom entry corruption for both `initCustomTypes` and `setJson` else branch paths.
-   - Cons: Doesn't fix the NPE independently (still needs null-guard or the fillClone reset).
+3. **Revert the fillClone overrides and fix only `setJson` + `getChild`** — Remove the overrides entirely; rely on the null guard in `getChild` and the UUID stamping to prevent NPE; let the base `fillClone` clone `allobjects` normally.
+   - Pros: No regression; simpler code.
+   - Cons: The base fillClone would clone allobjects children AND initCustomTypes would recreate them from JSON (triggered by setJson in copyPropertiesMap path), resulting in duplicate children OR broken JSON references (children not pointing at clone's JSON entries). This is the original design problem the override was meant to solve.
 
-4. **No code change** — Not viable; this is a confirmed NPE regression in a supported release.
+4. **No code change** — Not viable; regression confirmed by reporter, customer had to revert.
 
 ## Recommendation
 
-**Approach 1** — multi-layered fix covering all failure modes:
+**Approach 1** — Add a protected helper method in AbstractBase:
 
-1. **`AbstractBase.getChild(UUID)`**: Add null guard (`if (childUuid == null) return null;`) as a defensive measure.
-2. **`WebComponent.setJson()` else branch** (lines 292–293): When `childUUID` is null, treat as "no existing child" (skip `getChild`, proceed to `createNewInstance`).
-3. **`WebCustomType` constructor** (lines 124–147): When `fullJSONInFrmFile == null` and `index >= 0` and `customTypesArray.opt(index)` is a JSONObject, **use that existing entry** rather than creating a new empty one and shifting. Just put the UUID into the existing entry.
+1. **`AbstractBase.java`** — Add protected method:
+   ```java
+   protected void initClonedPropertiesMap(AbstractBase cloned)
+   {
+       cloned.propertiesMap = new HashMap<String, Object>();
+   }
+   ```
 
-This addresses the NPE, the phantom entries, and is safe for both the `initCustomTypes` path and the `setJson` update path.
+2. **`WebComponent.fillClone`** — Call the helper before `copyPropertiesMap`:
+   ```java
+   @Override
+   protected void fillClone(AbstractBase cloned)
+   {
+       if (cloned instanceof WebComponent wc)
+       {
+           wc.customTypesInitialized = false;
+       }
+       cloned.internalClearAllObjects();
+       initClonedPropertiesMap(cloned);
+       cloned.copyPropertiesMap(getPropertiesMap(), true);
+   }
+   ```
+
+3. **`WebCustomType.fillClone`** — Same pattern:
+   ```java
+   @Override
+   protected void fillClone(AbstractBase cloned)
+   {
+       cloned.internalClearAllObjects();
+       initClonedPropertiesMap(cloned);
+       cloned.copyPropertiesMap(getPropertiesMap(), true);
+   }
+   ```
+
+4. **`WebComponent.setJson`** — Add null guard for `arg` in the else branch (line 257):
+   ```java
+   else if (arg != null)
+   {
+       // existing else-block body
+   }
+   ```
+
+This fixes both the regression (shared propertiesMap) and hardens `setJson` against NPE from other callers. The existing null guard in `getChild` and UUID stamping in `initCustomTypes` remain as correct defensive measures.
 
 ## Git history findings
 
-- Git CLI not available in this environment; no blame data could be retrieved.
-- The `setJson` else branch (lines 257–311) that processes custom types when `customTypesInitialized == true` is the likely 2026.6 introduction point — prior versions may have always re-initialized via `initCustomTypes()`.
-- Commit `581aea8f` (2026-07-28, SVY-21271) modified `WebComponent.addChild` for nested custom types but did not touch `setJson` or `fillClone`.
+- **Commit `f7733d3178a1e9a00b9ed62cd510da9b5cbc321b`** (2026-08-05, by lvostinar/opencode): "SVY-21282 fix cloneForm NPE when custom type properties lack svyUUID [ai]" — introduced the `fillClone` overrides that caused the regression by omitting `propertiesMap` initialization. The commit correctly added the null guard in `getChild` and UUID stamping in `initCustomTypes`.
+- **`AbstractBase.fillClone` (line 796):** The `propertiesMap = new HashMap<>()` pattern has been in place since the original design. It is essential because `clonePersist` uses `Object.clone()` (shallow copy) at line 770.
+- **`BaseComponent.fillClone` (line 352):** All other fillClone overrides in the codebase (`BaseComponent`, `Form`, `Tab`, `AbstractRootObject`) call `super.fillClone()`, preserving the propertiesMap initialization chain. The `WebComponent`/`WebCustomType` overrides are the only ones that break this chain.

@@ -817,6 +817,11 @@ public abstract class AbstractBase implements IPersist
 		}
 	}
 
+	protected void internalClearPropertiesMap()
+	{
+		propertiesMap = new HashMap<String, Object>();
+	}
+
 
 	/**
 	 * Make a clone of the current obj (also makes new repository entry)

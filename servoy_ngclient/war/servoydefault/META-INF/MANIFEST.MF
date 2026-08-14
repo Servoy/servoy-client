@@ -4,7 +4,7 @@ Created-By: 1.7.0_05-b06 (Oracle Corporation)
 CSS-ClientLibs: css/bootstrap/css/bootstrap.css;name=bootstrap;version=3.4.1
 NG2-CSS-ClientLibs: ~@servoy/servoydefault/defaultcomponents.css;priority=1,~bootstrap/dist/css/bootstrap.min.css;priority=10
 NPM-PackageName: @servoy/servoydefault
-NG2-Module: ServoyDefaultComponentsModule
+NG2-Components: ServoyDefaultTextField,ServoyDefaultTextArea,ServoyDefaultButton,ServoyDefaultLabel,ServoyDefaultTabpanel,ServoyDefaultTablesspanel,ServoyDefaultAccordion,ServoyDefaultSplitpane,ServoyDefaultCalendar,ServoyDefaultCombobox,ServoyDefaultTypeahead,ServoyDefaultCheckGroup,ServoyDefaultRadio,ServoyDefaultRadiogroup,ServoyDefaultCheck,ServoyDefaultPassword,ServoyDefaultHtmlarea,ServoyDefaultSpinner,ServoyDefaultHTMLView,ServoyDefaultListBox,ServoyDefaultImageMedia,ServoyDefaultRectangle
 Entry-Point: projects/servoydefault
 Absolute-Layout: True
 Bundle-Name: Servoy Default

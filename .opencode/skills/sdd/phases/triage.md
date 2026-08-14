@@ -18,7 +18,7 @@ Treat user context as authoritative supplementary information.
 
 ## Jira API Access
 
-Read `JIRA.md` (in the repository root) for full API instructions â€” authentication,
+Read `JIRA.md` (in the repository root) for full API instructions — authentication,
 platform-specific commands (PowerShell vs bash), error handling, and common mistakes.
 
 Use the "Reading an issue" section to fetch the ticket. Use "Downloading an
@@ -118,7 +118,7 @@ orchestrator always confirms with a human.
 
 ### 7. Write the triage report
 
-**File location:** `docs/<KEY>-triage.md` (same flat `docs/` folder as specs, no subfolder).
+**File location:** `docs/<KEY>-triage.md` — relative to the **git repository root**, NOT an Eclipse project folder. Use the `write` tool with an absolute path to the repo root's `docs/` directory, or use `eclipse-coder_createFile` on the root project (e.g. `Servoy-Copilot`). Never create this file inside a bundle project like `com.servoy.eclipse.developer.mcp/docs/`.
 
 Use this structure:
 
