@@ -17,7 +17,8 @@
 	        "shapeType" : "int", 
 	        "size" : "dimension", 
 	        "transparent" : "boolean", 
-	        "visible" : "visible" 
+	        "visible" : "visible",
+	        "designsize": { "type": "dimension", "tags": { "serveronly": true }, "default": {"width": 200, "height": 100} } 
 	},
 	"handlers":
 	{

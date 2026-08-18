@@ -31,7 +31,8 @@
 	        "toolTipText" : { "type" : "tagstring", "displayTagsPropertyName" : "displaysTags" }, 
 	        "transparent" : "boolean", 
 	        "verticalAlignment" : {"type" :"int", "tags": { "scope" :"design" }, "values" :[{"TOP":1}, {"CENTER":0} ,{"BOTTOM":3}], "default" : 0}, 
-	        "visible" : "visible" 
+	        "visible" : "visible",
+	        "designsize": { "type": "dimension", "tags": { "serveronly": true }, "default": {"width": 80, "height": 30} } 
 	},
 	"handlers":
 	{

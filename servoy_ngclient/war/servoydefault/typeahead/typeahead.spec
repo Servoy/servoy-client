@@ -28,7 +28,8 @@
 	        "toolTipText" : { "type" : "tagstring", "displayTagsPropertyName" : "displaysTags" }, 
 	        "transparent" : "boolean", 
 	        "valuelistID" : { "type" : "valuelist", "lazyLoading" : true, "tags": { "scope" :"design", "logWhenOverMax":false}, "for": "dataProviderID", "default":"autoVL", "max":100}, 
-	        "visible" : "visible" 
+	        "visible" : "visible",
+	        "designsize": { "type": "dimension", "tags": { "serveronly": true }, "default": {"width": 140, "height": 30} } 
 	},
 	"handlers":
 	{

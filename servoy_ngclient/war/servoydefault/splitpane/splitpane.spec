@@ -29,7 +29,8 @@
 	        "tabSeq" : {"type" :"tabseq", "tags": { "scope" :"design" }}, 
 	        "tabs" : {"type":"tab[]", "pushToServer": "allow", "droppable":true}, 
 	        "transparent" : "boolean", 
-	        "visible" : "visible" 
+	        "visible" : "visible",
+	        "designsize": { "type": "dimension", "tags": { "serveronly": true }, "default": {"width": 400, "height": 300} } 
 	},
 	"handlers":
 	{
