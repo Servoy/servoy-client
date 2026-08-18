@@ -29,7 +29,7 @@
 	        "transparent" : "boolean", 
 	        "valuelistID" : { "type" : "valuelist", "lazyLoading" : true, "tags": { "scope" :"design", "logWhenOverMax":false}, "for": "dataProviderID", "default":"autoVL", "max":100}, 
 	        "visible" : "visible",
-	        "designsize": { "type": "dimension", "tags": { "serveronly": true }, "default": {"width": 140, "height": 30} } 
+	        "designsize": { "type": "dimension", "tags": { "serveronly": true, "scope": "private" }, "default": {"width": 140, "height": 30} } 
 	},
 	"handlers":
 	{

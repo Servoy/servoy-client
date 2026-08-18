@@ -26,7 +26,7 @@
 	        "transparent" : "boolean", 
 	        "visible" : "visible",
 			"activeTabIndex": { "type": "int", "default": 0, "tags": { "scope": "private", "serveronly": true }, "pushToServer": "shallow" },
-	        "designsize": { "type": "dimension", "tags": { "serveronly": true }, "default": {"width": 400, "height": 300} }
+	        "designsize": { "type": "dimension", "tags": { "serveronly": true, "scope": "private" }, "default": {"width": 400, "height": 300} }
 	},
 
 	"handlers": {
