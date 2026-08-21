@@ -744,21 +744,25 @@ public final class FormElement implements INGFormElement
 		Map<String, PropertyDescription> propDescription = componentSpec.getProperties();
 		for (PropertyDescription pd : propDescription.values())
 		{
+			if (pd.isServerOnly())
+			{
+				continue;
+			}
 			Object val = getRawPropertyValue(pd.getName());
 			properties.put(pd.getName(), val);
 		}
 
-		if (persistImpl == null || !persistImpl.isForm())
-		{
-			Dimension dim = getDesignSize();
-			if (dim != null) properties.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), dim);
-
-			Integer anchor = (Integer)getPropertyValue(StaticContentSpecLoader.PROPERTY_ANCHORS.getPropertyName());
-			if (anchor != null)
-			{
-				properties.put(StaticContentSpecLoader.PROPERTY_ANCHORS.getPropertyName(), anchor);
-			}
-		}
+//		if (persistImpl == null || !persistImpl.isForm())
+//		{
+//			Dimension dim = getDesignSize();
+//			if (dim != null) properties.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), dim);
+//
+//			Integer anchor = (Integer)getPropertyValue(StaticContentSpecLoader.PROPERTY_ANCHORS.getPropertyName());
+//			if (anchor != null)
+//			{
+//				properties.put(StaticContentSpecLoader.PROPERTY_ANCHORS.getPropertyName(), anchor);
+//			}
+//		}
 
 		Object offsetY = getPropertyValue("offsetY");
 		if (offsetY != null) properties.put("offsetY", offsetY);

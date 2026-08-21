@@ -9,7 +9,7 @@
 	{
 	        "background" : "color", 
 	        "borderType" : {"type":"border","stringformat":true}, 
-	        "containsFormID" : { "type": "form", "tags": { "serveronly": true }}, 
+	        "containsFormID" : { "type": "form", "tags": { "serveronly": true, "scope": "private" }}, 
 	        "enabled" : { "type": "enabled", "blockingOn": false, "default": true, "for": ["dataProviderID","onActionMethodID","onDataChangeMethodID","onFocusGainedMethodID","onFocusLostMethodID","onRightClickMethodID"] }, 
 	        "foreground" : "color", 
 	        "lineSize" : "int", 
@@ -17,7 +17,8 @@
 	        "shapeType" : "int", 
 	        "size" : "dimension", 
 	        "transparent" : "boolean", 
-	        "visible" : "visible" 
+	        "visible" : "visible",
+	        "designsize": { "type": "dimension", "tags": { "serveronly": true, "scope": "private" }, "default": {"width": 200, "height": 100} } 
 	},
 	"handlers":
 	{

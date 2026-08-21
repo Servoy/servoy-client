@@ -69,7 +69,8 @@
             "text" : { "type" : "tagstring", "displayTagsPropertyName" : "displaysTags" }, 
             "toolTipText" : { "type" : "tagstring", "displayTagsPropertyName" : "displaysTags" }, 
             "transparent" : "boolean", 
-            "visible" : "visible" 
+            "visible" : "visible",
+	        "designsize": { "type": "dimension", "tags": { "serveronly": true, "scope": "private" }, "default": {"width": 140, "height": 140} } 
     },
     "handlers":
     {

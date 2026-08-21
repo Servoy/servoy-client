@@ -86,7 +86,7 @@ public class DefaultComponentPropertiesProvider implements IDefaultComponentProp
 						"CSS position is a replacement for anchoring system making it more intuitive to place a component.\r\n" +
 							"CSS position should be set on form, an absolute position form can either work with anchoring or with css position.\r\n" +
 							"This is only working in NGClient.")
-						.put("serveronly", true))
+						.put("skiptemplate", true))// special case for css positioning
 					.build());
 		}
 		if (!properties.containsKey(IContentSpecConstants.PROPERTY_ATTRIBUTES))

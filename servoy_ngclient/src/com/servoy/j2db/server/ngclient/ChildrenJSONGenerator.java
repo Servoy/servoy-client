@@ -283,11 +283,11 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 				o.acceptVisitor(new ChildrenJSONGenerator(writer, context, o, cache, null, this.form, false, designer),
 					ChildrenJSONGenerator.FORM_INDEX_WITH_HIERARCHY_COMPARATOR);
 			}
-		else
-		{
-			o.acceptVisitor(new ChildrenJSONGenerator(writer, context, o, cache, null, this.form, false, designer),
-				PositionComparator.RESPONSIVE_PERSIST_COMPARATOR);
-		}
+			else
+			{
+				o.acceptVisitor(new ChildrenJSONGenerator(writer, context, o, cache, null, this.form, false, designer),
+					PositionComparator.RESPONSIVE_PERSIST_COMPARATOR);
+			}
 			writer.endArray();
 			writer.endObject();
 			return IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER;
@@ -355,6 +355,9 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 				});
 			}
 			templateProperties.content.keySet().remove(IContentSpecConstants.PROPERTY_ATTRIBUTES);
+			// remove the size and location properties, should not be used anymore in the client code
+			templateProperties.content.remove(IContentSpecConstantsBase.PROPERTY_SIZE);
+			templateProperties.content.remove(IContentSpecConstantsBase.PROPERTY_LOCATION);
 			if (!templateProperties.content.containsKey(WebFormComponent.MARKUP_PROPERTY_ID))
 			{
 				templateProperties.content.put(WebFormComponent.MARKUP_PROPERTY_ID, ComponentFactory.getMarkupId(form.getName(), name));
