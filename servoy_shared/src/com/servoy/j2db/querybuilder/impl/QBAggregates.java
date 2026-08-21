@@ -22,6 +22,7 @@ import static com.servoy.j2db.query.QueryAggregate.ASTERIX;
 
 import org.mozilla.javascript.annotations.JSFunction;
 
+import com.servoy.base.query.TypeInfo;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.query.IQuerySelectValue;
@@ -187,7 +188,7 @@ public class QBAggregates extends QBPart implements IQueryBuilderAggregates
 
 	protected IQuerySelectValue createOperand(Object value, int type)
 	{
-		return getRoot().createOperand(value, getColumnType(type), 0);
+		return getRoot().createOperand(value, new TypeInfo(getColumnType(type), null), 0);
 	}
 
 	@Override

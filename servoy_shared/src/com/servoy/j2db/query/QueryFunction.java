@@ -78,9 +78,6 @@ public final class QueryFunction implements IQuerySelectValue
 		multiply,
 		divide,
 
-		// added
-		castfrom,
-
 		// custom
 		custom
 	}
@@ -208,10 +205,15 @@ public final class QueryFunction implements IQuerySelectValue
 					.reduce(IQuerySelectValue::determineCompatibleColumnType)
 					.orElse(null);
 
+			case vector_score :
+			case vector_distance :
+			case _denormalize_vector_score :
+				return ColumnType.getColumnType(IColumnTypes.NUMBER);
+
 			case cast :
-				if (args != null && args.length > 1 && args[1] instanceof QueryColumnValue)
+				if (args != null && args.length > 1 && args[1] instanceof QueryColumnValue queryColumnValue)
 				{
-					Object castTo = ((QueryColumnValue)args[1]).getValue();
+					Object castTo = queryColumnValue.getValue();
 					if (castTo instanceof String)
 					{
 						switch (((String)castTo).toLowerCase())

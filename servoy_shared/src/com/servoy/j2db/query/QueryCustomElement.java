@@ -29,7 +29,7 @@ import com.servoy.j2db.util.visitor.IVisitor;
  * @author rgansevles
  *
  */
-public class QueryCustomElement implements IQueryElement
+public class QueryCustomElement implements IQueryElement, IQueryCustomSql
 
 {
 	protected final String sql;

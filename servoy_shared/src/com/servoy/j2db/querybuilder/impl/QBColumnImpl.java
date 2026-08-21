@@ -96,7 +96,7 @@ public class QBColumnImpl extends QBPart
 	protected IQuerySelectValue createOperand(Object value)
 	{
 		IQuerySelectValue querySelectValue = getQuerySelectValue();
-		return getRoot().createOperand(value, querySelectValue.getColumnType(), querySelectValue.getFlags());
+		return getRoot().createOperand(value, querySelectValue.getTypeInfo(), querySelectValue.getFlags());
 	}
 
 	/////////////////////////////////////////////////////////
@@ -159,7 +159,7 @@ public class QBColumnImpl extends QBPart
 	{
 		IQuerySelectValue querySelectValue = getQuerySelectValue();
 		return createCondition(new SetCondition(IBaseSQLCondition.EQUALS_OPERATOR, new IQuerySelectValue[] { querySelectValue },
-			new Object[][] { values == null ? new Object[0] : getRoot().createOperands(values, querySelectValue.getColumnType(), querySelectValue.getFlags()) },
+			new Object[][] { values == null ? new Object[0] : getRoot().createOperands(values, querySelectValue.getTypeInfo(), querySelectValue.getFlags()) },
 			true));
 	}
 
@@ -505,6 +505,7 @@ public class QBColumnImpl extends QBPart
 		var denormalizedMinScore = new QBFunctionImpl(getRoot(), getParent(), _denormalize_vector_score,
 			new IQuerySelectValue[] { createOperand(normalizedScore) });
 
+		// LessThen, not GreaterOrEqual because vector_score: higher is better, but cosine_distance (denormalized_score): lower is better
 		return denormalizedScore.lt(denormalizedMinScore);
 	}
 
