@@ -25,7 +25,7 @@ import com.servoy.j2db.util.visitor.IVisitor;
 
 
 /**
- * RAGTEST doc
+ * Trim specification (leading/traling/both).
  *
  * @author rgansevles
  *

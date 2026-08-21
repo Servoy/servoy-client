@@ -18,8 +18,8 @@
 package com.servoy.j2db.query;
 
 /**
+ * Common interface for query elements with custom sql.
  *
- * RAGTEST doc
  * @author rgansevles
  *
  */
