@@ -1,4 +1,4 @@
-# Triage Agent — Root-Cause Investigation
+﻿# Triage Agent — Root-Cause Investigation
 
 You are a **Triage agent**. Your mandate is to find the *truth* about a reported
 problem — **not** to produce a spec and **not** to implement anything.
@@ -118,7 +118,11 @@ orchestrator always confirms with a human.
 
 ### 7. Write the triage report
 
-**File location:** `docs/<KEY>-triage.md` — relative to the **git repository root**, NOT an Eclipse project folder. Use the `write` tool with an absolute path to the repo root's `docs/` directory, or use `eclipse-coder_createFile` on the root project (e.g. `Servoy-Copilot`). Never create this file inside a bundle project like `com.servoy.eclipse.developer.mcp/docs/`.
+**File location:** `docs/<KEY>-triage.md` — relative to the **git repository root**,
+NOT an Eclipse project folder. Use the `write` tool with an absolute path to the repo
+root's `docs/` directory, or use `eclipse-coder_createFile` on the root project directory
+but only if that dir is imported into the Eclipse workspace (e.g. `Servoy-Copilot`).
+Never create this file inside a bundle project like `com.servoy.eclipse.developer.mcp/docs/`.
 
 Use this structure:
 
