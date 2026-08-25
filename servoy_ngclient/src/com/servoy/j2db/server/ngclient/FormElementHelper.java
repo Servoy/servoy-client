@@ -372,6 +372,12 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 									if (found != null) val = found.getUUID().toString();
 								}
 							}
+							if (!paramType.isAssignableFrom(val.getClass()) && !(paramType.isPrimitive() && val instanceof Number))
+							{
+								Debug.debug("Skipping incompatible legacy property '" + key + "' with value '" + val + "' on persist " +
+									cloneOfChildOfFormComponent);
+								continue;
+							}
 						}
 					}
 					if (val instanceof JSONObject && ((AbstractBase)cloneOfChildOfFormComponent).getProperty(key) instanceof JSONObject)
