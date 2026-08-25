@@ -255,4 +255,6 @@ public interface IFoundSetManagerInternal extends IFoundSetManager, IDatabaseMan
 
 	public Object[] getTenantValue();
 
+	public Object getRawTenantValue();
+
 }
