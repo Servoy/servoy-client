@@ -69,6 +69,21 @@ Since this workspace is a complex, multi-project Eclipse environment, **always p
 - **Git Operations:** Use `eclipse-git_*` tools instead of standard shell `git` commands in `bash`.
 - **Testing:** Prefer `eclipse-ide_runAllTests`, `eclipse-ide_runClassTests`, `eclipse-ide_runTestMethod`, or `eclipse-pde_runJUnitPluginTests` over generic shell test commands.
 
+### Refactoring
+- **Use `eclipse-coder_refactorRenameJavaType`** to rename classes, interfaces, enums, or records — this updates all references across the workspace.
+- **Use `eclipse-coder_refactorRenamePackage`** to rename packages — updates all package declarations and references.
+- **Use `eclipse-coder_refactorMoveJavaType`** to move types between packages.
+- **For method, field, and variable renames:** use `eclipse-ide_findReferences` first to find all usages, then apply the rename consistently. Prefer Eclipse refactor tools over manual find-and-replace to ensure all references are updated correctly.
+
+### Navigation & Discovery Tools
+
+For quick codebase orientation and type/method lookup, use the JDT-powered search tools:
+
+- **`eclipse-ide_searchTypes`** — Fuzzy type search via JDT SearchEngine. Supports wildcards (`*Payment*`), CamelCase (`PS` → `PaymentService`), prefix, and package-qualified patterns. Equivalent to Eclipse's Open Type (Ctrl+Shift+T). Use this instead of grep/glob when looking for a class by partial name.
+- **`eclipse-ide_searchMethods`** — Method name search with the same pattern support, plus optional declaring type filter. Use when you need to find where a method is defined without knowing the full class name.
+- **`eclipse-ide_getPackageSummary`** — Returns each type's name, kind, Javadoc first sentence, method/field counts, and interfaces for a package — a table-of-contents in one call. Use to quickly understand what a package contains.
+- **`eclipse-ide_getWorkspaceOverview`** — High-level architectural map of projects → packages → type names for immediate orientation. Use as the first step when exploring an unfamiliar part of the codebase.
+
 ---
 
 ## 3. Commit Message Convention `[ai]`
@@ -135,6 +150,12 @@ Do not add in-process `Thread.sleep()` or in-memory attempt counters to `Statele
 Spotbugs is used to find bugs in Java code. You must pay special attention to Spotbugs issues:
 - **Identify Spotbugs Errors:** Spotbugs errors of the **two highest severity levels** are treated as blocking errors.
 - **Proactive Fixing:** Always try to fix these Spotbugs errors in any new or modified code to keep the codebase robust and clean.
+
+---
+
+## 7. Jira API
+
+When asked to create, update, or link Jira issues, load the instructions from `JIRA.md` in this repository.
 
 ---
 
