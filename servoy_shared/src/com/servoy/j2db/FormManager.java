@@ -258,6 +258,8 @@ public abstract class FormManager extends BasicFormManager implements PropertyCh
 			loginForm = null;//clear and continue
 		}
 
+		applyTenantValue(solution);
+
 		ScriptMethod sm = null;
 		int modifiers = Utils.getAsInteger(application.getRuntimeProperties().get("load.solution.modifiers")); //$NON-NLS-1$
 		if ((modifiers & Event.SHIFT_MASK) != Event.SHIFT_MASK)

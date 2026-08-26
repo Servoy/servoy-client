@@ -77,8 +77,6 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 
 	private final int maxForms;
 
-	private Object tenantValue;
-
 	public NGFormManager(INGApplication application)
 	{
 		super(application);
@@ -218,7 +216,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 			}
 			loginForm = null;//clear and continue
 		}
-		if (tenantValue != null) application.getFoundSetManager().setTenantValue(solution, tenantValue);
+		applyTenantValue(solution);
 		ScriptMethod sm = application.getFlattenedSolution().getScriptMethod(solution.getOnOpenMethodID());
 
 		Object[] solutionOpenMethodArgs = null;
@@ -793,11 +791,5 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 			return readonly;
 
 		}
-	}
-
-	@Override
-	public void setTenantValue(Object value)
-	{
-		this.tenantValue = value;
 	}
 }

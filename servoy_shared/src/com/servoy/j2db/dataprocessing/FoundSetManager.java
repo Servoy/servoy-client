@@ -4164,4 +4164,10 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		return rawTenantValue;
 	}
 
+	@Override
+	public void setRawTenantValue(Object value)
+	{
+		this.rawTenantValue = value;
+	}
+
 }

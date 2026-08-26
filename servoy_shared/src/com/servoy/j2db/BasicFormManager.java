@@ -33,6 +33,8 @@ import org.mozilla.javascript.Scriptable;
 import com.servoy.j2db.dataprocessing.EditRecordList;
 import com.servoy.j2db.dataprocessing.ISaveConstants;
 import com.servoy.j2db.persistence.Form;
+import com.servoy.j2db.persistence.Solution;
+import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.scripting.FormScope;
 import com.servoy.j2db.scripting.GlobalScope;
 import com.servoy.j2db.scripting.ScopesScope;
@@ -397,6 +399,16 @@ public abstract class BasicFormManager implements IBasicFormManager
 					") was passed."); //$NON-NLS-1$
 			}
 			toBeRemoved.destroy();
+		}
+	}
+
+	protected void applyTenantValue(Solution solution)
+	{
+		if (solution.getSolutionType() == SolutionMetaData.AUTHENTICATOR) return;
+		Object tenantValue = application.getFoundSetManager().getRawTenantValue();
+		if (tenantValue != null)
+		{
+			application.getFoundSetManager().setTenantValue(solution, tenantValue);
 		}
 	}
 }

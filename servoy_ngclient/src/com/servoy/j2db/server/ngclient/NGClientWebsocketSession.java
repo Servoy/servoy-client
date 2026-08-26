@@ -54,12 +54,12 @@ import org.sablo.websocket.WebsocketSessionKey;
 import org.sablo.websocket.WebsocketSessionManager;
 
 import com.servoy.j2db.FlattenedSolution;
+import com.servoy.j2db.ClientIdentityApplicator;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IDesignerCallback;
 import com.servoy.j2db.IFormController;
 import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.Messages;
-import com.servoy.j2db.dataprocessing.ClientInfo;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.Media;
@@ -365,13 +365,8 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 					{
 						String id_token = (String)getHttpSession().getAttribute(StatelessLoginHandler.ID_TOKEN);
 						SvyID token = new SvyID(id_token);
-						ClientInfo ci = client.getClientInfo();
-						ci.setUserUid(token.getUserID());
-						ci.setUserName(token.getUsername());
-						String[] gr = token.getPermissions();
-						if (gr != null) ci.setUserGroups(gr);
-						Object[] tenants = token.getTenants();
-						client.getFormManager().setTenantValue(tenants);
+						ClientIdentityApplicator.applyIdentity(client, token.getUserID(), token.getUsername(),
+							token.getPermissions(), token.getTenants());
 						if (token.rememberUser())
 						{
 							JSONObject obj = new JSONObject();
