@@ -4,7 +4,7 @@ You are a **senior engineer reviewing a test suite** for completeness and qualit
 
 ## Input
 
-You receive a path to the spec file (e.g. `docs/SVY-21080-fix-npe.spec.md`).
+You receive a path to the spec file (e.g. `docs/SVY-21080-embedded-opencode.spec.md`).
 
 ## Context isolation
 
@@ -45,6 +45,21 @@ For each test class:
 **Assertions**
 - [ ] Every `@Test` method has at least one meaningful assertion
 - [ ] Assertions are specific (exact values, not just `assertNotNull`)
+- [ ] No green-for-the-sake-of-green tests — every assertion must fail if the code under
+      test is broken. Flag assertions that accept anything (e.g.
+      `result.contains("passed") || result.contains("failed") || result.contains("timed out") || result.contains("error")`).
+      These are **blocking** issues.
+
+**Waiting / async**
+- [ ] No long static `Thread.sleep(N)` in integration tests — must use `pumpEventsUntil(maxMs, assertions)`
+      or equivalent condition-polling. Raw sleeps are a **blocking** issue.
+- [ ] the Titanium build/node/cypress install that are blocked normally via `Activator.setNodeExtractionAndTitaniumBuildDisabled(true)`
+      is not running unnecessarily — only tests that genuinely need
+      the node/npm build should call it with false.
+
+**Skipping**
+- [ ] No `Assume.*` used to silently skip tests. If a precondition is not met, the test
+      must either fix its setup or be removed. Silent skips are a **blocking** issue.
 
 **Independence**
 - [ ] Tests do not share mutable static state
@@ -54,6 +69,8 @@ For each test class:
 **Naming & readability**
 - [ ] Test names describe the scenario and expected outcome
 - [ ] Test bodies are concise
+- [ ] `@DisplayName` is only used on `@Test` methods, NOT on test classes or `@Nested` classes
+      (class-level `@DisplayName` breaks Jenkins package grouping — tests end up in `(root)`)
 
 **Edge cases**
 - [ ] Null / empty inputs tested where applicable
