@@ -1,0 +1,25 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Tests for servoy_mcp
+Bundle-SymbolicName: servoy_mcp_tests
+Bundle-Version: 2026.9.0.qualifier
+Bundle-Vendor: Servoy
+Fragment-Host: servoy_mcp
+Bundle-RequiredExecutionEnvironment: JavaSE-21
+Import-Package: org.junit.jupiter.api;version="[5.0.0,7.0.0)",
+ org.junit.jupiter.api.function;version="[5.0.0,7.0.0)",
+ org.junit.jupiter.params;version="[5.0.0,7.0.0)",
+ org.junit.jupiter.params.provider;version="[5.0.0,7.0.0)",
+ org.junit.platform.commons;version="[1.0.0,7.0.0)",
+ org.junit.platform.commons.annotation;version="[1.0.0,7.0.0)",
+ org.mockito,
+ org.mockito.invocation,
+ org.mockito.junit.jupiter,
+ org.mockito.stubbing,
+ org.apache.logging.log4j,
+ org.apache.logging.log4j.core,
+ org.apache.logging.log4j.core.appender,
+ org.apache.logging.log4j.core.config,
+ org.apache.logging.log4j.core.layout,
+ org.apache.logging.log4j.message
+Automatic-Module-Name: servoy_mcp_tests
