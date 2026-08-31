@@ -12,7 +12,12 @@ Bundle-ClassPath: .
 Export-Package: com.servoy.mcp
 Bundle-Vendor: Servoy
 Import-Package: com.fasterxml.jackson.databind,
+ io.modelcontextprotocol.common;version="[2.0.0,3.0.0)",
+ io.modelcontextprotocol.json;version="[2.0.0,3.0.0)",
  io.modelcontextprotocol.json.schema;version="[2.0.0,3.0.0)",
+ io.modelcontextprotocol.server;version="[2.0.0,3.0.0)",
+ io.modelcontextprotocol.server.transport;version="[2.0.0,3.0.0)",
+ io.modelcontextprotocol.spec;version="[2.0.0,3.0.0)",
  jakarta.servlet;version="[6.1.0,8.0.0)",
  jakarta.servlet.annotation;version="[6.1.0,8.0.0)",
  jakarta.servlet.http;version="[6.1.0,8.0.0)",

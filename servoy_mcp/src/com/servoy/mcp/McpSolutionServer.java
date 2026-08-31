@@ -95,7 +95,6 @@ public class McpSolutionServer
 		McpIdentity authenticate(String solutionName, String bearerToken) throws McpAuthenticationException;
 	}
 
-	private final McpRuntime runtime;
 	private final String solutionName;
 	private final McpToolRegistry registry;
 	private final McpToolExecutor executor;
@@ -110,7 +109,6 @@ public class McpSolutionServer
 
 	McpSolutionServer(McpRuntime runtime, String solutionName, McpToolRegistry registry, Authenticator authenticator)
 	{
-		this.runtime = runtime;
 		this.solutionName = solutionName;
 		this.registry = registry;
 		this.executor = new McpToolExecutor(runtime);
