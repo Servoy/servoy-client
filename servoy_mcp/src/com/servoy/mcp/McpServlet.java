@@ -19,6 +19,7 @@ package com.servoy.mcp;
 import java.io.IOException;
 
 import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -37,6 +38,7 @@ import jakarta.servlet.http.HttpServletResponse;
  * @author Servoy
  */
 @SuppressWarnings("nls")
+@WebServlet("/mcp/*")
 public class McpServlet extends HttpServlet
 {
 	@Override
@@ -47,7 +49,7 @@ public class McpServlet extends HttpServlet
 		if (solutionName == null)
 		{
 			respond(response, HttpServletResponse.SC_NOT_FOUND,
-				"Name the solution: /servoy-service/" + McpRuntime.WEBSERVICE_NAME + "/<solution>");
+				"Name the solution: /" + McpRuntime.WEBSERVICE_NAME + "/<solution>");
 			return;
 		}
 

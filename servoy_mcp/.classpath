@@ -7,8 +7,5 @@
 	</classpathentry>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry exported="true" kind="lib" path="lib/mcp-core-2.0.1.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/reactor-core-3.8.7.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/reactive-streams-1.0.4.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

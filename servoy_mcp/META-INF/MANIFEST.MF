@@ -6,15 +6,15 @@ Bundle-Version: 2026.9.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-21
 Require-Bundle: servoy_shared,
  servoy_headless_client,
- org.apache.commons.commons-pool2
-Bundle-ClassPath: .,
- lib/mcp-core-2.0.1.jar,
- lib/reactor-core-3.8.7.jar,
- lib/reactive-streams-1.0.4.jar
+ org.apache.commons.commons-pool2,
+ org.apache.tomcat;bundle-version="11.0.25"
+Bundle-ClassPath: .
 Export-Package: com.servoy.mcp
 Bundle-Vendor: Servoy
 Import-Package: com.fasterxml.jackson.databind,
+ io.modelcontextprotocol.json.schema;version="[2.0.0,3.0.0)",
  jakarta.servlet;version="[6.1.0,8.0.0)",
+ jakarta.servlet.annotation;version="[6.1.0,8.0.0)",
  jakarta.servlet.http;version="[6.1.0,8.0.0)",
  org.slf4j;version="2.0.17"
 Automatic-Module-Name: servoy_mcp
