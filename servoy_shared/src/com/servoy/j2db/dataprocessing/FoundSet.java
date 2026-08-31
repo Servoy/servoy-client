@@ -6058,7 +6058,20 @@ public abstract class FoundSet
 		}
 		if (pks != null)
 		{
-			pks2.sort(recordPKComparator);
+			try
+			{
+				pks2.sort(recordPKComparator);
+			}
+			catch (IllegalArgumentException e)
+			{
+				Debug.error(
+					"Sort failed: the record comparator function does not define a consistent ordering (it violates the general contract of Comparator). " +
+						"This means the comparator is not transitive: e.g. it says a==b and b==c but a!=c. " +
+						"Common causes: returning 0 for unequal records (e.g. when an exception is swallowed), comparing only with < and > but not handling equality, " +
+						"or producing results that depend on external mutable state. The foundset will remain unsorted.",
+					e);
+				return;
+			}
 			IFoundSetChanges changes = null;
 			synchronized (pksAndRecords)
 			{
