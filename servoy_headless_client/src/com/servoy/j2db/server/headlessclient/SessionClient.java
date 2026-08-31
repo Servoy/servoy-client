@@ -298,8 +298,11 @@ public class SessionClient extends AbstractApplication implements ISessionClient
 	@Override
 	protected int getSolutionTypeFilter()
 	{
-		return super.getSolutionTypeFilter() | SolutionMetaData.SERVICE | SolutionMetaData.MODULE | SolutionMetaData.SMART_CLIENT_ONLY |
-			SolutionMetaData.WEB_CLIENT_ONLY | SolutionMetaData.PRE_IMPORT_HOOK | SolutionMetaData.POST_IMPORT_HOOK;
+		// MCP_SERVICE belongs here for the same reason SERVICE does: it has no user interface and
+		// exists to be opened headlessly - SVY-21326
+		return super.getSolutionTypeFilter() | SolutionMetaData.SERVICE | SolutionMetaData.MCP_SERVICE | SolutionMetaData.MODULE |
+			SolutionMetaData.SMART_CLIENT_ONLY | SolutionMetaData.WEB_CLIENT_ONLY | SolutionMetaData.PRE_IMPORT_HOOK |
+			SolutionMetaData.POST_IMPORT_HOOK;
 	}
 
 	@Override

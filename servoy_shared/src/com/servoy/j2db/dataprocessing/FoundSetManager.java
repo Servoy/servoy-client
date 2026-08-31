@@ -193,6 +193,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	private int foundsetCounter = 1;
 
 	private static final String TENANT_FILTER = "_svy_tenant_id_table_filter"; //$NON-NLS-1$
+	private Object rawTenantValue;
 
 	public FoundSetManager(IApplication app, FoundSetManagerConfig config, IFoundSetFactory factory)
 	{
@@ -4105,6 +4106,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	@Override
 	public void setTenantValue(Solution solution, Object value)
 	{
+		this.rawTenantValue = value;
 		int count = 0;
 		try
 		{
@@ -4154,6 +4156,18 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			.filter(Objects::nonNull)
 			.map(bf -> bf.getFilterValue())
 			.findAny().orElse(null);
+	}
+
+	@Override
+	public Object getRawTenantValue()
+	{
+		return rawTenantValue;
+	}
+
+	@Override
+	public void setRawTenantValue(Object value)
+	{
+		this.rawTenantValue = value;
 	}
 
 }

@@ -61,17 +61,21 @@ as `TRIAGE_PATH`. Read the report to obtain its **verdict** (`PROCEED`, `NO_ACTI
 
 **HUMAN GATE — Triage decision**
 
-Display a short summary of the triage report (verdict + recommendation), then use the
-`question` tool:
+Display a short summary of the triage report (verdict + recommendation), then present
+the appropriate gate based on the verdict:
+
+**The AI recommends, the human decides.** Never auto-stop on `NO_ACTION` — always route
+through a gate and let the user confirm.
+
+### Gate for `PROCEED` verdict
+
+Use the `question` tool:
 - Header: "Triage Decision"
-- Question: "Phase 0 complete. Triage report at `TRIAGE_PATH` (verdict: <VERDICT>). Please review it, then choose how to proceed:"
+- Question: "Phase 0 complete. Triage report at `TRIAGE_PATH` (verdict: PROCEED). Please review it, then choose how to proceed:"
 - Options:
   - "Proceed to spec" — accept the recommended approach and run the PM Agent
   - "No action — stop pipeline" — end the pipeline; nothing further is generated
   - "Redirect approach" — provide a different direction; I'll run the PM Agent with that
-
-**The AI recommends, the human decides.** Never auto-stop on `NO_ACTION` — always route
-through this gate and let the user confirm.
 
 Handle the choice:
 - **"Proceed to spec"** — record the recommended approach from the report as
@@ -81,9 +85,25 @@ Handle the choice:
 - **"Redirect approach"** — record the user's direction as `APPROVED_APPROACH` and continue
   to Phase 1.
 
-If the verdict is **`NEEDS_INPUT`**, the report contains a "Questions for the reporter"
-section with the specific information needed. Present these to the user via the
-`question` tool with these options:
+### Gate for `NO_ACTION` verdict
+
+Use the `question` tool:
+- Header: "Triage Decision"
+- Question: "Phase 0 complete. Triage report at `TRIAGE_PATH` (verdict: NO_ACTION — triage recommends no code change). Please review it, then choose how to proceed:"
+- Options:
+  - "No action — stop pipeline" — agree with triage; nothing further is generated
+  - "Redirect approach" — override triage and provide a direction for the spec
+
+Handle the choice:
+- **"No action — stop pipeline"** — inform the user the pipeline has ended with no changes
+  and stop. Do not run any further phase.
+- **"Redirect approach"** — record the user's direction as `APPROVED_APPROACH` and continue
+  to Phase 1.
+
+### Gate for `NEEDS_INPUT` verdict
+
+The report contains a "Questions for the reporter" section with the specific information
+needed. Present these to the user via the `question` tool:
 
 - Header: "Missing Information"
 - Question: "Triage needs the following information before a spec can be written:\n\n<numbered list from the report's 'Questions for the reporter' section>\n\nHow would you like to proceed?"
@@ -94,12 +114,30 @@ section with the specific information needed. Present these to the user via the
 
 Handle the choice:
 - **"Answer here"** — ask the user for answers (via the `question` tool), record
-  their answers as `USER_CONTEXT` additions, then present the main Triage Decision
-  gate above. The answers feed **forward** into the PM Agent — do **not** loop back
-  into Triage.
+  their answers as `USER_CONTEXT` additions, then present the **post-answer gate**
+  below. The answers feed **forward** into the PM Agent — do **not** loop back into
+  Triage.
 - **"Post questions to Jira"** — follow the Jira comment posting flow below, then
   inform the user the pipeline is paused pending a reply on the ticket.
 - **"Stop pipeline"** — inform the user the pipeline has ended and stop.
+
+### Post-answer gate (after `NEEDS_INPUT` — "Answer here")
+
+The user has answered the triage questions. Present a dedicated gate:
+- Header: "Triage Decision"
+- Question: "You've provided the information triage was missing. How would you like to proceed?"
+- Options:
+  - "Proceed with my answers" — use the answers as context and run the PM Agent
+  - "No action — stop pipeline" — end the pipeline; nothing further is generated
+  - "Redirect approach" — provide a different direction; I'll run the PM Agent with that
+
+Handle the choice:
+- **"Proceed with my answers"** — record the triage report's recommendation (if any)
+  combined with the user's answers as `APPROVED_APPROACH` and continue to Phase 1.
+- **"No action — stop pipeline"** — inform the user the pipeline has ended with no changes
+  and stop. Do not run any further phase.
+- **"Redirect approach"** — record the user's direction as `APPROVED_APPROACH` and continue
+  to Phase 1.
 
 ### Jira comment posting flow (NEEDS_INPUT only)
 
@@ -109,7 +147,7 @@ triage reasoning or root-cause analysis — only the reporter-facing questions.
 
 1. **Compose the comment.** Build a clean, numbered list of questions from the
    report's "Questions for the reporter" section. Add a trailing attribution line:
-   `— posted by triage assistant`
+   `-- posted by triage assistant`
 
 2. **Show the exact text.** Display the full comment body to the user and ask:
    - Header: "Confirm Jira Comment"

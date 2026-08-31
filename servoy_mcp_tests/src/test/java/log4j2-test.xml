@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Logging while the tests run.
+
+  Several of these tests provoke a failure on purpose - a tool with a parameter type that cannot be
+  published, a payload that is not JSON, an authenticator that throws. The production code logs each
+  of those at error level, which is right: in a running server that log line is the only notice
+  anyone gets. In a test run it is noise, and a console full of expected errors is exactly where an
+  unexpected one goes unnoticed.
+
+  So nothing is printed. Where the log line itself is the promise rather than a side effect, the
+  test asserts it instead - see McpLogCapture.
+
+  log4j2 reads this file ahead of any log4j2.xml, and only when it is on the test classpath, so it
+  cannot affect a running server.
+-->
+<Configuration status="OFF">
+	<Appenders>
+		<Null name="Nowhere"/>
+	</Appenders>
+	<Loggers>
+		<Root level="OFF">
+			<AppenderRef ref="Nowhere"/>
+		</Root>
+	</Loggers>
+</Configuration>
