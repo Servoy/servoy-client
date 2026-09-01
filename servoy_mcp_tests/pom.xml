@@ -8,7 +8,7 @@
 	<parent>
 		<artifactId>servoy-client</artifactId>
 		<groupId>com.servoy</groupId>
-		<version>2026.9.0-SNAPSHOT</version>
+		<version>2026.12.0-SNAPSHOT</version>
 	</parent>
 	<artifactId>servoy_mcp_tests</artifactId>
 	<packaging>eclipse-test-plugin</packaging>

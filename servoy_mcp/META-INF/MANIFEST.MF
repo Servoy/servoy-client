@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Servoy MCP Server
 Bundle-SymbolicName: servoy_mcp;singleton:=true
-Bundle-Version: 2026.9.0.qualifier
+Bundle-Version: 2026.12.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-21
 Require-Bundle: servoy_shared,
  servoy_headless_client,
