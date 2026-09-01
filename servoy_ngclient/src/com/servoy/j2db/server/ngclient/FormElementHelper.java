@@ -55,6 +55,7 @@ import com.servoy.j2db.persistence.IBasicWebComponent;
 import com.servoy.j2db.persistence.IBasicWebObject;
 import com.servoy.j2db.persistence.IChildWebObject;
 import com.servoy.j2db.persistence.IDesignValueConverter;
+import com.servoy.j2db.persistence.IFlattenedPersistWrapper;
 import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IRepository;
@@ -250,7 +251,9 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 		List<IFormElement> formElementsOfFormComponent = fs.getFlattenedForm(formComponent).getFlattenedObjects(PositionComparator.XY_PERSIST_COMPARATOR);
 		for (IFormElement childOfFormComponent : formElementsOfFormComponent)
 		{
-			IFormElement cloneOfChildOfFormComponent = (IFormElement)((AbstractBase)childOfFormComponent).clonePersist(null);
+			IFormElement cloneOfChildOfFormComponent = childOfFormComponent instanceof IFlattenedPersistWrapper
+				? (IFormElement)((AbstractBase)((IFlattenedPersistWrapper< ? >)childOfFormComponent).getWrappedPersist()).clonePersist(null)
+				: (IFormElement)((AbstractBase)childOfFormComponent).clonePersist(null);
 			// we kind of want to have this element a new uuid, but then it is very hard to get it stable.
 			UUID clonedChildsUUID = null;
 			synchronized (formComponentElementsUUIDS)
