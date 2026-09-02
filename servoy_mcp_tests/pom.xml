@@ -12,4 +12,64 @@
 	</parent>
 	<artifactId>servoy_mcp_tests</artifactId>
 	<packaging>eclipse-test-plugin</packaging>
+	<build>
+		<plugins>
+			<!--
+			  The production code logs through SLF4J (like the rest of Servoy), and the runtime binds
+			  SLF4J to log4j2 through org.apache.logging.log4j.slf4j2.impl. SLF4J finds that binding
+			  through the OSGi ServiceLoader mediator (Aries SpiFly): SpiFly reads the binding bundle's
+			  osgi.serviceloader capability and wires it into slf4j.api, which is what lets slf4j.api's
+			  Class.forName reach a provider class it does not import.
+
+			  Tycho's generated test runtime does not do that wiring on its own: the binding bundle is
+			  not pulled in (nothing in the test bundle requires it), and SpiFly, even when present, is
+			  not started. So the runtime prints "No SLF4J providers were found" and falls back to the
+			  NOP logger - which silences the log-assertion tests (McpLogCapture).
+
+			  Two pieces fix it, both configuration only:
+			   - extraRequirements (below) pulls the binding bundle into the test runtime;
+			   - bundleStartLevel starts SpiFly early, so it has processed the serviceloader wiring
+			     before slf4j.api initialises.
+			-->
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>target-platform-configuration</artifactId>
+				<version>${tycho.version}</version>
+				<configuration>
+					<dependency-resolution>
+						<extraRequirements>
+							<requirement>
+								<type>eclipse-plugin</type>
+								<id>org.apache.logging.log4j.slf4j2.impl</id>
+								<versionRange>0.0.0</versionRange>
+							</requirement>
+							<requirement>
+								<type>eclipse-plugin</type>
+								<id>org.apache.aries.spifly.dynamic.bundle</id>
+								<versionRange>0.0.0</versionRange>
+							</requirement>
+						</extraRequirements>
+					</dependency-resolution>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-surefire-plugin</artifactId>
+				<version>${tycho.version}</version>
+				<configuration>
+					<!-- headless: no UI harness, so Tycho runs the headlesstest application and never
+					     starts the Eclipse workbench. The UI/SWT/e4 bundles that the production bundles
+					     transitively require are only resolved, never started. -->
+					<useUIHarness>false</useUIHarness>
+					<bundleStartLevel>
+						<bundle>
+							<id>org.apache.aries.spifly.dynamic.bundle</id>
+							<level>1</level>
+							<autoStart>true</autoStart>
+						</bundle>
+					</bundleStartLevel>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
 </project>
