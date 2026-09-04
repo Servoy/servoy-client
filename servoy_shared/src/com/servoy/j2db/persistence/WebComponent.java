@@ -36,10 +36,10 @@ import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.WebObjectSpecification;
 import org.sablo.specification.property.ICustomType;
+import org.sablo.specification.property.types.DimensionPropertyType;
 
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.PersistHelper;
-import com.servoy.j2db.util.ServoyJSONArray;
 import com.servoy.j2db.util.ServoyJSONObject;
 import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
@@ -436,6 +436,9 @@ public class WebComponent extends BaseComponent implements IWebComponent, ICommo
 		Dimension size = getTypedProperty(StaticContentSpecLoader.PROPERTY_SIZE);
 		if (size == null)
 		{
+			PropertyDescription propertyDescription = getPropertyDescription();
+			PropertyDescription design = propertyDescription != null ? propertyDescription.getProperty(IContentSpecConstants.PROPERTY_DESIGN_SIZE) : null;
+			if (design != null) return DimensionPropertyType.INSTANCE.fromJSON(design.getDefaultValue(), null, design, null, null);
 			Object defaultSize = getPropertyDefaultValueClone(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName());
 			if (defaultSize instanceof JSONObject)
 			{

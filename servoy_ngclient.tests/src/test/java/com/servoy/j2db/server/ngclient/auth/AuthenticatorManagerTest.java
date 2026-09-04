@@ -657,4 +657,70 @@ public class AuthenticatorManagerTest
 		if (returnType == short.class) return Short.valueOf((short)0);
 		return null;
 	}
+
+	// ===== Tenant value propagation tests (SVY-21382) =====
+
+	@Test
+	public void testLogin_withTenantValues_tokenContainsTenantsClaim() throws Exception
+	{
+		String[] tenants = { "acme-corp", "beta-inc" };
+		loginResponse = new ClientLogin(null, TEST_USER_UID, TEST_USERNAME, TEST_PERMISSIONS, null, tenants);
+
+		LoginResult result = LoginResult.needsLogin();
+		HttpServletRequest request = createMockRequest(Collections.emptyMap());
+
+		boolean verified = AuthenticatorManager.checkAuthenticatorPermissions(
+			TEST_USERNAME, TEST_PASSWORD, false, null, result, mainSolution, request);
+
+		assertTrue("Should be verified", verified);
+		assertNotNull("Token should not be null", result.getToken());
+
+		DecodedJWT decoded = JWT.decode(result.getToken());
+		String[] tokenTenants = decoded.getClaim(SvyID.TENANTS).asArray(String.class);
+		assertNotNull("Tenants claim should exist in token", tokenTenants);
+		assertEquals(2, tokenTenants.length);
+		assertEquals("acme-corp", tokenTenants[0]);
+		assertEquals("beta-inc", tokenTenants[1]);
+	}
+
+	@Test
+	public void testLogin_nullTenantValues_tokenHasNoTenantsClaim() throws Exception
+	{
+		loginResponse = new ClientLogin(null, TEST_USER_UID, TEST_USERNAME, TEST_PERMISSIONS, null);
+
+		LoginResult result = LoginResult.needsLogin();
+		HttpServletRequest request = createMockRequest(Collections.emptyMap());
+
+		boolean verified = AuthenticatorManager.checkAuthenticatorPermissions(
+			TEST_USERNAME, TEST_PASSWORD, false, null, result, mainSolution, request);
+
+		assertTrue("Should be verified", verified);
+		assertNotNull("Token should not be null", result.getToken());
+
+		DecodedJWT decoded = JWT.decode(result.getToken());
+		assertTrue("Tenants claim should be null/missing when no tenants provided",
+			decoded.getClaim(SvyID.TENANTS).isNull() || decoded.getClaim(SvyID.TENANTS).isMissing());
+	}
+
+	@Test
+	public void testLogin_tenantValuesWithJsReturn_allPresent() throws Exception
+	{
+		String[] tenants = { "my-tenant" };
+		String jsReturn = "{\"welcome\":true}";
+		loginResponse = new ClientLogin(null, TEST_USER_UID, TEST_USERNAME, TEST_PERMISSIONS, jsReturn, tenants);
+
+		LoginResult result = LoginResult.needsLogin();
+		HttpServletRequest request = createMockRequest(Collections.emptyMap());
+
+		AuthenticatorManager.checkAuthenticatorPermissions(
+			TEST_USERNAME, TEST_PASSWORD, false, null, result, mainSolution, request);
+
+		DecodedJWT decoded = JWT.decode(result.getToken());
+		String[] tokenTenants = decoded.getClaim(SvyID.TENANTS).asArray(String.class);
+		assertNotNull("Tenants should be present", tokenTenants);
+		assertEquals("my-tenant", tokenTenants[0]);
+		assertEquals(TEST_USERNAME, decoded.getClaim(SvyID.USERNAME).asString());
+		assertEquals(TEST_USER_UID, decoded.getClaim(SvyID.UID).asString());
+		assertEquals(jsReturn, result.getReturnValue());
+	}
 }

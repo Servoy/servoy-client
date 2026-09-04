@@ -96,7 +96,9 @@ public class WebCustomType extends AbstractBase implements IChildWebObject, ISup
 		((AbstractBase)parentWebObject).internalAddChild(this, index);
 		((AbstractBase)parentWebObject).afterChildWasAdded(this);
 		JSONObject fullJSONInFrmFile = null;
-		if (PersistHelper.isArrayOfCustomJSONObject(((ICommonWebComponent)parentWebObject).getPropertyDescription().getProperty(jsonKey).getType()))
+		PropertyDescription parentPd = ((ICommonWebComponent)parentWebObject).getPropertyDescription();
+		PropertyDescription jsonKeyPd = parentPd != null ? parentPd.getProperty(jsonKey) : null;
+		if (jsonKeyPd != null && PersistHelper.isArrayOfCustomJSONObject(jsonKeyPd.getType()))
 		{
 			JSONArray customTypesArray = json.optJSONArray(jsonKey);
 			if (customTypesArray == null)
@@ -185,10 +187,8 @@ public class WebCustomType extends AbstractBase implements IChildWebObject, ISup
 	@Override
 	public Object getProperty(String propertyName)
 	{
-		Object value = null;
-		if (purePersistPropertyNames.contains(propertyName)) value = super.getProperty(propertyName);
-		if (value == null) value = PersistHelper.getWebComponentProperty(this, propertyName);
-		return value;
+		if (purePersistPropertyNames.contains(propertyName)) return super.getProperty(propertyName);
+		return PersistHelper.getWebComponentProperty(this, propertyName);
 	}
 
 	@Override

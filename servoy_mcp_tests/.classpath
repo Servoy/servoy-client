@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-21">
+		<attributes>
+			<attribute name="module" value="true"/>
+		</attributes>
+	</classpathentry>
+	<!-- The whole JUnit 5 stack from one place. The target platform carries junit bundles too, and
+	     letting the engine come from one generation and platform-commons from another is what makes
+	     a run die with IllegalAccessError rather than a test failure. Listed before requiredPlugins
+	     so it wins. Tycho ignores this file and resolves from Import-Package instead. -->
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/5"/>
+	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
+	<classpathentry kind="src" path="src/test/java"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

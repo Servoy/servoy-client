@@ -247,6 +247,15 @@ public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 						writer.value(((Dimension)value).getHeight());
 						writer.endObject();
 					}
+					else if (value instanceof Point)
+					{
+						writer.object();
+						writer.key("x");
+						writer.value(((Point)value).getX());
+						writer.key("y");
+						writer.value(((Point)value).getY());
+						writer.endObject();
+					}
 					else
 					{
 						writer.value(value);

@@ -31,14 +31,21 @@ public class ClientLogin implements Serializable
 	private final String userName;
 	private final String[] userGroups;
 	private final String jsReturn;
+	private final String[] tenantValues;
 
 	public ClientLogin(String clientId, String userUid, String userName, String[] userGroups, String jsReturn)
+	{
+		this(clientId, userUid, userName, userGroups, jsReturn, null);
+	}
+
+	public ClientLogin(String clientId, String userUid, String userName, String[] userGroups, String jsReturn, String[] tenantValues)
 	{
 		this.clientId = clientId;
 		this.userUid = userUid;
 		this.userName = userName;
 		this.userGroups = userGroups;
 		this.jsReturn = jsReturn;
+		this.tenantValues = tenantValues;
 	}
 
 	public String getClientId()
@@ -64,6 +71,11 @@ public class ClientLogin implements Serializable
 	public String getJsReturn()
 	{
 		return jsReturn;
+	}
+
+	public String[] getTenantValues()
+	{
+		return tenantValues;
 	}
 
 }

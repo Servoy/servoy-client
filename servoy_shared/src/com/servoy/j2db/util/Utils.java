@@ -1708,6 +1708,11 @@ public final class Utils
 
 	public static String getURLContent(URL url)
 	{
+		return getURLContent(url, ""); //$NON-NLS-1$
+	}
+
+	public static String getURLContent(URL url, String retValOnException)
+	{
 		try
 		{
 			URLConnection connection = url.openConnection();
@@ -1745,8 +1750,8 @@ public final class Utils
 		catch (Exception e)
 		{
 			Debug.error(e);
+			return retValOnException;
 		}
-		return "";
 	}
 
 	/**

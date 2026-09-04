@@ -139,6 +139,10 @@ public class AuthenticatorManager extends AbstractAuthenticatorManager
 					SvyTokenBuilder builder = new SvyTokenBuilder(login.getUserName(), login.getUserUid(), login.getUserGroups())//
 						.withRememberUser(Boolean.valueOf(rememberUser)) //
 						.withRefreshToken(refreshToken);
+					if (login.getTenantValues() != null)
+					{
+						builder.withTenants(login.getTenantValues());
+					}
 					if (mainSolution.getAuthenticator() == AUTHENTICATOR_TYPE.OAUTH_AUTHENTICATOR)
 					{
 						if (state == null) state = json.optString(OAuthParameters.state.name(), null);

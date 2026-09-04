@@ -87,11 +87,7 @@ public class RelatedValueList extends DBValueList implements IFoundSetEventListe
 			{
 				for (Relation relation : relations)
 				{
-					if (!relation.isGlobal())
-					{
-						//if changes are performed on the data refresh this list.
-						((FoundSetManager)application.getFoundSetManager()).removeTableListener(fs.getTable(relation.getForeignDataSource()), this);
-					}
+					((FoundSetManager)application.getFoundSetManager()).removeTableListener(fs.getTable(relation.getForeignDataSource()), this);
 				}
 			}
 		}
@@ -117,7 +113,7 @@ public class RelatedValueList extends DBValueList implements IFoundSetEventListe
 
 	public void refill()
 	{
-		if (parentState != null && valueList != null)
+		if (valueList != null)
 		{
 			for (IFoundSetInternal fs : related)
 			{
@@ -147,17 +143,13 @@ public class RelatedValueList extends DBValueList implements IFoundSetEventListe
 				FlattenedSolution fs = application.getFlattenedSolution();
 				for (Relation relation : relations)
 				{
-					//if changes are performed on the data refresh this list.
-					if (!relation.isGlobal())
+					if (!registered)
 					{
-						if (!registered)
-						{
-							((FoundSetManager)application.getFoundSetManager()).addTableListener(fs.getTable(relation.getForeignDataSource()), this);
-						}
-						if (sameServer)
-						{
-							sameServer = serverName.equals(relation.getForeignServerName());
-						}
+						((FoundSetManager)application.getFoundSetManager()).addTableListener(fs.getTable(relation.getForeignDataSource()), this);
+					}
+					if (!relation.isGlobal() && sameServer)
+					{
+						sameServer = serverName.equals(relation.getForeignServerName());
 					}
 				}
 				registered = true;

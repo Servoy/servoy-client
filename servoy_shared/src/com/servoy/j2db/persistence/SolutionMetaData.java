@@ -46,12 +46,21 @@ public class SolutionMetaData extends RootObjectMetaData
 	public static final int NG_MODULE = 2048;
 	public static final int SERVICE = 4096;
 
-	public static final String[] solutionTypeNames = { "Module", "Login", "Authenticator", "Pre-import hook module", "Post-import hook module", "Mobile", "Mobile shared module", "NG Client", "NG Module", "Service" };//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$ //$NON-NLS-8$ //$NON-NLS-9$ //$NON-NLS-10$
-	public static final int[] solutionTypes = { MODULE, LOGIN_SOLUTION, AUTHENTICATOR, PRE_IMPORT_HOOK, POST_IMPORT_HOOK, MOBILE, MOBILE_MODULE, NG_CLIENT_ONLY, NG_MODULE, SERVICE };
+	/**
+	 * A solution whose scope functions are published as MCP tools - SVY-21326.
+	 *
+	 * Like a Service it carries no user interface and is opened headlessly, but the type is its own
+	 * so that the MCP server can find its solutions without being configured, and so that marking a
+	 * solution for MCP is a deliberate act rather than a side effect of picking Service.
+	 */
+	public static final int MCP_SERVICE = 8192;
+
+	public static final String[] solutionTypeNames = { "Module", "Login", "Authenticator", "Pre-import hook module", "Post-import hook module", "Mobile", "Mobile shared module", "NG Client", "NG Module", "Service", "MCP Service" };//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$ //$NON-NLS-8$ //$NON-NLS-9$ //$NON-NLS-10$ //$NON-NLS-11$
+	public static final int[] solutionTypes = { MODULE, LOGIN_SOLUTION, AUTHENTICATOR, PRE_IMPORT_HOOK, POST_IMPORT_HOOK, MOBILE, MOBILE_MODULE, NG_CLIENT_ONLY, NG_MODULE, SERVICE, MCP_SERVICE };
 
 	// this list does not contain the deprecated types
-	public static final String[] currentSolutionTypeNames = { "Module", "Pre-import hook module", "Post-import hook module", "NG Client", "NG Module", "Service" };//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$
-	public static final int[] currentSolutionTypes = { MODULE, PRE_IMPORT_HOOK, POST_IMPORT_HOOK, NG_CLIENT_ONLY, NG_MODULE, SERVICE };
+	public static final String[] currentSolutionTypeNames = { "Module", "Pre-import hook module", "Post-import hook module", "NG Client", "NG Module", "Service", "MCP Service" };//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$
+	public static final int[] currentSolutionTypes = { MODULE, PRE_IMPORT_HOOK, POST_IMPORT_HOOK, NG_CLIENT_ONLY, NG_MODULE, SERVICE, MCP_SERVICE };
 
 	private int solutionType;
 

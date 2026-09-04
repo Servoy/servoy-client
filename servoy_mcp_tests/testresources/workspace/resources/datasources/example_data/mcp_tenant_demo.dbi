@@ -1,0 +1,30 @@
+{
+    "columns":[
+        {
+            "allowNull":false,
+            "autoEnterSubType":2,
+            "autoEnterType":2,
+            "creationOrderIndex":-1,
+            "dataType":4,
+            "flags":1,
+            "name":"mcp_tenant_demo_id"
+        },
+        {
+            "allowNull":false,
+            "creationOrderIndex":-1,
+            "dataType":12,
+            "length":100,
+            "name":"item_name"
+        },
+        {
+            "allowNull":false,
+            "creationOrderIndex":-1,
+            "dataType":12,
+            "flags":16,
+            "length":50,
+            "name":"tenant_name"
+        }
+    ],
+    "name":"mcp_tenant_demo",
+    "tableType":0
+}
