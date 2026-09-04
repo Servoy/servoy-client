@@ -1588,6 +1588,63 @@ public class CloudStatelessAccessManagerTest
 	}
 
 	@Test
+	public void testHandlePossibleCloudRequest_secureRequest_csrfCookieHasSecureFlag() throws Exception
+	{
+		String loginHtml = "<html><body><form name=\"login_form\"><input name=\"username\"></form></body></html>";
+		lastCloudResponse = new JSONObject().put("html", loginHtml);
+		lastCloudStatusCode = 200;
+
+		Map<String, String[]> params = new HashMap<>();
+		params.put("username", new String[] { TEST_USERNAME });
+		params.put("password", new String[] { "pass123" });
+		params.put("csrf_token", new String[] { "123456" });
+
+		StringWriter writer = new StringWriter();
+		List<jakarta.servlet.http.Cookie> responseCookies = new ArrayList<>();
+		HttpServletRequest request = createHandlePossibleCloudRequestWithSecure(
+			"/solution/" + SOLUTION_NAME + "/svylogin/login", params, "POST", true);
+		HttpServletResponse response = createMockResponseWithWriterAndCookies(writer, responseCookies);
+
+		boolean handled = CloudStatelessAccessManager.handlePossibleCloudRequest(request, response, SOLUTION_NAME);
+
+		assertTrue("Should handle svylogin/login POST", handled);
+		jakarta.servlet.http.Cookie csrfCookie = responseCookies.stream()
+			.filter(c -> "csrf_token".equals(c.getName()))
+			.findFirst().orElse(null);
+		assertNotNull("A csrf_token cookie should have been added", csrfCookie);
+		assertTrue("csrf_token cookie must have the Secure flag on an HTTPS request", csrfCookie.getSecure());
+		assertTrue("csrf_token cookie should be HttpOnly", csrfCookie.isHttpOnly());
+	}
+
+	@Test
+	public void testHandlePossibleCloudRequest_insecureRequest_csrfCookieHasNoSecureFlag() throws Exception
+	{
+		String loginHtml = "<html><body><form name=\"login_form\"><input name=\"username\"></form></body></html>";
+		lastCloudResponse = new JSONObject().put("html", loginHtml);
+		lastCloudStatusCode = 200;
+
+		Map<String, String[]> params = new HashMap<>();
+		params.put("username", new String[] { TEST_USERNAME });
+		params.put("password", new String[] { "pass123" });
+		params.put("csrf_token", new String[] { "123456" });
+
+		StringWriter writer = new StringWriter();
+		List<jakarta.servlet.http.Cookie> responseCookies = new ArrayList<>();
+		HttpServletRequest request = createHandlePossibleCloudRequestWithSecure(
+			"/solution/" + SOLUTION_NAME + "/svylogin/login", params, "POST", false);
+		HttpServletResponse response = createMockResponseWithWriterAndCookies(writer, responseCookies);
+
+		boolean handled = CloudStatelessAccessManager.handlePossibleCloudRequest(request, response, SOLUTION_NAME);
+
+		assertTrue("Should handle svylogin/login POST", handled);
+		jakarta.servlet.http.Cookie csrfCookie = responseCookies.stream()
+			.filter(c -> "csrf_token".equals(c.getName()))
+			.findFirst().orElse(null);
+		assertNotNull("A csrf_token cookie should have been added", csrfCookie);
+		assertFalse("csrf_token cookie should not set Secure on a plain HTTP request", csrfCookie.getSecure());
+	}
+
+	@Test
 	public void testHandlePossibleCloudRequest_svyLoginPath_postLogin_permissionsReturned_redirects() throws Exception
 	{
 		JSONObject permissionsResponse = new JSONObject();
@@ -1766,6 +1823,105 @@ public class CloudStatelessAccessManagerTest
 						return "";
 					case "getScheme" :
 						return "https";
+					case "getServerName" :
+						return "localhost";
+					case "getServerPort" :
+						return Integer.valueOf(8080);
+					case "getHeader" :
+						if ("accept-language".equals(args[0])) return "en";
+						if ("user-agent".equals(args[0])) return "Mozilla/5.0";
+						return null;
+					case "getLocale" :
+						return Locale.ENGLISH;
+					case "getSession" :
+						if (args != null && args.length == 1 && Boolean.FALSE.equals(args[0])) return null;
+						return (jakarta.servlet.http.HttpSession)Proxy.newProxyInstance(
+							jakarta.servlet.http.HttpSession.class.getClassLoader(),
+							new Class< ? >[] { jakarta.servlet.http.HttpSession.class },
+							(p, m, a) -> {
+								switch (m.getName())
+								{
+									case "getAttribute" :
+										return sessionAttributes.get(a[0]);
+									case "setAttribute" :
+										sessionAttributes.put((String)a[0], a[1]);
+										return null;
+									case "removeAttribute" :
+										sessionAttributes.remove(a[0]);
+										return null;
+									default :
+										return getDefaultReturnValue(m);
+								}
+							});
+					case "getRemoteAddr" :
+						return "127.0.0.1";
+					case "getServletContext" :
+						return (jakarta.servlet.ServletContext)Proxy.newProxyInstance(
+							jakarta.servlet.ServletContext.class.getClassLoader(),
+							new Class< ? >[] { jakarta.servlet.ServletContext.class },
+							(p, m, a) -> {
+								switch (m.getName())
+								{
+									case "getAttribute" :
+										return contextAttributes.get(a[0]);
+									case "setAttribute" :
+										contextAttributes.put((String)a[0], a[1]);
+										return null;
+									default :
+										return getDefaultReturnValue(m);
+								}
+							});
+					case "getQueryString" :
+						return null;
+					case "getMethod" :
+						return httpMethod;
+					default :
+						return getDefaultReturnValue(method);
+				}
+			});
+	}
+
+	private HttpServletRequest createHandlePossibleCloudRequestWithSecure(String servletPath, Map<String, String[]> params, String httpMethod,
+		boolean secure)
+	{
+		Map<String, Object> sessionAttributes = new HashMap<>();
+		Map<String, Object> contextAttributes = new HashMap<>();
+		contextAttributes.put("nonce", new HashMap<String, Object>());
+		contextAttributes.put("endpoints", new String[] { "login", "oauth", "tenant_select_redirect" });
+		contextAttributes.put("endpoints_expire", Long.valueOf(System.currentTimeMillis() + 600000));
+
+		String csrfValue = params.containsKey("csrf_token") ? params.get("csrf_token")[0] : "123456";
+		jakarta.servlet.http.Cookie csrfCookie = new jakarta.servlet.http.Cookie("csrf_token", csrfValue);
+
+		return (HttpServletRequest)Proxy.newProxyInstance(
+			HttpServletRequest.class.getClassLoader(),
+			new Class< ? >[] { HttpServletRequest.class },
+			(proxy, method, args) -> {
+				switch (method.getName())
+				{
+					case "getParameterMap" :
+						return params;
+					case "getParameter" :
+						String[] vals = params.get(args[0]);
+						return vals != null && vals.length > 0 ? vals[0] : null;
+					case "getCookies" :
+						return new jakarta.servlet.http.Cookie[] { csrfCookie };
+					case "getCharacterEncoding" :
+						return "UTF-8";
+					case "setCharacterEncoding" :
+						return null;
+					case "isSecure" :
+						return Boolean.valueOf(secure);
+					case "getRequestURI" :
+						return servletPath;
+					case "getRequestURL" :
+						return new StringBuffer("https://localhost:8080" + servletPath);
+					case "getServletPath" :
+						return servletPath;
+					case "getContextPath" :
+						return "";
+					case "getScheme" :
+						return secure ? "https" : "http";
 					case "getServerName" :
 						return "localhost";
 					case "getServerPort" :
@@ -3424,6 +3580,36 @@ public class CloudStatelessAccessManagerTest
 						return null;
 					case "sendRedirect" :
 						redirects.add((String)args[0]);
+						return null;
+					case "getCharacterEncoding" :
+						return "UTF-8";
+					default :
+						return getDefaultReturnValue(method);
+				}
+			});
+	}
+
+	private HttpServletResponse createMockResponseWithWriterAndCookies(StringWriter writer, List<jakarta.servlet.http.Cookie> cookies)
+	{
+		PrintWriter printWriter = new PrintWriter(writer);
+		return (HttpServletResponse)Proxy.newProxyInstance(
+			HttpServletResponse.class.getClassLoader(),
+			new Class< ? >[] { HttpServletResponse.class },
+			(proxy, method, args) -> {
+				switch (method.getName())
+				{
+					case "getWriter" :
+						return printWriter;
+					case "addCookie" :
+						cookies.add((jakarta.servlet.http.Cookie)args[0]);
+						return null;
+					case "setCharacterEncoding" :
+					case "setContentType" :
+					case "setContentLengthLong" :
+					case "addHeader" :
+					case "setHeader" :
+					case "setStatus" :
+					case "sendRedirect" :
 						return null;
 					case "getCharacterEncoding" :
 						return "UTF-8";

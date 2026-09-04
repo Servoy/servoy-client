@@ -588,6 +588,7 @@ public class CloudStatelessAccessManager
 			Cookie csrfCookie = new Cookie("csrf_token", Long.toString(csrfToken));
 			csrfCookie.setPath("/");
 			csrfCookie.setHttpOnly(true);
+			csrfCookie.setSecure(request.isSecure());
 			response.addCookie(csrfCookie);
 			HTMLWriter.writeHTML(request, response, html);
 		}
@@ -669,9 +670,9 @@ public class CloudStatelessAccessManager
 		JSONObject loginTokenJSON = res.getRight();
 		if (loginTokenJSON != null)
 		{
-			log.atInfo().log(() -> "Extracting cloud permissions from response: " + loginTokenJSON.getJSONArray("permissions").toString(2));
 			if (loginTokenJSON.has("permissions") && loginTokenJSON.getJSONArray("permissions").length() > 0)
 			{
+				log.atInfo().log(() -> "Extracting cloud permissions from response: " + loginTokenJSON.getJSONArray("permissions").toString(2));
 				String[] permissions = null, tenants = null;
 				JSONArray permissionsArray = loginTokenJSON.getJSONArray("permissions");
 				if (permissionsArray != null)
