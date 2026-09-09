@@ -331,7 +331,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 			String fipvsIsFor = (String)foundsetInitialPageSizeProperty.getConfig();
 			if (fipvsIsFor != null && fipvsIsFor.equals(propertyName))
 			{
-				int initialPreferredViewportSize = ((Integer)webObjectContext.getProperty(foundsetInitialPageSizeProperty.getName())).intValue();
+				int initialPreferredViewportSize = Utils.getAsInteger(webObjectContext.getProperty(foundsetInitialPageSizeProperty.getName()));
 				if (initialPreferredViewportSize > 0)
 				{
 					viewPort.setPreferredViewportSize(initialPreferredViewportSize);
