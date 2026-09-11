@@ -730,10 +730,6 @@ public class RepositoryHelper
 		{
 			return false;
 		}
-		if (Form.class.isAssignableFrom(persistClass) && "name".equals(name))
-		{
-			return false;
-		}
 		return true;
 	}
 
