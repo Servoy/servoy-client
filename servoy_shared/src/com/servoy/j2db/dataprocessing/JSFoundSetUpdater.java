@@ -143,31 +143,31 @@ public class JSFoundSetUpdater implements IReturnedTypesProvider, IJavaScriptTyp
 	}
 
 	/**
-	 * Do the actual update in the database, returns true if successful. It will first try to save all editing records (from all foundsets), if cannot save will return false before doing the update.
+	 * Do the actual update in the database, returns true if successful. It will first try to save all editing records (from all foundsets); if it cannot save, it will return false before doing the update.
 	 * There are 3 types of possible use with the foundset updater
 	 * 1) update entire foundset by a single sql statement; that is not possible when the table of the foundset has tracking enabled then it will loop over the whole foundset.
 	 *    When a single sql statement is done, modification columns will not be updated and associated Table Events won't be triggered, because it does the update directly in the database, without getting the records.
-	 *   NOTE: this mode will refresh all foundsets based on same datasource
-	 * 2) update part of foundset, for example the first 4 row (starts with selected row)
-	 * 3) safely loop through foundset (starts with selected row)
+	 *   NOTE: this mode will refresh all foundsets based on the same datasource though
+	 * 2) update part of foundset, for example the first 4 rows (it starts with the selected row)
+	 * 3) safely loop through foundset (it starts with the selected row)
 	 *
-	 * after the perform update call there are no records in edit mode, that where not already in edit mode, because all of them are saved directly to the database,
+	 * After the perform update call there are no records in edit mode, that where not already in edit mode, because all of them are saved directly to the database,
 	 * or in mode 1 the records are not touched at all and the database is updated directly.
 	 *
 	 * @sample
-	 * //1) update entire foundset
+	 * //1) update the entire foundset
 	 * var fsUpdater = databaseManager.getFoundSetUpdater(foundset)
 	 * fsUpdater.setColumn('customer_type',1)
 	 * fsUpdater.setColumn('my_flag',0)
 	 * fsUpdater.performUpdate()
 	 *
-	 * //2) update part of foundset, for example the first 4 row (starts with selected row)
+	 * //2) update part of foundset, for example the first 4 rows (it starts with selected row)
 	 * var fsUpdater = databaseManager.getFoundSetUpdater(foundset)
 	 * fsUpdater.setColumn('customer_type',new Array(1,2,3,4))
 	 * fsUpdater.setColumn('my_flag',new Array(1,0,1,0))
 	 * fsUpdater.performUpdate()
 	 *
-	 * //3) safely loop through foundset (starts with selected row)
+	 * //3) safely loop through foundset (it starts with the selected row)
 	 * controller.setSelectedIndex(1)
 	 * var count = 0
 	 * var fsUpdater = databaseManager.getFoundSetUpdater(foundset)
