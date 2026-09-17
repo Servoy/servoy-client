@@ -375,8 +375,10 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 									if (found != null) val = found.getUUID().toString();
 								}
 							}
-							if (!paramType.isAssignableFrom(val.getClass()) && !(paramType.isPrimitive() && val instanceof Number))
+							if (!paramType.isAssignableFrom(val.getClass()) && !(paramType.isPrimitive() && val instanceof Number) &&
+								!(val instanceof String && StaticContentSpecLoader.PROPERTY_CUSTOMPROPERTIES.getPropertyName().equals(key)))
 							{
+								// note: a legacy string customProperties is handled below (merged via setCustomProperties), so it must not be skipped here
 								Debug.debug("Skipping incompatible legacy property '" + key + "' with value '" + val + "' on persist " +
 									cloneOfChildOfFormComponent);
 								continue;
