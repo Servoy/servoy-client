@@ -243,6 +243,16 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 		return elements;
 	}
 
+	private static boolean isBoxingCompatible(Class< ? > paramType, Object val)
+	{
+		if (paramType.isAssignableFrom(val.getClass())) return true;
+		if (!paramType.isPrimitive()) return false;
+		if (paramType == boolean.class) return val instanceof Boolean;
+		if (paramType == char.class) return val instanceof Character;
+		// all remaining primitives (byte, short, int, long, float, double) are numeric
+		return val instanceof Number;
+	}
+
 	private static List<IFormElement> generateFormComponentPersists(INGFormElement formComponentContainerElement, PropertyDescription pd,
 		JSONObject formElementValue, Form formComponent,
 		FlattenedSolution fs)
@@ -359,7 +369,7 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 					{
 						Method method = methods.get(key);
 						Class< ? > paramType = method.getParameterTypes()[0];
-						if (!paramType.isAssignableFrom(val.getClass()) && !(paramType.isPrimitive() && val instanceof Number))
+						if (!isBoxingCompatible(paramType, val))
 						{
 							PropertyDescription property = legacySpec.getProperty(key);
 							if (property != null && property.getType() instanceof IDesignValueConverter)
@@ -375,7 +385,7 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 									if (found != null) val = found.getUUID().toString();
 								}
 							}
-							if (!paramType.isAssignableFrom(val.getClass()) && !(paramType.isPrimitive() && val instanceof Number) &&
+							if (!isBoxingCompatible(paramType, val) &&
 								!(val instanceof String && StaticContentSpecLoader.PROPERTY_CUSTOMPROPERTIES.getPropertyName().equals(key)))
 							{
 								// note: a legacy string customProperties is handled below (merged via setCustomProperties), so it must not be skipped here
@@ -538,7 +548,7 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 				location.put("y", isInDesigner ? startPos : 0);
 				portal.put("location", location);
 				JSONObject size = new JSONObject();
-//				size.put("width", (listViewPortal.isTableview() && !fillsWidth) ? getGridWidth(form) : form.getWidth());
+				//				size.put("width", (listViewPortal.isTableview() && !fillsWidth) ? getGridWidth(form) : form.getWidth());
 				size.put("width", form.getWidth());
 				size.put("height", bodyheight);
 				portal.put("size", size);
