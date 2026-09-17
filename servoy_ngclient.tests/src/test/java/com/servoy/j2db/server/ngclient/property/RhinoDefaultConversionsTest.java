@@ -17,11 +17,11 @@
 
 package com.servoy.j2db.server.ngclient.property;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -33,9 +33,9 @@ import java.util.Map;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.NativeArray;
 import org.mozilla.javascript.NativeDate;
@@ -67,7 +67,7 @@ public class RhinoDefaultConversionsTest extends Log4JToConsoleTest
 	private WebComponent component;
 	private PropertyDescription objectPD;
 
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception
 	{
 		Types.getTypesInstance().registerTypes();
@@ -96,7 +96,7 @@ public class RhinoDefaultConversionsTest extends Log4JToConsoleTest
 		objectPD = component.getSpecification().getProperty(DEFAULT_CONVERSIONS_PROP);
 	}
 
-	@After
+	@AfterEach
 	public void tearDown()
 	{
 		WebComponentSpecProvider.disposeInstance();
@@ -115,30 +115,28 @@ public class RhinoDefaultConversionsTest extends Log4JToConsoleTest
 		// toRhino
 		rhinoVal = RhinoConversion.defaultToRhino(date, objectPD, component, someRhinoScope);
 		someRhinoScope.put("a", someRhinoScope, rhinoVal);
-		assertSame("Date does not get translated to native rhino date by conversion as Rhino will do that automatically later", date, rhinoVal);
+		assertSame(date, rhinoVal, "Date does not get translated to native rhino date by conversion as Rhino will do that automatically later");
 		rhinoVal = ScriptRuntime.toObject(rhinoContext, someRhinoScope, rhinoVal);
-		assertSame("Now date - gets translated to native rhino date by internal Rhino code", NativeDate.class, rhinoVal.getClass());
-		assertEquals("NativeDate and Date should represent the same moment in time", Double.valueOf(date.getTime()),
-			rhinoContext.evaluateString(someRhinoScope, "a.getTime()", "dummy js file name from junit tests", 0, null));
+		assertSame(NativeDate.class, rhinoVal.getClass(), "Now date - gets translated to native rhino date by internal Rhino code");
+		assertEquals(Double.valueOf(date.getTime()), rhinoContext.evaluateString(someRhinoScope, "a.getTime()", "dummy js file name from junit tests", 0, null),
+			"NativeDate and Date should represent the same moment in time");
 
 		// fromRhino
 		javaVal = RhinoConversion.defaultFromRhino(rhinoVal);
-		assertSame("Converted to and from date is again a java date", Date.class, javaVal.getClass());
-		assertEquals("Converted to and from date is equal to original", date, javaVal);
+		assertSame(Date.class, javaVal.getClass(), "Converted to and from date is again a java date");
+		assertEquals(date, javaVal, "Converted to and from date is equal to original");
 
 
 		// Nulls / undefined  -----------------------
 
 		// toRhino
-		assertNull("Null to rhino null",
-			RhinoConversion.defaultToRhino(null, objectPD, component, someRhinoScope));
-		assertNull("JSONObject.NULL to rhino null",
-			RhinoConversion.defaultToRhino(JSONObject.NULL, objectPD, component, someRhinoScope));
+		assertNull(RhinoConversion.defaultToRhino(null, objectPD, component, someRhinoScope), "Null to rhino null");
+		assertNull(RhinoConversion.defaultToRhino(JSONObject.NULL, objectPD, component, someRhinoScope), "JSONObject.NULL to rhino null");
 
 		// fromRhino
-		assertNull("Scriptable.NOT_FOUND to java null", RhinoConversion.defaultFromRhino(Scriptable.NOT_FOUND));
-		assertNull("Undefined.instance to java null", RhinoConversion.defaultFromRhino(Undefined.instance));
-		assertNull("Undefined.SCRIPTABLE_UNDEFINED to java null", RhinoConversion.defaultFromRhino(Undefined.SCRIPTABLE_UNDEFINED));
+		assertNull(RhinoConversion.defaultFromRhino(Scriptable.NOT_FOUND), "Scriptable.NOT_FOUND to java null");
+		assertNull(RhinoConversion.defaultFromRhino(Undefined.instance), "Undefined.instance to java null");
+		assertNull(RhinoConversion.defaultFromRhino(Undefined.SCRIPTABLE_UNDEFINED), "Undefined.SCRIPTABLE_UNDEFINED to java null");
 	}
 
 	private Object toRhinoPlusRhinoInternalThing(Object sabloVal)
@@ -159,41 +157,36 @@ public class RhinoDefaultConversionsTest extends Log4JToConsoleTest
 
 		rhinoVal = toRhinoPlusRhinoInternalThing(map);
 		someRhinoScope.put("a", someRhinoScope, rhinoVal);
-		assertTrue("Map ends up as a native object in js", NativeObject.class.isAssignableFrom(rhinoVal.getClass()));
-		assertEquals("Check key1 in Rhino",
-			"Just some text",
-			rhinoContext.evaluateString(someRhinoScope, "a.key1", "dummy js file name from junit tests", 0, null));
-		assertEquals("Check key2 in Rhino",
-			Integer.valueOf(456),
-			rhinoContext.evaluateString(someRhinoScope, "a.key2", "dummy js file name from junit tests", 0, null));
-		assertEquals("Check key3 in Rhino",
-			date,
-			rhinoContext.evaluateString(someRhinoScope, "a.key3", "dummy js file name from junit tests", 0, null));
-		assertEquals("Check inexistent key in Rhino",
-			Undefined.instance,
-			rhinoContext.evaluateString(someRhinoScope, "a.inexistent", "dummy js file name from junit tests", 0, null));
+		assertTrue(NativeObject.class.isAssignableFrom(rhinoVal.getClass()), "Map ends up as a native object in js");
+		assertEquals("Just some text", rhinoContext.evaluateString(someRhinoScope, "a.key1", "dummy js file name from junit tests", 0, null),
+			"Check key1 in Rhino");
+		assertEquals(Integer.valueOf(456), rhinoContext.evaluateString(someRhinoScope, "a.key2", "dummy js file name from junit tests", 0, null),
+			"Check key2 in Rhino");
+		assertEquals(date, rhinoContext.evaluateString(someRhinoScope, "a.key3", "dummy js file name from junit tests", 0, null), "Check key3 in Rhino");
+		assertEquals(Undefined.instance, rhinoContext.evaluateString(someRhinoScope, "a.inexistent", "dummy js file name from junit tests", 0, null),
+			"Check inexistent key in Rhino");
 
 		// from Rhino
 
 		// from for what was previously to
 		javaVal = RhinoConversion.defaultFromRhino(rhinoVal);
-		assertTrue("From rhino should be a Map", javaVal instanceof Map);
-		assertEquals("Check key1 in java", "Just some text", ((Map)javaVal).get("key1"));
-		assertEquals("Check key2 in java", Integer.valueOf(456), ((Map)javaVal).get("key2"));
-		assertEquals("Check key3 in java", date, ((Map)javaVal).get("key3"));
-		assertNull("Check inexistent in java", ((Map)javaVal).get("inexistent"));
+		assertTrue(javaVal instanceof Map, "From rhino should be a Map");
+		assertEquals("Just some text", ((Map)javaVal).get("key1"), "Check key1 in java");
+		assertEquals(Integer.valueOf(456), ((Map)javaVal).get("key2"), "Check key2 in java");
+		assertEquals(date, ((Map)javaVal).get("key3"), "Check key3 in java");
+		assertNull(((Map)javaVal).get("inexistent"), "Check inexistent in java");
 
 
 		// from for new native object in Rhino
 		javaVal = RhinoConversion.defaultFromRhino(
 			rhinoContext.evaluateString(someRhinoScope, "(function z() { return { key5: 'aha', key6: 475, key7: false, key8: new Date() } }) ()",
 				"dummy js file name from junit tests", 0, null));
-		assertTrue("From rhino should be a Map", javaVal instanceof Map);
-		assertEquals("Check key5 in java", "aha", ((Map)javaVal).get("key5"));
-		assertEquals("Check key6 in java", Double.valueOf(475), ((Map)javaVal).get("key6"));
-		assertEquals("Check key7 in java", false, ((Map)javaVal).get("key7"));
-		assertTrue("Check key8 in java", ((Map)javaVal).get("key8") instanceof Date);
-		assertNull("Check inexistent in java", ((Map)javaVal).get("inexistent"));
+		assertTrue(javaVal instanceof Map, "From rhino should be a Map");
+		assertEquals("aha", ((Map)javaVal).get("key5"), "Check key5 in java");
+		assertEquals(Double.valueOf(475), ((Map)javaVal).get("key6"), "Check key6 in java");
+		assertEquals(false, ((Map)javaVal).get("key7"), "Check key7 in java");
+		assertTrue(((Map)javaVal).get("key8") instanceof Date, "Check key8 in java");
+		assertNull(((Map)javaVal).get("inexistent"), "Check inexistent in java");
 	}
 
 	@Test
@@ -210,40 +203,32 @@ public class RhinoDefaultConversionsTest extends Log4JToConsoleTest
 
 		rhinoVal = toRhinoPlusRhinoInternalThing(array);
 		someRhinoScope.put("a", someRhinoScope, rhinoVal);
-		assertTrue("List ends up as a native array in js", NativeArray.class.isAssignableFrom(rhinoVal.getClass()));
-		assertEquals("Check index 0 in Rhino",
-			"Just some text",
-			rhinoContext.evaluateString(someRhinoScope, "a[0]", "dummy js file name from junit tests", 0, null));
-		assertEquals("Check index 1 in Rhino",
-			Integer.valueOf(456),
-			rhinoContext.evaluateString(someRhinoScope, "a[1]", "dummy js file name from junit tests", 0, null));
-		assertEquals("Check index 2 in Rhino",
-			date,
-			rhinoContext.evaluateString(someRhinoScope, "a[2]", "dummy js file name from junit tests", 0, null));
-		assertEquals("Check index 3 in Rhino",
-			false,
-			rhinoContext.evaluateString(someRhinoScope, "a[3]", "dummy js file name from junit tests", 0, null));
-		assertEquals("Check inexistent index in Rhino",
-			Undefined.instance,
-			rhinoContext.evaluateString(someRhinoScope, "a[4]", "dummy js file name from junit tests", 0, null));
-		assertEquals("Check length in Rhino",
-			Double.valueOf(4),
-			rhinoContext.evaluateString(someRhinoScope, "a.length", "dummy js file name from junit tests", 0, null));
-		assertEquals("Check splice to delete one item in Rhino - make sure it's a correct Rhino array",
-			"[\"Just some text\",456,false]",
-			rhinoContext.evaluateString(someRhinoScope, "removed = a.splice(2, 1); JSON.stringify(a)", "dummy js file name from junit tests", 0, null));
+		assertTrue(NativeArray.class.isAssignableFrom(rhinoVal.getClass()), "List ends up as a native array in js");
+		assertEquals("Just some text", rhinoContext.evaluateString(someRhinoScope, "a[0]", "dummy js file name from junit tests", 0, null),
+			"Check index 0 in Rhino");
+		assertEquals(Integer.valueOf(456), rhinoContext.evaluateString(someRhinoScope, "a[1]", "dummy js file name from junit tests", 0, null),
+			"Check index 1 in Rhino");
+		assertEquals(date, rhinoContext.evaluateString(someRhinoScope, "a[2]", "dummy js file name from junit tests", 0, null), "Check index 2 in Rhino");
+		assertEquals(false, rhinoContext.evaluateString(someRhinoScope, "a[3]", "dummy js file name from junit tests", 0, null), "Check index 3 in Rhino");
+		assertEquals(Undefined.instance, rhinoContext.evaluateString(someRhinoScope, "a[4]", "dummy js file name from junit tests", 0, null),
+			"Check inexistent index in Rhino");
+		assertEquals(Double.valueOf(4), rhinoContext.evaluateString(someRhinoScope, "a.length", "dummy js file name from junit tests", 0, null),
+			"Check length in Rhino");
+		assertEquals("[\"Just some text\",456,false]",
+			rhinoContext.evaluateString(someRhinoScope, "removed = a.splice(2, 1); JSON.stringify(a)", "dummy js file name from junit tests", 0, null),
+			"Check splice to delete one item in Rhino - make sure it's a correct Rhino array");
 		rhinoContext.evaluateString(someRhinoScope, "a.splice(2, 0, removed[0])", "dummy js file name from junit tests", 0, null);
 
 		// from Rhino
 
 		// from for what was previously to
 		javaVal = RhinoConversion.defaultFromRhino(rhinoVal);
-		assertTrue("From rhino should be a List", javaVal instanceof List);
-		assertEquals("Check index 0 in java", "Just some text", ((List)javaVal).get(0));
-		assertEquals("Check index 1 in java", Integer.valueOf(456), ((List)javaVal).get(1));
-		assertEquals("Check index 2 in java", date, ((List)javaVal).get(2));
-		assertEquals("Check index 3 in java", false, ((List)javaVal).get(3));
-		assertEquals("Check length in java", 4, ((List)javaVal).size());
+		assertTrue(javaVal instanceof List, "From rhino should be a List");
+		assertEquals("Just some text", ((List)javaVal).get(0), "Check index 0 in java");
+		assertEquals(Integer.valueOf(456), ((List)javaVal).get(1), "Check index 1 in java");
+		assertEquals(date, ((List)javaVal).get(2), "Check index 2 in java");
+		assertEquals(false, ((List)javaVal).get(3), "Check index 3 in java");
+		assertEquals(4, ((List)javaVal).size(), "Check length in java");
 
 
 		// from for new native object in Rhino
@@ -252,24 +237,24 @@ public class RhinoDefaultConversionsTest extends Log4JToConsoleTest
 				"(function z() { var g = new Array(); g.push('aha'); g.push(475); g.push(removed[0]); g.push(true); return g; }) ()",
 				"dummy js file name from junit tests", 0,
 				null));
-		assertTrue("From rhino should be a List", javaVal instanceof List);
-		assertEquals("Check index 0 in java", "aha", ((List)javaVal).get(0));
-		assertEquals("Check index 1 in java", Double.valueOf(475), ((List)javaVal).get(1));
-		assertEquals("Check index 2 in java", date, ((List)javaVal).get(2));
-		assertEquals("Check index 3 in java", true, ((List)javaVal).get(3));
-		assertEquals("Check length in java", 4, ((List)javaVal).size());
+		assertTrue(javaVal instanceof List, "From rhino should be a List");
+		assertEquals("aha", ((List)javaVal).get(0), "Check index 0 in java");
+		assertEquals(Double.valueOf(475), ((List)javaVal).get(1), "Check index 1 in java");
+		assertEquals(date, ((List)javaVal).get(2), "Check index 2 in java");
+		assertEquals(true, ((List)javaVal).get(3), "Check index 3 in java");
+		assertEquals(4, ((List)javaVal).size(), "Check length in java");
 
 		javaVal = RhinoConversion
 			.defaultFromRhino(rhinoContext.evaluateString(someRhinoScope,
 				"(function z() { return ['aha', 475, removed[0], true]; }) ()",
 				"dummy js file name from junit tests", 0,
 				null));
-		assertTrue("From rhino should be a List", javaVal instanceof List);
-		assertEquals("Check index 0 in java", "aha", ((List)javaVal).get(0));
-		assertEquals("Check index 1 in java", Double.valueOf(475), ((List)javaVal).get(1));
-		assertEquals("Check index 2 in java", date, ((List)javaVal).get(2));
-		assertEquals("Check index 3 in java", true, ((List)javaVal).get(3));
-		assertEquals("Check length in java", 4, ((List)javaVal).size());
+		assertTrue(javaVal instanceof List, "From rhino should be a List");
+		assertEquals("aha", ((List)javaVal).get(0), "Check index 0 in java");
+		assertEquals(Double.valueOf(475), ((List)javaVal).get(1), "Check index 1 in java");
+		assertEquals(date, ((List)javaVal).get(2), "Check index 2 in java");
+		assertEquals(true, ((List)javaVal).get(3), "Check index 3 in java");
+		assertEquals(4, ((List)javaVal).size(), "Check length in java");
 	}
 
 	@Test
@@ -286,48 +271,40 @@ public class RhinoDefaultConversionsTest extends Log4JToConsoleTest
 
 		rhinoVal = toRhinoPlusRhinoInternalThing(array);
 		someRhinoScope.put("a", someRhinoScope, rhinoVal);
-		assertTrue("List ends up as a native array in js", NativeArray.class.isAssignableFrom(rhinoVal.getClass()));
-		assertEquals("Check index 0 in Rhino",
-			"Just some text",
-			rhinoContext.evaluateString(someRhinoScope, "a[0]", "dummy js file name from junit tests", 0, null));
-		assertEquals("Check index 1 in Rhino",
-			Integer.valueOf(456),
-			rhinoContext.evaluateString(someRhinoScope, "a[1]", "dummy js file name from junit tests", 0, null));
-		assertEquals("Check index 2 in Rhino",
-			date,
-			rhinoContext.evaluateString(someRhinoScope, "a[2]", "dummy js file name from junit tests", 0, null));
-		assertEquals("Check index 3 in Rhino",
-			false,
-			rhinoContext.evaluateString(someRhinoScope, "a[3]", "dummy js file name from junit tests", 0, null));
-		assertEquals("Check inexistent index in Rhino",
-			Undefined.instance,
-			rhinoContext.evaluateString(someRhinoScope, "a[4]", "dummy js file name from junit tests", 0, null));
-		assertEquals("Check length in Rhino",
-			Double.valueOf(4),
-			rhinoContext.evaluateString(someRhinoScope, "a.length", "dummy js file name from junit tests", 0, null));
+		assertTrue(NativeArray.class.isAssignableFrom(rhinoVal.getClass()), "List ends up as a native array in js");
+		assertEquals("Just some text", rhinoContext.evaluateString(someRhinoScope, "a[0]", "dummy js file name from junit tests", 0, null),
+			"Check index 0 in Rhino");
+		assertEquals(Integer.valueOf(456), rhinoContext.evaluateString(someRhinoScope, "a[1]", "dummy js file name from junit tests", 0, null),
+			"Check index 1 in Rhino");
+		assertEquals(date, rhinoContext.evaluateString(someRhinoScope, "a[2]", "dummy js file name from junit tests", 0, null), "Check index 2 in Rhino");
+		assertEquals(false, rhinoContext.evaluateString(someRhinoScope, "a[3]", "dummy js file name from junit tests", 0, null), "Check index 3 in Rhino");
+		assertEquals(Undefined.instance, rhinoContext.evaluateString(someRhinoScope, "a[4]", "dummy js file name from junit tests", 0, null),
+			"Check inexistent index in Rhino");
+		assertEquals(Double.valueOf(4), rhinoContext.evaluateString(someRhinoScope, "a.length", "dummy js file name from junit tests", 0, null),
+			"Check length in Rhino");
 
 		rhinoContext.evaluateString(someRhinoScope, "a[8] = \"are you ok?\"; a[15] = 2589; ", "dummy js file name from junit tests", 0, null);
 
 		// from for what was previously to
 		javaVal = RhinoConversion.defaultFromRhino(rhinoVal);
-		assertTrue("From rhino should be a List", javaVal instanceof List);
-		assertEquals("Check index 0 in java", "Just some text", ((List)javaVal).get(0));
-		assertEquals("Check index 1 in java", Integer.valueOf(456), ((List)javaVal).get(1));
-		assertEquals("Check index 2 in java", date, ((List)javaVal).get(2));
-		assertEquals("Check index 3 in java", false, ((List)javaVal).get(3));
-		assertEquals("Check index 4 in java", null, ((List)javaVal).get(4));
-		assertEquals("Check index 5 in java", null, ((List)javaVal).get(5));
-		assertEquals("Check index 6 in java", null, ((List)javaVal).get(6));
-		assertEquals("Check index 7 in java", null, ((List)javaVal).get(7));
-		assertEquals("Check index 8 in java", "are you ok?", ((List)javaVal).get(8));
-		assertEquals("Check index 9 in java", null, ((List)javaVal).get(9));
-		assertEquals("Check index 10 in java", null, ((List)javaVal).get(10));
-		assertEquals("Check index 11 in java", null, ((List)javaVal).get(11));
-		assertEquals("Check index 12 in java", null, ((List)javaVal).get(12));
-		assertEquals("Check index 13 in java", null, ((List)javaVal).get(13));
-		assertEquals("Check index 14 in java", null, ((List)javaVal).get(14));
-		assertEquals("Check index 15 in java", 2589.0, ((List)javaVal).get(15));
-		assertEquals("Check length in java", 16, ((List)javaVal).size());
+		assertTrue(javaVal instanceof List, "From rhino should be a List");
+		assertEquals("Just some text", ((List)javaVal).get(0), "Check index 0 in java");
+		assertEquals(Integer.valueOf(456), ((List)javaVal).get(1), "Check index 1 in java");
+		assertEquals(date, ((List)javaVal).get(2), "Check index 2 in java");
+		assertEquals(false, ((List)javaVal).get(3), "Check index 3 in java");
+		assertEquals(null, ((List)javaVal).get(4), "Check index 4 in java");
+		assertEquals(null, ((List)javaVal).get(5), "Check index 5 in java");
+		assertEquals(null, ((List)javaVal).get(6), "Check index 6 in java");
+		assertEquals(null, ((List)javaVal).get(7), "Check index 7 in java");
+		assertEquals("are you ok?", ((List)javaVal).get(8), "Check index 8 in java");
+		assertEquals(null, ((List)javaVal).get(9), "Check index 9 in java");
+		assertEquals(null, ((List)javaVal).get(10), "Check index 10 in java");
+		assertEquals(null, ((List)javaVal).get(11), "Check index 11 in java");
+		assertEquals(null, ((List)javaVal).get(12), "Check index 12 in java");
+		assertEquals(null, ((List)javaVal).get(13), "Check index 13 in java");
+		assertEquals(null, ((List)javaVal).get(14), "Check index 14 in java");
+		assertEquals(2589.0, ((List)javaVal).get(15), "Check index 15 in java");
+		assertEquals(16, ((List)javaVal).size(), "Check length in java");
 	}
 
 
@@ -366,29 +343,24 @@ public class RhinoDefaultConversionsTest extends Log4JToConsoleTest
 
 		rhinoVal = toRhinoPlusRhinoInternalThing(jsonObj);
 		someRhinoScope.put("a", someRhinoScope, rhinoVal);
-		assertTrue("Map ends up as a native object in js", NativeObject.class.isAssignableFrom(rhinoVal.getClass()));
-		assertEquals("Check key1 in Rhino",
-			"Just some text",
-			rhinoContext.evaluateString(someRhinoScope, "a.key1", "dummy js file name from junit tests", 0, null));
-		assertEquals("Check key2 in Rhino",
-			Integer.valueOf(456),
-			rhinoContext.evaluateString(someRhinoScope, "a.key2", "dummy js file name from junit tests", 0, null));
-		assertEquals("Check key3 in Rhino",
-			false,
-			rhinoContext.evaluateString(someRhinoScope, "a.key3", "dummy js file name from junit tests", 0, null));
-		assertEquals("Check inexistent key in Rhino",
-			Undefined.instance,
-			rhinoContext.evaluateString(someRhinoScope, "a.inexistent", "dummy js file name from junit tests", 0, null));
+		assertTrue(NativeObject.class.isAssignableFrom(rhinoVal.getClass()), "Map ends up as a native object in js");
+		assertEquals("Just some text", rhinoContext.evaluateString(someRhinoScope, "a.key1", "dummy js file name from junit tests", 0, null),
+			"Check key1 in Rhino");
+		assertEquals(Integer.valueOf(456), rhinoContext.evaluateString(someRhinoScope, "a.key2", "dummy js file name from junit tests", 0, null),
+			"Check key2 in Rhino");
+		assertEquals(false, rhinoContext.evaluateString(someRhinoScope, "a.key3", "dummy js file name from junit tests", 0, null), "Check key3 in Rhino");
+		assertEquals(Undefined.instance, rhinoContext.evaluateString(someRhinoScope, "a.inexistent", "dummy js file name from junit tests", 0, null),
+			"Check inexistent key in Rhino");
 
 		// from Rhino
 
 		// from for what was previously to
 		javaVal = RhinoConversion.defaultFromRhino(rhinoVal);
-		assertTrue("From rhino should be a Map", javaVal instanceof Map);
-		assertEquals("Check key1 in java", "Just some text", ((Map)javaVal).get("key1"));
-		assertEquals("Check key2 in java", Integer.valueOf(456), ((Map)javaVal).get("key2"));
-		assertEquals("Check key3 in java", false, ((Map)javaVal).get("key3"));
-		assertNull("Check inexistent in java", ((Map)javaVal).get("inexistent"));
+		assertTrue(javaVal instanceof Map, "From rhino should be a Map");
+		assertEquals("Just some text", ((Map)javaVal).get("key1"), "Check key1 in java");
+		assertEquals(Integer.valueOf(456), ((Map)javaVal).get("key2"), "Check key2 in java");
+		assertEquals(false, ((Map)javaVal).get("key3"), "Check key3 in java");
+		assertNull(((Map)javaVal).get("inexistent"), "Check inexistent in java");
 	}
 
 	@Test
@@ -403,36 +375,30 @@ public class RhinoDefaultConversionsTest extends Log4JToConsoleTest
 
 		rhinoVal = toRhinoPlusRhinoInternalThing(jsonArray);
 		someRhinoScope.put("a", someRhinoScope, rhinoVal);
-		assertTrue("List ends up as a native array in js", NativeArray.class.isAssignableFrom(rhinoVal.getClass()));
-		assertEquals("Check index 0 in Rhino",
-			"Just some text",
-			rhinoContext.evaluateString(someRhinoScope, "a[0]", "dummy js file name from junit tests", 0, null));
-		assertEquals("Check index 1 in Rhino",
-			Integer.valueOf(456),
-			rhinoContext.evaluateString(someRhinoScope, "a[1]", "dummy js file name from junit tests", 0, null));
-		assertEquals("Check index 2 in Rhino",
-			false,
-			rhinoContext.evaluateString(someRhinoScope, "a[2]", "dummy js file name from junit tests", 0, null));
-		assertEquals("Check inexistent index in Rhino",
-			Undefined.instance,
-			rhinoContext.evaluateString(someRhinoScope, "a[3]", "dummy js file name from junit tests", 0, null));
-		assertEquals("Check length in Rhino",
-			Double.valueOf(3),
-			rhinoContext.evaluateString(someRhinoScope, "a.length", "dummy js file name from junit tests", 0, null));
-		assertEquals("Check splice to delete one item in Rhino - make sure it's a correct Rhino array",
-			"[\"Just some text\",456]",
-			rhinoContext.evaluateString(someRhinoScope, "removed = a.splice(2, 1); JSON.stringify(a)", "dummy js file name from junit tests", 0, null));
+		assertTrue(NativeArray.class.isAssignableFrom(rhinoVal.getClass()), "List ends up as a native array in js");
+		assertEquals("Just some text", rhinoContext.evaluateString(someRhinoScope, "a[0]", "dummy js file name from junit tests", 0, null),
+			"Check index 0 in Rhino");
+		assertEquals(Integer.valueOf(456), rhinoContext.evaluateString(someRhinoScope, "a[1]", "dummy js file name from junit tests", 0, null),
+			"Check index 1 in Rhino");
+		assertEquals(false, rhinoContext.evaluateString(someRhinoScope, "a[2]", "dummy js file name from junit tests", 0, null), "Check index 2 in Rhino");
+		assertEquals(Undefined.instance, rhinoContext.evaluateString(someRhinoScope, "a[3]", "dummy js file name from junit tests", 0, null),
+			"Check inexistent index in Rhino");
+		assertEquals(Double.valueOf(3), rhinoContext.evaluateString(someRhinoScope, "a.length", "dummy js file name from junit tests", 0, null),
+			"Check length in Rhino");
+		assertEquals("[\"Just some text\",456]",
+			rhinoContext.evaluateString(someRhinoScope, "removed = a.splice(2, 1); JSON.stringify(a)", "dummy js file name from junit tests", 0, null),
+			"Check splice to delete one item in Rhino - make sure it's a correct Rhino array");
 		rhinoContext.evaluateString(someRhinoScope, "a.splice(2, 0, removed[0])", "dummy js file name from junit tests", 0, null);
 
 		// from Rhino
 
 		// from for what was previously to
 		javaVal = RhinoConversion.defaultFromRhino(rhinoVal);
-		assertTrue("From rhino should be a List", javaVal instanceof List);
-		assertEquals("Check index 0 in java", "Just some text", ((List)javaVal).get(0));
-		assertEquals("Check index 1 in java", Integer.valueOf(456), ((List)javaVal).get(1));
-		assertEquals("Check index 2 in java", false, ((List)javaVal).get(2));
-		assertEquals("Check length in java", 3, ((List)javaVal).size());
+		assertTrue(javaVal instanceof List, "From rhino should be a List");
+		assertEquals("Just some text", ((List)javaVal).get(0), "Check index 0 in java");
+		assertEquals(Integer.valueOf(456), ((List)javaVal).get(1), "Check index 1 in java");
+		assertEquals(false, ((List)javaVal).get(2), "Check index 2 in java");
+		assertEquals(3, ((List)javaVal).size(), "Check length in java");
 	}
 
 
@@ -450,51 +416,48 @@ public class RhinoDefaultConversionsTest extends Log4JToConsoleTest
 		Object rhinoVal = toRhinoPlusRhinoInternalThing(map);
 
 		someRhinoScope.put("a", someRhinoScope, rhinoVal);
-		assertTrue("Map ends up as a native object in js", NativeObject.class.isAssignableFrom(rhinoVal.getClass()));
+		assertTrue(NativeObject.class.isAssignableFrom(rhinoVal.getClass()), "Map ends up as a native object in js");
 		Object ra = rhinoContext.evaluateString(someRhinoScope, "a.childArray", "dummy js file name from junit tests", 0, null);
-		assertTrue("List ends up as a native array in js", NativeArray.class
-			.isAssignableFrom(ra.getClass()));
+		assertTrue(NativeArray.class
+			.isAssignableFrom(ra.getClass()), "List ends up as a native array in js");
 		for (int i = 0; i < array.size(); i++)
 		{
-			assertEquals("Check a.childArray[" + i + "] in Rhino",
-				array.get(i),
-				rhinoContext.evaluateString(someRhinoScope, "a.childArray[" + i + "]", "dummy js file name from junit tests", 0, null));
+			assertEquals(array.get(i), rhinoContext.evaluateString(someRhinoScope, "a.childArray[" + i + "]", "dummy js file name from junit tests", 0, null),
+				"Check a.childArray[" + i + "] in Rhino");
 		}
-		assertEquals("Check childDate in Rhino",
-			date,
-			rhinoContext.evaluateString(someRhinoScope, "a.childDate", "dummy js file name from junit tests", 0, null));
-		assertEquals("Check childString in Rhino",
-			"Some string",
-			rhinoContext.evaluateString(someRhinoScope, "a.childString", "dummy js file name from junit tests", 0, null));
+		assertEquals(date, rhinoContext.evaluateString(someRhinoScope, "a.childDate", "dummy js file name from junit tests", 0, null),
+			"Check childDate in Rhino");
+		assertEquals("Some string", rhinoContext.evaluateString(someRhinoScope, "a.childString", "dummy js file name from junit tests", 0, null),
+			"Check childString in Rhino");
 
 		// ok now change the date from rhino obj. and see that we get notified and the sablo value gets updated
 		rhinoContext.evaluateString(someRhinoScope, "a.childDate = new Date(1990, 6, 15);", "dummy js file name from junit tests", 0, null);
-		assertTrue("Check childDate change from Rhino", date.getTime() > ((Date)map.get("childDate")).getTime());
-		assertTrue("We changed the date just now in the map; component should know it has changed", component.hasChanges());
-		assertTrue("Component should know map changed", component.getAndClearChanges().content.containsKey(DEFAULT_CONVERSIONS_PROP)); // also clears changes
-		assertFalse("Now it no longer has changes", component.hasChanges());
+		assertTrue(date.getTime() > ((Date)map.get("childDate")).getTime(), "Check childDate change from Rhino");
+		assertTrue(component.hasChanges(), "We changed the date just now in the map; component should know it has changed");
+		assertTrue(component.getAndClearChanges().content.containsKey(DEFAULT_CONVERSIONS_PROP), "Component should know map changed"); // also clears changes
+		assertFalse(component.hasChanges(), "Now it no longer has changes");
 
 		// ok now delete the string from rhino obj. and see that we get notified and the sablo value gets updated
 		rhinoContext.evaluateString(someRhinoScope, "delete a.childString;", "dummy js file name from junit tests", 0, null);
-		assertFalse("Check childString delete from Rhino", map.containsKey("childString"));
-		assertTrue("We changed the date just now in the map; component should know it has changed", component.hasChanges());
-		assertTrue("Component should know map changed", component.getAndClearChanges().content.containsKey(DEFAULT_CONVERSIONS_PROP)); // also clears changes
-		assertFalse("Now it no longer has changes", component.hasChanges());
+		assertFalse(map.containsKey("childString"), "Check childString delete from Rhino");
+		assertTrue(component.hasChanges(), "We changed the date just now in the map; component should know it has changed");
+		assertTrue(component.getAndClearChanges().content.containsKey(DEFAULT_CONVERSIONS_PROP), "Component should know map changed"); // also clears changes
+		assertFalse(component.hasChanges(), "Now it no longer has changes");
 
 		// ok now change the date inside the array inside the object (rhino) and see if it is reflected in sablo
 		rhinoContext.evaluateString(someRhinoScope, "a.childArray[7] = new Date(1990, 6, 15);", "dummy js file name from junit tests", 0, null);
-		assertTrue("Check date from array change from Rhino", date.getTime() > ((Date)((List)map.get("childArray")).get(7)).getTime());
-		assertTrue("We changed the date just now in the array; component should know it has changed", component.hasChanges());
-		assertTrue("Component should know map changed", component.getAndClearChanges().content.containsKey(DEFAULT_CONVERSIONS_PROP)); // also clears changes
-		assertFalse("Now it no longer has changes", component.hasChanges());
+		assertTrue(date.getTime() > ((Date)((List)map.get("childArray")).get(7)).getTime(), "Check date from array change from Rhino");
+		assertTrue(component.hasChanges(), "We changed the date just now in the array; component should know it has changed");
+		assertTrue(component.getAndClearChanges().content.containsKey(DEFAULT_CONVERSIONS_PROP), "Component should know map changed"); // also clears changes
+		assertFalse(component.hasChanges(), "Now it no longer has changes");
 
 		// ok now add/remove (splice) from array inside the object (rhino) and see if it is reflected in sablo
 		rhinoContext.evaluateString(someRhinoScope, "a.childArray.splice(2, 2, \"aha\")", "dummy js file name from junit tests", 0, null);
-		assertEquals("Check childDate of array change from Rhino", "aha", ((List)map.get("childArray")).get(2));
-		assertEquals("New length of array", 7, ((List)map.get("childArray")).size());
-		assertTrue("We changed the date just now in the array; component should know it has changed", component.hasChanges());
-		assertTrue("Component should know map changed", component.getAndClearChanges().content.containsKey(DEFAULT_CONVERSIONS_PROP)); // also clears changes
-		assertFalse("Now it no longer has changes", component.hasChanges());
+		assertEquals("aha", ((List)map.get("childArray")).get(2), "Check childDate of array change from Rhino");
+		assertEquals(7, ((List)map.get("childArray")).size(), "New length of array");
+		assertTrue(component.hasChanges(), "We changed the date just now in the array; component should know it has changed");
+		assertTrue(component.getAndClearChanges().content.containsKey(DEFAULT_CONVERSIONS_PROP), "Component should know map changed"); // also clears changes
+		assertFalse(component.hasChanges(), "Now it no longer has changes");
 	}
 
 	@Test
@@ -518,52 +481,50 @@ public class RhinoDefaultConversionsTest extends Log4JToConsoleTest
 		Object rhinoVal = toRhinoPlusRhinoInternalThing(jsonObject);
 
 		someRhinoScope.put("a", someRhinoScope, rhinoVal);
-		assertTrue("Map ends up as a native object in js", NativeObject.class.isAssignableFrom(rhinoVal.getClass()));
+		assertTrue(NativeObject.class.isAssignableFrom(rhinoVal.getClass()), "Map ends up as a native object in js");
 		Object ra = rhinoContext.evaluateString(someRhinoScope, "a.childArray", "dummy js file name from junit tests", 0, null);
-		assertTrue("List ends up as a native array in js", NativeArray.class
-			.isAssignableFrom(ra.getClass()));
+		assertTrue(NativeArray.class
+			.isAssignableFrom(ra.getClass()), "List ends up as a native array in js");
 		for (int i = 0; i < jsonArray.length(); i++)
 		{
-			assertEquals("Check a.childArray[" + i + "] in Rhino",
-				jsonArray.get(i),
-				rhinoContext.evaluateString(someRhinoScope, "a.childArray[" + i + "]", "dummy js file name from junit tests", 0, null));
+			assertEquals(jsonArray.get(i),
+				rhinoContext.evaluateString(someRhinoScope, "a.childArray[" + i + "]", "dummy js file name from junit tests", 0, null),
+				"Check a.childArray[" + i + "] in Rhino");
 		}
-		assertEquals("Check childNumber in Rhino",
-			14,
-			rhinoContext.evaluateString(someRhinoScope, "a.childNumber", "dummy js file name from junit tests", 0, null));
-		assertEquals("Check childString in Rhino",
-			"some string",
-			rhinoContext.evaluateString(someRhinoScope, "a.childString", "dummy js file name from junit tests", 0, null));
+		assertEquals(14, rhinoContext.evaluateString(someRhinoScope, "a.childNumber", "dummy js file name from junit tests", 0, null),
+			"Check childNumber in Rhino");
+		assertEquals("some string", rhinoContext.evaluateString(someRhinoScope, "a.childString", "dummy js file name from junit tests", 0, null),
+			"Check childString in Rhino");
 
 		// ok now change the date from rhino and see that we get notified and the sablo value gets updated
 		rhinoContext.evaluateString(someRhinoScope, "a.childNumber = 543;", "dummy js file name from junit tests", 0, null);
-		assertEquals("Check childNumber change from Rhino", 543.0, jsonObject.get("childNumber"));
-		assertTrue("We changed the date just now in the map; component should know it has changed", component.hasChanges());
-		assertTrue("Component should know map changed", component.getAndClearChanges().content.containsKey(DEFAULT_CONVERSIONS_PROP)); // also clears changes
-		assertFalse("Now it no longer has changes", component.hasChanges());
+		assertEquals(543.0, jsonObject.get("childNumber"), "Check childNumber change from Rhino");
+		assertTrue(component.hasChanges(), "We changed the date just now in the map; component should know it has changed");
+		assertTrue(component.getAndClearChanges().content.containsKey(DEFAULT_CONVERSIONS_PROP), "Component should know map changed"); // also clears changes
+		assertFalse(component.hasChanges(), "Now it no longer has changes");
 
 		// ok now delete the string from rhino obj. and see that we get notified and the sablo value gets updated
 		rhinoContext.evaluateString(someRhinoScope, "delete a.childString;", "dummy js file name from junit tests", 0, null);
-		assertFalse("Check childString delete from Rhino", jsonObject.has("childString"));
-		assertTrue("We changed the date just now in the map; component should know it has changed", component.hasChanges());
-		assertTrue("Component should know map changed", component.getAndClearChanges().content.containsKey(DEFAULT_CONVERSIONS_PROP)); // also clears changes
-		assertFalse("Now it no longer has changes", component.hasChanges());
+		assertFalse(jsonObject.has("childString"), "Check childString delete from Rhino");
+		assertTrue(component.hasChanges(), "We changed the date just now in the map; component should know it has changed");
+		assertTrue(component.getAndClearChanges().content.containsKey(DEFAULT_CONVERSIONS_PROP), "Component should know map changed"); // also clears changes
+		assertFalse(component.hasChanges(), "Now it no longer has changes");
 
 
 		// ok now change something in the array and see that it does get updated and that it is marked as changed
 		rhinoContext.evaluateString(someRhinoScope, "a.childArray[5] = 987;", "dummy js file name from junit tests", 0, null);
-		assertEquals("Check childNumber of array change from Rhino", 987.0, ((JSONArray)jsonObject.get("childArray")).get(5));
-		assertTrue("We changed the date just now in the map; component should know it has changed", component.hasChanges());
-		assertTrue("Component should know map changed", component.getAndClearChanges().content.containsKey(DEFAULT_CONVERSIONS_PROP)); // also clears changes
-		assertFalse("Now it no longer has changes", component.hasChanges());
+		assertEquals(987.0, ((JSONArray)jsonObject.get("childArray")).get(5), "Check childNumber of array change from Rhino");
+		assertTrue(component.hasChanges(), "We changed the date just now in the map; component should know it has changed");
+		assertTrue(component.getAndClearChanges().content.containsKey(DEFAULT_CONVERSIONS_PROP), "Component should know map changed"); // also clears changes
+		assertFalse(component.hasChanges(), "Now it no longer has changes");
 
 		// ok now add/remove (splice) from array inside the object (rhino) and see if it is reflected in sablo
 		rhinoContext.evaluateString(someRhinoScope, "a.childArray.splice(2, 2, \"aha\")", "dummy js file name from junit tests", 0, null);
-		assertEquals("Check childDate of array change from Rhino", "\"aha\"", ((JSONArray)jsonObject.get("childArray")).get(2));
-		assertEquals("New length of array", 6, ((JSONArray)jsonObject.get("childArray")).length());
-		assertTrue("We changed the date just now in the array; component should know it has changed", component.hasChanges());
-		assertTrue("Component should know map changed", component.getAndClearChanges().content.containsKey(DEFAULT_CONVERSIONS_PROP)); // also clears changes
-		assertFalse("Now it no longer has changes", component.hasChanges());
+		assertEquals("\"aha\"", ((JSONArray)jsonObject.get("childArray")).get(2), "Check childDate of array change from Rhino");
+		assertEquals(6, ((JSONArray)jsonObject.get("childArray")).length(), "New length of array");
+		assertTrue(component.hasChanges(), "We changed the date just now in the array; component should know it has changed");
+		assertTrue(component.getAndClearChanges().content.containsKey(DEFAULT_CONVERSIONS_PROP), "Component should know map changed"); // also clears changes
+		assertFalse(component.hasChanges(), "Now it no longer has changes");
 	}
 
 	@Test
@@ -583,18 +544,19 @@ public class RhinoDefaultConversionsTest extends Log4JToConsoleTest
 			RhinoConversion.defaultToRhino(objectTValue, mytype007PD, component, someRhinoScope));
 		someRhinoScope.put("a", someRhinoScope, rhinoVal);
 
-		assertEquals("Check to see that customType.objectType.someSubKey is correct", 12,
-			rhinoContext.evaluateString(someRhinoScope, "a.defaultConversionsSubProp.someSubKey;", "dummy js file name from junit tests", 0, null));
+		assertEquals(12, rhinoContext.evaluateString(someRhinoScope, "a.defaultConversionsSubProp.someSubKey;", "dummy js file name from junit tests", 0, null),
+			"Check to see that customType.objectType.someSubKey is correct");
 
 		// change sub-key of 'object' type inside custom type
 		rhinoContext.evaluateString(someRhinoScope, "a.defaultConversionsSubProp.someSubKey = 15;", "dummy js file name from junit tests", 0, null);
-		assertEquals("Check to see that customType.objectType.someSubKey is correct", 15.0,
-			rhinoContext.evaluateString(someRhinoScope, "a.defaultConversionsSubProp.someSubKey;", "dummy js file name from junit tests", 0, null));
+		assertEquals(15.0,
+			rhinoContext.evaluateString(someRhinoScope, "a.defaultConversionsSubProp.someSubKey;", "dummy js file name from junit tests", 0, null),
+			"Check to see that customType.objectType.someSubKey is correct");
 
 		// now the component should be aware that it's objectT/defaultConversionsSubProp has changes
-		assertTrue("We changed 'object' prop; component should know it has changed", component.hasChanges());
-		assertTrue("Component should know 'object' prop changed", component.getAndClearChanges().content.containsKey("objectT")); // also clears changes
-		assertFalse("Now it no longer has changes", component.hasChanges());
+		assertTrue(component.hasChanges(), "We changed 'object' prop; component should know it has changed");
+		assertTrue(component.getAndClearChanges().content.containsKey("objectT"), "Component should know 'object' prop changed"); // also clears changes
+		assertFalse(component.hasChanges(), "Now it no longer has changes");
 	}
 
 
@@ -615,18 +577,19 @@ public class RhinoDefaultConversionsTest extends Log4JToConsoleTest
 			RhinoConversion.defaultToRhino(objectTValue, mytype007PD, component, someRhinoScope));
 		someRhinoScope.put("a", someRhinoScope, rhinoVal);
 
-		assertEquals("Check to see that customType.objectType.someSubKey is correct", 12,
-			rhinoContext.evaluateString(someRhinoScope, "a.defaultConversionsSubProp.someSubKey;", "dummy js file name from junit tests", 0, null));
+		assertEquals(12, rhinoContext.evaluateString(someRhinoScope, "a.defaultConversionsSubProp.someSubKey;", "dummy js file name from junit tests", 0, null),
+			"Check to see that customType.objectType.someSubKey is correct");
 
 		// change sub-key of 'object' type inside custom type
 		rhinoContext.evaluateString(someRhinoScope, "a.defaultConversionsSubProp.someSubKey = 15;", "dummy js file name from junit tests", 0, null);
-		assertEquals("Check to see that customType.objectType.someSubKey is correct", 15.0,
-			rhinoContext.evaluateString(someRhinoScope, "a.defaultConversionsSubProp.someSubKey;", "dummy js file name from junit tests", 0, null));
+		assertEquals(15.0,
+			rhinoContext.evaluateString(someRhinoScope, "a.defaultConversionsSubProp.someSubKey;", "dummy js file name from junit tests", 0, null),
+			"Check to see that customType.objectType.someSubKey is correct");
 
 		// now the component should be aware that it's objectT/defaultConversionsSubProp has changes
-		assertTrue("We changed the 'object' prop; component should know it has changed", component.hasChanges());
-		assertTrue("Component should know 'object' prop changed", component.getAndClearChanges().content.containsKey("objectT")); // also clears changes
-		assertFalse("Now it no longer has changes", component.hasChanges());
+		assertTrue(component.hasChanges(), "We changed the 'object' prop; component should know it has changed");
+		assertTrue(component.getAndClearChanges().content.containsKey("objectT"), "Component should know 'object' prop changed"); // also clears changes
+		assertFalse(component.hasChanges(), "Now it no longer has changes");
 	}
 
 	@Test
@@ -646,18 +609,18 @@ public class RhinoDefaultConversionsTest extends Log4JToConsoleTest
 			RhinoConversion.defaultToRhino(objectTValue, mytype007PD, component, someRhinoScope));
 		someRhinoScope.put("a", someRhinoScope, rhinoVal);
 
-		assertEquals("Check to see that customType.objectType.someSubKey is correct", 12,
-			rhinoContext.evaluateString(someRhinoScope, "a.defaultConversionsSubProp[0];", "dummy js file name from junit tests", 0, null));
+		assertEquals(12, rhinoContext.evaluateString(someRhinoScope, "a.defaultConversionsSubProp[0];", "dummy js file name from junit tests", 0, null),
+			"Check to see that customType.objectType.someSubKey is correct");
 
 		// change sub-key of 'object' type inside custom type
 		rhinoContext.evaluateString(someRhinoScope, "a.defaultConversionsSubProp[0] = 15;", "dummy js file name from junit tests", 0, null);
-		assertEquals("Check to see that customType.objectType.someSubKey is correct", 15.0,
-			rhinoContext.evaluateString(someRhinoScope, "a.defaultConversionsSubProp[0];", "dummy js file name from junit tests", 0, null));
+		assertEquals(15.0, rhinoContext.evaluateString(someRhinoScope, "a.defaultConversionsSubProp[0];", "dummy js file name from junit tests", 0, null),
+			"Check to see that customType.objectType.someSubKey is correct");
 
 		// now the component should be aware that it's objectT/defaultConversionsSubProp has changes
-		assertTrue("We changed the 'object' prop; component should know it has changed", component.hasChanges());
-		assertTrue("Component should know 'object' prop changed", component.getAndClearChanges().content.containsKey("objectT")); // also clears changes
-		assertFalse("Now it no longer has changes", component.hasChanges());
+		assertTrue(component.hasChanges(), "We changed the 'object' prop; component should know it has changed");
+		assertTrue(component.getAndClearChanges().content.containsKey("objectT"), "Component should know 'object' prop changed"); // also clears changes
+		assertFalse(component.hasChanges(), "Now it no longer has changes");
 	}
 
 	@Test
@@ -677,18 +640,18 @@ public class RhinoDefaultConversionsTest extends Log4JToConsoleTest
 			RhinoConversion.defaultToRhino(objectTValue, mytype007PD, component, someRhinoScope));
 		someRhinoScope.put("a", someRhinoScope, rhinoVal);
 
-		assertEquals("Check to see that customType.objectType.someSubKey is correct", 12,
-			rhinoContext.evaluateString(someRhinoScope, "a.defaultConversionsSubProp[0];", "dummy js file name from junit tests", 0, null));
+		assertEquals(12, rhinoContext.evaluateString(someRhinoScope, "a.defaultConversionsSubProp[0];", "dummy js file name from junit tests", 0, null),
+			"Check to see that customType.objectType.someSubKey is correct");
 
 		// change sub-key of 'object' type inside custom type
 		rhinoContext.evaluateString(someRhinoScope, "a.defaultConversionsSubProp[0] = 15;", "dummy js file name from junit tests", 0, null);
-		assertEquals("Check to see that customType.objectType.someSubKey is correct", 15.0,
-			rhinoContext.evaluateString(someRhinoScope, "a.defaultConversionsSubProp[0];", "dummy js file name from junit tests", 0, null));
+		assertEquals(15.0, rhinoContext.evaluateString(someRhinoScope, "a.defaultConversionsSubProp[0];", "dummy js file name from junit tests", 0, null),
+			"Check to see that customType.objectType.someSubKey is correct");
 
 		// now the component should be aware that it's objectT/defaultConversionsSubProp has changes
-		assertTrue("We changed something in the 'object' prop", component.hasChanges());
-		assertTrue("Component should know 'object' prop changed", component.getAndClearChanges().content.containsKey("objectT")); // also clears changes
-		assertFalse("Now it no longer has changes", component.hasChanges());
+		assertTrue(component.hasChanges(), "We changed something in the 'object' prop");
+		assertTrue(component.getAndClearChanges().content.containsKey("objectT"), "Component should know 'object' prop changed"); // also clears changes
+		assertFalse(component.hasChanges(), "Now it no longer has changes");
 	}
 
 	@Test
@@ -702,18 +665,18 @@ public class RhinoDefaultConversionsTest extends Log4JToConsoleTest
 				null));
 		component.setProperty(DEFAULT_CONVERSIONS_PROP, sabloVal);
 
-		assertEquals("Check key5 in java", "aha", sabloVal.get("key5"));
-		assertEquals("Check key6 in java", Double.valueOf(475), sabloVal.get("key6"));
+		assertEquals("aha", sabloVal.get("key5"), "Check key5 in java");
+		assertEquals(Double.valueOf(475), sabloVal.get("key6"), "Check key6 in java");
 
 		// TODO this is not currently supported (so it will fail similar to how custom object props or custom array props. fails as well in a similar scenario); see if it can be improved in the future; if it;s improved add similar tests for List, JSONArray, JSONObject as sablo values for 'object' typed property
 		// change original rhino NativeObject and see if sablo value is updated and component is aware of changes
 		rhinoContext.evaluateString(someRhinoScope, "a.key5 = 'changedVal';",
 			"dummy js file name from junit tests", 0,
 			null);
-//		assertEquals("Check key5 in java", "changedVal", sabloVal.get("key5"));
-//		assertTrue("We changed the date just now in the array; component should know it has changed", component.hasChanges());
-//		assertTrue("Component should know map changed", component.getAndClearChanges().content.containsKey(DEFAULT_CONVERSIONS_PROP)); // also clears changes
-//		assertFalse("Now it no longer has changes", component.hasChanges());
+		//		assertEquals("changedVal", sabloVal.get("key5"), "Check key5 in java");
+		//		assertTrue(component.hasChanges(), "We changed the date just now in the array; component should know it has changed");
+		//		assertTrue(component.getAndClearChanges().content.containsKey(DEFAULT_CONVERSIONS_PROP), "Component should know map changed"); // also clears changes
+		//		assertFalse(component.hasChanges(), "Now it no longer has changes");
 	}
 
 }

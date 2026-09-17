@@ -1,8 +1,9 @@
 package com.servoy.j2db.server.ngclient.auth;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -15,7 +16,7 @@ import java.util.Locale;
 import java.util.Map;
 
 import org.json.JSONObject;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.RootObjectMetaData;
@@ -58,7 +59,7 @@ public class OAuthHandlerBehaviourTest extends Log4JToConsoleTest
 		// Either nothing was written, or an error occurred before writing
 		if (output.toString().isEmpty())
 		{
-			assertTrue("No CSRF cookie should be set when service is null", cookies.isEmpty());
+			assertTrue(cookies.isEmpty(), "No CSRF cookie should be set when service is null");
 		}
 	}
 
@@ -78,7 +79,7 @@ public class OAuthHandlerBehaviourTest extends Log4JToConsoleTest
 		}
 		catch (Exception e)
 		{
-			org.junit.Assert.fail("generateOauthCall must not throw checked exceptions: " + e.getMessage());
+			fail("generateOauthCall must not throw checked exceptions: " + e.getMessage());
 		}
 	}
 
@@ -101,7 +102,7 @@ public class OAuthHandlerBehaviourTest extends Log4JToConsoleTest
 		}
 		catch (Exception e)
 		{
-			org.junit.Assert.fail("redirectToOAuthLogin must not throw when config is missing: " + e.getMessage());
+			fail("redirectToOAuthLogin must not throw when config is missing: " + e.getMessage());
 		}
 	}
 
@@ -116,7 +117,7 @@ public class OAuthHandlerBehaviourTest extends Log4JToConsoleTest
 
 		OAuthHandler.redirectToOAuthLogin(request, response, solution);
 
-		assertEquals("Nothing must be written when OAuth config is missing", "", output.toString());
+		assertEquals("", output.toString(), "Nothing must be written when OAuth config is missing");
 	}
 
 	// =========================================================================

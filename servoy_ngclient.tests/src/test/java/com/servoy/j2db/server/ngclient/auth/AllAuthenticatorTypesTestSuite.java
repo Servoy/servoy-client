@@ -1,8 +1,7 @@
 package com.servoy.j2db.server.ngclient.auth;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
-import org.junit.runners.Suite.SuiteClasses;
+import org.junit.platform.suite.api.SelectClasses;
+import org.junit.platform.suite.api.Suite;
 
 /**
  * Test suite that runs all authenticator type tests together to analyze combined coverage
@@ -18,15 +17,10 @@ import org.junit.runners.Suite.SuiteClasses;
  *
  * @author emera
  */
-@RunWith(Suite.class)
-@SuiteClasses({
-	DefaultLoginManagerTest.class,
-	AuthenticatorManagerTest.class,
-	OAuthHandlerTest.class,
-	CloudStatelessAccessManagerTest.class,
-	LoginResultTest.class
+@Suite
+@SelectClasses({ DefaultLoginManagerTest.class, AuthenticatorManagerTest.class, OAuthHandlerTest.class, CloudStatelessAccessManagerTest.class, LoginResultTest.class
 })
-public class AllAuthenticatorTypesTestSuite
+class AllAuthenticatorTypesTestSuite
 {
 	// This class is intentionally empty. It's used only as a holder for the above annotations.
 }

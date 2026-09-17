@@ -26,8 +26,8 @@ import java.util.TimeZone;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONWriter;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.skyscreamer.jsonassert.JSONCompareMode;
 
@@ -122,7 +122,7 @@ public class DateTest extends Log4JToConsoleTest
 
 		Date date = NGDatePropertyType.NG_INSTANCE.fromJSON(new JSONObject(toString).getString("mydate"), null, NGUtils.DATE_DATAPROVIDER_CACHED_PD, null,
 			null);
-		Assert.assertEquals(new java.util.Date(118, 5, 5), date);
+		Assertions.assertEquals(new java.util.Date(118, 5, 5), date);
 
 		TimeZone default1 = TimeZone.getDefault();
 		try
@@ -184,46 +184,46 @@ public class DateTest extends Log4JToConsoleTest
 	@Test
 	public void testDatesFromJson() throws JSONException
 	{
-		Assert.assertEquals(new Date(70, 1, 2), NGDatePropertyType.NG_INSTANCE.fromJSON(
+		Assertions.assertEquals(new Date(70, 1, 2), NGDatePropertyType.NG_INSTANCE.fromJSON(
 			"1970-02-02T00:00" + OffsetDateTime.ofInstant(new java.util.Date(70, 1, 2).toInstant(), ZoneId.systemDefault()).getOffset().toString(), false));
 
-		Assert.assertEquals(new Date(19, 1, 2), NGDatePropertyType.NG_INSTANCE.fromJSON(
+		Assertions.assertEquals(new Date(19, 1, 2), NGDatePropertyType.NG_INSTANCE.fromJSON(
 			"1919-02-02T00:00" + OffsetDateTime.ofInstant(new java.util.Date(19, 1, 2).toInstant(), ZoneId.systemDefault()).getOffset().toString(), false));
 
-		Assert.assertEquals(new Date(39, 1, 2), NGDatePropertyType.NG_INSTANCE.fromJSON(
+		Assertions.assertEquals(new Date(39, 1, 2), NGDatePropertyType.NG_INSTANCE.fromJSON(
 			"1939-02-02T00:00" + OffsetDateTime.ofInstant(new java.util.Date(39, 1, 2).toInstant(), ZoneId.systemDefault()).getOffset().toString(), false));
 
-		Assert.assertEquals(new Date(41, 1, 2), NGDatePropertyType.NG_INSTANCE.fromJSON(
+		Assertions.assertEquals(new Date(41, 1, 2), NGDatePropertyType.NG_INSTANCE.fromJSON(
 			"1941-02-02T00:00" + OffsetDateTime.ofInstant(new java.util.Date(41, 1, 2).toInstant(), ZoneId.systemDefault()).getOffset().toString(), false));
 
-		Assert.assertEquals(new Date(118, 5, 5, 11, 50, 55), NGDatePropertyType.NG_INSTANCE.fromJSON("2018-06-05T11:50:55" +
+		Assertions.assertEquals(new Date(118, 5, 5, 11, 50, 55), NGDatePropertyType.NG_INSTANCE.fromJSON("2018-06-05T11:50:55" +
 			OffsetDateTime.ofInstant(new java.util.Date(118, 5, 5, 11, 50, 55).toInstant(), ZoneId.systemDefault()).getOffset().toString(), false));
 
-		Assert.assertEquals(new Date(new Date(70, 1, 2).getTime() + 3600000),
+		Assertions.assertEquals(new Date(new Date(70, 1, 2).getTime() + 3600000),
 			NGDatePropertyType.NG_INSTANCE.fromJSON("1970-02-02T00:00" + ZoneOffset.ofTotalSeconds(
 				ZoneId.systemDefault().getRules().getOffset(new java.util.Date(70, 1, 2).toInstant()).getTotalSeconds() - 3600).toString(), false));
 
-		Assert.assertEquals(new Date(new Date(70, 1, 2).getTime() - 3600000),
+		Assertions.assertEquals(new Date(new Date(70, 1, 2).getTime() - 3600000),
 			NGDatePropertyType.NG_INSTANCE.fromJSON("1970-02-02T00:00" + ZoneOffset.ofTotalSeconds(
 				ZoneId.systemDefault().getRules().getOffset(new java.util.Date(70, 1, 2).toInstant()).getTotalSeconds() + 3600).toString(), false));
 
-		Assert.assertEquals(new Date(new Date(70, 5, 2).getTime() + 3600000),
+		Assertions.assertEquals(new Date(new Date(70, 5, 2).getTime() + 3600000),
 			NGDatePropertyType.NG_INSTANCE.fromJSON("1970-06-02T00:00" + ZoneOffset.ofTotalSeconds(
 				ZoneId.systemDefault().getRules().getOffset(new java.util.Date(70, 5, 2).toInstant()).getTotalSeconds() - 3600).toString(), false));
 
-		Assert.assertEquals(new java.sql.Date(118, 5, 5),
+		Assertions.assertEquals(new java.sql.Date(118, 5, 5),
 			NGDatePropertyType.NG_INSTANCE.fromJSON(
 				"2018-06-05T00:00" +
 					OffsetDateTime.ofInstant(new java.util.Date(118, 5, 5, 11, 50, 55).toInstant(), ZoneId.systemDefault()).getOffset().toString(),
 				new java.sql.Date(118, 6, 6), NGUtils.LOCAL_DATE_DATAPROVIDER_CACHED_PD, null, null));
 
-		Assert.assertEquals(new java.sql.Date(118, 5, 5),
+		Assertions.assertEquals(new java.sql.Date(118, 5, 5),
 			NGDatePropertyType.NG_INSTANCE.fromJSON(
 				"2018-06-05T00:00" +
 					OffsetDateTime.ofInstant(new java.util.Date(118, 5, 5, 11, 50, 55).toInstant(), ZoneId.systemDefault()).getOffset().toString(),
 				new java.sql.Date(118, 6, 6), NGUtils.DATE_DATAPROVIDER_CACHED_PD, null, null));
 
-		Assert.assertEquals(new java.sql.Date(118, 5, 5),
+		Assertions.assertEquals(new java.sql.Date(118, 5, 5),
 			NGDatePropertyType.NG_INSTANCE.fromJSON(
 				"2018-06-05T00:00" +
 					OffsetDateTime.ofInstant(new java.util.Date(118, 5, 5, 11, 50, 55).toInstant(), ZoneId.systemDefault()).getOffset().toString(),
@@ -250,52 +250,52 @@ public class DateTest extends Log4JToConsoleTest
 	@Test
 	public void testDatesFromJsonLocalDate() throws JSONException
 	{
-		Assert.assertEquals(new Date(70, 1, 2), NGDatePropertyType.NG_INSTANCE.fromJSON("1970-02-02T00:00+02:00", true));
-		Assert.assertEquals(new Date(70, 1, 2), NGDatePropertyType.NG_INSTANCE.fromJSON("1970-02-02T00:00+03:00", true));
-		Assert.assertEquals(new Date(70, 1, 2), NGDatePropertyType.NG_INSTANCE.fromJSON("1970-02-02T00:00-03:00", true));
+		Assertions.assertEquals(new Date(70, 1, 2), NGDatePropertyType.NG_INSTANCE.fromJSON("1970-02-02T00:00+02:00", true));
+		Assertions.assertEquals(new Date(70, 1, 2), NGDatePropertyType.NG_INSTANCE.fromJSON("1970-02-02T00:00+03:00", true));
+		Assertions.assertEquals(new Date(70, 1, 2), NGDatePropertyType.NG_INSTANCE.fromJSON("1970-02-02T00:00-03:00", true));
 
-		Assert.assertEquals(new Date(19, 1, 2), NGDatePropertyType.NG_INSTANCE.fromJSON("1919-02-02T00:00+02:00", true));
-		Assert.assertEquals(new Date(19, 1, 2), NGDatePropertyType.NG_INSTANCE.fromJSON("1919-02-02T00:00+03:00", true));
-		Assert.assertEquals(new Date(19, 1, 2), NGDatePropertyType.NG_INSTANCE.fromJSON("1919-02-02T00:00-03:00", true));
+		Assertions.assertEquals(new Date(19, 1, 2), NGDatePropertyType.NG_INSTANCE.fromJSON("1919-02-02T00:00+02:00", true));
+		Assertions.assertEquals(new Date(19, 1, 2), NGDatePropertyType.NG_INSTANCE.fromJSON("1919-02-02T00:00+03:00", true));
+		Assertions.assertEquals(new Date(19, 1, 2), NGDatePropertyType.NG_INSTANCE.fromJSON("1919-02-02T00:00-03:00", true));
 
-		Assert.assertEquals(new Date(39, 1, 2), NGDatePropertyType.NG_INSTANCE.fromJSON("1939-02-02T00:00+02:00", true));
-		Assert.assertEquals(new Date(39, 1, 2), NGDatePropertyType.NG_INSTANCE.fromJSON("1939-02-02T00:00+03:00", true));
-		Assert.assertEquals(new Date(39, 1, 2), NGDatePropertyType.NG_INSTANCE.fromJSON("1939-02-02T00:00-03:00", true));
+		Assertions.assertEquals(new Date(39, 1, 2), NGDatePropertyType.NG_INSTANCE.fromJSON("1939-02-02T00:00+02:00", true));
+		Assertions.assertEquals(new Date(39, 1, 2), NGDatePropertyType.NG_INSTANCE.fromJSON("1939-02-02T00:00+03:00", true));
+		Assertions.assertEquals(new Date(39, 1, 2), NGDatePropertyType.NG_INSTANCE.fromJSON("1939-02-02T00:00-03:00", true));
 
-		Assert.assertEquals(new Date(41, 1, 2), NGDatePropertyType.NG_INSTANCE.fromJSON("1941-02-02T00:00+02:00", true));
-		Assert.assertEquals(new Date(41, 1, 2), NGDatePropertyType.NG_INSTANCE.fromJSON("1941-02-02T00:00+03:00", true));
-		Assert.assertEquals(new Date(41, 1, 2), NGDatePropertyType.NG_INSTANCE.fromJSON("1941-02-02T00:00-03:00", true));
+		Assertions.assertEquals(new Date(41, 1, 2), NGDatePropertyType.NG_INSTANCE.fromJSON("1941-02-02T00:00+02:00", true));
+		Assertions.assertEquals(new Date(41, 1, 2), NGDatePropertyType.NG_INSTANCE.fromJSON("1941-02-02T00:00+03:00", true));
+		Assertions.assertEquals(new Date(41, 1, 2), NGDatePropertyType.NG_INSTANCE.fromJSON("1941-02-02T00:00-03:00", true));
 
-		Assert.assertEquals(new Date(118, 5, 5, 11, 50, 55), NGDatePropertyType.NG_INSTANCE.fromJSON("2018-06-05T11:50:55+02:00", true));
-		Assert.assertEquals(new Date(118, 5, 5, 11, 50, 55), NGDatePropertyType.NG_INSTANCE.fromJSON("2018-06-05T11:50:55+03:00", true));
-		Assert.assertEquals(new Date(118, 5, 5, 11, 50, 55), NGDatePropertyType.NG_INSTANCE.fromJSON("2018-06-05T11:50:55-03:00", true));
+		Assertions.assertEquals(new Date(118, 5, 5, 11, 50, 55), NGDatePropertyType.NG_INSTANCE.fromJSON("2018-06-05T11:50:55+02:00", true));
+		Assertions.assertEquals(new Date(118, 5, 5, 11, 50, 55), NGDatePropertyType.NG_INSTANCE.fromJSON("2018-06-05T11:50:55+03:00", true));
+		Assertions.assertEquals(new Date(118, 5, 5, 11, 50, 55), NGDatePropertyType.NG_INSTANCE.fromJSON("2018-06-05T11:50:55-03:00", true));
 
 	}
 
 	@Test
 	public void testDatesConversionFromString()
 	{
-		Assert.assertEquals(new Date(119, 6, 8), new Date(Column.getAsTime("2019-07-08")));
-		Assert.assertEquals(new Date(119, 6, 8), new Date(Column.getAsTime("2019-7-8")));
-		Assert.assertEquals(new Date(119, 0, 1), new Date(Column.getAsTime("2019-1-1")));
-		Assert.assertEquals(new Date(119, 0, 9), new Date(Column.getAsTime("2019-1-09")));
+		Assertions.assertEquals(new Date(119, 6, 8), new Date(Column.getAsTime("2019-07-08")));
+		Assertions.assertEquals(new Date(119, 6, 8), new Date(Column.getAsTime("2019-7-8")));
+		Assertions.assertEquals(new Date(119, 0, 1), new Date(Column.getAsTime("2019-1-1")));
+		Assertions.assertEquals(new Date(119, 0, 9), new Date(Column.getAsTime("2019-1-09")));
 
-		Assert.assertEquals(new Date(119, 6, 8, 7, 8), new Date(Column.getAsTime("2019-07-08T07:08")));
-		Assert.assertEquals(new Date(119, 6, 8, 21, 59), new Date(Column.getAsTime("2019-7-8T21:59")));
-		Assert.assertEquals(new Date(119, 6, 8, 7, 8, 10), new Date(Column.getAsTime("2019-07-08T07:08:10")));
-		Assert.assertEquals(new Date(119, 6, 8, 21, 59, 3), new Date(Column.getAsTime("2019-7-8T21:59:03")));
+		Assertions.assertEquals(new Date(119, 6, 8, 7, 8), new Date(Column.getAsTime("2019-07-08T07:08")));
+		Assertions.assertEquals(new Date(119, 6, 8, 21, 59), new Date(Column.getAsTime("2019-7-8T21:59")));
+		Assertions.assertEquals(new Date(119, 6, 8, 7, 8, 10), new Date(Column.getAsTime("2019-07-08T07:08:10")));
+		Assertions.assertEquals(new Date(119, 6, 8, 21, 59, 3), new Date(Column.getAsTime("2019-7-8T21:59:03")));
 
-		Assert.assertEquals(1562540400000l, Column.getAsTime("2019-07-08+01:00"));
-		Assert.assertEquals(1562558880000l, Column.getAsTime("2019-07-08T07:08+03:00"));
-		Assert.assertEquals(1562558880000l, Column.getAsTime("2019-7-8T07:08+03:00"));
-		Assert.assertEquals(1562605143000l, Column.getAsTime("2019-7-8T21:59:03+05:00"));
-		Assert.assertEquals(1562605143000l, Column.getAsTime("2019-7-8T21:59:03+0500"));
-		Assert.assertEquals(1562605143000l, Column.getAsTime("2019-7-8T21:59:03+05"));
-		Assert.assertEquals(OffsetDateTime.parse("2019-07-08T21:59:03+05:00").toInstant().toEpochMilli(), Column.getAsTime("2019-7-8T21:59:03+05"));
-		Assert.assertEquals(OffsetDateTime.parse("2019-06-29T15:48:00.000Z").toInstant().toEpochMilli(), Column.getAsTime("2019-06-29T15:48:00.000Z"));
-		Assert.assertEquals(OffsetDateTime.parse("2019-06-29T15:48:00.001Z").toInstant().toEpochMilli(), Column.getAsTime("2019-06-29T15:48:00.001Z"));
-		Assert.assertEquals(1562605143100l, Column.getAsTime("2019-7-8T21:59:03.100+0500"));
-		Assert.assertEquals(1562605143900l, Column.getAsTime("2019-7-8T21:59:03:900+05"));
+		Assertions.assertEquals(1562540400000l, Column.getAsTime("2019-07-08+01:00"));
+		Assertions.assertEquals(1562558880000l, Column.getAsTime("2019-07-08T07:08+03:00"));
+		Assertions.assertEquals(1562558880000l, Column.getAsTime("2019-7-8T07:08+03:00"));
+		Assertions.assertEquals(1562605143000l, Column.getAsTime("2019-7-8T21:59:03+05:00"));
+		Assertions.assertEquals(1562605143000l, Column.getAsTime("2019-7-8T21:59:03+0500"));
+		Assertions.assertEquals(1562605143000l, Column.getAsTime("2019-7-8T21:59:03+05"));
+		Assertions.assertEquals(OffsetDateTime.parse("2019-07-08T21:59:03+05:00").toInstant().toEpochMilli(), Column.getAsTime("2019-7-8T21:59:03+05"));
+		Assertions.assertEquals(OffsetDateTime.parse("2019-06-29T15:48:00.000Z").toInstant().toEpochMilli(), Column.getAsTime("2019-06-29T15:48:00.000Z"));
+		Assertions.assertEquals(OffsetDateTime.parse("2019-06-29T15:48:00.001Z").toInstant().toEpochMilli(), Column.getAsTime("2019-06-29T15:48:00.001Z"));
+		Assertions.assertEquals(1562605143100l, Column.getAsTime("2019-7-8T21:59:03.100+0500"));
+		Assertions.assertEquals(1562605143900l, Column.getAsTime("2019-7-8T21:59:03:900+05"));
 
 	}
 }

@@ -17,13 +17,13 @@
 
 package com.servoy.j2db.server.ngclient.component;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.lang.reflect.Method;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import com.servoy.j2db.persistence.CSSPosition;
 
@@ -40,7 +40,7 @@ public class RuntimeLegacyComponentCssPositionTest
 	private static Method parseCssPixelValue;
 	private static Method deriveFromCssPosition;
 
-	@BeforeClass
+	@BeforeAll
 	public static void setUp() throws Exception
 	{
 		parseCssPixelValue = RuntimeLegacyComponent.class.getDeclaredMethod("parseCssPixelValue", String.class);

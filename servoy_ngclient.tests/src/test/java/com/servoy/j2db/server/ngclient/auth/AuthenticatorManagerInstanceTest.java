@@ -1,9 +1,9 @@
 package com.servoy.j2db.server.ngclient.auth;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.sablo.security.ContentSecurityPolicyConfig;
 
 import com.servoy.j2db.persistence.IRepository;
@@ -45,7 +45,7 @@ public class AuthenticatorManagerInstanceTest extends Log4JToConsoleTest
 	{
 		Solution solution = createSolutionWithAuthType(AUTHENTICATOR_TYPE.DEFAULT);
 		IAuthenticatorManager manager = AuthenticatorManagerCreator.getAuthenticatorManager(solution);
-		assertTrue("DEFAULT type must create DefaultLoginManager", manager instanceof DefaultLoginManager);
+		assertTrue(manager instanceof DefaultLoginManager, "DEFAULT type must create DefaultLoginManager");
 	}
 
 	@Test
@@ -53,7 +53,7 @@ public class AuthenticatorManagerInstanceTest extends Log4JToConsoleTest
 	{
 		Solution solution = createSolutionWithAuthType(AUTHENTICATOR_TYPE.OAUTH);
 		IAuthenticatorManager manager = AuthenticatorManagerCreator.getAuthenticatorManager(solution);
-		assertTrue("OAUTH type must create OAuthHandler", manager instanceof OAuthHandler);
+		assertTrue(manager instanceof OAuthHandler, "OAUTH type must create OAuthHandler");
 	}
 
 	@Test
@@ -61,7 +61,7 @@ public class AuthenticatorManagerInstanceTest extends Log4JToConsoleTest
 	{
 		Solution solution = createSolutionWithAuthType(AUTHENTICATOR_TYPE.SERVOY_CLOUD);
 		IAuthenticatorManager manager = AuthenticatorManagerCreator.getAuthenticatorManager(solution);
-		assertTrue("SERVOY_CLOUD type must create CloudStatelessAccessManager", manager instanceof CloudStatelessAccessManager);
+		assertTrue(manager instanceof CloudStatelessAccessManager, "SERVOY_CLOUD type must create CloudStatelessAccessManager");
 	}
 
 	@Test
@@ -69,7 +69,7 @@ public class AuthenticatorManagerInstanceTest extends Log4JToConsoleTest
 	{
 		Solution solution = createSolutionWithAuthType(AUTHENTICATOR_TYPE.AUTHENTICATOR);
 		IAuthenticatorManager manager = AuthenticatorManagerCreator.getAuthenticatorManager(solution);
-		assertTrue("AUTHENTICATOR type must create AuthenticatorManager", manager instanceof AuthenticatorManager);
+		assertTrue(manager instanceof AuthenticatorManager, "AUTHENTICATOR type must create AuthenticatorManager");
 	}
 
 	@Test
@@ -77,7 +77,7 @@ public class AuthenticatorManagerInstanceTest extends Log4JToConsoleTest
 	{
 		Solution solution = createSolutionWithAuthType(AUTHENTICATOR_TYPE.OAUTH_AUTHENTICATOR);
 		IAuthenticatorManager manager = AuthenticatorManagerCreator.getAuthenticatorManager(solution);
-		assertTrue("OAUTH_AUTHENTICATOR type must create AuthenticatorManager", manager instanceof AuthenticatorManager);
+		assertTrue(manager instanceof AuthenticatorManager, "OAUTH_AUTHENTICATOR type must create AuthenticatorManager");
 	}
 
 	// =========================================================================
@@ -91,8 +91,8 @@ public class AuthenticatorManagerInstanceTest extends Log4JToConsoleTest
 		{
 			Solution solution = createSolutionWithAuthType(type);
 			IAuthenticatorManager manager = AuthenticatorManagerCreator.getAuthenticatorManager(solution);
-			assertNotNull("Manager must not be null for type " + type, manager);
-			assertTrue("Manager for " + type + " must implement IAuthenticatorManager", manager instanceof IAuthenticatorManager);
+			assertNotNull(manager, "Manager must not be null for type " + type);
+			assertTrue(manager instanceof IAuthenticatorManager, "Manager for " + type + " must implement IAuthenticatorManager");
 		}
 	}
 
@@ -107,7 +107,7 @@ public class AuthenticatorManagerInstanceTest extends Log4JToConsoleTest
 		{
 			Solution solution = createSolutionWithAuthType(type);
 			IAuthenticatorManager manager = AuthenticatorManagerCreator.getAuthenticatorManager(solution);
-			assertTrue("Manager for " + type + " must extend AbstractAuthenticatorManager", manager instanceof AbstractAuthenticatorManager);
+			assertTrue(manager instanceof AbstractAuthenticatorManager, "Manager for " + type + " must extend AbstractAuthenticatorManager");
 		}
 	}
 
@@ -120,7 +120,7 @@ public class AuthenticatorManagerInstanceTest extends Log4JToConsoleTest
 	{
 		Method method = OAuthHandler.class.getDeclaredMethod("refreshOAuthTokenIfPossible",
 			LoginResult.class, SvyID.class, HttpServletRequest.class, HttpServletResponse.class);
-		assertFalse("refreshOAuthTokenIfPossible must not be static", Modifier.isStatic(method.getModifiers()));
+		assertFalse(Modifier.isStatic(method.getModifiers()), "refreshOAuthTokenIfPossible must not be static");
 	}
 
 	@Test
@@ -128,7 +128,7 @@ public class AuthenticatorManagerInstanceTest extends Log4JToConsoleTest
 	{
 		Method method = OAuthHandler.class.getDeclaredMethod("refreshOAuthTokenIfPossible",
 			LoginResult.class, SvyID.class, HttpServletRequest.class, HttpServletResponse.class);
-		assertTrue("refreshOAuthTokenIfPossible must be private", Modifier.isPrivate(method.getModifiers()));
+		assertTrue(Modifier.isPrivate(method.getModifiers()), "refreshOAuthTokenIfPossible must be private");
 	}
 
 	@Test
@@ -136,7 +136,7 @@ public class AuthenticatorManagerInstanceTest extends Log4JToConsoleTest
 	{
 		Method method = AbstractAuthenticatorManager.class.getDeclaredMethod("writeSecuredHtmlResponse",
 			HttpServletRequest.class, HttpServletResponse.class, String.class, long.class, ContentSecurityPolicyConfig.class);
-		assertTrue("writeSecuredHtmlResponse must be protected", Modifier.isProtected(method.getModifiers()));
+		assertTrue(Modifier.isProtected(method.getModifiers()), "writeSecuredHtmlResponse must be protected");
 	}
 
 	@Test
@@ -144,7 +144,7 @@ public class AuthenticatorManagerInstanceTest extends Log4JToConsoleTest
 	{
 		Method method = AbstractAuthenticatorManager.class.getDeclaredMethod("writeSecuredHtmlResponse",
 			HttpServletRequest.class, HttpServletResponse.class, String.class, long.class, ContentSecurityPolicyConfig.class);
-		assertTrue("writeSecuredHtmlResponse must be static (shared utility)", Modifier.isStatic(method.getModifiers()));
+		assertTrue(Modifier.isStatic(method.getModifiers()), "writeSecuredHtmlResponse must be static (shared utility)");
 	}
 
 	// =========================================================================
@@ -160,11 +160,11 @@ public class AuthenticatorManagerInstanceTest extends Log4JToConsoleTest
 			IAuthenticatorManager manager = AuthenticatorManagerCreator.getAuthenticatorManager(solution);
 			if (type == AUTHENTICATOR_TYPE.OAUTH)
 			{
-				assertFalse("OAUTH must not require CSRF for checkUser", manager.requiresCSRFForCheckUser());
+				assertFalse(manager.requiresCSRFForCheckUser(), "OAUTH must not require CSRF for checkUser");
 			}
 			else
 			{
-				assertTrue(type + " must require CSRF for checkUser", manager.requiresCSRFForCheckUser());
+				assertTrue(manager.requiresCSRFForCheckUser(), type + " must require CSRF for checkUser");
 			}
 		}
 	}
@@ -192,8 +192,7 @@ public class AuthenticatorManagerInstanceTest extends Log4JToConsoleTest
 			// Expected: will fail because solution is null / no OAuth config
 			// But it should NOT have written a login form HTML
 		}
-		assertFalse("OAuthHandler.writeLoginPage must not render a standard login form",
-			output.toString().contains("<form"));
+		assertFalse(output.toString().contains("<form"), "OAuthHandler.writeLoginPage must not render a standard login form");
 	}
 
 	// =========================================================================
@@ -215,10 +214,10 @@ public class AuthenticatorManagerInstanceTest extends Log4JToConsoleTest
 		manager.writeLoginPage(request, response, null);
 
 		String result = output.toString();
-		assertTrue("writeLoginPage must output HTML", result.contains("<html"));
-		assertTrue("writeLoginPage must inject CSRF hidden field", result.contains("name='csrf_token'"));
-		assertTrue("writeLoginPage must inject loader div", result.contains("servoy_loader"));
-		assertFalse("CSRF cookie must be set", cookies.isEmpty());
+		assertTrue(result.contains("<html"), "writeLoginPage must output HTML");
+		assertTrue(result.contains("name='csrf_token'"), "writeLoginPage must inject CSRF hidden field");
+		assertTrue(result.contains("servoy_loader"), "writeLoginPage must inject loader div");
+		assertFalse(cookies.isEmpty(), "CSRF cookie must be set");
 	}
 
 	// =========================================================================
@@ -229,28 +228,28 @@ public class AuthenticatorManagerInstanceTest extends Log4JToConsoleTest
 	public void oauthHandler_implementsITokenRevocable()
 	{
 		OAuthHandler handler = new OAuthHandler(null);
-		assertTrue("OAuthHandler must implement ITokenRevocable", handler instanceof ITokenRevocable);
+		assertTrue(handler instanceof ITokenRevocable, "OAuthHandler must implement ITokenRevocable");
 	}
 
 	@Test
 	public void cloudStatelessAccessManager_implementsITokenRevocable()
 	{
 		CloudStatelessAccessManager manager = new CloudStatelessAccessManager(null);
-		assertTrue("CloudStatelessAccessManager must implement ITokenRevocable", manager instanceof ITokenRevocable);
+		assertTrue(manager instanceof ITokenRevocable, "CloudStatelessAccessManager must implement ITokenRevocable");
 	}
 
 	@Test
 	public void defaultLoginManager_doesNotImplementITokenRevocable()
 	{
 		DefaultLoginManager manager = new DefaultLoginManager(null);
-		assertFalse("DefaultLoginManager must NOT implement ITokenRevocable", manager instanceof ITokenRevocable);
+		assertFalse(manager instanceof ITokenRevocable, "DefaultLoginManager must NOT implement ITokenRevocable");
 	}
 
 	@Test
 	public void authenticatorManager_doesNotImplementITokenRevocable()
 	{
 		AuthenticatorManager manager = new AuthenticatorManager(null);
-		assertFalse("AuthenticatorManager must NOT implement ITokenRevocable", manager instanceof ITokenRevocable);
+		assertFalse(manager instanceof ITokenRevocable, "AuthenticatorManager must NOT implement ITokenRevocable");
 	}
 
 	// =========================================================================
@@ -270,9 +269,9 @@ public class AuthenticatorManagerInstanceTest extends Log4JToConsoleTest
 		// We do this by checking the method doesn't have type-specific branching by examining
 		// that the parameter list uses IAuthenticatorManager (tested via factory) not AUTHENTICATOR_TYPE
 		// The real proof is that we got here without AUTHENTICATOR_TYPE imports being needed
-		assertNotNull("checkUser method must exist", method);
-		assertEquals("checkUser must be private", Modifier.PRIVATE, method.getModifiers() & Modifier.PRIVATE);
-		assertEquals("checkUser must be static", Modifier.STATIC, method.getModifiers() & Modifier.STATIC);
+		assertNotNull(method, "checkUser method must exist");
+		assertEquals(Modifier.PRIVATE, method.getModifiers() & Modifier.PRIVATE, "checkUser must be private");
+		assertEquals(Modifier.STATIC, method.getModifiers() & Modifier.STATIC, "checkUser must be static");
 	}
 
 	// =========================================================================
@@ -294,9 +293,9 @@ public class AuthenticatorManagerInstanceTest extends Log4JToConsoleTest
 			new ContentSecurityPolicyConfig("abc"));
 
 		String result = output.toString();
-		assertTrue("Must inject nonce", result.contains("nonce='abc'"));
-		assertTrue("Must write HTML", result.contains("test"));
-		assertEquals("Must set CSRF cookie", 1, cookies.size());
+		assertTrue(result.contains("nonce='abc'"), "Must inject nonce");
+		assertTrue(result.contains("test"), "Must write HTML");
+		assertEquals(1, cookies.size(), "Must set CSRF cookie");
 		assertEquals("csrf_token", cookies.get(0).getName());
 		assertEquals("42", cookies.get(0).getValue());
 	}
@@ -312,7 +311,7 @@ public class AuthenticatorManagerInstanceTest extends Log4JToConsoleTest
 		DefaultLoginManager manager = new DefaultLoginManager(solution);
 		java.lang.reflect.Field field = AbstractAuthenticatorManager.class.getDeclaredField("solution");
 		field.setAccessible(true);
-		assertEquals("Manager must hold the solution instance", solution, field.get(manager));
+		assertEquals(solution, field.get(manager), "Manager must hold the solution instance");
 	}
 
 	// =========================================================================

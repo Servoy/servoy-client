@@ -27,8 +27,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.json.JSONObject;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.sablo.InMemPackageReader;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.PropertyDescriptionBuilder;
@@ -161,15 +161,14 @@ public class FormElementHelperCustomPropertiesTest extends AbstractSolutionTest
 		formElementValue.put(CHILD_NAME, childJson);
 
 		List<IFormElement> generated = invokeGenerateFormComponentPersists(formElementValue);
-		Assert.assertEquals("exactly one child persist must be generated for the form component", 1, generated.size());
+		Assertions.assertEquals(1, generated.size(), "exactly one child persist must be generated for the form component");
 
 		BaseComponent childClone = findChildClone(generated);
-		Assert.assertNotNull("the generated child persist must be a BaseComponent named after " + CHILD_NAME, childClone);
+		Assertions.assertNotNull(childClone, "the generated child persist must be a BaseComponent named after " + CHILD_NAME);
 
 		Map<String, String> attributes = childClone.getAttributes();
-		Assert.assertFalse("legacy string customProperties must have been merged into the child's attributes (not skipped)",
-			attributes.isEmpty());
-		Assert.assertEquals("the merged attributes must expose data-Target", "dashboard-health", attributes.get("data-Target"));
+		Assertions.assertFalse(attributes.isEmpty(), "legacy string customProperties must have been merged into the child's attributes (not skipped)");
+		Assertions.assertEquals("dashboard-health", attributes.get("data-Target"), "the merged attributes must expose data-Target");
 	}
 
 	/**
@@ -188,12 +187,11 @@ public class FormElementHelperCustomPropertiesTest extends AbstractSolutionTest
 		formElementValue.put(CHILD_NAME, childJson);
 
 		List<IFormElement> generated = invokeGenerateFormComponentPersists(formElementValue);
-		Assert.assertEquals("exactly one child persist must be generated even with an incompatible legacy property", 1,
-			generated.size());
+		Assertions.assertEquals(1, generated.size(), "exactly one child persist must be generated even with an incompatible legacy property");
 
 		BaseComponent childClone = findChildClone(generated);
-		Assert.assertNotNull("the generated child persist must be a BaseComponent named after " + CHILD_NAME, childClone);
-		Assert.assertEquals("the incompatible size String must not corrupt the customProperties merge", "dashboard-health",
-			childClone.getAttributes().get("data-Target"));
+		Assertions.assertNotNull(childClone, "the generated child persist must be a BaseComponent named after " + CHILD_NAME);
+		Assertions.assertEquals("dashboard-health", childClone.getAttributes().get("data-Target"),
+			"the incompatible size String must not corrupt the customProperties merge");
 	}
 }

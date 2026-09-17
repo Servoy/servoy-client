@@ -1,9 +1,10 @@
 package com.servoy.j2db.server.ngclient.auth;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -26,9 +27,9 @@ import java.util.Properties;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
@@ -59,7 +60,7 @@ public class CloudStatelessAccessManagerTest
 	private JSONObject lastCloudResponse;
 	private int lastCloudStatusCode;
 
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception
 	{
 		lastCloudResponse = new JSONObject();
@@ -75,7 +76,7 @@ public class CloudStatelessAccessManagerTest
 		manager = new CloudStatelessAccessManager(cloudSolution);
 	}
 
-	@After
+	@AfterEach
 	public void tearDown()
 	{
 		CloudStatelessAccessManager.resetHttpClientFactory();
@@ -353,7 +354,7 @@ public class CloudStatelessAccessManagerTest
 		HttpServletResponse indexResponse = createMockResponse();
 
 		LoginResult mustAuthResult = StatelessLoginHandler.mustAuthenticate(indexRequest, indexResponse, SOLUTION_NAME);
-		assertFalse("Should need login for SERVOY_CLOUD", mustAuthResult.isAuthenticated());
+		assertFalse(mustAuthResult.isAuthenticated(), "Should need login for SERVOY_CLOUD");
 
 		// Step 2: writeLoginPage calls getCloudLoginPage for SERVOY_CLOUD
 		String loginPageHtml = "<!DOCTYPE html><html><body>" +
@@ -367,7 +368,7 @@ public class CloudStatelessAccessManagerTest
 		HttpServletResponse writeResponse = createMockResponseWithWriter(pageOutput);
 		StatelessLoginHandler.writeLoginPage(indexRequest, writeResponse, SOLUTION_NAME, mustAuthResult);
 		String writtenPage = pageOutput.toString();
-		assertTrue("Should have written a login page", writtenPage.contains("login_form") || writtenPage.contains("svyRedirect"));
+		assertTrue(writtenPage.contains("login_form") || writtenPage.contains("svyRedirect"), "Should have written a login page");
 
 		// Step 3: User submits credentials - mustAuthenticate with username/password/csrf
 		JSONObject permissionsResponse = new JSONObject();
@@ -380,8 +381,8 @@ public class CloudStatelessAccessManagerTest
 		HttpServletResponse credResponse = createMockResponse();
 
 		LoginResult loginResult = StatelessLoginHandler.mustAuthenticate(credRequest, credResponse, SOLUTION_NAME);
-		assertTrue("Should be authenticated after cloud login", loginResult.isAuthenticated());
-		assertNotNull("Token should be created", loginResult.getToken());
+		assertTrue(loginResult.isAuthenticated(), "Should be authenticated after cloud login");
+		assertNotNull(loginResult.getToken(), "Token should be created");
 
 		DecodedJWT decoded = JWT.decode(loginResult.getToken());
 		assertEquals(TEST_USERNAME, decoded.getClaim(SvyID.USERNAME).asString());
@@ -399,7 +400,7 @@ public class CloudStatelessAccessManagerTest
 		HttpServletResponse indexResponse = createMockResponse();
 
 		LoginResult mustAuthResult = StatelessLoginHandler.mustAuthenticate(indexRequest, indexResponse, SOLUTION_NAME);
-		assertFalse("Should need login", mustAuthResult.isAuthenticated());
+		assertFalse(mustAuthResult.isAuthenticated(), "Should need login");
 
 		String loginPageHtml = "<!DOCTYPE html><html><body>" +
 			"<form name=\"login_form\" method=\"post\" action=\"svylogin/login\">" +
@@ -412,7 +413,7 @@ public class CloudStatelessAccessManagerTest
 		StatelessLoginHandler.writeLoginPage(indexRequest, writeResp, SOLUTION_NAME, mustAuthResult);
 		String initialPage = pageOutput.toString();
 		// writeLoginPage injects csrf into the form
-		assertTrue("Should have csrf_token in form", initialPage.contains("csrf_token"));
+		assertTrue(initialPage.contains("csrf_token"), "Should have csrf_token in form");
 
 		// Step 2: User submits wrong credentials -> handlePossibleCloudRequest -> cloud returns error HTML with form
 		String errorLoginHtml = "<!DOCTYPE html><html><body>" +
@@ -425,14 +426,14 @@ public class CloudStatelessAccessManagerTest
 		// Set up the context with endpoints cached
 		Map<String, Object> contextAttributes = new HashMap<>();
 		contextAttributes.put("nonce", new java.util.concurrent.ConcurrentHashMap<String, JSONObject>());
-		contextAttributes.put("endpoints", new String[]{ "login", "tenant_select_redirect" });
+		contextAttributes.put("endpoints", new String[] { "login", "tenant_select_redirect" });
 		contextAttributes.put("endpoints_expire", Long.valueOf(System.currentTimeMillis() + 600000));
 
 		String csrfToken = "123456";
 		Map<String, String[]> loginParams = new HashMap<>();
-		loginParams.put("username", new String[]{ TEST_USERNAME });
-		loginParams.put("password", new String[]{ "wrong-password" });
-		loginParams.put("csrf_token", new String[]{ csrfToken });
+		loginParams.put("username", new String[] { TEST_USERNAME });
+		loginParams.put("password", new String[] { "wrong-password" });
+		loginParams.put("csrf_token", new String[] { csrfToken });
 
 		jakarta.servlet.http.Cookie csrfCookie = new jakarta.servlet.http.Cookie("csrf_token", csrfToken);
 		Map<String, Object> sessionAttributes = new HashMap<>();
@@ -440,7 +441,7 @@ public class CloudStatelessAccessManagerTest
 
 		HttpServletRequest cloudPostRequest = (HttpServletRequest)Proxy.newProxyInstance(
 			HttpServletRequest.class.getClassLoader(),
-			new Class< ? >[]{ HttpServletRequest.class },
+			new Class< ? >[] { HttpServletRequest.class },
 			(proxy, method, args) -> {
 				switch (method.getName())
 				{
@@ -450,7 +451,7 @@ public class CloudStatelessAccessManagerTest
 						String[] vals = loginParams.get(args[0]);
 						return vals != null && vals.length > 0 ? vals[0] : null;
 					case "getCookies" :
-						return new jakarta.servlet.http.Cookie[]{ csrfCookie };
+						return new jakarta.servlet.http.Cookie[] { csrfCookie };
 					case "getCharacterEncoding" :
 						return "UTF-8";
 					case "setCharacterEncoding" :
@@ -477,7 +478,7 @@ public class CloudStatelessAccessManagerTest
 					case "getSession" :
 						return (jakarta.servlet.http.HttpSession)Proxy.newProxyInstance(
 							jakarta.servlet.http.HttpSession.class.getClassLoader(),
-							new Class< ? >[]{ jakarta.servlet.http.HttpSession.class },
+							new Class< ? >[] { jakarta.servlet.http.HttpSession.class },
 							(p, m, a) -> {
 								switch (m.getName())
 								{
@@ -495,7 +496,7 @@ public class CloudStatelessAccessManagerTest
 					case "getServletContext" :
 						return (jakarta.servlet.ServletContext)Proxy.newProxyInstance(
 							jakarta.servlet.ServletContext.class.getClassLoader(),
-							new Class< ? >[]{ jakarta.servlet.ServletContext.class },
+							new Class< ? >[] { jakarta.servlet.ServletContext.class },
 							(p, m, a) -> {
 								switch (m.getName())
 								{
@@ -521,7 +522,7 @@ public class CloudStatelessAccessManagerTest
 		PrintWriter errorPrintWriter = new PrintWriter(errorPageOutput);
 		HttpServletResponse cloudPostResponse = (HttpServletResponse)Proxy.newProxyInstance(
 			HttpServletResponse.class.getClassLoader(),
-			new Class< ? >[]{ HttpServletResponse.class },
+			new Class< ? >[] { HttpServletResponse.class },
 			(proxy, method, args) -> {
 				switch (method.getName())
 				{
@@ -546,16 +547,16 @@ public class CloudStatelessAccessManagerTest
 			});
 
 		boolean handled = CloudStatelessAccessManager.handlePossibleCloudRequest(cloudPostRequest, cloudPostResponse, SOLUTION_NAME);
-		assertTrue("Should be handled by cloud manager", handled);
+		assertTrue(handled, "Should be handled by cloud manager");
 
 		String errorPage = errorPageOutput.toString();
 		// The error page should have the CSRF token injected
-		assertTrue("Error page should contain csrf_token hidden field", errorPage.contains("csrf_token"));
-		assertTrue("Error page should contain error message", errorPage.contains("Invalid credentials"));
+		assertTrue(errorPage.contains("csrf_token"), "Error page should contain csrf_token hidden field");
+		assertTrue(errorPage.contains("Invalid credentials"), "Error page should contain error message");
 
 		// Verify a new CSRF cookie was set
 		boolean csrfCookieSet = responseCookies.stream().anyMatch(c -> "csrf_token".equals(c.getName()));
-		assertTrue("Should have set a new csrf_token cookie", csrfCookieSet);
+		assertTrue(csrfCookieSet, "Should have set a new csrf_token cookie");
 
 		// Step 3: User retries with correct credentials using the new CSRF token
 		String newCsrfValue = responseCookies.stream()
@@ -573,8 +574,8 @@ public class CloudStatelessAccessManagerTest
 		HttpServletResponse retryResponse = createMockResponse();
 
 		LoginResult retryResult = StatelessLoginHandler.mustAuthenticate(retryRequest, retryResponse, SOLUTION_NAME);
-		assertTrue("Should be authenticated on retry", retryResult.isAuthenticated());
-		assertNotNull("Should have token", retryResult.getToken());
+		assertTrue(retryResult.isAuthenticated(), "Should be authenticated on retry");
+		assertNotNull(retryResult.getToken(), "Should have token");
 	}
 
 	@Test
@@ -591,8 +592,8 @@ public class CloudStatelessAccessManagerTest
 		HttpServletResponse loginResponse = createMockResponse();
 
 		LoginResult firstResult = StatelessLoginHandler.mustAuthenticate(loginRequest, loginResponse, SOLUTION_NAME);
-		assertTrue("Should be authenticated on first login", firstResult.isAuthenticated());
-		assertNotNull("Should have a token", firstResult.getToken());
+		assertTrue(firstResult.isAuthenticated(), "Should be authenticated on first login");
+		assertNotNull(firstResult.getToken(), "Should have a token");
 
 		// Step 2: Submit the existing svy token as id_token parameter -> triggers checkPermissions
 		// Cloud returns same permissions on revalidation
@@ -695,8 +696,8 @@ public class CloudStatelessAccessManagerTest
 		HttpServletResponse checkPermResponse = createMockResponse();
 		LoginResult checkResult = StatelessLoginHandler.mustAuthenticate(checkPermRequest, checkPermResponse, SOLUTION_NAME);
 
-		assertTrue("Should be authenticated after checkPermissions", checkResult.isAuthenticated());
-		assertNotNull("Should have a token after checkPermissions", checkResult.getToken());
+		assertTrue(checkResult.isAuthenticated(), "Should be authenticated after checkPermissions");
+		assertNotNull(checkResult.getToken(), "Should have a token after checkPermissions");
 	}
 
 	// ===== Full flow: login page -> credentials -> tenants -> token =====
@@ -943,7 +944,7 @@ public class CloudStatelessAccessManagerTest
 		Boolean remember = decoded.getClaim(SvyID.REMEMBER).asBoolean();
 		// Fresh login with oldToken=null sets FALSE via withRememberUser(FALSE)
 		// SvyTokenBuilder only adds the claim when TRUE, so it should be null
-		assertTrue("Remember claim should be null or false", remember == null || !remember.booleanValue());
+		assertTrue(remember == null || !remember.booleanValue(), "Remember claim should be null or false");
 	}
 
 	// ===== checkCloudOAuthPermissions =====
@@ -1071,7 +1072,7 @@ public class CloudStatelessAccessManagerTest
 
 		assertTrue(verified);
 		String output = writer.toString();
-		assertTrue("Should contain the error HTML", output.contains("Account locked"));
+		assertTrue(output.contains("Account locked"), "Should contain the error HTML");
 	}
 
 	@Test
@@ -1160,8 +1161,8 @@ public class CloudStatelessAccessManagerTest
 		HttpServletResponse credResponse = createMockResponse();
 
 		LoginResult loginResult = StatelessLoginHandler.mustAuthenticate(credRequest, credResponse, SOLUTION_NAME);
-		assertTrue("Should be authenticated after cloud login", loginResult.isAuthenticated());
-		assertNotNull("Token should be created", loginResult.getToken());
+		assertTrue(loginResult.isAuthenticated(), "Should be authenticated after cloud login");
+		assertNotNull(loginResult.getToken(), "Token should be created");
 
 		DecodedJWT decoded = JWT.decode(loginResult.getToken());
 		assertEquals(TEST_USERNAME, decoded.getClaim(SvyID.USERNAME).asString());
@@ -1183,7 +1184,7 @@ public class CloudStatelessAccessManagerTest
 		HttpServletResponse credResponse = createMockResponse();
 
 		LoginResult loginResult = StatelessLoginHandler.mustAuthenticate(credRequest, credResponse, SOLUTION_NAME);
-		assertFalse("Should not be authenticated with wrong credentials", loginResult.isAuthenticated());
+		assertFalse(loginResult.isAuthenticated(), "Should not be authenticated with wrong credentials");
 
 		String cloudHtml = "<html><body><form name=\"login_form\"><span class=\"error\">Invalid credentials</span></form></body></html>";
 		lastCloudResponse = new JSONObject().put("html", cloudHtml);
@@ -1193,7 +1194,7 @@ public class CloudStatelessAccessManagerTest
 		HttpServletResponse writeResponse = createMockResponseWithWriter(pageOutput);
 		StatelessLoginHandler.writeLoginPage(credRequest, writeResponse, SOLUTION_NAME, loginResult);
 		String page = pageOutput.toString();
-		assertTrue("Should show login page again", page.contains("login_form") || page.contains("svyRedirect"));
+		assertTrue(page.contains("login_form") || page.contains("svyRedirect"), "Should show login page again");
 	}
 
 	@Test
@@ -1304,8 +1305,8 @@ public class CloudStatelessAccessManagerTest
 
 		HttpServletResponse refreshResponse = createMockResponse();
 		LoginResult refreshResult = StatelessLoginHandler.mustAuthenticate(refreshRequest, refreshResponse, SOLUTION_NAME);
-		assertTrue("Should be authenticated via checkPermissions refresh", refreshResult.isAuthenticated());
-		assertNotNull("Token should be present", refreshResult.getToken());
+		assertTrue(refreshResult.isAuthenticated(), "Should be authenticated via checkPermissions refresh");
+		assertNotNull(refreshResult.getToken(), "Token should be present");
 	}
 
 	@Test
@@ -1418,7 +1419,7 @@ public class CloudStatelessAccessManagerTest
 
 		HttpServletResponse response = createMockResponse();
 		LoginResult result = StatelessLoginHandler.mustAuthenticate(request, response, SOLUTION_NAME);
-		assertFalse("Should NOT be authenticated when cloud rejects expired token refresh", result.isAuthenticated());
+		assertFalse(result.isAuthenticated(), "Should NOT be authenticated when cloud rejects expired token refresh");
 
 		String cloudHtml = "<html><body><form name=\"login_form\">Session expired, please login again</form></body></html>";
 		lastCloudResponse = new JSONObject().put("html", cloudHtml);
@@ -1428,7 +1429,7 @@ public class CloudStatelessAccessManagerTest
 		HttpServletResponse writeResponse = createMockResponseWithWriter(pageOutput);
 		StatelessLoginHandler.writeLoginPage(request, writeResponse, SOLUTION_NAME, result);
 		String page = pageOutput.toString();
-		assertTrue("Should write cloud login page", page.contains("login_form") || page.contains("svyRedirect"));
+		assertTrue(page.contains("login_form") || page.contains("svyRedirect"), "Should write cloud login page");
 	}
 
 	@Test
@@ -1441,15 +1442,15 @@ public class CloudStatelessAccessManagerTest
 		HttpServletRequest request = createMockRequestWithQueryString("deeplink=dashboard&locale=en_US");
 		HttpServletResponse indexResponse = createMockResponse();
 		LoginResult mustAuthResult = StatelessLoginHandler.mustAuthenticate(request, indexResponse, SOLUTION_NAME);
-		assertFalse("Should need login", mustAuthResult.isAuthenticated());
+		assertFalse(mustAuthResult.isAuthenticated(), "Should need login");
 
 		StringWriter pageOutput = new StringWriter();
 		HttpServletResponse writeResponse = createMockResponseWithWriter(pageOutput);
 		StatelessLoginHandler.writeLoginPage(request, writeResponse, SOLUTION_NAME, mustAuthResult);
 		String page = pageOutput.toString();
 		assertNotNull(page);
-		assertTrue("Should contain svyRedirect with query params", page.contains("svyRedirect"));
-		assertTrue("Should contain deeplink in redirect", page.contains("deeplink"));
+		assertTrue(page.contains("svyRedirect"), "Should contain svyRedirect with query params");
+		assertTrue(page.contains("deeplink"), "Should contain deeplink in redirect");
 	}
 
 	@Test
@@ -1556,7 +1557,7 @@ public class CloudStatelessAccessManagerTest
 
 		HttpServletResponse loginResponse = createMockResponse();
 		LoginResult loginResult = StatelessLoginHandler.mustAuthenticate(loginRequest, loginResponse, SOLUTION_NAME);
-		assertTrue("Should be authenticated", loginResult.isAuthenticated());
+		assertTrue(loginResult.isAuthenticated(), "Should be authenticated");
 		assertNotNull(loginResult.getToken());
 
 		DecodedJWT decoded = JWT.decode(loginResult.getToken());
@@ -1584,10 +1585,10 @@ public class CloudStatelessAccessManagerTest
 
 		boolean handled = CloudStatelessAccessManager.handlePossibleCloudRequest(request, response, SOLUTION_NAME);
 
-		assertTrue("Should handle svylogin/login POST", handled);
+		assertTrue(handled, "Should handle svylogin/login POST");
 		String output = writer.toString();
-		assertTrue("Should contain the login form", output.contains("login_form"));
-		assertTrue("Should contain svyRedirect hidden field", output.contains("svyRedirect"));
+		assertTrue(output.contains("login_form"), "Should contain the login form");
+		assertTrue(output.contains("svyRedirect"), "Should contain svyRedirect hidden field");
 	}
 
 	@Test
@@ -1610,13 +1611,13 @@ public class CloudStatelessAccessManagerTest
 
 		boolean handled = CloudStatelessAccessManager.handlePossibleCloudRequest(request, response, SOLUTION_NAME);
 
-		assertTrue("Should handle svylogin/login POST", handled);
+		assertTrue(handled, "Should handle svylogin/login POST");
 		jakarta.servlet.http.Cookie csrfCookie = responseCookies.stream()
 			.filter(c -> "csrf_token".equals(c.getName()))
 			.findFirst().orElse(null);
-		assertNotNull("A csrf_token cookie should have been added", csrfCookie);
-		assertTrue("csrf_token cookie must have the Secure flag on an HTTPS request", csrfCookie.getSecure());
-		assertTrue("csrf_token cookie should be HttpOnly", csrfCookie.isHttpOnly());
+		assertNotNull(csrfCookie, "A csrf_token cookie should have been added");
+		assertTrue(csrfCookie.getSecure(), "csrf_token cookie must have the Secure flag on an HTTPS request");
+		assertTrue(csrfCookie.isHttpOnly(), "csrf_token cookie should be HttpOnly");
 	}
 
 	@Test
@@ -1639,12 +1640,12 @@ public class CloudStatelessAccessManagerTest
 
 		boolean handled = CloudStatelessAccessManager.handlePossibleCloudRequest(request, response, SOLUTION_NAME);
 
-		assertTrue("Should handle svylogin/login POST", handled);
+		assertTrue(handled, "Should handle svylogin/login POST");
 		jakarta.servlet.http.Cookie csrfCookie = responseCookies.stream()
 			.filter(c -> "csrf_token".equals(c.getName()))
 			.findFirst().orElse(null);
-		assertNotNull("A csrf_token cookie should have been added", csrfCookie);
-		assertFalse("csrf_token cookie should not set Secure on a plain HTTP request", csrfCookie.getSecure());
+		assertNotNull(csrfCookie, "A csrf_token cookie should have been added");
+		assertFalse(csrfCookie.getSecure(), "csrf_token cookie should not set Secure on a plain HTTP request");
 	}
 
 	@Test
@@ -1669,8 +1670,8 @@ public class CloudStatelessAccessManagerTest
 
 		boolean handled = CloudStatelessAccessManager.handlePossibleCloudRequest(request, response, SOLUTION_NAME);
 
-		assertTrue("Should handle svylogin/login POST with permissions", handled);
-		assertFalse("Should redirect after successful login", redirects.isEmpty());
+		assertTrue(handled, "Should handle svylogin/login POST with permissions");
+		assertFalse(redirects.isEmpty(), "Should redirect after successful login");
 	}
 
 	@Test
@@ -1695,7 +1696,7 @@ public class CloudStatelessAccessManagerTest
 
 		boolean handled = CloudStatelessAccessManager.handlePossibleCloudRequest(request, response, SOLUTION_NAME);
 
-		assertTrue("Should handle svylogin/oauth POST", handled);
+		assertTrue(handled, "Should handle svylogin/oauth POST");
 	}
 
 	@Test
@@ -1721,8 +1722,8 @@ public class CloudStatelessAccessManagerTest
 
 		boolean handled = CloudStatelessAccessManager.handlePossibleCloudRequest(request, response, SOLUTION_NAME);
 
-		assertTrue("Should handle svylogin/tenant_select_redirect POST", handled);
-		assertFalse("Should redirect after tenant selection", redirects.isEmpty());
+		assertTrue(handled, "Should handle svylogin/tenant_select_redirect POST");
+		assertFalse(redirects.isEmpty(), "Should redirect after tenant selection");
 	}
 
 	@Test
@@ -1738,7 +1739,7 @@ public class CloudStatelessAccessManagerTest
 
 		boolean handled = CloudStatelessAccessManager.handlePossibleCloudRequest(request, response, SOLUTION_NAME);
 
-		assertFalse("Should not handle unknown endpoint", handled);
+		assertFalse(handled, "Should not handle unknown endpoint");
 	}
 
 	@Test
@@ -1755,9 +1756,9 @@ public class CloudStatelessAccessManagerTest
 
 		boolean handled = CloudStatelessAccessManager.handlePossibleCloudRequest(request, response, SOLUTION_NAME);
 
-		assertTrue("Should handle svylogin/login GET", handled);
+		assertTrue(handled, "Should handle svylogin/login GET");
 		String output = writer.toString();
-		assertTrue("Should contain GET login page", output.contains("login_form"));
+		assertTrue(output.contains("login_form"), "Should contain GET login page");
 	}
 
 	@Test
@@ -1774,7 +1775,7 @@ public class CloudStatelessAccessManagerTest
 		lastCloudStatusCode = 200;
 
 		Map<String, String[]> params = new HashMap<>();
-		params.put("csrf_token", new String[]{ "123456" });
+		params.put("csrf_token", new String[] { "123456" });
 		// Use a request that does NOT have pre-populated endpoints in servletContext
 		HttpServletRequest request = createHandlePossibleCloudRequestNoCachedEndpoints(
 			"/solution/" + SOLUTION_NAME + "/svylogin/login", params, "POST");
@@ -1784,7 +1785,7 @@ public class CloudStatelessAccessManagerTest
 
 		// The first HTTP call gets the endpoints array, the second call will also get "endpoints" JSON
 		// which doesn't have "html"/"permissions"/"error"/"oauth" - so writeResponse will fall through to default
-		assertTrue("Should handle the request (endpoints found, endpoint is in list)", handled);
+		assertTrue(handled, "Should handle the request (endpoints found, endpoint is in list)");
 	}
 
 	private HttpServletRequest createHandlePossibleCloudRequest(String servletPath, Map<String, String[]> params, String httpMethod)
@@ -1811,7 +1812,7 @@ public class CloudStatelessAccessManagerTest
 						String[] vals = params.get(args[0]);
 						return vals != null && vals.length > 0 ? vals[0] : null;
 					case "getCookies" :
-						return new jakarta.servlet.http.Cookie[]{ csrfCookie };
+						return new jakarta.servlet.http.Cookie[] { csrfCookie };
 					case "getCharacterEncoding" :
 						return "UTF-8";
 					case "setCharacterEncoding" :
@@ -2005,7 +2006,7 @@ public class CloudStatelessAccessManagerTest
 						String[] vals = params.get(args[0]);
 						return vals != null && vals.length > 0 ? vals[0] : null;
 					case "getCookies" :
-						return new jakarta.servlet.http.Cookie[]{ csrfCookie };
+						return new jakarta.servlet.http.Cookie[] { csrfCookie };
 					case "getCharacterEncoding" :
 						return "UTF-8";
 					case "setCharacterEncoding" :
@@ -2096,7 +2097,7 @@ public class CloudStatelessAccessManagerTest
 
 		assertTrue(verified);
 		String output = writer.toString();
-		assertTrue("Should write the error HTML", output.contains("User account is locked"));
+		assertTrue(output.contains("User account is locked"), "Should write the error HTML");
 	}
 
 	@Test
@@ -2199,14 +2200,14 @@ public class CloudStatelessAccessManagerTest
 		HttpServletRequest request = createMockRequest();
 		HttpServletResponse indexResponse = createMockResponse();
 		LoginResult mustAuthResult = StatelessLoginHandler.mustAuthenticate(request, indexResponse, SOLUTION_NAME);
-		assertFalse("Should need login", mustAuthResult.isAuthenticated());
+		assertFalse(mustAuthResult.isAuthenticated(), "Should need login");
 
 		StringWriter pageOutput = new StringWriter();
 		HttpServletResponse writeResponse = createMockResponseWithWriter(pageOutput);
 		StatelessLoginHandler.writeLoginPage(request, writeResponse, SOLUTION_NAME, mustAuthResult);
 		String page = pageOutput.toString();
 		assertNotNull(page);
-		assertTrue("Should contain the cloud login form", page.contains("login_form") || page.contains("svyRedirect"));
+		assertTrue(page.contains("login_form") || page.contains("svyRedirect"), "Should contain the cloud login form");
 	}
 
 	@Test
@@ -2218,14 +2219,14 @@ public class CloudStatelessAccessManagerTest
 		HttpServletRequest request = createMockRequest();
 		HttpServletResponse indexResponse = createMockResponse();
 		LoginResult mustAuthResult = StatelessLoginHandler.mustAuthenticate(request, indexResponse, SOLUTION_NAME);
-		assertFalse("Should need login", mustAuthResult.isAuthenticated());
+		assertFalse(mustAuthResult.isAuthenticated(), "Should need login");
 
 		StringWriter pageOutput = new StringWriter();
 		HttpServletResponse writeResponse = createMockResponseWithWriter(pageOutput);
 		StatelessLoginHandler.writeLoginPage(request, writeResponse, SOLUTION_NAME, mustAuthResult);
 		String page = pageOutput.toString();
 		assertNotNull(page);
-		assertTrue("Should write some login page", page.length() > 0);
+		assertTrue(page.length() > 0, "Should write some login page");
 	}
 
 	// ===== Full flow: logoutAndRevokeToken with OAuth provider =====
@@ -2427,7 +2428,7 @@ public class CloudStatelessAccessManagerTest
 
 		HttpServletResponse refreshResponse = createMockResponse();
 		LoginResult refreshResult = StatelessLoginHandler.mustAuthenticate(refreshRequest, refreshResponse, SOLUTION_NAME);
-		assertFalse("Should NOT be authenticated when cloud rejects refresh", refreshResult.isAuthenticated());
+		assertFalse(refreshResult.isAuthenticated(), "Should NOT be authenticated when cloud rejects refresh");
 
 		String cloudHtml = "<html><body><form name=\"login_form\">Please login again</form></body></html>";
 		lastCloudResponse = new JSONObject().put("html", cloudHtml);
@@ -2437,7 +2438,7 @@ public class CloudStatelessAccessManagerTest
 		HttpServletResponse writeResponse = createMockResponseWithWriter(pageOutput);
 		StatelessLoginHandler.writeLoginPage(refreshRequest, writeResponse, SOLUTION_NAME, refreshResult);
 		String page = pageOutput.toString();
-		assertTrue("Should show login page after failed refresh", page.contains("login_form") || page.contains("svyRedirect"));
+		assertTrue(page.contains("login_form") || page.contains("svyRedirect"), "Should show login page after failed refresh");
 	}
 
 	@Test
@@ -2551,7 +2552,7 @@ public class CloudStatelessAccessManagerTest
 
 		HttpServletResponse checkResponse = createMockResponse();
 		LoginResult checkResult = StatelessLoginHandler.mustAuthenticate(checkRequest, checkResponse, SOLUTION_NAME);
-		assertTrue("Should be authenticated with valid svy token", checkResult.isAuthenticated());
+		assertTrue(checkResult.isAuthenticated(), "Should be authenticated with valid svy token");
 		assertNotNull(checkResult.getToken());
 
 		DecodedJWT decoded = JWT.decode(checkResult.getToken());
@@ -2990,8 +2991,8 @@ public class CloudStatelessAccessManagerTest
 		HttpServletResponse response = createMockResponse();
 		LoginResult result = StatelessLoginHandler.mustAuthenticate(request, response, SOLUTION_NAME);
 
-		assertTrue("Should be authenticated after expired token refresh", result.isAuthenticated());
-		assertNotNull("Should have a new token", result.getToken());
+		assertTrue(result.isAuthenticated(), "Should be authenticated after expired token refresh");
+		assertNotNull(result.getToken(), "Should have a new token");
 	}
 
 	@Test
@@ -3106,7 +3107,7 @@ public class CloudStatelessAccessManagerTest
 		HttpServletResponse response = createMockResponse();
 		LoginResult result = StatelessLoginHandler.mustAuthenticate(request, response, SOLUTION_NAME);
 
-		assertFalse("Should NOT be authenticated when cloud refresh fails", result.isAuthenticated());
+		assertFalse(result.isAuthenticated(), "Should NOT be authenticated when cloud refresh fails");
 
 		String loginPageHtml = "<html><body><form name=\"login_form\">cloud login</form></body></html>";
 		lastCloudResponse = new JSONObject().put("html", loginPageHtml);
@@ -3116,7 +3117,7 @@ public class CloudStatelessAccessManagerTest
 		HttpServletResponse writeResponse = createMockResponseWithWriter(pageOutput);
 		StatelessLoginHandler.writeLoginPage(request, writeResponse, SOLUTION_NAME, result);
 		String page = pageOutput.toString();
-		assertTrue("Should write login page with cloud login form", page.contains("login") || page.contains("svyRedirect"));
+		assertTrue(page.contains("login") || page.contains("svyRedirect"), "Should write login page with cloud login form");
 	}
 
 	// ===== StatelessLoginHandler.logoutAndRevokeToken(HttpSession, Solution) =====
@@ -3242,7 +3243,7 @@ public class CloudStatelessAccessManagerTest
 		});
 
 		StatelessLoginHandler.init(context);
-		assertNotNull("Nonce map should be set", contextAttrs.get("nonce"));
+		assertNotNull(contextAttrs.get("nonce"), "Nonce map should be set");
 	}
 
 	// ===== StatelessLoginHandler.writeLoginPage - solution not found =====
@@ -3258,12 +3259,12 @@ public class CloudStatelessAccessManagerTest
 		// Pass a solution name that doesn't exist in our repository mock
 		StatelessLoginHandler.writeLoginPage(request, response, "nonExistentSolution", result);
 		// Should not throw - just logs an error and returns
-		assertEquals("Should write nothing when solution not found", "", writer.toString());
+		assertEquals("", writer.toString(), "Should write nothing when solution not found");
 	}
 
 	// ===== StatelessLoginHandler.checkPermissions - CSRF failure =====
 
-	@Test(expected = jakarta.servlet.ServletException.class)
+	@Test
 	public void testStatelessLoginHandler_checkPermissions_csrfFails_throwsServletException() throws Exception
 	{
 		// Create a valid non-expired token and send as id_token param
@@ -3328,7 +3329,7 @@ public class CloudStatelessAccessManagerTest
 
 		HttpServletResponse response = createMockResponse();
 		// This should throw ServletException "Access forbidden due to failed security validation"
-		StatelessLoginHandler.mustAuthenticate(request, response, SOLUTION_NAME);
+		assertThrows(jakarta.servlet.ServletException.class, () -> StatelessLoginHandler.mustAuthenticate(request, response, SOLUTION_NAME));
 	}
 
 	// ===== StatelessLoginHandler.checkPermissions - auth fails =====
@@ -3404,7 +3405,7 @@ public class CloudStatelessAccessManagerTest
 
 		// checkPermissions was called with valid CSRF, but cloud returned 401
 		// The !verified path should set result to not authenticated
-		assertFalse("Should not be authenticated when cloud rejects", result.isAuthenticated());
+		assertFalse(result.isAuthenticated(), "Should not be authenticated when cloud rejects");
 	}
 
 	@SuppressWarnings("unchecked")

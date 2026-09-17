@@ -1,24 +1,21 @@
 package com.servoy.j2db.persistence;
 
-import static org.junit.Assert.*;
-
-import java.util.Iterator;
-import java.util.List;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.PropertyDescriptionBuilder;
 import org.sablo.specification.property.CustomJSONArrayType;
 import org.sablo.specification.property.CustomJSONObjectType;
-
 import org.sablo.specification.property.types.StringPropertyType;
 
 import com.servoy.j2db.util.ServoyJSONObject;
 import com.servoy.j2db.util.UUID;
-import com.servoy.j2db.persistence.ContentSpec;
 
 public class WebCustomTypeAddChildTest
 {
@@ -31,7 +28,7 @@ public class WebCustomTypeAddChildTest
 	private CustomJSONObjectType<Object, Object> nestedType;
 	private PropertyDescription componentPd;
 
-	@Before
+	@BeforeEach
 	public void setUp() throws RepositoryException
 	{
 		solution = new DummySolution();

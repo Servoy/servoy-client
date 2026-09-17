@@ -17,17 +17,17 @@
 
 package com.servoy.j2db.server.ngclient.auth;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 import java.util.Properties;
 
 import org.json.JSONObject;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.servoy.j2db.server.ngclient.property.Log4JToConsoleTest;
 
@@ -42,7 +42,7 @@ public class OAuthPropertyResolverTest extends Log4JToConsoleTest
 {
 	private Properties settings;
 
-	@Before
+	@BeforeEach
 	public void setUp()
 	{
 		settings = new Properties();
@@ -148,7 +148,7 @@ public class OAuthPropertyResolverTest extends Log4JToConsoleTest
 		JSONObject result = OAuthPropertyResolver.resolve(json, settings);
 
 		// result must be a distinct object (not the same reference as input)
-		assertNotSame("resolve() must return a new object, not the input", json, result);
+		assertNotSame(json, result, "resolve() must return a new object, not the input");
 		// result must contain the resolved value
 		assertEquals("real-client-id", result.getString("clientId"));
 		// original captured value must still be the placeholder
@@ -242,7 +242,7 @@ public class OAuthPropertyResolverTest extends Log4JToConsoleTest
 
 		List<String> missing = OAuthPropertyResolver.findUnresolved(json, settings);
 
-		assertTrue("Expected empty list when all placeholders resolve", missing.isEmpty());
+		assertTrue(missing.isEmpty(), "Expected empty list when all placeholders resolve");
 	}
 
 	// -------------------------------------------------------------------------
@@ -283,7 +283,7 @@ public class OAuthPropertyResolverTest extends Log4JToConsoleTest
 
 		List<String> missing = OAuthPropertyResolver.findUnresolved(json, settings);
 
-		assertEquals("Duplicate missing key must be reported only once", 1, missing.size());
+		assertEquals(1, missing.size(), "Duplicate missing key must be reported only once");
 		assertTrue(missing.contains("shared.key"));
 	}
 

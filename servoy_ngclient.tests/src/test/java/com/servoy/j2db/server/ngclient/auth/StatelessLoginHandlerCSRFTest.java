@@ -1,8 +1,8 @@
 package com.servoy.j2db.server.ngclient.auth;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.sablo.security.ContentSecurityPolicyConfig;
 
 import com.servoy.j2db.server.ngclient.property.Log4JToConsoleTest;
@@ -114,7 +114,7 @@ public class StatelessLoginHandlerCSRFTest extends Log4JToConsoleTest
 		AbstractAuthenticatorManager.writeSecuredHtmlResponse(request, response, html, 111L, cspConfig);
 
 		String result = output.toString();
-		assertTrue("Nonce must be injected into style tags", result.contains("<style nonce='nonce-xyz'"));
+		assertTrue(result.contains("<style nonce='nonce-xyz'"), "Nonce must be injected into style tags");
 	}
 
 	@Test
@@ -128,7 +128,7 @@ public class StatelessLoginHandlerCSRFTest extends Log4JToConsoleTest
 		AbstractAuthenticatorManager.writeSecuredHtmlResponse(request, response, "<html></html>", 555L, null);
 
 		Cookie csrfCookie = cookies.stream().filter(c -> "csrf_token".equals(c.getName())).findFirst().orElse(null);
-		assertEquals("CSRF cookie path must be /", "/", csrfCookie.getPath());
+		assertEquals("/", csrfCookie.getPath(), "CSRF cookie path must be /");
 	}
 
 	@Test
@@ -142,7 +142,7 @@ public class StatelessLoginHandlerCSRFTest extends Log4JToConsoleTest
 		AbstractAuthenticatorManager.writeSecuredHtmlResponse(request, response, "<html></html>", 777L, null);
 
 		Cookie csrfCookie = cookies.stream().filter(c -> "csrf_token".equals(c.getName())).findFirst().orElse(null);
-		assertFalse("CSRF cookie must NOT be Secure on non-secure requests", csrfCookie.getSecure());
+		assertFalse(csrfCookie.getSecure(), "CSRF cookie must NOT be Secure on non-secure requests");
 	}
 
 	@Test
@@ -160,7 +160,7 @@ public class StatelessLoginHandlerCSRFTest extends Log4JToConsoleTest
 
 		String result = output.toString();
 		int count = result.split("nonce='my-nonce'", -1).length - 1;
-		assertEquals("All script tags must get nonce", 2, count);
+		assertEquals(2, count, "All script tags must get nonce");
 	}
 
 	@Test
@@ -175,7 +175,7 @@ public class StatelessLoginHandlerCSRFTest extends Log4JToConsoleTest
 		AbstractAuthenticatorManager.writeSecuredHtmlResponse(request, response, "<html></html>", token, null);
 
 		Cookie csrfCookie = cookies.stream().filter(c -> "csrf_token".equals(c.getName())).findFirst().orElse(null);
-		assertEquals("CSRF cookie value must match token", Long.toString(token), csrfCookie.getValue());
+		assertEquals(Long.toString(token), csrfCookie.getValue(), "CSRF cookie value must match token");
 	}
 
 	// =========================================================================
@@ -196,8 +196,8 @@ public class StatelessLoginHandlerCSRFTest extends Log4JToConsoleTest
 		manager.writeLoginPage(request, response, null);
 
 		String result = output.toString();
-		assertTrue("CSRF hidden field must be injected before </form>",
-			result.contains("<input type='hidden' name='csrf_token'") && result.contains("</form>"));
+		assertTrue(result.contains("<input type='hidden' name='csrf_token'") && result.contains("</form>"),
+			"CSRF hidden field must be injected before </form>");
 	}
 
 	@Test
@@ -212,7 +212,7 @@ public class StatelessLoginHandlerCSRFTest extends Log4JToConsoleTest
 			"<html><head><base href=\"/\"></head><body></body></html>");
 		manager.writeLoginPage(request, response, null);
 
-		assertTrue("No-cache headers must be set", response.getSetHeaders().containsKey("Cache-Control"));
+		assertTrue(response.getSetHeaders().containsKey("Cache-Control"), "No-cache headers must be set");
 	}
 
 	@Test
@@ -230,8 +230,8 @@ public class StatelessLoginHandlerCSRFTest extends Log4JToConsoleTest
 		manager.writeLoginPage(request, response, null);
 
 		String result = output.toString();
-		assertTrue("Language must be replaced to match request locale", result.contains("lang=\"nl\""));
-		assertFalse("Original lang=en must be gone", result.contains("lang=\"en\""));
+		assertTrue(result.contains("lang=\"nl\""), "Language must be replaced to match request locale");
+		assertFalse(result.contains("lang=\"en\""), "Original lang=en must be gone");
 	}
 
 	@Test
@@ -245,8 +245,8 @@ public class StatelessLoginHandlerCSRFTest extends Log4JToConsoleTest
 		TestAuthenticatorManager manager = new TestAuthenticatorManager(null);
 		manager.writeLoginPage(request, response, null);
 
-		assertEquals("Nothing should be written when HTML is null", "", output.toString());
-		assertTrue("No cookies should be set when HTML is null", cookies.isEmpty());
+		assertEquals("", output.toString(), "Nothing should be written when HTML is null");
+		assertTrue(cookies.isEmpty(), "No cookies should be set when HTML is null");
 	}
 
 	@Test
@@ -263,8 +263,7 @@ public class StatelessLoginHandlerCSRFTest extends Log4JToConsoleTest
 
 		String result = output.toString();
 		Cookie csrfCookie = cookies.stream().filter(c -> "csrf_token".equals(c.getName())).findFirst().orElse(null);
-		assertTrue("Hidden field must contain same value as cookie",
-			result.contains("value='" + csrfCookie.getValue() + "'"));
+		assertTrue(result.contains("value='" + csrfCookie.getValue() + "'"), "Hidden field must contain same value as cookie");
 	}
 
 	// =========================================================================

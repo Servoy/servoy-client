@@ -1,16 +1,16 @@
 package com.servoy.j2db.server.ngclient.auth;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.Map;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.RootObjectMetaData;
@@ -57,7 +57,7 @@ public class OAuthHandlerUtilsTest extends Log4JToConsoleTest
 	public void isOAuthRequest_designerUri_returnsFalseEvenWithOauthPath()
 	{
 		HttpServletRequest request = stubRequest("/solution/myapp/designer/svy_oauth/callback", Collections.emptyMap());
-		assertFalse("URI containing /designer must return false", OAuthHandler.isOAuthRequest(request));
+		assertFalse(OAuthHandler.isOAuthRequest(request), "URI containing /designer must return false");
 	}
 
 	@Test
@@ -65,7 +65,7 @@ public class OAuthHandlerUtilsTest extends Log4JToConsoleTest
 	{
 		HttpServletRequest request = stubRequest("/designer/index.html",
 			Collections.singletonMap("svy_remove_id_token", "1"));
-		assertFalse("URI containing /designer must return false", OAuthHandler.isOAuthRequest(request));
+		assertFalse(OAuthHandler.isOAuthRequest(request), "URI containing /designer must return false");
 	}
 
 	@Test
@@ -79,7 +79,7 @@ public class OAuthHandlerUtilsTest extends Log4JToConsoleTest
 	public void isOAuthRequest_bothSvyOauthAndDesigner_returnsFalse()
 	{
 		HttpServletRequest request = stubRequest("/designer/svy_oauth/callback", Collections.emptyMap());
-		assertFalse("Designer takes precedence", OAuthHandler.isOAuthRequest(request));
+		assertFalse(OAuthHandler.isOAuthRequest(request), "Designer takes precedence");
 	}
 
 	// =========================================================================
@@ -101,8 +101,7 @@ public class OAuthHandlerUtilsTest extends Log4JToConsoleTest
 	@Test
 	public void getSolutionNameFromUri_nameWithDot_returnsNull() throws Exception
 	{
-		assertNull("Name with dot (e.g. file.html) must return null",
-			invokeGetSolutionName("/solution/my.app/index.html"));
+		assertNull(invokeGetSolutionName("/solution/my.app/index.html"), "Name with dot (e.g. file.html) must return null");
 	}
 
 	@Test
@@ -117,7 +116,7 @@ public class OAuthHandlerUtilsTest extends Log4JToConsoleTest
 		String result = invokeGetSolutionName("/solution/<script>alert(1)<\\/script>/index.html");
 		if (result != null)
 		{
-			assertFalse("Raw < must be HTML-escaped", result.contains("<script>"));
+			assertFalse(result.contains("<script>"), "Raw < must be HTML-escaped");
 		}
 		// null is also acceptable (name contains . or special chars cause the parse to fail)
 	}
@@ -128,8 +127,8 @@ public class OAuthHandlerUtilsTest extends Log4JToConsoleTest
 		String result = invokeGetSolutionName("/solution/my&app/index.html");
 		if (result != null)
 		{
-			assertFalse("& must be HTML-escaped", result.contains("&app"));
-			assertTrue("& must become &amp;", result.contains("&amp;"));
+			assertFalse(result.contains("&app"), "& must be HTML-escaped");
+			assertTrue(result.contains("&amp;"), "& must become &amp;");
 		}
 	}
 
@@ -154,8 +153,8 @@ public class OAuthHandlerUtilsTest extends Log4JToConsoleTest
 		}
 		catch (ServletException e)
 		{
-			assertTrue("Exception message must mention security validation",
-				e.getMessage().contains("security validation") || e.getMessage().contains("forbidden"));
+			assertTrue(e.getMessage().contains("security validation") || e.getMessage().contains("forbidden"),
+				"Exception message must mention security validation");
 		}
 	}
 
@@ -176,7 +175,7 @@ public class OAuthHandlerUtilsTest extends Log4JToConsoleTest
 		invokeCheckUser("user", "pass", false, null, result, solution, request, new StatelessLoginHandlerCSRFTest.StubHttpServletResponse(
 			new java.io.StringWriter(), new java.util.ArrayList<>()));
 
-		assertFalse("result must not be authenticated when CSRF fails", result.isAuthenticated());
+		assertFalse(result.isAuthenticated(), "result must not be authenticated when CSRF fails");
 	}
 
 	@Test
@@ -190,7 +189,7 @@ public class OAuthHandlerUtilsTest extends Log4JToConsoleTest
 		invokeCheckUser("user", "pass", false, null, result, solution, request, new StatelessLoginHandlerCSRFTest.StubHttpServletResponse(
 			new java.io.StringWriter(), new java.util.ArrayList<>()));
 
-		assertNull("token must be cleared when it is not HTML", result.getToken());
+		assertNull(result.getToken(), "token must be cleared when it is not HTML");
 	}
 
 	@Test
@@ -205,7 +204,7 @@ public class OAuthHandlerUtilsTest extends Log4JToConsoleTest
 		invokeCheckUser("user", "pass", false, null, result, solution, request, new StatelessLoginHandlerCSRFTest.StubHttpServletResponse(
 			new java.io.StringWriter(), new java.util.ArrayList<>()));
 
-		assertEquals("token must be preserved when it starts with <", htmlRight, result.getToken());
+		assertEquals(htmlRight, result.getToken(), "token must be preserved when it starts with <");
 	}
 
 

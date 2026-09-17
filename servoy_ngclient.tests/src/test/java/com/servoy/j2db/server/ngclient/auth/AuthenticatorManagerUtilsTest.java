@@ -1,10 +1,11 @@
 package com.servoy.j2db.server.ngclient.auth;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.lang.reflect.Method;
 import java.net.URLEncoder;
@@ -13,7 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.json.JSONObject;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.RootObjectMetaData;
@@ -48,7 +49,7 @@ public class AuthenticatorManagerUtilsTest extends Log4JToConsoleTest
 
 		assertEquals("bar", json.getString("custom_foo"));
 		assertEquals("qux", json.getString("custom_baz"));
-		assertFalse("Non-custom params must not be added", json.has("other"));
+		assertFalse(json.has("other"), "Non-custom params must not be added");
 	}
 
 	@Test
@@ -60,7 +61,7 @@ public class AuthenticatorManagerUtilsTest extends Log4JToConsoleTest
 		JSONObject json = new JSONObject();
 		invokeAddCustomParameters(stubRequest(params), json);
 
-		assertFalse("No custom_ params â json must stay empty", json.has("username"));
+		assertFalse(json.has("username"), "No custom_ params â json must stay empty");
 	}
 
 	@Test
@@ -75,11 +76,11 @@ public class AuthenticatorManagerUtilsTest extends Log4JToConsoleTest
 		JSONObject json = new JSONObject();
 		invokeAddCustomParameters(stubRequest(params), json);
 
-		assertTrue("Parsed state must be put in json", json.has("state"));
+		assertTrue(json.has("state"), "Parsed state must be put in json");
 		assertEquals("mystate", json.getString("state"));
-		assertTrue("query field must be added", json.has("query"));
+		assertTrue(json.has("query"), "query field must be added");
 		// svyuuid must be removed from query
-		assertFalse("svyuuid must not appear in query", json.getString("query").contains("svyuuid"));
+		assertFalse(json.getString("query").contains("svyuuid"), "svyuuid must not appear in query");
 	}
 
 	@Test
@@ -109,12 +110,12 @@ public class AuthenticatorManagerUtilsTest extends Log4JToConsoleTest
 		invokeAddParsedState(input, json);
 
 		assertEquals("decoded-state-value", json.getString("state"));
-		assertFalse("svyuuid must be removed", json.has("svyuuid"));
+		assertFalse(json.has("svyuuid"), "svyuuid must be removed");
 		String query = json.getString("query");
-		assertTrue("foo must be in query", query.contains("foo=1"));
-		assertTrue("bar must be in query", query.contains("bar=2"));
-		assertFalse("state must not remain in query", query.contains("state="));
-		assertFalse("svyuuid must not remain in query", query.contains("svyuuid="));
+		assertTrue(query.contains("foo=1"), "foo must be in query");
+		assertTrue(query.contains("bar=2"), "bar must be in query");
+		assertFalse(query.contains("state="), "state must not remain in query");
+		assertFalse(query.contains("svyuuid="), "svyuuid must not remain in query");
 	}
 
 	@Test
@@ -125,10 +126,10 @@ public class AuthenticatorManagerUtilsTest extends Log4JToConsoleTest
 		JSONObject json = new JSONObject();
 		invokeAddParsedState(input, json);
 
-		assertFalse("No state key â no state in json", json.has("state"));
+		assertFalse(json.has("state"), "No state key â no state in json");
 		String query = json.getString("query");
-		assertTrue("foo must appear in query", query.contains("foo=hello"));
-		assertFalse("svyuuid removed", query.contains("svyuuid"));
+		assertTrue(query.contains("foo=hello"), "foo must appear in query");
+		assertFalse(query.contains("svyuuid"), "svyuuid removed");
 	}
 
 	@Test
@@ -173,7 +174,7 @@ public class AuthenticatorManagerUtilsTest extends Log4JToConsoleTest
 	{
 		Solution authenticator = createSolution();
 		// onOpenMethodID is null by default (not set)
-		assertNull("onOpenMethodID must be null for this test", authenticator.getOnOpenMethodID());
+		assertNull(authenticator.getOnOpenMethodID(), "onOpenMethodID must be null for this test");
 
 		Solution mainSolution = createSolution();
 		LoginResult needToLogin = LoginResult.needsLogin();
@@ -181,8 +182,8 @@ public class AuthenticatorManagerUtilsTest extends Log4JToConsoleTest
 		boolean result = AuthenticatorManager.callAuthenticator(needToLogin, null, false,
 			authenticator, new JSONObject(), null, mainSolution);
 
-		assertFalse("Must return false when authenticator has no onOpen method", result);
-		assertFalse("needToLogin must not be authenticated", needToLogin.isAuthenticated());
+		assertFalse(result, "Must return false when authenticator has no onOpen method");
+		assertFalse(needToLogin.isAuthenticated(), "needToLogin must not be authenticated");
 	}
 
 	// =========================================================================
@@ -196,8 +197,7 @@ public class AuthenticatorManagerUtilsTest extends Log4JToConsoleTest
 		Solution solution = createSolutionWithAuthType(AUTHENTICATOR_TYPE.AUTHENTICATOR);
 
 		// Verify via reflection that OAUTH_AUTHENTICATOR check returns false for AUTHENTICATOR type
-		assertTrue("AUTHENTICATOR type must not equal OAUTH_AUTHENTICATOR",
-			solution.getAuthenticator() != AUTHENTICATOR_TYPE.OAUTH_AUTHENTICATOR);
+		assertTrue(solution.getAuthenticator() != AUTHENTICATOR_TYPE.OAUTH_AUTHENTICATOR, "AUTHENTICATOR type must not equal OAUTH_AUTHENTICATOR");
 	}
 
 	@Test
@@ -272,7 +272,7 @@ public class AuthenticatorManagerUtilsTest extends Log4JToConsoleTest
 		try
 		{
 			DefaultLoginManager.class.getDeclaredMethod("requiresCSRFForCheckUser");
-			org.junit.Assert.fail("DefaultLoginManager must NOT override requiresCSRFForCheckUser");
+			fail("DefaultLoginManager must NOT override requiresCSRFForCheckUser");
 		}
 		catch (NoSuchMethodException e)
 		{
@@ -288,7 +288,7 @@ public class AuthenticatorManagerUtilsTest extends Log4JToConsoleTest
 			String.class, String.class, boolean.class, SvyID.class, LoginResult.class,
 			jakarta.servlet.http.HttpServletRequest.class, jakarta.servlet.http.HttpServletResponse.class);
 		assertNotNull(m);
-		assertTrue("checkUser must be public", java.lang.reflect.Modifier.isPublic(m.getModifiers()));
+		assertTrue(java.lang.reflect.Modifier.isPublic(m.getModifiers()), "checkUser must be public");
 	}
 
 	@Test
@@ -298,7 +298,7 @@ public class AuthenticatorManagerUtilsTest extends Log4JToConsoleTest
 			String.class, String.class, boolean.class, SvyID.class, LoginResult.class,
 			jakarta.servlet.http.HttpServletRequest.class);
 		assertNotNull(m);
-		assertTrue("checkPermissions must be public", java.lang.reflect.Modifier.isPublic(m.getModifiers()));
+		assertTrue(java.lang.reflect.Modifier.isPublic(m.getModifiers()), "checkPermissions must be public");
 	}
 
 	@Test

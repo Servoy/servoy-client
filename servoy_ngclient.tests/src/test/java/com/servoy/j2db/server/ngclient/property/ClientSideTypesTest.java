@@ -28,8 +28,8 @@ import java.util.LinkedList;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.sablo.InMemPackageReader;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.skyscreamer.jsonassert.JSONCompareMode;
@@ -149,9 +149,9 @@ public class ClientSideTypesTest extends AbstractSolutionTest
 	public void serviceClientSideTypeShoulAlwaysGetSent()
 	{
 		LinkedList<String> sentTextMessages = endpoint.getSession().getBasicRemote().getAndClearSentTextMessages();
-		Assert.assertTrue(sentTextMessages.size() > 0);
+		Assertions.assertTrue(sentTextMessages.size() > 0);
 		// searching for something like 2#{"msg":{},"services":[{"call":"setServiceClientSideConversionTypes","args":...,"name":"$sabloService"}]}
-//		changeme();
+		//		changeme();
 		String msg;
 		boolean found = false;
 		while (!found && ((msg = sentTextMessages.poll()) != null))
@@ -174,7 +174,7 @@ public class ClientSideTypesTest extends AbstractSolutionTest
 			}
 		}
 
-		Assert.assertTrue("Service client side types should have been sent initially and contain the service client side types", found);
+		Assertions.assertTrue(found, "Service client side types should have been sent initially and contain the service client side types");
 	}
 
 	@Test
@@ -185,35 +185,35 @@ public class ClientSideTypesTest extends AbstractSolutionTest
 		client.getFormManager().showFormInCurrentContainer("comp1Form");
 
 		LinkedList<String> sentTextMessages = endpoint.getSession().getBasicRemote().getAndClearSentTextMessages();
-		Assert.assertTrue(sentTextMessages.size() > 0);
+		Assertions.assertTrue(sentTextMessages.size() > 0);
 
 		int[] locationOfClientSideSpecsSentInMessages = getServiceCallLocationInMsgsThatMatches(sentTextMessages,
 			1, "$typesRegistry", "addComponentClientSideSpecs",
 			"[{\"component1\":{\"p\":{\"arrayOfCustomType\":[\"JSON_arr\",[\"JSON_obj\",\"component1.mytype\"]],\"customType\":[\"JSON_obj\",\"component1.mytype\"],\"octWithCustomTypeAllow\":{\"s\":1,\"t\":[\"JSON_obj\",\"component1.octWithCustomType\"]},\"someDate\":{\"s\":1,\"t\":\"svy_date\"},\"stringArray\":[\"JSON_arr\",{\"t\":null,\"s\":2}],\"arrayOfCustomTypeWithAllow\":{\"s\":1,\"t\":[\"JSON_arr\",[\"JSON_obj\",\"component1.mytype\"]]},\"arrayWithOctAllowAndShallowEl\":{\"s\":1,\"t\":[\"JSON_arr\",{\"t\":[\"JSON_obj\",\"component1.octWithCustomType\"],\"s\":2}]}},\"ftd\":{\"JSON_obj\":{\"component1.octWithCustomType\":{\"customType\":{\"s\":3,\"t\":[\"JSON_obj\",\"component1.mytype\"]},\"someString\":{\"s\":0}},\"component1.mytype\":{\"someComponent\":\"component\"}}}}}]");
-		Assert.assertTrue("Component client side types should have been sent when a form using that component was shown",
-			locationOfClientSideSpecsSentInMessages[0] >= 0);
+		Assertions.assertTrue(locationOfClientSideSpecsSentInMessages[0] >= 0,
+			"Component client side types should have been sent when a form using that component was shown");
 
 		int[] locationOfExpectFormToShowOnClientTrueInMessages = getServiceCallLocationInMsgsThatMatches(sentTextMessages,
 			1, "$sabloService", "expectFormToShowOnClient",
 			"[true]");
-		Assert.assertTrue("expectFormToShowOnClient should have been sent with true when a form using that component was shown",
-			locationOfExpectFormToShowOnClientTrueInMessages[0] >= 0);
+		Assertions.assertTrue(locationOfExpectFormToShowOnClientTrueInMessages[0] >= 0,
+			"expectFormToShowOnClient should have been sent with true when a form using that component was shown");
 
 		int[] locationOfExpectFormToShowOnClientFalseInMessages = getServiceCallLocationInMsgsThatMatches(sentTextMessages,
 			2, "$sabloService", "expectFormToShowOnClient",
 			"[false]");
-		Assert.assertTrue("expectFormToShowOnClient should have been sent with true when a form using that component was shown",
-			locationOfExpectFormToShowOnClientFalseInMessages[0] >= 0);
+		Assertions.assertTrue(locationOfExpectFormToShowOnClientFalseInMessages[0] >= 0,
+			"expectFormToShowOnClient should have been sent with true when a form using that component was shown");
 
 		int[] locationOfUpdateControllerInMessages = getServiceCallLocationInMsgsThatMatches(sentTextMessages,
 			1, "$windowService", "updateController", null);
-		Assert.assertTrue("expectFormToShowOnClient should have been sent with true when a form using that component was shown",
-			locationOfUpdateControllerInMessages[0] >= 0);
+		Assertions.assertTrue(locationOfUpdateControllerInMessages[0] >= 0,
+			"expectFormToShowOnClient should have been sent with true when a form using that component was shown");
 
 		int[] locationOfSwitchFormInMessages = getServiceCallLocationInMsgsThatMatches(sentTextMessages,
 			1, "$windowService", "switchForm", null);
-		Assert.assertTrue("expectFormToShowOnClient should have been sent with true when a form using that component was shown",
-			locationOfSwitchFormInMessages[0] >= 0);
+		Assertions.assertTrue(locationOfSwitchFormInMessages[0] >= 0,
+			"expectFormToShowOnClient should have been sent with true when a form using that component was shown");
 
 		assertFirstArgIsBeforeSecond("Client sent specs need to be sent before form data to client",
 			locationOfClientSideSpecsSentInMessages, locationOfUpdateControllerInMessages);
@@ -231,13 +231,13 @@ public class ClientSideTypesTest extends AbstractSolutionTest
 		client.getFormManager().showFormInCurrentContainer("comp2Form");
 		sentTextMessages = endpoint.getSession().getBasicRemote().getAndClearSentTextMessages();
 
-		Assert.assertTrue(sentTextMessages.size() > 0);
+		Assertions.assertTrue(sentTextMessages.size() > 0);
 
 		locationOfClientSideSpecsSentInMessages = getServiceCallLocationInMsgsThatMatches(sentTextMessages,
 			1, "$typesRegistry", "addComponentClientSideSpecs",
 			"[{\"component2\":{\"p\":{\"arrayOfCustomType\":[\"JSON_arr\",[\"JSON_obj\",\"component2.mytype\"]],\"customType\":[\"JSON_obj\",\"component2.mytype\"],\"octWithCustomTypeAllow\":{\"s\":1,\"t\":[\"JSON_obj\",\"component2.octWithCustomType\"]},\"someDate\":{\"s\":1,\"t\":\"svy_date\"},\"stringArray\":[\"JSON_arr\",{\"t\":null,\"s\":2}],\"arrayOfCustomTypeWithAllow\":{\"s\":1,\"t\":[\"JSON_arr\",[\"JSON_obj\",\"component2.mytype\"]]},\"arrayWithOctAllowAndShallowEl\":{\"s\":1,\"t\":[\"JSON_arr\",{\"t\":[\"JSON_obj\",\"component2.octWithCustomType\"],\"s\":2}]}},\"ftd\":{\"JSON_obj\":{\"component2.octWithCustomType\":{\"customType\":{\"s\":3,\"t\":[\"JSON_obj\",\"component2.mytype\"]},\"someString\":{\"s\":0}},\"component2.mytype\":{\"someComponent\":\"component\"}}}}}]");
-		Assert.assertTrue("Component client side types should have been sent when a form using that component was shown",
-			locationOfClientSideSpecsSentInMessages[0] >= 0);
+		Assertions.assertTrue(locationOfClientSideSpecsSentInMessages[0] >= 0,
+			"Component client side types should have been sent when a form using that component was shown");
 
 		// OK now show a third form that has both components - they are both already on client so it shouldn't send anything anymore
 		client.getFormManager().showFormInCurrentContainer("comp12Form");
@@ -245,8 +245,8 @@ public class ClientSideTypesTest extends AbstractSolutionTest
 
 		locationOfClientSideSpecsSentInMessages = getServiceCallLocationInMsgsThatMatches(sentTextMessages,
 			1, "$typesRegistry", "addComponentClientSideSpecs", null);
-		Assert.assertTrue("Component client side types should have been sent already previously; and they should not be sent again",
-			locationOfClientSideSpecsSentInMessages[0] == -1);
+		Assertions.assertTrue(locationOfClientSideSpecsSentInMessages[0] == -1,
+			"Component client side types should have been sent already previously; and they should not be sent again");
 
 		// OK now show a fourth form that has a component with no client side types
 		client.getFormManager().showFormInCurrentContainer("comp3Form");
@@ -254,8 +254,8 @@ public class ClientSideTypesTest extends AbstractSolutionTest
 
 		locationOfClientSideSpecsSentInMessages = getServiceCallLocationInMsgsThatMatches(sentTextMessages,
 			1, "$typesRegistry", "addComponentClientSideSpecs", null);
-		Assert.assertTrue("Component client side types should have been sent already previously; and they should not be sent again",
-			locationOfClientSideSpecsSentInMessages[0] == -1);
+		Assertions.assertTrue(locationOfClientSideSpecsSentInMessages[0] == -1,
+			"Component client side types should have been sent already previously; and they should not be sent again");
 	}
 
 	/**
@@ -267,7 +267,7 @@ public class ClientSideTypesTest extends AbstractSolutionTest
 		boolean isItTrue = (l1[0] < l2[0]);
 		if (!isItTrue && l1[0] == l2[0]) isItTrue = (l1[1] < l2[1]);
 
-		if (!isItTrue) Assert.fail(failureMsgPrefix + ": " + Arrays.toString(l1) + " vs " + Arrays.toString(l2));
+		if (!isItTrue) Assertions.fail(failureMsgPrefix + ": " + Arrays.toString(l1) + " vs " + Arrays.toString(l2));
 	}
 
 	/**

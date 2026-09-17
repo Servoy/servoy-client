@@ -17,12 +17,13 @@
 
 package com.servoy.j2db.server.ngclient.property;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Arrays;
 
 import org.json.JSONString;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.sablo.websocket.utils.JSONUtils;
 import org.sablo.websocket.utils.JSONUtils.EmbeddableJSONWriter;
 import org.sablo.websocket.utils.JSONUtils.JSONStringWrapper;
@@ -38,43 +39,43 @@ import com.servoy.j2db.util.Pair;
 public class ViewportClientSideTypesTests
 {
 
-	@Test(expected = RuntimeException.class)
+	@Test
 	public void errNotAllIndexesRegistered()
 	{
 		ViewportClientSideTypes keeper = new ViewportClientSideTypes(5, 20);
 		keeper.registerClientSideType(5, null);
 		keeper.registerClientSideType(6, null);
-		keeper.getClientSideTypes();
+		assertThrows(RuntimeException.class, () -> keeper.getClientSideTypes());
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void errNotUnexpectedOrder1()
 	{
 		ViewportClientSideTypes keeper = new ViewportClientSideTypes(5, 20);
-		keeper.registerClientSideType(0, null);
+		assertThrows(IllegalArgumentException.class, () -> keeper.registerClientSideType(0, null));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void errNotUnexpectedOrder2()
 	{
 		ViewportClientSideTypes keeper = new ViewportClientSideTypes(5, 20);
-		keeper.registerClientSideType(1000, null);
+		assertThrows(IllegalArgumentException.class, () -> keeper.registerClientSideType(1000, null));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void errNotUnexpectedOrder3()
 	{
 		ViewportClientSideTypes keeper = new ViewportClientSideTypes(5, 20);
-		keeper.registerClientSideType(6, null);
+		assertThrows(IllegalArgumentException.class, () -> keeper.registerClientSideType(6, null));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void errNotUnexpectedOrder4()
 	{
 		ViewportClientSideTypes keeper = new ViewportClientSideTypes(5, 20);
 		keeper.registerClientSideType(5, null);
 		keeper.registerClientSideType(6, null);
-		keeper.registerClientSideType(8, null);
+		assertThrows(IllegalArgumentException.class, () -> keeper.registerClientSideType(8, null));
 	}
 
 	@Test
@@ -89,7 +90,7 @@ public class ViewportClientSideTypesTests
 		keeper.registerClientSideType(10, null);
 		keeper.registerClientSideType(11, null);
 
-		assertEquals("Null main type expected", null, keeper.getClientSideTypes());
+		assertEquals(null, keeper.getClientSideTypes(), "Null main type expected");
 	}
 
 	@Test
@@ -109,7 +110,7 @@ public class ViewportClientSideTypesTests
 		EmbeddableJSONWriter expected = new EmbeddableJSONWriter(true);
 		expected.object().key(ViewportClientSideTypes.MAIN_TYPE).value("date").endObject();
 
-		assertEquals("Date main type expected", expected.toJSONString(), jsonTypes);
+		assertEquals(expected.toJSONString(), jsonTypes, "Date main type expected");
 	}
 
 	@Test
@@ -233,7 +234,7 @@ public class ViewportClientSideTypesTests
 		// @formatter:on
 
 		// {"mT":"date"}
-		assertEquals("Main type expected", expected.toJSONString(), jsonTypes);
+		assertEquals(expected.toJSONString(), jsonTypes, "Main type expected");
 	}
 
 	@Test

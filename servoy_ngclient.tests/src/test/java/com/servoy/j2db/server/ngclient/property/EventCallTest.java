@@ -22,8 +22,8 @@ import java.awt.Point;
 import java.io.IOException;
 import java.util.Collection;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.sablo.InMemPackageReader;
 import org.sablo.WebComponent;
 
@@ -87,14 +87,14 @@ public class EventCallTest extends AbstractSolutionTest
 	public void callButtonWithNoName()
 	{
 		IWebFormController form = (IWebFormController)client.getFormManager().showFormInCurrentContainer("test");
-		Assert.assertNotNull(form);
+		Assertions.assertNotNull(form);
 		// fake incoming request for button click
 		endpoint.incoming(
 			"{\"service\":\"formService\",\"methodname\":\"executeEvent\",\"args\":{\"formname\":\"test\",\"beanname\":\"svy_3\",\"event\":\"onActionMethodID\",\"args\":[{\"type\":\"event\",\"eventName\":\"onActionMethodID\",\"modifiers\":0,\"timestamp\":1430912492641,\"x\":362,\"y\":207}],\"changes\":{}},\"cmsgid\":2}",
 			true);
 
 		Object object = form.getFormScope().get("testVar");
-		Assert.assertEquals(10, ((Number)object).longValue());
+		Assertions.assertEquals(10, ((Number)object).longValue());
 
 	}
 
@@ -102,7 +102,7 @@ public class EventCallTest extends AbstractSolutionTest
 	public void callButtonWithUUIDName()
 	{
 		IWebFormController form = (IWebFormController)client.getFormManager().showFormInCurrentContainer("test");
-		Assert.assertNotNull(form);
+		Assertions.assertNotNull(form);
 		Collection<WebComponent> components = form.getFormUI().getComponents();
 		String beanName = null;
 		for (WebComponent webComponent : components)
@@ -114,14 +114,14 @@ public class EventCallTest extends AbstractSolutionTest
 				break;
 			}
 		}
-		Assert.assertNotNull(beanName);
+		Assertions.assertNotNull(beanName);
 		// fake incoming request for button click
 		endpoint.incoming("{\"service\":\"formService\",\"methodname\":\"executeEvent\",\"args\":{\"formname\":\"test\",\"beanname\":\"" + beanName +
 			"\",\"event\":\"onActionMethodID\",\"args\":[{\"type\":\"event\",\"eventName\":\"onActionMethodID\",\"modifiers\":0,\"timestamp\":1430912492641,\"x\":362,\"y\":207}],\"changes\":{}},\"cmsgid\":2}",
 			true);
 
 		Object object = form.getFormScope().get("testVar2");
-		Assert.assertEquals(uuid, object);
+		Assertions.assertEquals(uuid, object);
 
 	}
 

@@ -26,8 +26,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.sablo.InMemPackageReader;
 import org.sablo.websocket.utils.JSONUtils.FullValueToJSONConverter;
 
@@ -143,24 +143,24 @@ public class FoundsetLinkedTest extends AbstractSolutionTest
 
 		// check what happens
 		IWebFormController form = (IWebFormController)client.getFormManager().showFormInCurrentContainer("test");
-		Assert.assertNotNull(form);
+		Assertions.assertNotNull(form);
 		String full = NGUtils.formComponentPropertiesToString(form.getFormUI(), FullValueToJSONConverter.INSTANCE);
 
 		JSONObject object = new JSONObject(full);
 		JSONObject bean = object.getJSONObject("mycustombean");
 		JSONObject foundset = bean.getJSONObject("myfoundsetWithAllow");
 
-		Assert.assertEquals(18, foundset.getInt("serverSize"));
+		Assertions.assertEquals(18, foundset.getInt("serverSize"));
 		JSONObject viewPort = foundset.getJSONObject("viewPort");
-		Assert.assertEquals(0, viewPort.getInt("startIndex"));
+		Assertions.assertEquals(0, viewPort.getInt("startIndex"));
 		// 15 is default preferredViewPortSize
-		Assert.assertEquals(15, viewPort.getInt("size"));
-		Assert.assertEquals(15, viewPort.getJSONArray("rows").length());
+		Assertions.assertEquals(15, viewPort.getInt("size"));
+		Assertions.assertEquals(15, viewPort.getJSONArray("rows").length());
 
 		JSONObject fsLinkedReject = bean.getJSONObject("datalinkedDPReject");
 		JSONObject fsLinkedAllow = bean.getJSONObject("datalinkedDPAllow");
-		Assert.assertEquals(105, fsLinkedReject.optInt(FoundsetLinkedPropertyType.SINGLE_VALUE));
-		Assert.assertEquals(105, fsLinkedAllow.optInt(FoundsetLinkedPropertyType.SINGLE_VALUE));
+		Assertions.assertEquals(105, fsLinkedReject.optInt(FoundsetLinkedPropertyType.SINGLE_VALUE));
+		Assertions.assertEquals(105, fsLinkedAllow.optInt(FoundsetLinkedPropertyType.SINGLE_VALUE));
 
 		// fake incomming update (simple dataPush not svyPush) for DP changes on these fsLinked properties; one should get rejected, the other allowed
 		// so this will change the property value but not push to the dataprovider/form var
@@ -172,9 +172,9 @@ public class FoundsetLinkedTest extends AbstractSolutionTest
 			true);
 
 		WebFormComponent comp = form.getFormUI().getWebComponent("mycustombean");
-		Assert.assertEquals(501.0,
+		Assertions.assertEquals(501.0,
 			((DataproviderTypeSabloValue)((FoundsetLinkedTypeSabloValue)comp.getProperty("datalinkedDPAllow")).getWrappedValue()).getValue());
-		Assert.assertEquals(105.0,
+		Assertions.assertEquals(105.0,
 			((DataproviderTypeSabloValue)((FoundsetLinkedTypeSabloValue)comp.getProperty("datalinkedDPReject")).getWrappedValue()).getValue()); // not value 501 cause pushToServer is rejected!
 
 		// fake incomming update/svyPush for DP changes on these fsLinked properties; one should get rejected, the other allowed and changed in the DP
@@ -188,8 +188,8 @@ public class FoundsetLinkedTest extends AbstractSolutionTest
 				"\",\"property\":\"datalinkedDPAllow\",\"beanname\":\"mycustombean\",\"formname\":\"test\",\"changes\":{\"datalinkedDPAllow\":[{\"propertyChange\":111}]}},\"service\":\"formService\"}",
 			true);
 
-		Assert.assertEquals(111.0, form.getFormScope().get("formVarAllow"));
-		Assert.assertEquals(105.0, form.getFormScope().get("formVarReject"));
+		Assertions.assertEquals(111.0, form.getFormScope().get("formVarAllow"));
+		Assertions.assertEquals(105.0, form.getFormScope().get("formVarReject"));
 	}
 
 	@Test
@@ -203,28 +203,28 @@ public class FoundsetLinkedTest extends AbstractSolutionTest
 
 		// check what happens
 		IWebFormController form = (IWebFormController)client.getFormManager().showFormInCurrentContainer("test");
-		Assert.assertNotNull(form);
+		Assertions.assertNotNull(form);
 		String full = NGUtils.formComponentPropertiesToString(form.getFormUI(), FullValueToJSONConverter.INSTANCE);
 
 		JSONObject object = new JSONObject(full);
 		JSONObject bean = object.getJSONObject("mycustombean");
 		JSONObject foundset = bean.getJSONObject("myfoundsetWithAllow");
 
-		Assert.assertEquals(18, foundset.getInt("serverSize"));
+		Assertions.assertEquals(18, foundset.getInt("serverSize"));
 		JSONObject viewPort = foundset.getJSONObject("viewPort");
-		Assert.assertEquals(0, viewPort.getInt("startIndex"));
+		Assertions.assertEquals(0, viewPort.getInt("startIndex"));
 		// 15 is default preferredViewPortSize
-		Assert.assertEquals(15, viewPort.getInt("size"));
-		Assert.assertEquals(15, viewPort.getJSONArray("rows").length());
+		Assertions.assertEquals(15, viewPort.getInt("size"));
+		Assertions.assertEquals(15, viewPort.getJSONArray("rows").length());
 
 		JSONArray fsLinkedReject = bean.getJSONObject("datalinkedDPReject").optJSONArray(FoundsetLinkedPropertyType.VIEWPORT_VALUE);
 		JSONArray fsLinkedAllow = bean.getJSONObject("datalinkedDPAllow").optJSONArray(FoundsetLinkedPropertyType.VIEWPORT_VALUE);
-		Assert.assertEquals(15, fsLinkedReject.length());
-		Assert.assertEquals(15, fsLinkedAllow.length());
-		Assert.assertEquals("value1", fsLinkedAllow.optString(0));
-		Assert.assertEquals("value2", fsLinkedReject.optString(0));
-		Assert.assertEquals("value3", fsLinkedAllow.optString(1));
-		Assert.assertEquals("value4", fsLinkedReject.optString(1));
+		Assertions.assertEquals(15, fsLinkedReject.length());
+		Assertions.assertEquals(15, fsLinkedAllow.length());
+		Assertions.assertEquals("value1", fsLinkedAllow.optString(0));
+		Assertions.assertEquals("value2", fsLinkedReject.optString(0));
+		Assertions.assertEquals("value3", fsLinkedAllow.optString(1));
+		Assertions.assertEquals("value4", fsLinkedReject.optString(1));
 
 		// fake incomming update/svyPush for DP changes on these fsLinked properties; one should get rejected, the other allowed
 		String pkFromClientForThirdRow = RowManager.createPKHashKey(new Object[] { 3 });
@@ -241,9 +241,9 @@ public class FoundsetLinkedTest extends AbstractSolutionTest
 
 		WebFormComponent comp = form.getFormUI().getWebComponent("mycustombean");
 		form.getFormModel().setSelectedIndex(2); // so that the getWrappedValue calls below target the correct row (FoundsetDataAdapterList is updated currently based on selection which also means that the wrapped values will match the selection)
-		Assert.assertEquals("value501",
+		Assertions.assertEquals("value501",
 			((DataproviderTypeSabloValue)((FoundsetLinkedTypeSabloValue)comp.getProperty("datalinkedDPAllow")).getWrappedValue()).getValue());
-		Assert.assertEquals("value2",
+		Assertions.assertEquals("value2",
 			((DataproviderTypeSabloValue)((FoundsetLinkedTypeSabloValue)comp.getProperty("datalinkedDPReject")).getWrappedValue()).getValue()); // not value 501 cause pushToServer is rejected!
 	}
 

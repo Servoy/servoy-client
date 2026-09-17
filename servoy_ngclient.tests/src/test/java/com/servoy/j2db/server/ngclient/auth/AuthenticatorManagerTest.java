@@ -1,10 +1,10 @@
 package com.servoy.j2db.server.ngclient.auth;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
@@ -16,9 +16,9 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.json.JSONObject;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
@@ -63,7 +63,7 @@ public class AuthenticatorManagerTest
 	private Solution mainSolution;
 	private Solution authenticatorModule;
 
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception
 	{
 		loginResponse = new ClientLogin(null, TEST_USER_UID, TEST_USERNAME, TEST_PERMISSIONS, null);
@@ -80,7 +80,7 @@ public class AuthenticatorManagerTest
 		mainSolution.setAuthenticator(AUTHENTICATOR_TYPE.AUTHENTICATOR);
 	}
 
-	@After
+	@AfterEach
 	public void tearDown()
 	{
 		ApplicationServerRegistry.destroy();
@@ -97,9 +97,9 @@ public class AuthenticatorManagerTest
 		boolean verified = AuthenticatorManager.checkAuthenticatorPermissions(
 			TEST_USERNAME, TEST_PASSWORD, false, null, result, mainSolution, request);
 
-		assertTrue("Should be verified", verified);
-		assertTrue("Should be authenticated", result.isAuthenticated());
-		assertNotNull("Token should not be null", result.getToken());
+		assertTrue(verified, "Should be verified");
+		assertTrue(result.isAuthenticated(), "Should be authenticated");
+		assertNotNull(result.getToken(), "Token should not be null");
 
 		// Verify the token claims
 		DecodedJWT decoded = JWT.decode(result.getToken());
@@ -120,9 +120,9 @@ public class AuthenticatorManagerTest
 		AuthenticatorManager.checkAuthenticatorPermissions(
 			TEST_USERNAME, TEST_PASSWORD, false, null, result, mainSolution, request);
 
-		assertNotNull("Credentials should have been captured", lastCredentials);
+		assertNotNull(lastCredentials, "Credentials should have been captured");
 		assertEquals(AUTHENTICATOR_MODULE_NAME, lastCredentials.getAuthenticatorType());
-		assertNull("Method should be null", lastCredentials.getMethod());
+		assertNull(lastCredentials.getMethod(), "Method should be null");
 
 		// Verify JSON credentials contain username and password
 		JSONObject json = new JSONObject(lastCredentials.getJscredentials());
@@ -139,11 +139,11 @@ public class AuthenticatorManagerTest
 		boolean verified = AuthenticatorManager.checkAuthenticatorPermissions(
 			TEST_USERNAME, TEST_PASSWORD, true, null, result, mainSolution, request);
 
-		assertTrue("Should be verified", verified);
+		assertTrue(verified, "Should be verified");
 		DecodedJWT decoded = JWT.decode(result.getToken());
 		Boolean remember = decoded.getClaim(SvyID.REMEMBER).asBoolean();
-		assertNotNull("Remember claim should exist", remember);
-		assertTrue("Remember should be true", remember.booleanValue());
+		assertNotNull(remember, "Remember claim should exist");
+		assertTrue(remember.booleanValue(), "Remember should be true");
 	}
 
 	// ===== Login failure tests =====
@@ -160,8 +160,8 @@ public class AuthenticatorManagerTest
 		boolean verified = AuthenticatorManager.checkAuthenticatorPermissions(
 			TEST_USERNAME, TEST_PASSWORD, false, null, result, mainSolution, request);
 
-		assertFalse("Should not be verified", verified);
-		assertFalse("Should not be authenticated", result.isAuthenticated());
+		assertFalse(verified, "Should not be verified");
+		assertFalse(result.isAuthenticated(), "Should not be authenticated");
 	}
 
 	@Test
@@ -175,7 +175,7 @@ public class AuthenticatorManagerTest
 		boolean verified = AuthenticatorManager.checkAuthenticatorPermissions(
 			TEST_USERNAME, TEST_PASSWORD, false, null, result, mainSolution, request);
 
-		assertFalse("Should not be verified", verified);
+		assertFalse(verified, "Should not be verified");
 	}
 
 	@Test
@@ -191,7 +191,7 @@ public class AuthenticatorManagerTest
 		boolean verified = AuthenticatorManager.checkAuthenticatorPermissions(
 			TEST_USERNAME, TEST_PASSWORD, false, null, result, solutionWithoutModules, request);
 
-		assertFalse("Should not be verified when no authenticator module", verified);
+		assertFalse(verified, "Should not be verified when no authenticator module");
 	}
 
 	// ===== ReturnValue tests =====
@@ -208,8 +208,8 @@ public class AuthenticatorManagerTest
 		boolean verified = AuthenticatorManager.checkAuthenticatorPermissions(
 			TEST_USERNAME, TEST_PASSWORD, false, null, result, mainSolution, request);
 
-		assertTrue("Should be verified", verified);
-		assertEquals("ReturnValue should be the jsReturn", jsReturn, result.getReturnValue());
+		assertTrue(verified, "Should be verified");
+		assertEquals(jsReturn, result.getReturnValue(), "ReturnValue should be the jsReturn");
 	}
 
 	@Test
@@ -224,8 +224,8 @@ public class AuthenticatorManagerTest
 		boolean verified = AuthenticatorManager.checkAuthenticatorPermissions(
 			TEST_USERNAME, TEST_PASSWORD, false, null, result, mainSolution, request);
 
-		assertFalse("Should not be verified", verified);
-		assertEquals("ReturnValue should still be set even on failure", jsReturn, result.getReturnValue());
+		assertFalse(verified, "Should not be verified");
+		assertEquals(jsReturn, result.getReturnValue(), "ReturnValue should still be set even on failure");
 	}
 
 	// ===== Token refresh tests =====
@@ -238,7 +238,7 @@ public class AuthenticatorManagerTest
 		HttpServletRequest request = createMockRequest(Collections.emptyMap());
 		AuthenticatorManager.checkAuthenticatorPermissions(
 			TEST_USERNAME, TEST_PASSWORD, false, null, firstLogin, mainSolution, request);
-		assertNotNull("First login should produce a token", firstLogin.getToken());
+		assertNotNull(firstLogin.getToken(), "First login should produce a token");
 
 		// Now simulate refresh with old token
 		SvyID oldToken = new SvyID(firstLogin.getToken());
@@ -247,10 +247,10 @@ public class AuthenticatorManagerTest
 			TEST_USERNAME, null, false, oldToken, refreshResult, mainSolution, request);
 
 		// Verify the authenticator received the old token's payload as last_login
-		assertNotNull("Credentials should have been captured", lastCredentials);
+		assertNotNull(lastCredentials, "Credentials should have been captured");
 		JSONObject json = new JSONObject(lastCredentials.getJscredentials());
-		assertTrue("Should contain last_login from old token", json.has(SvyID.LAST_LOGIN));
-		assertEquals("Username should come from old token", TEST_USERNAME, json.getString(SvyID.USERNAME));
+		assertTrue(json.has(SvyID.LAST_LOGIN), "Should contain last_login from old token");
+		assertEquals(TEST_USERNAME, json.getString(SvyID.USERNAME), "Username should come from old token");
 	}
 
 	// ===== Custom parameters tests =====
@@ -259,9 +259,9 @@ public class AuthenticatorManagerTest
 	public void testLogin_customParametersForwarded() throws Exception
 	{
 		Map<String, String[]> params = new HashMap<>();
-		params.put("custom_tenant", new String[]{ "acme" });
-		params.put("custom_language", new String[]{ "en" });
-		params.put("username", new String[]{ TEST_USERNAME }); // should NOT be forwarded
+		params.put("custom_tenant", new String[] { "acme" });
+		params.put("custom_language", new String[] { "en" });
+		params.put("username", new String[] { TEST_USERNAME }); // should NOT be forwarded
 
 		LoginResult result = LoginResult.needsLogin();
 		HttpServletRequest request = createMockRequest(params);
@@ -269,10 +269,10 @@ public class AuthenticatorManagerTest
 		AuthenticatorManager.checkAuthenticatorPermissions(
 			TEST_USERNAME, TEST_PASSWORD, false, null, result, mainSolution, request);
 
-		assertNotNull("Credentials should have been captured", lastCredentials);
+		assertNotNull(lastCredentials, "Credentials should have been captured");
 		JSONObject json = new JSONObject(lastCredentials.getJscredentials());
-		assertEquals("Custom param should be forwarded", "acme", json.getString("custom_tenant"));
-		assertEquals("Custom param should be forwarded", "en", json.getString("custom_language"));
+		assertEquals("acme", json.getString("custom_tenant"), "Custom param should be forwarded");
+		assertEquals("en", json.getString("custom_language"), "Custom param should be forwarded");
 	}
 
 	// ===== Full-flow tests via StatelessLoginHandler.mustAuthenticate =====
@@ -282,17 +282,17 @@ public class AuthenticatorManagerTest
 	{
 		String csrfToken = "test-csrf-token-123";
 		Map<String, String[]> params = new HashMap<>();
-		params.put("username", new String[]{ TEST_USERNAME });
-		params.put("password", new String[]{ TEST_PASSWORD });
-		params.put("csrf_token", new String[]{ csrfToken });
+		params.put("username", new String[] { TEST_USERNAME });
+		params.put("password", new String[] { TEST_PASSWORD });
+		params.put("csrf_token", new String[] { csrfToken });
 
 		HttpServletRequest request = createFullFlowMockRequest(params, csrfToken);
 		HttpServletResponse response = createProxy(HttpServletResponse.class, (proxy, method, args) -> getDefaultReturnValue(method));
 
 		LoginResult result = StatelessLoginHandler.mustAuthenticate(request, response, MAIN_SOLUTION_NAME);
 
-		assertTrue("Should be authenticated via full flow", result.isAuthenticated());
-		assertNotNull("Token should be created", result.getToken());
+		assertTrue(result.isAuthenticated(), "Should be authenticated via full flow");
+		assertNotNull(result.getToken(), "Token should be created");
 
 		DecodedJWT decoded = JWT.decode(result.getToken());
 		assertEquals(TEST_USERNAME, decoded.getClaim(SvyID.USERNAME).asString());
@@ -310,16 +310,16 @@ public class AuthenticatorManagerTest
 		String svyToken = new SvyTokenBuilder(TEST_USERNAME, TEST_USER_UID, TEST_PERMISSIONS).sign();
 
 		Map<String, String[]> params = new HashMap<>();
-		params.put("id_token", new String[]{ svyToken });
-		params.put("csrf_token", new String[]{ csrfToken });
+		params.put("id_token", new String[] { svyToken });
+		params.put("csrf_token", new String[] { csrfToken });
 
 		HttpServletRequest request = createFullFlowMockRequest(params, csrfToken);
 		HttpServletResponse response = createProxy(HttpServletResponse.class, (proxy, method, args) -> getDefaultReturnValue(method));
 
 		LoginResult result = StatelessLoginHandler.mustAuthenticate(request, response, MAIN_SOLUTION_NAME);
 
-		assertTrue("Should be authenticated via checkPermissions path", result.isAuthenticated());
-		assertNotNull("Token should be present", result.getToken());
+		assertTrue(result.isAuthenticated(), "Should be authenticated via checkPermissions path");
+		assertNotNull(result.getToken(), "Token should be present");
 
 		DecodedJWT decoded = JWT.decode(result.getToken());
 		assertEquals(TEST_USERNAME, decoded.getClaim(SvyID.USERNAME).asString());
@@ -344,16 +344,16 @@ public class AuthenticatorManagerTest
 
 		String csrfToken = "123456";
 		Map<String, String[]> params = new HashMap<>();
-		params.put("id_token", new String[]{ expiredToken });
-		params.put("csrf_token", new String[]{ csrfToken });
+		params.put("id_token", new String[] { expiredToken });
+		params.put("csrf_token", new String[] { csrfToken });
 
 		HttpServletRequest request = createFullFlowMockRequest(params, csrfToken);
 		HttpServletResponse response = createProxy(HttpServletResponse.class, (proxy, method, args) -> getDefaultReturnValue(method));
 
 		LoginResult result = StatelessLoginHandler.mustAuthenticate(request, response, MAIN_SOLUTION_NAME);
 
-		assertTrue("Should be authenticated after expired token refresh", result.isAuthenticated());
-		assertNotNull("Should have a new token", result.getToken());
+		assertTrue(result.isAuthenticated(), "Should be authenticated after expired token refresh");
+		assertNotNull(result.getToken(), "Should have a new token");
 	}
 
 	@Test
@@ -376,15 +376,15 @@ public class AuthenticatorManagerTest
 
 		String csrfToken = "123456";
 		Map<String, String[]> params = new HashMap<>();
-		params.put("id_token", new String[]{ expiredToken });
-		params.put("csrf_token", new String[]{ csrfToken });
+		params.put("id_token", new String[] { expiredToken });
+		params.put("csrf_token", new String[] { csrfToken });
 
 		HttpServletRequest request = createFullFlowMockRequest(params, csrfToken);
 		HttpServletResponse response = createProxy(HttpServletResponse.class, (proxy, method, args) -> getDefaultReturnValue(method));
 
 		LoginResult result = StatelessLoginHandler.mustAuthenticate(request, response, MAIN_SOLUTION_NAME);
 
-		assertFalse("Should NOT be authenticated when authenticator refresh fails", result.isAuthenticated());
+		assertFalse(result.isAuthenticated(), "Should NOT be authenticated when authenticator refresh fails");
 
 		// Add custom login.html with %% tags to the solution
 		String customLoginHtml = "<html><body><h1>%%solutionTitle%%</h1><p>%%errorMessage%%</p><p>%%errorTitle%%</p>" +
@@ -410,18 +410,17 @@ public class AuthenticatorManagerTest
 		String page = pageOutput.toString();
 
 		// Verify that convertReturnValueToMap + tag resolution worked
-		assertTrue("Should contain resolved errorMessage", page.contains("Invalid credentials"));
-		assertTrue("Should contain resolved errorTitle", page.contains("Login Failed"));
-		assertTrue("Should contain solution title", page.contains(MAIN_SOLUTION_NAME));
+		assertTrue(page.contains("Invalid credentials"), "Should contain resolved errorMessage");
+		assertTrue(page.contains("Login Failed"), "Should contain resolved errorTitle");
+		assertTrue(page.contains(MAIN_SOLUTION_NAME), "Should contain solution title");
 	}
 
 	// ===== Helper methods =====
 
 	private void addLoginHtmlMedia(Solution solution, String htmlContent) throws Exception
 	{
-		Constructor<com.servoy.j2db.persistence.Media> mediaCtor =
-			com.servoy.j2db.persistence.Media.class.getDeclaredConstructor(
-				com.servoy.j2db.persistence.ISupportChilds.class, UUID.class);
+		Constructor<com.servoy.j2db.persistence.Media> mediaCtor = com.servoy.j2db.persistence.Media.class.getDeclaredConstructor(
+			com.servoy.j2db.persistence.ISupportChilds.class, UUID.class);
 		mediaCtor.setAccessible(true);
 		com.servoy.j2db.persistence.Media media = mediaCtor.newInstance(solution, UUID.randomUUID());
 		media.setName("login.html");
@@ -447,7 +446,7 @@ public class AuthenticatorManagerTest
 	private IRepository createMockRepository()
 	{
 		return (IRepository)Proxy.newProxyInstance(getClass().getClassLoader(),
-			new Class<?>[]{ IRepository.class },
+			new Class< ? >[] { IRepository.class },
 			(proxy, method, args) -> {
 				if ("getActiveRootObject".equals(method.getName()))
 				{
@@ -512,7 +511,7 @@ public class AuthenticatorManagerTest
 		IRepository repository = createMockRepository();
 
 		IApplicationServer applicationServer = (IApplicationServer)Proxy.newProxyInstance(getClass().getClassLoader(),
-			new Class<?>[]{ IApplicationServer.class },
+			new Class< ? >[] { IApplicationServer.class },
 			(proxy, method, args) -> {
 				if ("login".equals(method.getName()))
 				{
@@ -606,7 +605,7 @@ public class AuthenticatorManagerTest
 				case "getServerPort" :
 					return Integer.valueOf(8080);
 				case "getCookies" :
-					return new Cookie[]{ csrfCookie };
+					return new Cookie[] { csrfCookie };
 				case "getSession" :
 					return null;
 				case "getLocale" :
@@ -625,20 +624,20 @@ public class AuthenticatorManagerTest
 	@SuppressWarnings("unchecked")
 	private <T> T createProxy(Class<T> iface, InvocationHandler handler)
 	{
-		return (T)Proxy.newProxyInstance(getClass().getClassLoader(), new Class<?>[]{ iface }, handler);
+		return (T)Proxy.newProxyInstance(getClass().getClassLoader(), new Class< ? >[] { iface }, handler);
 	}
 
-	private static Class<?>[] getAllInterfaces(Class<?> iface)
+	private static Class< ? >[] getAllInterfaces(Class< ? > iface)
 	{
-		java.util.Set<Class<?>> interfaces = new java.util.LinkedHashSet<>();
+		java.util.Set<Class< ? >> interfaces = new java.util.LinkedHashSet<>();
 		collectInterfaces(iface, interfaces);
-		return interfaces.toArray(new Class<?>[0]);
+		return interfaces.toArray(new Class< ? >[0]);
 	}
 
-	private static void collectInterfaces(Class<?> iface, java.util.Set<Class<?>> interfaces)
+	private static void collectInterfaces(Class< ? > iface, java.util.Set<Class< ? >> interfaces)
 	{
 		interfaces.add(iface);
-		for (Class<?> superIface : iface.getInterfaces())
+		for (Class< ? > superIface : iface.getInterfaces())
 		{
 			collectInterfaces(superIface, interfaces);
 		}
@@ -646,7 +645,7 @@ public class AuthenticatorManagerTest
 
 	private static Object getDefaultReturnValue(Method method)
 	{
-		Class<?> returnType = method.getReturnType();
+		Class< ? > returnType = method.getReturnType();
 		if (returnType == boolean.class) return Boolean.FALSE;
 		if (returnType == int.class) return Integer.valueOf(0);
 		if (returnType == long.class) return Long.valueOf(0L);
@@ -672,12 +671,12 @@ public class AuthenticatorManagerTest
 		boolean verified = AuthenticatorManager.checkAuthenticatorPermissions(
 			TEST_USERNAME, TEST_PASSWORD, false, null, result, mainSolution, request);
 
-		assertTrue("Should be verified", verified);
-		assertNotNull("Token should not be null", result.getToken());
+		assertTrue(verified, "Should be verified");
+		assertNotNull(result.getToken(), "Token should not be null");
 
 		DecodedJWT decoded = JWT.decode(result.getToken());
 		String[] tokenTenants = decoded.getClaim(SvyID.TENANTS).asArray(String.class);
-		assertNotNull("Tenants claim should exist in token", tokenTenants);
+		assertNotNull(tokenTenants, "Tenants claim should exist in token");
 		assertEquals(2, tokenTenants.length);
 		assertEquals("acme-corp", tokenTenants[0]);
 		assertEquals("beta-inc", tokenTenants[1]);
@@ -694,12 +693,12 @@ public class AuthenticatorManagerTest
 		boolean verified = AuthenticatorManager.checkAuthenticatorPermissions(
 			TEST_USERNAME, TEST_PASSWORD, false, null, result, mainSolution, request);
 
-		assertTrue("Should be verified", verified);
-		assertNotNull("Token should not be null", result.getToken());
+		assertTrue(verified, "Should be verified");
+		assertNotNull(result.getToken(), "Token should not be null");
 
 		DecodedJWT decoded = JWT.decode(result.getToken());
-		assertTrue("Tenants claim should be null/missing when no tenants provided",
-			decoded.getClaim(SvyID.TENANTS).isNull() || decoded.getClaim(SvyID.TENANTS).isMissing());
+		assertTrue(decoded.getClaim(SvyID.TENANTS).isNull() || decoded.getClaim(SvyID.TENANTS).isMissing(),
+			"Tenants claim should be null/missing when no tenants provided");
 	}
 
 	@Test
@@ -717,7 +716,7 @@ public class AuthenticatorManagerTest
 
 		DecodedJWT decoded = JWT.decode(result.getToken());
 		String[] tokenTenants = decoded.getClaim(SvyID.TENANTS).asArray(String.class);
-		assertNotNull("Tenants should be present", tokenTenants);
+		assertNotNull(tokenTenants, "Tenants should be present");
 		assertEquals("my-tenant", tokenTenants[0]);
 		assertEquals(TEST_USERNAME, decoded.getClaim(SvyID.USERNAME).asString());
 		assertEquals(TEST_USER_UID, decoded.getClaim(SvyID.UID).asString());

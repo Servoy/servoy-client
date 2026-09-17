@@ -25,8 +25,8 @@ import java.util.Collection;
 import java.util.HashMap;
 
 import org.json.JSONObject;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.sablo.InMemPackageReader;
 import org.sablo.WebComponent;
 import org.sablo.services.server.FormServiceHandler;
@@ -80,12 +80,12 @@ public class PropertySetTest extends AbstractSolutionTest
 	public void setColorProperty() throws Exception
 	{
 		IWebFormController form = (IWebFormController)client.getFormManager().showFormInCurrentContainer("test");
-		Assert.assertNotNull(form);
+		Assertions.assertNotNull(form);
 		Collection<WebComponent> components = form.getFormUI().getComponents();
-		Assert.assertEquals(1, components.size());
+		Assertions.assertEquals(1, components.size());
 		WebComponent comp = components.iterator().next();
 
-		Assert.assertEquals(Color.BLACK, comp.getProperty("background"));
+		Assertions.assertEquals(Color.BLACK, comp.getProperty("background"));
 
 		JSONObject json = new JSONObject();
 		json.put("formname", "test");
@@ -97,7 +97,7 @@ public class PropertySetTest extends AbstractSolutionTest
 		FormServiceHandler.INSTANCE.executeMethod("dataPush", json);
 
 		// should be changed.
-		Assert.assertEquals(Color.BLUE, comp.getProperty("background"));
+		Assertions.assertEquals(Color.BLUE, comp.getProperty("background"));
 
 		changes.put("background", "#FF0000");
 		JSONObject oldvalues = new JSONObject();
@@ -107,12 +107,12 @@ public class PropertySetTest extends AbstractSolutionTest
 		FormServiceHandler.INSTANCE.executeMethod("dataPush", json);
 
 		// should be changed, old value was really the old value.
-		Assert.assertEquals(Color.RED, comp.getProperty("background"));
+		Assertions.assertEquals(Color.RED, comp.getProperty("background"));
 
 		changes.put("background", "#00FF00");
 
 		// should not be changed, still RED
 		FormServiceHandler.INSTANCE.executeMethod("dataPush", json);
-		Assert.assertEquals(Color.RED, comp.getProperty("background"));
+		Assertions.assertEquals(Color.RED, comp.getProperty("background"));
 	}
 }
