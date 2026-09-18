@@ -1,13 +1,15 @@
 package com.servoy.j2db.persistence;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 
 import java.util.Map;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.PropertyDescriptionBuilder;
 import org.sablo.specification.property.CustomJSONArrayType;
@@ -24,7 +26,7 @@ public class WebComponentCloneMapIsolationTest
 	private PropertyDescription componentPd;
 	private CustomJSONObjectType<Object, Object> columnType;
 
-	@Before
+	@BeforeEach
 	public void setUp() throws RepositoryException
 	{
 		solution = new DummySolution();
@@ -114,8 +116,7 @@ public class WebComponentCloneMapIsolationTest
 		clonedWc.setProperty(StaticContentSpecLoader.PROPERTY_JSON.getPropertyName(), newJson);
 
 		Map<String, Object> sourceMapAfter = wc.getPropertiesMap();
-		assertEquals("Source properties map must not be affected by changes to clone",
-			sourcePropertyCountBefore, sourceMapAfter.size());
+		assertEquals(sourcePropertyCountBefore, sourceMapAfter.size(), "Source properties map must not be affected by changes to clone");
 	}
 
 	@Test
@@ -133,8 +134,7 @@ public class WebComponentCloneMapIsolationTest
 		wc.setProperty(StaticContentSpecLoader.PROPERTY_JSON.getPropertyName(), newJson);
 
 		Map<String, Object> cloneMapAfter = clonedWc.getPropertiesMap();
-		assertEquals("Clone properties map must not be affected by changes to source",
-			clonePropertyCountBefore, cloneMapAfter.size());
+		assertEquals(clonePropertyCountBefore, cloneMapAfter.size(), "Clone properties map must not be affected by changes to source");
 	}
 
 	@Test
@@ -145,8 +145,7 @@ public class WebComponentCloneMapIsolationTest
 
 		WebComponent clonedWc = (WebComponent)wc.clonePersist(null);
 
-		assertNotSame("Source and clone must have independent propertiesMap instances",
-			wc.getPropertiesMap(), clonedWc.getPropertiesMap());
+		assertNotSame(wc.getPropertiesMap(), clonedWc.getPropertiesMap(), "Source and clone must have independent propertiesMap instances");
 	}
 
 	@Test
@@ -160,8 +159,7 @@ public class WebComponentCloneMapIsolationTest
 		WebCustomType sourceChild = (WebCustomType)wc.getAllObjectsAsList().get(0);
 		WebCustomType clonedChild = (WebCustomType)clonedWc.getAllObjectsAsList().get(0);
 
-		assertNotSame("WebCustomType children in clone must have independent propertiesMap",
-			sourceChild.getPropertiesMap(), clonedChild.getPropertiesMap());
+		assertNotSame(sourceChild.getPropertiesMap(), clonedChild.getPropertiesMap(), "WebCustomType children in clone must have independent propertiesMap");
 	}
 
 	@Test

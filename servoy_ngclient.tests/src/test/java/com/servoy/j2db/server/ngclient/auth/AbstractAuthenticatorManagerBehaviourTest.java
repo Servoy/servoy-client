@@ -1,9 +1,9 @@
 package com.servoy.j2db.server.ngclient.auth;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.sablo.security.ContentSecurityPolicyConfig;
 
 import com.servoy.j2db.persistence.IRepository;
@@ -25,10 +25,8 @@ import com.servoy.j2db.persistence.RootObjectMetaData;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.server.ngclient.StatelessLoginHandler;
 import com.servoy.j2db.server.ngclient.property.Log4JToConsoleTest;
-import com.servoy.j2db.server.ngclient.property.TestRepository;
 import com.servoy.j2db.util.UUID;
 
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -52,11 +50,10 @@ public class AbstractAuthenticatorManagerBehaviourTest extends Log4JToConsoleTes
 		DefaultLoginManager manager = new DefaultLoginManager(null);
 		String scripts = manager.getLoginScripts(request, 12345L);
 
-		assertTrue("Should contain localStorage.getItem('servoy_id_token')",
-			scripts.contains("localStorage.getItem('servoy_id_token')"));
-		assertFalse("Should NOT contain removeItem", scripts.contains("removeItem"));
+		assertTrue(scripts.contains("localStorage.getItem('servoy_id_token')"), "Should contain localStorage.getItem('servoy_id_token')");
+		assertFalse(scripts.contains("removeItem"), "Should NOT contain removeItem");
 		// The localStorage branch reads username from localStorage (not from request param)
-		assertFalse("Should NOT show errorlabel (no failed login)", scripts.contains("errorlabel"));
+		assertFalse(scripts.contains("errorlabel"), "Should NOT show errorlabel (no failed login)");
 	}
 
 	@Test
@@ -66,8 +63,7 @@ public class AbstractAuthenticatorManagerBehaviourTest extends Log4JToConsoleTes
 		DefaultLoginManager manager = new DefaultLoginManager(null);
 		String scripts = manager.getLoginScripts(request, 99999L);
 
-		assertTrue("CSRF token value must appear in the script for auto-submit",
-			scripts.contains("'99999'"));
+		assertTrue(scripts.contains("'99999'"), "CSRF token value must appear in the script for auto-submit");
 	}
 
 	@Test
@@ -77,8 +73,7 @@ public class AbstractAuthenticatorManagerBehaviourTest extends Log4JToConsoleTes
 		DefaultLoginManager manager = new DefaultLoginManager(null);
 		String scripts = manager.getLoginScripts(request, 1L);
 
-		assertTrue("Should also check servoy_username in localStorage",
-			scripts.contains("localStorage.getItem('servoy_username')"));
+		assertTrue(scripts.contains("localStorage.getItem('servoy_username')"), "Should also check servoy_username in localStorage");
 	}
 
 	// =========================================================================
@@ -98,9 +93,8 @@ public class AbstractAuthenticatorManagerBehaviourTest extends Log4JToConsoleTes
 		DefaultLoginManager manager = new DefaultLoginManager(null);
 		String scripts = manager.getLoginScripts(request, 1L);
 
-		assertTrue("Should emit removeItem for rejected token",
-			scripts.contains("removeItem('servoy_id_token')"));
-		assertFalse("Should NOT emit localStorage check", scripts.contains("localStorage.getItem('servoy_id_token')"));
+		assertTrue(scripts.contains("removeItem('servoy_id_token')"), "Should emit removeItem for rejected token");
+		assertFalse(scripts.contains("localStorage.getItem('servoy_id_token')"), "Should NOT emit localStorage check");
 	}
 
 	// =========================================================================
@@ -117,9 +111,9 @@ public class AbstractAuthenticatorManagerBehaviourTest extends Log4JToConsoleTes
 		DefaultLoginManager manager = new DefaultLoginManager(null);
 		String scripts = manager.getLoginScripts(request, 1L);
 
-		assertTrue("Should pre-fill username", scripts.contains("login_form.username.value = 'testuser'"));
-		assertTrue("Should show error label", scripts.contains("errorlabel"));
-		assertFalse("Should NOT check localStorage", scripts.contains("localStorage.getItem('servoy_id_token')"));
+		assertTrue(scripts.contains("login_form.username.value = 'testuser'"), "Should pre-fill username");
+		assertTrue(scripts.contains("errorlabel"), "Should show error label");
+		assertFalse(scripts.contains("localStorage.getItem('servoy_id_token')"), "Should NOT check localStorage");
 	}
 
 	@Test
@@ -131,9 +125,9 @@ public class AbstractAuthenticatorManagerBehaviourTest extends Log4JToConsoleTes
 		DefaultLoginManager manager = new DefaultLoginManager(null);
 		String scripts = manager.getLoginScripts(request, 1L);
 
-		assertFalse("Raw single quote must be escaped in script", scripts.contains("user';"));
+		assertFalse(scripts.contains("user';"), "Raw single quote must be escaped in script");
 		// escapeEcmaScript turns ' into \'
-		assertTrue("Escaped value must appear", scripts.contains("\\'"));
+		assertTrue(scripts.contains("\\'"), "Escaped value must appear");
 	}
 
 	// =========================================================================
@@ -150,8 +144,8 @@ public class AbstractAuthenticatorManagerBehaviourTest extends Log4JToConsoleTes
 		DefaultLoginManager manager = new DefaultLoginManager(null);
 		String scripts = manager.getLoginScripts(request, 1L);
 
-		assertTrue("Fallback branch must call show()", scripts.contains("show()"));
-		assertFalse("Should NOT removeItem", scripts.contains("removeItem"));
+		assertTrue(scripts.contains("show()"), "Fallback branch must call show()");
+		assertFalse(scripts.contains("removeItem"), "Should NOT removeItem");
 	}
 
 	// =========================================================================
@@ -165,8 +159,8 @@ public class AbstractAuthenticatorManagerBehaviourTest extends Log4JToConsoleTes
 		DefaultLoginManager manager = new DefaultLoginManager(null);
 		String scripts = manager.getLoginScripts(request, 1L);
 
-		assertTrue("Scripts must contain a <script> tag", scripts.contains("<script"));
-		assertTrue("Scripts must contain window.addEventListener", scripts.contains("addEventListener('load'"));
+		assertTrue(scripts.contains("<script"), "Scripts must contain a <script> tag");
+		assertTrue(scripts.contains("addEventListener('load'"), "Scripts must contain window.addEventListener");
 	}
 
 	@Test
@@ -176,7 +170,7 @@ public class AbstractAuthenticatorManagerBehaviourTest extends Log4JToConsoleTes
 		DefaultLoginManager manager = new DefaultLoginManager(null);
 		String scripts = manager.getLoginScripts(request, 1L);
 
-		assertTrue("Scripts must contain a <style> block with loader CSS", scripts.contains("servoy_loader"));
+		assertTrue(scripts.contains("servoy_loader"), "Scripts must contain a <style> block with loader CSS");
 	}
 
 	// =========================================================================
@@ -189,9 +183,9 @@ public class AbstractAuthenticatorManagerBehaviourTest extends Log4JToConsoleTes
 		DefaultLoginManager manager = new DefaultLoginManager(null);
 		String html = manager.getLoginHTML(null, null);
 
-		assertNotNull("getLoginHTML must return content from classpath", html);
-		assertFalse("Classpath login.html must not be empty", html.isEmpty());
-		assertTrue("Classpath login.html must be HTML", html.contains("<html") || html.contains("<!DOCTYPE"));
+		assertNotNull(html, "getLoginHTML must return content from classpath");
+		assertFalse(html.isEmpty(), "Classpath login.html must not be empty");
+		assertTrue(html.contains("<html") || html.contains("<!DOCTYPE"), "Classpath login.html must be HTML");
 	}
 
 	// =========================================================================
@@ -202,14 +196,14 @@ public class AbstractAuthenticatorManagerBehaviourTest extends Log4JToConsoleTes
 	public void getLoginHTML_solutionHasLoginMedia_returnsMediaContent() throws Exception
 	{
 		Solution solution = createSolution();
-		IValidateName validator = (nameToCheck, skip, ctx, sqlRelated) -> { };
+		IValidateName validator = (nameToCheck, skip, ctx, sqlRelated) -> {
+		};
 		solution.createNewMedia(validator, "login.html").setPermMediaData("<html><body>Custom Login</body></html>".getBytes("UTF-8"));
 
 		DefaultLoginManager manager = new DefaultLoginManager(solution);
 		String html = manager.getLoginHTML(null, null);
 
-		assertTrue("Must return the media content, not the classpath resource",
-			html.contains("Custom Login"));
+		assertTrue(html.contains("Custom Login"), "Must return the media content, not the classpath resource");
 	}
 
 	@Test
@@ -221,8 +215,8 @@ public class AbstractAuthenticatorManagerBehaviourTest extends Log4JToConsoleTes
 		DefaultLoginManager manager = new DefaultLoginManager(solution);
 		String html = manager.getLoginHTML(null, null);
 
-		assertNotNull("Must fall back to classpath login.html", html);
-		assertFalse("Must not be empty", html.isEmpty());
+		assertNotNull(html, "Must fall back to classpath login.html");
+		assertFalse(html.isEmpty(), "Must not be empty");
 		// classpath resource won't contain "Custom Login"
 		assertFalse(html.contains("Custom Login"));
 	}
@@ -243,8 +237,7 @@ public class AbstractAuthenticatorManagerBehaviourTest extends Log4JToConsoleTes
 			"<html><head><base href=\"/\"></head><body><form></form></body></html>");
 		manager.writeLoginPage(request, response, null);
 
-		assertTrue("Loader div must be injected into body",
-			output.toString().contains("servoy_loader"));
+		assertTrue(output.toString().contains("servoy_loader"), "Loader div must be injected into body");
 	}
 
 	@Test
@@ -262,7 +255,7 @@ public class AbstractAuthenticatorManagerBehaviourTest extends Log4JToConsoleTes
 		String result = output.toString();
 		int loaderPos = result.indexOf("servoy_loader");
 		int formPos = result.indexOf("<form");
-		assertTrue("Loader must appear before the form", loaderPos < formPos);
+		assertTrue(loaderPos < formPos, "Loader must appear before the form");
 	}
 
 	@Test
@@ -280,7 +273,7 @@ public class AbstractAuthenticatorManagerBehaviourTest extends Log4JToConsoleTes
 		String result = output.toString();
 		// replaceAll("(?i)</form>", ...) replaces every </form> occurrence
 		int csrfFieldCount = result.split("name='csrf_token'", -1).length - 1;
-		assertEquals("Each </form> must get its own CSRF field â 2 forms â 2 fields", 2, csrfFieldCount);
+		assertEquals(2, csrfFieldCount, "Each </form> must get its own CSRF field â 2 forms â 2 fields");
 	}
 
 	// =========================================================================
@@ -303,82 +296,440 @@ public class AbstractAuthenticatorManagerBehaviourTest extends Log4JToConsoleTes
 		private Cookie[] cookies;
 		private Locale locale = Locale.ENGLISH;
 
-		void setParameter(String name, String value) { params.put(name, value); }
-		void setHeader(String name, String value) { headers.put(name, value); }
-		void setLocale(Locale l) { locale = l; }
-		void setCookies(Cookie[] c) { cookies = c; }
+		void setParameter(String name, String value)
+		{
+			params.put(name, value);
+		}
 
-		@Override public String getParameter(String name) { return params.get(name); }
-		@Override public String getHeader(String name) { return headers.get(name); }
-		@Override public Cookie[] getCookies() { return cookies; }
-		@Override public Locale getLocale() { return locale; }
-		@Override public boolean isSecure() { return false; }
-		@Override public String getCharacterEncoding() { return "UTF-8"; }
-		@Override public String getRemoteAddr() { return "127.0.0.1"; }
-		@Override public String getRequestURI() { return "/solution/test/index.html"; }
-		@Override public StringBuffer getRequestURL() { return new StringBuffer("http://localhost/solution/test/index.html"); }
+		void setHeader(String name, String value)
+		{
+			headers.put(name, value);
+		}
 
-		@Override public Object getAttribute(String n) { return null; }
-		@Override public java.util.Enumeration<String> getAttributeNames() { return Collections.emptyEnumeration(); }
-		@Override public void setCharacterEncoding(String e) {}
-		@Override public int getContentLength() { return 0; }
-		@Override public long getContentLengthLong() { return 0; }
-		@Override public String getContentType() { return null; }
-		@Override public jakarta.servlet.ServletInputStream getInputStream() { return null; }
-		@Override public java.util.Enumeration<String> getParameterNames() { return Collections.emptyEnumeration(); }
-		@Override public String[] getParameterValues(String n) { return null; }
-		@Override public Map<String, String[]> getParameterMap() { return Collections.emptyMap(); }
-		@Override public String getProtocol() { return null; }
-		@Override public String getScheme() { return "http"; }
-		@Override public String getServerName() { return "localhost"; }
-		@Override public int getServerPort() { return 80; }
-		@Override public java.io.BufferedReader getReader() { return null; }
-		@Override public String getRemoteHost() { return null; }
-		@Override public void setAttribute(String n, Object o) {}
-		@Override public void removeAttribute(String n) {}
-		@Override public java.util.Enumeration<Locale> getLocales() { return null; }
-		@Override public jakarta.servlet.RequestDispatcher getRequestDispatcher(String p) { return null; }
-		@Override public int getRemotePort() { return 0; }
-		@Override public String getLocalName() { return null; }
-		@Override public String getLocalAddr() { return null; }
-		@Override public int getLocalPort() { return 0; }
-		@Override public jakarta.servlet.ServletContext getServletContext() { return null; }
-		@Override public jakarta.servlet.AsyncContext startAsync() { return null; }
-		@Override public jakarta.servlet.AsyncContext startAsync(jakarta.servlet.ServletRequest rq, jakarta.servlet.ServletResponse rs) { return null; }
-		@Override public boolean isAsyncStarted() { return false; }
-		@Override public boolean isAsyncSupported() { return false; }
-		@Override public jakarta.servlet.AsyncContext getAsyncContext() { return null; }
-		@Override public jakarta.servlet.DispatcherType getDispatcherType() { return null; }
-		@Override public String getRequestId() { return null; }
-		@Override public String getProtocolRequestId() { return null; }
-		@Override public jakarta.servlet.ServletConnection getServletConnection() { return null; }
-		@Override public String getAuthType() { return null; }
-		@Override public long getDateHeader(String n) { return 0; }
-		@Override public java.util.Enumeration<String> getHeaders(String n) { return Collections.emptyEnumeration(); }
-		@Override public java.util.Enumeration<String> getHeaderNames() { return Collections.emptyEnumeration(); }
-		@Override public int getIntHeader(String n) { return 0; }
-		@Override public String getMethod() { return "GET"; }
-		@Override public String getPathInfo() { return null; }
-		@Override public String getPathTranslated() { return null; }
-		@Override public String getContextPath() { return ""; }
-		@Override public String getQueryString() { return null; }
-		@Override public String getRemoteUser() { return null; }
-		@Override public boolean isUserInRole(String r) { return false; }
-		@Override public java.security.Principal getUserPrincipal() { return null; }
-		@Override public String getRequestedSessionId() { return null; }
-		@Override public String getServletPath() { return ""; }
-		@Override public jakarta.servlet.http.HttpSession getSession(boolean c) { return null; }
-		@Override public jakarta.servlet.http.HttpSession getSession() { return null; }
-		@Override public String changeSessionId() { return null; }
-		@Override public boolean isRequestedSessionIdValid() { return false; }
-		@Override public boolean isRequestedSessionIdFromCookie() { return false; }
-		@Override public boolean isRequestedSessionIdFromURL() { return false; }
-		@Override public boolean authenticate(HttpServletResponse r) { return false; }
-		@Override public void login(String u, String p) {}
-		@Override public void logout() {}
-		@Override public Collection<jakarta.servlet.http.Part> getParts() { return null; }
-		@Override public jakarta.servlet.http.Part getPart(String n) { return null; }
-		@Override public <T extends jakarta.servlet.http.HttpUpgradeHandler> T upgrade(Class<T> c) { return null; }
+		void setLocale(Locale l)
+		{
+			locale = l;
+		}
+
+		void setCookies(Cookie[] c)
+		{
+			cookies = c;
+		}
+
+		@Override
+		public String getParameter(String name)
+		{
+			return params.get(name);
+		}
+
+		@Override
+		public String getHeader(String name)
+		{
+			return headers.get(name);
+		}
+
+		@Override
+		public Cookie[] getCookies()
+		{
+			return cookies;
+		}
+
+		@Override
+		public Locale getLocale()
+		{
+			return locale;
+		}
+
+		@Override
+		public boolean isSecure()
+		{
+			return false;
+		}
+
+		@Override
+		public String getCharacterEncoding()
+		{
+			return "UTF-8";
+		}
+
+		@Override
+		public String getRemoteAddr()
+		{
+			return "127.0.0.1";
+		}
+
+		@Override
+		public String getRequestURI()
+		{
+			return "/solution/test/index.html";
+		}
+
+		@Override
+		public StringBuffer getRequestURL()
+		{
+			return new StringBuffer("http://localhost/solution/test/index.html");
+		}
+
+		@Override
+		public Object getAttribute(String n)
+		{
+			return null;
+		}
+
+		@Override
+		public java.util.Enumeration<String> getAttributeNames()
+		{
+			return Collections.emptyEnumeration();
+		}
+
+		@Override
+		public void setCharacterEncoding(String e)
+		{
+		}
+
+		@Override
+		public int getContentLength()
+		{
+			return 0;
+		}
+
+		@Override
+		public long getContentLengthLong()
+		{
+			return 0;
+		}
+
+		@Override
+		public String getContentType()
+		{
+			return null;
+		}
+
+		@Override
+		public jakarta.servlet.ServletInputStream getInputStream()
+		{
+			return null;
+		}
+
+		@Override
+		public java.util.Enumeration<String> getParameterNames()
+		{
+			return Collections.emptyEnumeration();
+		}
+
+		@Override
+		public String[] getParameterValues(String n)
+		{
+			return null;
+		}
+
+		@Override
+		public Map<String, String[]> getParameterMap()
+		{
+			return Collections.emptyMap();
+		}
+
+		@Override
+		public String getProtocol()
+		{
+			return null;
+		}
+
+		@Override
+		public String getScheme()
+		{
+			return "http";
+		}
+
+		@Override
+		public String getServerName()
+		{
+			return "localhost";
+		}
+
+		@Override
+		public int getServerPort()
+		{
+			return 80;
+		}
+
+		@Override
+		public java.io.BufferedReader getReader()
+		{
+			return null;
+		}
+
+		@Override
+		public String getRemoteHost()
+		{
+			return null;
+		}
+
+		@Override
+		public void setAttribute(String n, Object o)
+		{
+		}
+
+		@Override
+		public void removeAttribute(String n)
+		{
+		}
+
+		@Override
+		public java.util.Enumeration<Locale> getLocales()
+		{
+			return null;
+		}
+
+		@Override
+		public jakarta.servlet.RequestDispatcher getRequestDispatcher(String p)
+		{
+			return null;
+		}
+
+		@Override
+		public int getRemotePort()
+		{
+			return 0;
+		}
+
+		@Override
+		public String getLocalName()
+		{
+			return null;
+		}
+
+		@Override
+		public String getLocalAddr()
+		{
+			return null;
+		}
+
+		@Override
+		public int getLocalPort()
+		{
+			return 0;
+		}
+
+		@Override
+		public jakarta.servlet.ServletContext getServletContext()
+		{
+			return null;
+		}
+
+		@Override
+		public jakarta.servlet.AsyncContext startAsync()
+		{
+			return null;
+		}
+
+		@Override
+		public jakarta.servlet.AsyncContext startAsync(jakarta.servlet.ServletRequest rq, jakarta.servlet.ServletResponse rs)
+		{
+			return null;
+		}
+
+		@Override
+		public boolean isAsyncStarted()
+		{
+			return false;
+		}
+
+		@Override
+		public boolean isAsyncSupported()
+		{
+			return false;
+		}
+
+		@Override
+		public jakarta.servlet.AsyncContext getAsyncContext()
+		{
+			return null;
+		}
+
+		@Override
+		public jakarta.servlet.DispatcherType getDispatcherType()
+		{
+			return null;
+		}
+
+		@Override
+		public String getRequestId()
+		{
+			return null;
+		}
+
+		@Override
+		public String getProtocolRequestId()
+		{
+			return null;
+		}
+
+		@Override
+		public jakarta.servlet.ServletConnection getServletConnection()
+		{
+			return null;
+		}
+
+		@Override
+		public String getAuthType()
+		{
+			return null;
+		}
+
+		@Override
+		public long getDateHeader(String n)
+		{
+			return 0;
+		}
+
+		@Override
+		public java.util.Enumeration<String> getHeaders(String n)
+		{
+			return Collections.emptyEnumeration();
+		}
+
+		@Override
+		public java.util.Enumeration<String> getHeaderNames()
+		{
+			return Collections.emptyEnumeration();
+		}
+
+		@Override
+		public int getIntHeader(String n)
+		{
+			return 0;
+		}
+
+		@Override
+		public String getMethod()
+		{
+			return "GET";
+		}
+
+		@Override
+		public String getPathInfo()
+		{
+			return null;
+		}
+
+		@Override
+		public String getPathTranslated()
+		{
+			return null;
+		}
+
+		@Override
+		public String getContextPath()
+		{
+			return "";
+		}
+
+		@Override
+		public String getQueryString()
+		{
+			return null;
+		}
+
+		@Override
+		public String getRemoteUser()
+		{
+			return null;
+		}
+
+		@Override
+		public boolean isUserInRole(String r)
+		{
+			return false;
+		}
+
+		@Override
+		public java.security.Principal getUserPrincipal()
+		{
+			return null;
+		}
+
+		@Override
+		public String getRequestedSessionId()
+		{
+			return null;
+		}
+
+		@Override
+		public String getServletPath()
+		{
+			return "";
+		}
+
+		@Override
+		public jakarta.servlet.http.HttpSession getSession(boolean c)
+		{
+			return null;
+		}
+
+		@Override
+		public jakarta.servlet.http.HttpSession getSession()
+		{
+			return null;
+		}
+
+		@Override
+		public String changeSessionId()
+		{
+			return null;
+		}
+
+		@Override
+		public boolean isRequestedSessionIdValid()
+		{
+			return false;
+		}
+
+		@Override
+		public boolean isRequestedSessionIdFromCookie()
+		{
+			return false;
+		}
+
+		@Override
+		public boolean isRequestedSessionIdFromURL()
+		{
+			return false;
+		}
+
+		@Override
+		public boolean authenticate(HttpServletResponse r)
+		{
+			return false;
+		}
+
+		@Override
+		public void login(String u, String p)
+		{
+		}
+
+		@Override
+		public void logout()
+		{
+		}
+
+		@Override
+		public Collection<jakarta.servlet.http.Part> getParts()
+		{
+			return null;
+		}
+
+		@Override
+		public jakarta.servlet.http.Part getPart(String n)
+		{
+			return null;
+		}
+
+		@Override
+		public <T extends jakarta.servlet.http.HttpUpgradeHandler> T upgrade(Class<T> c)
+		{
+			return null;
+		}
 	}
 
 	static class StubResponse implements HttpServletResponse
@@ -393,50 +744,214 @@ public class AbstractAuthenticatorManagerBehaviourTest extends Log4JToConsoleTes
 			this.cookies = cookies;
 		}
 
-		@Override public PrintWriter getWriter() { return new PrintWriter(output, true); }
-		@Override public void addCookie(Cookie c) { cookies.add(c); }
-		@Override public void setHeader(String n, String v) { headers.put(n, v); }
-		@Override public void addHeader(String n, String v) { headers.put(n, v); }
-		@Override public void setCharacterEncoding(String c) {}
-		@Override public void setContentType(String t) {}
-		@Override public void setContentLengthLong(long l) {}
-		@Override public String getCharacterEncoding() { return "UTF-8"; }
-		@Override public String getContentType() { return null; }
-		@Override public jakarta.servlet.ServletOutputStream getOutputStream() { return null; }
-		@Override public void setContentLength(int l) {}
-		@Override public void setBufferSize(int s) {}
-		@Override public int getBufferSize() { return 0; }
-		@Override public void flushBuffer() {}
-		@Override public void resetBuffer() {}
-		@Override public boolean isCommitted() { return false; }
-		@Override public void reset() {}
-		@Override public void setLocale(Locale l) {}
-		@Override public Locale getLocale() { return null; }
-		@Override public void addIntHeader(String n, int v) {}
-		@Override public void setIntHeader(String n, int v) {}
-		@Override public void addDateHeader(String n, long d) {}
-		@Override public void setDateHeader(String n, long d) {}
-		@Override public boolean containsHeader(String n) { return headers.containsKey(n); }
-		@Override public String encodeURL(String u) { return u; }
-		@Override public String encodeRedirectURL(String u) { return u; }
-		@Override public void sendError(int sc, String msg) {}
-		@Override public void sendError(int sc) {}
-		@Override public void sendRedirect(String l) {}
-		@Override public void sendRedirect(String l, int sc, boolean c) {}
-		@Override public void setStatus(int sc) {}
-		@Override public int getStatus() { return 200; }
-		@Override public String getHeader(String n) { return headers.get(n); }
-		@Override public Collection<String> getHeaders(String n) { return Collections.emptyList(); }
-		@Override public Collection<String> getHeaderNames() { return headers.keySet(); }
+		@Override
+		public PrintWriter getWriter()
+		{
+			return new PrintWriter(output, true);
+		}
+
+		@Override
+		public void addCookie(Cookie c)
+		{
+			cookies.add(c);
+		}
+
+		@Override
+		public void setHeader(String n, String v)
+		{
+			headers.put(n, v);
+		}
+
+		@Override
+		public void addHeader(String n, String v)
+		{
+			headers.put(n, v);
+		}
+
+		@Override
+		public void setCharacterEncoding(String c)
+		{
+		}
+
+		@Override
+		public void setContentType(String t)
+		{
+		}
+
+		@Override
+		public void setContentLengthLong(long l)
+		{
+		}
+
+		@Override
+		public String getCharacterEncoding()
+		{
+			return "UTF-8";
+		}
+
+		@Override
+		public String getContentType()
+		{
+			return null;
+		}
+
+		@Override
+		public jakarta.servlet.ServletOutputStream getOutputStream()
+		{
+			return null;
+		}
+
+		@Override
+		public void setContentLength(int l)
+		{
+		}
+
+		@Override
+		public void setBufferSize(int s)
+		{
+		}
+
+		@Override
+		public int getBufferSize()
+		{
+			return 0;
+		}
+
+		@Override
+		public void flushBuffer()
+		{
+		}
+
+		@Override
+		public void resetBuffer()
+		{
+		}
+
+		@Override
+		public boolean isCommitted()
+		{
+			return false;
+		}
+
+		@Override
+		public void reset()
+		{
+		}
+
+		@Override
+		public void setLocale(Locale l)
+		{
+		}
+
+		@Override
+		public Locale getLocale()
+		{
+			return null;
+		}
+
+		@Override
+		public void addIntHeader(String n, int v)
+		{
+		}
+
+		@Override
+		public void setIntHeader(String n, int v)
+		{
+		}
+
+		@Override
+		public void addDateHeader(String n, long d)
+		{
+		}
+
+		@Override
+		public void setDateHeader(String n, long d)
+		{
+		}
+
+		@Override
+		public boolean containsHeader(String n)
+		{
+			return headers.containsKey(n);
+		}
+
+		@Override
+		public String encodeURL(String u)
+		{
+			return u;
+		}
+
+		@Override
+		public String encodeRedirectURL(String u)
+		{
+			return u;
+		}
+
+		@Override
+		public void sendError(int sc, String msg)
+		{
+		}
+
+		@Override
+		public void sendError(int sc)
+		{
+		}
+
+		@Override
+		public void sendRedirect(String l)
+		{
+		}
+
+		@Override
+		public void sendRedirect(String l, int sc, boolean c)
+		{
+		}
+
+		@Override
+		public void setStatus(int sc)
+		{
+		}
+
+		@Override
+		public int getStatus()
+		{
+			return 200;
+		}
+
+		@Override
+		public String getHeader(String n)
+		{
+			return headers.get(n);
+		}
+
+		@Override
+		public Collection<String> getHeaders(String n)
+		{
+			return Collections.emptyList();
+		}
+
+		@Override
+		public Collection<String> getHeaderNames()
+		{
+			return headers.keySet();
+		}
 	}
 
 	private static class TestManager extends AbstractAuthenticatorManager
 	{
 		private final String html;
 
-		TestManager(String html) { super(null); this.html = html; }
+		TestManager(String html)
+		{
+			super(null);
+			this.html = html;
+		}
 
-		@Override protected String getLoginHTML(HttpServletRequest request, String customHTML) { return html; }
+		@Override
+		protected String getLoginHTML(HttpServletRequest request, String customHTML)
+		{
+			return html;
+		}
 
 		@Override
 		public String getLoginScripts(HttpServletRequest request, long csrfToken)
@@ -446,14 +961,23 @@ public class AbstractAuthenticatorManagerBehaviourTest extends Log4JToConsoleTes
 
 		@Override
 		public boolean checkPermissions(String u, String p, boolean r, SvyID t,
-			LoginResult result, HttpServletRequest req) { return false; }
+			LoginResult result, HttpServletRequest req)
+		{
+			return false;
+		}
 
 		@Override
 		public boolean checkUser(String u, String p, boolean r, SvyID t,
-			LoginResult result, HttpServletRequest req, HttpServletResponse res) { return false; }
+			LoginResult result, HttpServletRequest req, HttpServletResponse res)
+		{
+			return false;
+		}
 
 		@Override
 		protected ContentSecurityPolicyConfig addContentSecurityPolicyHeader(
-			HttpServletRequest request, HttpServletResponse response) { return null; }
+			HttpServletRequest request, HttpServletResponse response)
+		{
+			return null;
+		}
 	}
 }

@@ -159,4 +159,10 @@ When asked to create, update, or link Jira issues, load the instructions from `J
 
 ---
 
+## 8. Testing
+
+- **SVY-21475 WebCustomType name property lost after restart:** `servoy_ngclient.tests` → `com.servoy.j2db.persistence.WebCustomTypeNamePropertyTest` [JUnit 5, plain] — mirrors the `WebCustomTypeAddChildTest` scaffolding (`DummySolution`, `TestableWebComponent`, `PropertyDescriptionBuilder`-built `tab` custom type with `name`/`text` sub-properties, matching the real `bootstrapcomponents`/`servoydefault` tabpanel specs) to cover the shared `WebCustomType` fix: `SameSessionReadAfterWrite` asserts `setProperty("name", …)`/`getProperty("name")` and `setName(…)`/`getName()` round-trip within the same instance (sanity, already passed before the fix); `AfterDeveloperRestartSimulation` captures the parent `WebComponent`'s own JSON and feeds it back into `setJson(...)` (which internally calls `initCustomTypes()` and reconstructs brand-new `WebCustomType` child instances purely from JSON, simulating an Eclipse restart/solution reload with no reflection) and asserts the freshly-reconstructed child's `getProperty("name")` and `getName()` still return the persisted value — the assertion that returned `null` before the fix — plus a no-regression check that an ordinary sub-property (`text`) still round-trips. `WebCustomTypeAddChildTest`'s own 21 tests were re-run and continue to pass unmodified.
+
+---
+
 *Thank you for keeping the Servoy Runtime codebase healthy, compilation-error free, and highly consistent!*

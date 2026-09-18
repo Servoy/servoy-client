@@ -17,13 +17,13 @@
 
 package com.servoy.j2db.server.ngclient.property;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.util.HashMap;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ImporterTopLevel;
 import org.mozilla.javascript.ScriptableObject;
@@ -44,7 +44,7 @@ public class RhinoMapWrapperTest extends Log4JToConsoleTest
 	RhinoMapOrArrayWrapper w;
 	HashMap<String, Object> wrappedMapValue;
 
-	@Before
+	@BeforeEach
 	public void setUp()
 	{
 		Context cx = Context.enter();
@@ -70,8 +70,8 @@ public class RhinoMapWrapperTest extends Log4JToConsoleTest
 		Context cx = Context.enter();
 
 		w.put("notDefinedInSpec", w, 222);
-		assertNull("Property that is not in spec should not end up in wrapped map", wrappedMapValue.get("notDefinedInSpec"));
-		assertEquals("Property that is not in spec should still be useable in Rhino scripting", ScriptableObject.getProperty(w, "notDefinedInSpec"), 222);
+		assertNull(wrappedMapValue.get("notDefinedInSpec"), "Property that is not in spec should not end up in wrapped map");
+		assertEquals(ScriptableObject.getProperty(w, "notDefinedInSpec"), 222, "Property that is not in spec should still be useable in Rhino scripting");
 
 		Context.exit();
 	}

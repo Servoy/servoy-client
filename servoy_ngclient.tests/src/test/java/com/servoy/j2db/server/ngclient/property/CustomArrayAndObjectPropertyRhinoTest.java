@@ -15,10 +15,10 @@
  */
 package com.servoy.j2db.server.ngclient.property;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -31,9 +31,9 @@ import java.util.TimeZone;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mozilla.javascript.BaseFunction;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Scriptable;
@@ -69,7 +69,7 @@ import com.servoy.j2db.server.ngclient.property.types.Types;
 public class CustomArrayAndObjectPropertyRhinoTest extends Log4JToConsoleTest
 {
 
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception
 	{
 		Types.getTypesInstance().registerTypes();
@@ -91,7 +91,7 @@ public class CustomArrayAndObjectPropertyRhinoTest extends Log4JToConsoleTest
 		WebComponentSpecProvider.init(new IPackageReader[] { new InMemPackageReader(manifest, components) }, null);
 	}
 
-	@After
+	@AfterEach
 	public void tearDown()
 	{
 		WebComponentSpecProvider.disposeInstance();
@@ -228,11 +228,11 @@ public class CustomArrayAndObjectPropertyRhinoTest extends Log4JToConsoleTest
 			assertGranularOpIs(0, 0, ArrayOperation.CHANGE, null, opSeq[0]);
 
 			// now change the native values using initial ref to see if it changed in java; this is no longer supported after case SVY-11027
-//		activeA1Obj.put("field", activeA1Obj, 98);
-//		assertEquals(98, ((Map)((List)((Map)cal.get(0)).get("active")).get(0)).get("field"));
-//		activeA1.put(1, activeA1, activeA2Obj);
-//		activeA2Obj.put("field", activeA2Obj, 45);
-//		assertEquals(45, ((Map)((List)((Map)cal.get(0)).get("active")).get(1)).get("field"));
+			//		activeA1Obj.put("field", activeA1Obj, 98);
+			//		assertEquals(98, ((Map)((List)((Map)cal.get(0)).get("active")).get(0)).get("field"));
+			//		activeA1.put(1, activeA1, activeA2Obj);
+			//		activeA2Obj.put("field", activeA2Obj, 45);
+			//		assertEquals(45, ((Map)((List)((Map)cal.get(0)).get("active")).get(1)).get("field"));
 
 			changes = component.getAndClearChanges();
 			JSONAssert.assertEquals(
@@ -615,10 +615,10 @@ public class CustomArrayAndObjectPropertyRhinoTest extends Log4JToConsoleTest
 
 	public static void assertGranularOpIs(int startIndex, int endIndex, int opType, Set<String> columnNames, ArrayOperation opSeq)
 	{
-		assertEquals("startIndex check", startIndex, opSeq.startIndex);
-		assertEquals("endIndex check", endIndex, opSeq.endIndex);
-		assertEquals("opType check", opType, opSeq.type);
-		assertEquals("columnName check", columnNames, opSeq.cellNames);
+		assertEquals(startIndex, opSeq.startIndex, "startIndex check");
+		assertEquals(endIndex, opSeq.endIndex, "endIndex check");
+		assertEquals(opType, opSeq.type, "opType check");
+		assertEquals(columnNames, opSeq.cellNames, "columnName check");
 	}
 
 }

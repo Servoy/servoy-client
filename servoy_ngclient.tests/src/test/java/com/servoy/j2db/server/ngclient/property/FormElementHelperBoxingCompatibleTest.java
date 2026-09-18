@@ -24,7 +24,6 @@ import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.json.JSONObject;
 import org.junit.jupiter.api.Assertions;
@@ -46,26 +45,25 @@ import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.Utils;
 
 /**
- * SVY-21469 §5.3 - regression test that pins the actual 26.9 fix in
- * {@link FormElementHelper#generateFormComponentPersists}: a form-component
- * child whose per-child JSON carries a legacy loose-string {@code customProperties}
- * ({@code "attributes:{ data-Target:\"dashboard-health\" }"}) must NOT be skipped
- * by the incompatible-legacy-property guard; instead it must be merged via
- * {@code setCustomProperties} so that the generated child persist's
- * {@link BaseComponent#getAttributes()} delivers {@code data-Target}.
+ * SVY-21470 - regression test that pins the boxing-aware legacy guard in
+ * {@link FormElementHelper#generateFormComponentPersists}: a form-component child
+ * whose per-child JSON carries a per-instance override {@code visible = false} (a
+ * {@code java.lang.Boolean} against the primitive-{@code boolean}
+ * {@link BaseComponent#setVisible(boolean)} setter) must NOT be dropped by the
+ * incompatible-legacy-property guard introduced in {@code c446933c1}; the generated
+ * child clone must report {@code getVisible() == false}.
  *
- * <p>Against the regressed guard (which skipped {@code customProperties} because a
- * String is not assignable to the {@code setCustomProperties(JSONObject)} setter
- * parameter) the merge branch is never reached, {@code getAttributes()} stays empty,
- * and {@link #testLegacyStringCustomPropertiesReachesGeneratedChildAttributes()}
- * fails.
+ * <p>Against the regressed (non-boxing-aware) guard, {@code boolean.class} is not
+ * assignable from {@code Boolean.class} and {@code Boolean} is not a {@code Number},
+ * so the guard skipped the override and the clone kept its default {@code visible = true}.
+ * {@link #testVisibleFalseOverrideReachesGeneratedChildClone()} pins the fix and would
+ * fail if {@code isBoxingCompatible} were reverted.
  *
  * @author ai
  */
 @SuppressWarnings("nls")
-public class FormElementHelperCustomPropertiesTest extends AbstractSolutionTest
+public class FormElementHelperBoxingCompatibleTest extends AbstractSolutionTest
 {
-	private static final String LEGACY_CUSTOM_PROPERTIES = "attributes:{ data-Target:\"dashboard-health\" }";
 	private static final String CONTAINED_FORM_PROPERTY = "containedForm";
 	private static final String CHILD_NAME = "child1";
 
@@ -95,7 +93,7 @@ public class FormElementHelperCustomPropertiesTest extends AbstractSolutionTest
 	protected void fillTestSolution() throws RepositoryException
 	{
 		// the (real) form component form with a single field child; its clone is what
-		// generateFormComponentPersists produces and the customProperties must reach.
+		// generateFormComponentPersists produces and the visible override must reach.
 		formComponentForm = solution.createNewForm(validator, null, "fcform", null, false, new Dimension(600, 400));
 		formComponentForm.setFormComponent(Boolean.TRUE);
 		formComponentForm.setNavigatorID(Form.NAVIGATOR_NONE);
@@ -148,15 +146,16 @@ public class FormElementHelperCustomPropertiesTest extends AbstractSolutionTest
 	}
 
 	/**
-	 * The core regression assertion: a legacy String customProperties on the FC
-	 * child's per-child JSON ends up on the generated child persist's attributes.
-	 * Fails if generateFormComponentPersists skips String customProperties.
+	 * The core SVY-21470 regression assertion: a per-instance override
+	 * {@code visible = false} (a Boolean against the primitive-boolean setVisible
+	 * setter) is applied to the generated child clone. Fails if the guard skips the
+	 * Boolean override (the pre-fix, non-boxing-aware behaviour).
 	 */
 	@Test
-	public void testLegacyStringCustomPropertiesReachesGeneratedChildAttributes() throws Exception
+	public void testVisibleFalseOverrideReachesGeneratedChildClone() throws Exception
 	{
 		JSONObject childJson = new JSONObject();
-		childJson.put("customProperties", LEGACY_CUSTOM_PROPERTIES);
+		childJson.put("visible", false);
 		JSONObject formElementValue = new JSONObject();
 		formElementValue.put(CHILD_NAME, childJson);
 
@@ -166,23 +165,23 @@ public class FormElementHelperCustomPropertiesTest extends AbstractSolutionTest
 		BaseComponent childClone = findChildClone(generated);
 		Assertions.assertNotNull(childClone, "the generated child persist must be a BaseComponent named after " + CHILD_NAME);
 
-		Map<String, String> attributes = childClone.getAttributes();
-		Assertions.assertFalse(attributes.isEmpty(), "legacy string customProperties must have been merged into the child's attributes (not skipped)");
-		Assertions.assertEquals("dashboard-health", attributes.get("data-Target"), "the merged attributes must expose data-Target");
+		Assertions.assertFalse(childClone.getVisible(),
+			"the visible=false Boolean override must be applied to the primitive-boolean setter, not dropped by the legacy guard");
 	}
 
 	/**
-	 * The guard's intended behaviour is preserved: a genuinely incompatible legacy
-	 * property (a String value for the {@code size} setter, which takes a
-	 * Dimension) is still skipped without throwing, while the legacy customProperties
-	 * next to it is still merged and delivered.
+	 * A genuinely incompatible legacy value (a String for the {@code size} setter,
+	 * which takes a Dimension) is still skipped without throwing, and its presence
+	 * does NOT prevent the {@code visible = false} Boolean override next to it from
+	 * being applied - the guard's intent from {@code c446933c1} is preserved while the
+	 * boxing-aware fix still lands the primitive-boolean override.
 	 */
 	@Test
-	public void testIncompatibleLegacyPropertyIsSkippedWhileCustomPropertiesStillMerged() throws Exception
+	public void testIncompatibleLegacyValueSkippedWhileVisibleFalseStillApplied() throws Exception
 	{
 		JSONObject childJson = new JSONObject();
 		childJson.put("size", "not-a-dimension");
-		childJson.put("customProperties", LEGACY_CUSTOM_PROPERTIES);
+		childJson.put("visible", false);
 		JSONObject formElementValue = new JSONObject();
 		formElementValue.put(CHILD_NAME, childJson);
 
@@ -191,7 +190,30 @@ public class FormElementHelperCustomPropertiesTest extends AbstractSolutionTest
 
 		BaseComponent childClone = findChildClone(generated);
 		Assertions.assertNotNull(childClone, "the generated child persist must be a BaseComponent named after " + CHILD_NAME);
-		Assertions.assertEquals("dashboard-health", childClone.getAttributes().get("data-Target"),
-			"the incompatible size String must not corrupt the customProperties merge");
+
+		Assertions.assertFalse(childClone.getVisible(),
+			"the incompatible size String must be skipped without preventing the visible=false override from being applied");
+	}
+
+	/**
+	 * Guards the default: a form-component child with no per-instance visible
+	 * override keeps its default {@code visible = true}. This is the control that
+	 * proves the false result in {@link #testVisibleFalseOverrideReachesGeneratedChildClone()}
+	 * comes from the override and not from an unrelated default flip.
+	 */
+	@Test
+	public void testNoVisibleOverrideKeepsDefaultTrue() throws Exception
+	{
+		JSONObject childJson = new JSONObject();
+		JSONObject formElementValue = new JSONObject();
+		formElementValue.put(CHILD_NAME, childJson);
+
+		List<IFormElement> generated = invokeGenerateFormComponentPersists(formElementValue);
+		Assertions.assertEquals(1, generated.size(), "exactly one child persist must be generated for the form component");
+
+		BaseComponent childClone = findChildClone(generated);
+		Assertions.assertNotNull(childClone, "the generated child persist must be a BaseComponent named after " + CHILD_NAME);
+
+		Assertions.assertTrue(childClone.getVisible(), "with no visible override the generated child clone must keep its default visible=true");
 	}
 }

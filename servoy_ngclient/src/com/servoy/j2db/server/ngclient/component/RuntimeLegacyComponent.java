@@ -41,6 +41,7 @@ import org.sablo.specification.property.types.StyleClassPropertyType;
 import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.BaseComponent;
+import com.servoy.j2db.persistence.CSSPosition;
 import com.servoy.j2db.persistence.Field;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.GraphicalComponent;
@@ -350,6 +351,25 @@ public class RuntimeLegacyComponent implements Scriptable, IInstanceOf
 			return !((Boolean)value).booleanValue();
 		}
 
+		if (webComponentSpec.getProperty(convertName) == null && (value == null || value == Scriptable.NOT_FOUND) && needsValueConversion(name))
+		{
+			// legacy geometry read (width/height/locationX/locationY) on a CSS-position based component that does
+			// not declare size/location: derive it from cssPosition instead of warning that size/location is not in the spec.
+			IPersist persist = component.getFormElement().getPersistIfAvailable();
+			if (persist instanceof BaseComponent)
+			{
+				CSSPosition cssPosition = ((BaseComponent)persist).getCssPosition();
+				if (cssPosition != null)
+				{
+					Integer derived = deriveFromCssPosition(name, cssPosition);
+					if (derived != null) return derived;
+				}
+			}
+			// no size/location and no usable cssPosition side -> return nothing, but do NOT warn:
+			// this is a known legacy geometry alias that simply does not apply to this component.
+			return Scriptable.NOT_FOUND;
+		}
+
 		if (webComponentSpec.getProperty(convertName) == null && (value == null || value == Scriptable.NOT_FOUND))
 		{
 			value = Scriptable.NOT_FOUND; // allow it to search in Object.prototype for common members like hasOwnProperty; it we return null it is interpreted that it actually has a value here and it is null
@@ -569,6 +589,43 @@ public class RuntimeLegacyComponent implements Scriptable, IInstanceOf
 			return true;
 		}
 		return false;
+	}
+
+	/**
+	 * Derives a legacy geometry value (width/height/locationX/locationY) from a component's {@link CSSPosition} for
+	 * CSS-position based components that do not declare the legacy size/location spec properties.
+	 *
+	 * @return the pixel value, or <code>null</code> when the relevant css position side is missing or is not a plain
+	 *         pixel value (e.g. empty, -1, a percentage, calc(...), auto or an anchored side).
+	 */
+	private static Integer deriveFromCssPosition(String name, CSSPosition cssPosition)
+	{
+		String cssValue = null;
+		if ("height".equals(name)) cssValue = cssPosition.height;
+		else if ("width".equals(name)) cssValue = cssPosition.width;
+		else if ("locationX".equals(name)) cssValue = cssPosition.left;
+		else if ("locationY".equals(name)) cssValue = cssPosition.top;
+
+		return parseCssPixelValue(cssValue);
+	}
+
+	private static Integer parseCssPixelValue(String cssValue)
+	{
+		if (cssValue == null) return null;
+		String trimmed = cssValue.trim();
+		if (trimmed.length() == 0) return null;
+		if (trimmed.endsWith("px")) trimmed = trimmed.substring(0, trimmed.length() - 2).trim();
+		try
+		{
+			int value = Integer.parseInt(trimmed);
+			if (value < 0) return null;
+			return Integer.valueOf(value);
+		}
+		catch (NumberFormatException e)
+		{
+			// not a plain pixel value (percentage, calc(...), auto, ...) -> return nothing
+			return null;
+		}
 	}
 
 	public void putClientProperty(Object key, Object value)

@@ -24,8 +24,8 @@ import java.io.StringWriter;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONWriter;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.sablo.InMemPackageReader;
 import org.sablo.websocket.utils.JSONUtils.FullValueToJSONConverter;
 import org.skyscreamer.jsonassert.JSONAssert;
@@ -88,7 +88,7 @@ public class TabPanelTest extends AbstractSolutionTest
 		IWebFormController form = (IWebFormController)client.getFormManager().showFormInCurrentContainer("f1");
 		WebFormComponent webComponent = form.getFormUI().getWebComponent("tabpanel");
 		Object property = webComponent.getProperty("tabIndex");
-		Assert.assertEquals(((Number)property).longValue(), 1);
+		Assertions.assertEquals(((Number)property).longValue(), 1);
 
 		StringWriter stringWriter = new StringWriter();
 		JSONWriter jsonWriter = new JSONWriter(stringWriter);

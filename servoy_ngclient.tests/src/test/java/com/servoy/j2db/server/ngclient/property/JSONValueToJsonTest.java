@@ -17,7 +17,7 @@
 
 package com.servoy.j2db.server.ngclient.property;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -31,8 +31,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONWriter;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mozilla.javascript.BaseFunction;
 import org.mozilla.javascript.NativeObject;
 import org.sablo.BaseWebObject;
@@ -66,7 +66,7 @@ public class JSONValueToJsonTest extends Log4JToConsoleTest
 
 	private BrowserConverterContext context;
 
-	@Before
+	@BeforeEach
 	public void setup()
 	{
 		Types.getTypesInstance().registerTypes();
@@ -120,9 +120,7 @@ public class JSONValueToJsonTest extends Log4JToConsoleTest
 		JSONUtils.defaultToJSONValue(FullValueToJSONConverter.INSTANCE, jsonWriter, "myobject", sabloVal, MY_OBJECT_PD, null);
 		jsonWriter.endObject();
 
-		assertEquals("Simple object toJSON",
-			stringWriter.toString(),
-			"{\"myobject\":{\"key1\":\"aaa\",\"key2\":123,\"key3\":true}}");
+		assertEquals(stringWriter.toString(), "{\"myobject\":{\"key1\":\"aaa\",\"key2\":123,\"key3\":true}}", "Simple object toJSON");
 
 	}
 
@@ -145,9 +143,7 @@ public class JSONValueToJsonTest extends Log4JToConsoleTest
 		JSONUtils.defaultToJSONValue(FullValueToJSONConverter.INSTANCE, jsonWriter, "myobject", sabloVal, MY_OBJECT_PD, null);
 		jsonWriter.endObject();
 
-		assertEquals("Simple object toJSON",
-			stringWriter.toString(),
-			"{\"myobject\":{\"key1\":\"aaa\",\"key2\":null,\"key3\":[\"bbb\",\"ccc\",null]}}");
+		assertEquals(stringWriter.toString(), "{\"myobject\":{\"key1\":\"aaa\",\"key2\":null,\"key3\":[\"bbb\",\"ccc\",null]}}", "Simple object toJSON");
 
 	}
 
@@ -166,9 +162,7 @@ public class JSONValueToJsonTest extends Log4JToConsoleTest
 		NGObjectPropertyType.NG_INSTANCE.toJSON(jsonWriter, "myobject", mapObj, MY_OBJECT_PD, null);
 		jsonWriter.endObject();
 
-		assertEquals("Simple object type toJSON",
-			stringWriter.toString(),
-			"{\"myobject\":{\"key1\":\"aaa\",\"key2\":123,\"key3\":true}}");
+		assertEquals(stringWriter.toString(), "{\"myobject\":{\"key1\":\"aaa\",\"key2\":123,\"key3\":true}}", "Simple object type toJSON");
 
 	}
 
@@ -187,9 +181,8 @@ public class JSONValueToJsonTest extends Log4JToConsoleTest
 		NGObjectPropertyType.NG_INSTANCE.toJSON(jsonWriter, "myobject", mapObj, MY_OBJECT_PD, null);
 		jsonWriter.endObject();
 
-		assertEquals("Simple object type with null toJSON",
-			stringWriter.toString(),
-			"{\"myobject\":{\"key1\":\"aaa\",\"key2\":null,\"key3\":[\"bbb\",\"ccc\",null]}}");
+		assertEquals(stringWriter.toString(), "{\"myobject\":{\"key1\":\"aaa\",\"key2\":null,\"key3\":[\"bbb\",\"ccc\",null]}}",
+			"Simple object type with null toJSON");
 
 	}
 
@@ -217,9 +210,9 @@ public class JSONValueToJsonTest extends Log4JToConsoleTest
 			TimeZone.setDefault(default1);
 		}
 
-		assertEquals("Simple object type with date toJSON",
-			stringWriter.toString(),
-			"{\"myobject\":{\"_T\":\"object\",\"_V\":{\"key1\":\"aaa\",\"key2\":{\"_T\":\"svy_date\",\"_V\":\"1990-02-01T00:00+02:00\"},\"key3\":{\"_T\":\"object\",\"_V\":[\"bbb\",\"ccc\",{\"_T\":\"svy_date\",\"_V\":\"2000-11-10T00:00+02:00\"}]}}}}");
+		assertEquals(stringWriter.toString(),
+			"{\"myobject\":{\"_T\":\"object\",\"_V\":{\"key1\":\"aaa\",\"key2\":{\"_T\":\"svy_date\",\"_V\":\"1990-02-01T00:00+02:00\"},\"key3\":{\"_T\":\"object\",\"_V\":[\"bbb\",\"ccc\",{\"_T\":\"svy_date\",\"_V\":\"2000-11-10T00:00+02:00\"}]}}}}",
+			"Simple object type with date toJSON");
 
 	}
 
@@ -256,9 +249,9 @@ public class JSONValueToJsonTest extends Log4JToConsoleTest
 		}
 
 
-		assertEquals("Simple nested object type with date toJSON",
-			stringWriter.toString(),
-			"{\"myobject\":{\"_T\":\"object\",\"_V\":{\"key1\":{\"_T\":\"object\",\"_V\":{\"key1\":\"aaa\",\"key2\":{\"_T\":\"svy_date\",\"_V\":\"1990-02-01T00:00+02:00\"},\"key3\":{\"_T\":\"object\",\"_V\":[\"bbb\",\"ccc\",{\"_T\":\"svy_date\",\"_V\":\"2000-11-10T00:00+02:00\"}]},\"key4\":{\"_T\":\"object\",\"_V\":[{\"_T\":\"svy_date\",\"_V\":\"2000-11-10T00:00+02:00\"},{\"_T\":\"svy_date\",\"_V\":\"2001-12-11T00:00+02:00\"},\"bbb\"]}}}}}}");
+		assertEquals(stringWriter.toString(),
+			"{\"myobject\":{\"_T\":\"object\",\"_V\":{\"key1\":{\"_T\":\"object\",\"_V\":{\"key1\":\"aaa\",\"key2\":{\"_T\":\"svy_date\",\"_V\":\"1990-02-01T00:00+02:00\"},\"key3\":{\"_T\":\"object\",\"_V\":[\"bbb\",\"ccc\",{\"_T\":\"svy_date\",\"_V\":\"2000-11-10T00:00+02:00\"}]},\"key4\":{\"_T\":\"object\",\"_V\":[{\"_T\":\"svy_date\",\"_V\":\"2000-11-10T00:00+02:00\"},{\"_T\":\"svy_date\",\"_V\":\"2001-12-11T00:00+02:00\"},\"bbb\"]}}}}}}",
+			"Simple nested object type with date toJSON");
 
 	}
 
@@ -278,9 +271,9 @@ public class JSONValueToJsonTest extends Log4JToConsoleTest
 		NGObjectPropertyType.NG_INSTANCE.toJSON(jsonWriter, "myobject", mapObj, MY_OBJECT_PD, context);
 		jsonWriter.endObject();
 
-		assertEquals("Simple object type with client function toJSON",
-			stringWriter.toString(),
-			"{\"myobject\":{\"_T\":\"object\",\"_V\":{\"key1\":\"aaa\",\"key2\":{\"_T\":\"clientfunction\",\"_V\":\"func1\"},\"key3\":{\"_T\":\"object\",\"_V\":[\"bbb\",\"ccc\",{\"_T\":\"clientfunction\",\"_V\":\"func2\"}]}}}}");
+		assertEquals(stringWriter.toString(),
+			"{\"myobject\":{\"_T\":\"object\",\"_V\":{\"key1\":\"aaa\",\"key2\":{\"_T\":\"clientfunction\",\"_V\":\"func1\"},\"key3\":{\"_T\":\"object\",\"_V\":[\"bbb\",\"ccc\",{\"_T\":\"clientfunction\",\"_V\":\"func2\"}]}}}}",
+			"Simple object type with client function toJSON");
 
 	}
 
@@ -306,9 +299,9 @@ public class JSONValueToJsonTest extends Log4JToConsoleTest
 		JSONObject secondHash = json.getJSONObject("myobject").getJSONObject("_V").getJSONObject("key3").getJSONArray("_V").getJSONObject(2)
 			.getJSONObject("_V");
 		secondHash.put("functionhash", "dummyhash");
-		assertEquals("Simple object type with server function toJSON",
-			json.toString(),
-			"{\"myobject\":{\"_T\":\"object\",\"_V\":{\"key1\":\"aaa\",\"key2\":{\"_T\":\"NativeFunction\",\"_V\":{\"functionhash\":\"dummyhash\",\"svyType\":\"NativeFunction\"}},\"key3\":{\"_T\":\"object\",\"_V\":[\"bbb\",\"ccc\",{\"_T\":\"NativeFunction\",\"_V\":{\"functionhash\":\"dummyhash\",\"svyType\":\"NativeFunction\"}}]}}}}");
+		assertEquals(json.toString(),
+			"{\"myobject\":{\"_T\":\"object\",\"_V\":{\"key1\":\"aaa\",\"key2\":{\"_T\":\"NativeFunction\",\"_V\":{\"functionhash\":\"dummyhash\",\"svyType\":\"NativeFunction\"}},\"key3\":{\"_T\":\"object\",\"_V\":[\"bbb\",\"ccc\",{\"_T\":\"NativeFunction\",\"_V\":{\"functionhash\":\"dummyhash\",\"svyType\":\"NativeFunction\"}}]}}}}",
+			"Simple object type with server function toJSON");
 
 	}
 
@@ -327,9 +320,7 @@ public class JSONValueToJsonTest extends Log4JToConsoleTest
 		MapPropertyType.INSTANCE.toJSON(jsonWriter, "myobject", jsonObj, MY_OBJECT_PD, context);
 		jsonWriter.endObject();
 
-		assertEquals("Simple map type toJSON",
-			stringWriter.toString(),
-			"{\"myobject\":{\"key1\":\"aaa\",\"key2\":123,\"key3\":true}}");
+		assertEquals(stringWriter.toString(), "{\"myobject\":{\"key1\":\"aaa\",\"key2\":123,\"key3\":true}}", "Simple map type toJSON");
 
 	}
 
@@ -348,9 +339,8 @@ public class JSONValueToJsonTest extends Log4JToConsoleTest
 		MapPropertyType.INSTANCE.toJSON(jsonWriter, "myobject", jsonObj, MY_OBJECT_PD, context);
 		jsonWriter.endObject();
 
-		assertEquals("Simple map type with null toJSON",
-			stringWriter.toString(),
-			"{\"myobject\":{\"key1\":\"aaa\",\"key2\":null,\"key3\":[\"bbb\",\"ccc\",null]}}");
+		assertEquals(stringWriter.toString(), "{\"myobject\":{\"key1\":\"aaa\",\"key2\":null,\"key3\":[\"bbb\",\"ccc\",null]}}",
+			"Simple map type with null toJSON");
 
 	}
 
@@ -381,9 +371,9 @@ public class JSONValueToJsonTest extends Log4JToConsoleTest
 			TimeZone.setDefault(default1);
 		}
 
-		assertEquals("Simple map type with date toJSON",
-			stringWriter.toString(),
-			"{\"myobject\":{\"key1\":\"aaa\",\"key2\":{\"_V\":\"1990-02-01T00:00+02:00\",\"_T\":\"svy_date\"},\"key3\":{\"_V\":[{\"_V\":\"2000-11-10T00:00+02:00\",\"_T\":\"svy_date\"},null,false],\"_T\":\"object\"}}}");
+		assertEquals(stringWriter.toString(),
+			"{\"myobject\":{\"key1\":\"aaa\",\"key2\":{\"_V\":\"1990-02-01T00:00+02:00\",\"_T\":\"svy_date\"},\"key3\":{\"_V\":[{\"_V\":\"2000-11-10T00:00+02:00\",\"_T\":\"svy_date\"},null,false],\"_T\":\"object\"}}}",
+			"Simple map type with date toJSON");
 
 	}
 
@@ -423,9 +413,9 @@ public class JSONValueToJsonTest extends Log4JToConsoleTest
 		}
 
 
-		assertEquals("Simple nested map type with date toJSON",
-			stringWriter.toString(),
-			"{\"myobject\":{\"key1\":{\"_V\":{\"key1\":\"aaa\",\"key2\":{\"_V\":\"1990-02-01T00:00+02:00\",\"_T\":\"svy_date\"},\"key3\":{\"_V\":[\"bbb\",{\"_V\":\"2000-11-10T00:00+02:00\",\"_T\":\"svy_date\"},{\"_V\":\"2001-12-11T00:00+02:00\",\"_T\":\"svy_date\"}],\"_T\":\"object\"},\"key4\":{\"_V\":[{\"_V\":\"2000-11-10T00:00+02:00\",\"_T\":\"svy_date\"},{\"_V\":\"2001-12-11T00:00+02:00\",\"_T\":\"svy_date\"},\"bbb\"],\"_T\":\"object\"}},\"_T\":\"object\"}}}");
+		assertEquals(stringWriter.toString(),
+			"{\"myobject\":{\"key1\":{\"_V\":{\"key1\":\"aaa\",\"key2\":{\"_V\":\"1990-02-01T00:00+02:00\",\"_T\":\"svy_date\"},\"key3\":{\"_V\":[\"bbb\",{\"_V\":\"2000-11-10T00:00+02:00\",\"_T\":\"svy_date\"},{\"_V\":\"2001-12-11T00:00+02:00\",\"_T\":\"svy_date\"}],\"_T\":\"object\"},\"key4\":{\"_V\":[{\"_V\":\"2000-11-10T00:00+02:00\",\"_T\":\"svy_date\"},{\"_V\":\"2001-12-11T00:00+02:00\",\"_T\":\"svy_date\"},\"bbb\"],\"_T\":\"object\"}},\"_T\":\"object\"}}}",
+			"Simple nested map type with date toJSON");
 
 	}
 
@@ -449,9 +439,9 @@ public class JSONValueToJsonTest extends Log4JToConsoleTest
 		MapPropertyType.INSTANCE.toJSON(jsonWriter, "myobject", jsonObj, MY_OBJECT_PD, context);
 		jsonWriter.endObject();
 
-		assertEquals("Simple map type with client function toJSON",
-			stringWriter.toString(),
-			"{\"myobject\":{\"key1\":\"aaa\",\"key2\":{\"_V\":\"func1\",\"_T\":\"clientfunction\"},\"key3\":{\"_V\":[\"bbb\",{\"_V\":\"func2\",\"_T\":\"clientfunction\"},{\"_V\":\"func3\",\"_T\":\"clientfunction\"}],\"_T\":\"object\"}}}");
+		assertEquals(stringWriter.toString(),
+			"{\"myobject\":{\"key1\":\"aaa\",\"key2\":{\"_V\":\"func1\",\"_T\":\"clientfunction\"},\"key3\":{\"_V\":[\"bbb\",{\"_V\":\"func2\",\"_T\":\"clientfunction\"},{\"_V\":\"func3\",\"_T\":\"clientfunction\"}],\"_T\":\"object\"}}}",
+			"Simple map type with client function toJSON");
 
 	}
 
@@ -484,9 +474,9 @@ public class JSONValueToJsonTest extends Log4JToConsoleTest
 		secondHash = json.getJSONObject("myobject").getJSONObject("key3").getJSONArray("_V").getJSONObject(1)
 			.getJSONObject("_V");
 		secondHash.put("functionhash", "dummyhash");
-		assertEquals("Simple map type with server function toJSON",
-			json.toString(),
-			"{\"myobject\":{\"key1\":\"aaa\",\"key2\":{\"_V\":{\"functionhash\":\"dummyhash\",\"svyType\":\"NativeFunction\"},\"_T\":\"NativeFunction\"},\"key3\":{\"_V\":[\"bbb\",{\"_V\":{\"functionhash\":\"dummyhash\",\"svyType\":\"NativeFunction\"},\"_T\":\"NativeFunction\"},{\"_V\":{\"functionhash\":\"dummyhash\",\"svyType\":\"NativeFunction\"},\"_T\":\"NativeFunction\"}],\"_T\":\"object\"}}}");
+		assertEquals(json.toString(),
+			"{\"myobject\":{\"key1\":\"aaa\",\"key2\":{\"_V\":{\"functionhash\":\"dummyhash\",\"svyType\":\"NativeFunction\"},\"_T\":\"NativeFunction\"},\"key3\":{\"_V\":[\"bbb\",{\"_V\":{\"functionhash\":\"dummyhash\",\"svyType\":\"NativeFunction\"},\"_T\":\"NativeFunction\"},{\"_V\":{\"functionhash\":\"dummyhash\",\"svyType\":\"NativeFunction\"},\"_T\":\"NativeFunction\"}],\"_T\":\"object\"}}}",
+			"Simple map type with server function toJSON");
 
 	}
 }

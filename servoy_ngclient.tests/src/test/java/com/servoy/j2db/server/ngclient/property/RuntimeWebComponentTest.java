@@ -24,8 +24,8 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.json.JSONException;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.mozilla.javascript.Context;
 import org.sablo.InMemPackageReader;
 
@@ -91,7 +91,7 @@ public class RuntimeWebComponentTest extends AbstractSolutionTest
 	public void arrayPropAccessThroughGetterAndSetter() throws Exception
 	{
 		IWebFormController form = (IWebFormController)client.getFormManager().showFormInCurrentContainer("testForm");
-		Assert.assertNotNull(form);
+		Assertions.assertNotNull(form);
 		FormScope formScope = form.getFormScope();
 
 		Context cx = Context.enter();
@@ -100,13 +100,13 @@ public class RuntimeWebComponentTest extends AbstractSolutionTest
 			// CHECK INITIAL DEFAULT VALUE FROM SPEC
 			RhinoMapOrArrayWrapper stringArrayProp = (RhinoMapOrArrayWrapper)cx.evaluateString(formScope, "elements.testComponent.getStringArray()",
 				"Evaluation Test Script", 1, null); // this used to fail with an exception when RuntimeLegacyComponent gave null scope in getter code
-			Assert.assertArrayEquals(new String[] { "a", "b", "c" }, ((List<String>)stringArrayProp.getWrappedValue()).toArray());
+			Assertions.assertArrayEquals(new String[] { "a", "b", "c" }, ((List<String>)stringArrayProp.getWrappedValue()).toArray());
 
 			// same check as above but directly inside Rhino
 			Boolean testResult = (Boolean)cx.evaluateString(formScope,
 				"(elements.testComponent.getStringArray().length === 3) && elements.testComponent.getStringArray().every(function(this_i, i) { return this_i == [\"a\", \"b\", \"c\"][i] } ) ",
 				"Evaluation Test Script", 1, null);
-			Assert.assertTrue(testResult.booleanValue());
+			Assertions.assertTrue(testResult.booleanValue());
 
 			// ADD ELEMENT TO EXISTING VALUE
 			cx.evaluateString(formScope, "elements.testComponent.getStringArray().push(\"d\") ", "Evaluation Test Script", 1, null);
@@ -114,13 +114,13 @@ public class RuntimeWebComponentTest extends AbstractSolutionTest
 			// CHECK CHANGED VALUE
 			stringArrayProp = (RhinoMapOrArrayWrapper)cx.evaluateString(formScope, "elements.testComponent.getStringArray()", "Evaluation Test Script", 1,
 				null);
-			Assert.assertArrayEquals(new String[] { "a", "b", "c", "d" }, ((List<String>)stringArrayProp.getWrappedValue()).toArray());
+			Assertions.assertArrayEquals(new String[] { "a", "b", "c", "d" }, ((List<String>)stringArrayProp.getWrappedValue()).toArray());
 
 			// same check as above but directly inside Rhino
 			testResult = (Boolean)cx.evaluateString(formScope,
 				"(elements.testComponent.getStringArray().length === 4) && elements.testComponent.getStringArray().every(function(this_i, i) { return this_i == [\"a\", \"b\", \"c\", \"d\"][i] } ) ",
 				"Evaluation Test Script", 1, null);
-			Assert.assertTrue(testResult.booleanValue());
+			Assertions.assertTrue(testResult.booleanValue());
 
 			// ASSIGN DIFFERENT ARRAY BY REF TO PROPERTY
 			cx.evaluateString(formScope, "elements.testComponent.setStringArray(['1', '2', '3'])", "Evaluation Test Script", 1, null);
@@ -128,13 +128,13 @@ public class RuntimeWebComponentTest extends AbstractSolutionTest
 			// CHECK NEW VALUE
 			stringArrayProp = (RhinoMapOrArrayWrapper)cx.evaluateString(formScope, "elements.testComponent.getStringArray()", "Evaluation Test Script", 1,
 				null);
-			Assert.assertArrayEquals(new String[] { "1", "2", "3" }, ((List<String>)stringArrayProp.getWrappedValue()).toArray());
+			Assertions.assertArrayEquals(new String[] { "1", "2", "3" }, ((List<String>)stringArrayProp.getWrappedValue()).toArray());
 
 			// same check as above but directly inside Rhino
 			testResult = (Boolean)cx.evaluateString(formScope,
 				"(elements.testComponent.getStringArray().length === 3) && elements.testComponent.getStringArray().every(function(this_i, i) { return this_i == [\"1\", \"2\", \"3\"][i] } ) ",
 				"Evaluation Test Script", 1, null);
-			Assert.assertTrue(testResult.booleanValue());
+			Assertions.assertTrue(testResult.booleanValue());
 		}
 		finally
 		{
@@ -146,7 +146,7 @@ public class RuntimeWebComponentTest extends AbstractSolutionTest
 	public void arrayPropDirectAccess() throws Exception
 	{
 		IWebFormController form = (IWebFormController)client.getFormManager().showFormInCurrentContainer("testForm");
-		Assert.assertNotNull(form);
+		Assertions.assertNotNull(form);
 		FormScope formScope = form.getFormScope();
 
 		Context cx = Context.enter();
@@ -155,39 +155,39 @@ public class RuntimeWebComponentTest extends AbstractSolutionTest
 			// CHECK INITIAL DEFAULT VALUE FROM SPEC
 			RhinoMapOrArrayWrapper stringArrayProp = (RhinoMapOrArrayWrapper)cx.evaluateString(formScope, "elements.testComponent.stringArray",
 				"Evaluation Test Script", 1, null);
-			Assert.assertArrayEquals(new String[] { "a", "b", "c" }, ((List<String>)stringArrayProp.getWrappedValue()).toArray());
+			Assertions.assertArrayEquals(new String[] { "a", "b", "c" }, ((List<String>)stringArrayProp.getWrappedValue()).toArray());
 
 			// same check as above but directly inside Rhino
 			Boolean testResult = (Boolean)cx.evaluateString(formScope,
 				"(elements.testComponent.stringArray.length === 3) && elements.testComponent.stringArray.every(function(this_i, i) { return this_i == [\"a\", \"b\", \"c\"][i] } ) ",
 				"Evaluation Test Script", 1, null);
-			Assert.assertTrue(testResult.booleanValue());
+			Assertions.assertTrue(testResult.booleanValue());
 
 			// ADD ELEMENT TO EXISTING VALUE
 			cx.evaluateString(formScope, "elements.testComponent.getStringArray().push(\"d\") ", "Evaluation Test Script", 1, null);
 
 			// CHECK CHANGED VALUE
 			stringArrayProp = (RhinoMapOrArrayWrapper)cx.evaluateString(formScope, "elements.testComponent.stringArray", "Evaluation Test Script", 1, null);
-			Assert.assertArrayEquals(new String[] { "a", "b", "c", "d" }, ((List<String>)stringArrayProp.getWrappedValue()).toArray());
+			Assertions.assertArrayEquals(new String[] { "a", "b", "c", "d" }, ((List<String>)stringArrayProp.getWrappedValue()).toArray());
 
 			// same check as above but directly inside Rhino
 			testResult = (Boolean)cx.evaluateString(formScope,
 				"(elements.testComponent.stringArray.length === 4) && elements.testComponent.stringArray.every(function(this_i, i) { return this_i == [\"a\", \"b\", \"c\", \"d\"][i] } ) ",
 				"Evaluation Test Script", 1, null);
-			Assert.assertTrue(testResult.booleanValue());
+			Assertions.assertTrue(testResult.booleanValue());
 
 			// ASSIGN DIFFERENT ARRAY BY REF TO PROPERTY
 			cx.evaluateString(formScope, "elements.testComponent.stringArray = ['1', '2', '3']", "Evaluation Test Script", 1, null);
 
 			// CHECK NEW VALUE
 			stringArrayProp = (RhinoMapOrArrayWrapper)cx.evaluateString(formScope, "elements.testComponent.stringArray", "Evaluation Test Script", 1, null);
-			Assert.assertArrayEquals(new String[] { "1", "2", "3" }, ((List<String>)stringArrayProp.getWrappedValue()).toArray());
+			Assertions.assertArrayEquals(new String[] { "1", "2", "3" }, ((List<String>)stringArrayProp.getWrappedValue()).toArray());
 
 			// same check as above but directly inside Rhino
 			testResult = (Boolean)cx.evaluateString(formScope,
 				"(elements.testComponent.stringArray.length === 3) && elements.testComponent.stringArray.every(function(this_i, i) { return this_i == [\"1\", \"2\", \"3\"][i] } ) ",
 				"Evaluation Test Script", 1, null);
-			Assert.assertTrue(testResult.booleanValue());
+			Assertions.assertTrue(testResult.booleanValue());
 		}
 		finally
 		{

@@ -25,8 +25,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.mozilla.javascript.Context;
 import org.sablo.Container;
 import org.sablo.InMemPackageReader;
@@ -130,7 +130,7 @@ public class ValuelistPropTest extends AbstractSolutionTest
 	public void valueListAttachDetach() throws JSONException
 	{
 		IWebFormController form = (IWebFormController)client.getFormManager().showFormInCurrentContainer("test");
-		Assert.assertNotNull(form);
+		Assertions.assertNotNull(form);
 
 		// (SVY-12336)
 		// assign a foundset and a column with foundset linked dp and valuelist linked to that dp; then set foundset to null, clear columns and set back all this; no exception should happen
@@ -144,11 +144,11 @@ public class ValuelistPropTest extends AbstractSolutionTest
 			JSONObject changesJSON = new JSONObject(changes);
 			JSONObject col0JSON = changesJSON.getJSONObject("changes").getJSONObject("myCustomComponent").getJSONObject("columns").getJSONArray(
 				"v").getJSONObject(0).getJSONObject("v");
-			Assert.assertArrayEquals("data should get sent to client",
+			Assertions.assertArrayEquals(
 				new String[] { "value1", "value2", "value3", "value4", "value5", "value6", "value7", "value8", "value9", "value10", "value11", "value12", "value13", "value14", "value15", "value16", "value17", "value18" },
-				new JSONWrapperList(col0JSON.getJSONObject("myDataprovider").getJSONArray("vp")).toArray());
+				new JSONWrapperList(col0JSON.getJSONObject("myDataprovider").getJSONArray("vp")).toArray(), "data should get sent to client");
 
-			Assert.assertEquals("valuelist should get sent to client", 4, col0JSON.getJSONObject("myValuelist").getJSONArray("values").length());
+			Assertions.assertEquals(4, col0JSON.getJSONObject("myValuelist").getJSONArray("values").length(), "valuelist should get sent to client");
 
 			// detach valuelist in column + change foundset prop. value - detach should have cleared registered property change listener for foundset and changing the foundset would result in a NPE if those listeners were still executed for disposed valuelist prop.
 			cx.evaluateString(form.getFormScope(),
@@ -161,9 +161,9 @@ public class ValuelistPropTest extends AbstractSolutionTest
 			changesJSON = new JSONObject(changes);
 			col0JSON = changesJSON.getJSONObject("changes").getJSONObject("myCustomComponent").getJSONObject("columns").getJSONArray("v").getJSONObject(
 				0).getJSONObject("v");
-			Assert.assertArrayEquals("data should get sent to client",
+			Assertions.assertArrayEquals(
 				new String[] { "valueA", "valueB", "valueC", "valueD", "valueE", "valueF", "valueG", "valueH", "valueI", "valueJ", "valueK", "valueL", "valueM", "valueN", "valueO", "valueP", "valueQ", "valueR" },
-				new JSONWrapperList(col0JSON.getJSONObject("myDataprovider").getJSONArray("vp")).toArray());
+				new JSONWrapperList(col0JSON.getJSONObject("myDataprovider").getJSONArray("vp")).toArray(), "data should get sent to client");
 		}
 		finally
 		{

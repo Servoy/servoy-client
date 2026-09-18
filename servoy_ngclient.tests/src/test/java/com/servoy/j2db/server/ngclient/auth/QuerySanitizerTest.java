@@ -1,12 +1,12 @@
 package com.servoy.j2db.server.ngclient.auth;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.servoy.j2db.server.ngclient.property.Log4JToConsoleTest;
 
@@ -24,7 +24,7 @@ public class QuerySanitizerTest extends Log4JToConsoleTest
 		params.put("key", new String[] { "hello world" });
 		String qs = QuerySanitizer.buildQueryString(params, java.util.Collections.emptySet());
 		// URLEncoder encodes space as + for application/x-www-form-urlencoded
-		assertTrue("basic encoding failed: " + qs, qs.contains("key=hello+world"));
+		assertTrue(qs.contains("key=hello+world"), "basic encoding failed: " + qs);
 	}
 
 	@Test
@@ -34,8 +34,8 @@ public class QuerySanitizerTest extends Log4JToConsoleTest
 		params.put("svyRedirect", new String[] { "shouldBeSkipped" });
 		params.put("keep", new String[] { "value" });
 		String qs = QuerySanitizer.buildQueryString(params, java.util.Collections.singleton("svyRedirect"));
-		assertTrue("skipKey not applied: " + qs, !qs.contains("svyRedirect"));
-		assertTrue("missing keep param: " + qs, qs.contains("keep=value"));
+		assertTrue(!qs.contains("svyRedirect"), "skipKey not applied: " + qs);
+		assertTrue(qs.contains("keep=value"), "missing keep param: " + qs);
 	}
 
 	@Test
@@ -44,7 +44,7 @@ public class QuerySanitizerTest extends Log4JToConsoleTest
 		String input = "hello\nworld\r\t!";
 		String sanitized = QuerySanitizer.sanitizeParamValue(input);
 		// control characters \n \r \t should be removed
-		assertEquals("control chars removal failed", "helloworld!", sanitized);
+		assertEquals("helloworld!", sanitized, "control chars removal failed");
 	}
 
 	@Test
@@ -53,7 +53,7 @@ public class QuerySanitizerTest extends Log4JToConsoleTest
 		String name = "weird name?*#";
 		String sanitized = QuerySanitizer.sanitizeParamName(name);
 		// spaces become underscores and other illegal chars replaced by '_'
-		assertEquals("param name sanitization failed", "weird_name___", sanitized);
+		assertEquals("weird_name___", sanitized, "param name sanitization failed");
 	}
 
 	@Test

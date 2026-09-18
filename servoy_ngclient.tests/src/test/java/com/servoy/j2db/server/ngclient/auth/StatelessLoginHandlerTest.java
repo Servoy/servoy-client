@@ -1,15 +1,15 @@
 package com.servoy.j2db.server.ngclient.auth;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.security.SecureRandom;
 import java.util.Base64;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.auth0.jwt.algorithms.Algorithm;
 import com.servoy.j2db.server.ngclient.property.Log4JToConsoleTest;
@@ -31,7 +31,7 @@ public class StatelessLoginHandlerTest extends Log4JToConsoleTest
 			byte[] keyBytes = new byte[32];
 			sr.nextBytes(keyBytes);
 			String key = Base64.getEncoder().encodeToString(keyBytes);
-			assertTrue("Duplicate key generated at iteration " + i, seen.add(key));
+			assertTrue(seen.add(key), "Duplicate key generated at iteration " + i);
 		}
 	}
 
@@ -43,7 +43,7 @@ public class StatelessLoginHandlerTest extends Log4JToConsoleTest
 		sr.nextBytes(keyBytes);
 		String key = Base64.getEncoder().encodeToString(keyBytes);
 		byte[] decoded = Base64.getDecoder().decode(key);
-		assertTrue("Fallback key must be at least 32 bytes (256 bits)", decoded.length >= 32);
+		assertTrue(decoded.length >= 32, "Fallback key must be at least 32 bytes (256 bits)");
 	}
 
 	@Test
@@ -64,6 +64,6 @@ public class StatelessLoginHandlerTest extends Log4JToConsoleTest
 		byte[] keyBytes = new byte[32];
 		sr.nextBytes(keyBytes);
 		String key = Base64.getEncoder().encodeToString(keyBytes);
-		assertEquals("Base64-encoded 32-byte key must be 44 characters", 44, key.length());
+		assertEquals(44, key.length(), "Base64-encoded 32-byte key must be 44 characters");
 	}
 }
