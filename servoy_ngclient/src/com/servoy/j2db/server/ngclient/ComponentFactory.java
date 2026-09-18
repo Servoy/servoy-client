@@ -157,16 +157,19 @@ public class ComponentFactory
 				Debug.warn("Event handler for " + eventName + " with value '" + eventValue + "' is a number (form " + form + ", form element " +
 					formElementName + ")");
 			}
-			else if (Utils.equalObjects(eventName, StaticContentSpecLoader.PROPERTY_ONFOCUSGAINEDMETHODID.getPropertyName()))
+			else if (Utils.equalObjects(eventName, StaticContentSpecLoader.PROPERTY_ONFOCUSGAINEDMETHODID.getPropertyName()) &&
+				FormElement.isValidMethodID(form.getOnElementFocusGainedMethodID()))
 			{
 				webComponent.add(eventName, form.getOnElementFocusGainedMethodID());
 			}
-			else if (Utils.equalObjects(eventName, StaticContentSpecLoader.PROPERTY_ONFOCUSLOSTMETHODID.getPropertyName()))
+			else if (Utils.equalObjects(eventName, StaticContentSpecLoader.PROPERTY_ONFOCUSLOSTMETHODID.getPropertyName()) &&
+				FormElement.isValidMethodID(form.getOnElementFocusLostMethodID()))
 			{
 				webComponent.add(eventName, form.getOnElementFocusLostMethodID());
 			}
 			else if (!foundOnDataChangeInDPConfigFromSpec[0] &&
-				Utils.equalObjects(eventName, StaticContentSpecLoader.PROPERTY_ONDATACHANGEMETHODID.getPropertyName()))
+				Utils.equalObjects(eventName, StaticContentSpecLoader.PROPERTY_ONDATACHANGEMETHODID.getPropertyName()) &&
+				FormElement.isValidMethodID(form.getOnElementDataChangeMethodID()))
 			{
 				// legacy behavior - based on hard-coded handler name (of component)
 				webComponent.add(eventName, form.getOnElementDataChangeMethodID());

@@ -61,6 +61,7 @@ import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.scripting.FormScope;
 import com.servoy.j2db.scripting.GlobalScope;
 import com.servoy.j2db.scripting.JSEvent;
+import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.INGApplication;
 import com.servoy.j2db.server.ngclient.IWebFormController;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
@@ -95,7 +96,7 @@ public class EventExecutor
 
 		Object[] newargs = eventArgs != null ? Arrays.copyOf(eventArgs, eventArgs.length) : null;
 
-		if (eventUUID != null)
+		if (FormElement.isValidMethodID(eventUUID))
 		{
 			ScriptMethod scriptMethod = formController.getApplication().getFlattenedSolution().getScriptMethod(eventUUID);
 			if (scriptMethod != null)

@@ -689,19 +689,19 @@ public final class FormElement implements INGFormElement
 			String eventName = entry.getKey();
 			@SuppressWarnings("unchecked")
 			Object eventValue = getPropertyValue(eventName);
-			if (eventValue != null && !(eventValue instanceof Integer && (((Integer)eventValue).intValue() == -1 || ((Integer)eventValue).intValue() == 0)))
+			if (isValidMethodID(eventValue))
 			{
 				handlers.add(eventName);
 			}
 			else if (Utils.equalObjects(eventName, StaticContentSpecLoader.PROPERTY_ONFOCUSGAINEDMETHODID.getPropertyName()) &&
-				(mainForm.getOnElementFocusGainedMethodID() != null ||
+				(isValidMethodID(mainForm.getOnElementFocusGainedMethodID()) ||
 					(application != null && application.getEventsManager().hasListeners(EventType.onElementFocusGained,
 						IExecutingEnviroment.TOPLEVEL_FORMS + '.' + mainForm.getName()))))
 			{
 				handlers.add(eventName);
 			}
 			else if (Utils.equalObjects(eventName, StaticContentSpecLoader.PROPERTY_ONFOCUSLOSTMETHODID.getPropertyName()) &&
-				(mainForm.getOnElementFocusLostMethodID() != null ||
+				(isValidMethodID(mainForm.getOnElementFocusLostMethodID()) ||
 					(application != null && application.getEventsManager().hasListeners(EventType.onElementFocusLost,
 						IExecutingEnviroment.TOPLEVEL_FORMS + '.' + mainForm.getName()))))
 			{
@@ -709,6 +709,21 @@ public final class FormElement implements INGFormElement
 			}
 		}
 		return handlers;
+	}
+
+	/**
+	 * Checks whether a method id / event value refers to a real method to execute. The values -1 and 0 (as Integer or String) are
+	 * legacy sentinels for NONE/DEFAULT that used to be stored in .frm files and are never valid uuids of a function to execute.
+	 */
+	public static boolean isValidMethodID(Object methodID)
+	{
+		if (methodID == null) return false;
+		if (methodID instanceof Integer)
+		{
+			int intValue = ((Integer)methodID).intValue();
+			return intValue != -1 && intValue != 0;
+		}
+		return !"-1".equals(methodID) && !"0".equals(methodID);
 	}
 
 	public String getPropertiesString() throws JSONException
