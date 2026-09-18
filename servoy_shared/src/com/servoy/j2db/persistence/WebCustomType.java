@@ -54,7 +54,14 @@ public class WebCustomType extends AbstractBase implements IChildWebObject, ISup
 	{
 		try
 		{
-			purePersistPropertyNames = RepositoryHelper.getSettersViaIntrospection(WebCustomType.class).keySet();
+			Set<String> introspectedNames = new HashSet<>(RepositoryHelper.getSettersViaIntrospection(WebCustomType.class).keySet());
+			// "name" is required by the IBasicWebObject/ISupportName contract (so setName/getName must
+			// exist), but it is a regular spec-declared JSON sub-property like any other on a custom
+			// type (see tab.name in tabpanel specs) and must be read/written through the JSON-backed
+			// PersistHelper mechanism, not through the legacy AbstractBase propertiesMap. Excluding it
+			// here is what makes getProperty("name")/setProperty("name", ...) route to PersistHelper.
+			introspectedNames.remove(StaticContentSpecLoader.PROPERTY_NAME.getPropertyName());
+			purePersistPropertyNames = introspectedNames;
 		}
 		catch (IntrospectionException e)
 		{
@@ -284,13 +291,14 @@ public class WebCustomType extends AbstractBase implements IChildWebObject, ISup
 	@Override
 	public void setName(String arg)
 	{
-		setTypedProperty(StaticContentSpecLoader.PROPERTY_NAME, arg);
+		setProperty(StaticContentSpecLoader.PROPERTY_NAME.getPropertyName(), arg);
 	}
 
 	@Override
 	public String getName()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_NAME);
+		Object value = getProperty(StaticContentSpecLoader.PROPERTY_NAME.getPropertyName());
+		return value != null ? value.toString() : null;
 	}
 
 	public String getJsonKey()
