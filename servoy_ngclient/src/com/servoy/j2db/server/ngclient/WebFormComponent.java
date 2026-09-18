@@ -257,12 +257,14 @@ public class WebFormComponent extends Container implements IContextProvider, ING
 			checkMethodExecutionSecurityAccess(getSpecification().getHandler(eventType), formElementForm);
 
 			if (Utils.equalObjects(eventType, StaticContentSpecLoader.PROPERTY_ONFOCUSGAINEDMETHODID.getPropertyName()) &&
-				formElementForm.getOnElementFocusGainedMethodID() != null && !formElementForm.getOnElementFocusGainedMethodID().equals(functionID))
+				FormElement.isValidMethodID(formElementForm.getOnElementFocusGainedMethodID()) &&
+				!formElementForm.getOnElementFocusGainedMethodID().equals(functionID))
 			{
 				dataAdapterList.executeEvent(WebFormComponent.this, eventType, formElementForm.getOnElementFocusGainedMethodID(), args);
 			}
 			else if (Utils.equalObjects(eventType, StaticContentSpecLoader.PROPERTY_ONFOCUSLOSTMETHODID.getPropertyName()) &&
-				formElementForm.getOnElementFocusLostMethodID() != null && !formElementForm.getOnElementFocusLostMethodID().equals(functionID))
+				FormElement.isValidMethodID(formElementForm.getOnElementFocusLostMethodID()) &&
+				!formElementForm.getOnElementFocusLostMethodID().equals(functionID))
 			{
 				dataAdapterList.executeEvent(WebFormComponent.this, eventType, formElementForm.getOnElementFocusLostMethodID(), args);
 			}
@@ -300,7 +302,7 @@ public class WebFormComponent extends Container implements IContextProvider, ING
 						!(executeEventReturn instanceof String && ((String)executeEventReturn).length() > 0);
 					if (isValueValid)
 					{
-						if (formElementForm.getOnElementDataChangeMethodID() != null &&
+						if (FormElement.isValidMethodID(formElementForm.getOnElementDataChangeMethodID()) &&
 							!formElementForm.getOnElementDataChangeMethodID().equals(functionID))
 						{
 							executeEventReturn = dataAdapterList.executeEvent(WebFormComponent.this, eventType,
