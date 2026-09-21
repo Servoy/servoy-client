@@ -159,23 +159,18 @@ public class ComponentFactory
 				Debug.warn("Event handler for " + eventName + " with value '" + eventValue + "' is a number (form " + form + ", form element " +
 					formElementName + ")");
 			}
-			else if (Utils.equalObjects(eventName, StaticContentSpecLoader.PROPERTY_ONFOCUSGAINEDMETHODID.getPropertyName()) &&
-				(FormElement.isValidMethodID(form.getOnElementFocusGainedMethodID()) ||
-					application.getEventsManager().hasListeners(EventType.onElementFocusGained,
-						IExecutingEnviroment.TOPLEVEL_FORMS + '.' + form.getName())))
+			else if (Utils.equalObjects(eventName, StaticContentSpecLoader.PROPERTY_ONFOCUSGAINEDMETHODID.getPropertyName()))
 			{
+				// form-level event: a listener can be registered later (e.g. in onShow) so the handler must always be
+				// registered/sent to the client; the actual form method is only executed when it is a valid method id
 				webComponent.add(eventName, form.getOnElementFocusGainedMethodID());
 			}
-			else if (Utils.equalObjects(eventName, StaticContentSpecLoader.PROPERTY_ONFOCUSLOSTMETHODID.getPropertyName()) &&
-				(FormElement.isValidMethodID(form.getOnElementFocusLostMethodID()) ||
-					application.getEventsManager().hasListeners(EventType.onElementFocusLost,
-						IExecutingEnviroment.TOPLEVEL_FORMS + '.' + form.getName())))
+			else if (Utils.equalObjects(eventName, StaticContentSpecLoader.PROPERTY_ONFOCUSLOSTMETHODID.getPropertyName()))
 			{
 				webComponent.add(eventName, form.getOnElementFocusLostMethodID());
 			}
 			else if (!foundOnDataChangeInDPConfigFromSpec[0] &&
-				Utils.equalObjects(eventName, StaticContentSpecLoader.PROPERTY_ONDATACHANGEMETHODID.getPropertyName()) &&
-				FormElement.isValidMethodID(form.getOnElementDataChangeMethodID()))
+				Utils.equalObjects(eventName, StaticContentSpecLoader.PROPERTY_ONDATACHANGEMETHODID.getPropertyName()))
 			{
 				// legacy behavior - based on hard-coded handler name (of component)
 				webComponent.add(eventName, form.getOnElementDataChangeMethodID());
