@@ -698,6 +698,8 @@ public final class FormElement implements INGFormElement
 					(application != null && application.getEventsManager().hasListeners(EventType.onElementFocusGained,
 						IExecutingEnviroment.TOPLEVEL_FORMS + '.' + mainForm.getName()))))
 			{
+				// form-level event: getHandlers() is called when rendering/pushing to the client (after onShow), so a
+				// listener registered at runtime is visible here; also advertise it when the form has a focus method
 				handlers.add(eventName);
 			}
 			else if (Utils.equalObjects(eventName, StaticContentSpecLoader.PROPERTY_ONFOCUSLOSTMETHODID.getPropertyName()) &&
