@@ -33,6 +33,8 @@ import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
+import com.servoy.j2db.scripting.IExecutingEnviroment;
+import com.servoy.j2db.scripting.info.EventType;
 import com.servoy.j2db.server.ngclient.property.DataproviderConfig;
 import com.servoy.j2db.server.ngclient.property.FoundsetLinkedConfig;
 import com.servoy.j2db.server.ngclient.property.types.DataproviderPropertyType;
@@ -158,12 +160,16 @@ public class ComponentFactory
 					formElementName + ")");
 			}
 			else if (Utils.equalObjects(eventName, StaticContentSpecLoader.PROPERTY_ONFOCUSGAINEDMETHODID.getPropertyName()) &&
-				FormElement.isValidMethodID(form.getOnElementFocusGainedMethodID()))
+				(FormElement.isValidMethodID(form.getOnElementFocusGainedMethodID()) ||
+					application.getEventsManager().hasListeners(EventType.onElementFocusGained,
+						IExecutingEnviroment.TOPLEVEL_FORMS + '.' + form.getName())))
 			{
 				webComponent.add(eventName, form.getOnElementFocusGainedMethodID());
 			}
 			else if (Utils.equalObjects(eventName, StaticContentSpecLoader.PROPERTY_ONFOCUSLOSTMETHODID.getPropertyName()) &&
-				FormElement.isValidMethodID(form.getOnElementFocusLostMethodID()))
+				(FormElement.isValidMethodID(form.getOnElementFocusLostMethodID()) ||
+					application.getEventsManager().hasListeners(EventType.onElementFocusLost,
+						IExecutingEnviroment.TOPLEVEL_FORMS + '.' + form.getName())))
 			{
 				webComponent.add(eventName, form.getOnElementFocusLostMethodID());
 			}
