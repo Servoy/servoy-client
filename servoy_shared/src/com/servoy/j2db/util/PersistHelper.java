@@ -1583,7 +1583,7 @@ public class PersistHelper
 				});
 				if (PersistHelper.isArrayOfCustomJSONObject(childPd.getType()))
 				{
-					return customTypes.toArray(new IChildWebObject[customTypes.size()]);
+					return customTypes.isEmpty() ? null : customTypes.toArray(new IChildWebObject[customTypes.size()]);
 				}
 				else if (customTypes.size() > 0)
 				{
