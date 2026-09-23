@@ -35,7 +35,7 @@ public abstract class ClientVersion
 	private static final int middleVersion = 3;
 	private static final int minorVersion = 6;
 	private static final int releaseNumber = 4048;
-	private static final String versionPostfix = "rc";
+	private static final String versionPostfix = "";
 	private static final boolean lts = true;
 	private static String buildTime = null;
 
