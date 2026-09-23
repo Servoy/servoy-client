@@ -78,6 +78,13 @@ public final class UUID implements Serializable, Comparable<UUID>, IJavaScriptTy
 			lsb = (lsb << 8) | (data[i] & 0xff);
 		this.mostSignificantBits = msb;
 		this.leastSignificantBits = lsb;
+		// A UUID's byte form carries no casing. Determine the lowerCase flag the same way fromString(String) does:
+		// from the canonical rendering. digits() renders via Long.toHexString (always lowercase), so the canonical
+		// form is all lowercase and the flag is true. This keeps a byte-built UUID (e.g. an HSQL uuid-array element)
+		// lowercase; the uppercase convention for native-uuid columns is applied at the DB-read layer (dialect
+		// resultsetGet), not here.
+		String canonical = renderCanonical(msb, lsb);
+		this.lowerCase = canonical.toLowerCase().equals(canonical);
 	}
 
 	/**
@@ -338,19 +345,26 @@ public final class UUID implements Serializable, Comparable<UUID>, IJavaScriptTy
 	{
 		if (stringRep == null)
 		{
-			StringBuilder sb = new StringBuilder(36);
-			sb.append(digits(mostSignificantBits >> 32, 8));
-			sb.append('-');
-			sb.append(digits(mostSignificantBits >> 16, 4));
-			sb.append('-');
-			sb.append(digits(mostSignificantBits, 4));
-			sb.append('-');
-			sb.append(digits(leastSignificantBits >> 48, 4));
-			sb.append('-');
-			sb.append(digits(leastSignificantBits, 12));
-			stringRep = lowerCase ? sb.toString() : sb.toString().toUpperCase();
+			String canonical = renderCanonical(mostSignificantBits, leastSignificantBits);
+			stringRep = lowerCase ? canonical : canonical.toUpperCase();
 		}
 		return stringRep;
+	}
+
+	/** Renders the canonical 8-4-4-4-12 hex string for the given most/least significant bits. */
+	private static String renderCanonical(long msb, long lsb)
+	{
+		StringBuilder sb = new StringBuilder(36);
+		sb.append(digits(msb >> 32, 8));
+		sb.append('-');
+		sb.append(digits(msb >> 16, 4));
+		sb.append('-');
+		sb.append(digits(msb, 4));
+		sb.append('-');
+		sb.append(digits(lsb >> 48, 4));
+		sb.append('-');
+		sb.append(digits(lsb, 12));
+		return sb.toString();
 	}
 
 	/** Returns val represented by the specified number of hex digits. */
