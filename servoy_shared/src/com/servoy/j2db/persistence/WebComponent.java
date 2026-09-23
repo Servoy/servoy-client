@@ -365,7 +365,16 @@ public class WebComponent extends BaseComponent implements IWebComponent, ICommo
 				JSONObject flattenedJson = this.getFlattenedJson();
 				if (flattenedJson != null)
 				{
-					wcClone.setProperty(IContentSpecConstants.PROPERTY_JSON, flattenedJson);
+					// the flattened json can share (nested) JSONObject instances with this component's
+					// own json and/or with its super persist's json (see PersistHelper.getFlattenedJSON,
+					// which merges/puts values by reference). Storing it directly on the clone would let
+					// the resetUUID() calls below mutate those shared instances, changing the UUIDs of the
+					// source component's custom type children too -> duplicate UUIDs. Deep-clone it so the
+					// clone owns an isolated json tree. (SVY-21257)
+					Object deepClone = ServoyJSONObject.deepCloneJSONArrayOrObj(flattenedJson);
+					ServoyJSONObject isolatedJson = deepClone instanceof ServoyJSONObject sjo ? sjo
+						: new ServoyJSONObject((JSONObject)deepClone, ServoyJSONObject.getNames((JSONObject)deepClone), false, true);
+					wcClone.setProperty(IContentSpecConstants.PROPERTY_JSON, isolatedJson);
 				}
 			}
 			wcClone.customTypesInitialized = false;
