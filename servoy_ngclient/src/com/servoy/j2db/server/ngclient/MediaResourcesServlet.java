@@ -366,105 +366,128 @@ public class MediaResourcesServlet extends AbstractMediaResourceServlet
 		String[] paths = path.split("/");
 		String reqEncoding = req.getCharacterEncoding() == null ? "UTF-8" : req.getCharacterEncoding();
 
-		if ((paths.length == 2 || paths.length >= 5) && paths[0].equals("upload"))
+		if (!((paths.length == 2 || paths.length >= 5) && paths[0].equals("upload")))
 		{
-			if (req.getHeader("Content-Type") != null && req.getHeader("Content-Type").startsWith("multipart/form-data"))
+			// not a valid upload url
+			res.sendError(HttpServletResponse.SC_NOT_FOUND);
+			return;
+		}
+
+		if (req.getHeader("Content-Type") == null || !req.getHeader("Content-Type").startsWith("multipart/form-data"))
+		{
+			// upload must be a multipart/form-data request
+			res.sendError(HttpServletResponse.SC_BAD_REQUEST, "Upload must be a multipart/form-data request");
+			return;
+		}
+
+		int clientnr;
+		try
+		{
+			clientnr = paths[1].length() == 0 ? -1 : Integer.parseInt(paths[1]);
+		}
+		catch (NumberFormatException ex)
+		{
+			res.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid client number");
+			return;
+		}
+
+		final INGClientWebsocketSession wsSession = getSession(req, clientnr);
+		if (wsSession == null)
+		{
+			// no (still) valid client could be found for this http session and client number; the upload
+			// cannot be processed - do not silently return 200 as if the upload succeeded (see SVY-21417)
+			res.sendError(HttpServletResponse.SC_UNAUTHORIZED, "No valid client session found for this upload");
+			return;
+		}
+
+		try
+		{
+			Settings settings = Settings.getInstance();
+			File fileUploadDir = null;
+			String uploadDir = settings.getProperty("servoy.ng_web_client.temp.uploadir");
+			if (uploadDir != null)
 			{
-				int clientnr = paths[1].length() == 0 ? -1 : Integer.parseInt(paths[1]);
-				final INGClientWebsocketSession wsSession = getSession(req, clientnr);
-				try
+				fileUploadDir = new File(uploadDir);
+				if (!fileUploadDir.exists() && !fileUploadDir.mkdirs())
 				{
-					if (wsSession != null)
-					{
-						Settings settings = Settings.getInstance();
-						File fileUploadDir = null;
-						String uploadDir = settings.getProperty("servoy.ng_web_client.temp.uploadir");
-						if (uploadDir != null)
-						{
-							fileUploadDir = new File(uploadDir);
-							if (!fileUploadDir.exists() && !fileUploadDir.mkdirs())
-							{
-								fileUploadDir = null;
-								Debug.error("Couldn't use the property 'servoy.ng_web_client.temp.uploadir' value: '" + uploadDir +
-									"', directory could not be created or doesn't exists");
-							}
-						}
-						int tempFileThreshold = Utils.getAsInteger(settings.getProperty("servoy.ng_web_client.tempfile.threshold", "50"), false) * 1000;
-						DiskFileItemFactory diskFileItemFactory = new DiskFileItemFactory(tempFileThreshold, fileUploadDir);
-						diskFileItemFactory.setFileCleaningTracker(FILE_CLEANING_TRACKER);
-						ServletFileUpload upload = new ServletFileUpload(diskFileItemFactory);
-						upload.setHeaderEncoding(reqEncoding);
-						long maxUpload = Utils.getAsLong(settings.getProperty("servoy.webclient.maxuploadsize", "0"), false);
-						if (maxUpload > 0) upload.setFileSizeMax(maxUpload * 1000);
-						final List<FileUploadData> aFileUploadData = new ArrayList<FileUploadData>();
-						List<FileItem> formFields = new ArrayList<>();
-						for (FileItem item : upload.parseRequest(req))
-						{
-							if (item.isFormField())
-							{
-								formFields.add(item);
-							}
-							else
-							{
-								String encoding = StringUtils.defaultString(req.getCharacterEncoding(), "UTF-8");
-
-								JSMap<String, String> fieldsMap = new JSMap<>();
-								for (FileItem fileItem : formFields)
-								{
-									try
-									{
-										fieldsMap.put(fileItem.getFieldName(), fileItem.getString(encoding));
-									}
-									catch (UnsupportedEncodingException e)
-									{
-										Debug.error(e);
-									}
-								}
-
-								if (callClient(req, paths, wsSession, fieldsMap, item))
-								{
-									formFields = new ArrayList<>();
-								}
-								else
-								{
-									// it is a file from the built-in file selector
-									aFileUploadData.add(new FileUploadData(item));
-								}
-							}
-						}
-						if (aFileUploadData.size() > 0)
-						{
-							final IMediaUploadCallback mediaUploadCallback = ((NGClient)wsSession.getClient()).getMediaUploadCallback();
-							if (mediaUploadCallback != null)
-							{
-								// leave time for this request to finish, before executing the callback, so the file
-								// dialog can do its close
-								((NGClient)wsSession.getClient()).invokeLater(new Runnable()
-								{
-
-									@Override
-									public void run()
-									{
-										mediaUploadCallback.uploadComplete(aFileUploadData.toArray(new FileUploadData[aFileUploadData.size()]));
-										mediaUploadCallback.onSubmit();
-									}
-								});
-							}
-						}
-					}
-				}
-				catch (FileSizeLimitExceededException ex)
-				{
-					res.setStatus(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE);
-					if (wsSession != null) res.getWriter().print(
-						wsSession.getClient().getI18NMessage("servoy.filechooser.sizeExceeded", new Object[] { ex.getPermittedSize() / 1000 + "KB" }));
-				}
-				catch (FileUploadException ex)
-				{
-					ex.printStackTrace();
-					throw new ServletException(ex.toString());
+					fileUploadDir = null;
+					Debug.error("Couldn't use the property 'servoy.ng_web_client.temp.uploadir' value: '" + uploadDir +
+						"', directory could not be created or doesn't exists");
 				}
 			}
+			int tempFileThreshold = Utils.getAsInteger(settings.getProperty("servoy.ng_web_client.tempfile.threshold", "50"), false) * 1000;
+			DiskFileItemFactory diskFileItemFactory = new DiskFileItemFactory(tempFileThreshold, fileUploadDir);
+			diskFileItemFactory.setFileCleaningTracker(FILE_CLEANING_TRACKER);
+			ServletFileUpload upload = new ServletFileUpload(diskFileItemFactory);
+			upload.setHeaderEncoding(reqEncoding);
+			long maxUpload = Utils.getAsLong(settings.getProperty("servoy.webclient.maxuploadsize", "0"), false);
+			if (maxUpload > 0) upload.setFileSizeMax(maxUpload * 1000);
+			final List<FileUploadData> aFileUploadData = new ArrayList<FileUploadData>();
+			List<FileItem> formFields = new ArrayList<>();
+			for (FileItem item : upload.parseRequest(req))
+			{
+				if (item.isFormField())
+				{
+					formFields.add(item);
+				}
+				else
+				{
+					String encoding = StringUtils.defaultString(req.getCharacterEncoding(), "UTF-8");
+
+					JSMap<String, String> fieldsMap = new JSMap<>();
+					for (FileItem fileItem : formFields)
+					{
+						try
+						{
+							fieldsMap.put(fileItem.getFieldName(), fileItem.getString(encoding));
+						}
+						catch (UnsupportedEncodingException e)
+						{
+							Debug.error(e);
+						}
+					}
+
+					if (callClient(req, paths, wsSession, fieldsMap, item))
+					{
+						formFields = new ArrayList<>();
+					}
+					else
+					{
+						// it is a file from the built-in file selector
+						aFileUploadData.add(new FileUploadData(item));
+					}
+				}
+			}
+			if (aFileUploadData.size() > 0)
+			{
+				final IMediaUploadCallback mediaUploadCallback = ((NGClient)wsSession.getClient()).getMediaUploadCallback();
+				if (mediaUploadCallback != null)
+				{
+					// leave time for this request to finish, before executing the callback, so the file
+					// dialog can do its close
+					((NGClient)wsSession.getClient()).invokeLater(new Runnable()
+					{
+
+						@Override
+						public void run()
+						{
+							mediaUploadCallback.uploadComplete(aFileUploadData.toArray(new FileUploadData[aFileUploadData.size()]));
+							mediaUploadCallback.onSubmit();
+						}
+					});
+				}
+			}
+		}
+		catch (FileSizeLimitExceededException ex)
+		{
+			res.setStatus(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE);
+			res.getWriter().print(
+				wsSession.getClient().getI18NMessage("servoy.filechooser.sizeExceeded", new Object[] { ex.getPermittedSize() / 1000 + "KB" }));
+		}
+		catch (FileUploadException ex)
+		{
+			ex.printStackTrace();
+			throw new ServletException(ex.toString());
 		}
 	}
 
