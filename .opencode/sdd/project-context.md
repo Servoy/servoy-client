@@ -4,6 +4,10 @@ This project is the **Servoy Runtime** — the core engine code including persis
 shared runtime logic, NG web client, smart client, headless client, and debugger support.
 It is built as a multi-project Eclipse workspace consisting of 8 OSGi plugin bundles.
 
+## SDD variant
+
+This repo uses the **sdd-java-eclipse** shared skill (Java / Eclipse-OSGi pipeline).
+
 ## Technology stack
 
 | Aspect | Value |
@@ -56,26 +60,37 @@ When writing code for this project, you are writing **OSGi bundles**:
 - Log via `Debug` class or SLF4J (check what the module uses)
 - No `System.out.println` — use proper logging
 - Prefer existing utility classes (check `com.servoy.j2db.util`)
+- Servoy has its own `com.servoy.j2db.util.UUID` — do NOT use `java.util.UUID` where the codebase expects the Servoy type
+
+## Testing
+
+- Unit tests (pure logic, no OSGi): live in a `<plugin>.tests` fragment (e.g. `servoy_ngclient.tests`),
+  run with `eclipse-ide_runClassTests`. Class suffix `*Test`.
+- Integration tests (needs OSGi/workspace): `eclipse-test-plugin` packaging, run with
+  `eclipse-pde_runJUnitPluginTestClass`. Class suffix `*IntegrationTest`.
+- `servoy_ngclient.tests` is a `Fragment-Host: servoy_ngclient` fragment, giving package-private access.
+- See `AGENTS.md` `## Testing` for the catalogue of existing feature test classes.
 
 ## Known design decisions (DO NOT CHANGE)
 
 Read `AGENTS.md` section 5 for critical design decisions that must not be modified:
-- SecuritySupport DESede with hardcoded passphrase
-- OAuthHandler redirect (not an open redirect)
-- Refresh token embedded in Servoy JWT
-- Rate limiting is an infrastructure concern
+- SecuritySupport DESede with hardcoded passphrase (`background.gif`) — intentional obfuscation
+- OAuthHandler `sendRedirect(loginFailedUrl)` — NOT an open redirect (false positive)
+- Refresh token embedded in Servoy JWT — intentional stateless design trade-off
+- Rate limiting is an infrastructure concern, not application-layer
 
 ## AGENTS.md
 
-Always read `AGENTS.md` at the start of your work — it contains the full tool usage
-policy, workflow requirements, and post-edit checklist that you must follow.
+Always read `AGENTS.md` at the start of your work — it contains the full tool usage policy,
+workflow requirements, post-edit checklist, and the `[ai]` commit-subject convention (with
+the Jira case number) that you must follow.
 
 ## Gotchas
 
-- **MANIFEST.MF formatting:** Strict 72-byte line-length limits. Use eclipse-coder
-  tools to edit, or let `eclipse-coder_formatFile` handle it.
-- **Plugin pom.xml is NOT for dependencies:** The `pom.xml` in a Tycho plugin project
-  is only for build configuration. Runtime dependencies come from MANIFEST.MF + target platform.
+- **MANIFEST.MF formatting:** Strict 72-byte line-length limits. Use eclipse-coder tools to
+  edit, or let `eclipse-coder_formatFile` handle it. A broken MANIFEST.MF = bundle won't load.
+- **Plugin pom.xml is NOT for dependencies:** The `pom.xml` in a Tycho plugin project is only
+  for build configuration. Runtime dependencies come from MANIFEST.MF + target platform.
 - **Require-Bundle vs Import-Package:** Prefer `Require-Bundle` for Servoy internal bundles.
   Use `Import-Package` for third-party libraries.
 - **build.properties matters:** New folders must be in `bin.includes` or they won't be in the JAR.
