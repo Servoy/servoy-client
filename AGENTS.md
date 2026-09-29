@@ -62,12 +62,33 @@ This Git repository contains **8 core projects/plugins** forming the Servoy runt
 
 Since this workspace is a complex, multi-project Eclipse environment, **always prioritize Eclipse-specific MCP/PDE tools** over standard, general-purpose command-line or filesystem tools. This ensures that the Eclipse index, builder, and classpath are kept in sync.
 
-- **File Reading:** Use `eclipse-ide_readProjectResource` instead of the generic `read` tool.
-- **File Writing & Creating:** Use `eclipse-coder_createFile` or `eclipse-coder_replaceFileContent` instead of the generic `write` tool.
-- **File Editing:** Use `eclipse-coder_applyPatch`, `eclipse-coder_insertIntoFile`, `eclipse-coder_replaceString`, or `eclipse-coder_deleteLinesInFile` instead of the generic `edit` tool.
-- **File / Class Searching:** Use `eclipse-ide_fileSearch`, `eclipse-ide_fileSearchRegExp`, or `eclipse-ide_findFiles` instead of generic `grep` or `glob`.
-- **Git Operations:** Use `eclipse-git_*` tools instead of standard shell `git` commands in `bash`.
-- **Testing:** Prefer `eclipse-ide_runAllTests`, `eclipse-ide_runClassTests`, `eclipse-ide_runTestMethod`, or `eclipse-pde_runJUnitPluginTests` over generic shell test commands.
+### ⚠️ Everything runs through Code Mode — READ THIS FIRST
+
+The Eclipse MCP servers (`eclipse-coder`, `eclipse-ide`, `eclipse-git`, `eclipse-pde`, `eclipse-runner`, `eclipse-context`) and the other MCP tools (`memory`, `time`, `atlassian`) are exposed **only through Code Mode**. There is **no direct top-level tool** for any of them.
+
+- To call any Eclipse/MCP tool you MUST write JavaScript inside the **`execute`** tool and call the tool by its exact catalog `path`, using bracket notation:
+  - `await tools["eclipse-coder"].replaceString({ ... })`
+  - `await tools["eclipse-ide"].getCompilationErrors({ ... })`
+  - `await tools["eclipse-git"].gitStatus({ ... })`
+- **NEVER** call these as if they were plain tools (e.g. `eclipse-coder_replaceString`, `eclipse-ide_getCompilationErrors`, or `tools.eclipse_ide.getCompilationErrors`). Those names do **not** exist in Code Mode; the call fails with *"No tool named ... is currently available."* When that happens, **do not fall back to the built-in `edit`/`write`** — fix the call by wrapping it in `execute` with the bracket form instead.
+- The Code Mode catalog is **partial**. If a tool is not shown, find it with `search(...)` **inside** an `execute` script (it is synchronous — call it without `await`), then call it by the returned `path`. Do not guess tool names.
+- Throughout the rest of this document, whenever a tool is written as `eclipse-coder_replaceString` or `eclipse-ide_getCompilationErrors`, read it as shorthand for `tools["eclipse-coder"].replaceString(...)` / `tools["eclipse-ide"].getCompilationErrors(...)` called via `execute`.
+- **The only tools called directly (not through Code Mode):** the built-in `read`, `grep`, `glob`, and `shell`. Use them only for the narrow cases below. Everything else goes through `execute`.
+
+### File operations — MANDATORY
+
+**Every file inside an Eclipse workspace project MUST be edited through the `eclipse-coder` tools**, never the built-in `edit`/`write`. The built-in tools write straight to disk behind Eclipse's back, so the open editor, the JDT model, incremental compilation, and local-history undo drift out of sync. This is a hard rule.
+
+- **File Reading:** `tools["eclipse-ide"].readProjectResource` (plus `getSource`, `getFilteredSource`, `getMethodSource`, `getClassOutline`) instead of the generic `read` tool.
+- **File Writing & Creating:** `tools["eclipse-coder"].createFile` or `tools["eclipse-coder"].replaceFileContent` instead of the generic `write` tool.
+- **File Editing:** `tools["eclipse-coder"].applyPatch`, `insertIntoFile`, `replaceString`, `applyTextEdits`, or `deleteLinesInFile` instead of the generic `edit` tool.
+- **File / Class Searching:** `tools["eclipse-ide"].fileSearch`, `fileSearchRegExp`, `findFiles`, `findReferences`, `searchTypes`, `searchMethods` instead of generic `grep` / `glob` (use those only for non-code files or when Eclipse search returns nothing).
+- **Git Operations:** `tools["eclipse-git"]` (`gitStatus`, `gitDiff`, `gitAdd`, `gitCommit`, `gitLog`, `gitShow`, `gitReadFile`, branch/stash/tag ops, etc.) instead of shell `git`.
+- **Testing:** `tools["eclipse-ide"].runJUnitTests` (use `findTestClasses` to discover them) or `tools["eclipse-pde"].runJUnitPluginTests` over generic shell test commands.
+
+The built-in `edit`/`write` are acceptable **only** for files that are NOT inside any Eclipse project — repo-root docs (`AGENTS.md`, `README.md`), CI YAML, `opencode.json`, shell scripts. When in doubt, use `eclipse-coder`.
+
+> **Long-running operations:** builds, tests, launches and refactors run asynchronously. Every Eclipse server exposes `listOperations`, `getOperationStatus`, and `cancelOperation`. When a tool returns an `operationId`, poll `tools["<server>"].getOperationStatus({ operationId })` (via `execute`) until it finishes.
 
 ---
 
@@ -83,9 +104,9 @@ To maintain clarity and transparency about the origin of codebase changes, any G
 
 After making any code modifications or creating files using the Eclipse MCP tools, you must execute a self-verification compile loop:
 
-1. **Check for errors:** Call `eclipse-ide_getCompilationErrors()` immediately to check the build state.
+1. **Check for errors:** Call `tools["eclipse-ide"].getCompilationErrors(...)` (via `execute`) immediately to check the build state.
 2. **Review quick fixes:** If any compilation errors are introduced or identified, look at the returned quick fixes list.
-3. **Apply quick fixes:** If a quick fix is applicable and safe, immediately apply it using `eclipse-ide_executeQuickFix` by passing the corresponding `markerId` and `proposalIndex`.
+3. **Apply quick fixes:** If a quick fix is applicable and safe, immediately apply it using `tools["eclipse-ide"].executeQuickFix` by passing the corresponding `markerId` and `proposalIndex`.
 4. **Re-check:** Verify compilation again to ensure the workspace is clean.
 
 ---
