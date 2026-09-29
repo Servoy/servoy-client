@@ -9,7 +9,8 @@ It is built as a multi-project Eclipse workspace consisting of 8 OSGi plugin bun
 | Aspect | Value |
 |--------|-------|
 | Java version | 17 |
-| Build system | Maven with Eclipse Tycho (eclipse-plugin packaging) |
+| Build system | Maven with Eclipse Tycho 4.0.9 (eclipse-plugin packaging) |
+| Version | 2025.3.6-SNAPSHOT (lts_2025 line) |
 | Module system | OSGi (each project is a bundle with MANIFEST.MF) |
 | UI framework | Java Swing (smart client), Sablo/WebSocket (NG client) |
 | Web framework | Angular (NG client frontend), Tomcat (embedded server) |
