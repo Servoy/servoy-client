@@ -41,19 +41,19 @@ public class RelationUuidArrayKeyTypeTest
 	 */
 	private static String runCheck(int operator, String primaryTypeProperty, int foreignSqlType, boolean foreignUuidFlag) throws RepositoryException
 	{
-		DummySolution solution = new DummySolution();
-		Relation relation = new Relation(solution, UUID.randomUUID());
+		DummySolution solution = newSolution();
+		Relation relation = (Relation)solution.getChangeHandler().createNewObject(solution, IRepository.RELATIONS);
 		relation.setName("globals_to_build$buildingorqueued$application");
 		relation.setPrimaryDataSource(PRIMARY_DS);
 		relation.setForeignDataSource(FOREIGN_DS);
 
-		RelationItem item = new RelationItem(relation, UUID.randomUUID());
+		RelationItem item = (RelationItem)solution.getChangeHandler().createNewObject(relation, IRepository.RELATION_ITEMS);
 		item.setPrimaryDataProviderID(SCOPE_VAR);
 		item.setForeignColumnName(FOREIGN_COLUMN);
 		item.setOperator(operator);
 		relation.internalAddChild(item);
 
-		ScriptVariable primary = new ScriptVariable(solution, UUID.randomUUID());
+		ScriptVariable primary = (ScriptVariable)solution.getChangeHandler().createNewObject(solution, IRepository.SCRIPTVARIABLES);
 		primary.setName("applicationJobs");
 		primary.setVariableType(IColumnTypes.MEDIA);
 		if (primaryTypeProperty != null)
@@ -205,19 +205,19 @@ public class RelationUuidArrayKeyTypeTest
 	 */
 	private static String runScalar(int primaryColumnType, int foreignSqlType, boolean foreignUuidFlag) throws RepositoryException
 	{
-		DummySolution solution = new DummySolution();
-		Relation relation = new Relation(solution, UUID.randomUUID());
+		DummySolution solution = newSolution();
+		Relation relation = (Relation)solution.getChangeHandler().createNewObject(solution, IRepository.RELATIONS);
 		relation.setName("mem_assign_users_to_users");
 		relation.setPrimaryDataSource(PRIMARY_DS);
 		relation.setForeignDataSource(FOREIGN_DS);
 
-		RelationItem item = new RelationItem(relation, UUID.randomUUID());
+		RelationItem item = (RelationItem)solution.getChangeHandler().createNewObject(relation, IRepository.RELATION_ITEMS);
 		item.setPrimaryDataProviderID(SCOPE_VAR);
 		item.setForeignColumnName(FOREIGN_COLUMN);
 		item.setOperator(IBaseSQLCondition.EQUALS_OPERATOR);
 		relation.internalAddChild(item);
 
-		ScriptVariable primary = new ScriptVariable(solution, UUID.randomUUID());
+		ScriptVariable primary = (ScriptVariable)solution.getChangeHandler().createNewObject(solution, IRepository.SCRIPTVARIABLES);
 		primary.setName("user_uuid");
 		primary.setVariableType(primaryColumnType);
 
@@ -236,6 +236,39 @@ public class RelationUuidArrayKeyTypeTest
 	/**
 	 * Minimal root object so the Relation / RelationItem / ScriptVariable have a valid parent chain without a live repository.
 	 */
+	/**
+	 * Creates a solution wired with a {@link ChangeHandler} so that Relation/RelationItem/ScriptVariable
+	 * are instantiated through the {@link AbstractPersistFactory} rather than via their package-private
+	 * constructors. Direct {@code new Relation(...)} from this test fragment triggers an
+	 * {@link IllegalAccessError} under real OSGi (Tycho/Jenkins) because the fragment and servoy_shared
+	 * resolve {@code com.servoy.j2db.persistence} through different Equinox class loaders, so the
+	 * package-private constructor is not accessible. Going through the factory (public API) avoids that.
+	 */
+	private static DummySolution newSolution()
+	{
+		DummySolution solution = new DummySolution();
+		solution.setChangeHandler(new ChangeHandler(new AbstractPersistFactory()
+		{
+			@Override
+			public void initClone(IPersist clone, IPersist objToClone, boolean flattenOverrides)
+			{
+			}
+
+			@Override
+			protected IPersist createRootObject(UUID rootObjectUUID)
+			{
+				return null;
+			}
+
+			@Override
+			protected ContentSpec loadContentSpec()
+			{
+				return null;
+			}
+		}));
+		return solution;
+	}
+
 	private static final class DummySolution extends AbstractRootObject implements ISupportChilds
 	{
 		DummySolution()
