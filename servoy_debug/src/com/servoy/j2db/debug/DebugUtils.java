@@ -26,6 +26,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 
 import javax.swing.SwingUtilities;
 
@@ -78,6 +79,81 @@ public class DebugUtils
 	public interface DebugUpdateFormSupport
 	{
 		public void updateForm(Form form);
+	}
+
+	/**
+	 * Optional, owner-scoped sink that receives a copy of every stdout/stderr message that is forwarded to the debugger console
+	 * ({@link #stdoutToDebugger(IExecutingEnviroment, Object)} / {@link #stderrToDebugger(IExecutingEnviroment, Object)} /
+	 * {@link #errorToDebugger(IExecutingEnviroment, String, Object)}). It is used to capture the console output produced while a single
+	 * ad-hoc script/method is executed in a running debug client (see the servoy-debug MCP tool).
+	 * <p>
+	 * Runs are expected to be serialized on the client's single event-dispatch thread, but overlapping/queued scheduling on that thread is
+	 * still made safe by keying the sink to an <b>owner token</b>: {@link #setOutputSink(Object, Consumer)} only takes ownership, and both
+	 * {@link #captureOutput(Object)} and {@link #removeOutputSink(Object)} act only while the passed owner is still the active one. A stale
+	 * or abandoned (timed-out) run therefore cannot steal, clear or write into a newer run's sink. The static fields are guarded by
+	 * {@link #SINK_LOCK} so a callback firing on any thread stays consistent.
+	 */
+	private static final Object SINK_LOCK = new Object();
+
+	private static Object currentSinkOwner;
+
+	private static Consumer<String> currentSink;
+
+	/**
+	 * Installs an output sink owned by {@code owner}, replacing any previously installed sink. Must be paired with
+	 * {@link #removeOutputSink(Object)} (typically in a finally block) using the same {@code owner}. Any stdout/stderr text forwarded to the
+	 * debugger while this owner is active is also passed to {@code sink}.
+	 *
+	 * @param owner a unique, non-null token identifying this run; used to guard against stale/overlapping runs.
+	 * @param sink the consumer to receive captured console text; must not be null.
+	 */
+	public static void setOutputSink(Object owner, Consumer<String> sink)
+	{
+		if (owner == null || sink == null) return;
+		synchronized (SINK_LOCK)
+		{
+			currentSinkOwner = owner;
+			currentSink = sink;
+		}
+	}
+
+	/**
+	 * Removes the output sink previously installed with {@link #setOutputSink(Object, Consumer)} <b>only if</b> {@code owner} still owns it.
+	 * A stale/abandoned run whose ownership has since been taken over by a newer run is a no-op, so it can never clear the newer run's sink.
+	 *
+	 * @param owner the same token that was passed to {@link #setOutputSink(Object, Consumer)}.
+	 */
+	public static void removeOutputSink(Object owner)
+	{
+		if (owner == null) return;
+		synchronized (SINK_LOCK)
+		{
+			if (currentSinkOwner == owner)
+			{
+				currentSinkOwner = null;
+				currentSink = null;
+			}
+		}
+	}
+
+	private static void captureOutput(Object message)
+	{
+		Consumer<String> sink;
+		synchronized (SINK_LOCK)
+		{
+			sink = currentSink;
+		}
+		if (sink != null)
+		{
+			try
+			{
+				sink.accept(message == null ? "<null>" : message.toString());
+			}
+			catch (Exception e)
+			{
+				Debug.error(e);
+			}
+		}
 	}
 
 	public static void errorToDebugger(IExecutingEnviroment engine, String message, Object errorDetail)
@@ -181,6 +257,7 @@ public class DebugUtils
 						if (scriptstack != null) msg += "\n" + scriptstack;
 					}
 				}
+				captureOutput(msg);
 				debugger.outputStdErr(msg.toString() + '\n');
 			}
 		}
@@ -193,6 +270,7 @@ public class DebugUtils
 			DBGPDebugger debugger = ((RemoteDebugScriptEngine)engine).getDebugger();
 			if (debugger != null)
 			{
+				captureOutput(message);
 				debugger.outputStdErr((message == null ? "<null>" : message.toString().trim()) + System.lineSeparator());
 			}
 		}
@@ -205,6 +283,7 @@ public class DebugUtils
 			DBGPDebugger debugger = ((RemoteDebugScriptEngine)engine).getDebugger();
 			if (debugger != null)
 			{
+				captureOutput(message);
 				debugger.outputStdOut((message == null ? "<null>" : message.toString().trim()) + System.lineSeparator());
 			}
 		}
@@ -218,6 +297,7 @@ public class DebugUtils
 			DBGPDebugger debugger = ((RemoteDebugScriptEngine)engine).getDebugger();
 			if (debugger != null)
 			{
+				captureOutput(message);
 				debugger.outputStdOut(message + '\n');
 			}
 		}
