@@ -12,8 +12,9 @@ This repo uses the **sdd-java-eclipse** shared skill (Java / Eclipse-OSGi pipeli
 
 | Aspect | Value |
 |--------|-------|
-| Java version | 17 |
-| Build system | Maven with Eclipse Tycho (eclipse-plugin packaging) |
+| Java version | 21 |
+| Build system | Maven with Eclipse Tycho 5.0.3 (eclipse-plugin packaging) |
+| Version | 2026.12.0-SNAPSHOT (master line) |
 | Module system | OSGi (each project is a bundle with MANIFEST.MF) |
 | UI framework | Java Swing (smart client), Sablo/WebSocket (NG client) |
 | Web framework | Angular (NG client frontend), Tomcat (embedded server) |
