@@ -872,9 +872,12 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 						boolean ok = true;
 						if (typeProperty != null && typeProperty.startsWith("Array<"))
 						{
+							boolean foreignIsUuidColumn = isUUID(foreign[i]); // MEDIA + UUID_COLUMN
 							ArgumentType componentType = ArgumentType.valueOf(typeProperty);
 							ok = (componentType == ArgumentType.ArrayString && foreignType == IColumnTypes.TEXT) ||
-								(componentType == ArgumentType.ArrayNumber && (foreignType == IColumnTypes.NUMBER || foreignType == IColumnTypes.INTEGER));
+								(componentType == ArgumentType.ArrayNumber && (foreignType == IColumnTypes.NUMBER || foreignType == IColumnTypes.INTEGER)) ||
+								(foreignIsUuidColumn && (componentType == ArgumentType.ArrayUUID || componentType == ArgumentType.Array ||
+									componentType == ArgumentType.ArrayString));
 						}
 						if (ok) continue; // allow arrays,
 						return Messages.getString("servoy.relation.error.typeDoesntMatch",

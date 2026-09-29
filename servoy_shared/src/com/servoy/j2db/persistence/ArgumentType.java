@@ -39,6 +39,7 @@ public class ArgumentType
 	public static final ArgumentType Array = new ArgumentType("Array"); //$NON-NLS-1$
 	public static final ArgumentType ArrayString = new ArgumentType("Array<String>"); //$NON-NLS-1$
 	public static final ArgumentType ArrayNumber = new ArgumentType("Array<Number>"); //$NON-NLS-1$
+	public static final ArgumentType ArrayUUID = new ArgumentType("Array<UUID>"); //$NON-NLS-1$
 
 	private final String name;
 	private final Boolean primitive;
@@ -100,6 +101,7 @@ public class ArgumentType
 		if (Array.getName().equals(type)) return Array;
 		if (ArrayString.getName().equalsIgnoreCase(type)) return ArrayString;
 		if (ArrayNumber.getName().equalsIgnoreCase(type)) return ArrayNumber;
+		if (ArrayUUID.getName().equalsIgnoreCase(type)) return ArrayUUID;
 		return new ArgumentType(type);
 	}
 
