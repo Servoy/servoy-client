@@ -1449,8 +1449,11 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 				}
 				break;
 		}
-		if (type.getSqlType() == Types.ARRAY)
+		// 10002 is org.hibernate.type.SqlTypes.VECTOR_FLOAT32 (not referenced directly to avoid a hibernate dependency here)
+		if (type.getSqlType() == Types.ARRAY || type.getSqlType() == 10002)
 		{
+			// length is irrelevant here: for arrays the db makes it fit, for vector columns the "length"
+			// is the vector dimension (element count), not the size of the value being stored
 			return 0;
 		}
 		return Integer.MAX_VALUE;
