@@ -29,6 +29,10 @@ public class InMemoryH2Template extends ServerTemplateDefinition
 			.setPassword("")
 			.setServerUrl("jdbc:h2:mem:.;DB_CLOSE_DELAY=-1")
 			.setDriver("org.h2.Driver")
+			// SVY-21466: skip the database system tables. H2 2.x exposes its catalog through the INFORMATION_SCHEMA
+			// schema; without this those metadata tables would be loaded as regular tables and reported (e.g. by
+			// Synchronize with DB server information) as tables without a primary key.
+			.setSkipSysTables(true)
 			.build());
 	}
 }

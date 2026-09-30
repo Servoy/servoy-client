@@ -113,6 +113,17 @@ public interface IServerInternal
 
 	List<String> getTableNames(boolean hideTempTables) throws RepositoryException;
 
+	/**
+	 * SVY-21466: overload that can exclude database system tables (e.g. H2 2.x INFORMATION_SCHEMA tables) from the
+	 * result. Servoy-managed tables are always normal user-schema tables, so callers that only care about real user
+	 * tables should pass skipSysTables = true. The default ignores the flag; server implementations backed by a real
+	 * JDBC database (which can surface system tables) override this.
+	 */
+	default List<String> getTableNames(boolean hideTempTables, boolean skipSysTables) throws RepositoryException
+	{
+		return getTableNames(hideTempTables);
+	}
+
 	List<String> getTableAndViewNames(boolean hideTemporary) throws RepositoryException;
 
 	ITable getTable(String tableName) throws RepositoryException;
