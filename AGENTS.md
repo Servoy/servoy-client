@@ -157,6 +157,14 @@ Spotbugs is used to find bugs in Java code. You must pay special attention to Sp
 - **Identify Spotbugs Errors:** Spotbugs errors of the **two highest severity levels** are treated as blocking errors.
 - **Proactive Fixing:** Always try to fix these Spotbugs errors in any new or modified code to keep the codebase robust and clean.
 
+## 7. Jira API
+
+For anything Jira — reading, creating, updating, commenting on, linking, searching (JQL),
+assigning or transitioning issues — load the **`servoy-jira`** skill (global opencode skill)
+and follow its instructions. It holds the connection details (base URL, `ATLASSIAN_AUTH_BASIC`
+auth), the per-OS command recipes and the ADF templates. Always load the skill first rather
+than hand-rolling the REST calls.
+
 ---
 
 *Thank you for keeping the Servoy Runtime codebase healthy, compilation-error free, and highly consistent!*
