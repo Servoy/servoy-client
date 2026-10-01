@@ -17,8 +17,6 @@
 
 package com.servoy.j2db.debug;
 
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -26,7 +24,6 @@ import java.util.Set;
 import org.eclipse.dltk.rhino.dbgp.DBGPDebugFrame;
 import org.eclipse.dltk.rhino.dbgp.DBGPDebugger;
 import org.eclipse.dltk.rhino.dbgp.DBGPStackManager;
-import org.sablo.eventthread.WebsocketSessionWindows;
 import org.sablo.specification.WebObjectApiFunctionDefinition;
 import org.sablo.specification.WebObjectSpecification;
 import org.sablo.specification.WebServiceSpecProvider;
@@ -38,7 +35,6 @@ import com.servoy.j2db.IDebugNGClient;
 import com.servoy.j2db.IDesignerCallback;
 import com.servoy.j2db.IFormController;
 import com.servoy.j2db.dataprocessing.IDataServer;
-import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.dataprocessing.ValidatingDelegateDataServer;
 import com.servoy.j2db.persistence.FlattenedForm;
 import com.servoy.j2db.persistence.Form;
@@ -53,18 +49,12 @@ import com.servoy.j2db.server.ngclient.FormElementHelper;
 import com.servoy.j2db.server.ngclient.INGClientWebsocketSession;
 import com.servoy.j2db.server.ngclient.INGFormManager;
 import com.servoy.j2db.server.ngclient.NGClient;
-import com.servoy.j2db.server.ngclient.NGRuntimeWindowManager;
-import com.servoy.j2db.server.ngclient.WebFormUI;
-import com.servoy.j2db.server.ngclient.component.WebFormController;
-import com.servoy.j2db.server.ngclient.eventthread.NGClientWebsocketSessionWindows;
 import com.servoy.j2db.server.ngclient.scripting.WebServiceScriptable;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ILogLevel;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.PersistHelper;
-import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.Settings;
-import com.servoy.j2db.util.Utils;
 
 /**
  * @author jcompagner
@@ -277,70 +267,7 @@ public class DebugNGClient extends NGClient implements IDebugNGClient
 
 	private void refreshForms(Collection<IFormController> forms, boolean forcePageReload)
 	{
-		boolean reload = forcePageReload;
-		if (forms != null && forms.size() > 0)
-		{
-			reload = true;
-			List<IFormController> cachedFormControllers = getFormManager().getCachedFormControllers();
-			for (IFormController formController : cachedFormControllers)
-			{
-				if (formController.getFormUI() instanceof WebFormUI)
-				{
-					((WebFormUI)formController.getFormUI()).clearCachedFormElements();
-				}
-			}
-			List<Runnable> invokeLaterRunnables = new ArrayList<Runnable>(); // should we also use these?
-			for (IFormController controller : forms)
-			{
-				boolean isVisible = controller.isFormVisible();
-				if (isVisible) controller.notifyVisible(false, invokeLaterRunnables, true);
-				if (controller.getFormModel() != null && !Utils.stringSafeEquals(controller.getDataSource(), controller.getFormModel().getDataSource()))
-				{
-					// for now we just destroy the form and recreate it with the other datasource;
-					// TODO we just load the shared foundset for that datasource - can we improve this somehow so that the loaded foundset is closer to the current runtime situation of the form? (related tabs etc.)
-					String name = controller.getName();
-					controller.destroy();
-					controller = getFormManager().leaseFormPanel(name);
-					IFoundSetInternal foundset;
-					try
-					{
-						foundset = getFoundSetManager().getSharedFoundSet(controller.getDataSource());
-						foundset.loadAllRecords();
-						controller.loadRecords(foundset);
-					}
-					catch (ServoyException e)
-					{
-						Debug.error(e);
-					}
-				}
-				else
-				{
-					if (!controller.isDestroyed())
-					{
-						((WebFormController)controller).initFormUI();
-						// do not completely destroy the controller but execute onload as well, this could contain some initialization code
-						if (isVisible)
-						{
-							((WebFormController)controller).forceExecuteOnLoadMethod();
-						}
-					}
-				}
-				if (isVisible) controller.notifyVisible(true, invokeLaterRunnables, true);
-			}
-		}
-		if (reload)
-		{
-			WebsocketSessionWindows allendpoints = new NGClientWebsocketSessionWindows(getWebsocketSession());
-			allendpoints.executeAsyncServiceCall(getWebsocketSession().getClientService(NGRuntimeWindowManager.WINDOW_SERVICE), "reload", null, null);
-			try
-			{
-				allendpoints.flush();
-			}
-			catch (IOException e)
-			{
-				reportError("error sending changes to the client", e);
-			}
-		}
+		DebugUtils.reloadForms(this, forms, forcePageReload);
 	}
 
 	@Override

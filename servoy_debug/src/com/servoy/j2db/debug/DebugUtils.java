@@ -18,6 +18,7 @@ package com.servoy.j2db.debug;
 
 import java.awt.EventQueue;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -33,6 +34,7 @@ import javax.swing.SwingUtilities;
 import org.eclipse.dltk.rhino.dbgp.DBGPDebugger;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.RhinoException;
+import org.sablo.eventthread.WebsocketSessionWindows;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.SpecProviderState;
 import org.sablo.specification.WebComponentSpecProvider;
@@ -42,6 +44,7 @@ import com.servoy.j2db.ClientState;
 import com.servoy.j2db.IFormController;
 import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.dataprocessing.FoundSetManager;
+import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.debug.DebugJ2DBClient.DebugSwingFormMananger;
 import com.servoy.j2db.persistence.Field;
 import com.servoy.j2db.persistence.FlattenedForm;
@@ -65,6 +68,11 @@ import com.servoy.j2db.persistence.WebComponent;
 import com.servoy.j2db.scripting.FormScope;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.scripting.LazyCompilationScope;
+import com.servoy.j2db.server.ngclient.NGClient;
+import com.servoy.j2db.server.ngclient.NGRuntimeWindowManager;
+import com.servoy.j2db.server.ngclient.WebFormUI;
+import com.servoy.j2db.server.ngclient.component.WebFormController;
+import com.servoy.j2db.server.ngclient.eventthread.NGClientWebsocketSessionWindows;
 import com.servoy.j2db.server.ngclient.property.types.FormComponentPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.MenuPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.RelationPropertyType;
@@ -386,7 +394,7 @@ public class DebugUtils
 
 				if (clientState instanceof DebugJ2DBClient)
 				{
-//					((DebugJ2DBClient)clientState).clearUserWindows();  no need for this as window API was refactored and it allows users to clean up dialogs
+					//					((DebugJ2DBClient)clientState).clearUserWindows();  no need for this as window API was refactored and it allows users to clean up dialogs
 					((DebugSwingFormMananger)((DebugJ2DBClient)clientState).getFormManager()).fillScriptMenu();
 				}
 			}
@@ -472,7 +480,9 @@ public class DebugUtils
 			else if (persist instanceof ScriptCalculation)
 			{
 				ScriptCalculation sc = (ScriptCalculation)persist;
-				if (((RemoteDebugScriptEngine)clientState.getScriptEngine()).recompileScriptCalculation(sc))
+				// recompiling calculations is debug-only; a lightweight (non-debug) client such as the form preview client
+				// (SVY-21509) has a plain script engine, so skip this branch for it instead of tripping a ClassCastException
+				if (clientState.getScriptEngine() instanceof RemoteDebugScriptEngine debugScriptEngine && debugScriptEngine.recompileScriptCalculation(sc))
 				{
 					List<String> al = new ArrayList<String>();
 					al.add(sc.getDataProviderID());
@@ -487,10 +497,10 @@ public class DebugUtils
 						Debug.error(e);
 					}
 				}
-//				if (clientState instanceof DebugJ2DBClient)
-//				{
-//					((DebugJ2DBClient)clientState).clearUserWindows(); no need for this as window API was refactored and it allows users to clean up dialogs
-//				}
+				//				if (clientState instanceof DebugJ2DBClient)
+				//				{
+				//					((DebugJ2DBClient)clientState).clearUserWindows(); no need for this as window API was refactored and it allows users to clean up dialogs
+				//				}
 			}
 			else if (persist instanceof Relation)
 			{
@@ -650,6 +660,92 @@ public class DebugUtils
 		}
 
 		return new Set[] { scopesToReload, formsToReload };
+	}
+
+	/**
+	 * Re-initializes and reloads the given form controllers on an NG client and, if anything changed, triggers a client
+	 * "reload" so the browser re-renders.
+	 * <p>
+	 * This is the shared form-reload logic extracted from {@code DebugNGClient.refreshForms(Collection, boolean)} so that
+	 * both the regular debug NG client and the lightweight {@code FormPreviewNGClient} (see SVY-21509) run identical
+	 * form-reload code. For each affected controller it clears cached form elements on every cached {@link WebFormUI},
+	 * then per controller: {@code notifyVisible(false)}, re-inits the form UI (or destroys/recreates it on a datasource
+	 * change), re-runs {@code onLoad} when visible, and {@code notifyVisible(true)}. Finally, when a reload is needed (a
+	 * forced page reload, or at least one affected form), it issues the {@code "reload"} async service call on the window
+	 * service and flushes.
+	 * <p>
+	 * The caller is responsible for running this on the client's own event dispatch thread.
+	 *
+	 * @param client the NG client whose forms should be reloaded
+	 * @param forms the affected form controllers (may be null/empty - then only {@code forcePageReload} matters)
+	 * @param forcePageReload force a client reload even when {@code forms} is empty (e.g. a solution css/less change)
+	 */
+	public static void reloadForms(NGClient client, Collection<IFormController> forms, boolean forcePageReload)
+	{
+		boolean reload = forcePageReload;
+		if (forms != null && forms.size() > 0)
+		{
+			reload = true;
+			List<IFormController> cachedFormControllers = client.getFormManager().getCachedFormControllers();
+			for (IFormController formController : cachedFormControllers)
+			{
+				if (formController.getFormUI() instanceof WebFormUI)
+				{
+					((WebFormUI)formController.getFormUI()).clearCachedFormElements();
+				}
+			}
+			List<Runnable> invokeLaterRunnables = new ArrayList<Runnable>(); // should we also use these?
+			for (IFormController controller : forms)
+			{
+				boolean isVisible = controller.isFormVisible();
+				if (isVisible) controller.notifyVisible(false, invokeLaterRunnables, true);
+				if (controller.getFormModel() != null && !Utils.stringSafeEquals(controller.getDataSource(), controller.getFormModel().getDataSource()))
+				{
+					// for now we just destroy the form and recreate it with the other datasource;
+					// TODO we just load the shared foundset for that datasource - can we improve this somehow so that the loaded foundset is closer to the current runtime situation of the form? (related tabs etc.)
+					String name = controller.getName();
+					controller.destroy();
+					controller = client.getFormManager().leaseFormPanel(name);
+					IFoundSetInternal foundset;
+					try
+					{
+						foundset = client.getFoundSetManager().getSharedFoundSet(controller.getDataSource());
+						foundset.loadAllRecords();
+						controller.loadRecords(foundset);
+					}
+					catch (ServoyException e)
+					{
+						Debug.error(e);
+					}
+				}
+				else
+				{
+					if (!controller.isDestroyed())
+					{
+						((WebFormController)controller).initFormUI();
+						// do not completely destroy the controller but execute onload as well, this could contain some initialization code
+						if (isVisible)
+						{
+							((WebFormController)controller).forceExecuteOnLoadMethod();
+						}
+					}
+				}
+				if (isVisible) controller.notifyVisible(true, invokeLaterRunnables, true);
+			}
+		}
+		if (reload)
+		{
+			WebsocketSessionWindows allendpoints = new NGClientWebsocketSessionWindows(client.getWebsocketSession());
+			allendpoints.executeAsyncServiceCall(client.getWebsocketSession().getClientService(NGRuntimeWindowManager.WINDOW_SERVICE), "reload", null, null);
+			try
+			{
+				allendpoints.flush();
+			}
+			catch (IOException e)
+			{
+				client.reportError("error sending changes to the client", e);
+			}
+		}
 	}
 
 	/**
