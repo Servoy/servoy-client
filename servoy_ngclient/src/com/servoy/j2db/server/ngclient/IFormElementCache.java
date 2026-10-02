@@ -37,4 +37,21 @@ public interface IFormElementCache
 	 */
 	FormElement getFormElement(IFormElement component, FlattenedSolution fs, PropertyPath path, boolean design);
 
+	/**
+	 * Same as {@link #getFormElement(IFormElement, FlattenedSolution, PropertyPath, boolean)} but also allows requesting
+	 * form-template mode (SVY-21460); see {@link FormElement#isFormTemplate()}. The default implementation ignores
+	 * formTemplate so existing cache implementations keep behaving as before.
+	 *
+	 * @param component
+	 * @param fs
+	 * @param path
+	 * @param design
+	 * @param formTemplate
+	 * @return
+	 */
+	default FormElement getFormElement(IFormElement component, FlattenedSolution fs, PropertyPath path, boolean design, boolean formTemplate)
+	{
+		return getFormElement(component, fs, path, design);
+	}
+
 }

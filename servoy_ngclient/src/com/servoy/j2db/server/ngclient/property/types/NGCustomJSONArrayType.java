@@ -119,9 +119,9 @@ public class NGCustomJSONArrayType<SabloT, SabloWT> extends CustomJSONArrayType<
 	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, Object[] formElementValue, PropertyDescription pd,
 		FormElementContext formElementContext) throws JSONException
 	{
-		// only send template in designer
+		// only send template in designer or in form-template mode (SVY-21460)
 		if (formElementValue == null || formElementContext == null || formElementContext.getFormElement() == null ||
-			!formElementContext.getFormElement().isInDesigner()) return writer;
+			!(formElementContext.getFormElement().isInDesigner() || formElementContext.getFormElement().isFormTemplate())) return writer;
 
 		JSONUtils.addKeyIfPresent(writer, key);
 
@@ -234,7 +234,7 @@ public class NGCustomJSONArrayType<SabloT, SabloWT> extends CustomJSONArrayType<
 	public boolean valueInTemplate(Object[] values, PropertyDescription pd, FormElementContext formElementContext)
 	{
 		if (values != null && values.length > 0 && formElementContext != null && formElementContext.getFormElement() != null &&
-			formElementContext.getFormElement().isInDesigner())
+			(formElementContext.getFormElement().isInDesigner() || formElementContext.getFormElement().isFormTemplate()))
 		{
 			PropertyDescription desc = getCustomJSONTypeDefinition();
 

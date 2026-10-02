@@ -99,14 +99,21 @@ public final class FormElement implements INGFormElement
 	private final String uniqueIdWithinForm;
 
 	private final boolean inDesigner;
+	private final boolean formTemplate;
 	private boolean isVisible = true;
 
 	private FlattenedSolution fs;
 
 	public FormElement(IFormElement persist, FlattenedSolution fs, PropertyPath propertyPath, boolean inDesigner)
 	{
+		this(persist, fs, propertyPath, inDesigner, false);
+	}
+
+	public FormElement(IFormElement persist, FlattenedSolution fs, PropertyPath propertyPath, boolean inDesigner, boolean formTemplate)
+	{
 		this.fs = fs;
 		this.inDesigner = inDesigner;
+		this.formTemplate = formTemplate;
 		this.persistImpl = new PersistBasedFormElementImpl(persist, this);
 		Form f = persistImpl.getForm();
 		if (f instanceof FlattenedForm) this.form = f;
@@ -167,7 +174,14 @@ public final class FormElement implements INGFormElement
 	public FormElement(String componentTypeString, JSONObject jsonObject, Form form, String uniqueIdWithinForm, FlattenedSolution fs, PropertyPath propertyPath,
 		boolean inDesigner)
 	{
+		this(componentTypeString, jsonObject, form, uniqueIdWithinForm, fs, propertyPath, inDesigner, false);
+	}
+
+	public FormElement(String componentTypeString, JSONObject jsonObject, Form form, String uniqueIdWithinForm, FlattenedSolution fs, PropertyPath propertyPath,
+		boolean inDesigner, boolean formTemplate)
+	{
 		this.inDesigner = inDesigner;
+		this.formTemplate = formTemplate;
 		this.persistImpl = null;
 		if (form instanceof FlattenedForm) this.form = form;
 		else this.form = fs.getFlattenedForm(form);
@@ -890,6 +904,18 @@ public final class FormElement implements INGFormElement
 	public boolean isInDesigner()
 	{
 		return inDesigner;
+	}
+
+	/**
+	 * Form-template mode: a headless, non-designer render (SVY-21460) that still needs the custom-array / custom-object
+	 * typed properties written into the template JSON (like the designer does), but WITHOUT any other designer behaviour
+	 * (no design ids, no svyVisible, real component names kept, {@link #isInDesigner()} stays false).
+	 *
+	 * @return the formTemplate
+	 */
+	public boolean isFormTemplate()
+	{
+		return formTemplate;
 	}
 
 	/**

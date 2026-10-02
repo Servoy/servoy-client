@@ -35,6 +35,14 @@ public interface INGFormElement extends IPropertyDescriptionProvider
 
 	PersistIdentifier getDesignId();
 
+	/**
+	 * Form-template mode (SVY-21460); see {@link FormElement#isFormTemplate()}.
+	 */
+	default boolean isFormTemplate()
+	{
+		return false;
+	}
+
 	String getName();
 
 	Form getForm();

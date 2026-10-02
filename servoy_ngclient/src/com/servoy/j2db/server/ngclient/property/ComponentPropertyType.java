@@ -138,7 +138,7 @@ public class ComponentPropertyType extends DefaultPropertyType<ComponentTypeSabl
 		{
 			FormElement element = new FormElement((String)designValue.get(TYPE_NAME_KEY),
 				(JSONObject)designValue.get(DEFINITION_KEY), fe.getForm(), fe.getName() + (uniqueId++), flattenedSolution, propertyPath,
-				fe.getDesignId() != null);
+				fe.getDesignId() != null, fe.isFormTemplate());
 
 			return getFormElementValue(designValue.optJSONArray(API_CALL_TYPES_KEY), pd, propertyPath, element, flattenedSolution);
 		}
