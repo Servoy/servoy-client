@@ -118,10 +118,17 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 	private final Part part;
 	private final Form form;
 	private final boolean designer;
+	private final boolean formTemplate;
 	private static final String TAG_DIRECT_EDIT = "directEdit";
 
 	public ChildrenJSONGenerator(JSONWriter writer, ServoyDataConverterContext context, Object skip, IFormElementCache cache, Part part, Form form,
 		boolean mainFormGeneration, boolean designer)
+	{
+		this(writer, context, skip, cache, part, form, mainFormGeneration, designer, false);
+	}
+
+	public ChildrenJSONGenerator(JSONWriter writer, ServoyDataConverterContext context, Object skip, IFormElementCache cache, Part part, Form form,
+		boolean mainFormGeneration, boolean designer, boolean formTemplate)
 	{
 		this.writer = writer;
 		this.context = context;
@@ -129,6 +136,7 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 		this.cache = cache;
 		this.form = form;
 		this.designer = designer;
+		this.formTemplate = formTemplate;
 		formUI = (context.getForm() != null && context.getForm().getFormUI() instanceof WebFormUI)
 			? (WebFormUI)context.getForm().getFormUI() : null;
 		this.part = part;
@@ -157,7 +165,7 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 		{
 			// is this is for form component component child element? use the fcc cache value, so security & others can identify
 			// based on persist from the actual form, not from the form component form where it is defined
-			fe = cache.getFormElement((IFormElement)o, this.context.getSolution(), null, designer);
+			fe = cache.getFormElement((IFormElement)o, this.context.getSolution(), null, designer, formTemplate);
 			persistToUseForSecurityCheck = fe.getPersistIfAvailable();
 		}
 		if (persistToUseForSecurityCheck == null) persistToUseForSecurityCheck = o;
@@ -189,7 +197,7 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 					}
 				}
 			}
-			fe = fe != null ? fe : FormElementHelper.INSTANCE.getFormElement((IFormElement)o, this.context.getSolution(), null, designer);
+			fe = fe != null ? fe : FormElementHelper.INSTANCE.getFormElement((IFormElement)o, this.context.getSolution(), null, designer, formTemplate);
 			writer.object();
 
 			writeFormElement(writer, o, form, fe, formUI, context, designer);
@@ -240,9 +248,9 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 												return formElement;
 											}
 										}
-										return FormElementHelper.INSTANCE.getFormElement(component, flattendSol, path, design);
+										return FormElementHelper.INSTANCE.getFormElement(component, flattendSol, path, design, formTemplate);
 									}
-								}, null, this.form, false, designer), PositionComparator.RESPONSIVE_PERSIST_COMPARATOR);
+								}, null, this.form, false, designer, formTemplate), PositionComparator.RESPONSIVE_PERSIST_COMPARATOR);
 							}
 							else
 							{
@@ -250,7 +258,7 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 									.sorted(FORM_INDEX_WITH_HIERARCHY_AND_TABSEQUENCE_COMPARATOR).toList();
 								for (IPersist persistOfElement : formElements)
 								{
-									persistOfElement.acceptVisitor(new ChildrenJSONGenerator(writer, context, null, null, null, this.form, false, designer),
+									persistOfElement.acceptVisitor(new ChildrenJSONGenerator(writer, context, null, null, null, this.form, false, designer, formTemplate),
 										FORM_INDEX_WITH_HIERARCHY_AND_TABSEQUENCE_COMPARATOR);
 								}
 
@@ -280,12 +288,12 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 			writer.array();
 			if ("csspositioncontainer".equals(layoutContainer.getSpecName()))
 			{
-				o.acceptVisitor(new ChildrenJSONGenerator(writer, context, o, cache, null, this.form, false, designer),
+				o.acceptVisitor(new ChildrenJSONGenerator(writer, context, o, cache, null, this.form, false, designer, formTemplate),
 					ChildrenJSONGenerator.FORM_INDEX_WITH_HIERARCHY_COMPARATOR);
 			}
 			else
 			{
-				o.acceptVisitor(new ChildrenJSONGenerator(writer, context, o, cache, null, this.form, false, designer),
+				o.acceptVisitor(new ChildrenJSONGenerator(writer, context, o, cache, null, this.form, false, designer, formTemplate),
 					PositionComparator.RESPONSIVE_PERSIST_COMPARATOR);
 			}
 			writer.endArray();
