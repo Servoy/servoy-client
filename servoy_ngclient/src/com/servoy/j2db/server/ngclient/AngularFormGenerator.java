@@ -83,6 +83,7 @@ public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 	private final String realFormName;
 	private final FlattenedSolution flattenedSolution;
 	private final boolean isDesigner;
+	private final boolean isFormTemplate;
 	private final LayoutContainer zoomedInContainer;
 
 	public AngularFormGenerator(NGClient client, Form form, String realFormName, boolean isDesigner)
@@ -92,16 +93,30 @@ public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 		this.realFormName = realFormName;
 		this.flattenedSolution = null;
 		this.isDesigner = isDesigner;
+		this.isFormTemplate = false;
 		this.zoomedInContainer = null;
 	}
 
 	public AngularFormGenerator(FlattenedSolution fs, Form form, String realFormName, boolean isDesigner, LayoutContainer zoomedInContainer)
+	{
+		this(fs, form, realFormName, isDesigner, false, zoomedInContainer);
+	}
+
+	/**
+	 * Headless form-template generation variant (SVY-21460): same as the designer/client generation but with an explicit
+	 * form-template mode that opens only the custom-array / custom-object template-value emission (see
+	 * {@link FormElement#isFormTemplate()}), WITHOUT turning on any other designer behaviour. Pass {@code isDesigner=false}
+	 * and {@code formTemplate=true} to get a non-designer render that still includes custom-type typed properties.
+	 */
+	public AngularFormGenerator(FlattenedSolution fs, Form form, String realFormName, boolean isDesigner, boolean formTemplate,
+		LayoutContainer zoomedInContainer)
 	{
 		this.flattenedSolution = fs;
 		this.form = form;
 		this.realFormName = realFormName;
 		this.client = null;
 		this.isDesigner = isDesigner;
+		this.isFormTemplate = formTemplate;
 		this.zoomedInContainer = zoomedInContainer;
 	}
 
@@ -263,13 +278,13 @@ public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 			{
 				PersistHelper.getFlattenedPersist(flattenedSolution, form, zoomedInContainer).acceptVisitor(new ChildrenJSONGenerator(writer,
 					servoyDataConverterContext, form, null,
-					null, form, true, isDesigner), PositionComparator.XY_PERSIST_COMPARATOR);
+					null, form, true, isDesigner, isFormTemplate), PositionComparator.XY_PERSIST_COMPARATOR);
 			}
 			else
 			{
 				form.acceptVisitor(new ChildrenJSONGenerator(writer,
 					servoyDataConverterContext, form, null,
-					null, form, true, isDesigner), PositionComparator.XY_PERSIST_COMPARATOR);
+					null, form, true, isDesigner, isFormTemplate), PositionComparator.XY_PERSIST_COMPARATOR);
 			}
 
 		}
@@ -344,7 +359,7 @@ public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 					form.acceptVisitor(new ChildrenJSONGenerator(writer,
 						servoyDataConverterContext, form,
 						null,
-						part, form, true, isDesigner), ChildrenJSONGenerator.FORM_INDEX_WITH_HIERARCHY_COMPARATOR);
+						part, form, true, isDesigner, isFormTemplate), ChildrenJSONGenerator.FORM_INDEX_WITH_HIERARCHY_COMPARATOR);
 					writer.endArray();
 					writer.endObject();
 				}

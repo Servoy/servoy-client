@@ -68,6 +68,12 @@ public class FormElementExtension implements INGFormElement
 	}
 
 	@Override
+	public boolean isFormTemplate()
+	{
+		return parentFormElementContext.isFormTemplate();
+	}
+
+	@Override
 	public String getName()
 	{
 		return parentFormElementContext.getName();

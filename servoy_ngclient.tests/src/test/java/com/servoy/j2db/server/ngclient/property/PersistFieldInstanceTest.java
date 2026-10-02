@@ -26,7 +26,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 import org.junit.Assert;
 import org.junit.Test;
 import org.sablo.InMemPackageReader;
@@ -54,6 +56,7 @@ import com.servoy.j2db.server.ngclient.ServoyDataConverterContext;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.WebFormUI;
 import com.servoy.j2db.server.ngclient.property.types.BasicTagStringTypeSabloValue;
+import com.servoy.j2db.server.ngclient.property.types.PropertyPath;
 import com.servoy.j2db.server.ngclient.property.types.ValueListTypeSabloValue;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.ServoyJSONObject;
@@ -263,6 +266,36 @@ public class PersistFieldInstanceTest extends AbstractSolutionTest
 		String json = JSONUtils.writeDataAsFullToJSON(props.content, props.contentType, new BrowserConverterContext(wc, PushToServerEnum.allow));
 		JSONAssert.assertEquals("{\"svyMarkupId\":\"sf331d64ddc0c17747371b7740e3e3447\",\"atype\":{\"vEr\":2,\"v\":{\"form\":\"tabform\",\"name\":\"name\"}}}",
 			json, true);
+	}
+
+	@Test
+	public void testCustomArrayPropertyEmittedInFormTemplateButNotInNonDesignerClient() throws RepositoryException, JSONException
+	{
+		// SVY-21460: custom-array (and custom-object) typed properties must be written into the template JSON when the
+		// FormElement is in form-template mode (headless /formtemplate render), the same way the designer gets them, but
+		// must stay omitted for a normal non-designer client-template generation (where the live runtime values are sent instead).
+		Form form = solution.getForm("test");
+		Assert.assertNotNull(form);
+
+		WebComponent webComponent = form.createNewWebComponent("mycustombean", "my-component");
+		// "types" is a custom-array property (mytype[]) in WebComponentTest-mycomponent.spec
+		webComponent.setProperty("types", new JSONArray("[{name:'c0',text:'t0'},{name:'c1',text:'t1'}]"));
+
+		// form-template mode: the custom-array value is written into the template JSON
+		FormElement feFormTemplate = new FormElement(webComponent, client.getFlattenedSolution(), new PropertyPath().setShouldAddElementName(), false, true);
+		Assert.assertFalse("form-template mode must not turn on designer mode", feFormTemplate.isInDesigner());
+		Assert.assertTrue(feFormTemplate.isFormTemplate());
+		String formTemplateJSON = feFormTemplate.getPropertiesString();
+		Assert.assertTrue("custom-array property 'types' should be present in form-template JSON but was: " + formTemplateJSON,
+			new JSONObject(formTemplateJSON).has("types"));
+
+		// normal non-designer client-template generation: the custom-array value is NOT written into the template JSON
+		FormElement feClient = new FormElement(webComponent, client.getFlattenedSolution(), new PropertyPath().setShouldAddElementName(), false, false);
+		Assert.assertFalse(feClient.isInDesigner());
+		Assert.assertFalse(feClient.isFormTemplate());
+		String clientJSON = feClient.getPropertiesString();
+		Assert.assertFalse("custom-array property 'types' should be omitted from the normal client template JSON but was: " + clientJSON,
+			new JSONObject(clientJSON).has("types"));
 	}
 
 	@Test

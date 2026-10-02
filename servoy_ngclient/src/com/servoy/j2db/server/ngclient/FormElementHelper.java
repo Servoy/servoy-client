@@ -408,14 +408,24 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 		return elements;
 	}
 
+	@Override
 	public FormElement getFormElement(IFormElement formElement, FlattenedSolution fs, PropertyPath propertyPath, final boolean designer)
 	{
-		// dont cache if solution model is used (media,valuelist,relations can be changed for a none changed element)
-		if (designer || (fs.getSolutionCopy(false) != null) ||
+		return getFormElement(formElement, fs, propertyPath, designer, false);
+	}
+
+	@Override
+	public FormElement getFormElement(IFormElement formElement, FlattenedSolution fs, PropertyPath propertyPath, final boolean designer,
+		final boolean formTemplate)
+	{
+		// dont cache if solution model is used (media,valuelist,relations can be changed for a none changed element); form-template mode is also not cached
+		// as it is a distinct render projection from the normal (cached) client one
+		if (designer || formTemplate || (fs.getSolutionCopy(false) != null) ||
 			((AbstractBase)formElement).getRuntimeProperty(FC_NAME_OF_ROOT_ACTUAL_FORM_EVEN_IN_CASE_OF_NESTED_FORM_COMPONENTS) != null)
 		{
-			if (formElement instanceof BodyPortal) return createBodyPortalFormElement((BodyPortal)formElement, fs, designer);
-			else return new FormElement(formElement, fs, propertyPath == null ? new PropertyPath().setShouldAddElementName() : propertyPath, designer);
+			if (formElement instanceof BodyPortal) return createBodyPortalFormElement((BodyPortal)formElement, fs, designer, formTemplate);
+			else return new FormElement(formElement, fs, propertyPath == null ? new PropertyPath().setShouldAddElementName() : propertyPath, designer,
+				formTemplate);
 		}
 		FormElement persistWrapper = persistWrappers.get(formElement);
 		if (persistWrapper == null)
@@ -426,8 +436,8 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 				propertyPath.setShouldAddElementName();
 			}
 			if (formElement instanceof BodyPortal)
-				persistWrapper = createBodyPortalFormElement((BodyPortal)formElement, getSharedFlattenedSolution(fs), designer);
-			else persistWrapper = new FormElement(formElement, getSharedFlattenedSolution(fs), propertyPath, designer);
+				persistWrapper = createBodyPortalFormElement((BodyPortal)formElement, getSharedFlattenedSolution(fs), designer, formTemplate);
+			else persistWrapper = new FormElement(formElement, getSharedFlattenedSolution(fs), propertyPath, designer, formTemplate);
 			FormElement existing = persistWrappers.putIfAbsent(formElement, persistWrapper);
 			if (existing != null)
 			{
@@ -469,7 +479,7 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 		return flattenedSolution;
 	}
 
-	private FormElement createBodyPortalFormElement(BodyPortal listViewPortal, FlattenedSolution fs, final boolean isInDesigner)
+	private FormElement createBodyPortalFormElement(BodyPortal listViewPortal, FlattenedSolution fs, final boolean isInDesigner, final boolean formTemplate)
 	{
 		Form form = listViewPortal.getForm();
 		Part bodyPart = null;
@@ -541,7 +551,7 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 
 				PropertyPath propertyPath = new PropertyPath();
 				propertyPath.setShouldAddElementName();
-				FormElement portalFormElement = new FormElement("servoycore-portal", portal, form, name, fs, propertyPath, isInDesigner);
+				FormElement portalFormElement = new FormElement("servoycore-portal", portal, form, name, fs, propertyPath, isInDesigner, formTemplate);
 				PropertyDescription pd = portalFormElement.getWebComponentSpec().getProperties().get("childElements");
 				if (pd != null) pd = ((CustomJSONArrayType< ? , ? >)pd.getType()).getCustomJSONTypeDefinition();
 				if (pd == null)
@@ -578,7 +588,7 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 							if (listViewPortal.isTableview() && persist instanceof GraphicalComponent && ((GraphicalComponent)persist).getLabelFor() != null)
 								continue;
 							propertyPath.add(children.size());
-							FormElement fe = getFormElement((IFormElement)persist, fs, propertyPath, isInDesigner);
+							FormElement fe = getFormElement((IFormElement)persist, fs, propertyPath, isInDesigner, formTemplate);
 							if (listViewPortal.isTableview())
 							{
 								String elementName = ((IFormElement)persist).getName();
@@ -629,7 +639,7 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 						if (persist instanceof IFormElement)
 						{
 							propertyPath.add(headers.size());
-							FormElement fe = getFormElement((IFormElement)persist, fs, propertyPath, isInDesigner);
+							FormElement fe = getFormElement((IFormElement)persist, fs, propertyPath, isInDesigner, formTemplate);
 							headers.add(type.getFormElementValue(null, pd, propertyPath, fe, fs));
 							propertyPath.backOneLevel();
 						}

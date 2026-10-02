@@ -152,9 +152,9 @@ public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends Custo
 	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, Map<String, FormElementT> formElementValue, PropertyDescription pd,
 		FormElementContext formElementContext) throws JSONException
 	{
-		// only send template in designer
+		// only send template in designer or in form-template mode (SVY-21460)
 		if (formElementValue == null || formElementContext == null || formElementContext.getFormElement() == null ||
-			!formElementContext.getFormElement().isInDesigner()) return writer;
+			!(formElementContext.getFormElement().isInDesigner() || formElementContext.getFormElement().isFormTemplate())) return writer;
 
 		JSONUtils.addKeyIfPresent(writer, key);
 
@@ -325,7 +325,8 @@ public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends Custo
 	@Override
 	public boolean valueInTemplate(Map<String, FormElementT> object, PropertyDescription pd, FormElementContext formElementContext)
 	{
-		if (object != null && formElementContext != null && formElementContext.getFormElement() != null && formElementContext.getFormElement().isInDesigner())
+		if (object != null && formElementContext != null && formElementContext.getFormElement() != null &&
+			(formElementContext.getFormElement().isInDesigner() || formElementContext.getFormElement().isFormTemplate()))
 		{
 			PropertyDescription desc = getCustomJSONTypeDefinition();
 			for (Entry<String, PropertyDescription> entry : desc.getProperties().entrySet())
