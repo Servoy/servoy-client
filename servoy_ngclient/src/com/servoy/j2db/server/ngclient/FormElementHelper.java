@@ -132,7 +132,10 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 			IPersist persist = iterator.next();
 			if (persist instanceof IFormElement)
 			{
-				lst.add(getFormElement((IFormElement)persist, context.getSolution(), null, false));
+				// getFormElement can return null (e.g. a BodyPortal whose servoycore-portal spec is gone - see SVY-21548);
+				// don't add a null into the list, callers like WebFormUI.init() dereference each element without a null check
+				FormElement formElement = getFormElement((IFormElement)persist, context.getSolution(), null, false);
+				if (formElement != null) lst.add(formElement);
 			}
 		}
 		return lst;
@@ -459,10 +462,18 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 			if (formElement instanceof BodyPortal)
 				persistWrapper = createBodyPortalFormElement((BodyPortal)formElement, getSharedFlattenedSolution(fs), designer, formTemplate);
 			else persistWrapper = new FormElement(formElement, getSharedFlattenedSolution(fs), propertyPath, designer, formTemplate);
-			FormElement existing = persistWrappers.putIfAbsent(formElement, persistWrapper);
-			if (existing != null)
+			// createBodyPortalFormElement() can legitimately return null (e.g. when the "servoycore-portal" spec is not
+			// available so its FormElement falls back to the error bean and has no "childElements" property). Never put a
+			// null into the ConcurrentHashMap cache: ConcurrentHashMap.putIfAbsent throws a NullPointerException on a null
+			// value, and caching a null would poison every later render of this persist. Return the null directly instead,
+			// matching the non-cached branch above. The dead servoycore-portal / list-view generation is tracked by SVY-21548.
+			if (persistWrapper != null)
 			{
-				persistWrapper = existing;
+				FormElement existing = persistWrappers.putIfAbsent(formElement, persistWrapper);
+				if (existing != null)
+				{
+					persistWrapper = existing;
+				}
 			}
 		}
 		return persistWrapper;
