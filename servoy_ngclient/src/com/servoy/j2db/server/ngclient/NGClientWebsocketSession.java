@@ -53,8 +53,8 @@ import org.sablo.websocket.IWindow;
 import org.sablo.websocket.WebsocketSessionKey;
 import org.sablo.websocket.WebsocketSessionManager;
 
-import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.ClientIdentityApplicator;
+import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IDesignerCallback;
 import com.servoy.j2db.IFormController;
@@ -239,6 +239,12 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 		{
 			clientType = 1;
 			client.getRuntimeProperties().remove("NG2");
+		}
+
+		if (requestParams.containsKey("svy_testmode"))
+		{
+			client.putClientProperty(Settings.TESTING_MODE,
+				Boolean.valueOf(Utils.getAsBoolean(requestParams.get("svy_testmode").get(0))));
 		}
 
 		lastSentStyleSheets = null;
