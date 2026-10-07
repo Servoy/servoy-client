@@ -92,7 +92,7 @@ public class VersionInfo
 	 *
 	 * @return the Servoy version
 	 */
-	String getServoyVersion()
+	public String getServoyVersion()
 	{
 		return servoyVersion;
 	}
