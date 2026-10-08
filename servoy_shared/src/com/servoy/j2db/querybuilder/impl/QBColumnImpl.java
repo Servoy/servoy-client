@@ -24,6 +24,7 @@ import com.servoy.base.query.BaseColumnType;
 import com.servoy.base.query.IBaseSQLCondition;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.RepositoryException;
+import com.servoy.j2db.query.ArrayContainsCondition;
 import com.servoy.j2db.query.CompareCondition;
 import com.servoy.j2db.query.IQuerySelectValue;
 import com.servoy.j2db.query.ISQLCondition;
@@ -475,6 +476,18 @@ public class QBColumnImpl extends QBPart
 	public QBIntegerColumnBase cardinality()
 	{
 		return getRoot().functions().cardinality(this);
+	}
+
+	@Override
+	public QBCondition contains(Object value)
+	{
+		return createCondition(new ArrayContainsCondition(getQuerySelectValue(), createOperand(value), false));
+	}
+
+	@Override
+	public QBCondition containsAll(Object[] values)
+	{
+		return createCondition(new ArrayContainsCondition(getQuerySelectValue(), createOperand(values), true));
 	}
 
 	/////////////////////////////////////////////////////////

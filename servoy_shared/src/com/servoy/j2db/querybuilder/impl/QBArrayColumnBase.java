@@ -17,6 +17,8 @@
 
 package com.servoy.j2db.querybuilder.impl;
 
+import org.mozilla.javascript.annotations.JSFunction;
+
 import com.servoy.j2db.querybuilder.IQueryBuilderColumn;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 import com.servoy.j2db.scripting.annotations.JSRealClass;
@@ -37,4 +39,38 @@ public interface QBArrayColumnBase extends IQueryBuilderColumn
 	 */
 	@JSReadonlyProperty(debuggerRepresentation = "Query cardinality clause")
 	QBIntegerColumnBase cardinality();
+
+	/**
+	 * Create a condition that tests if the array column contains the given value.
+	 *
+	 * Only supported on databases with native array support (PostgreSQL, HSQLDB).
+	 *
+	 * @sample
+	 * var query = datasources.db.example_data.orders.createSelect();
+	 * query.where.add(query.columns.tags.contains('urgent'))
+	 * foundset.loadRecords(query);
+	 *
+	 * @param value the element to look for in the array
+	 *
+	 * @return a QBCondition that is true when the array contains the value.
+	 */
+	@JSFunction
+	QBCondition contains(Object value);
+
+	/**
+	 * Create a condition that tests if the array column contains all of the given values.
+	 *
+	 * Only supported on databases with native array support (PostgreSQL, HSQLDB).
+	 *
+	 * @sample
+	 * var query = datasources.db.example_data.orders.createSelect();
+	 * query.where.add(query.columns.tags.containsAll(['urgent', 'open']))
+	 * foundset.loadRecords(query);
+	 *
+	 * @param values the elements that must all be present in the array
+	 *
+	 * @return a QBCondition that is true when the array contains all of the values.
+	 */
+	@JSFunction
+	QBCondition containsAll(Object[] values);
 }
