@@ -29,7 +29,7 @@ import com.servoy.j2db.util.visitor.IVisitor;
  * (used by every column in every query) and keeps dialect support local to the database layer, in the same place
  * as the existing array support ({@code DialectExtensionArraySupport}).
  *
- * @author Servoy
+ * @author gboros
  */
 public final class ArrayContainsCondition implements ISQLCondition
 {
