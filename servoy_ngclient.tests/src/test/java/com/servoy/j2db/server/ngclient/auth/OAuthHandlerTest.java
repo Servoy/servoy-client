@@ -1,9 +1,10 @@
 package com.servoy.j2db.server.ngclient.auth;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -20,9 +21,9 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.json.JSONObject;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.auth0.jwt.JWT;
 import com.servoy.j2db.ClientLogin;
@@ -64,7 +65,7 @@ public class OAuthHandlerTest
 	private Solution mainSolution;
 	private Solution authenticatorModule;
 
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception
 	{
 		loginResponse = new ClientLogin(null, TEST_USER_UID, TEST_USERNAME, TEST_PERMISSIONS, null);
@@ -79,7 +80,7 @@ public class OAuthHandlerTest
 		mainSolution.setAuthenticator(AUTHENTICATOR_TYPE.OAUTH);
 	}
 
-	@After
+	@AfterEach
 	public void tearDown()
 	{
 		ApplicationServerRegistry.destroy();
@@ -152,7 +153,7 @@ public class OAuthHandlerTest
 		try
 		{
 			OAuthHandler.handleOauth(request, response);
-			assertTrue("Expected IOException", false);
+			fail("Expected IOException");
 		}
 		catch (java.io.IOException e)
 		{
@@ -342,7 +343,7 @@ public class OAuthHandlerTest
 		try
 		{
 			OAuthHandler.redirectToAuthenticator(createMockRequestForLoginPage(), createMockResponse(), mainSolution);
-			assertTrue("Expected ServletException", false);
+			fail("Expected ServletException");
 		}
 		catch (jakarta.servlet.ServletException e)
 		{
@@ -524,7 +525,7 @@ public class OAuthHandlerTest
 			HttpServletResponse indexResponse = createMockResponseWithWriter(loginOutput, new ArrayList<>());
 
 			LoginResult mustAuthResult = StatelessLoginHandler.mustAuthenticate(indexRequest, indexResponse, MAIN_SOLUTION_NAME);
-			assertFalse("Should need login for OAUTH authenticator", mustAuthResult.isAuthenticated());
+			assertFalse(mustAuthResult.isAuthenticated(), "Should need login for OAUTH authenticator");
 
 			// writeLoginPage generates the OAuth redirect page (populates nonce cache)
 			StatelessLoginHandler.writeLoginPage(indexRequest, indexResponse, MAIN_SOLUTION_NAME, mustAuthResult);
@@ -532,7 +533,7 @@ public class OAuthHandlerTest
 			// --- Extract nonce from the context (it was put there by generateNonce during writeLoginPage) ---
 			@SuppressWarnings("unchecked")
 			Map<String, JSONObject> nonceCache = (Map<String, JSONObject>)contextAttributes.get("nonce");
-			assertFalse("Nonce cache should have entries after writeLoginPage", nonceCache.isEmpty());
+			assertFalse(nonceCache.isEmpty(), "Nonce cache should have entries after writeLoginPage");
 			String nonce = nonceCache.keySet().iterator().next();
 
 			// --- Phase 2: OAuth provider redirects back with id_token containing the nonce ---
@@ -558,8 +559,8 @@ public class OAuthHandlerTest
 			LoginResult result = OAuthHandler.handleOauth(callbackRequest, callbackResponse);
 
 			// Verify the full flow completed
-			assertTrue("Should be authenticated after full OAuth flow", result.isAuthenticated());
-			assertNotNull("Token should be created", result.getToken());
+			assertTrue(result.isAuthenticated(), "Should be authenticated after full OAuth flow");
+			assertNotNull(result.getToken(), "Token should be created");
 
 			// Verify the svy token contains the expected claims
 			com.auth0.jwt.interfaces.DecodedJWT decoded = JWT.decode(result.getToken());
@@ -570,9 +571,9 @@ public class OAuthHandlerTest
 			assertEquals(2, permissions.length);
 
 			// Verify authenticator received the id_token payload
-			assertNotNull("Authenticator should have been called", lastCredentials);
+			assertNotNull(lastCredentials, "Authenticator should have been called");
 			JSONObject credJson = new JSONObject(lastCredentials.getJscredentials());
-			assertTrue("Should contain last_login with the id_token payload", credJson.has(SvyID.LAST_LOGIN));
+			assertTrue(credJson.has(SvyID.LAST_LOGIN), "Should contain last_login with the id_token payload");
 			JSONObject lastLogin = credJson.getJSONObject(SvyID.LAST_LOGIN);
 			assertEquals("oauthuser@gmail.com", lastLogin.getString("email"));
 		}
@@ -647,7 +648,7 @@ public class OAuthHandlerTest
 			HttpServletResponse indexResponse = createMockResponseWithWriter(loginOutput, new ArrayList<>());
 
 			LoginResult mustAuthResult = StatelessLoginHandler.mustAuthenticate(indexRequest, indexResponse, MAIN_SOLUTION_NAME);
-			assertFalse("Should need login", mustAuthResult.isAuthenticated());
+			assertFalse(mustAuthResult.isAuthenticated(), "Should need login");
 			StatelessLoginHandler.writeLoginPage(indexRequest, indexResponse, MAIN_SOLUTION_NAME, mustAuthResult);
 
 			// Extract nonce
@@ -678,7 +679,7 @@ public class OAuthHandlerTest
 
 			LoginResult result = OAuthHandler.handleOauth(callbackRequest, callbackResponse);
 
-			assertFalse("Should not be authenticated when authenticator rejects", result.isAuthenticated());
+			assertFalse(result.isAuthenticated(), "Should not be authenticated when authenticator rejects");
 		}
 		finally
 		{
@@ -755,7 +756,7 @@ public class OAuthHandlerTest
 			HttpServletResponse indexResponse = createMockResponseWithWriter(loginOutput, new ArrayList<>());
 
 			LoginResult mustAuthResult = StatelessLoginHandler.mustAuthenticate(indexRequest, indexResponse, MAIN_SOLUTION_NAME);
-			assertFalse("Should need login", mustAuthResult.isAuthenticated());
+			assertFalse(mustAuthResult.isAuthenticated(), "Should need login");
 			StatelessLoginHandler.writeLoginPage(indexRequest, indexResponse, MAIN_SOLUTION_NAME, mustAuthResult);
 
 			// Extract nonce
@@ -795,7 +796,7 @@ public class OAuthHandlerTest
 
 			LoginResult result = OAuthHandler.handleOauth(callbackRequest, callbackResponse);
 
-			assertFalse("Should not be authenticated", result.isAuthenticated());
+			assertFalse(result.isAuthenticated(), "Should not be authenticated");
 			// Note: login_failed_url redirect only works in the CODE flow where auth is populated
 			// from getNonce(state). In the id_token flow, auth stays null in checkToken, so
 			// handleLoginFailed returns without redirecting. The client handles the redirect.
@@ -841,8 +842,8 @@ public class OAuthHandlerTest
 
 		LoginResult result = StatelessLoginHandler.mustAuthenticate(request, response, MAIN_SOLUTION_NAME);
 
-		assertTrue("Should be authenticated via checkPermissions path", result.isAuthenticated());
-		assertNotNull("Token should be present", result.getToken());
+		assertTrue(result.isAuthenticated(), "Should be authenticated via checkPermissions path");
+		assertNotNull(result.getToken(), "Token should be present");
 
 		com.auth0.jwt.interfaces.DecodedJWT decoded = JWT.decode(result.getToken());
 		assertEquals(TEST_USERNAME, decoded.getClaim(SvyID.USERNAME).asString());
@@ -932,20 +933,18 @@ public class OAuthHandlerTest
 			HttpServletResponse loginResponse2 = createMockResponseWithWriter(output, new ArrayList<>());
 
 			LoginResult mustAuthResult = StatelessLoginHandler.mustAuthenticate(loginRequest, loginResponse2, MAIN_SOLUTION_NAME);
-			assertFalse("Should need login for OAUTH_AUTHENTICATOR", mustAuthResult.isAuthenticated());
+			assertFalse(mustAuthResult.isAuthenticated(), "Should need login for OAUTH_AUTHENTICATOR");
 			StatelessLoginHandler.writeLoginPage(loginRequest, loginResponse2, MAIN_SOLUTION_NAME, mustAuthResult);
 
 			String html = output.toString();
 			// Should have generated the auto-login page with the OAuth URL
-			assertTrue("Should contain the OAuth authorization URL",
-				html.contains("fakeoauth.example.com") || html.contains("window.location"));
-			assertTrue("Should be the auto-login page", html.contains("Auto Login") || html.contains("login_form"));
+			assertTrue(html.contains("fakeoauth.example.com") || html.contains("window.location"), "Should contain the OAuth authorization URL");
+			assertTrue(html.contains("Auto Login") || html.contains("login_form"), "Should be the auto-login page");
 
 			// Verify getConfig was called - lastCredentials should have the provider parameter
-			assertNotNull("getConfig should have been called", lastCredentials);
+			assertNotNull(lastCredentials, "getConfig should have been called");
 			String credentialsStr = lastCredentials.getJscredentials();
-			assertTrue("Config credentials should contain provider",
-				credentialsStr.contains("provider") || credentialsStr.contains("google"));
+			assertTrue(credentialsStr.contains("provider") || credentialsStr.contains("google"), "Config credentials should contain provider");
 		}
 		finally
 		{
@@ -1029,13 +1028,13 @@ public class OAuthHandlerTest
 			HttpServletResponse loginResp = createMockResponseWithWriter(loginOutput, new ArrayList<>());
 
 			LoginResult mustAuthResult = StatelessLoginHandler.mustAuthenticate(loginRequest, loginResp, MAIN_SOLUTION_NAME);
-			assertFalse("Should need login for OAUTH_AUTHENTICATOR", mustAuthResult.isAuthenticated());
+			assertFalse(mustAuthResult.isAuthenticated(), "Should need login for OAUTH_AUTHENTICATOR");
 			StatelessLoginHandler.writeLoginPage(loginRequest, loginResp, MAIN_SOLUTION_NAME, mustAuthResult);
 
 			// Extract nonce from context
 			@SuppressWarnings("unchecked")
 			Map<String, JSONObject> nonceCache = (Map<String, JSONObject>)contextAttributes.get("nonce");
-			assertFalse("Nonce cache should have entries", nonceCache.isEmpty());
+			assertFalse(nonceCache.isEmpty(), "Nonce cache should have entries");
 			String nonce = nonceCache.keySet().iterator().next();
 
 			// --- Phase 2: OAuth provider redirects back with id_token + state ---
@@ -1062,13 +1061,13 @@ public class OAuthHandlerTest
 
 			LoginResult result = OAuthHandler.handleOauth(callbackRequest, callbackResponse);
 
-			assertTrue("Should be authenticated", result.isAuthenticated());
-			assertNotNull("Token should be created", result.getToken());
+			assertTrue(result.isAuthenticated(), "Should be authenticated");
+			assertNotNull(result.getToken(), "Token should be created");
 
 			// For OAUTH_AUTHENTICATOR, the state should be in the svy token
 			com.auth0.jwt.interfaces.DecodedJWT decoded = JWT.decode(result.getToken());
 			String stateClaim = decoded.getClaim("state").asString();
-			assertNotNull("State claim should be present in svy token for OAUTH_AUTHENTICATOR", stateClaim);
+			assertNotNull(stateClaim, "State claim should be present in svy token for OAUTH_AUTHENTICATOR");
 			assertEquals("myCustomState", stateClaim);
 		}
 		finally

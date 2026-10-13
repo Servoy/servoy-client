@@ -19,10 +19,10 @@ package com.servoy.j2db.server.ngclient.property;
 
 import static com.servoy.base.query.IQueryConstants.LEFT_OUTER_JOIN;
 import static java.lang.String.format;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.awt.Dimension;
 import java.io.IOException;
@@ -36,7 +36,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONStringer;
 import org.json.JSONWriter;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.sablo.Container;
 import org.sablo.IChangeListener;
 import org.sablo.InMemPackageReader;

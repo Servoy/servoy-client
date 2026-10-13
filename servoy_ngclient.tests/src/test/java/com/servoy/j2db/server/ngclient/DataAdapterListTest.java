@@ -20,11 +20,11 @@ package com.servoy.j2db.server.ngclient;
 import static com.servoy.base.query.IQueryConstants.LEFT_OUTER_JOIN;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.awt.Dimension;
 import java.awt.Point;
@@ -36,8 +36,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.sablo.Container;
 import org.sablo.InMemPackageReader;
 import org.sablo.websocket.utils.JSONUtils.FullValueToJSONConverter;
@@ -319,7 +319,7 @@ public class DataAdapterListTest extends AbstractSolutionTest
 		// @formatter:on
 
 		LinkedList<String> sentTextMessages = endpoint.getSession().getBasicRemote().getAndClearSentTextMessages();
-		Assert.assertTrue(sentTextMessages.size() > 0);
+		Assertions.assertTrue(sentTextMessages.size() > 0);
 
 		assertMessagesContain(sentTextMessages, "\\\"dataProviderID\\\":1001");
 		assertMessagesContain(sentTextMessages, "\\\"dataProviderID\\\":\\\"City11\\\"");
@@ -406,7 +406,7 @@ public class DataAdapterListTest extends AbstractSolutionTest
 		// @formatter:on
 
 		LinkedList<String> sentTextMessages = endpoint.getSession().getBasicRemote().getAndClearSentTextMessages();
-		Assert.assertTrue(sentTextMessages.size() > 0);
+		Assertions.assertTrue(sentTextMessages.size() > 0);
 
 		assertMessagesContain(sentTextMessages, "\\\"dataProviderID\\\":1001");
 		assertMessagesContain(sentTextMessages, "\\\"dataProviderID\\\":\\\"City11\\\"");
@@ -506,7 +506,7 @@ public class DataAdapterListTest extends AbstractSolutionTest
 		assertThat(((ITestFoundset)relFoundset1).getNumberOfFoundsetEventListeners(), greaterThan(1));
 
 		LinkedList<String> sentTextMessages = endpoint.getSession().getBasicRemote().getAndClearSentTextMessages();
-		Assert.assertTrue(sentTextMessages.size() > 0);
+		Assertions.assertTrue(sentTextMessages.size() > 0);
 
 		assertMessagesContain(sentTextMessages, "\\\"dataProviderID\\\":1001");
 		assertMessagesContain(sentTextMessages, "\\\"dataProviderID\\\":\\\"Product 1\\\"");
@@ -621,7 +621,7 @@ public class DataAdapterListTest extends AbstractSolutionTest
 		assertTrue(client.getScriptEngine().getScopesScope().getModificationSubject().hasListeners());
 
 		LinkedList<String> sentTextMessages = endpoint.getSession().getBasicRemote().getAndClearSentTextMessages();
-		Assert.assertTrue(sentTextMessages.size() > 0);
+		Assertions.assertTrue(sentTextMessages.size() > 0);
 
 		assertMessagesContain(sentTextMessages, "\\\"dataProviderID\\\":1001");
 		assertMessagesContain(sentTextMessages, "\\\"dataProviderID\\\":\\\"City11\\\"");

@@ -1,10 +1,10 @@
 package com.servoy.j2db.server.ngclient.auth;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
@@ -15,9 +15,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
@@ -60,7 +60,7 @@ public class DefaultLoginManagerTest
 	private long passwordLastSetTime;
 	private Solution mainSolution;
 
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception
 	{
 		validUserForAuth = TEST_USER_UID;
@@ -74,7 +74,7 @@ public class DefaultLoginManagerTest
 		mainSolution.setAuthenticator(AUTHENTICATOR_TYPE.DEFAULT);
 	}
 
-	@After
+	@AfterEach
 	public void tearDown()
 	{
 		ApplicationServerRegistry.destroy();
@@ -88,9 +88,9 @@ public class DefaultLoginManagerTest
 		LoginResult result = LoginResult.needsLogin();
 		boolean verified = DefaultLoginManager.checkDefaultLoginPermissions(TEST_USERNAME, TEST_PASSWORD, false, null, result);
 
-		assertTrue("Should be verified", verified);
-		assertTrue("Should be authenticated", result.isAuthenticated());
-		assertNotNull("Token should not be null", result.getToken());
+		assertTrue(verified, "Should be verified");
+		assertTrue(result.isAuthenticated(), "Should be authenticated");
+		assertNotNull(result.getToken(), "Token should not be null");
 
 		// Verify the token contains expected claims
 		DecodedJWT decoded = JWT.decode(result.getToken());
@@ -111,8 +111,8 @@ public class DefaultLoginManagerTest
 		LoginResult result = LoginResult.needsLogin();
 		boolean verified = DefaultLoginManager.checkDefaultLoginPermissions(TEST_USERNAME, "wrong-password", false, null, result);
 
-		assertFalse("Should not be verified", verified);
-		assertNull("Token should be null", result.getToken());
+		assertFalse(verified, "Should not be verified");
+		assertNull(result.getToken(), "Token should be null");
 	}
 
 	@Test
@@ -123,8 +123,8 @@ public class DefaultLoginManagerTest
 		LoginResult result = LoginResult.needsLogin();
 		boolean verified = DefaultLoginManager.checkDefaultLoginPermissions(TEST_USERNAME, TEST_PASSWORD, false, null, result);
 
-		assertFalse("Should not be verified when no permissions", verified);
-		assertNull("Token should be null", result.getToken());
+		assertFalse(verified, "Should not be verified when no permissions");
+		assertNull(result.getToken(), "Token should be null");
 	}
 
 	@Test
@@ -133,13 +133,13 @@ public class DefaultLoginManagerTest
 		LoginResult result = LoginResult.needsLogin();
 		boolean verified = DefaultLoginManager.checkDefaultLoginPermissions(TEST_USERNAME, TEST_PASSWORD, true, null, result);
 
-		assertTrue("Should be verified", verified);
-		assertNotNull("Token should not be null", result.getToken());
+		assertTrue(verified, "Should be verified");
+		assertNotNull(result.getToken(), "Token should not be null");
 
 		DecodedJWT decoded = JWT.decode(result.getToken());
 		Boolean remember = decoded.getClaim(SvyID.REMEMBER).asBoolean();
-		assertNotNull("Remember claim should exist", remember);
-		assertTrue("Remember should be true", remember.booleanValue());
+		assertNotNull(remember, "Remember claim should exist");
+		assertTrue(remember.booleanValue(), "Remember should be true");
 	}
 
 	@Test
@@ -148,11 +148,11 @@ public class DefaultLoginManagerTest
 		LoginResult result = LoginResult.needsLogin();
 		boolean verified = DefaultLoginManager.checkDefaultLoginPermissions(TEST_USERNAME, TEST_PASSWORD, false, null, result);
 
-		assertTrue("Should be verified", verified);
-		assertNotNull("Token should not be null", result.getToken());
+		assertTrue(verified, "Should be verified");
+		assertNotNull(result.getToken(), "Token should not be null");
 
 		DecodedJWT decoded = JWT.decode(result.getToken());
-		assertNull("Remember claim should be null", decoded.getClaim(SvyID.REMEMBER).asBoolean());
+		assertNull(decoded.getClaim(SvyID.REMEMBER).asBoolean(), "Remember claim should be null");
 	}
 
 	// ===== Token refresh tests =====
@@ -163,16 +163,16 @@ public class DefaultLoginManagerTest
 		// First, login to get a valid token
 		LoginResult firstLogin = LoginResult.needsLogin();
 		DefaultLoginManager.checkDefaultLoginPermissions(TEST_USERNAME, TEST_PASSWORD, false, null, firstLogin);
-		assertNotNull("First login should produce a token", firstLogin.getToken());
+		assertNotNull(firstLogin.getToken(), "First login should produce a token");
 
 		// Now simulate a token refresh with the same permissions
 		SvyID oldToken = new SvyID(firstLogin.getToken());
 		LoginResult refreshResult = LoginResult.needsLogin();
 		boolean verified = DefaultLoginManager.checkDefaultLoginPermissions(TEST_USERNAME, null, false, oldToken, refreshResult);
 
-		assertTrue("Should be verified on refresh", verified);
-		assertTrue("Should be authenticated", refreshResult.isAuthenticated());
-		assertNotNull("Should get a new token", refreshResult.getToken());
+		assertTrue(verified, "Should be verified on refresh");
+		assertTrue(refreshResult.isAuthenticated(), "Should be authenticated");
+		assertNotNull(refreshResult.getToken(), "Should get a new token");
 	}
 
 	@Test
@@ -181,7 +181,7 @@ public class DefaultLoginManagerTest
 		// First, login to get a valid token
 		LoginResult firstLogin = LoginResult.needsLogin();
 		DefaultLoginManager.checkDefaultLoginPermissions(TEST_USERNAME, TEST_PASSWORD, false, null, firstLogin);
-		assertNotNull("First login should produce a token", firstLogin.getToken());
+		assertNotNull(firstLogin.getToken(), "First login should produce a token");
 
 		// Now change the permissions on the server
 		permissionsForUser = new String[]{ "Users" }; // changed from ["Administrators", "Users"]
@@ -190,7 +190,7 @@ public class DefaultLoginManagerTest
 		LoginResult refreshResult = LoginResult.needsLogin();
 		boolean verified = DefaultLoginManager.checkDefaultLoginPermissions(TEST_USERNAME, null, false, oldToken, refreshResult);
 
-		assertFalse("Should not be verified when permissions changed", verified);
+		assertFalse(verified, "Should not be verified when permissions changed");
 	}
 
 	@Test
@@ -199,7 +199,7 @@ public class DefaultLoginManagerTest
 		// First, login to get a valid token
 		LoginResult firstLogin = LoginResult.needsLogin();
 		DefaultLoginManager.checkDefaultLoginPermissions(TEST_USERNAME, TEST_PASSWORD, false, null, firstLogin);
-		assertNotNull("First login should produce a token", firstLogin.getToken());
+		assertNotNull(firstLogin.getToken(), "First login should produce a token");
 
 		// Simulate password change after login
 		passwordLastSetTime = System.currentTimeMillis() + 1000; // password changed after token was issued
@@ -208,9 +208,9 @@ public class DefaultLoginManagerTest
 		LoginResult refreshResult = LoginResult.needsLogin();
 		boolean verified = DefaultLoginManager.checkDefaultLoginPermissions(TEST_USERNAME, null, false, oldToken, refreshResult);
 
-		assertFalse("Should not be verified when password changed", verified);
-		assertFalse("Should not be authenticated", refreshResult.isAuthenticated());
-		assertNull("Token should be null", refreshResult.getToken());
+		assertFalse(verified, "Should not be verified when password changed");
+		assertFalse(refreshResult.isAuthenticated(), "Should not be authenticated");
+		assertNull(refreshResult.getToken(), "Token should be null");
 	}
 
 	@Test
@@ -219,14 +219,14 @@ public class DefaultLoginManagerTest
 		LoginResult result = LoginResult.needsLogin();
 		DefaultLoginManager.checkDefaultLoginPermissions(TEST_USERNAME, TEST_PASSWORD, false, null, result);
 
-		assertNotNull("Token should not be null", result.getToken());
+		assertNotNull(result.getToken(), "Token should not be null");
 
 		// Verify the JWT is properly signed and verifiable
 		Algorithm algorithm = Algorithm.HMAC256(TEST_JWT_PASSWORD);
 		DecodedJWT verified = JWT.require(algorithm).withIssuer("svy").build().verify(result.getToken());
-		assertNotNull("JWT should be verifiable", verified);
-		assertNotNull("Should have expiry", verified.getExpiresAt());
-		assertNotNull("Should have last_login claim", verified.getClaim(SvyID.LAST_LOGIN).asLong());
+		assertNotNull(verified, "JWT should be verifiable");
+		assertNotNull(verified.getExpiresAt(), "Should have expiry");
+		assertNotNull(verified.getClaim(SvyID.LAST_LOGIN).asLong(), "Should have last_login claim");
 	}
 
 	// ===== Full-flow tests via StatelessLoginHandler.mustAuthenticate =====
@@ -245,8 +245,8 @@ public class DefaultLoginManagerTest
 
 		LoginResult result = StatelessLoginHandler.mustAuthenticate(request, response, MAIN_SOLUTION_NAME);
 
-		assertTrue("Should be authenticated via full flow", result.isAuthenticated());
-		assertNotNull("Token should be created", result.getToken());
+		assertTrue(result.isAuthenticated(), "Should be authenticated via full flow");
+		assertNotNull(result.getToken(), "Token should be created");
 
 		DecodedJWT decoded = JWT.decode(result.getToken());
 		assertEquals(TEST_USERNAME, decoded.getClaim(SvyID.USERNAME).asString());
@@ -273,8 +273,8 @@ public class DefaultLoginManagerTest
 
 		LoginResult result = StatelessLoginHandler.mustAuthenticate(request, response, MAIN_SOLUTION_NAME);
 
-		assertTrue("Should be authenticated via checkPermissions path", result.isAuthenticated());
-		assertNotNull("Token should be present", result.getToken());
+		assertTrue(result.isAuthenticated(), "Should be authenticated via checkPermissions path");
+		assertNotNull(result.getToken(), "Token should be present");
 
 		// The token is re-created by DefaultLoginManager.checkDefaultLoginPermissions
 		// username comes from request.getParameter("username") which is null in this flow
@@ -311,8 +311,8 @@ public class DefaultLoginManagerTest
 
 		LoginResult result = StatelessLoginHandler.mustAuthenticate(request, response, MAIN_SOLUTION_NAME);
 
-		assertTrue("Should be authenticated after expired token refresh", result.isAuthenticated());
-		assertNotNull("Should have a new token", result.getToken());
+		assertTrue(result.isAuthenticated(), "Should be authenticated after expired token refresh");
+		assertNotNull(result.getToken(), "Should have a new token");
 	}
 
 	@Test
@@ -339,7 +339,7 @@ public class DefaultLoginManagerTest
 
 		LoginResult result = StatelessLoginHandler.mustAuthenticate(request, response, MAIN_SOLUTION_NAME);
 
-		assertFalse("Should NOT be authenticated when permissions changed on refresh", result.isAuthenticated());
+		assertFalse(result.isAuthenticated(), "Should NOT be authenticated when permissions changed on refresh");
 
 		java.io.StringWriter pageOutput = new java.io.StringWriter();
 		java.io.PrintWriter printWriter = new java.io.PrintWriter(pageOutput);
@@ -357,7 +357,7 @@ public class DefaultLoginManagerTest
 		});
 		StatelessLoginHandler.writeLoginPage(request, writeResponse, MAIN_SOLUTION_NAME, result);
 		String page = pageOutput.toString();
-		assertTrue("Should write login page HTML", page.contains("login") || page.length() > 0);
+		assertTrue(page.contains("login") || page.length() > 0, "Should write login page HTML");
 	}
 
 	// ===== Helper methods =====

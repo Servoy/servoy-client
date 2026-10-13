@@ -29,8 +29,8 @@ import java.util.Map;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.sablo.InMemPackageReader;
 import org.sablo.specification.WebObjectSpecification.PushToServerEnum;
 import org.sablo.specification.property.BrowserConverterContext;
@@ -112,9 +112,9 @@ public class PersistFieldInstanceTest extends AbstractSolutionTest
 	{
 		Form form = solution.getForm("test");
 
-		Assert.assertNotNull(form);
+		Assertions.assertNotNull(form);
 		ValueList vl = solution.getValueList("test");
-		Assert.assertNotNull(vl);
+		Assertions.assertNotNull(vl);
 
 		Field field = form.createNewField(new Point(0, 0));
 		field.setDataProviderID("mycolumn");
@@ -126,19 +126,20 @@ public class PersistFieldInstanceTest extends AbstractSolutionTest
 		IDataAdapterList dataAdapterList = formUI.getDataAdapterList();
 
 		List<FormElement> formElements = FormElementHelper.INSTANCE.getFormElements(form.getAllObjects(), new ServoyDataConverterContext(client));
-		Assert.assertEquals(1, formElements.size());
+		Assertions.assertEquals(1, formElements.size());
 		WebFormComponent wc = ComponentFactory.createComponent(client, dataAdapterList, formElements.get(0), formUI, form);
 		Object property = wc.getProperty("valuelistID");
-		Assert.assertTrue(property != null ? property.getClass().getName() : "null",
-			property instanceof ValueListTypeSabloValue && ((ValueListTypeSabloValue)property).getValueList() instanceof CustomValueList);
-		Assert.assertEquals("#,###.00", ((CustomValueList)((ValueListTypeSabloValue)property).getValueList()).getFormat().getDisplayFormat());
+		Assertions.assertTrue(
+			property instanceof ValueListTypeSabloValue && ((ValueListTypeSabloValue)property).getValueList() instanceof CustomValueList,
+			property != null ? property.getClass().getName() : "null");
+		Assertions.assertEquals("#,###.00", ((CustomValueList)((ValueListTypeSabloValue)property).getValueList()).getFormat().getDisplayFormat());
 	}
 
 	@Test
 	public void testTabPanelWithTabs() throws RepositoryException
 	{
 		Form form = solution.getForm("test");
-		Assert.assertNotNull(form);
+		Assertions.assertNotNull(form);
 
 		Form tabForm = solution.createNewForm(validator, null, "tabform", null, false, new Dimension(600, 400));
 		tabForm.setNavigatorID(Form.NAVIGATOR_NONE);
@@ -149,19 +150,19 @@ public class PersistFieldInstanceTest extends AbstractSolutionTest
 		tabpanel.createNewTab("tab2", null, tabForm);
 
 		List<FormElement> formElements = FormElementHelper.INSTANCE.getFormElements(form.getAllObjects(), new ServoyDataConverterContext(client));
-		Assert.assertEquals(1, formElements.size());
+		Assertions.assertEquals(1, formElements.size());
 		WebFormComponent wc = ComponentFactory.createComponent(client, dataAdapterList, formElements.get(0), null, form);
 		List<Map<String, Object>> tabs = (List)wc.getProperty("tabs");
-		Assert.assertEquals(2, tabs.size());
+		Assertions.assertEquals(2, tabs.size());
 		Map<String, Object> map = tabs.get(1);
-		Assert.assertSame(tabForm.getName(), map.get("containsFormId"));
+		Assertions.assertSame(tabForm.getName(), map.get("containsFormId"));
 	}
 
 	@Test
 	public void testSettingTextOfTabInTabpanel() throws RepositoryException, JSONException
 	{
 		Form form = solution.getForm("test");
-		Assert.assertNotNull(form);
+		Assertions.assertNotNull(form);
 		DataAdapterList dataAdapterList = new DataAdapterList(new TestFormController(form, client));
 
 		Form tabForm = solution.createNewForm(validator, null, "tabform", null, false, new Dimension(600, 400));
@@ -172,18 +173,18 @@ public class PersistFieldInstanceTest extends AbstractSolutionTest
 		tabpanel.createNewTab("tab2", null, tabForm);
 
 		List<FormElement> formElements = FormElementHelper.INSTANCE.getFormElements(form.getAllObjects(), new ServoyDataConverterContext(client));
-		Assert.assertEquals(1, formElements.size());
+		Assertions.assertEquals(1, formElements.size());
 		WebFormComponent wc = ComponentFactory.createComponent(client, dataAdapterList, formElements.get(0), null, form);
 		TypedData<Map<String, Object>> changes = wc.getAndClearChanges();
-		Assert.assertEquals(0, changes.content.size());
+		Assertions.assertEquals(0, changes.content.size());
 
 		List<Map<String, Object>> tabs = (List)wc.getProperty("tabs");
-		Assert.assertEquals(2, tabs.size());
+		Assertions.assertEquals(2, tabs.size());
 		Map<String, Object> map = tabs.get(0);
 		map.put("text", new BasicTagStringTypeSabloValue("a test", null));
 		changes = wc.getAndClearChanges();
 
-		Assert.assertEquals(1, changes.content.size());
+		Assertions.assertEquals(1, changes.content.size());
 
 		String json = JSONUtils.writeChanges(changes.content, changes.contentType, new BrowserConverterContext(wc, PushToServerEnum.allow));
 
@@ -194,24 +195,24 @@ public class PersistFieldInstanceTest extends AbstractSolutionTest
 	public void testCustomComponentWithI18NProperty() throws RepositoryException, JSONException
 	{
 		Form form = solution.getForm("test");
-		Assert.assertNotNull(form);
+		Assertions.assertNotNull(form);
 
 		DataAdapterList dataAdapterList = new DataAdapterList(new TestFormController(form, client));
 
 		WebComponent bean = form.createNewWebComponent("mycustombean", "my-component");
 		bean.setProperty("atype", new ServoyJSONObject("{name:'name',text:'i18n:servoy.button.ok'}", false));
 		List<FormElement> formElements = FormElementHelper.INSTANCE.getFormElements(form.getAllObjects(), new ServoyDataConverterContext(client));
-		Assert.assertEquals(1, formElements.size());
+		Assertions.assertEquals(1, formElements.size());
 		WebFormComponent wc = ComponentFactory.createComponent(client, dataAdapterList, formElements.get(0), null, form);
 		BrowserConverterContext allowBrowserConverterContext = new BrowserConverterContext(wc, PushToServerEnum.allow);
 
 		Map<String, Object> type = (Map<String, Object>)wc.getProperty("atype");
-		Assert.assertEquals("name", type.get("name"));
-		Assert.assertEquals("OK", ((BasicTagStringTypeSabloValue)type.get("text")).getOperatingDesignValue()); // it gets automatically translated to a static string
-		Assert.assertEquals("OK",
+		Assertions.assertEquals("name", type.get("name"));
+		Assertions.assertEquals("OK", ((BasicTagStringTypeSabloValue)type.get("text")).getOperatingDesignValue()); // it gets automatically translated to a static string
+		Assertions.assertEquals("OK",
 			((BasicTagStringTypeSabloValue)type.get("text")).getTagReplacedValueForClient(allowBrowserConverterContext.getComputedPushToServerValue()));
 
-		Assert.assertEquals(0, wc.getAndClearChanges().content.size());
+		Assertions.assertEquals(0, wc.getAndClearChanges().content.size());
 
 		TypedData<Map<String, Object>> props = wc.getProperties();
 
@@ -227,7 +228,7 @@ public class PersistFieldInstanceTest extends AbstractSolutionTest
 		// TODO this should become a test on form uuid in the inner html/bean xml instead of the form name..
 
 		Form form = solution.getForm("test");
-		Assert.assertNotNull(form);
+		Assertions.assertNotNull(form);
 		DataAdapterList dataAdapterList = new DataAdapterList(new TestFormController(form, client));
 
 		Form tabForm = solution.createNewForm(validator, null, "tabform", null, false, new Dimension(600, 400));
@@ -239,27 +240,27 @@ public class PersistFieldInstanceTest extends AbstractSolutionTest
 //		Bean bean = form.createNewBean("mycustombean", "my-component");
 //		bean.setInnerHTML("{atype:{name:'name',form:'tabform'}}");
 		List<FormElement> formElements = FormElementHelper.INSTANCE.getFormElements(form.getAllObjects(), new ServoyDataConverterContext(client));
-//		Assert.assertEquals(1, formElements.size());
+//		Assertions.assertEquals(1, formElements.size());
 //		WebFormComponent wc = ComponentFactory.createComponent(client, dataAdapterList, formElements.get(0), null);
 
 		@SuppressWarnings("unchecked")
 //		Map<String, Object> type = (Map<String, Object>)wc.getProperty("atype");
 
-		//Assert.assertNull(type); // err0r bean doesn't have this prop
+		//Assertions.assertNull(type); // err0r bean doesn't have this prop
 
 		// ok now for the real test that uses WebComponent
 //		form.removeChild(bean);
 		WebComponent webComponent = form.createNewWebComponent("mycustombean", "my-component");
 		webComponent.setProperty("atype", new ServoyJSONObject("{name:'name',form:'tabform'}", false));
 		formElements = FormElementHelper.INSTANCE.getFormElements(form.getAllObjects(), new ServoyDataConverterContext(client));
-		Assert.assertEquals(1, formElements.size());
+		Assertions.assertEquals(1, formElements.size());
 		WebFormComponent wc = ComponentFactory.createComponent(client, dataAdapterList, formElements.get(0), null, form);
 
 		Map<String, Object> type = (Map<String, Object>)wc.getProperty("atype");
-		Assert.assertEquals("name", type.get("name"));
-		Assert.assertEquals("tabform", type.get("form"));
+		Assertions.assertEquals("name", type.get("name"));
+		Assertions.assertEquals("tabform", type.get("form"));
 
-		Assert.assertEquals(0, wc.getAndClearChanges().content.size());
+		Assertions.assertEquals(0, wc.getAndClearChanges().content.size());
 
 		TypedData<Map<String, Object>> props = wc.getProperties();
 
@@ -275,7 +276,7 @@ public class PersistFieldInstanceTest extends AbstractSolutionTest
 		// FormElement is in form-template mode (headless /formtemplate render), the same way the designer gets them, but
 		// must stay omitted for a normal non-designer client-template generation (where the live runtime values are sent instead).
 		Form form = solution.getForm("test");
-		Assert.assertNotNull(form);
+		Assertions.assertNotNull(form);
 
 		WebComponent webComponent = form.createNewWebComponent("mycustombean", "my-component");
 		// "types" is a custom-array property (mytype[]) in WebComponentTest-mycomponent.spec
@@ -283,19 +284,19 @@ public class PersistFieldInstanceTest extends AbstractSolutionTest
 
 		// form-template mode: the custom-array value is written into the template JSON
 		FormElement feFormTemplate = new FormElement(webComponent, client.getFlattenedSolution(), new PropertyPath().setShouldAddElementName(), false, true);
-		Assert.assertFalse("form-template mode must not turn on designer mode", feFormTemplate.isInDesigner());
-		Assert.assertTrue(feFormTemplate.isFormTemplate());
+		Assertions.assertFalse(feFormTemplate.isInDesigner(), "form-template mode must not turn on designer mode");
+		Assertions.assertTrue(feFormTemplate.isFormTemplate());
 		String formTemplateJSON = feFormTemplate.getPropertiesString();
-		Assert.assertTrue("custom-array property 'types' should be present in form-template JSON but was: " + formTemplateJSON,
-			new JSONObject(formTemplateJSON).has("types"));
+		Assertions.assertTrue(new JSONObject(formTemplateJSON).has("types"),
+			"custom-array property 'types' should be present in form-template JSON but was: " + formTemplateJSON);
 
 		// normal non-designer client-template generation: the custom-array value is NOT written into the template JSON
 		FormElement feClient = new FormElement(webComponent, client.getFlattenedSolution(), new PropertyPath().setShouldAddElementName(), false, false);
-		Assert.assertFalse(feClient.isInDesigner());
-		Assert.assertFalse(feClient.isFormTemplate());
+		Assertions.assertFalse(feClient.isInDesigner());
+		Assertions.assertFalse(feClient.isFormTemplate());
 		String clientJSON = feClient.getPropertiesString();
-		Assert.assertFalse("custom-array property 'types' should be omitted from the normal client template JSON but was: " + clientJSON,
-			new JSONObject(clientJSON).has("types"));
+		Assertions.assertFalse(new JSONObject(clientJSON).has("types"),
+			"custom-array property 'types' should be omitted from the normal client template JSON but was: " + clientJSON);
 	}
 
 	@Test
@@ -304,7 +305,7 @@ public class PersistFieldInstanceTest extends AbstractSolutionTest
 		client.setValueListItems("test_items", new String[] { "aaa" }, new String[] { "bbb" }, false);
 		ValueList vl = client.getFlattenedSolution().getValueList("test_items");
 		IValueList valuelist = com.servoy.j2db.component.ComponentFactory.getRealValueList(client, vl, true, Types.OTHER, null, null);
-		Assert.assertEquals(valuelist.getElementAt(0), "aaa");
-		Assert.assertEquals(valuelist.getRealElementAt(0), "bbb");
+		Assertions.assertEquals(valuelist.getElementAt(0), "aaa");
+		Assertions.assertEquals(valuelist.getRealElementAt(0), "bbb");
 	}
 }

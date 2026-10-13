@@ -22,10 +22,10 @@ import java.util.HashMap;
 
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.sablo.InMemPackageReader;
 import org.sablo.IndexPageEnhancer;
 import org.sablo.specification.IYieldingType;
@@ -57,13 +57,13 @@ import com.servoy.j2db.server.ngclient.property.types.ValueListPropertyType;
 public class WebComponentSpecTest extends Log4JToConsoleTest
 {
 
-	@Before
+	@BeforeEach
 	public void setup()
 	{
 		Types.getTypesInstance().registerTypes();
 	}
 
-	@After
+	@AfterEach
 	public void tearDown()
 	{
 		WebComponentSpecProvider.disposeInstance();
@@ -75,7 +75,7 @@ public class WebComponentSpecTest extends Log4JToConsoleTest
 		String property = "{name:'test',definition:'/test.js', model: {}}";
 
 		WebObjectSpecification spec = WebObjectSpecification.parseSpec(property, "sample", null, null);
-		Assert.assertEquals("/test.js", spec.getDefinition());
+		Assertions.assertEquals("/test.js", spec.getDefinition());
 	}
 
 
@@ -86,7 +86,7 @@ public class WebComponentSpecTest extends Log4JToConsoleTest
 
 		WebObjectSpecification spec = WebObjectSpecification.parseSpec(property, "sample", null, null);
 		JSONArray libs = spec.getLibraries();
-		Assert.assertEquals(0, libs.length());
+		Assertions.assertEquals(0, libs.length());
 	}
 
 
@@ -97,8 +97,8 @@ public class WebComponentSpecTest extends Log4JToConsoleTest
 
 		WebObjectSpecification spec = WebObjectSpecification.parseSpec(property, "sample", null, null);
 		JSONArray libs = spec.getLibraries();
-		Assert.assertEquals(1, libs.length());
-		Assert.assertEquals(libs.optJSONObject(0).optString("url"), "/test.css");
+		Assertions.assertEquals(1, libs.length());
+		Assertions.assertEquals(libs.optJSONObject(0).optString("url"), "/test.css");
 	}
 
 	@Test
@@ -108,9 +108,9 @@ public class WebComponentSpecTest extends Log4JToConsoleTest
 
 		WebObjectSpecification spec = WebObjectSpecification.parseSpec(property, "sample", null, null);
 		JSONArray libs = spec.getLibraries();
-		Assert.assertEquals(2, libs.length());
-		Assert.assertEquals(libs.optJSONObject(0).optString("url"), "/test.css");
-		Assert.assertEquals(libs.optJSONObject(1).optString("url"), "/something.js");
+		Assertions.assertEquals(2, libs.length());
+		Assertions.assertEquals(libs.optJSONObject(0).optString("url"), "/test.css");
+		Assertions.assertEquals(libs.optJSONObject(1).optString("url"), "/something.js");
 	}
 
 	@Test
@@ -128,17 +128,17 @@ public class WebComponentSpecTest extends Log4JToConsoleTest
 
 		Object[] contributions = IndexPageEnhancer.getAllContributions(null, null, null, null);
 
-		Assert.assertTrue(((Collection< ? >)contributions[0]).size() == 0);
-		Assert.assertTrue(((Collection< ? >)contributions[1]).size() == 3);
+		Assertions.assertTrue(((Collection< ? >)contributions[0]).size() == 0);
+		Assertions.assertTrue(((Collection< ? >)contributions[1]).size() == 3);
 
-		Assert.assertTrue(contributions[1].toString(), ((Collection< ? >)contributions[1]).contains("js/angular-modules/1.9.3/angular-animate.js"));
+		Assertions.assertTrue(((Collection< ? >)contributions[1]).contains("js/angular-modules/1.9.3/angular-animate.js"), contributions[1].toString());
 
 		contributions = IndexPageEnhancer.getAllContributions(null, null, null, NGClientEntryFilter.CONTRIBUTION_ENTRY_FILTER);
 
-		Assert.assertTrue(((Collection< ? >)contributions[0]).size() == 0);
-		Assert.assertTrue(((Collection< ? >)contributions[1]).size() == 3);
+		Assertions.assertTrue(((Collection< ? >)contributions[0]).size() == 0);
+		Assertions.assertTrue(((Collection< ? >)contributions[1]).size() == 3);
 
-		Assert.assertTrue(contributions[1].toString(), ((Collection< ? >)contributions[1]).contains("js/angular-modules/1.9.3/angular-animate.js"));
+		Assertions.assertTrue(((Collection< ? >)contributions[1]).contains("js/angular-modules/1.9.3/angular-animate.js"), contributions[1].toString());
 
 	}
 
@@ -148,13 +148,13 @@ public class WebComponentSpecTest extends Log4JToConsoleTest
 		String property = "{name:'test',definition:'/test.js', model: {mydataprovider:'dataprovider',myvaluelist:{for:'mydataprovider' , type:'valuelist'}}}";
 
 		WebObjectSpecification spec = WebObjectSpecification.parseSpec(property, "sample", null, null);
-		Assert.assertEquals(2, spec.getProperties().size());
+		Assertions.assertEquals(2, spec.getProperties().size());
 		PropertyDescription pd = spec.getProperties().get("myvaluelist");
-		Assert.assertNotNull(pd);
-		Assert.assertTrue(pd.getType() == ((IYieldingType)(TypesRegistry.getType("valuelist"))).getPossibleYieldType());
-		Assert.assertFalse(pd.getType() instanceof CustomJSONArrayType< ? , ? >);
+		Assertions.assertNotNull(pd);
+		Assertions.assertTrue(pd.getType() == ((IYieldingType)(TypesRegistry.getType("valuelist"))).getPossibleYieldType());
+		Assertions.assertFalse(pd.getType() instanceof CustomJSONArrayType< ? , ? >);
 
-		Assert.assertEquals("mydataprovider", ((ValueListConfig)pd.getConfig()).getFor());
+		Assertions.assertEquals("mydataprovider", ((ValueListConfig)pd.getConfig()).getFor());
 	}
 
 	@Test
@@ -163,12 +163,12 @@ public class WebComponentSpecTest extends Log4JToConsoleTest
 		String property = "{name:'test',definition:'/test.js', model: {myfoundset:'foundset', mydataprovider:'dataprovider',myvaluelist:{for:'mydataprovider', type:'valuelist', forFoundset:'myfoundset'}}}";
 
 		WebObjectSpecification spec = WebObjectSpecification.parseSpec(property, "sample", null, null);
-		Assert.assertEquals(3, spec.getProperties().size());
+		Assertions.assertEquals(3, spec.getProperties().size());
 		PropertyDescription pd = spec.getProperties().get("myvaluelist");
-		Assert.assertNotNull(pd);
-		Assert.assertTrue(pd.getType() == TypesRegistry.getType("valuelist"));
-		Assert.assertTrue(pd.getType() instanceof FoundsetLinkedPropertyType);
-		Assert.assertTrue(((IYieldingType)(pd.getType())).getPossibleYieldType() == ValueListPropertyType.INSTANCE);
+		Assertions.assertNotNull(pd);
+		Assertions.assertTrue(pd.getType() == TypesRegistry.getType("valuelist"));
+		Assertions.assertTrue(pd.getType() instanceof FoundsetLinkedPropertyType);
+		Assertions.assertTrue(((IYieldingType)(pd.getType())).getPossibleYieldType() == ValueListPropertyType.INSTANCE);
 	}
 
 	@Test
@@ -177,13 +177,13 @@ public class WebComponentSpecTest extends Log4JToConsoleTest
 		String property = "{name:'test',definition:'/test.js', model: {mydataprovider:'dataprovider',myformat:{for:['mydataprovider'] , type:'format'}}}";
 
 		WebObjectSpecification spec = WebObjectSpecification.parseSpec(property, "sample", null, null);
-		Assert.assertEquals(2, spec.getProperties().size());
+		Assertions.assertEquals(2, spec.getProperties().size());
 		PropertyDescription pd = spec.getProperties().get("myformat");
-		Assert.assertNotNull(pd);
-		Assert.assertTrue(pd.getType() == TypesRegistry.getType("format"));
-		Assert.assertFalse(pd.getType() instanceof CustomJSONArrayType< ? , ? >);
+		Assertions.assertNotNull(pd);
+		Assertions.assertTrue(pd.getType() == TypesRegistry.getType("format"));
+		Assertions.assertFalse(pd.getType() instanceof CustomJSONArrayType< ? , ? >);
 
-		Assert.assertEquals("mydataprovider", ((String[])pd.getConfig())[0]);
+		Assertions.assertEquals("mydataprovider", ((String[])pd.getConfig())[0]);
 	}
 
 	@Test
@@ -192,13 +192,13 @@ public class WebComponentSpecTest extends Log4JToConsoleTest
 		String property = "{name:'test',definition:'/test.js', model: {mydataprovider:'dataprovider',myformat:{for:'mydataprovider' , type:'format'}}}";
 
 		WebObjectSpecification spec = WebObjectSpecification.parseSpec(property, "sample", null, null);
-		Assert.assertEquals(2, spec.getProperties().size());
+		Assertions.assertEquals(2, spec.getProperties().size());
 		PropertyDescription pd = spec.getProperties().get("myformat");
-		Assert.assertNotNull(pd);
-		Assert.assertTrue(pd.getType() == TypesRegistry.getType("format"));
-		Assert.assertFalse(pd.getType() instanceof CustomJSONArrayType< ? , ? >);
+		Assertions.assertNotNull(pd);
+		Assertions.assertTrue(pd.getType() == TypesRegistry.getType("format"));
+		Assertions.assertFalse(pd.getType() instanceof CustomJSONArrayType< ? , ? >);
 
-		Assert.assertEquals("mydataprovider", ((String[])pd.getConfig())[0]);
+		Assertions.assertEquals("mydataprovider", ((String[])pd.getConfig())[0]);
 	}
 
 	@Test
@@ -207,11 +207,11 @@ public class WebComponentSpecTest extends Log4JToConsoleTest
 		String property = "{name:'test',definition:'/test.js', model: {myproperty:'string'}}";
 
 		WebObjectSpecification spec = WebObjectSpecification.parseSpec(property, "sample", null, null);
-		Assert.assertEquals(1, spec.getProperties().size());
+		Assertions.assertEquals(1, spec.getProperties().size());
 		PropertyDescription pd = spec.getProperties().get("myproperty");
-		Assert.assertNotNull(pd);
-		Assert.assertTrue(pd.getType() == ServoyStringPropertyType.INSTANCE);
-		Assert.assertFalse(pd.getType() instanceof CustomJSONArrayType< ? , ? >);
+		Assertions.assertNotNull(pd);
+		Assertions.assertTrue(pd.getType() == ServoyStringPropertyType.INSTANCE);
+		Assertions.assertFalse(pd.getType() instanceof CustomJSONArrayType< ? , ? >);
 	}
 
 	@Test
@@ -220,23 +220,23 @@ public class WebComponentSpecTest extends Log4JToConsoleTest
 		String property = "{name:'test',definition:'/test.js', model: {myproperty:'string',prop2:'boolean',prop3:'int',prop4:'date'}}";
 
 		WebObjectSpecification spec = WebObjectSpecification.parseSpec(property, "sample", null, null);
-		Assert.assertEquals(spec.getProperties().toString(), 4, spec.getProperties().size());
+		Assertions.assertEquals(4, spec.getProperties().size(), spec.getProperties().toString());
 		PropertyDescription pd = spec.getProperties().get("myproperty");
-		Assert.assertNotNull(pd);
-		Assert.assertTrue(pd.getType() == ServoyStringPropertyType.INSTANCE);
-		Assert.assertFalse(pd.getType() instanceof CustomJSONArrayType< ? , ? >);
+		Assertions.assertNotNull(pd);
+		Assertions.assertTrue(pd.getType() == ServoyStringPropertyType.INSTANCE);
+		Assertions.assertFalse(pd.getType() instanceof CustomJSONArrayType< ? , ? >);
 		pd = spec.getProperties().get("prop2");
-		Assert.assertNotNull(pd);
-		Assert.assertTrue(pd.getType() == BooleanPropertyType.INSTANCE);
-		Assert.assertFalse(pd.getType() instanceof CustomJSONArrayType< ? , ? >);
+		Assertions.assertNotNull(pd);
+		Assertions.assertTrue(pd.getType() == BooleanPropertyType.INSTANCE);
+		Assertions.assertFalse(pd.getType() instanceof CustomJSONArrayType< ? , ? >);
 		pd = spec.getProperties().get("prop3");
-		Assert.assertNotNull(pd);
-		Assert.assertTrue(pd.getType() == IntPropertyType.INSTANCE);
-		Assert.assertFalse(pd.getType() instanceof CustomJSONArrayType< ? , ? >);
+		Assertions.assertNotNull(pd);
+		Assertions.assertTrue(pd.getType() == IntPropertyType.INSTANCE);
+		Assertions.assertFalse(pd.getType() instanceof CustomJSONArrayType< ? , ? >);
 		pd = spec.getProperties().get("prop4");
-		Assert.assertNotNull(pd);
-		Assert.assertTrue(pd.getType() == NGDatePropertyType.NG_INSTANCE);
-		Assert.assertFalse(pd.getType() instanceof CustomJSONArrayType< ? , ? >);
+		Assertions.assertNotNull(pd);
+		Assertions.assertTrue(pd.getType() == NGDatePropertyType.NG_INSTANCE);
+		Assertions.assertFalse(pd.getType() instanceof CustomJSONArrayType< ? , ? >);
 	}
 
 	@Test
@@ -245,11 +245,11 @@ public class WebComponentSpecTest extends Log4JToConsoleTest
 		String property = "{name:'test',definition:'/test.js', model: {myproperty:'string[]'}}";
 
 		WebObjectSpecification spec = WebObjectSpecification.parseSpec(property, "sample", null, null);
-		Assert.assertEquals(1, spec.getProperties().size());
+		Assertions.assertEquals(1, spec.getProperties().size());
 		PropertyDescription pd = spec.getProperties().get("myproperty");
-		Assert.assertNotNull(pd);
-		Assert.assertTrue(pd.getType() instanceof CustomJSONArrayType< ? , ? >);
-		Assert.assertTrue(((CustomJSONArrayType)pd.getType()).getCustomJSONTypeDefinition().getType() == ServoyStringPropertyType.INSTANCE);
+		Assertions.assertNotNull(pd);
+		Assertions.assertTrue(pd.getType() instanceof CustomJSONArrayType< ? , ? >);
+		Assertions.assertTrue(((CustomJSONArrayType)pd.getType()).getCustomJSONTypeDefinition().getType() == ServoyStringPropertyType.INSTANCE);
 	}
 
 	@Test
@@ -258,20 +258,20 @@ public class WebComponentSpecTest extends Log4JToConsoleTest
 		String property = "{name:'test',definition:'/test.js', model: {myproperty:'mytype'}, types: {mytype:{model:{typeproperty:'string'}}}}";
 
 		WebObjectSpecification spec = WebObjectSpecification.parseSpec(property, "sample", null, null);
-		Assert.assertEquals(1, spec.getProperties().size());
+		Assertions.assertEquals(1, spec.getProperties().size());
 		PropertyDescription pd = spec.getProperties().get("myproperty");
-		Assert.assertNotNull(pd);
-		Assert.assertNotNull(((ICustomType)pd.getType()).getCustomJSONTypeDefinition());
+		Assertions.assertNotNull(pd);
+		Assertions.assertNotNull(((ICustomType)pd.getType()).getCustomJSONTypeDefinition());
 		Object config = pd.getConfig();
-		Assert.assertFalse(pd.getType() instanceof CustomJSONArrayType< ? , ? >);
+		Assertions.assertFalse(pd.getType() instanceof CustomJSONArrayType< ? , ? >);
 
 		PropertyDescription wct = ((ICustomType)pd.getType()).getCustomJSONTypeDefinition();
-		Assert.assertEquals("test.mytype", wct.getName());
-		Assert.assertEquals(1, wct.getProperties().size());
+		Assertions.assertEquals("test.mytype", wct.getName());
+		Assertions.assertEquals(1, wct.getProperties().size());
 		PropertyDescription pd2 = wct.getProperty("typeproperty");
-		Assert.assertNotNull(pd2);
-		Assert.assertTrue(pd2.getType() == ServoyStringPropertyType.INSTANCE);
-		Assert.assertFalse(pd2.getType() instanceof CustomJSONArrayType< ? , ? >);
+		Assertions.assertNotNull(pd2);
+		Assertions.assertTrue(pd2.getType() == ServoyStringPropertyType.INSTANCE);
+		Assertions.assertFalse(pd2.getType() instanceof CustomJSONArrayType< ? , ? >);
 	}
 
 	@Test
@@ -280,22 +280,22 @@ public class WebComponentSpecTest extends Log4JToConsoleTest
 		String property = "{name:'test',definition:'/test.js', model: {myproperty:'mytype[]'}, types: {mytype:{model:{typeproperty:'string'}}}}";
 
 		WebObjectSpecification spec = WebObjectSpecification.parseSpec(property, "sample", null, null);
-		Assert.assertEquals(1, spec.getProperties().size());
+		Assertions.assertEquals(1, spec.getProperties().size());
 		PropertyDescription pd = spec.getProperties().get("myproperty");
-		Assert.assertNotNull(pd);
-		Assert.assertNotNull(((ICustomType)pd.getType()).getCustomJSONTypeDefinition());
+		Assertions.assertNotNull(pd);
+		Assertions.assertNotNull(((ICustomType)pd.getType()).getCustomJSONTypeDefinition());
 		Object config = pd.getConfig();
-		Assert.assertTrue(pd.getType() instanceof CustomJSONArrayType< ? , ? >);
+		Assertions.assertTrue(pd.getType() instanceof CustomJSONArrayType< ? , ? >);
 
 		PropertyDescription wct = ((CustomJSONArrayType)pd.getType()).getCustomJSONTypeDefinition();
-		Assert.assertEquals("test.mytype", wct.getType().getName());
-		Assert.assertEquals(1, wct.getProperties().size());
+		Assertions.assertEquals("test.mytype", wct.getType().getName());
+		Assertions.assertEquals(1, wct.getProperties().size());
 		wct = ((CustomJSONPropertyType)wct.getType()).getCustomJSONTypeDefinition();
-		Assert.assertEquals(1, wct.getProperties().size());
+		Assertions.assertEquals(1, wct.getProperties().size());
 		PropertyDescription pd2 = wct.getProperty("typeproperty");
-		Assert.assertNotNull(pd2);
-		Assert.assertTrue(pd2.getType() == ServoyStringPropertyType.INSTANCE);
-		Assert.assertFalse(pd2.getType() instanceof CustomJSONArrayType< ? , ? >);
+		Assertions.assertNotNull(pd2);
+		Assertions.assertTrue(pd2.getType() == ServoyStringPropertyType.INSTANCE);
+		Assertions.assertFalse(pd2.getType() instanceof CustomJSONArrayType< ? , ? >);
 
 	}
 
@@ -305,22 +305,22 @@ public class WebComponentSpecTest extends Log4JToConsoleTest
 		String property = "{name:'test',definition:'/test.js', model: {myproperty:'mytype[]'}, types: {mytype:{model:{typeproperty:'string[]'}}}}";
 
 		WebObjectSpecification spec = WebObjectSpecification.parseSpec(property, "sample", null, null);
-		Assert.assertEquals(1, spec.getProperties().size());
+		Assertions.assertEquals(1, spec.getProperties().size());
 		PropertyDescription pd = spec.getProperties().get("myproperty");
-		Assert.assertNotNull(pd);
-		Assert.assertNotNull(((ICustomType)pd.getType()).getCustomJSONTypeDefinition());
+		Assertions.assertNotNull(pd);
+		Assertions.assertNotNull(((ICustomType)pd.getType()).getCustomJSONTypeDefinition());
 		Object config = pd.getConfig();
-		Assert.assertTrue(pd.getType() instanceof CustomJSONArrayType< ? , ? >);
+		Assertions.assertTrue(pd.getType() instanceof CustomJSONArrayType< ? , ? >);
 
 		PropertyDescription wct = ((CustomJSONArrayType)pd.getType()).getCustomJSONTypeDefinition();
-		Assert.assertEquals("test.mytype", wct.getType().getName());
-		Assert.assertEquals(1, wct.getProperties().size());
+		Assertions.assertEquals("test.mytype", wct.getType().getName());
+		Assertions.assertEquals(1, wct.getProperties().size());
 		wct = ((CustomJSONPropertyType)wct.getType()).getCustomJSONTypeDefinition();
-		Assert.assertEquals(1, wct.getProperties().size());
+		Assertions.assertEquals(1, wct.getProperties().size());
 		PropertyDescription pd2 = wct.getProperty("typeproperty");
-		Assert.assertNotNull(pd2);
-		Assert.assertTrue(pd2.getType() instanceof CustomJSONArrayType< ? , ? >);
-		Assert.assertTrue(((CustomJSONArrayType)pd2.getType()).getCustomJSONTypeDefinition().getType() == ServoyStringPropertyType.INSTANCE);
+		Assertions.assertNotNull(pd2);
+		Assertions.assertTrue(pd2.getType() instanceof CustomJSONArrayType< ? , ? >);
+		Assertions.assertTrue(((CustomJSONArrayType)pd2.getType()).getCustomJSONTypeDefinition().getType() == ServoyStringPropertyType.INSTANCE);
 
 	}
 
@@ -330,31 +330,31 @@ public class WebComponentSpecTest extends Log4JToConsoleTest
 		String property = "{name:'test',definition:'/test.js', model: {myproperty:'mytype'}, types: {mytype:{model:{typeproperty:'mytype2'}},mytype2:{model:{typeproperty:'string'}}}}";
 
 		WebObjectSpecification spec = WebObjectSpecification.parseSpec(property, "sample", null, null);
-		Assert.assertEquals(1, spec.getProperties().size());
+		Assertions.assertEquals(1, spec.getProperties().size());
 		PropertyDescription pd = spec.getProperties().get("myproperty");
-		Assert.assertNotNull(pd);
-		Assert.assertNotNull(((ICustomType)pd.getType()).getCustomJSONTypeDefinition());
+		Assertions.assertNotNull(pd);
+		Assertions.assertNotNull(((ICustomType)pd.getType()).getCustomJSONTypeDefinition());
 		Object config = pd.getConfig();
-		Assert.assertNull(config);
-		Assert.assertFalse(pd.getType() instanceof CustomJSONArrayType< ? , ? >);
+		Assertions.assertNull(config);
+		Assertions.assertFalse(pd.getType() instanceof CustomJSONArrayType< ? , ? >);
 
 		PropertyDescription wct = ((ICustomType)pd.getType()).getCustomJSONTypeDefinition();
-		Assert.assertEquals("test.mytype", wct.getName());
-		Assert.assertEquals(1, wct.getProperties().size());
+		Assertions.assertEquals("test.mytype", wct.getName());
+		Assertions.assertEquals(1, wct.getProperties().size());
 		PropertyDescription pd2 = wct.getProperties().get("typeproperty");
-		Assert.assertNotNull(pd2);
-		Assert.assertNotNull(((ICustomType)pd2.getType()).getCustomJSONTypeDefinition());
-		Assert.assertFalse(pd2.getType() instanceof CustomJSONArrayType< ? , ? >);
+		Assertions.assertNotNull(pd2);
+		Assertions.assertNotNull(((ICustomType)pd2.getType()).getCustomJSONTypeDefinition());
+		Assertions.assertFalse(pd2.getType() instanceof CustomJSONArrayType< ? , ? >);
 
 		config = pd2.getConfig();
-		Assert.assertNull(config);
+		Assertions.assertNull(config);
 		PropertyDescription wct2 = ((ICustomType)pd2.getType()).getCustomJSONTypeDefinition();
-		Assert.assertEquals("test.mytype2", wct2.getName());
-		Assert.assertEquals(1, wct2.getProperties().size());
+		Assertions.assertEquals("test.mytype2", wct2.getName());
+		Assertions.assertEquals(1, wct2.getProperties().size());
 		PropertyDescription pd3 = wct2.getProperty("typeproperty");
-		Assert.assertNotNull(pd3);
-		Assert.assertTrue(pd3.getType() == ServoyStringPropertyType.INSTANCE);
-		Assert.assertFalse(pd3.getType() instanceof CustomJSONArrayType< ? , ? >);
+		Assertions.assertNotNull(pd3);
+		Assertions.assertTrue(pd3.getType() == ServoyStringPropertyType.INSTANCE);
+		Assertions.assertFalse(pd3.getType() instanceof CustomJSONArrayType< ? , ? >);
 	}
 
 	@Test
@@ -362,17 +362,17 @@ public class WebComponentSpecTest extends Log4JToConsoleTest
 	{
 		String property = "{name:'test',definition:'/test.js'}";
 		WebObjectSpecification spec = WebObjectSpecification.parseSpec(property, "sample", null, null);
-		Assert.assertEquals("test", spec.getName());
-		Assert.assertEquals("test", spec.getDisplayName());
-		Assert.assertEquals("sample", spec.getPackageName());
-		//Assert.assertEquals("sample:test", spec.getFullName());
+		Assertions.assertEquals("test", spec.getName());
+		Assertions.assertEquals("test", spec.getDisplayName());
+		Assertions.assertEquals("sample", spec.getPackageName());
+		//Assertions.assertEquals("sample:test", spec.getFullName());
 
 		property = "{name:'test', displayName: 'A Test',definition:'/test.js'}";
 		spec = WebObjectSpecification.parseSpec(property, "sample", null, null);
-		Assert.assertEquals("test", spec.getName());
-		Assert.assertEquals("A Test", spec.getDisplayName());
-		Assert.assertEquals("sample", spec.getPackageName());
-		//Assert.assertEquals("sample:test", spec.getFullName());
+		Assertions.assertEquals("test", spec.getName());
+		Assertions.assertEquals("A Test", spec.getDisplayName());
+		Assertions.assertEquals("sample", spec.getPackageName());
+		//Assertions.assertEquals("sample:test", spec.getFullName());
 	}
 
 }

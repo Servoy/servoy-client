@@ -48,9 +48,9 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import org.apache.commons.io.FilenameUtils;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ContextFactory;
 import org.mozilla.javascript.ContextFactory.Listener;
@@ -407,7 +407,7 @@ public abstract class AbstractSolutionTest extends Log4JToConsoleTest
 
 	}
 
-	@Before
+	@BeforeEach
 	public void buildSolution() throws Exception
 	{
 		System.setProperty(ScriptEngine.SERVOY_DISABLE_SCRIPT_COMPILE_PROPERTY, "true");
@@ -558,11 +558,11 @@ public abstract class AbstractSolutionTest extends Log4JToConsoleTest
 		catch (RepositoryException e)
 		{
 			e.printStackTrace();
-			Assert.fail(e.getMessage());
+			Assertions.fail(e.getMessage());
 		}
 	}
 
-	@After
+	@AfterEach
 	public void tearDown() throws Exception
 	{
 		CurrentWindow.set(null);
