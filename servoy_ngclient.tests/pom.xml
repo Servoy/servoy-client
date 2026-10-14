@@ -11,4 +11,31 @@
 	</parent>
 	<artifactId>servoy_ngclient.tests</artifactId>
 	<packaging>eclipse-test-plugin</packaging>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.eclipse.tycho</groupId>
+                <artifactId>tycho-surefire-plugin</artifactId>
+                <version>${tycho.version}</version>
+                <configuration>
+                    <!-- Force the JUnit Platform (junit6) provider. The Eclipse target platform
+                         always contributes org.junit (JUnit 4) to the test runtime, so Tycho's
+                         automatic framework detection would otherwise pick the junit4 provider
+                         and report "No tests found" for these pure-Jupiter tests. -->
+                    <providerHint>junit6</providerHint>
+                    <useUIHarness>false</useUIHarness>
+                    <includes>
+                        <include>**/*Test.java</include>
+                    </includes>
+                    <dependencies>
+                        <dependency>
+                            <type>eclipse-plugin</type>
+                            <artifactId>com.servoy.eclipse.extension.compatibility</artifactId>
+                            <version>0.0.0</version>
+                        </dependency>
+                    </dependencies>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>
