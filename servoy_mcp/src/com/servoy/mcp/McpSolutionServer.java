@@ -266,7 +266,10 @@ public class McpSolutionServer
 		catch (Exception e)
 		{
 			McpRuntime.log.warn("mcp: tool '" + tool.getName() + "' failed", e);
-			return error(e.getMessage() == null ? e.getClass().getName() : e.getMessage());
+			// Do not leak the raw exception message or class name to the agent: an uncaught framework/JDBC
+			// error can carry SQL, datasource, constraint or internal class detail. The real cause is logged
+			// above; the agent gets a generic message that points at the log.
+			return error("The tool '" + tool.getName() + "' failed. See the server log for details.");
 		}
 	}
 
