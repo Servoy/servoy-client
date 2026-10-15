@@ -504,25 +504,25 @@ public final class FormElement implements INGFormElement
 		return null;
 	}
 
-//
-//	/**
-//	 * Gets the JSON value to be set in form's ftl template. (initial value)<br><br>
-//	 *
-//	 * This uses 'Conversion 2' (see {@link NGConversions})
-//	 */
-//	public Object getPropertyValueConvertedForTemplate(String propertyName)
-//	{
-//		NGConversions.INSTANCE.applyConversion2(whatHere);
-//		if (propertyDescription != null)
-//		{
-//			// if there is no spec defined default, nor any value for this property, use the sablo type default value,
-//			// but that needs to go through Conversion 5.1 (see {@link NGConversions}) first
-//			NGConversions.INSTANCE.applyConversion5_1();
-//			return propertyDescription.getType().defaultValue();
-//		}
-//
-//		return propertyValues.get(propertyName);
-//	}
+	//
+	//	/**
+	//	 * Gets the JSON value to be set in form's ftl template. (initial value)<br><br>
+	//	 *
+	//	 * This uses 'Conversion 2' (see {@link NGConversions})
+	//	 */
+	//	public Object getPropertyValueConvertedForTemplate(String propertyName)
+	//	{
+	//		NGConversions.INSTANCE.applyConversion2(whatHere);
+	//		if (propertyDescription != null)
+	//		{
+	//			// if there is no spec defined default, nor any value for this property, use the sablo type default value,
+	//			// but that needs to go through Conversion 5.1 (see {@link NGConversions}) first
+	//			NGConversions.INSTANCE.applyConversion5_1();
+	//			return propertyDescription.getType().defaultValue();
+	//		}
+	//
+	//		return propertyValues.get(propertyName);
+	//	}
 
 	/**
 	 * Returns the actual value that this FormElement keeps for the requested property.<br>
@@ -571,12 +571,12 @@ public final class FormElement implements INGFormElement
 	 */
 	public Object getPropertyValueConvertedForWebComponent(String propertyName, WebFormComponent component, DataAdapterList dal)
 	{
-//		// TODO remove this delegation when going with tree structure , this is needed for DataAdapterList which 'thinks' everything is flat
-//		String[] split = name.split("\\.");
-//		if (split.length > 1)
-//		{
-//			return ((Map)getProperty(split[0])).get(split[1]);
-//		}// end toRemove
+		//		// TODO remove this delegation when going with tree structure , this is needed for DataAdapterList which 'thinks' everything is flat
+		//		String[] split = name.split("\\.");
+		//		if (split.length > 1)
+		//		{
+		//			return ((Map)getProperty(split[0])).get(split[1]);
+		//		}// end toRemove
 
 		PropertyDescription propertyDescription = getWebComponentSpec().getProperties().get(propertyName);
 		if (propertyValues.containsKey(propertyName))
@@ -783,17 +783,17 @@ public final class FormElement implements INGFormElement
 			properties.put(pd.getName(), val);
 		}
 
-//		if (persistImpl == null || !persistImpl.isForm())
-//		{
-//			Dimension dim = getDesignSize();
-//			if (dim != null) properties.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), dim);
-//
-//			Integer anchor = (Integer)getPropertyValue(StaticContentSpecLoader.PROPERTY_ANCHORS.getPropertyName());
-//			if (anchor != null)
-//			{
-//				properties.put(StaticContentSpecLoader.PROPERTY_ANCHORS.getPropertyName(), anchor);
-//			}
-//		}
+		//		if (persistImpl == null || !persistImpl.isForm())
+		//		{
+		//			Dimension dim = getDesignSize();
+		//			if (dim != null) properties.put(StaticContentSpecLoader.PROPERTY_SIZE.getPropertyName(), dim);
+		//
+		//			Integer anchor = (Integer)getPropertyValue(StaticContentSpecLoader.PROPERTY_ANCHORS.getPropertyName());
+		//			if (anchor != null)
+		//			{
+		//				properties.put(StaticContentSpecLoader.PROPERTY_ANCHORS.getPropertyName(), anchor);
+		//			}
+		//		}
 
 		Object offsetY = getPropertyValue("offsetY");
 		if (offsetY != null) properties.put("offsetY", offsetY);
@@ -877,20 +877,6 @@ public final class FormElement implements INGFormElement
 			}
 		}
 		return new List[] { typeNamesA, propertyNamesA };
-	}
-
-	public List<String> getForbiddenComponentNames()
-	{
-		ArrayList<String> result = new ArrayList<String>();
-		// TODO:maybe we can add this kind of info to the spec ?
-		// or maybe have a list of 'allowed' components ?
-		if ("servoycore-portal".equals(getTypeName()))
-		{
-			result.add("servoycore-portal");
-			result.add("servoydefault-tabpanel");
-			result.add("servoydefault-splitpane");
-		}
-		return result;
 	}
 
 	public FlattenedSolution getFlattendSolution()

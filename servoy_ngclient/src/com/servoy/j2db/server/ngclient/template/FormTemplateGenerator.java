@@ -35,7 +35,6 @@ import com.servoy.j2db.persistence.IBasicWebComponent;
 import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IRepository;
-import com.servoy.j2db.persistence.Portal;
 import com.servoy.j2db.persistence.RectShape;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
@@ -190,11 +189,6 @@ public class FormTemplateGenerator
 			int orient = ((TabPanel)persist).getTabOrientation();
 			if (orient == TabPanel.SPLIT_HORIZONTAL || orient == TabPanel.SPLIT_VERTICAL) return "servoydefault-splitpane";
 			return "servoydefault-tabpanel";
-		}
-
-		if (persist instanceof Portal)
-		{
-			return "servoycore-portal";
 		}
 
 		if (persist instanceof RectShape)

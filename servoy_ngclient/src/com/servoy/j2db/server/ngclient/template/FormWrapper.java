@@ -18,7 +18,6 @@
 package com.servoy.j2db.server.ngclient.template;
 
 import java.awt.Dimension;
-import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -37,12 +36,9 @@ import org.sablo.specification.WebObjectSpecification;
 import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.base.persistence.constants.IFormConstants;
-import com.servoy.base.persistence.constants.IPartConstants;
 import com.servoy.j2db.IForm;
-import com.servoy.j2db.persistence.BaseComponent;
 import com.servoy.j2db.persistence.CSSPositionUtils;
 import com.servoy.j2db.persistence.Form;
-import com.servoy.j2db.persistence.GraphicalComponent;
 import com.servoy.j2db.persistence.IContentSpecConstants;
 import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
@@ -50,10 +46,8 @@ import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.ISupportScrollbars;
 import com.servoy.j2db.persistence.LayoutContainer;
 import com.servoy.j2db.persistence.Part;
-import com.servoy.j2db.persistence.PositionComparator;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.scripting.info.UICONSTANTS;
-import com.servoy.j2db.server.ngclient.BodyPortal;
 import com.servoy.j2db.server.ngclient.DefaultNavigator;
 import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.FormElementHelper;
@@ -77,8 +71,6 @@ import com.servoy.j2db.util.Utils;
 public class FormWrapper
 {
 	private final Form form;
-	private final boolean isTableView;
-	private final boolean isListView;
 	private final boolean useControllerProvider;
 	private final String realName;
 	private final IServoyDataConverterContext context;
@@ -98,9 +90,6 @@ public class FormWrapper
 		this.context = context;
 		this.design = design;
 		this.runtimeData = runtimeData;
-		boolean hasBodyPart = context.getSolution().getFlattenedForm(form).hasPart(IPartConstants.BODY);
-		isTableView = hasBodyPart && !design && (form.getView() == IFormConstants.VIEW_TYPE_TABLE || form.getView() == IFormConstants.VIEW_TYPE_TABLE_LOCKED);
-		isListView = hasBodyPart && !design && (form.getView() == IFormConstants.VIEW_TYPE_LIST || form.getView() == IFormConstants.VIEW_TYPE_LIST_LOCKED);
 	}
 
 	public boolean isDesign()
@@ -133,20 +122,6 @@ public class FormWrapper
 		return "angular.module('servoyApp').controller";
 	}
 
-	private Part getBodyPart()
-	{
-		Part part = null;
-		for (Part prt : Utils.iterate(form.getParts()))
-		{
-			if (prt.getPartType() == Part.BODY)
-			{
-				part = prt;
-				break;
-			}
-		}
-		return part;
-	}
-
 	public Map<String, String> getTemplates()
 	{
 		if (this.baseComponents == null) getBaseComponents();
@@ -173,25 +148,14 @@ public class FormWrapper
 		if (this.baseComponents != null) return this.baseComponents;
 		List<IFormElement> components = new ArrayList<>();
 
-		Collection<BaseComponent> excludedComponents = null;
-
-		if ((isListView && !design) || isTableView)
-		{
-			excludedComponents = getBodyComponents();
-		}
-
 		List<IFormElement> persists = form.getFlattenedObjects(Form.FORM_INDEX_COMPARATOR);
 		for (IFormElement persist : persists)
 		{
 			if (isSecurityVisible(persist))
 			{
-				if ((excludedComponents == null || !excludedComponents.contains(persist))) components.add(persist);
+				components.add(persist);
 				checkFormComponents(components, FormElementHelper.INSTANCE.getFormElement(persist, context.getSolution(), null, design), new HashSet<String>());
 			}
-		}
-		if ((isListView && !design) || isTableView)
-		{
-			components.add(new BodyPortal(form));
 		}
 		if (form.getNavigatorID() == Form.NAVIGATOR_DEFAULT)
 		{
@@ -261,28 +225,6 @@ public class FormWrapper
 			form.getImplicitSecurityNoRights() ? IRepository.IMPLICIT_FORM_NO_ACCESS : IRepository.IMPLICIT_FORM_ACCESS);
 		boolean b_visible = ((access & IRepository.VIEWABLE) != 0);
 		return b_visible;
-	}
-
-	public Collection<BaseComponent> getBodyComponents()
-	{
-		Part part = getBodyPart();
-
-		List<BaseComponent> baseComponents = new ArrayList<>();
-		if (part == null) return baseComponents;
-
-		int startPos = form.getPartStartYPos(part.getUUID().toString());
-		int endPos = part.getHeight();
-		List<IFormElement> persists = form.getFlattenedObjects(PositionComparator.XY_PERSIST_COMPARATOR);
-		for (IFormElement persist : persists)
-		{
-			if (persist instanceof GraphicalComponent && isTableView && ((GraphicalComponent)persist).getLabelFor() != null) continue;
-			Point location = CSSPositionUtils.getLocation(persist);
-			if (startPos <= location.y && endPos > location.y)
-			{
-				if (isSecurityVisible(persist)) baseComponents.add((BaseComponent)persist);
-			}
-		}
-		return baseComponents;
 	}
 
 	public String getRuntimePropertiesString()

@@ -36,21 +36,16 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.function.Function;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.WebObjectSpecification;
-import org.sablo.specification.property.CustomJSONArrayType;
 
 import com.servoy.j2db.AbstractActiveSolutionHandler;
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.persistence.AbstractBase;
-import com.servoy.j2db.persistence.BaseComponent;
 import com.servoy.j2db.persistence.CSSPositionUtils;
 import com.servoy.j2db.persistence.Form;
-import com.servoy.j2db.persistence.GraphicalComponent;
-import com.servoy.j2db.persistence.IAnchorConstants;
 import com.servoy.j2db.persistence.IBasicWebComponent;
 import com.servoy.j2db.persistence.IBasicWebObject;
 import com.servoy.j2db.persistence.IChildWebObject;
@@ -60,7 +55,6 @@ import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.ISupportBounds;
-import com.servoy.j2db.persistence.ISupportScrollbars;
 import com.servoy.j2db.persistence.ISupportTabSeq;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.PositionComparator;
@@ -68,7 +62,6 @@ import com.servoy.j2db.persistence.RepositoryHelper;
 import com.servoy.j2db.persistence.RuntimeProperty;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
-import com.servoy.j2db.server.ngclient.property.ComponentPropertyType;
 import com.servoy.j2db.server.ngclient.property.ComponentTypeConfig;
 import com.servoy.j2db.server.ngclient.property.types.FormComponentPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.NGTabSeqPropertyType;
@@ -132,10 +125,7 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 			IPersist persist = iterator.next();
 			if (persist instanceof IFormElement)
 			{
-				// getFormElement can return null (e.g. a BodyPortal whose servoycore-portal spec is gone - see SVY-21548);
-				// don't add a null into the list, callers like WebFormUI.init() dereference each element without a null check
-				FormElement formElement = getFormElement((IFormElement)persist, context.getSolution(), null, false);
-				if (formElement != null) lst.add(formElement);
+				lst.add(getFormElement((IFormElement)persist, context.getSolution(), null, false));
 			}
 		}
 		return lst;
@@ -447,8 +437,7 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 		if (designer || formTemplate || (fs.getSolutionCopy(false) != null) ||
 			((AbstractBase)formElement).getRuntimeProperty(FC_NAME_OF_ROOT_ACTUAL_FORM_EVEN_IN_CASE_OF_NESTED_FORM_COMPONENTS) != null)
 		{
-			if (formElement instanceof BodyPortal) return createBodyPortalFormElement((BodyPortal)formElement, fs, designer, formTemplate);
-			else return new FormElement(formElement, fs, propertyPath == null ? new PropertyPath().setShouldAddElementName() : propertyPath, designer,
+			return new FormElement(formElement, fs, propertyPath == null ? new PropertyPath().setShouldAddElementName() : propertyPath, designer,
 				formTemplate);
 		}
 		FormElement persistWrapper = persistWrappers.get(formElement);
@@ -459,21 +448,11 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 				propertyPath = new PropertyPath();
 				propertyPath.setShouldAddElementName();
 			}
-			if (formElement instanceof BodyPortal)
-				persistWrapper = createBodyPortalFormElement((BodyPortal)formElement, getSharedFlattenedSolution(fs), designer, formTemplate);
-			else persistWrapper = new FormElement(formElement, getSharedFlattenedSolution(fs), propertyPath, designer, formTemplate);
-			// createBodyPortalFormElement() can legitimately return null (e.g. when the "servoycore-portal" spec is not
-			// available so its FormElement falls back to the error bean and has no "childElements" property). Never put a
-			// null into the ConcurrentHashMap cache: ConcurrentHashMap.putIfAbsent throws a NullPointerException on a null
-			// value, and caching a null would poison every later render of this persist. Return the null directly instead,
-			// matching the non-cached branch above. The dead servoycore-portal / list-view generation is tracked by SVY-21548.
-			if (persistWrapper != null)
+			persistWrapper = new FormElement(formElement, getSharedFlattenedSolution(fs), propertyPath, designer, formTemplate);
+			FormElement existing = persistWrappers.putIfAbsent(formElement, persistWrapper);
+			if (existing != null)
 			{
-				FormElement existing = persistWrappers.putIfAbsent(formElement, persistWrapper);
-				if (existing != null)
-				{
-					persistWrapper = existing;
-				}
+				persistWrapper = existing;
 			}
 		}
 		return persistWrapper;
@@ -511,216 +490,6 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 		return flattenedSolution;
 	}
 
-	private FormElement createBodyPortalFormElement(BodyPortal listViewPortal, FlattenedSolution fs, final boolean isInDesigner, final boolean formTemplate)
-	{
-		Form form = listViewPortal.getForm();
-		Part bodyPart = null;
-		for (Part prt : Utils.iterate(form.getParts()))
-		{
-			if (prt.getPartType() == Part.BODY)
-			{
-				bodyPart = prt;
-				break;
-			}
-		}
-		if (bodyPart != null)
-		{
-			try
-			{
-				String name = "svy_lvp_" + form.getName();
-				int startPos = form.getPartStartYPos(bodyPart.getUUID().toString());
-				int endPos = bodyPart.getHeight();
-				int bodyheight = endPos - startPos;
-
-				JSONObject portal = new JSONObject();
-				portal.put("name", name);
-				portal.put("multiLine", !listViewPortal.isTableview());
-				portal.put("rowHeight", !listViewPortal.isTableview() ? bodyheight : getRowHeight(form));
-				int scrollbars = form.getScrollbars();
-				if (!listViewPortal.isTableview())
-				{
-					// handle horizontal scrollbar on form level for listview
-					int verticalScrollBars = ISupportScrollbars.VERTICAL_SCROLLBAR_AS_NEEDED;
-					if ((form.getScrollbars() & ISupportScrollbars.VERTICAL_SCROLLBAR_ALWAYS) != 0)
-					{
-						verticalScrollBars = ISupportScrollbars.VERTICAL_SCROLLBAR_ALWAYS;
-					}
-					else if ((form.getScrollbars() & ISupportScrollbars.VERTICAL_SCROLLBAR_NEVER) != 0)
-					{
-						verticalScrollBars = ISupportScrollbars.VERTICAL_SCROLLBAR_NEVER;
-					}
-					scrollbars = ISupportScrollbars.HORIZONTAL_SCROLLBAR_NEVER + verticalScrollBars;
-				}
-				portal.put("scrollbars", scrollbars);
-				if (listViewPortal.isTableview())
-				{
-					int headerHeight = 30;
-					if (form.hasPart(Part.HEADER))
-					{
-						headerHeight = 0;
-					}
-					portal.put("headerHeight", headerHeight);
-					portal.put("sortable", !"-1".equals(form.getOnSortCmdMethodID()));
-				}
-				portal.put("readOnlyMode", form.getNgReadOnlyMode());
-
-				JSONObject location = new JSONObject();
-				location.put("x", 0);
-				location.put("y", isInDesigner ? startPos : 0);
-				portal.put("location", location);
-				JSONObject size = new JSONObject();
-				//				size.put("width", (listViewPortal.isTableview() && !fillsWidth) ? getGridWidth(form) : form.getWidth());
-				size.put("width", form.getWidth());
-				size.put("height", bodyheight);
-				portal.put("size", size);
-				portal.put("visible", listViewPortal.getVisible());
-				portal.put("enabled", listViewPortal.getEnabled());
-				portal.put("childElements", new JSONArray()); // empty contents; will be updated afterwards directly with form element values for components
-
-				JSONObject relatedFoundset = new JSONObject();
-				relatedFoundset.put("foundsetSelector", "");
-				portal.put("relatedFoundset", relatedFoundset);
-
-				PropertyPath propertyPath = new PropertyPath();
-				propertyPath.setShouldAddElementName();
-				FormElement portalFormElement = new FormElement("servoycore-portal", portal, form, name, fs, propertyPath, isInDesigner, formTemplate);
-				PropertyDescription pd = portalFormElement.getWebComponentSpec().getProperties().get("childElements");
-				if (pd != null) pd = ((CustomJSONArrayType< ? , ? >)pd.getType()).getCustomJSONTypeDefinition();
-				if (pd == null)
-				{
-					Debug.trace(new RuntimeException("Cannot find component definition special type to use for portal."));
-					return null;
-				}
-				ComponentPropertyType type = ((ComponentPropertyType)pd.getType());
-
-				Map<String, Object> portalFormElementProperties = new HashMap<>(portalFormElement.getRawPropertyValues());
-				portalFormElementProperties.put("anchors", IAnchorConstants.ALL);
-				portalFormElementProperties.put("offsetY", startPos);
-				portalFormElementProperties.put("partHeight", bodyPart.getHeight());
-				portalFormElementProperties.put("formview", true);
-				// now put real child component form element values in "childElements"
-				Iterator<IPersist> it = form.getAllObjects(PositionComparator.XY_PERSIST_COMPARATOR);
-				List<Object> children = new ArrayList<>(); // contains actually ComponentTypeFormElementValue objects
-				List<IPersist> labelFors = new ArrayList<>();
-				propertyPath.add(portalFormElement.getName());
-				propertyPath.add("childElements");
-
-				// it's a generated table-view form portal (BodyPortal); we just
-				// have to set the Portal's tabSeq to the first one of it's children for it to work properly
-				int minBodyPortalTabSeq = -2;
-
-				while (it.hasNext())
-				{
-					IPersist persist = it.next();
-					if (persist instanceof IFormElement)
-					{
-						Point loc = CSSPositionUtils.getLocation((IFormElement)persist);
-						if (startPos <= loc.y && endPos > loc.y)
-						{
-							if (listViewPortal.isTableview() && persist instanceof GraphicalComponent && ((GraphicalComponent)persist).getLabelFor() != null)
-								continue;
-							propertyPath.add(children.size());
-							FormElement fe = getFormElement((IFormElement)persist, fs, propertyPath, isInDesigner, formTemplate);
-							if (listViewPortal.isTableview())
-							{
-								String elementName = ((IFormElement)persist).getName();
-								Iterator<GraphicalComponent> graphicalComponents = form.getGraphicalComponents();
-								boolean hasLabelFor = false;
-								while (graphicalComponents.hasNext())
-								{
-									GraphicalComponent gc = graphicalComponents.next();
-									if (gc.getLabelFor() != null && Utils.equalObjects(elementName, gc.getLabelFor()) && startPos <= gc.getLocation().y &&
-										endPos > gc.getLocation().y)
-									{
-										labelFors.add(gc);
-										hasLabelFor = true;
-										break;
-									}
-								}
-
-								Map<String, Object> feRawProperties = new HashMap<>(fe.getRawPropertyValues());
-								feRawProperties.put("componentIndex", Integer.valueOf(children.size()));
-								if (hasLabelFor) feRawProperties.put("headerIndex", Integer.valueOf(labelFors.size() - 1));
-								fe.updatePropertyValuesDontUse(feRawProperties);
-							}
-							children.add(type.getFormElementValue(null, pd, propertyPath, fe, fs));
-							propertyPath.backOneLevel();
-
-							Collection<PropertyDescription> tabSequenceProperties = fe.getWebComponentSpec().getProperties(NGTabSeqPropertyType.NG_INSTANCE);
-							for (PropertyDescription tabSeqProperty : tabSequenceProperties)
-							{
-								String tabSeqPropertyName = tabSeqProperty.getName();
-								Integer tabSeqVal = (Integer)fe.getPropertyValue(tabSeqPropertyName);
-								if (tabSeqVal == null) tabSeqVal = Integer.valueOf(0); // default is 0 == DEFAULT tab sequence
-								if (minBodyPortalTabSeq < 0 || (minBodyPortalTabSeq > tabSeqVal.intValue() && tabSeqVal.intValue() >= 0))
-									minBodyPortalTabSeq = tabSeqVal.intValue();
-							}
-						}
-
-					}
-				}
-				propertyPath.backOneLevel();
-				propertyPath.backOneLevel();
-				portalFormElementProperties.put("childElements", children.toArray());
-				if (listViewPortal.isTableview())
-				{
-					propertyPath.add("headers");
-					List<Object> headers = new ArrayList<>();
-					for (IPersist persist : labelFors)
-					{
-						if (persist instanceof IFormElement)
-						{
-							propertyPath.add(headers.size());
-							FormElement fe = getFormElement((IFormElement)persist, fs, propertyPath, isInDesigner, formTemplate);
-							headers.add(type.getFormElementValue(null, pd, propertyPath, fe, fs));
-							propertyPath.backOneLevel();
-						}
-					}
-					propertyPath.backOneLevel();
-					propertyPath.backOneLevel();
-					portalFormElementProperties.put("headers", headers.toArray());
-				}
-
-				portalFormElementProperties.put("tabSeq", Integer.valueOf(minBodyPortalTabSeq)); // table view tab seq. is the minimum of it's children tabSeq'es
-
-				portalFormElement.updatePropertyValuesDontUse(portalFormElementProperties);
-
-				return portalFormElement;
-			}
-			catch (JSONException ex)
-			{
-				Debug.error("Cannot create list view portal component", ex);
-			}
-		}
-
-		return null;
-	}
-
-	private boolean fillsWidth(Form form)
-	{
-		if ((form.getScrollbars() & ISupportScrollbars.HORIZONTAL_SCROLLBAR_NEVER) == ISupportScrollbars.HORIZONTAL_SCROLLBAR_NEVER)
-		{
-			Part part = getBodyPart(form);
-			int startPos = form.getPartStartYPos(part.getUUID().toString());
-			int endPos = part.getHeight();
-			Iterator<IPersist> it = form.getAllObjects(PositionComparator.XY_PERSIST_COMPARATOR);
-			while (it.hasNext())
-			{
-				IPersist persist = it.next();
-				if (persist instanceof GraphicalComponent && ((GraphicalComponent)persist).getLabelFor() != null) continue;
-				if (persist instanceof BaseComponent)
-				{
-					BaseComponent bc = (BaseComponent)persist;
-					if ((bc.getAnchors() & (IAnchorConstants.WEST + IAnchorConstants.EAST)) == (IAnchorConstants.WEST + IAnchorConstants.EAST))
-					{
-						return true;
-					}
-				}
-			}
-		}
-		return false;
-	}
-
 	public Part getBodyPart(Form form)
 	{
 		for (Part prt : Utils.iterate(form.getParts()))
@@ -747,34 +516,6 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 		return false;
 	}
 
-	private int getRowHeight(Form form)
-	{
-		int rowHeight = 0;
-		Part part = getBodyPart(form);
-		int startPos = form.getPartStartYPos(part.getUUID().toString());
-		int endPos = part.getHeight();
-		Iterator<IPersist> it = form.getAllObjects(PositionComparator.XY_PERSIST_COMPARATOR);
-		while (it.hasNext())
-		{
-			IPersist persist = it.next();
-			if (persist instanceof GraphicalComponent && ((GraphicalComponent)persist).getLabelFor() != null) continue;
-			if (persist instanceof BaseComponent)
-			{
-				BaseComponent bc = (BaseComponent)persist;
-				Point location = bc.getLocation();
-				if (startPos <= location.y && endPos > location.y)
-				{
-					if (rowHeight == 0)
-					{
-						rowHeight = bc.getSize().height;
-						break;
-					}
-				}
-			}
-		}
-
-		return rowHeight == 0 ? 20 : rowHeight;
-	}
 
 	public void reload()
 	{

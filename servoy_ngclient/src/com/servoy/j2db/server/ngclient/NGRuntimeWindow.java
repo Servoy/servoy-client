@@ -713,10 +713,6 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 	{
 		Map<String, Object> navigatorForm = new HashMap<String, Object>();
 		String navigatorUUID = formController.getForm().getNavigatorID();
-		if (formController.getFormUI() instanceof WebListFormUI && navigatorUUID == Form.NAVIGATOR_DEFAULT)
-		{
-			navigatorUUID = Form.NAVIGATOR_NONE;
-		}
 		if (navigatorUUID == Form.NAVIGATOR_DEFAULT)
 		{
 			navigatorForm.put("name", "servoycore/navigator/default_navigator_container.html");

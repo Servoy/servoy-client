@@ -19,7 +19,6 @@ package com.servoy.j2db.server.ngclient.template;
 
 import java.awt.Point;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -27,8 +26,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.servoy.j2db.FlattenedSolution;
-import com.servoy.j2db.FormController;
-import com.servoy.j2db.IForm;
 import com.servoy.j2db.persistence.BaseComponent;
 import com.servoy.j2db.persistence.CSSPositionUtils;
 import com.servoy.j2db.persistence.FlattenedForm;
@@ -42,7 +39,6 @@ import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.server.headlessclient.dataui.AbstractFormLayoutProvider;
 import com.servoy.j2db.server.headlessclient.dataui.AnchoredFormLayoutProvider;
 import com.servoy.j2db.server.headlessclient.dataui.TextualStyle;
-import com.servoy.j2db.server.ngclient.BodyPortal;
 import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
 import com.servoy.j2db.util.OrientationApplier;
 
@@ -151,18 +147,6 @@ public class PartWrapper
 	public static Collection<BaseComponent> getBaseComponents(Part part, Form context, IServoyDataConverterContext converterContext, boolean isDesign,
 		boolean flatten)
 	{
-		if (!isDesign && part.getPartType() == Part.BODY)
-		{
-			switch (context.getView())
-			{
-				case FormController.TABLE_VIEW :
-				case FormController.LOCKED_TABLE_VIEW :
-				case IForm.LIST_VIEW :
-				case FormController.LOCKED_LIST_VIEW :
-					return Arrays.asList(new BaseComponent[] { new BodyPortal(context) });
-			}
-		}
-
 		List<BaseComponent> baseComponents = new ArrayList<>();
 		int startPos = context.getPartStartYPos(part.getUUID().toString());
 		int endPos = part.getHeight();

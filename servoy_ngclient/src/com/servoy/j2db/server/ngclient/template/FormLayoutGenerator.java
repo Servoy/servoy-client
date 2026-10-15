@@ -39,7 +39,6 @@ import com.servoy.base.persistence.constants.IFormConstants;
 import com.servoy.base.persistence.constants.IPartConstants;
 import com.servoy.j2db.BasicFormManager;
 import com.servoy.j2db.FlattenedSolution;
-import com.servoy.j2db.IForm;
 import com.servoy.j2db.IFormController;
 import com.servoy.j2db.persistence.BaseComponent;
 import com.servoy.j2db.persistence.CSSPositionUtils;
@@ -416,13 +415,6 @@ public class FormLayoutGenerator
 				writer.print("'");
 			}
 		}
-		else if (fe.getPersistIfAvailable() == null && "servoycore-portal".equals(fe.getTypeName()) &&
-			(form.getView() == IForm.LIST_VIEW || form.getView() == IFormConstants.VIEW_TYPE_LIST_LOCKED))
-		{
-			writer.print(" style='min-width:");
-			writer.print(form.getMinWidth());
-			writer.print("px'");
-		}
 		if (persistIdentifierForDesignStringified != null)
 		{
 			writer.print(" svy-id='");
@@ -454,14 +446,6 @@ public class FormLayoutGenerator
 				writer.print(directEditPropertyName);
 				writer.print("'");
 			}
-			List<String> forbiddenComponentNames = fe.getForbiddenComponentNames();
-			if (forbiddenComponentNames.size() > 0)
-			{
-				writer.print(" svy-forbidden-components='");
-				writer.print("[" + String.join(",", forbiddenComponentNames) + "]");
-				writer.print("'");
-			}
-			if (isNotSelectable(fe)) writer.print(" svy-non-selectable");
 		}
 		writer.print(">");
 	}
@@ -487,35 +471,35 @@ public class FormLayoutGenerator
 		return selectable;
 	}
 
-//	private static boolean canContainComponents(WebComponentSpecification spec)
-//	{
-//		Map<String, PropertyDescription> properties = spec.getProperties();
-//		for (PropertyDescription propertyDescription : properties.values())
-//		{
-//			String simpleTypeName = propertyDescription.getType().getName().replaceFirst(spec.getName() + ".", "");
-//			if (simpleTypeName.equals(ComponentPropertyType.TYPE_NAME)) return true;
-//			Object configObject = propertyDescription.getConfig();
-//			if (configObject != null)
-//			{
-//				try
-//				{
-//					if (configObject instanceof JSONObject && ((JSONObject)configObject).has(DesignerFilter.DROPPABLE))
-//					{
-//						Object droppable = ((JSONObject)configObject).get(DesignerFilter.DROPPABLE);
-//						if (droppable instanceof Boolean && (Boolean)droppable)
-//						{
-//							if (simpleTypeName.equals("tab")) return true;
-//						}
-//					}
-//				}
-//				catch (JSONException e)
-//				{
-//					Debug.log(e);
-//				}
-//			}
-//		}
-//		return false;
-//	}
+	//	private static boolean canContainComponents(WebComponentSpecification spec)
+	//	{
+	//		Map<String, PropertyDescription> properties = spec.getProperties();
+	//		for (PropertyDescription propertyDescription : properties.values())
+	//		{
+	//			String simpleTypeName = propertyDescription.getType().getName().replaceFirst(spec.getName() + ".", "");
+	//			if (simpleTypeName.equals(ComponentPropertyType.TYPE_NAME)) return true;
+	//			Object configObject = propertyDescription.getConfig();
+	//			if (configObject != null)
+	//			{
+	//				try
+	//				{
+	//					if (configObject instanceof JSONObject && ((JSONObject)configObject).has(DesignerFilter.DROPPABLE))
+	//					{
+	//						Object droppable = ((JSONObject)configObject).get(DesignerFilter.DROPPABLE);
+	//						if (droppable instanceof Boolean && (Boolean)droppable)
+	//						{
+	//							if (simpleTypeName.equals("tab")) return true;
+	//						}
+	//					}
+	//				}
+	//				catch (JSONException e)
+	//				{
+	//					Debug.log(e);
+	//				}
+	//			}
+	//		}
+	//		return false;
+	//	}
 
 	public static void generateFormElement(PrintWriter writer, FormElement fe, Form form, IServoyDataConverterContext context)
 	{
@@ -575,13 +559,6 @@ public class FormLayoutGenerator
 
 					ngClass.put("drop_highlight",
 						"<canContainDraggedElement('" + fe.getTypeName() + "',['" + String.join("','", typeAndPropertyNames[0]) + "'])<");
-				}
-				List<String> forbiddenComponentNames = fe.getForbiddenComponentNames();
-				if (forbiddenComponentNames.size() > 0)
-				{
-					writer.print(" svy-forbidden-components='");
-					writer.print("[" + String.join(",", forbiddenComponentNames) + "]");
-					writer.print("'");
 				}
 				String directEditPropertyName = getDirectEditProperty(fe);
 				if (directEditPropertyName != null)
@@ -661,10 +638,5 @@ public class FormLayoutGenerator
 			}
 		}
 		return null;
-	}
-
-	private static boolean isNotSelectable(FormElement fe)
-	{
-		return (fe.getDesignId() == null && fe.getTypeName().equals("servoycore-portal"));
 	}
 }

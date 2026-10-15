@@ -41,8 +41,6 @@ import org.sablo.specification.WebObjectSpecification;
 import org.sablo.websocket.CurrentWindow;
 import org.sablo.websocket.IWindow;
 
-import com.servoy.base.persistence.constants.IFormConstants;
-import com.servoy.base.persistence.constants.IPartConstants;
 import com.servoy.j2db.BasicFormController;
 import com.servoy.j2db.DesignModeCallbacks;
 import com.servoy.j2db.IBasicFormManager;
@@ -69,7 +67,6 @@ import com.servoy.j2db.server.ngclient.IWebFormUI;
 import com.servoy.j2db.server.ngclient.NGRuntimeWindow;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.WebFormUI;
-import com.servoy.j2db.server.ngclient.WebListFormUI;
 import com.servoy.j2db.server.ngclient.eventthread.NGClientWebsocketSessionWindows;
 import com.servoy.j2db.server.ngclient.property.IDataLinkedPropertyValue;
 import com.servoy.j2db.server.ngclient.property.types.IDataLinkedType.TargetDataLinks;
@@ -107,19 +104,7 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 			parentContainer = formUI.getParentContainer();
 			formUI.destroy();
 		}
-		if (form.getView() == IFormConstants.VIEW_TYPE_RECORD || form.getView() == IFormConstants.VIEW_TYPE_RECORD_LOCKED)
-		{
-			formUI = new WebFormUI(this);
-		}
-		else if (!application.getFlattenedSolution().getFlattenedForm(form).hasPart(IPartConstants.BODY))
-		{
-			formUI = new WebFormUI(this);
-			getApplication().reportJSWarning("Form '" + form.getName() + "' is shown in record view because it does not have a body part.");
-		}
-		else
-		{
-			formUI = new WebListFormUI(this);
-		}
+		formUI = new WebFormUI(this);
 
 		if (parentContainer instanceof String)
 		{
