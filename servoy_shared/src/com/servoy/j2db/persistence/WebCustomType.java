@@ -133,9 +133,9 @@ public class WebCustomType extends AbstractBase implements IChildWebObject, ISup
 				if (fullJSONInFrmFile == null)
 				{
 					fullJSONInFrmFile = new ServoyJSONObject();
-					if (index >= 0)
+					if (index >= 0 && index <= customTypesArray.length())
 					{
-						if (index >= customTypesArray.length() || customTypesArray.opt(index) == null)
+						if (index == customTypesArray.length() || customTypesArray.opt(index) == null)
 						{
 							customTypesArray.put(index, fullJSONInFrmFile);
 						}
@@ -151,6 +151,17 @@ public class WebCustomType extends AbstractBase implements IChildWebObject, ISup
 					}
 					else
 					{
+						// SVY-21574: index < 0 (append) or index beyond the current array length. Never call
+						// JSONArray.put(index, value) with a too-large index: org.json pads the backing list
+						// with nulls up to 'index', so a corrupt index (hundreds of millions, seen in a
+						// damaged .frm) allocates gigabytes and OOMs just while loading the solution. Append
+						// instead so the element is still added, in order, right after the last valid one.
+						if (index > customTypesArray.length())
+						{
+							Debug.error("Out-of-range custom-type index " + index + " for jsonKey '" + jsonKey + "' on " +
+								parentWebObject + " (array length " + customTypesArray.length() +
+								"); appending instead of padding to avoid OOM (SVY-21574)");
+						}
 						customTypesArray.put(fullJSONInFrmFile);
 					}
 				}
