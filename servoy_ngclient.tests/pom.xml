@@ -25,7 +25,7 @@
                     <providerHint>junit6</providerHint>
                     <useUIHarness>false</useUIHarness>
                     <includes>
-                        <include>**/*Test.java</include>
+                        <include>**/*.java</include>
                     </includes>
                     <dependencies>
                         <dependency>
