@@ -120,11 +120,11 @@ public class RelatedFormsTest extends AbstractSolutionTest
 		//Assertions.assertEquals("relation3", dataAdapterListF2.getRelatedForms().get(f3Controller));
 		//		and f3 relatedParentsForms has f2
 		Assertions.assertEquals(0, dataAdapterListF3.getParentRelatedForms().size());
-		//		Assertions.assertEquals(dataAdapterListF3.getParentRelatedForms().toString() + " should have:" + f2Controller, 0,
-		//			dataAdapterListF3.getParentRelatedForms().indexOf(f2Controller));
+		//		Assertions.assertEquals(0, dataAdapterListF3.getParentRelatedForms().indexOf(f2Controller),
+		//			dataAdapterListF3.getParentRelatedForms().toString() + " should have:" + f2Controller);
 
-		//		Assertions.assertNotEquals(dataAdapterListF3.getParentRelatedForms().toString() + " should have:" + f2Controller, -1,
-		//			dataAdapterListF3.getParentRelatedForms().indexOf(f2Controller));
+		//		Assertions.assertNotEquals(-1, dataAdapterListF3.getParentRelatedForms().indexOf(f2Controller),
+		//			dataAdapterListF3.getParentRelatedForms().toString() + " should have:" + f2Controller);
 
 		dataAdapterListF1.addVisibleChildForm(f4Controller, "relation2.relation3.relation4", true);
 		//		relatedForms of f1 has now f2 and f3 and f4
@@ -136,10 +136,10 @@ public class RelatedFormsTest extends AbstractSolutionTest
 		//Assertions.assertEquals("relation3.relation4", dataAdapterListF2.getRelatedForms().get(f4Controller));
 		//		and f4 relatedParentsForms has f2 and f3
 		Assertions.assertEquals(0, dataAdapterListF4.getParentRelatedForms().size());
-		//		Assertions.assertTrue(dataAdapterListF4.getParentRelatedForms() + " should have " + f2Controller,
-		//			dataAdapterListF4.getParentRelatedForms().indexOf(f2Controller) >= 0);
-		//		Assertions.assertTrue(dataAdapterListF4.getParentRelatedForms() + " should have " + f3Controller,
-		//			dataAdapterListF4.getParentRelatedForms().indexOf(f3Controller) >= 0);
+		//		Assertions.assertTrue(dataAdapterListF4.getParentRelatedForms().indexOf(f2Controller) >= 0,
+		//			dataAdapterListF4.getParentRelatedForms() + " should have " + f2Controller);
+		//		Assertions.assertTrue(dataAdapterListF4.getParentRelatedForms().indexOf(f3Controller) >= 0,
+		//			dataAdapterListF4.getParentRelatedForms() + " should have " + f3Controller);
 
 		dataAdapterListF1.removeVisibleChildForm(f4Controller, true);
 		//		relatedForms of f1 has now f2 and f3

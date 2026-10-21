@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -152,7 +153,7 @@ public class OAuthHandlerTest
 		try
 		{
 			OAuthHandler.handleOauth(request, response);
-			assertTrue(false, "Expected IOException");
+			fail("Expected IOException");
 		}
 		catch (java.io.IOException e)
 		{
@@ -342,7 +343,7 @@ public class OAuthHandlerTest
 		try
 		{
 			OAuthHandler.redirectToAuthenticator(createMockRequestForLoginPage(), createMockResponse(), mainSolution);
-			assertTrue(false, "Expected ServletException");
+			fail("Expected ServletException");
 		}
 		catch (jakarta.servlet.ServletException e)
 		{
