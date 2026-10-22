@@ -18,14 +18,14 @@
 package com.servoy.j2db.server.ngclient.property.types;
 
 import java.sql.Types;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.StringTokenizer;
@@ -842,24 +842,8 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 				{
 					String format = fieldFormat.parsedFormat.hasEditFormat() ? fieldFormat.parsedFormat.getEditFormat()
 						: fieldFormat.parsedFormat.getDisplayFormat();
-					SimpleDateFormat sdf = new SimpleDateFormat(format);
-					if (!hasNoDateConversion) sdf.setTimeZone(dataAdapterList.getApplication().getTimeZone());
-
-					try
-					{
-						String oldFormatted = sdf.format(oldUIValue);
-						String newFormatted = sdf.format(newValue);
-						// need to go back to the default time zone so it doesn't make it sudden 2 jan 1970 because of the
-						// time zone difference between the default here and where it needs to go to.
-						sdf.setTimeZone(TimeZone.getDefault());
-						Date oldValueParsed = sdf.parse(oldFormatted);
-						Date newValueParsed = sdf.parse(newFormatted);
-						uiValue = new Date(((Date)oldUIValue).getTime() + (newValueParsed.getTime() - oldValueParsed.getTime()));
-					}
-					catch (ParseException e)
-					{
-						uiValue = newValue;
-					}
+					TimeZone zone = hasNoDateConversion ? TimeZone.getDefault() : dataAdapterList.getApplication().getTimeZone();
+					uiValue = mergeDateByFormat((Date)oldUIValue, newValue, format, zone);
 				}
 				else
 				{
@@ -901,6 +885,121 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 			// because for example in a field an INTEGER dataprovider might be shown with format ##0.00 and if the user enters non-int value client side
 			// the server will trunc/round to an INTEGER and then the client shows double value while the server DP has the int value (which are not the same)
 		}
+	}
+
+	/**
+	 * Merges a newly received date value into an old date value, keeping only the calendar fields that the given format
+	 * actually displays/edits and keeping the rest (e.g. the date part for a time-only format) from the old value.
+	 * <p>
+	 * The field only shows the part(s) of the date that the format contains (e.g. just HH:mm). The browser always sends
+	 * a complete date+time, but the part of that value that the format does not show is meaningless - so we keep that
+	 * part from the old value and only copy over the calendar fields that the format displays/edits. This is done with
+	 * {@link Calendar} fields in the given time zone and not as a millisecond difference: on a DST switch day that day
+	 * is 23 or 25 hours long, so adding a wall-clock delta computed on 1970-01-01 (which has no switch) would shift the
+	 * result by one hour.
+	 *
+	 * @param oldValue the current value (its non-formatted parts are preserved); must not be null
+	 * @param newValue the value received from the browser (only its formatted parts are used); must not be null
+	 * @param format the SimpleDateFormat pattern that the field uses to display/edit the value
+	 * @param zone the time zone in which the merge is computed (client time zone, or JVM default when no date conversion)
+	 * @return a new Date with the format's fields taken from newValue and the rest taken from oldValue
+	 */
+	public static Date mergeDateByFormat(Date oldValue, Date newValue, String format, TimeZone zone)
+	{
+		Calendar merged = Calendar.getInstance(zone);
+		merged.setTime(oldValue);
+		Calendar from = Calendar.getInstance(zone);
+		from.setTime(newValue);
+
+		for (int calendarField : getCalendarFieldsForFormat(format))
+		{
+			merged.set(calendarField, from.get(calendarField));
+		}
+		return merged.getTime();
+	}
+
+	/**
+	 * Maps a SimpleDateFormat pattern to the set of {@link Calendar} fields it displays/edits. Only the parts that the
+	 * format actually contains are merged from the newly received value into the old value (keeping the rest of the old
+	 * value), so that for example a time-only (HH:mm) format keeps the original date and a date-only format keeps the
+	 * original time. Literal text inside quotes is ignored.
+	 */
+	private static Set<Integer> getCalendarFieldsForFormat(String format)
+	{
+		Set<Integer> fields = new LinkedHashSet<>();
+		boolean inQuote = false;
+		for (int i = 0; i < format.length(); i++)
+		{
+			char ch = format.charAt(i);
+			if (ch == '\'')
+			{
+				inQuote = !inQuote;
+				continue;
+			}
+			if (inQuote) continue;
+			switch (ch)
+			{
+				case 'G' : // era
+					fields.add(Calendar.ERA);
+					break;
+				case 'y' : // year
+				case 'Y' : // week year
+					fields.add(Calendar.YEAR);
+					break;
+				case 'M' : // month
+				case 'L' : // stand-alone month
+					fields.add(Calendar.MONTH);
+					break;
+				case 'w' : // week in year
+					fields.add(Calendar.WEEK_OF_YEAR);
+					break;
+				case 'W' : // week in month
+					fields.add(Calendar.WEEK_OF_MONTH);
+					break;
+				case 'D' : // day in year
+					fields.add(Calendar.DAY_OF_YEAR);
+					break;
+				case 'd' : // day in month
+					fields.add(Calendar.DAY_OF_MONTH);
+					break;
+				case 'F' : // day of week in month
+					fields.add(Calendar.DAY_OF_WEEK_IN_MONTH);
+					break;
+				case 'E' : // day name in week
+				case 'u' : // day number of week
+					fields.add(Calendar.DAY_OF_WEEK);
+					break;
+				case 'a' : // am/pm marker
+					fields.add(Calendar.AM_PM);
+					break;
+				case 'H' : // hour in day (0-23)
+					fields.add(Calendar.HOUR_OF_DAY);
+					break;
+				case 'k' : // hour in day (1-24)
+					fields.add(Calendar.HOUR_OF_DAY);
+					break;
+				case 'K' : // hour in am/pm (0-11)
+					fields.add(Calendar.HOUR);
+					fields.add(Calendar.AM_PM);
+					break;
+				case 'h' : // hour in am/pm (1-12)
+					fields.add(Calendar.HOUR);
+					fields.add(Calendar.AM_PM);
+					break;
+				case 'm' : // minute
+					fields.add(Calendar.MINUTE);
+					break;
+				case 's' : // second
+					fields.add(Calendar.SECOND);
+					break;
+				case 'S' : // millisecond
+					fields.add(Calendar.MILLISECOND);
+					break;
+				default :
+					// literals and timezone/offset letters (z, Z, X) carry no calendar field to merge
+			}
+		}
+		return fields;
 	}
 
 	public void checkValueForChanges(final IRecordInternal record)
