@@ -225,8 +225,55 @@ public class WebClient extends SessionClient implements IWebClientApplication
 			{
 				timeZone = dftZone;
 			}
+			// SVY-21656: the browser only sends utc/dst offsets, never a time-zone id, so Wicket's
+			// ClientProperties.getTimeZone() best-guesses an id from TimeZone.getAvailableIDs(rawOffset).
+			// That list can start with a legacy 3-letter abbreviation (e.g. "ART" for a UTC+2/DST client),
+			// which java.util.TimeZone accepts but java.time.ZoneId.of() rejects with a ZoneRulesException.
+			// Since getCurrentTimeZone() hands this id to solution code that may call ZoneId.of(), make sure
+			// we store an id java.time can parse, keeping the same offset and DST behaviour Wicket guessed.
+			timeZone = toJavaTimeSafeZone(timeZone);
 		}
 		return super.getTimeZone();
+	}
+
+	/**
+	 * Returns a time zone whose id is accepted by {@link java.time.ZoneId#of(String)}, preserving the given
+	 * zone's raw offset and DST savings. If the given zone already has a valid id it is returned unchanged;
+	 * otherwise the first IANA zone with the same raw offset and DST savings is used, falling back to a plain
+	 * offset zone (which is always parseable, but without DST) when no such match exists. See SVY-21656.
+	 */
+	private static TimeZone toJavaTimeSafeZone(TimeZone zone)
+	{
+		if (zone == null) return zone;
+		try
+		{
+			java.time.ZoneId.of(zone.getID());
+			return zone;
+		}
+		catch (java.time.DateTimeException invalidForJavaTime)
+		{
+			int rawOffset = zone.getRawOffset();
+			int dstSavings = zone.getDSTSavings();
+			for (String id : TimeZone.getAvailableIDs(rawOffset))
+			{
+				try
+				{
+					java.time.ZoneId.of(id);
+				}
+				catch (java.time.DateTimeException skipLegacyAbbreviation)
+				{
+					continue;
+				}
+				TimeZone candidate = TimeZone.getTimeZone(id);
+				if (candidate.getRawOffset() == rawOffset && candidate.getDSTSavings() == dstSavings)
+				{
+					return candidate;
+				}
+			}
+			// no IANA zone matched the guessed offset+DST: fall back to a fixed-offset zone (no DST),
+			// which java.time can always parse. Better a correct offset than a crash.
+			return TimeZone.getTimeZone(java.time.ZoneOffset.ofTotalSeconds(rawOffset / 1000).getId());
+		}
 	}
 
 	private final Map<String, String> userRequestProperties = new HashMap<String, String>();
