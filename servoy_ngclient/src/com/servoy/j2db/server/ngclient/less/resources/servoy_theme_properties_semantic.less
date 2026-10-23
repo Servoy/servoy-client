@@ -1,0 +1,217 @@
+/* VERSION: semantic */
+/* Semantic-core Servoy theme (SVY-21639). Only seed values live in this file; every derived role is computed in servoy_theme.less?version=semantic.
+   Override any seed in solution_properties.less. This file must not emit CSS: it is imported by every form .less. */
+
+/* Legacy variables (SVY-21639 compatibility). Every variable of the 2023.3.0_ng2 theme is declared here, so form and solution
+   .less files that reference them keep compiling. Defaults follow the seeds below. The colour seeds are read through their
+   legacy names (@main-color -> accent, @body-bg -> surface, @text-color -> text, @secondary-color -> chrome, @brand-danger/
+   -warning/-success/-info -> status hues, @text-font-size -> font size, @border-radius -> radius), so a solution that overrides
+   a legacy name re-brands the new theme. When both names are overridden, the legacy one wins. This block is before the first
+   category on purpose: the theme editor does not list it. @font-family and @border-width have the same name in both themes. */
+/* LESS contrast() switches at a luma threshold; this one is the point where @text and @surface have equal WCAG contrast */
+/* the legacy names follow the active variant: solution .less that uses @main-color, @text-color, @body-bg ... gets the dark seeds
+   when @variant is dark, and an override of a legacy name re-brands the active variant */
+@svy-seed-prefix-light: ~"";
+@svy-seed-prefix-dark: ~"dark-";
+@svy-seed-prefix-name: if((@variant = dark), "svy-seed-prefix-dark", "svy-seed-prefix-light");
+@svy-p: @@svy-seed-prefix-name;
+@svy-surface-name: "@{svy-p}surface";
+@svy-surface: @@svy-surface-name;
+@svy-text-name: "@{svy-p}text";
+@svy-text: @@svy-text-name;
+@svy-chrome-name: "@{svy-p}chrome";
+@svy-chrome: @@svy-chrome-name;
+@svy-accent-name: "@{svy-p}accent";
+@svy-accent: @@svy-accent-name;
+@svy-danger-name: "@{svy-p}danger";
+@svy-danger: @@svy-danger-name;
+@svy-warning-name: "@{svy-p}warning";
+@svy-warning: @@svy-warning-name;
+@svy-success-name: "@{svy-p}success";
+@svy-success: @@svy-success-name;
+@svy-info-name: "@{svy-p}info";
+@svy-info: @@svy-info-name;
+@svy-attention-name: "@{svy-p}attention";
+@svy-attention: @@svy-attention-name;
+@svy-on-threshold: (sqrt((luma(if(iscolor(@svy-text), @svy-text, #1F2937)) + 5%) * (luma(if(iscolor(@svy-surface), @svy-surface, #FFFFFF)) + 5%)) - 5%);
+@main-color: @svy-accent;
+@main-color-inverse: contrast(if(iscolor(@main-color), @main-color, @svy-accent), @svy-text, @svy-surface, @svy-on-threshold);
+@main-color-light: lighten(@main-color, 10%);
+@main-color-dark: darken(@main-color, 15%);
+@secondary-color: @svy-chrome;
+@secondary-color-inverse: contrast(if(iscolor(@secondary-color), @secondary-color, @svy-chrome), @svy-text, @svy-surface, @svy-on-threshold);
+@secondary-color-light: mix(@secondary-color-inverse, @secondary-color, 14%);
+@secondary-color-dark: mix(@secondary-color-inverse, @secondary-color, 8%);
+@theme-scrollbar: true;
+@scrollbar-bg: @svy-surface;
+@scrollbar-color: mix(@svy-text, @svy-surface, 30%);
+@scrollbar-border-width: 0 1px;
+@rem-to-px: 10;
+@font-size-h1: 36px;
+@font-size-h2: 30px;
+@font-size-h3: 24px;
+@font-size-h4: 18px;
+@font-size-h5: 14px;
+@font-size-h6: 12px;
+@body-bg: @svy-surface;
+@body-bg-inverse: mix(@svy-text, @svy-surface, 14%);
+@border-color: mix(@svy-text, @svy-surface, 16%);
+@border-style: solid;
+@border-radius: @radius;
+@text-font-size: @font-size;
+@text-color: @svy-text;
+@text-color-inverse: @text-color;
+@text-color-default: @svy-text;
+@text-color-default-inverse: @svy-text;
+@field-font-size: @text-font-size;
+@field-bg: @svy-surface;
+@field-disabled-bg: mix(@svy-text, @svy-surface, 4%);
+@field-color: @text-color;
+@field-addon-bg: mix(@svy-text, @svy-surface, 4%);
+@field-border-width: @border-width;
+@field-border-radius: @border-radius;
+@field-check-color: @main-color;
+@sidenav-color: @secondary-color;
+@sidenav-text-color: @secondary-color-inverse;
+@sidenav-text-font-size: @text-font-size;
+@sidenav-border-width: @border-width;
+@sidenav-border-color: mix(@secondary-color-inverse, @secondary-color, 14%);
+@sidenav-selected-color: @secondary-color-light;
+@sidenav-selected-text-color: @sidenav-text-color;
+@sidenav-selected-border-color: @main-color;
+@sidenav-selected-border-width: 0px 0px 0px 0px;
+@sidenav-secondary-color: @main-color;
+@sidenav-secondary-text-color: @main-color-inverse;
+@sidenav-secondary-text-font-size: @text-font-size;
+@sidenav-secondary-border-width: @border-width;
+@sidenav-secondary-border-color: @border-color;
+@sidenav-secondary-selected-color: @main-color-light;
+@sidenav-secondary-selected-text-color: @main-color-inverse;
+@sidenav-secondary-selected-border-color: @main-color-inverse;
+@sidenav-secondary-selected-border-width: 0px 0px 0px 5px;
+@navbar-bg: @secondary-color;
+@navbar-bg-highlighted: @secondary-color-light;
+@navbar-text-color: contrast(if(iscolor(@navbar-bg), @navbar-bg, @svy-chrome), @svy-text, @svy-surface, @svy-on-threshold);
+@navbar-dropdown-bg: @body-bg;
+@navbar-dropdown-text-color: @text-color;
+@navbar-active-bg: @secondary-color-light;
+@navbar-active-text-color: @navbar-text-color;
+@navbar-active-border-color: @main-color;
+@navbar-active-border-width: 0;
+@tab-bg: @svy-surface;
+@tab-text-color: @text-color;
+@tab-text-transform: none;
+@tab-border-color: @border-color;
+@tab-border-width: 0;
+@tab-border-radius: 0;
+@tab-active-bg: @svy-surface;
+@tab-active-text-color: @text-color;
+@tab-active-border-color: @main-color;
+@tab-active-border-width: 0;
+@window-header-bg: @secondary-color;
+@window-header-color: contrast(if(iscolor(@window-header-bg), @window-header-bg, @svy-chrome), @svy-text, @svy-surface, @svy-on-threshold);
+@window-body-bg: @body-bg;
+@window-footer-bg: @body-bg;
+@window-border-radius: calc(@radius * 2);
+@popup-selected-bg: mix(@svy-text, @svy-surface, 4%);
+@popup-selected-text: @text-color;
+@popup-disabled-color: mix(@svy-text, @svy-surface, 40%);
+@dialog-info-header-bg: @brand-info;
+@dialog-info-header-color: contrast(if(iscolor(@dialog-info-header-bg), @dialog-info-header-bg, @svy-info), @svy-text, @svy-surface, @svy-on-threshold);
+@dialog-question-header-bg: @window-header-bg;
+@dialog-question-header-color: contrast(if(iscolor(@dialog-question-header-bg), @dialog-question-header-bg, @svy-chrome), @svy-text, @svy-surface, @svy-on-threshold);
+@dialog-input-header-bg: @window-header-bg;
+@dialog-input-header-color: contrast(if(iscolor(@dialog-input-header-bg), @dialog-input-header-bg, @svy-chrome), @svy-text, @svy-surface, @svy-on-threshold);
+@table-bg: inherit;
+@table-border-width: @border-width;
+@table-border-radius: 0;
+@table-header-bg: inherit;
+@table-header-text-color: @text-color;
+@table-header-font-style: normal;
+@table-header-text-transform: none;
+@table-row-odd-bg-color: @body-bg;
+@table-row-odd-text-color: @text-color;
+@table-row-even-bg-color: @body-bg;
+@table-row-even-text-color: @text-color;
+@table-row-selected-bg-color: mix(@main-color, @svy-surface, 12%);
+@table-row-selected-text-color: @text-color;
+@table-row-border-width: @border-width;
+@ngtable-row-group-bg: @body-bg;
+@ngtable-row-group-color: @text-color;
+@ngtable-row-group-bg-level-0: mix(@svy-text, @svy-surface, 4%);
+@ngtable-row-group-color-level-0: @text-color;
+@ngtable-row-group-cell-font-weight: bold;
+@ngtable-menu-panel-bg: @body-bg;
+@ngtable-menu-panel-text-color: @text-color;
+@ngtable-side-panel-bg: mix(@svy-text, @svy-surface, 4%);
+@ngtable-side-panel-text-color: @text-color;
+@ngtable-side-button-bg: @body-bg;
+@ngtable-side-button-text-color: @text-color;
+@ngtable-side-button-selected-bg: mix(@svy-text, @svy-surface, 4%);
+@ngtable-side-button-selected-text-color: @text-color;
+@ngtable-search-field-height: 24px;
+@breadcrumb-bg: @body-bg;
+@breadcrumb-color: @main-color;
+@breadcrumb-selected-color: @text-color;
+@brand-primary: @main-color;
+@brand-tertiary: mix(@svy-text, @svy-surface, 10%);
+@brand-success: @svy-success;
+@brand-info: @svy-info;
+@brand-warning: @svy-warning;
+@brand-danger: @svy-danger;
+@text-tertiary: mix(@svy-text, @svy-surface, 72%);
+@brand-primary-inverse: contrast(if(iscolor(@brand-primary), @brand-primary, @svy-accent), @svy-text, @svy-surface, @svy-on-threshold);
+@brand-tertiary-inverse: @text-color;
+@brand-success-inverse: contrast(if(iscolor(@brand-success), @brand-success, @svy-success), @svy-text, @svy-surface, @svy-on-threshold);
+@brand-info-inverse: contrast(if(iscolor(@brand-info), @brand-info, @svy-info), @svy-text, @svy-surface, @svy-on-threshold);
+@brand-warning-inverse: contrast(if(iscolor(@brand-warning), @brand-warning, @svy-warning), @svy-text, @svy-surface, @svy-on-threshold);
+@brand-danger-inverse: contrast(if(iscolor(@brand-danger), @brand-danger, @svy-danger), @svy-text, @svy-surface, @svy-on-threshold);
+@brand-primary-highlighted: darken(@brand-primary, 5%);
+@brand-tertiary-highlighted: darken(@brand-tertiary, 5%);
+@brand-success-highlighted: darken(@brand-success, 5%);
+@brand-info-highlighted: darken(@brand-info, 5%);
+@brand-warning-highlighted: darken(@brand-warning, 5%);
+@brand-danger-highlighted: darken(@brand-danger, 5%);
+@brand-primary-highlighted-inverse: @brand-primary-inverse;
+@brand-tertiary-highlighted-inverse: @brand-tertiary-inverse;
+@brand-success-highlighted-inverse: @brand-success-inverse;
+@brand-info-highlighted-inverse: @brand-info-inverse;
+@brand-warning-highlighted-inverse: @brand-warning-inverse;
+@brand-danger-highlighted-inverse: @brand-danger-inverse;
+@form-required-label-suffix: "";
+@box-size-10: 10px;
+@box-size-20: 20px;
+@box-size-30: 30px;
+
+/* START Seeds */
+@surface: #FFFFFF;                               /* {"name":"Surface", "category":"Seeds", "desc":"Content background.", "type":"color"} */
+@text: #1F2937;                                  /* {"name":"Text", "category":"Seeds", "desc":"Main text colour. Muted, disabled, border and focus colours are derived from it.", "type":"color"} */
+@chrome: #F3F4F6;                                /* {"name":"Chrome", "category":"Seeds", "desc":"Background of headers, side navigation, navbar and other application chrome. Its text colour is computed.", "type":"color"} */
+@accent: #2563EB;                                /* {"name":"Accent", "category":"Seeds", "desc":"Primary actions, selection, links, focus and active navigation. Hover, pressed and subtle shades are derived.", "type":"color"} */
+@danger: #C62828;                                /* {"name":"Danger", "category":"Seeds", "desc":"Errors and destructive actions.", "type":"color"} */
+@warning: #B45309;                               /* {"name":"Warning", "category":"Seeds", "desc":"Caution.", "type":"color"} */
+@success: #2E7D32;                               /* {"name":"Success", "category":"Seeds", "desc":"Success.", "type":"color"} */
+@info: #0369A1;                                  /* {"name":"Info", "category":"Seeds", "desc":"Informational.", "type":"color"} */
+@font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; /* {"name":"Font family", "category":"Seeds", "desc":"Application font. Set on html and body only, so a font set on a container is inherited by its children.", "type":"custom"} */
+@font-size: 14px;                                /* {"name":"Font size", "category":"Seeds", "desc":"Base text size. The font size scale is derived from it.", "type":"unit"} */
+@radius: 4px;                                    /* {"name":"Radius", "category":"Seeds", "desc":"Control corner radius. The radius scale is derived from it.", "type":"unit"} */
+@border-width: 1px;                              /* {"name":"Border width", "category":"Seeds", "desc":"Control and divider width.", "type":"unit"} */
+@control-height: 32px;                           /* {"name":"Control height", "category":"Seeds", "desc":"Height of inputs and buttons.", "type":"unit"} */
+@space: 4px;                                     /* {"name":"Space", "category":"Seeds", "desc":"Spacing unit. All spacing steps are multiples of it.", "type":"unit"} */
+
+/* START Variant */
+@variant: light;                                 /* {"name":"Variant", "category":"Variant", "desc":"light or dark: which seed set is applied to the whole application. The dark set below is also available at runtime on elements with class svy-theme-dark.", "type":"custom"} */
+
+/* START Dark seeds */
+@dark-surface: #111827;                          /* {"name":"Dark surface", "category":"Dark seeds", "desc":"Surface in the dark variant.", "type":"color"} */
+@dark-text: #E5E7EB;                             /* {"name":"Dark text", "category":"Dark seeds", "desc":"Text in the dark variant.", "type":"color"} */
+@dark-chrome: #0B1220;                           /* {"name":"Dark chrome", "category":"Dark seeds", "desc":"Chrome in the dark variant.", "type":"color"} */
+@dark-accent: #60A5FA;                           /* {"name":"Dark accent", "category":"Dark seeds", "desc":"Accent in the dark variant.", "type":"color"} */
+@dark-danger: #F87171;                           /* {"name":"Dark danger", "category":"Dark seeds", "desc":"Danger in the dark variant.", "type":"color"} */
+@dark-warning: #FBBF24;                          /* {"name":"Dark warning", "category":"Dark seeds", "desc":"Warning in the dark variant.", "type":"color"} */
+@dark-success: #4ADE80;                          /* {"name":"Dark success", "category":"Dark seeds", "desc":"Success in the dark variant.", "type":"color"} */
+@dark-info: #38BDF8;                             /* {"name":"Dark info", "category":"Dark seeds", "desc":"Info in the dark variant.", "type":"color"} */
+
+/* START Extra tones */
+@attention: #C2410C;                             /* {"name":"Attention", "category":"Extra tones", "desc":"Optional extra status tone (class svy-tone-attention). Not a core seed.", "type":"color"} */
+@dark-attention: #FB923C;                        /* {"name":"Dark attention", "category":"Extra tones", "desc":"Attention in the dark variant.", "type":"color"} */

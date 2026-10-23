@@ -40,7 +40,11 @@ public class ThemeResourceLoader
 	public static final String PROPERTIES_LESS = "servoy_theme_properties.less";
 	public static final String THEME_LESS = "servoy_theme.less";
 	public static final String VARIANTS_JSON = "variants.json";
-	public static final String[] VERSIONS = new String[] { "latest", "2023.3.0", "2022.3.0", "2021.3.0", "2020.6.0", "2019.12.0", "2019.6.0", "2019.3.0", "8.4.0" };
+	/**
+	 * Opt-in key of the semantic-core theme (SVY-21639). It is not a version number, so it is never resolved as "latest".
+	 */
+	public static final String SEMANTIC = "semantic";
+	public static final String[] VERSIONS = new String[] { "latest", SEMANTIC, "2023.3.0", "2022.3.0", "2021.3.0", "2020.6.0", "2019.12.0", "2019.6.0", "2019.3.0", "8.4.0" };
 
 	private static SortedMap<Version, String> themePropertyResource = new TreeMap<>();
 	private static SortedMap<Version, String> themeResource = new TreeMap<>();
@@ -91,7 +95,8 @@ public class ThemeResourceLoader
 
 	public static String getLatestVersion()
 	{
-		return Arrays.stream(VERSIONS).filter(version -> !version.contains("_ng2") && !version.contains("latest")).findFirst().orElse(null);
+		return Arrays.stream(VERSIONS).filter(version -> !version.contains("_ng2") && !version.contains("latest") && !SEMANTIC.equals(version)).findFirst()
+			.orElse(null);
 	}
 
 	public static String getLatestThemeProperties()
@@ -107,16 +112,24 @@ public class ThemeResourceLoader
 
 	public static String getThemeProperties(String maxVersion)
 	{
-		String resource = getResource(maxVersion, themePropertyResource);
+		String resource = isSemantic(maxVersion) ? "servoy_theme_properties_semantic.less" : getResource(maxVersion, themePropertyResource);
 
 		return load(resource, maxVersion);
 	}
 
 	public static String getTheme(String maxVersion)
 	{
-		String resource = getResource(maxVersion, themeResource);
+		String resource = isSemantic(maxVersion) ? "servoy_theme_semantic.less" : getResource(maxVersion, themeResource);
 
 		return load(resource, maxVersion);
+	}
+
+	/**
+	 * The theme editor appends "_ng2" to the selected version when the Titanium flag is set, so "semantic_ng2" is the same theme.
+	 */
+	private static boolean isSemantic(String version)
+	{
+		return version != null && (SEMANTIC.equals(version) || (SEMANTIC + "_ng2").equals(version));
 	}
 
 	/**

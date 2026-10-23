@@ -1,0 +1,1459 @@
+/* VERSION: semantic */
+@import 'servoy_theme_properties.less?version=semantic';
+
+/*
+ * Semantic-core Servoy theme (SVY-21639), opt-in with servoy_theme.less?version=semantic.
+ *
+ * Layers: seeds (servoy_theme_properties.less?version=semantic, LESS variables, overridable in solution_properties.less)
+ *   -> roles (CSS custom properties --svy-*, computed below)
+ *   -> rules (use var(--svy-*) only, no colour literals).
+ *
+ * Derived colour roles use color-mix() at runtime, so overriding a seed custom property (for example from a design-token
+ * file) recomputes every role in that scope. Text-on-colour roles (*-on-solid, *-contrast, chrome-text) cannot be computed
+ * in CSS and are chosen at compile time per variant: whichever of surface/text has the higher WCAG contrast.
+ *
+ * A custom property that references another one is resolved where it is declared, so the colour role block is emitted on
+ * :root and again on every variant scope (.svy-theme-light, .svy-theme-dark).
+ */
+
+/* START Mixins */
+
+/* --svy-<name> becomes whichever of @a/@b has the higher WCAG 2 contrast ratio against @bg (luma() is the relative luminance).
+   Solutions may set a legacy colour to a runtime value (@body-bg: var(--bs-body-bg)); luma() cannot read that at compile time and
+   jlessc would drop the whole stylesheet, so when one of the three is not a colour the contrast pick is skipped and @b is used. */
+.svy-on(@name, @bg, @a, @b) {
+    .svy-on-pick(@name, @bg, @a, @b, if(iscolor(@bg), if(iscolor(@a), if(iscolor(@b), on, off), off), off));
+}
+.svy-on-pick(@name, @bg, @a, @b, on) when (((max(unit(luma(@bg)), unit(luma(@a))) + 5) / (min(unit(luma(@bg)), unit(luma(@a))) + 5)) >= ((max(unit(luma(@bg)), unit(luma(@b))) + 5) / (min(unit(luma(@bg)), unit(luma(@b))) + 5))) {
+    --svy-@{name}: @a;
+}
+.svy-on-pick(@name, @bg, @a, @b, on) when (default()) {
+    --svy-@{name}: @b;
+}
+.svy-on-pick(@name, @bg, @a, @b, off) {
+    --svy-@{name}: @b;
+}
+
+/* --svy-<name> is set only when a solution overrides a legacy component variable, so the new default (a role) stays otherwise */
+.svy-legacy(@name, @value, @default) when not (@value = @default) {
+    --svy-@{name}: @value;
+}
+.svy-legacy(@name, @value, @default) when (default()) {
+}
+/* background/text pair: both are set when either one is overridden, so the text stays the one chosen for that background */
+.svy-legacy-pair(@name, @bg, @fg, @default-bg, @default-fg) when not (@bg = @default-bg), not (@fg = @default-fg) {
+    --svy-@{name}-bg: @bg;
+    --svy-@{name}-fg: @fg;
+}
+.svy-legacy-pair(@name, @bg, @fg, @default-bg, @default-fg) when (default()) {
+}
+/* in 2023.3.0_ng2 the selected sidenav border is drawn only by @sidenav-selected-border-width (default 0), the colour alone shows nothing;
+   a solution that overrides either legacy variable keeps that behaviour: the indicator width is the left border width */
+/* a solution that re-coloured the 2023 sidenav also styled its items for the flat, full-width 2023 layout (no inset, gap or
+   rounding); the new spacing on top of its own pushes the text into the collapse arrow */
+.svy-legacy-sidenav-geometry() when not (@sidenav-color = @secondary-color), not (@sidenav-text-color = @secondary-color-inverse),
+    not (@sidenav-selected-color = @secondary-color-light), not (@sidenav-selected-text-color = @sidenav-text-color) {
+    --svy-sidenav-item-inset: 0px;
+    --svy-sidenav-item-gap: 0px;
+    --svy-sidenav-item-radius: 0px;
+}
+.svy-legacy-sidenav-geometry() when (default()) {
+}
+.svy-legacy-indicator() {
+    .svy-legacy-indicator-width(extract(@sidenav-selected-border-width, length(@sidenav-selected-border-width)), @sidenav-selected-border-color);
+}
+.svy-legacy-indicator-width(@left, @color) when not (@color = @main-color), not (@left = 0px) {
+    --svy-sidenav-indicator-width: @left;
+}
+.svy-legacy-indicator-width(@left, @color) when (default()) {
+}
+
+.svy-bridge(@bs, @role, @seed) {
+    .svy-bridge-emit(@bs, @role, if(iscolor(@seed), on, off));
+}
+.svy-bridge-emit(@bs, @role, on) {
+    --@{bs}: ~"var(--svy-@{role})";
+}
+.svy-bridge-emit(@bs, @role, off) {
+}
+
+/* only for compile-time colours; for a runtime value (var()) Bootstrap keeps its own triplet */
+.svy-rgb(@name, @c) when (iscolor(@c)) {
+    --@{name}: red(@c), green(@c), blue(@c);
+}
+.svy-rgb(@name, @c) when (default()) {
+}
+
+/* status tone roles: solid fill + text on it, soft (tinted) background + text on it */
+.svy-tone-roles(@name, @hue, @surface, @text, @soft-fg-mix) {
+    --svy-@{name}: @hue;
+    --svy-@{name}-solid: ~"var(--svy-@{name})";
+    .svy-on(~"@{name}-on-solid", @hue, @surface, @text);
+    --svy-@{name}-soft-bg: ~"color-mix(in srgb, var(--svy-@{name}) 12%, var(--svy-surface))";
+    --svy-@{name}-soft-fg: ~"color-mix(in srgb, var(--svy-@{name}) @{soft-fg-mix}, var(--svy-text))";
+}
+
+/* every colour role of one variant; @shade is the colour hover/pressed states move towards, @raise the colour raised surfaces
+   move towards, @soft-fg-mix the hue share of soft-tone text */
+.svy-color-roles(@surface, @text, @chrome, @accent, @danger, @warning, @success, @info, @attention, @shade, @raise, @soft-fg-mix) {
+    --svy-surface: @surface;
+    --svy-text: @text;
+    --svy-chrome: @chrome;
+    --svy-accent: @accent;
+    --svy-shade: @shade;
+
+    --svy-surface-sunken: color-mix(in srgb, var(--svy-text) 4%, var(--svy-surface));
+    --svy-surface-raised: color-mix(in srgb, var(--svy-surface) 94%, @raise);
+    /* hover inside raised surfaces (menus, lists, popups): a text-tinted step, so it reads in light and dark */
+    --svy-surface-hover: color-mix(in srgb, var(--svy-text) 8%, var(--svy-surface-raised));
+    --svy-text-muted: color-mix(in srgb, var(--svy-text) 72%, var(--svy-surface));
+    --svy-text-disabled: color-mix(in srgb, var(--svy-text) 40%, var(--svy-surface));
+    --svy-text-inverse: var(--svy-surface);
+
+    --svy-border: color-mix(in srgb, var(--svy-text) 16%, var(--svy-surface));
+    --svy-border-strong: color-mix(in srgb, var(--svy-text) 55%, var(--svy-surface));
+    --svy-focus-ring: var(--svy-accent);
+
+    --svy-accent-hover: color-mix(in srgb, var(--svy-accent) 88%, var(--svy-shade));
+    --svy-accent-pressed: color-mix(in srgb, var(--svy-accent) 78%, var(--svy-shade));
+    --svy-accent-subtle: color-mix(in srgb, var(--svy-accent) 12%, var(--svy-surface));
+    .svy-on(accent-contrast, @accent, @surface, @text);
+
+    .svy-on(chrome-text, @chrome, @text, @surface);
+    --svy-chrome-text-muted: color-mix(in srgb, var(--svy-chrome-text) 72%, var(--svy-chrome));
+    --svy-chrome-text-disabled: color-mix(in srgb, var(--svy-chrome-text) 40%, var(--svy-chrome));
+    --svy-chrome-hover: color-mix(in srgb, var(--svy-chrome-text) 8%, var(--svy-chrome));
+    --svy-chrome-active: color-mix(in srgb, var(--svy-chrome-text) 14%, var(--svy-chrome));
+    --svy-chrome-border: color-mix(in srgb, var(--svy-chrome-text) 14%, var(--svy-chrome));
+
+    .svy-tone-roles(danger, @danger, @surface, @text, @soft-fg-mix);
+    .svy-tone-roles(warning, @warning, @surface, @text, @soft-fg-mix);
+    .svy-tone-roles(success, @success, @surface, @text, @soft-fg-mix);
+    .svy-tone-roles(info, @info, @surface, @text, @soft-fg-mix);
+    .svy-tone-roles(attention, @attention, @surface, @text, @soft-fg-mix);
+    --svy-neutral-solid: var(--svy-text-muted);
+    .svy-on(neutral-on-solid, mix(@text, @surface, 72%), @surface, @text);
+    --svy-neutral-soft-bg: color-mix(in srgb, var(--svy-text) 8%, var(--svy-surface));
+    --svy-neutral-soft-fg: var(--svy-text);
+
+    --svy-shadow-sm: 0 1px 2px color-mix(in srgb, var(--svy-text) 8%, transparent);
+    --svy-shadow-md: 0 2px 6px color-mix(in srgb, var(--svy-text) 12%, transparent);
+    --svy-shadow-lg: 0 8px 24px color-mix(in srgb, var(--svy-text) 16%, transparent);
+
+    /* Bootstrap 5.3 bridge: Bootstrap components read these. When a solution sets the seed to a runtime value such as
+       @body-bg: var(--bs-body-bg), the matching --bs-* must not point back at the role, or the two form a cycle and both
+       become invalid; the solution's own --bs-* value is used instead. */
+    .svy-bridge(bs-body-color, text, @text);
+    .svy-bridge(bs-body-bg, surface, @surface);
+    .svy-bridge(bs-emphasis-color, text, @text);
+    --bs-secondary-color: var(--svy-text-muted);
+    --bs-secondary-bg: var(--svy-surface-sunken);
+    --bs-tertiary-color: var(--svy-text-muted);
+    --bs-tertiary-bg: var(--svy-surface-sunken);
+    --bs-heading-color: inherit;
+    --bs-border-color: var(--svy-border);
+    --bs-border-color-translucent: var(--svy-border);
+    .svy-bridge(bs-link-color, accent, @accent);
+    --bs-link-hover-color: var(--svy-accent-hover);
+    --bs-focus-ring-color: var(--svy-focus-ring);
+    .svy-bridge(bs-primary, accent, @accent);
+    --bs-primary-text-emphasis: var(--svy-accent-pressed);
+    --bs-primary-bg-subtle: var(--svy-accent-subtle);
+    --bs-primary-border-subtle: color-mix(in srgb, var(--svy-accent) 30%, var(--svy-surface));
+    --bs-secondary: var(--svy-neutral-solid);
+    .svy-bridge(bs-danger, danger, @danger);
+    --bs-danger-text-emphasis: var(--svy-danger-soft-fg);
+    --bs-danger-bg-subtle: var(--svy-danger-soft-bg);
+    --bs-danger-border-subtle: color-mix(in srgb, var(--svy-danger) 30%, var(--svy-surface));
+    .svy-bridge(bs-warning, warning, @warning);
+    --bs-warning-text-emphasis: var(--svy-warning-soft-fg);
+    --bs-warning-bg-subtle: var(--svy-warning-soft-bg);
+    --bs-warning-border-subtle: color-mix(in srgb, var(--svy-warning) 30%, var(--svy-surface));
+    .svy-bridge(bs-success, success, @success);
+    --bs-success-text-emphasis: var(--svy-success-soft-fg);
+    --bs-success-bg-subtle: var(--svy-success-soft-bg);
+    --bs-success-border-subtle: color-mix(in srgb, var(--svy-success) 30%, var(--svy-surface));
+    .svy-bridge(bs-info, info, @info);
+    --bs-info-text-emphasis: var(--svy-info-soft-fg);
+    --bs-info-bg-subtle: var(--svy-info-soft-bg);
+    --bs-info-border-subtle: color-mix(in srgb, var(--svy-info) 30%, var(--svy-surface));
+    --bs-form-invalid-color: var(--svy-danger);
+    --bs-form-invalid-border-color: var(--svy-danger);
+    --bs-form-valid-color: var(--svy-success);
+    --bs-form-valid-border-color: var(--svy-success);
+    /* Bootstrap needs r, g, b triplets; these follow the seed values compiled into this scope, not runtime seed overrides */
+    .svy-rgb(bs-body-color-rgb, @text);
+    .svy-rgb(bs-body-bg-rgb, @surface);
+    .svy-rgb(bs-emphasis-color-rgb, @text);
+    .svy-rgb(bs-primary-rgb, @accent);
+    .svy-rgb(bs-secondary-rgb, mix(@text, @surface, 72%));
+    .svy-rgb(bs-danger-rgb, @danger);
+    .svy-rgb(bs-warning-rgb, @warning);
+    .svy-rgb(bs-success-rgb, @success);
+    .svy-rgb(bs-info-rgb, @info);
+    .svy-rgb(bs-link-color-rgb, @accent);
+    .svy-rgb(bs-link-hover-color-rgb, mix(@accent, @shade, 88%));
+}
+
+/* the active variant's set is read through the legacy names, which default to that variant's seeds (see
+   servoy_theme_properties.less?version=semantic), so legacy overrides re-brand whichever variant is active */
+.svy-active-roles() when (@variant = dark) {
+    .svy-color-roles(@body-bg, @text-color, @secondary-color, @main-color, @brand-danger, @brand-warning, @brand-success, @brand-info, @svy-attention, #ffffff, #ffffff, 55%);
+}
+.svy-active-roles() when (default()) {
+    .svy-color-roles(@body-bg, @text-color, @secondary-color, @main-color, @brand-danger, @brand-warning, @brand-success, @brand-info, @svy-attention, #000000, #ffffff, 45%);
+}
+.svy-light-roles() when (@variant = dark) {
+    .svy-color-roles(@surface, @text, @chrome, @accent, @danger, @warning, @success, @info, @attention, #000000, #ffffff, 45%);
+}
+.svy-light-roles() when (default()) {
+    .svy-active-roles();
+}
+.svy-dark-roles() when (@variant = dark) {
+    .svy-active-roles();
+}
+.svy-dark-roles() when (default()) {
+    .svy-color-roles(@dark-surface, @dark-text, @dark-chrome, @dark-accent, @dark-danger, @dark-warning, @dark-success, @dark-info, @dark-attention, #ffffff, #ffffff, 55%);
+}
+/* the opposite set, for components that are "inverse" relative to the application (navbar inverse) */
+.svy-inverse-roles() when (@variant = dark) {
+    .svy-light-roles();
+    color-scheme: light;
+}
+.svy-inverse-roles() when (default()) {
+    .svy-dark-roles();
+    color-scheme: dark;
+}
+.svy-root-roles() when (@variant = dark) {
+    .svy-dark-roles();
+    color-scheme: dark;
+}
+.svy-root-roles() when (default()) {
+    .svy-light-roles();
+    color-scheme: light;
+}
+
+/* START Roles */
+
+:root {
+    --svy-font-family: @font-family;
+    --svy-font-size: @text-font-size;
+    --svy-radius: @border-radius;
+    --svy-border-width: @border-width;
+    --svy-control-height: @control-height;
+    --svy-space: @space;
+    --svy-focus-ring-width: 2px;
+
+    --svy-space-1: var(--svy-space);
+    --svy-space-2: calc(var(--svy-space) * 2);
+    --svy-space-3: calc(var(--svy-space) * 3);
+    --svy-space-4: calc(var(--svy-space) * 4);
+    --svy-space-5: calc(var(--svy-space) * 6);
+    --svy-space-6: calc(var(--svy-space) * 8);
+
+    --svy-radius-sm: calc(var(--svy-radius) * 0.5);
+    --svy-radius-md: var(--svy-radius);
+    --svy-radius-lg: calc(var(--svy-radius) * 2);
+    --svy-radius-pill: 999px;
+
+    --svy-font-size-xs: calc(var(--svy-font-size) * 0.8571);
+    --svy-font-size-sm: calc(var(--svy-font-size) * 0.9286);
+    --svy-font-size-base: var(--svy-font-size);
+    --svy-font-size-lg: calc(var(--svy-font-size) * 1.1429);
+    --svy-font-size-xl: calc(var(--svy-font-size) * 1.4286);
+    --svy-font-size-2xl: calc(var(--svy-font-size) * 1.7143);
+
+    --svy-motion-fast: 120ms ease-out;
+    --svy-motion-base: 200ms ease-out;
+
+    --bs-body-font-family: var(--svy-font-family);
+    --bs-body-font-size: var(--svy-font-size);
+    --bs-border-width: var(--svy-border-width);
+    --bs-border-radius: var(--svy-radius-md);
+    --bs-border-radius-sm: var(--svy-radius-sm);
+    --bs-border-radius-lg: var(--svy-radius-lg);
+    --bs-border-radius-pill: var(--svy-radius-pill);
+    --bs-focus-ring-width: var(--svy-focus-ring-width);
+    --bs-focus-ring-opacity: 1;
+
+    .svy-root-roles();
+}
+
+.svy-theme-light {
+    .svy-light-roles();
+    color-scheme: light;
+    color: var(--svy-text);
+    background-color: var(--svy-surface);
+}
+
+.svy-theme-dark {
+    .svy-dark-roles();
+    color-scheme: dark;
+    color: var(--svy-text);
+    background-color: var(--svy-surface);
+}
+
+/* START Tones */
+
+.svy-tone(@name) {
+    .svy-tone-@{name} {
+        --svy-tone-solid: ~"var(--svy-@{name}-solid)";
+        --svy-tone-on-solid: ~"var(--svy-@{name}-on-solid)";
+        --svy-tone-soft-bg: ~"var(--svy-@{name}-soft-bg)";
+        --svy-tone-soft-fg: ~"var(--svy-@{name}-soft-fg)";
+        --bs-badge-color: var(--svy-tone-on-solid);
+        --bs-progress-bar-bg: var(--svy-tone-solid);
+        --bs-progress-bar-color: var(--svy-tone-on-solid);
+    }
+}
+.svy-tone(danger);
+.svy-tone(warning);
+.svy-tone(success);
+.svy-tone(info);
+.svy-tone(neutral);
+.svy-tone(attention);
+
+.badge:where([class*="svy-tone-"]),
+:where([class*="svy-tone-"]) .badge,
+.progress-bar:where([class*="svy-tone-"]),
+:where([class*="svy-tone-"]) .progress-bar {
+    background-color: var(--svy-tone-solid);
+    color: var(--svy-tone-on-solid);
+}
+.badge:where(.svy-tone-soft),
+:where(.svy-tone-soft) .badge {
+    background-color: var(--svy-tone-soft-bg);
+    color: var(--svy-tone-soft-fg);
+}
+
+/* START Base */
+
+html, body {
+    font-family: var(--svy-font-family);
+    font-size: var(--svy-font-size);
+    color: var(--svy-text);
+    background-color: var(--svy-surface);
+}
+
+html {
+    scrollbar-color: var(--svy-border-strong) transparent;
+}
+
+::selection {
+    background-color: var(--svy-accent-subtle);
+    color: var(--svy-text);
+}
+
+:focus-visible {
+    outline: var(--svy-focus-ring-width) solid var(--svy-focus-ring);
+    outline-offset: 1px;
+}
+
+input[type=checkbox], input[type=radio], input[type=range], progress {
+    accent-color: var(--svy-accent);
+}
+
+/* focus is drawn on the box itself, not on the component row (SVY-21629) */
+input[type=checkbox]:focus-visible, input[type=radio]:focus-visible {
+    outline: var(--svy-focus-ring-width) solid var(--svy-focus-ring);
+    outline-offset: 2px;
+}
+
+/* 12 Grid margin reset, kept from the 2023.3.0 theme so responsive layouts do not change when opting in */
+div:not(.container):not(.container-fluid):not([class^="col-xs-"]):not([class^="col-sm-"]):not([class^="col-md-"]):not([class^="col-lg-"]):not([class^="col-1"]):not([class^="col-2"]):not([class^="col-3"]):not([class^="col-4"]):not([class^="col-5"]):not([class^="col-6"]):not([class^="col-7"]):not([class^="col-8"]):not([class^="col-9"]):not([class*=" col-xs-"]):not([class*=" col-sm-"]):not([class*=" col-md-"]):not([class*=" col-lg-"]):not([class*=" col-1"]):not([class*=" col-2"]):not([class*=" col-3"]):not([class*=" col-4"]):not([class*=" col-5"]):not([class*=" col-6"]):not([class*=" col-7"]):not([class*=" col-8"]):not([class*=" col-9"]) > .row {
+    margin-right: 0;
+    margin-left: 0;
+}
+
+/* START Bootstrap */
+
+/* Bootstrap 5.3 hard-codes its blue in these component rules instead of reading --bs-primary */
+
+.svy-bs-btn(@name, @tone) {
+    .btn-@{name} {
+        --bs-btn-color: ~"var(--svy-@{tone}-on-solid)";
+        --bs-btn-bg: ~"var(--svy-@{tone}-solid)";
+        --bs-btn-border-color: ~"var(--svy-@{tone}-solid)";
+        --bs-btn-hover-color: ~"var(--svy-@{tone}-on-solid)";
+        --bs-btn-hover-bg: ~"color-mix(in srgb, var(--svy-@{tone}-solid) 88%, var(--svy-shade))";
+        --bs-btn-hover-border-color: ~"color-mix(in srgb, var(--svy-@{tone}-solid) 88%, var(--svy-shade))";
+        --bs-btn-active-color: ~"var(--svy-@{tone}-on-solid)";
+        --bs-btn-active-bg: ~"color-mix(in srgb, var(--svy-@{tone}-solid) 78%, var(--svy-shade))";
+        --bs-btn-active-border-color: ~"color-mix(in srgb, var(--svy-@{tone}-solid) 78%, var(--svy-shade))";
+        --bs-btn-disabled-color: ~"var(--svy-@{tone}-on-solid)";
+        --bs-btn-disabled-bg: ~"var(--svy-@{tone}-solid)";
+        --bs-btn-disabled-border-color: ~"var(--svy-@{tone}-solid)";
+    }
+}
+.btn-primary {
+    --bs-btn-color: var(--svy-accent-contrast);
+    --bs-btn-bg: var(--svy-accent);
+    --bs-btn-border-color: var(--svy-accent);
+    --bs-btn-hover-color: var(--svy-accent-contrast);
+    --bs-btn-hover-bg: var(--svy-accent-hover);
+    --bs-btn-hover-border-color: var(--svy-accent-hover);
+    --bs-btn-active-color: var(--svy-accent-contrast);
+    --bs-btn-active-bg: var(--svy-accent-pressed);
+    --bs-btn-active-border-color: var(--svy-accent-pressed);
+    --bs-btn-disabled-color: var(--svy-accent-contrast);
+    --bs-btn-disabled-bg: var(--svy-accent);
+    --bs-btn-disabled-border-color: var(--svy-accent);
+}
+.svy-bs-btn(danger, danger);
+.svy-bs-btn(warning, warning);
+.svy-bs-btn(success, success);
+.svy-bs-btn(info, info);
+
+.btn:focus-visible,
+.form-control:focus,
+.form-select:focus,
+.form-check-input:focus,
+.nav-link:focus-visible,
+.accordion-button:focus,
+.page-link:focus,
+.btn-close:focus {
+    outline: 0;
+    box-shadow: 0 0 0 var(--svy-focus-ring-width) var(--svy-focus-ring);
+}
+.form-control:focus,
+.form-select:focus,
+.form-check-input:focus {
+    border-color: var(--svy-accent);
+}
+/* password-with-eye: the eye is an absolutely placed sibling painted over the right end of the input, so it covers the
+   input's right ring edge; the eye gets the ring on its other three sides so the ring goes around both */
+.svy-textbox-password-with-eye-field:focus + .svy-textbox-eye {
+    box-shadow: 0 0 0 var(--svy-focus-ring-width) var(--svy-focus-ring);
+    clip-path: inset(calc(-1 * var(--svy-focus-ring-width)) calc(-1 * var(--svy-focus-ring-width)) calc(-1 * var(--svy-focus-ring-width)) 0);
+}
+.form-check-input:checked,
+.form-check-input[type=checkbox]:indeterminate {
+    background-color: var(--svy-accent);
+    border-color: var(--svy-accent);
+}
+.form-range::-webkit-slider-thumb {
+    background-color: var(--svy-accent);
+}
+.form-range::-moz-range-thumb {
+    background-color: var(--svy-accent);
+}
+.dropdown-menu {
+    --bs-dropdown-bg: var(--svy-surface-raised);
+    --bs-dropdown-link-hover-bg: var(--svy-surface-hover);
+    --bs-dropdown-link-active-color: var(--svy-accent-contrast);
+    --bs-dropdown-link-active-bg: var(--svy-accent);
+    --bs-dropdown-box-shadow: var(--svy-shadow-md);
+}
+.nav-pills {
+    --bs-nav-pills-link-active-color: var(--svy-accent-contrast);
+    --bs-nav-pills-link-active-bg: var(--svy-accent);
+}
+.pagination {
+    --bs-pagination-active-color: var(--svy-accent-contrast);
+    --bs-pagination-active-bg: var(--svy-accent);
+    --bs-pagination-active-border-color: var(--svy-accent);
+}
+.list-group {
+    --bs-list-group-active-color: var(--svy-accent-contrast);
+    --bs-list-group-active-bg: var(--svy-accent);
+    --bs-list-group-active-border-color: var(--svy-accent);
+}
+.progress, .progress-stacked {
+    --bs-progress-bg: var(--svy-surface-sunken);
+    --bs-progress-bar-bg: var(--svy-accent);
+    --bs-progress-bar-color: var(--svy-accent-contrast);
+}
+.form-control::placeholder {
+    color: var(--svy-text-muted);
+}
+
+/* START Buttons */
+
+.svy-bs-btn(secondary, neutral);
+
+/* outline buttons: Bootstrap hard-codes the hue per variant */
+.btn-outline-primary {
+    --bs-btn-color: var(--svy-accent);
+    --bs-btn-border-color: var(--svy-accent);
+    --bs-btn-hover-color: var(--svy-accent-contrast);
+    --bs-btn-hover-bg: var(--svy-accent);
+    --bs-btn-hover-border-color: var(--svy-accent);
+    --bs-btn-active-color: var(--svy-accent-contrast);
+    --bs-btn-active-bg: var(--svy-accent-pressed);
+    --bs-btn-active-border-color: var(--svy-accent-pressed);
+    --bs-btn-disabled-color: var(--svy-accent);
+    --bs-btn-disabled-border-color: var(--svy-accent);
+}
+.btn-outline-secondary {
+    --bs-btn-color: var(--svy-text);
+    --bs-btn-border-color: var(--svy-border-strong);
+    --bs-btn-hover-color: var(--svy-text);
+    --bs-btn-hover-bg: var(--svy-surface-sunken);
+    --bs-btn-hover-border-color: var(--svy-border-strong);
+    --bs-btn-active-color: var(--svy-text);
+    --bs-btn-active-bg: var(--svy-neutral-soft-bg);
+    --bs-btn-active-border-color: var(--svy-border-strong);
+    --bs-btn-disabled-color: var(--svy-text-disabled);
+    --bs-btn-disabled-border-color: var(--svy-border);
+}
+.btn-outline-danger {
+    --bs-btn-color: var(--svy-danger);
+    --bs-btn-border-color: var(--svy-danger);
+    --bs-btn-hover-color: var(--svy-danger-on-solid);
+    --bs-btn-hover-bg: var(--svy-danger);
+    --bs-btn-hover-border-color: var(--svy-danger);
+    --bs-btn-active-color: var(--svy-danger-on-solid);
+    --bs-btn-active-bg: var(--svy-danger);
+    --bs-btn-active-border-color: var(--svy-danger);
+    --bs-btn-disabled-color: var(--svy-danger);
+    --bs-btn-disabled-border-color: var(--svy-danger);
+}
+
+/* btn-default is a Bootstrap 3 class, still the default styleClass of the bootstrap button; the NG client styles it with literals */
+.btn-default,
+.btn-default:focus,
+.btn-default.focus {
+    color: var(--svy-text);
+    background-color: var(--svy-surface);
+    border-color: var(--svy-border-strong);
+}
+.btn-default:hover {
+    color: var(--svy-text);
+    background-color: var(--svy-surface-sunken);
+    border-color: var(--svy-border-strong);
+}
+.btn-default:active,
+.btn-default.active,
+.btn-default:active:hover,
+.btn-default.active:hover,
+.btn-default:active:focus,
+.btn-default.active:focus {
+    color: var(--svy-text);
+    background-color: var(--svy-neutral-soft-bg);
+    border-color: var(--svy-border-strong);
+}
+.btn-default:disabled,
+.btn-default:disabled:hover,
+.btn-default:disabled:focus,
+.btn-default.disabled,
+.btn-default.disabled:hover {
+    color: var(--svy-text-disabled);
+    background-color: var(--svy-surface);
+    border-color: var(--svy-border);
+}
+
+/* START Fields */
+
+/* control edges need 3:1 against the surface (border-strong); dividers use border */
+.form-control,
+.form-select,
+.input-group-text {
+    border-color: var(--svy-border-strong);
+}
+.input-group-text {
+    color: var(--svy-text-muted);
+    background-color: var(--svy-surface-sunken);
+}
+/* the component packages set 1px 5px on anchored fields */
+.svy-wrapper .form-control,
+.svy-wrapper .form-select {
+    padding: var(--svy-space-1) var(--svy-space-3);
+}
+.form-control:hover:not(:disabled):not([readonly]):not(:focus),
+.form-select:hover:not(:disabled):not(:focus) {
+    border-color: var(--svy-text-muted);
+}
+/* readonly: full-contrast text on the normal surface, quieter edge, no hover; disabled: sunken and dimmed */
+.form-control[readonly] {
+    background-color: var(--svy-surface);
+    border-color: var(--svy-border);
+}
+.form-control:disabled,
+.form-select:disabled {
+    color: var(--svy-text-disabled);
+    background-color: var(--svy-surface-sunken);
+    border-color: var(--svy-border);
+}
+
+/* START Tabs */
+
+.nav-tabs {
+    --bs-nav-link-color: var(--svy-text-muted);
+    --bs-nav-link-hover-color: var(--svy-text);
+    --bs-nav-link-disabled-color: var(--svy-text-disabled);
+    --bs-nav-tabs-border-color: var(--svy-border);
+    --bs-nav-tabs-link-hover-border-color: transparent;
+    --bs-nav-tabs-link-active-color: var(--svy-text);
+    --bs-nav-tabs-link-active-bg: var(--svy-surface);
+    --bs-nav-tabs-link-active-border-color: var(--svy-border) var(--svy-border) var(--svy-surface);
+}
+.nav-tabs .nav-link {
+    transition: background-color var(--svy-motion-fast), color var(--svy-motion-fast);
+}
+.nav-tabs .nav-link:hover:not(.active):not(.disabled) {
+    background-color: var(--svy-surface-sunken);
+}
+/* ngbNav keeps focus on the clicked tab; Bootstrap then applies the hover colour, which is muted text in this theme */
+.nav-tabs .nav-link.active:focus {
+    color: var(--bs-nav-tabs-link-active-color);
+}
+/* selected is shown by more than colour: an accent bar plus weight */
+.nav-tabs .nav-link.active {
+    font-weight: var(--svy-tab-active-weight, 500);
+    box-shadow: inset 0 var(--svy-tab-indicator-width, 2px) 0 var(--svy-tab-active-indicator, var(--svy-accent));
+}
+/* a solution that styled the 2023 tab panel with the @tab-* variables gets the 2023 tab geometry back (border width, colour and
+   radius from those variables, no new indicator), so Bootstrap's boxed tabs do not show around its own underline style */
+.svy-legacy-tabs() when not (@tab-bg = @surface), not (@tab-text-color = @text-color), not (@tab-border-color = @border-color),
+    not (@tab-border-width = 0), not (@tab-border-radius = 0), not (@tab-active-bg = @surface),
+    not (@tab-active-text-color = @text-color), not (@tab-active-border-color = @main-color), not (@tab-active-border-width = 0) {
+    .svy-tabpanel > .nav-tabs,
+    .bts-tabpanel > .nav-tabs {
+        border: 0;
+        --svy-tab-indicator-width: 0px;
+        --svy-tab-active-weight: normal;
+    }
+    .svy-tabpanel > .nav-tabs > li > a,
+    .bts-tabpanel > .nav-tabs > li > a {
+        padding: 8px 15px;
+        border-style: solid;
+        border-color: @tab-border-color;
+        border-width: @tab-border-width;
+        border-radius: @tab-border-radius;
+    }
+    .svy-tabpanel > .nav-tabs > li > .nav-link.active,
+    .svy-tabpanel > .nav-tabs > li > .nav-link.active:hover,
+    .svy-tabpanel > .nav-tabs > li > .nav-link.active:focus,
+    .bts-tabpanel > .nav-tabs > li > .nav-link.active,
+    .bts-tabpanel > .nav-tabs > li > .nav-link.active:hover,
+    .bts-tabpanel > .nav-tabs > li > .nav-link.active:focus {
+        border-style: solid;
+        border-color: @tab-active-border-color;
+        border-width: @tab-active-border-width;
+    }
+}
+.svy-legacy-tabs() when (default()) {
+}
+.svy-legacy-tabs();
+.nav-tabs {
+    .svy-legacy(tab-active-indicator, @tab-active-border-color, @main-color);
+}
+.nav-tabs .nav-link {
+    .svy-legacy(tab-text-transform-value, @tab-text-transform, none);
+    text-transform: var(--svy-tab-text-transform-value, none);
+}
+.bts-tabpanel-close-icon {
+    color: var(--svy-text-muted);
+}
+.bts-tabpanel-close-icon:hover {
+    color: var(--svy-text);
+}
+
+/* START Sidenav */
+
+/* component properties, each defaulting to a role; add styleClass svy-theme-dark for a dark rail */
+.svy-sidenav {
+    --svy-sidenav-bg: var(--svy-chrome);
+    --svy-sidenav-fg: var(--svy-chrome-text);
+    --svy-sidenav-border: var(--svy-chrome-border);
+    --svy-sidenav-item-fg: var(--svy-chrome-text-muted);
+    --svy-sidenav-item-height: var(--svy-control-height);
+    --svy-sidenav-item-radius: var(--svy-radius-md);
+    --svy-sidenav-item-inset: var(--svy-space-2);
+    --svy-sidenav-item-gap: var(--svy-space-2);
+    --svy-sidenav-item-padding-x: var(--svy-space-3);
+    --svy-sidenav-indent: var(--svy-space-4);
+    --svy-sidenav-hover-bg: var(--svy-chrome-hover);
+    --svy-sidenav-hover-fg: var(--svy-chrome-text);
+    --svy-sidenav-selected-bg: var(--svy-chrome-active);
+    --svy-sidenav-selected-fg: var(--svy-chrome-text);
+    --svy-sidenav-indicator-color: var(--svy-accent);
+    --svy-sidenav-indicator-width: 0px;
+    --svy-sidenav-disabled-fg: var(--svy-chrome-text-disabled);
+    --svy-sidenav-badge-bg: var(--svy-chrome-active);
+    --svy-sidenav-badge-fg: var(--svy-chrome-text);
+    .svy-legacy(sidenav-bg, @sidenav-color, @secondary-color);
+    .svy-legacy(sidenav-fg, @sidenav-text-color, @secondary-color-inverse);
+    .svy-legacy(sidenav-item-fg, @sidenav-text-color, @secondary-color-inverse);
+    .svy-legacy(sidenav-border, @sidenav-border-color, mix(@secondary-color-inverse, @secondary-color, 14%));
+    .svy-legacy(sidenav-selected-bg, @sidenav-selected-color, @secondary-color-light);
+    .svy-legacy(sidenav-hover-bg, @sidenav-selected-color, @secondary-color-light);
+    .svy-legacy(sidenav-selected-fg, @sidenav-selected-text-color, @sidenav-text-color);
+    .svy-legacy(sidenav-hover-fg, @sidenav-selected-text-color, @sidenav-text-color);
+    .svy-legacy(sidenav-indicator-color, @sidenav-selected-border-color, @main-color);
+    .svy-legacy-indicator();
+    .svy-legacy-sidenav-geometry();
+    background: var(--svy-sidenav-bg);
+    color: var(--svy-sidenav-fg);
+    border: var(--svy-border-width) solid var(--svy-sidenav-border);
+}
+.svy-sidenav .svy-sidenav-menu,
+.svy-sidenav .sn-level-1 {
+    color: inherit;
+    font-size: var(--svy-font-size);
+}
+/* the inset sits on the menu, not as item margin, so solutions that size items with width: 100% do not overflow */
+.svy-sidenav .svy-sidenav-menu.sn-level-1 {
+    padding: 0 var(--svy-sidenav-item-inset);
+}
+.svy-sidenav .svy-sidenav-menu ul {
+    padding-left: 0;
+}
+.svy-sidenav li.svy-navitem-selected,
+.svy-sidenav li.svy-navitem-disabled {
+    color: inherit;
+    border-left: 0;
+}
+/* spacing in :where() has no specificity, so a solution's own sidenav rules (padding, width, icon spacing) always win, as on 2023.3.0_ng2 */
+.svy-sidenav .svy-sidenav-item {
+    position: relative;
+    display: flex;
+    align-items: center;
+    min-height: var(--svy-sidenav-item-height);
+    margin: 1px 0;
+}
+:where(.svy-sidenav .svy-sidenav-item) {
+    gap: var(--svy-sidenav-item-gap);
+    padding: 0 var(--svy-sidenav-item-padding-x);
+}
+.svy-sidenav .svy-sidenav-item {
+    border-radius: var(--svy-sidenav-item-radius);
+    color: var(--svy-sidenav-item-fg);
+    text-decoration: none;
+    transition: background-color var(--svy-motion-fast), color var(--svy-motion-fast);
+}
+:where(.svy-sidenav .svy-sidenav-item.sn-level-2) {
+    padding-left: calc(var(--svy-sidenav-item-padding-x) + var(--svy-sidenav-indent));
+}
+:where(.svy-sidenav .svy-sidenav-item.sn-level-3) {
+    padding-left: calc(var(--svy-sidenav-item-padding-x) + var(--svy-sidenav-indent) * 2);
+}
+:where(.svy-sidenav .svy-sidenav-item.sn-level-4) {
+    padding-left: calc(var(--svy-sidenav-item-padding-x) + var(--svy-sidenav-indent) * 3);
+}
+/* the collapse arrow is absolutely placed at the right end; keep the text out from under it */
+:where(.svy-sidenav .svy-sidenav-item:has(> .svy-sidenav-collapse-icon) > .svy-sidenav-item-text) {
+    margin-right: calc(var(--svy-space-1) * 2 + 1em);
+}
+.svy-sidenav .svy-sidenav-item-icon {
+    flex: none;
+}
+:where(.svy-sidenav .svy-sidenav-item-icon) {
+    width: 1.25em;
+    text-align: center;
+    color: inherit;
+}
+.svy-sidenav .svy-sidenav-item-text {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: var(--svy-space-2);
+}
+.svy-sidenav .svy-sidenav-item-text .badge {
+    margin-left: auto;
+    border-radius: var(--svy-radius-pill);
+    font-size: var(--svy-font-size-xs);
+    font-weight: 500;
+}
+/* the default badgeStyleClass is "badge text-bg-secondary"; Bootstrap utilities use !important, so only this can re-point it */
+.svy-sidenav .svy-sidenav-item-text .badge.text-bg-secondary {
+    background-color: var(--svy-sidenav-badge-bg) !important;
+    color: var(--svy-sidenav-badge-fg) !important;
+}
+.svy-sidenav .svy-sidenav-collapse-icon {
+    top: 50%;
+    right: var(--svy-space-1);
+    padding: 0 var(--svy-space-1);
+    transform: translateY(-50%);
+    color: inherit;
+}
+.svy-sidenav li:not(.svy-navitem-disabled) > .svy-sidenav-item:hover {
+    background-color: var(--svy-sidenav-hover-bg);
+    color: var(--svy-sidenav-hover-fg);
+}
+/* the component also marks the parents of the selected item, so they get this look too (needs a component change) */
+.svy-sidenav li.svy-navitem-selected > .svy-sidenav-item,
+.svy-sidenav li.svy-navitem-selected > .svy-sidenav-item:hover {
+    background-color: var(--svy-sidenav-selected-bg);
+    color: var(--svy-sidenav-selected-fg);
+    font-weight: 500;
+    box-shadow: inset var(--svy-sidenav-indicator-width) 0 0 var(--svy-sidenav-indicator-color);
+}
+.svy-sidenav li.svy-navitem-disabled > .svy-sidenav-item,
+.svy-sidenav.svy-sidenav-disabled .svy-sidenav-item {
+    color: var(--svy-sidenav-disabled-fg);
+    cursor: default;
+}
+.svy-sidenav .svy-sidenav-item:focus-visible {
+    outline: var(--svy-focus-ring-width) solid var(--svy-focus-ring);
+    outline-offset: -2px;
+}
+.svy-sidenav .svy-sidenav-divider {
+    margin: var(--svy-space-2) var(--svy-space-3);
+    border-top: var(--svy-border-width) solid var(--svy-sidenav-border);
+}
+
+/* START Windows and dialogs */
+
+/* JSWindow (div.svy-dialog.window) and message dialogs (div.svy-message-dialog). The client CSS (bootstrap-window.css and the
+   Emulated component styles) uses literal colours and selectors up to four classes deep, so some selectors repeat a class to
+   stay one step more specific. */
+.svy-dialog.window,
+div.svy-message-dialog.svy-message-dialog {
+    --svy-window-radius: var(--svy-radius-lg);
+    background-color: var(--svy-window-body-bg, var(--svy-surface-raised));
+    color: var(--svy-text);
+    border: var(--svy-border-width) solid var(--svy-border);
+    border-radius: var(--svy-window-radius);
+    box-shadow: var(--svy-shadow-lg);
+}
+.svy-dialog.svy-dialog.window .window-header.window-header {
+    padding: var(--svy-space-3) var(--svy-space-4);
+    background-color: var(--svy-window-header-bg, var(--svy-chrome));
+    color: var(--svy-window-header-fg, var(--svy-chrome-text));
+    border-bottom: var(--svy-border-width) solid var(--svy-border);
+    border-radius: var(--svy-window-radius) var(--svy-window-radius) 0 0;
+}
+.svy-dialog.window .window-header .window-title.window-title,
+.svy-dialog.window.active .window-header .window-title.window-title {
+    color: inherit;
+    font-size: var(--svy-font-size-lg);
+    font-weight: 600;
+}
+.svy-dialog.window .window-header .svy-dialog-close {
+    color: inherit;
+    text-shadow: none;
+    opacity: 0.6;
+}
+.svy-dialog.window .window-header .svy-dialog-close:hover {
+    opacity: 1;
+}
+.svy-dialog.window .window-body {
+    background-color: var(--svy-window-body-bg, var(--svy-surface-raised));
+}
+.svy-dialog.svy-dialog.window .window-footer.window-footer {
+    padding: var(--svy-space-3) var(--svy-space-4);
+    background-color: var(--svy-window-footer-bg, var(--svy-surface-raised));
+    border-top: var(--svy-border-width) solid var(--svy-border);
+    border-radius: 0 0 var(--svy-window-radius) var(--svy-window-radius);
+}
+
+/* message dialog header: the type class sits on the header itself; tones use the soft style, questions the chrome */
+.svy-message-dialog .window-header.window-header {
+    padding: var(--svy-space-3) var(--svy-space-4);
+    margin: 0;
+    font-size: var(--svy-font-size-lg);
+    font-weight: 600;
+    border-bottom: var(--svy-border-width) solid var(--svy-border);
+    border-radius: var(--svy-window-radius) var(--svy-window-radius) 0 0;
+}
+.svy-dialog-type(@type, @tone) {
+    .svy-message-dialog .window-header.type-@{type} {
+        background-color: ~"var(--svy-dialog-@{type}-bg, var(--svy-@{tone}-soft-bg))";
+        color: ~"var(--svy-dialog-@{type}-fg, var(--svy-@{tone}-soft-fg))";
+    }
+}
+.svy-dialog-type(info, info);
+.svy-dialog-type(warning, warning);
+.svy-dialog-type(error, danger);
+.svy-message-dialog .window-header.type-question,
+.svy-message-dialog .window-header.type-input,
+.svy-message-dialog .window-header.type-select {
+    background-color: var(--svy-dialog-question-bg, var(--svy-window-header-bg, var(--svy-chrome)));
+    color: var(--svy-dialog-question-fg, var(--svy-window-header-fg, var(--svy-chrome-text)));
+}
+.svy-message-dialog .window-header.type-input,
+.svy-message-dialog .window-header.type-select {
+    background-color: var(--svy-dialog-input-bg, var(--svy-window-header-bg, var(--svy-chrome)));
+    color: var(--svy-dialog-input-fg, var(--svy-window-header-fg, var(--svy-chrome-text)));
+}
+.svy-message-dialog .window-footer {
+    border-top: var(--svy-border-width) solid var(--svy-border);
+}
+
+/* svy-btn: the client's own button (message, login and upload dialogs), Bootstrap 3 colours in servoy.css */
+.svy-btn.svy-btn {
+    color: var(--svy-text);
+    background-color: var(--svy-surface);
+    border: var(--svy-border-width) solid var(--svy-border-strong);
+    border-radius: var(--svy-radius-md);
+    min-height: var(--svy-control-height);
+    padding: 0 var(--svy-space-3);
+    transition: background-color var(--svy-motion-fast);
+}
+.svy-btn.svy-btn:hover {
+    background-color: var(--svy-surface-sunken);
+}
+.svy-btn.svy-btn-primary,
+.svy-btn.svy-btn-primary:focus {
+    color: var(--svy-accent-contrast);
+    background-color: var(--svy-accent);
+    border-color: var(--svy-accent);
+}
+.svy-btn.svy-btn-primary:hover,
+.svy-btn.svy-btn-primary.active {
+    color: var(--svy-accent-contrast);
+    background-color: var(--svy-accent-hover);
+    border-color: var(--svy-accent-hover);
+}
+.svy-btn-tone(@name, @tone) {
+    .svy-btn.svy-btn-@{name},
+    .svy-btn.svy-btn-@{name}:focus {
+        color: ~"var(--svy-@{tone}-on-solid)";
+        background-color: ~"var(--svy-@{tone}-solid)";
+        border-color: ~"var(--svy-@{tone}-solid)";
+    }
+    .svy-btn.svy-btn-@{name}:hover {
+        background-color: ~"color-mix(in srgb, var(--svy-@{tone}-solid) 88%, var(--svy-shade))";
+    }
+}
+.svy-btn-tone(success, success);
+.svy-btn-tone(info, info);
+.svy-btn-tone(warning, warning);
+.svy-btn-tone(danger, danger);
+
+:root {
+    .svy-legacy-pair(window-header, @window-header-bg, @window-header-color, @secondary-color, contrast(@secondary-color, @text, @surface, @svy-on-threshold));
+    .svy-legacy(window-body-bg, @window-body-bg, @surface);
+    .svy-legacy(window-footer-bg, @window-footer-bg, @surface);
+    .svy-legacy-pair(dialog-info, @dialog-info-header-bg, @dialog-info-header-color, @info, contrast(@info, @text, @surface, @svy-on-threshold));
+    .svy-legacy-pair(dialog-question, @dialog-question-header-bg, @dialog-question-header-color, @secondary-color, contrast(@secondary-color, @text, @surface, @svy-on-threshold));
+    .svy-legacy-pair(dialog-input, @dialog-input-header-bg, @dialog-input-header-color, @secondary-color, contrast(@secondary-color, @text, @surface, @svy-on-threshold));
+}
+.svy-dialog.window,
+div.svy-message-dialog.svy-message-dialog {
+    .svy-legacy(window-radius, @window-border-radius, calc(@radius * 2));
+}
+
+/* START Popup menu */
+
+/* window plugin popup menu: root div.dropdown-menu.svy-popup-menu, items are div > a.dropdown-item */
+.svy-popup-menu {
+    --bs-dropdown-link-hover-bg: var(--svy-popup-selected-bg, var(--svy-surface-hover));
+    --bs-dropdown-link-hover-color: var(--svy-popup-selected-fg, var(--svy-text));
+    --bs-dropdown-link-disabled-color: var(--svy-popup-disabled-fg, var(--svy-text-disabled));
+    background-color: var(--svy-surface-raised);
+    border-radius: var(--svy-radius-md);
+    box-shadow: var(--svy-shadow-md);
+    .svy-legacy(popup-selected-bg, @popup-selected-bg, mix(@text, @surface, 4%));
+    .svy-legacy(popup-selected-fg, @popup-selected-text, @text);
+    .svy-legacy(popup-disabled-fg, @popup-disabled-color, mix(@text, @surface, 40%));
+}
+
+/* START Navbar */
+
+/* bootstrapextracomponents navbar: default look is the chrome; the inverse property renders navbar-dark bg-dark, which gets
+   the opposite seed set of the application (dark in a light app, light in a dark app), never Bootstrap's literal dark.
+   State classes sit on li.nav-item, not on the link. */
+.bts-extra-navbar.bts-navbar-default {
+    --svy-navbar-bg: var(--svy-chrome);
+    --svy-navbar-fg: var(--svy-chrome-text);
+    --svy-navbar-fg-muted: var(--svy-chrome-text-muted);
+    --svy-navbar-hover-bg: var(--svy-chrome-hover);
+    --svy-navbar-active-bg: var(--svy-chrome-active);
+    --svy-navbar-active-fg: var(--svy-chrome-text);
+    --svy-navbar-indicator: var(--svy-accent);
+    .svy-legacy-pair(navbar, @navbar-bg, @navbar-text-color, @secondary-color, contrast(@secondary-color, @text, @surface, @svy-on-threshold));
+    .svy-legacy(navbar-hover-bg, @navbar-bg-highlighted, @secondary-color-light);
+    .svy-legacy(navbar-active-bg, @navbar-active-bg, @secondary-color-light);
+    .svy-legacy(navbar-active-fg, @navbar-active-text-color, @navbar-text-color);
+    .svy-legacy(navbar-indicator, @navbar-active-border-color, @main-color);
+    background-color: var(--svy-navbar-bg);
+    color: var(--svy-navbar-fg);
+    border-bottom: var(--svy-border-width) solid var(--svy-chrome-border);
+}
+.bts-extra-navbar.navbar-dark {
+    .svy-inverse-roles();
+    --svy-navbar-bg: var(--svy-chrome);
+    --svy-navbar-fg: var(--svy-chrome-text);
+    --svy-navbar-fg-muted: var(--svy-chrome-text-muted);
+    --svy-navbar-hover-bg: var(--svy-chrome-hover);
+    --svy-navbar-active-bg: var(--svy-chrome-active);
+    --svy-navbar-active-fg: var(--svy-chrome-text);
+    --svy-navbar-indicator: var(--svy-accent);
+    color: var(--svy-navbar-fg);
+}
+.bts-extra-navbar.navbar-dark.bg-dark {
+    background-color: var(--svy-navbar-bg) !important;
+}
+.bts-extra-navbar {
+    --bs-navbar-color: var(--svy-navbar-fg-muted);
+    --bs-navbar-hover-color: var(--svy-navbar-fg);
+    --bs-navbar-active-color: var(--svy-navbar-active-fg);
+    --bs-navbar-disabled-color: var(--svy-chrome-text-disabled);
+    --bs-navbar-brand-color: var(--svy-navbar-fg);
+    --bs-navbar-brand-hover-color: var(--svy-navbar-fg);
+}
+.bts-extra-navbar .nav-item > .nav-link {
+    border-radius: var(--svy-radius-md);
+    transition: background-color var(--svy-motion-fast), color var(--svy-motion-fast);
+}
+.bts-extra-navbar .nav-item:not(.disabled) > .nav-link:hover {
+    background-color: var(--svy-navbar-hover-bg);
+    color: var(--svy-navbar-fg);
+}
+.bts-extra-navbar .nav-item.active > .nav-link {
+    background-color: var(--svy-navbar-active-bg);
+    color: var(--svy-navbar-active-fg);
+    font-weight: 500;
+    box-shadow: inset 0 -2px 0 var(--svy-navbar-indicator);
+}
+.bts-extra-navbar .nav-item.disabled > .nav-link {
+    color: var(--svy-chrome-text-disabled);
+    pointer-events: none;
+    cursor: default;
+}
+.bts-extra-navbar .navbar-text,
+.bts-extra-navbar .navbar-brand {
+    color: var(--svy-navbar-fg);
+}
+
+/* START Breadcrumb */
+
+.bts-extra-breadcrumbs {
+    --bs-breadcrumb-divider-color: var(--svy-text-muted);
+    --bs-breadcrumb-item-active-color: var(--svy-breadcrumb-active-fg, var(--svy-text));
+    background-color: var(--svy-breadcrumb-bg, transparent);
+    .svy-legacy(breadcrumb-bg, @breadcrumb-bg, @surface);
+    .svy-legacy(breadcrumb-link-fg, @breadcrumb-color, @main-color);
+    .svy-legacy(breadcrumb-active-fg, @breadcrumb-selected-color, @text);
+}
+.bts-extra-breadcrumbs .breadcrumb-item > a {
+    color: var(--svy-breadcrumb-link-fg, var(--svy-accent));
+    text-decoration: none;
+    cursor: pointer;
+}
+.bts-extra-breadcrumbs .breadcrumb-item > a:hover {
+    text-decoration: underline;
+}
+.bts-extra-breadcrumbs .breadcrumb-item.active {
+    font-weight: 500;
+}
+
+/* START Dropdowns */
+
+/* combobox (div.dropdown-menu > button.dropdown-item.svy-ngbdropdownitem), typeahead (ngb-typeahead-window.dropdown-menu >
+   button.dropdown-item) and Bootstrap dropdowns. The current item is a subtle accent tint with unchanged text, like a selected
+   grid row; a solid accent fill is kept for actions. */
+.dropdown-menu {
+    --bs-dropdown-color: var(--svy-text);
+    --bs-dropdown-border-color: var(--svy-border);
+    --bs-dropdown-border-radius: var(--svy-radius-md);
+    --bs-dropdown-font-size: var(--svy-font-size);
+    --bs-dropdown-link-color: var(--svy-text);
+    --bs-dropdown-link-hover-color: var(--svy-text);
+    --bs-dropdown-link-active-color: var(--svy-text);
+    --bs-dropdown-link-active-bg: var(--svy-accent-subtle);
+    --bs-dropdown-link-disabled-color: var(--svy-text-disabled);
+    --bs-dropdown-divider-bg: var(--svy-border);
+    --bs-dropdown-padding-y: var(--svy-space-1);
+    --bs-dropdown-item-padding-x: var(--svy-space-3);
+    --bs-dropdown-item-padding-y: var(--svy-space-1);
+}
+.dropdown-menu .dropdown-item {
+    min-height: calc(var(--svy-control-height) - var(--svy-space-2));
+}
+/* one highlight for pointer and keyboard in every list. The typeahead marks the item under the mouse or arrow keys with
+   .active (a highlight, not the value); its items are recognised by their ngb-typeahead-* id, the popup element itself is
+   not reliably the ngb-typeahead-window tag. The combobox uses :hover and :focus for the same thing. */
+.dropdown-menu .dropdown-item:hover,
+.dropdown-menu .dropdown-item:focus,
+.dropdown-menu .dropdown-item.active[id^="ngb-typeahead-"] {
+    background-color: var(--svy-surface-hover);
+    color: var(--svy-text);
+    font-weight: 400;
+}
+/* the current value of a combobox (and the active item of a Bootstrap dropdown) is the selection: accent tint plus weight */
+.dropdown-menu .dropdown-item.svy-ngbdropdownitem.active,
+.dropdown-menu .dropdown-item.active:not(.svy-ngbdropdownitem):not([id^="ngb-typeahead-"]) {
+    background-color: var(--svy-accent-subtle);
+    color: var(--svy-text);
+    font-weight: 500;
+}
+.dropdown-menu .dropdown-item.svy-ngbdropdownitem.active:hover,
+.dropdown-menu .dropdown-item.svy-ngbdropdownitem.active:focus {
+    background-color: color-mix(in srgb, var(--svy-accent) 18%, var(--svy-surface));
+}
+.dropdown-menu .dropdown-item:focus-visible {
+    outline: var(--svy-focus-ring-width) solid var(--svy-focus-ring);
+    outline-offset: -2px;
+}
+.dropdown-menu .ngb-highlight {
+    font-weight: 600;
+    color: inherit;
+}
+.bts-combobox .bts-combobox-placeholder,
+.bts-dropdown-text.bts-combobox-placeholder {
+    color: var(--svy-text-muted);
+}
+
+/* START Calendar picker */
+
+/* tempus-dominus 6: map both its light and dark variable sets to the roles, so the picker follows the application variant
+   whatever the calendar's own theme property is */
+.tempus-dominus-widget {
+    --td-widget-background: var(--svy-surface-raised);
+    --td-font-color: var(--svy-text);
+    --td-active-bg: var(--svy-accent);
+    --td-active-color: var(--svy-accent-contrast);
+    --td-active-border-color: var(--svy-accent-contrast);
+    --td-range-bg: var(--svy-accent-subtle);
+    --td-btn-hover-bg: var(--svy-surface-sunken);
+    --td-disabled-color: var(--svy-text-disabled);
+    --td-alternate-color: var(--svy-text-muted);
+    --td-dow-color: var(--svy-text-muted);
+    --td-secondary-border-color: var(--svy-border);
+    --td-secondary-border-color-rgba: var(--svy-border);
+    --td-primary-border-color: var(--svy-surface-raised);
+    --td-text-shadow: none;
+    --td-border-radius: var(--svy-radius-md);
+    --td-dark-widget-background: var(--td-widget-background);
+    --td-dark-font-color: var(--td-font-color);
+    --td-dark-active-bg: var(--td-active-bg);
+    --td-dark-active-color: var(--td-active-color);
+    --td-dark-active-border-color: var(--td-active-border-color);
+    --td-dark-range-bg: var(--td-range-bg);
+    --td-dark-btn-hover-bg: var(--td-btn-hover-bg);
+    --td-dark-disabled-color: var(--td-disabled-color);
+    --td-dark-alternate-color: var(--td-alternate-color);
+    --td-dark-dow-color: var(--td-dow-color);
+    --td-dark-secondary-border-color: var(--td-secondary-border-color);
+    --td-dark-secondary-border-color-rgba: var(--td-secondary-border-color-rgba);
+    --td-dark-primary-border-color: var(--td-primary-border-color);
+    --td-dark-text-shadow: none;
+    border: var(--svy-border-width) solid var(--svy-border);
+    border-radius: var(--svy-radius-lg);
+    box-shadow: var(--svy-shadow-md);
+    font-family: var(--svy-font-family);
+}
+.tempus-dominus-widget.inline {
+    box-shadow: none;
+}
+.tempus-dominus-widget div.disabled {
+    opacity: 1;
+}
+
+/* START Legacy mixins */
+
+/* Solutions reuse class names of the 2023.3.0_ng2 theme as LESS mixins (.text-center(); .bg-danger(); .svy-field(); ...).
+   jlessc stops at the first undefined mixin and the whole solution stylesheet is lost, so every standalone class of the old
+   theme must stay defined here. ThemeSemanticTest checks that list. Selectors that only exist for dead NG1 DOM are kept as
+   empty rules: they are cheap and keep old mixin calls compiling. */
+.text-center { text-align: center; }
+.text-uppercase { text-transform: uppercase; }
+.text-primary { color: var(--svy-accent) !important; }
+.text-success { color: var(--svy-success) !important; }
+.text-info { color: var(--svy-info) !important; }
+.text-warning { color: var(--svy-warning) !important; }
+.text-danger { color: var(--svy-danger) !important; }
+.bg-primary { background-color: var(--svy-accent) !important; color: var(--svy-accent-contrast); }
+.bg-success { background-color: var(--svy-success) !important; color: var(--svy-success-on-solid); }
+.bg-info { background-color: var(--svy-info) !important; color: var(--svy-info-on-solid); }
+.bg-warning { background-color: var(--svy-warning) !important; color: var(--svy-warning-on-solid); }
+.bg-danger { background-color: var(--svy-danger) !important; color: var(--svy-danger-on-solid); }
+.btn { border-radius: var(--svy-radius-md); }
+.svy-button, .bts-button { border-radius: var(--svy-radius-md); }
+.btn-success { }
+.btn-info { }
+.btn-warning { }
+.btn-danger { }
+.btn-outline-success { --bs-btn-color: var(--svy-success); --bs-btn-border-color: var(--svy-success); --bs-btn-hover-bg: var(--svy-success); --bs-btn-hover-border-color: var(--svy-success); --bs-btn-hover-color: var(--svy-success-on-solid); }
+.btn-outline-info { --bs-btn-color: var(--svy-info); --bs-btn-border-color: var(--svy-info); --bs-btn-hover-bg: var(--svy-info); --bs-btn-hover-border-color: var(--svy-info); --bs-btn-hover-color: var(--svy-info-on-solid); }
+.btn-outline-warning { --bs-btn-color: var(--svy-warning); --bs-btn-border-color: var(--svy-warning); --bs-btn-hover-bg: var(--svy-warning); --bs-btn-hover-border-color: var(--svy-warning); --bs-btn-hover-color: var(--svy-warning-on-solid); }
+.btn-outline-tertiary { --bs-btn-color: var(--svy-text); --bs-btn-border-color: var(--svy-border-strong); --bs-btn-hover-bg: var(--svy-surface-hover); --bs-btn-hover-border-color: var(--svy-border-strong); --bs-btn-hover-color: var(--svy-text); }
+.svy-field, .svy-textfield, .svy-password, .svy-textarea, .svy-typeahead, .svy-calendar, .svy-combobox,
+.bts-textbox, .bts-textarea, .bts-typeahead, .bts-calendar, .bts-combobox, .bts-select {
+    color: var(--svy-text);
+    border-color: var(--svy-border-strong);
+    border-radius: var(--svy-radius-md);
+}
+.svy-combobox-container, .bts-combobox-container { border-radius: var(--svy-radius-md); }
+.svy-label, .bts-label { color: inherit; }
+.form-required { }
+.modal-content { border-radius: var(--svy-radius-lg); }
+.svy-dialog { border-radius: var(--svy-radius-lg); }
+.navbar { }
+.navbar-collapse { }
+.svy-sidenav-menu { }
+.svy-sidenav-item { }
+.svy-sidenav-dropdown { }
+.svy-sidenav-collapse-icon { }
+.svy-sidenav-divider { }
+.svy-navitem-selected { }
+.svy-ngbdropdownitem { }
+.table-bootstrapcomponent-selected, .table-servoyextra-selected { background-color: var(--svy-accent-subtle); color: var(--svy-text); }
+.bts-table { }
+.ag-table { }
+.ag-pinned-left-header, .ag-pinned-right-header, .ag-pinned-left-cols-viewport-wrapper, .ag-pinned-right-cols-viewport-wrapper { }
+.ui-grid, .ui-grid-header, .ui-grid-header-cell, .ui-grid-top-panel, .ui-select-toggle { }
+.yuimenu, .yuimenuitem-selected, .yuimenuitemlabel, .yuimenuitemlabel-selected, .yuimenuitemlabel-disabled,
+.yuimenubaritemlabel-selected, .yuimenubaritemlabel-disabled { }
+
+/* START Legacy utilities */
+
+/* Style classes of the 2023.3.0_ng2 theme that solutions put on components (and that the default variants.json uses). They
+   are kept so layouts do not break when a solution opts in; colours now come from the roles, sizes from the legacy box sizes.
+   Dropped on purpose: ui-grid, bootbox/yuimenu, bootstrap-datetimepicker and ui-select rules (no NG2 DOM), and the broken
+   .bts-combobox-containerform-* selectors. */
+
+.full-size { width: 100%; height: 100%; }
+.full-width { width: 100%; }
+.full-height { height: 100%; }
+.width-auto { width: auto; }
+.width-auto-important { width: auto !important; }
+.clickable { cursor: pointer; }
+.clickable-hover { cursor: pointer; transition: border-color var(--svy-motion-base), background-color var(--svy-motion-base); }
+.clickable-hover:hover { background: var(--svy-accent-subtle); }
+.clickable[disabled], .clickable-hover[disabled] { cursor: not-allowed; }
+.inactive { opacity: 0.6; }
+
+.margin-reset { margin-left: -15px; margin-right: -15px; }
+.no-margin { margin: 0; }
+.no-padding { padding: 0; }
+/* written out on purpose: the theme editor's LESS validator rejects an interpolated selector followed by -<number> */
+.margin-10 { margin: @box-size-10; }
+.margin-15 { margin: 15px; }
+.margin-20 { margin: @box-size-20; }
+.margin-30 { margin: @box-size-30; }
+.margin-top-10 { margin-top: @box-size-10; }
+.margin-top-15 { margin-top: 15px; }
+.margin-top-20 { margin-top: @box-size-20; }
+.margin-top-30 { margin-top: @box-size-30; }
+.margin-bottom-10 { margin-bottom: @box-size-10; }
+.margin-bottom-15 { margin-bottom: 15px; }
+.margin-bottom-20 { margin-bottom: @box-size-20; }
+.margin-bottom-30 { margin-bottom: @box-size-30; }
+.margin-left-10 { margin-left: @box-size-10; }
+.margin-left-15 { margin-left: 15px; }
+.margin-left-20 { margin-left: @box-size-20; }
+.margin-left-30 { margin-left: @box-size-30; }
+.margin-right-10 { margin-right: @box-size-10; }
+.margin-right-15 { margin-right: 15px; }
+.margin-right-20 { margin-right: @box-size-20; }
+.margin-right-30 { margin-right: @box-size-30; }
+.padding-10 { padding: @box-size-10; }
+.padding-15 { padding: 15px; }
+.padding-20 { padding: @box-size-20; }
+.padding-30 { padding: @box-size-30; }
+.padding-top-10 { padding-top: @box-size-10; }
+.padding-top-15 { padding-top: 15px; }
+.padding-top-20 { padding-top: @box-size-20; }
+.padding-top-30 { padding-top: @box-size-30; }
+.padding-bottom-10 { padding-bottom: @box-size-10; }
+.padding-bottom-15 { padding-bottom: 15px; }
+.padding-bottom-20 { padding-bottom: @box-size-20; }
+.padding-bottom-30 { padding-bottom: @box-size-30; }
+.padding-left-10 { padding-left: @box-size-10; }
+.padding-left-15 { padding-left: 15px; }
+.padding-left-20 { padding-left: @box-size-20; }
+.padding-left-30 { padding-left: @box-size-30; }
+.padding-right-10 { padding-right: @box-size-10; }
+.padding-right-15 { padding-right: 15px; }
+.padding-right-20 { padding-right: @box-size-20; }
+.padding-right-30 { padding-right: @box-size-30; }
+
+.svy-checkgroup.check-horizontal label, .svy-radiogroup.check-horizontal label, .bts-radiogroup.check-horizontal label,
+.svy-checkgroup.radio-horizontal label, .svy-radiogroup.radio-horizontal label, .bts-radiogroup.radio-horizontal label {
+    display: inline;
+}
+.svy-check-spacing(@size) {
+    .svy-checkgroup.radio-horizontal.check-spacing-@{size} label, .svy-radiogroup.radio-horizontal.check-spacing-@{size} label,
+    .bts-radiogroup.radio-horizontal.check-spacing-@{size} label, .svy-checkgroup.radio-horizontal.radio-spacing-@{size} label,
+    .svy-radiogroup.radio-horizontal.radio-spacing-@{size} label, .bts-radiogroup.radio-horizontal.radio-spacing-@{size} label {
+        margin-right: ~"@{size}px";
+    }
+}
+.svy-check-spacing(10);
+.svy-check-spacing(20);
+.svy-check-spacing(30);
+[class*="-horizontal"][class*="-spacing-"] label:last-child { margin-right: 0; }
+
+.border-class { border-style: solid; border-color: var(--svy-border); }
+.border { border: var(--svy-border-width) solid var(--svy-border); }
+.border-default { border: var(--svy-border-width) solid var(--svy-border); border-radius: var(--svy-radius-md); }
+.border-radius { border-radius: var(--svy-radius-md); }
+.border-round { border-radius: var(--svy-radius-pill); }
+.no-border { border-style: none; border-width: 0; }
+.border-top { border-top: var(--svy-border-width) solid var(--svy-border); }
+.border-bottom { border-bottom: var(--svy-border-width) solid var(--svy-border); }
+.border-left { border-left: var(--svy-border-width) solid var(--svy-border); }
+.border-right { border-right: var(--svy-border-width) solid var(--svy-border); }
+.border-primary { border-color: var(--svy-accent) !important; }
+.border-tertiary { border-color: var(--svy-border-strong) !important; }
+.border-success { border-color: var(--svy-success) !important; }
+.border-info { border-color: var(--svy-info) !important; }
+.border-warning { border-color: var(--svy-warning) !important; }
+.border-danger { border-color: var(--svy-danger) !important; }
+.hr { border: 0 solid var(--svy-border); border-bottom-width: 1px; }
+
+.bg { background-color: var(--svy-surface); color: var(--svy-text); }
+.bg-inverse { background-color: var(--svy-surface-sunken); color: var(--svy-text); }
+.bg-main { background-color: var(--svy-accent); color: var(--svy-accent-contrast); }
+.bg-tertiary { background-color: var(--svy-neutral-soft-bg) !important; color: var(--svy-text); }
+.box { border: var(--svy-border-width) solid var(--svy-border); border-radius: var(--svy-radius-md); background-color: var(--svy-surface); color: var(--svy-text); padding: 15px; }
+.box.row { padding-left: 0; padding-right: 0; }
+.content-panel { border-radius: var(--svy-radius-md); border: 2px solid var(--svy-accent); padding: 30px 15px; border-bottom-width: 30px; min-width: 640px; }
+
+.text-tertiary { color: var(--svy-text-muted) !important; }
+.text-underline, .label-underline { text-decoration: underline; }
+.font-weight-bold { font-weight: bold; }
+.bts-label.text-center, .bts-datalabel.text-center { display: block; white-space: initial; }
+.bts-label.text-center-vertical, .bts-datalabel.text-center-vertical, .svy-fa .text-center-vertical { display: flex; align-items: center; }
+.bts-label.text-center-vertical.text-center, .bts-datalabel.text-center-vertical.text-center, .svy-fa .text-center-vertical.text-center {
+    justify-content: center;
+}
+.label-primary, .label-tertiary, .label-success, .label-info, .label-warning, .label-danger { text-align: center; border-radius: var(--svy-radius-md); }
+.label-primary { color: var(--svy-accent); }
+.label-tertiary { color: var(--svy-text-muted); }
+.label-success { color: var(--svy-success); }
+.label-info { color: var(--svy-info); }
+.label-warning { color: var(--svy-warning); }
+.label-danger { color: var(--svy-danger); }
+
+.btn-tertiary {
+    --bs-btn-color: var(--svy-text);
+    --bs-btn-bg: var(--svy-neutral-soft-bg);
+    --bs-btn-border-color: var(--svy-neutral-soft-bg);
+    --bs-btn-hover-color: var(--svy-text);
+    --bs-btn-hover-bg: var(--svy-border);
+    --bs-btn-hover-border-color: var(--svy-border);
+    --bs-btn-active-color: var(--svy-text);
+    --bs-btn-active-bg: var(--svy-border);
+    --bs-btn-active-border-color: var(--svy-border);
+    --bs-btn-disabled-color: var(--svy-text-disabled);
+    --bs-btn-disabled-bg: var(--svy-neutral-soft-bg);
+    --bs-btn-disabled-border-color: var(--svy-neutral-soft-bg);
+}
+.btn-outline-default { background-color: transparent; color: inherit; border-color: var(--svy-border-strong); }
+.btn-outline-default:hover { background-color: var(--svy-surface-sunken); color: inherit; }
+.btn-round { border-radius: var(--svy-radius-pill); }
+
+.form-default { background-color: var(--svy-surface); }
+.form-primary { background-color: var(--svy-accent-subtle); }
+.form-tertiary { background-color: var(--svy-neutral-soft-bg); }
+.form-success { background-color: var(--svy-success-soft-bg); }
+.form-info { background-color: var(--svy-info-soft-bg); }
+.form-warning { background-color: var(--svy-warning-soft-bg); }
+.form-danger { background-color: var(--svy-danger-soft-bg); }
+
+.svy-label.form-required:after, .bts-label.form-required:after, .form-required .svy-label:after, .form-required .bts-label:after {
+    content: @form-required-label-suffix;
+    margin-left: 2px;
+}
+.form-invalid.form-control, .form-invalid.form-select, .ng-invalid.form-control, .ng-invalid.form-select,
+.bts-combobox-container.form-invalid .bts-combobox, .svy-combobox-container.form-invalid .svy-combobox,
+.bts-calendar-container.form-invalid .input-group-text {
+    border-color: var(--svy-danger);
+}
+
+.simple-collapsible { margin-bottom: 15px; }
+.simple-collapsible-toggle { color: var(--svy-accent); border-bottom: 1px solid var(--svy-accent); }
+.simple-collapsible-toggle .svy-label, .simple-collapsible-toggle .bts-label { color: var(--svy-accent); font-size: var(--svy-font-size-lg); }
+.simple-collapsible-content { border-bottom: 1px solid var(--svy-accent); }
+.simple-collapsible-content > *:first-child { margin-top: 15px; }
+.simple-collapsible-content > *:last-child { margin-bottom: 15px; }
+.inline-group.input-group-xs > .inline-group-left, .inline-group.input-group-xs > .inline-group-right { min-height: 22px; }
+.inline-group.input-group-sm > .inline-group-left, .inline-group.input-group-sm > .inline-group-right { min-height: 30px; }
+.inline-group.input-group-md > .inline-group-left, .inline-group.input-group-md > .inline-group-right { min-height: 34px; }
+.inline-group.input-group-lg > .inline-group-left, .inline-group.input-group-lg > .inline-group-right { min-height: 44px; }
+
+.header-bar { border-top: 12px solid var(--svy-accent-hover); background-color: var(--svy-accent); color: var(--svy-accent-contrast); padding: 30px 0; font-size: var(--svy-font-size-2xl); text-transform: uppercase; }
+.header-bar .bts-label, .header-bar .svy-label { color: var(--svy-accent-contrast); }
+.header-title { text-align: center; float: left; width: calc(100% - 98px); font-size: var(--svy-font-size-2xl); }
+.label_header_0, .label_header_1, .label_header_2, .label_header_3 { display: inline-block; width: 100%; }
+.label_header_0 { background: var(--svy-surface-sunken); color: var(--svy-accent); font-size: var(--svy-font-size-2xl); padding-left: 30px; text-transform: uppercase; }
+.label_header_1 { color: var(--svy-accent); background: var(--svy-surface); border-bottom: 1px solid var(--svy-accent); font-size: var(--svy-font-size-2xl); font-weight: 300; }
+.label_header_2, .label_header_3 { padding-left: 6px; background: var(--svy-accent); color: var(--svy-accent-contrast); font-weight: 300; border-radius: var(--svy-radius-pill); }
+.label_header_3 { text-align: center; }
+.svy-layoutcontainer > * > .label_header_1, .svy-layoutcontainer > * > .label_header_2 { margin: 15px 0; }
+.svy-layoutcontainer > * > .label_header_2 { padding-top: 6px; padding-bottom: 6px; }
+.svy-layoutcontainer > * > .label_header_0, .svy-layoutcontainer > * > .label_header_3 { padding-top: 15px; padding-bottom: 15px; }
+.label_subheader_0 { position: absolute; top: 25px; left: 160px; }
+
+h1, .h1, h2, .h2, h3, .h3, h4, .h4, h5, .h5, h6, .h6 { margin-top: 0; margin-bottom: 0; }
+.svy-heading(@level, @size) when (isnumber(@size)) {
+    h@{level}, .h@{level} {
+        font-size: @size;
+        line-height: if((isunit(@size, rem)), unit(ceil(@size * @rem-to-px * 1.1), px), ceil(@size * 1.1));
+    }
+}
+.svy-heading(@level, @size) when (default()) {
+    h@{level}, .h@{level} {
+        font-size: @size;
+        line-height: 1.1;
+    }
+}
+.svy-heading(1, @font-size-h1);
+.svy-heading(2, @font-size-h2);
+.svy-heading(3, @font-size-h3);
+.svy-heading(4, @font-size-h4);
+.svy-heading(5, @font-size-h5);
+.svy-heading(6, @font-size-h6);
+
+/* START ag-Grid */
+
+/* legacy ag-Grid CSS themes (theme: 'legacy'); grids default to ag-theme-alpine, ag-theme-servoy is opt-in */
+.ag-theme-alpine, .ag-theme-servoy {
+    --ag-alpine-active-color: var(--svy-accent);
+    --ag-foreground-color: var(--svy-text);
+    --ag-data-color: var(--svy-text);
+    --ag-secondary-foreground-color: var(--svy-text-muted);
+    --ag-disabled-foreground-color: var(--svy-text-disabled);
+    --ag-background-color: var(--svy-surface);
+    --ag-odd-row-background-color: var(--svy-surface);
+    --ag-header-background-color: var(--svy-surface-sunken);
+    --ag-header-foreground-color: var(--svy-text);
+    --ag-header-cell-hover-background-color: var(--svy-surface-sunken);
+    --ag-subheader-background-color: var(--svy-surface-sunken);
+    --ag-control-panel-background-color: var(--svy-surface-sunken);
+    --ag-side-button-selected-background-color: var(--svy-surface);
+    --ag-tooltip-background-color: var(--svy-surface-raised);
+    --ag-chip-background-color: var(--svy-surface-sunken);
+    --ag-border-color: var(--svy-border);
+    --ag-secondary-border-color: var(--svy-border);
+    --ag-row-border-color: var(--svy-border);
+    --ag-input-border-color: var(--svy-border-strong);
+    --ag-input-focus-border-color: var(--svy-accent);
+    --ag-row-hover-color: var(--svy-surface-sunken);
+    --ag-column-hover-color: var(--svy-surface-sunken);
+    --ag-selected-row-background-color: var(--svy-accent-subtle);
+    --ag-range-selection-border-color: var(--svy-focus-ring);
+    --ag-range-selection-background-color: var(--svy-accent-subtle);
+    --ag-checkbox-checked-color: var(--svy-accent);
+    --ag-checkbox-unchecked-color: var(--svy-border-strong);
+    --ag-checkbox-indeterminate-color: var(--svy-accent);
+    --ag-checkbox-background-color: var(--svy-surface);
+    --ag-invalid-color: var(--svy-danger);
+    --ag-input-border-color-invalid: var(--svy-danger);
+    --ag-font-family: var(--svy-font-family);
+    --ag-font-size: var(--svy-font-size);
+    --ag-border-radius: var(--svy-radius-md);
+}
+
+/* the aggrid package CSS (ag-grid-custom.css) sets the selected row, text and icons with literal colours on .ag-table and turns
+   the Alpine selected-row variable off. In the browser the package CSS wins ties against the solution CSS, so these selectors
+   are one class more specific (a repeated class adds specificity without depending on extra markup). */
+.ag-table .ag-row.ag-row-selected {
+    background-color: var(--svy-table-row-selected-bg, var(--svy-accent-subtle));
+    color: var(--svy-table-row-selected-fg, inherit);
+}
+:root {
+    .svy-legacy(table-row-selected-bg, @table-row-selected-bg-color, mix(@main-color, @surface, 12%));
+    .svy-legacy(table-row-selected-fg, @table-row-selected-text-color, @text-color);
+}
+.ag-table.ag-theme-alpine .ag-icon.ag-icon,
+.ag-table.ag-theme-servoy .ag-icon.ag-icon {
+    color: var(--svy-text-muted);
+}
+.ag-table.ag-theme-alpine.ag-theme-alpine,
+.ag-table.ag-theme-alpine.ag-theme-alpine .ag-menu {
+    color: var(--svy-text);
+}
+.ag-table.ag-theme-alpine .ag-side-bar .ag-side-buttons .ag-selected button {
+    background-color: var(--svy-surface-sunken);
+}
+.ag-table .ag-cell-inline-editing .ag-cell-edit-input {
+    color: var(--svy-text);
+}
+
