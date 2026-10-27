@@ -408,6 +408,62 @@ public class ThemeSemanticTest
 			assertEquals("0px", declarations(css, ".bts-tabpanel > .nav-tabs").get("--svy-tab-indicator-width"));
 		}
 
+		/**
+		 * SVY-21639 review (Sean, 26-27 Oct): the --svy-sidenav-* spacing properties must beat the component's own svy-sidenav.css
+		 * (.svy-sidenav-item { padding: 8px 15px; margin-right: 20px }, specificity 0,1,0), but stay overridable by a solution that styled
+		 * the 2023 sidenav
+		 */
+		@Test
+		public void sidenavSpacingPropertiesBeatTheComponentCss()
+		{
+			String css = compile("");
+			Map<String, String> item = declarations(css, ".svy-sidenav .svy-sidenav-item");
+			assertEquals("0 var(--svy-sidenav-item-padding-x)", item.get("padding"));
+			assertEquals("0", item.get("margin-right"));
+			assertEquals("var(--svy-sidenav-item-weight)", item.get("font-weight"));
+			assertEquals("var(--svy-sidenav-item-height)", declarations(css, ".svy-sidenav .svy-sidenav-menu .svy-sidenav-item").get("height"));
+			assertEquals("calc(var(--svy-sidenav-item-padding-x) + var(--svy-sidenav-indent))",
+				declarations(css, ".svy-sidenav .svy-sidenav-item.sn-level-2").get("padding-left"));
+			assertEquals("none", declarations(css, ".svy-sidenav .svy-sidenav-item-icon[class=\"svy-sidenav-item-icon\"]").get("display"));
+			Map<String, String> divider = declarations(css, ".svy-sidenav .svy-sidenav-divider");
+			assertEquals("0", divider.get("height"));
+			assertTrue(divider.get("border-top").contains("var(--svy-sidenav-border)"));
+			assertEquals("var(--svy-sidenav-badge-bg)", declarations(css, ".svy-sidenav .svy-sidenav-item-text > span").get("background-color"));
+			assertTrue(declarations(css, ".svy-sidenav .svy-sidenav-item-text .badge.text-bg-danger").get("background-color").contains("--svy-danger-soft-bg"));
+			Map<String, String> root = declarations(css, ".svy-sidenav");
+			assertEquals("normal", root.get("--svy-sidenav-item-weight"));
+			assertEquals("var(--svy-border-width)", root.get("--svy-sidenav-border-width"));
+			assertTrue(root.get("border").startsWith("var(--svy-sidenav-border-width)"));
+		}
+
+		@Test
+		public void legacySidenavKeepsSpacingInWhereSoSolutionRulesWin()
+		{
+			String css = compile("@sidenav-color: #122D40;");
+			assertTrue(declarations(css, ".svy-sidenav .svy-sidenav-item").get("padding") == null, "no specific padding in legacy mode");
+			assertEquals("0 var(--svy-sidenav-item-padding-x)", declarations(css, ":where(.svy-sidenav) .svy-sidenav-item").get("padding"));
+			assertTrue(declarations(css, ".svy-sidenav .svy-sidenav-menu .svy-sidenav-item").isEmpty(), "no fixed row height in legacy mode");
+		}
+
+		/** F1: switching the version must move the theme rules and the theme properties together, also in the main solution .less */
+		@Test
+		public void setThemeVersionRewritesEveryThemeImport()
+		{
+			String main = "// header\n@import 'servoy_theme.less';\n@import 'solution_properties.less';\n.x { color: red; }";
+			String props = "@import 'servoy_theme_properties.less?version=2023.3.0_ng2';\n// START own custom properties\n@accent: #f00;";
+			assertEquals("// header\n@import 'servoy_theme.less?version=semantic';\n@import 'solution_properties.less';\n.x { color: red; }",
+				ThemeResourceLoader.setThemeVersion(main, ThemeResourceLoader.SEMANTIC));
+			assertEquals("@import 'servoy_theme_properties.less?version=semantic';\n// START own custom properties\n@accent: #f00;",
+				ThemeResourceLoader.setThemeVersion(props, ThemeResourceLoader.SEMANTIC));
+			assertEquals("@import 'servoy_theme_properties.less';\n// START own custom properties\n@accent: #f00;",
+				ThemeResourceLoader.setThemeVersion(props, "latest"));
+			assertEquals("@import (reference) \"servoy_theme.less?version=2023.3.0_ng2\";",
+				ThemeResourceLoader.setThemeVersion("@import (reference) \"servoy_theme.less?version=semantic\";", "2023.3.0_ng2"));
+			assertEquals(".y {}", ThemeResourceLoader.setThemeVersion(".y {}", ThemeResourceLoader.SEMANTIC));
+			assertTrue(ThemeResourceLoader.importsTheme(main));
+			assertFalse(ThemeResourceLoader.importsTheme("@import 'solution_properties.less';"));
+		}
+
 		@Test
 		public void legacyFontAndRadiusOverridesReachTheRoles()
 		{

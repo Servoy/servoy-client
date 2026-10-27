@@ -59,6 +59,55 @@
 }
 .svy-legacy-sidenav-geometry() when (default()) {
 }
+/* spacing (row height, padding, indent, icon column) is applied with real specificity, so the --svy-sidenav-* properties win over the
+   component's own svy-sidenav.css (.svy-sidenav-item { padding: 8px 15px }); a solution that styled the 2023 sidenav (it overrides
+   the legacy sidenav colours) gets the same rules inside :where(), so its own item rules keep winning as on 2023.3.0_ng2 */
+.svy-sidenav-spacing() when not (@sidenav-color = @secondary-color), not (@sidenav-text-color = @secondary-color-inverse),
+    not (@sidenav-selected-color = @secondary-color-light), not (@sidenav-selected-text-color = @sidenav-text-color) {
+    :where(.svy-sidenav) { .svy-sidenav-spacing-rules(); }
+}
+.svy-sidenav-spacing() when (default()) {
+    .svy-sidenav { .svy-sidenav-spacing-rules(); }
+    /* a fixed row height only for the new layout: 2023-styled solutions size rows with their own line-height */
+    .svy-sidenav .svy-sidenav-menu .svy-sidenav-item {
+        height: var(--svy-sidenav-item-height);
+    }
+}
+.svy-sidenav-spacing-rules() {
+    .svy-sidenav-item {
+        gap: var(--svy-sidenav-item-gap);
+        padding: 0 var(--svy-sidenav-item-padding-x);
+        margin-right: 0;
+        font-weight: var(--svy-sidenav-item-weight);
+    }
+    .svy-sidenav-item.sn-level-2 {
+        padding-left: calc(var(--svy-sidenav-item-padding-x) + var(--svy-sidenav-indent));
+    }
+    .svy-sidenav-item.sn-level-3 {
+        padding-left: calc(var(--svy-sidenav-item-padding-x) + var(--svy-sidenav-indent) * 2);
+    }
+    .svy-sidenav-item.sn-level-4 {
+        padding-left: calc(var(--svy-sidenav-item-padding-x) + var(--svy-sidenav-indent) * 3);
+    }
+    .svy-sidenav-item:has(> .svy-sidenav-collapse-icon:not(.hidden)) > .svy-sidenav-item-text {
+        margin-right: calc(var(--svy-space-1) * 2 + 1em);
+    }
+    .svy-sidenav-item-icon {
+        width: 1.25em;
+        text-align: center;
+        color: inherit;
+    }
+    /* an item without an icon gets an empty <i class="svy-sidenav-item-icon">; it must not reserve the icon column */
+    .svy-sidenav-item-icon[class="svy-sidenav-item-icon"] {
+        display: none;
+    }
+    .svy-sidenav-divider {
+        height: 0;
+        min-height: 0;
+        margin: var(--svy-space-2) var(--svy-sidenav-item-padding-x);
+        border-top: var(--svy-border-width) solid var(--svy-sidenav-border);
+    }
+}
 .svy-legacy-indicator() {
     .svy-legacy-indicator-width(extract(@sidenav-selected-border-width, length(@sidenav-selected-border-width)), @sidenav-selected-border-color);
 }
@@ -662,6 +711,9 @@ div:not(.container):not(.container-fluid):not([class^="col-xs-"]):not([class^="c
     --svy-sidenav-item-inset: var(--svy-space-2);
     --svy-sidenav-item-gap: var(--svy-space-2);
     --svy-sidenav-item-padding-x: var(--svy-space-3);
+    --svy-sidenav-item-weight: normal;
+    --svy-sidenav-selected-weight: 500;
+    --svy-sidenav-border-width: var(--svy-border-width);
     --svy-sidenav-indent: var(--svy-space-4);
     --svy-sidenav-hover-bg: var(--svy-chrome-hover);
     --svy-sidenav-hover-fg: var(--svy-chrome-text);
@@ -685,7 +737,7 @@ div:not(.container):not(.container-fluid):not([class^="col-xs-"]):not([class^="c
     .svy-legacy-sidenav-geometry();
     background: var(--svy-sidenav-bg);
     color: var(--svy-sidenav-fg);
-    border: var(--svy-border-width) solid var(--svy-sidenav-border);
+    border: var(--svy-sidenav-border-width) solid var(--svy-sidenav-border);
 }
 .svy-sidenav .svy-sidenav-menu,
 .svy-sidenav .sn-level-1 {
@@ -704,7 +756,6 @@ div:not(.container):not(.container-fluid):not([class^="col-xs-"]):not([class^="c
     color: inherit;
     border-left: 0;
 }
-/* spacing in :where() has no specificity, so a solution's own sidenav rules (padding, width, icon spacing) always win, as on 2023.3.0_ng2 */
 .svy-sidenav .svy-sidenav-item {
     position: relative;
     display: flex;
@@ -712,36 +763,15 @@ div:not(.container):not(.container-fluid):not([class^="col-xs-"]):not([class^="c
     min-height: var(--svy-sidenav-item-height);
     margin: 1px 0;
 }
-:where(.svy-sidenav .svy-sidenav-item) {
-    gap: var(--svy-sidenav-item-gap);
-    padding: 0 var(--svy-sidenav-item-padding-x);
-}
+.svy-sidenav-spacing();
 .svy-sidenav .svy-sidenav-item {
     border-radius: var(--svy-sidenav-item-radius);
     color: var(--svy-sidenav-item-fg);
     text-decoration: none;
     transition: background-color var(--svy-motion-fast), color var(--svy-motion-fast);
 }
-:where(.svy-sidenav .svy-sidenav-item.sn-level-2) {
-    padding-left: calc(var(--svy-sidenav-item-padding-x) + var(--svy-sidenav-indent));
-}
-:where(.svy-sidenav .svy-sidenav-item.sn-level-3) {
-    padding-left: calc(var(--svy-sidenav-item-padding-x) + var(--svy-sidenav-indent) * 2);
-}
-:where(.svy-sidenav .svy-sidenav-item.sn-level-4) {
-    padding-left: calc(var(--svy-sidenav-item-padding-x) + var(--svy-sidenav-indent) * 3);
-}
-/* the collapse arrow is absolutely placed at the right end; keep the text out from under it */
-:where(.svy-sidenav .svy-sidenav-item:has(> .svy-sidenav-collapse-icon) > .svy-sidenav-item-text) {
-    margin-right: calc(var(--svy-space-1) * 2 + 1em);
-}
 .svy-sidenav .svy-sidenav-item-icon {
     flex: none;
-}
-:where(.svy-sidenav .svy-sidenav-item-icon) {
-    width: 1.25em;
-    text-align: center;
-    color: inherit;
 }
 .svy-sidenav .svy-sidenav-item-text {
     flex: 1 1 auto;
@@ -756,10 +786,36 @@ div:not(.container):not(.container-fluid):not([class^="col-xs-"]):not([class^="c
     font-size: var(--svy-font-size-xs);
     font-weight: 500;
 }
+/* a count badge is the span after the item text; badgeStyleClass may be empty, so it is styled without a class too */
+.svy-sidenav .svy-sidenav-item-text > span {
+    margin-left: auto;
+    padding: 0 var(--svy-space-2);
+    border-radius: var(--svy-radius-pill);
+    font-size: var(--svy-font-size-xs);
+    font-weight: 500;
+    line-height: 1.6;
+    background-color: var(--svy-sidenav-badge-bg);
+    color: var(--svy-sidenav-badge-fg);
+}
 /* the default badgeStyleClass is "badge text-bg-secondary"; Bootstrap utilities use !important, so only this can re-point it */
 .svy-sidenav .svy-sidenav-item-text .badge.text-bg-secondary {
     background-color: var(--svy-sidenav-badge-bg) !important;
     color: var(--svy-sidenav-badge-fg) !important;
+}
+/* status badges use the soft tone, which reads on a light and on a dark rail */
+.svy-sidenav-badge-tone(@name, @bs) {
+    .svy-sidenav .svy-sidenav-item-text .badge.text-bg-@{bs} {
+        background-color: ~"var(--svy-@{name}-soft-bg)" !important;
+        color: ~"var(--svy-@{name}-soft-fg)" !important;
+    }
+}
+.svy-sidenav-badge-tone(danger, danger);
+.svy-sidenav-badge-tone(warning, warning);
+.svy-sidenav-badge-tone(success, success);
+.svy-sidenav-badge-tone(info, info);
+.svy-sidenav .svy-sidenav-item-text .badge.text-bg-primary {
+    background-color: var(--svy-accent-subtle) !important;
+    color: var(--svy-accent) !important;
 }
 .svy-sidenav .svy-sidenav-collapse-icon {
     top: 50%;
@@ -777,7 +833,7 @@ div:not(.container):not(.container-fluid):not([class^="col-xs-"]):not([class^="c
 .svy-sidenav li.svy-navitem-selected > .svy-sidenav-item:hover {
     background-color: var(--svy-sidenav-selected-bg);
     color: var(--svy-sidenav-selected-fg);
-    font-weight: 500;
+    font-weight: var(--svy-sidenav-selected-weight);
     box-shadow: inset var(--svy-sidenav-indicator-width) 0 0 var(--svy-sidenav-indicator-color);
 }
 .svy-sidenav li.svy-navitem-disabled > .svy-sidenav-item,
@@ -788,10 +844,6 @@ div:not(.container):not(.container-fluid):not([class^="col-xs-"]):not([class^="c
 .svy-sidenav .svy-sidenav-item:focus-visible {
     outline: var(--svy-focus-ring-width) solid var(--svy-focus-ring);
     outline-offset: -2px;
-}
-.svy-sidenav .svy-sidenav-divider {
-    margin: var(--svy-space-2) var(--svy-space-3);
-    border-top: var(--svy-border-width) solid var(--svy-sidenav-border);
 }
 
 /* START Windows and dialogs */

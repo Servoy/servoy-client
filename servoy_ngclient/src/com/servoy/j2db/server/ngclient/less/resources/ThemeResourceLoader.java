@@ -125,6 +125,32 @@ public class ThemeResourceLoader
 	}
 
 	/**
+	 * Points every servoy_theme.less and servoy_theme_properties.less import in the given less text at the given version, so the theme
+	 * rules and the theme properties always come from the same version. "latest" removes the ?version= parameter. Other imports and the
+	 * rest of the text are left untouched.
+	 *
+	 * @return the text with the imports rewritten, the same text when there is nothing to rewrite
+	 */
+	public static String setThemeVersion(String less, String version)
+	{
+		if (less == null) return null;
+		String query = version == null || "latest".equals(version) ? "" : "?version=" + version;
+		return THEME_IMPORT.matcher(less).replaceAll(m -> java.util.regex.Matcher.quoteReplacement(m.group(1) + m.group(2) + query + m.group(3)));
+	}
+
+	/**
+	 * @return true when the less text imports servoy_theme.less or servoy_theme_properties.less
+	 */
+	public static boolean importsTheme(String less)
+	{
+		return less != null && THEME_IMPORT.matcher(less).find();
+	}
+
+	private static final java.util.regex.Pattern THEME_IMPORT = java.util.regex.Pattern
+		.compile("(@import\\s*(?:\\([^)]*\\)\\s*)?['\"])(" + java.util.regex.Pattern.quote(THEME_LESS) + "|" + java.util.regex.Pattern.quote(PROPERTIES_LESS) +
+			")(?:\\?version=[^'\"]*)?(['\"])");
+
+	/**
 	 * The theme editor appends "_ng2" to the selected version when the Titanium flag is set, so "semantic_ng2" is the same theme.
 	 */
 	private static boolean isSemantic(String version)
