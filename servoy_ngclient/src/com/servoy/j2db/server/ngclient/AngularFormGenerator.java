@@ -22,6 +22,7 @@ import java.awt.Point;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
@@ -29,6 +30,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 import org.json.JSONWriter;
 import org.sablo.Container;
@@ -77,6 +79,8 @@ import com.servoy.j2db.util.Utils;
 public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 {
 	private static final Logger LOG = LoggerFactory.getLogger("FormOutputGenerator"); //$NON-NLS-1$
+	private static final Method RULE_GET_SELECTORS = getRuleMethod("getSelectors"); //$NON-NLS-1$
+	private static final Method RULE_GET_SUBRULES = getRuleMethod("getSubrules"); //$NON-NLS-1$
 
 	private final NGClient client;
 	private final Form form;
@@ -396,12 +400,12 @@ public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 		ReaderFactory readerFactory = new ServoyLessReaderFactory(fs, formName + ".less");
 		parser.parse(baseUrl, new StringReader(formCss), readerFactory);
 		List<Formattable> rules = parser.getRules();
+		Function<String, String> scoper = selector -> selector.trim().startsWith("@") ? selector
+			: selector.contains(" ") ? selector.replaceFirst(" ", "[svy-" + formName + "] ") : selector + "[svy-" + formName + ']';
 		rules.forEach(r -> {
 			if (r instanceof Rule rule)
 			{
-				rule.rewriteSelectors(
-					selector -> selector.contains(" ") ? selector.replaceFirst(" ", "[svy-" + formName + "] ")
-						: selector + "[svy-" + formName + ']');
+				scopeRule(rule, scoper);
 			}
 		});
 		CssFormatter formatter = new CompressCssFormatter();
@@ -409,6 +413,77 @@ public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 		StringBuilder builder = new StringBuilder();
 		formatter.format(parser, baseUrl, readerFactory, builder, Collections.singletonMap(Less.REWRITE_URLS, "all"));
 		return builder.toString();
+	}
+
+	/**
+	 * SVY-21592 the form scope goes on the selectors of normal rules only. Conditional at-rules (@media, @supports, @container, @document)
+	 * keep their condition and the scope goes on the rules inside them; other at-rules (@keyframes, @font-face, ...) are left as they are.
+	 * jlessc does not expose the selectors and nested rules of a Rule, so they are read with reflection; when that is not possible
+	 * the at-rule condition is still kept intact, only the rules inside it stay unscoped.
+	 */
+	private static void scopeRule(Rule rule, Function<String, String> scoper)
+	{
+		String[] selectors = getRuleSelectors(rule);
+		if (selectors == null || selectors.length == 0 || !selectors[0].trim().startsWith("@"))
+		{
+			rule.rewriteSelectors(scoper);
+		}
+		else if (isConditionalAtRule(selectors[0]))
+		{
+			for (Rule subrule : getSubrules(rule))
+			{
+				scopeRule(subrule, scoper);
+			}
+		}
+	}
+
+	private static boolean isConditionalAtRule(String selector)
+	{
+		String atRule = selector.trim();
+		return atRule.startsWith("@media") || atRule.startsWith("@supports") || atRule.startsWith("@container") || atRule.startsWith("@document");
+	}
+
+	private static String[] getRuleSelectors(Rule rule)
+	{
+		try
+		{
+			return RULE_GET_SELECTORS != null ? (String[])RULE_GET_SELECTORS.invoke(rule) : null;
+		}
+		catch (ReflectiveOperationException e)
+		{
+			LOG.warn("Can't read the selectors of a less rule", e); //$NON-NLS-1$
+			return null;
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	private static List<Rule> getSubrules(Rule rule)
+	{
+		try
+		{
+			List<Rule> subrules = RULE_GET_SUBRULES != null ? (List<Rule>)RULE_GET_SUBRULES.invoke(rule) : null;
+			return subrules != null ? subrules : Collections.emptyList();
+		}
+		catch (ReflectiveOperationException e)
+		{
+			LOG.warn("Can't read the nested rules of a less rule", e); //$NON-NLS-1$
+			return Collections.emptyList();
+		}
+	}
+
+	private static Method getRuleMethod(String name)
+	{
+		try
+		{
+			Method method = Rule.class.getDeclaredMethod(name);
+			method.setAccessible(true);
+			return method;
+		}
+		catch (Exception e)
+		{
+			LOG.warn("Less Rule." + name + "() not available, @media rules in form less will not be scoped to the form", e); //$NON-NLS-1$ //$NON-NLS-2$
+			return null;
+		}
 	}
 
 	@SuppressWarnings("nls")
