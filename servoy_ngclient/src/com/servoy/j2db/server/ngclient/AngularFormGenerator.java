@@ -88,6 +88,7 @@ public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 	private final FlattenedSolution flattenedSolution;
 	private final boolean isDesigner;
 	private final boolean isFormTemplate;
+	private final boolean isSampleData;
 	private final LayoutContainer zoomedInContainer;
 
 	public AngularFormGenerator(NGClient client, Form form, String realFormName, boolean isDesigner)
@@ -98,6 +99,7 @@ public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 		this.flattenedSolution = null;
 		this.isDesigner = isDesigner;
 		this.isFormTemplate = false;
+		this.isSampleData = false;
 		this.zoomedInContainer = null;
 	}
 
@@ -115,12 +117,32 @@ public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 	public AngularFormGenerator(FlattenedSolution fs, Form form, String realFormName, boolean isDesigner, boolean formTemplate,
 		LayoutContainer zoomedInContainer)
 	{
+		this(fs, form, realFormName, isDesigner, formTemplate, false, zoomedInContainer);
+	}
+
+	/**
+	 * Sample-data form-template generation variant (SVY-21610): as the form-template variant above, but additionally asks
+	 * the property types to write synthetic, deterministic sample values (a dataprovider value,
+	 * {@link SampleDataProvider#SAMPLE_ROW_COUNT} foundset rows) so the stateless render shows data instead of empty
+	 * component chrome.
+	 *
+	 * @throws IllegalArgumentException when {@code sampleData} is requested without {@code formTemplate}: sample data is
+	 *             only ever produced by the form-template render, never by the designer or a real client.
+	 */
+	public AngularFormGenerator(FlattenedSolution fs, Form form, String realFormName, boolean isDesigner, boolean formTemplate, boolean sampleData,
+		LayoutContainer zoomedInContainer)
+	{
+		if (sampleData && !formTemplate)
+		{
+			throw new IllegalArgumentException("sampleData requires formTemplate mode (SVY-21610)");
+		}
 		this.flattenedSolution = fs;
 		this.form = form;
 		this.realFormName = realFormName;
 		this.client = null;
 		this.isDesigner = isDesigner;
 		this.isFormTemplate = formTemplate;
+		this.isSampleData = sampleData;
 		this.zoomedInContainer = zoomedInContainer;
 	}
 
@@ -291,13 +313,13 @@ public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 			{
 				PersistHelper.getFlattenedPersist(flattenedSolution, form, zoomedInContainer).acceptVisitor(new ChildrenJSONGenerator(writer,
 					servoyDataConverterContext, form, null,
-					null, form, true, isDesigner, isFormTemplate), PositionComparator.RESPONSIVE_PERSIST_COMPARATOR);
+					null, form, true, isDesigner, isFormTemplate, isSampleData), PositionComparator.RESPONSIVE_PERSIST_COMPARATOR);
 			}
 			else
 			{
 				form.acceptVisitor(new ChildrenJSONGenerator(writer,
 					servoyDataConverterContext, form, null,
-					null, form, true, isDesigner, isFormTemplate), PositionComparator.RESPONSIVE_PERSIST_COMPARATOR);
+					null, form, true, isDesigner, isFormTemplate, isSampleData), PositionComparator.RESPONSIVE_PERSIST_COMPARATOR);
 			}
 
 		}
@@ -372,7 +394,7 @@ public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 					form.acceptVisitor(new ChildrenJSONGenerator(writer,
 						servoyDataConverterContext, form,
 						null,
-						part, form, true, isDesigner, isFormTemplate), ChildrenJSONGenerator.FORM_INDEX_WITH_HIERARCHY_COMPARATOR);
+						part, form, true, isDesigner, isFormTemplate, isSampleData), ChildrenJSONGenerator.FORM_INDEX_WITH_HIERARCHY_COMPARATOR);
 					writer.endArray();
 					writer.endObject();
 				}

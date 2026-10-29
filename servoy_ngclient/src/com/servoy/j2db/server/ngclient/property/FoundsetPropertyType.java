@@ -53,6 +53,7 @@ import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElement
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IRhinoToSabloComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
+import com.servoy.j2db.server.ngclient.property.types.SampleDataProvider;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Utils;
 
@@ -96,18 +97,36 @@ public class FoundsetPropertyType extends DefaultPropertyType<FoundsetTypeSabloV
 	{
 		if (formElementValue == null) return writer;
 
-		// this just dumps an empty/dummy value
+		// SVY-21610: in sample-data mode report a small, fully-loaded synthetic foundset so a grid renders rows
+		// instead of headers over an empty body. Everywhere else this stays the empty/dummy value it always was.
+		boolean sampleData = formElementContext != null && formElementContext.getFormElement() != null &&
+			formElementContext.getFormElement().hasSampleData();
+		int rowCount = sampleData ? SampleDataProvider.SAMPLE_ROW_COUNT : 0;
+
 		JSONUtils.addKeyIfPresent(writer, key);
 		writer.object();
-		writer.key(FoundsetTypeSabloValue.SERVER_SIZE).value(0);
-		writer.key(FoundsetTypeSabloValue.SELECTED_ROW_INDEXES).array().endArray();
+		writer.key(FoundsetTypeSabloValue.SERVER_SIZE).value(rowCount);
+		writer.key(FoundsetTypeSabloValue.SELECTED_ROW_INDEXES).array();
+		// a selected row lets the agent see selected-row styling, which was one of the unverifiable defect classes
+		if (rowCount > 0) writer.value(0);
+		writer.endArray();
 		writer.key(FoundsetTypeSabloValue.MULTI_SELECT).value(false);
 		writer.key(FoundsetTypeSabloValue.FIND_MODE).value(false);
+		// MUST stay false while serverSize == rows.length: a grid that believes more rows exist calls
+		// foundset.loadExtraRecordsAsync(), whose promise can never resolve without a websocket session - the grid
+		// would then hang in a permanent loading state instead of rendering.
 		writer.key(FoundsetTypeSabloValue.HAS_MORE_ROWS).value(false);
 
 		// viewPort
-		writer.key(FoundsetTypeSabloValue.VIEW_PORT).object().key(FoundsetTypeSabloValue.START_INDEX).value(0).key(FoundsetTypeSabloValue.SIZE).value(0).key(
-			FoundsetTypeSabloValue.ROWS).array().endArray().endObject();
+		writer.key(FoundsetTypeSabloValue.VIEW_PORT).object().key(FoundsetTypeSabloValue.START_INDEX).value(0).key(FoundsetTypeSabloValue.SIZE).value(
+			rowCount).key(FoundsetTypeSabloValue.ROWS).array();
+		for (int i = 0; i < rowCount; i++)
+		{
+			// _svyRowId is the only key a row needs here: the client reads it (FoundsetManager.getViewPortRow) and the
+			// per-column cell values arrive through the foundset-LINKED properties, not through these row objects.
+			writer.object().key(FoundsetTypeSabloValue.ROW_ID_COL_KEY).value(String.valueOf(i + 1)).endObject();
+		}
+		writer.endArray().endObject();
 		// end viewPort
 
 		writer.endObject();

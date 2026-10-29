@@ -188,7 +188,13 @@ public class FoundsetLinkedPropertyType<YF, YT> implements IYieldingType<Foundse
 
 		writer.key(FoundsetLinkedPropertyType.FOR_FOUNDSET_PROPERTY_NAME).value(getConfig(pd).forFoundset);
 
-		if (!(wrappedType instanceof ISupportTemplateValue) || // types that do not implement ISupportTemplateValue are considered to be in template
+		// SVY-21610: in sample-data mode always write the wrapped value under SINGLE_VALUE, even when the wrapped type
+		// says it has no template value (a dataprovider says exactly that). The client's SingleValueState then fans
+		// that one value across the foundset's viewport, so every row of the column gets a cell - which is what makes
+		// a grid column show text in the stateless render.
+		boolean sampleData = formElementContext != null && formElementContext.getFormElement() != null &&
+			formElementContext.getFormElement().hasSampleData();
+		if (sampleData || !(wrappedType instanceof ISupportTemplateValue) || // types that do not implement ISupportTemplateValue are considered to be in template
 			((ISupportTemplateValue<YF>)wrappedType).valueInTemplate(formElementValue, getConfig(pd).wrappedPropertyDescription, formElementContext))
 		{
 			NGConversions.INSTANCE.convertFormElementToTemplateJSONValue(writer, SINGLE_VALUE, formElementValue, getConfig(pd).wrappedPropertyDescription,

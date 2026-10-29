@@ -54,4 +54,23 @@ public interface IFormElementCache
 		return getFormElement(component, fs, path, design);
 	}
 
+	/**
+	 * Same as {@link #getFormElement(IFormElement, FlattenedSolution, PropertyPath, boolean, boolean)} but also allows
+	 * requesting sample-data mode (SVY-21610); see {@link FormElement#hasSampleData()}. The default implementation
+	 * ignores sampleData so existing cache implementations keep behaving as before.
+	 *
+	 * @param component
+	 * @param fs
+	 * @param path
+	 * @param design
+	 * @param formTemplate
+	 * @param sampleData
+	 * @return
+	 */
+	default FormElement getFormElement(IFormElement component, FlattenedSolution fs, PropertyPath path, boolean design, boolean formTemplate,
+		boolean sampleData)
+	{
+		return getFormElement(component, fs, path, design, formTemplate);
+	}
+
 }

@@ -100,6 +100,7 @@ public final class FormElement implements INGFormElement
 
 	private final boolean inDesigner;
 	private final boolean formTemplate;
+	private final boolean sampleData;
 	private boolean isVisible = true;
 
 	private FlattenedSolution fs;
@@ -111,9 +112,20 @@ public final class FormElement implements INGFormElement
 
 	public FormElement(IFormElement persist, FlattenedSolution fs, PropertyPath propertyPath, boolean inDesigner, boolean formTemplate)
 	{
+		this(persist, fs, propertyPath, inDesigner, formTemplate, false);
+	}
+
+	/**
+	 * Sample-data variant (SVY-21610): form-template mode that additionally asks the property types to write
+	 * synthetic, deterministic sample values (a dataprovider value, 3 foundset rows) so the stateless render
+	 * shows data instead of empty component chrome. {@code sampleData} implies {@code formTemplate}.
+	 */
+	public FormElement(IFormElement persist, FlattenedSolution fs, PropertyPath propertyPath, boolean inDesigner, boolean formTemplate, boolean sampleData)
+	{
 		this.fs = fs;
 		this.inDesigner = inDesigner;
 		this.formTemplate = formTemplate;
+		this.sampleData = sampleData;
 		this.persistImpl = new PersistBasedFormElementImpl(persist, this);
 		Form f = persistImpl.getForm();
 		if (f instanceof FlattenedForm) this.form = f;
@@ -180,8 +192,16 @@ public final class FormElement implements INGFormElement
 	public FormElement(String componentTypeString, JSONObject jsonObject, Form form, String uniqueIdWithinForm, FlattenedSolution fs, PropertyPath propertyPath,
 		boolean inDesigner, boolean formTemplate)
 	{
+		this(componentTypeString, jsonObject, form, uniqueIdWithinForm, fs, propertyPath, inDesigner, formTemplate, false);
+	}
+
+	/** Sample-data variant (SVY-21610); see {@link #FormElement(IFormElement, FlattenedSolution, PropertyPath, boolean, boolean, boolean)}. */
+	public FormElement(String componentTypeString, JSONObject jsonObject, Form form, String uniqueIdWithinForm, FlattenedSolution fs, PropertyPath propertyPath,
+		boolean inDesigner, boolean formTemplate, boolean sampleData)
+	{
 		this.inDesigner = inDesigner;
 		this.formTemplate = formTemplate;
+		this.sampleData = sampleData;
 		this.persistImpl = null;
 		if (form instanceof FlattenedForm) this.form = form;
 		else this.form = fs.getFlattenedForm(form);
@@ -902,6 +922,19 @@ public final class FormElement implements INGFormElement
 	public boolean isFormTemplate()
 	{
 		return formTemplate;
+	}
+
+	/**
+	 * Sample-data mode (SVY-21610): a form-template render that asks the property types to write synthetic,
+	 * deterministic sample values - a dataprovider value, {@link SampleDataProvider#SAMPLE_ROW_COUNT} foundset
+	 * rows - so the stateless render shows data instead of empty component chrome. Always implies
+	 * {@link #isFormTemplate()}; never true for the designer or a real client.
+	 *
+	 * @return the sampleData
+	 */
+	public boolean hasSampleData()
+	{
+		return sampleData;
 	}
 
 	/**

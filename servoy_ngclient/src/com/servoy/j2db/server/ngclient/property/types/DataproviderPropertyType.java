@@ -45,6 +45,7 @@ import com.servoy.j2db.server.ngclient.property.DataproviderConfig;
 import com.servoy.j2db.server.ngclient.property.ICanBeLinkedToFoundset;
 import com.servoy.j2db.server.ngclient.property.NGComponentDALContext;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToSabloComponent;
+import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IRhinoToSabloComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
 import com.servoy.j2db.util.ScopesUtils;
@@ -55,7 +56,8 @@ import com.servoy.j2db.util.ScopesUtils;
  */
 public class DataproviderPropertyType extends DefaultPropertyType<DataproviderTypeSabloValue>
 	implements IFormElementToSabloComponent<String, DataproviderTypeSabloValue>, IConvertedPropertyType<DataproviderTypeSabloValue>,
-	ISupportTemplateValue<String>, ISabloComponentToRhino<DataproviderTypeSabloValue>, IRhinoToSabloComponent<DataproviderTypeSabloValue>,
+	ISupportTemplateValue<String>, IFormElementToTemplateJSON<String, DataproviderTypeSabloValue>,
+	ISabloComponentToRhino<DataproviderTypeSabloValue>, IRhinoToSabloComponent<DataproviderTypeSabloValue>,
 	IDataLinkedType<String, DataproviderTypeSabloValue>, IFindModeAwareType<String, DataproviderTypeSabloValue>,
 	ICanBeLinkedToFoundset<String, DataproviderTypeSabloValue>, IPropertyConverterForBrowserWithDynamicClientType<DataproviderTypeSabloValue>,
 	IPropertyWithAttachDependencies<DataproviderTypeSabloValue>
@@ -141,6 +143,29 @@ public class DataproviderPropertyType extends DefaultPropertyType<DataproviderTy
 	public boolean valueInTemplate(String object, PropertyDescription pd, FormElementContext formElementContext)
 	{
 		return false; // we have no value until the client is created for dataproviders
+	}
+
+	/**
+	 * SVY-21610: in sample-data mode the stateless form-template render writes a synthetic, deterministic value for
+	 * the dataprovider so a field/label shows text instead of rendering empty. In every other mode (real client,
+	 * designer, plain form-template) nothing is written - identical to the pre-SVY-21610 behaviour that
+	 * {@link #valueInTemplate(String, PropertyDescription, FormElementContext)} expresses.
+	 *
+	 * <p>
+	 * Note that {@link NGConversions.FormElementToJSON} checks {@code IFormElementToTemplateJSON} <em>before</em>
+	 * {@code ISupportTemplateValue}, so implementing this takes precedence over {@code valueInTemplate} returning
+	 * false; {@code valueInTemplate} is left untouched so the non-sample paths stay provably unchanged.
+	 * </p>
+	 */
+	@Override
+	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, String formElementValue, PropertyDescription pd,
+		FormElementContext formElementContext) throws JSONException
+	{
+		if (formElementValue == null || formElementContext == null) return writer;
+		FormElement formElement = formElementContext.getFormElement();
+		if (formElement == null || !formElement.hasSampleData()) return writer;
+
+		return SampleDataProvider.writeSampleValue(writer, key, SampleDataProvider.getSampleValue(formElementValue, 0, formElementContext));
 	}
 
 	@Override

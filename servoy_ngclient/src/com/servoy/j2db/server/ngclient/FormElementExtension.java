@@ -74,6 +74,12 @@ public class FormElementExtension implements INGFormElement
 	}
 
 	@Override
+	public boolean hasSampleData()
+	{
+		return parentFormElementContext.hasSampleData();
+	}
+
+	@Override
 	public String getName()
 	{
 		return parentFormElementContext.getName();
