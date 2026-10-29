@@ -418,14 +418,21 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 	public FormElement getFormElement(IFormElement formElement, FlattenedSolution fs, PropertyPath propertyPath, final boolean designer,
 		final boolean formTemplate)
 	{
-		// dont cache if solution model is used (media,valuelist,relations can be changed for a none changed element); form-template mode is also not cached
-		// as it is a distinct render projection from the normal (cached) client one
-		if (designer || formTemplate || (fs.getSolutionCopy(false) != null) ||
+		return getFormElement(formElement, fs, propertyPath, designer, formTemplate, false);
+	}
+
+	@Override
+	public FormElement getFormElement(IFormElement formElement, FlattenedSolution fs, PropertyPath propertyPath, final boolean designer,
+		final boolean formTemplate, final boolean sampleData)
+	{
+		// dont cache if solution model is used (media,valuelist,relations can be changed for a none changed element); form-template and sample-data modes are
+		// also not cached as they are distinct render projections from the normal (cached) client one
+		if (designer || formTemplate || sampleData || (fs.getSolutionCopy(false) != null) ||
 			((AbstractBase)formElement).getRuntimeProperty(FC_NAME_OF_ROOT_ACTUAL_FORM_EVEN_IN_CASE_OF_NESTED_FORM_COMPONENTS) != null)
 		{
 			if (formElement instanceof BodyPortal) return createBodyPortalFormElement((BodyPortal)formElement, fs, designer, formTemplate);
 			else return new FormElement(formElement, fs, propertyPath == null ? new PropertyPath().setShouldAddElementName() : propertyPath, designer,
-				formTemplate);
+				formTemplate, sampleData);
 		}
 		FormElement persistWrapper = persistWrappers.get(formElement);
 		if (persistWrapper == null)
