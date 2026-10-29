@@ -7,7 +7,7 @@
 	</prerequisites>
 	<parent>
 		<artifactId>servoy-client</artifactId>
-		<version>2025.3.7-SNAPSHOT</version>
+		<version>2025.3.8-SNAPSHOT</version>
 		<groupId>com.servoy</groupId>
 	</parent>
 
