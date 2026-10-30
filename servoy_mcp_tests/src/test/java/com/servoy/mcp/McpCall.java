@@ -54,11 +54,13 @@ final class McpCall
 {
 	private final String body;
 	private final int status;
+	private final Map<String, String> headers;
 
-	private McpCall(String body, int status)
+	private McpCall(String body, int status, Map<String, String> headers)
 	{
 		this.body = body;
 		this.status = status;
+		this.headers = headers;
 	}
 
 	/** The response body, as the agent would receive it. */
@@ -71,6 +73,12 @@ final class McpCall
 	int status()
 	{
 		return status;
+	}
+
+	/** A response header the server set, or <code>null</code> when it set none by that name. */
+	String header(String name)
+	{
+		return headers.get(name.toLowerCase());
 	}
 
 	/** Whether the body mentions the given text - enough for what these tests assert. */
@@ -114,17 +122,18 @@ final class McpCall
 
 		StringWriter written = new StringWriter();
 		int[] status = new int[] { HttpServletResponse.SC_OK };
+		Map<String, String> responseHeaders = new HashMap<String, String>();
 
 		// the transport matches on the URI ending with the solution's endpoint, so a call meant for
 		// one solution cannot be answered by another
 		String uri = "/servoy-service/" + McpRuntime.WEBSERVICE_NAME + "/" + server.getSolutionName();
 
 		HttpServletRequest request = request(uri, payload, headers);
-		HttpServletResponse response = response(written, status);
+		HttpServletResponse response = response(written, status, responseHeaders);
 
 		server.service(request, response);
 
-		return new McpCall(written.toString(), status[0]);
+		return new McpCall(written.toString(), status[0], responseHeaders);
 	}
 
 	@SuppressWarnings("nls")
@@ -215,7 +224,7 @@ final class McpCall
 	}
 
 	@SuppressWarnings("nls")
-	private static HttpServletResponse response(final StringWriter written, final int[] status)
+	private static HttpServletResponse response(final StringWriter written, final int[] status, final Map<String, String> responseHeaders)
 	{
 		final PrintWriter writer = new PrintWriter(written);
 
@@ -236,6 +245,10 @@ final class McpCall
 						status[0] = ((Integer)arguments[0]).intValue();
 						if (arguments.length > 1 && arguments[1] != null) writer.write(String.valueOf(arguments[1]));
 						writer.flush();
+						return null;
+					case "setHeader" :
+					case "addHeader" :
+						responseHeaders.put(String.valueOf(arguments[0]).toLowerCase(), String.valueOf(arguments[1]));
 						return null;
 					case "getStatus" :
 						return Integer.valueOf(status[0]);

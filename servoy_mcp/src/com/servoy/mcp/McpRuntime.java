@@ -16,10 +16,14 @@
  */
 package com.servoy.mcp;
 
+import java.time.Duration;
 import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
+import java.util.function.IntPredicate;
 
 import org.apache.commons.pool2.BaseKeyedPooledObjectFactory;
 import org.apache.commons.pool2.PooledObject;
@@ -39,6 +43,7 @@ import com.servoy.j2db.server.headlessclient.HeadlessClientFactory;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.server.shared.IHeadlessClient;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.Settings;
 
 /**
  * The MCP server, for the lifetime of the application server.
@@ -54,9 +59,16 @@ import com.servoy.j2db.util.Debug;
  * and one server can host as many as it likes. <code>rest_ws</code> takes the same approach: the
  * solution comes from the URL and the plugin has no solution setting at all.</p>
  *
- * <p><b>The client pool is unlimited on purpose.</b> How many concurrent tool calls a deployment
- * wants to run, and what that costs in licences, is the deployment's business. Imposing a ceiling
- * here would only turn a decision someone else should make into a failure they cannot see.</p>
+ * <p><b>The client pool is bounded</b> per solution/user/tenant, and optionally across all of them.
+ * Both limits (the per-key limit and the overall client max), the number of idle clients kept and
+ * how long a caller waits (the wait timeout) are configurable through the four
+ * <code>servoy.mcpClientPool.*</code> properties (see {@link Settings}); they are read once, when
+ * this class is loaded. A caller that finds the pool exhausted waits up to the configured timeout
+ * for a client to be returned, and then fails with a {@link McpClientPoolTimeoutException} and a
+ * WARN in the log. The defaults are a safety ceiling, not a tuning limit: a deployment's normal
+ * concurrency stays far below them, and licences usually run out first. The wait timeout should
+ * stay shorter than the request timeouts of the MCP clients in front of the server. Idle clients
+ * above the idle limit are released when returned.</p>
  *
  * @author Servoy
  */
@@ -67,6 +79,56 @@ public class McpRuntime
 	public static final String WEBSERVICE_NAME = "mcp";
 
 	static final Logger log = LoggerFactory.getLogger("servoy.mcp");
+
+	// the validity rules of the four settings; declared before the values that use them (static initialization order)
+	static final IntPredicate VALID_MAX_CLIENTS_PER_KEY = (value -> (value > 0));
+	static final IntPredicate VALID_MAX_IDLE_PER_KEY = (value -> (value >= 0));
+	static final IntPredicate VALID_TOTAL_MAX_CLIENTS = (value -> (value == -1 || value > 0));
+	static final IntPredicate VALID_WAIT_TIMEOUT = (value -> (value > 0));
+
+	static final int MAX_CLIENTS_PER_KEY = readInt(McpRuntime::lookup, Settings.MCP_CLIENT_POOL_MAX_CLIENTS_PER_KEY,
+		Settings.MCP_CLIENT_POOL_MAX_CLIENTS_PER_KEY_DEFAULT, VALID_MAX_CLIENTS_PER_KEY);
+	static final int MAX_IDLE_PER_KEY = readInt(McpRuntime::lookup, Settings.MCP_CLIENT_POOL_MAX_IDLE_PER_KEY,
+		Settings.MCP_CLIENT_POOL_MAX_IDLE_PER_KEY_DEFAULT, VALID_MAX_IDLE_PER_KEY);
+	static final int TOTAL_MAX_CLIENTS = readInt(McpRuntime::lookup, Settings.MCP_CLIENT_POOL_MAX_TOTAL_CLIENTS,
+		Settings.MCP_CLIENT_POOL_MAX_TOTAL_CLIENTS_DEFAULT, VALID_TOTAL_MAX_CLIENTS);
+	/** In seconds. */
+	static final int WAIT_FOR_AVAILABLE_CLIENT_TIMEOUT = readInt(McpRuntime::lookup, Settings.MCP_CLIENT_POOL_WAIT_TIMEOUT,
+		Settings.MCP_CLIENT_POOL_WAIT_TIMEOUT_DEFAULT, VALID_WAIT_TIMEOUT);
+
+	private static String lookup(String key)
+	{
+		return Settings.getInstance().getProperty(key);
+	}
+
+	/**
+	 * Reads one integer setting.
+	 *
+	 * <p>A missing, blank or <code>null</code> value means "not set" and gives the default silently.
+	 * A value that is not a number, or that <code>valid</code> refuses, gives the default and one
+	 * WARN.</p>
+	 */
+	static int readInt(Function<String, String> lookup, String key, int defaultValue, IntPredicate valid)
+	{
+		String value = lookup.apply(key);
+		if (value == null) return defaultValue;
+
+		String trimmed = value.trim();
+		if (trimmed.length() == 0 || "null".equalsIgnoreCase(trimmed)) return defaultValue;
+
+		try
+		{
+			int parsed = Integer.parseInt(trimmed);
+			if (valid.test(parsed)) return parsed;
+		}
+		catch (NumberFormatException e)
+		{
+			// reported below
+		}
+
+		log.warn("mcp: ignoring invalid value '{}' for {}, using {}", value, key, Integer.valueOf(defaultValue));
+		return defaultValue;
+	}
 
 	private static final String[] SOLUTION_OPEN_METHOD_ARGS = new String[] { "mcp_server" };
 
@@ -99,6 +161,9 @@ public class McpRuntime
 	}
 
 	private final ClientSource clientSource;
+	private final int maxClientsPerKey;
+	private final int totalMaxClients;
+	private final Duration waitTimeout;
 
 	private McpRuntime()
 	{
@@ -107,15 +172,25 @@ public class McpRuntime
 
 	McpRuntime(ClientSource clientSource)
 	{
+		this(clientSource, MAX_CLIENTS_PER_KEY, MAX_IDLE_PER_KEY, TOTAL_MAX_CLIENTS,
+			Duration.ofSeconds(WAIT_FOR_AVAILABLE_CLIENT_TIMEOUT));
+	}
+
+	McpRuntime(ClientSource clientSource, int maxClientsPerKey, int maxIdlePerKey, int totalMaxClients, Duration waitTimeout)
+	{
 		this.clientSource = clientSource;
+		this.maxClientsPerKey = maxClientsPerKey;
+		this.totalMaxClients = totalMaxClients;
+		this.waitTimeout = waitTimeout;
 
 		GenericKeyedObjectPoolConfig<IHeadlessClient> config = new GenericKeyedObjectPoolConfig<>();
-		// no ceiling: see the class comment
-		config.setMaxTotalPerKey(-1);
-		config.setMaxIdlePerKey(-1);
-		config.setBlockWhenExhausted(false);
+		config.setMaxTotalPerKey(maxClientsPerKey);
+		config.setMaxIdlePerKey(maxIdlePerKey);
+		config.setMaxTotal(totalMaxClients);
+		config.setBlockWhenExhausted(true);
+		config.setMaxWait(waitTimeout);
 
-		clientPool = new GenericKeyedObjectPool<>(new BaseKeyedPooledObjectFactory<String, IHeadlessClient>()
+		clientPool = new GenericKeyedObjectPool<String, IHeadlessClient>(new BaseKeyedPooledObjectFactory<String, IHeadlessClient>()
 		{
 			@Override
 			public IHeadlessClient create(String key) throws Exception
@@ -150,8 +225,18 @@ public class McpRuntime
 					Debug.error(e);
 				}
 			}
-		});
+		}, config);
 		clientPool.setTestOnBorrow(true);
+	}
+
+	int getMaxClientsPerKey()
+	{
+		return clientPool.getMaxTotalPerKey();
+	}
+
+	int getMaxIdleClientsPerKey()
+	{
+		return clientPool.getMaxIdlePerKey();
 	}
 
 	/**
@@ -178,17 +263,26 @@ public class McpRuntime
 		{
 			if (instance == null) return;
 
-			try
-			{
-				instance.clientPool.close();
-			}
-			catch (Exception e)
-			{
-				Debug.error(e);
-			}
-			instance.solutionServers.clear();
+			instance.drain();
 			instance = null;
 		}
+	}
+
+	/**
+	 * Closes the pool and forgets the solution servers of this runtime. Idle clients are shut down at
+	 * once, clients on loan when they are returned.
+	 */
+	void drain()
+	{
+		try
+		{
+			clientPool.close();
+		}
+		catch (Exception e)
+		{
+			Debug.error(e);
+		}
+		solutionServers.clear();
 	}
 
 	/**
@@ -237,10 +331,28 @@ public class McpRuntime
 
 	/**
 	 * Borrows a client for the given key, creating one when the pool has none available.
+	 *
+	 * @throws McpClientPoolTimeoutException when the pool stayed exhausted for the whole wait timeout
 	 */
 	public IHeadlessClient getClient(McpClientKey key) throws Exception
 	{
-		return clientPool.borrowObject(key.toPoolKey());
+		String poolKey = key.toPoolKey();
+		long started = System.nanoTime();
+		try
+		{
+			return clientPool.borrowObject(poolKey);
+		}
+		catch (NoSuchElementException e)
+		{
+			long waited = System.nanoTime() - started;
+			// not a wait timeout, e.g. a new client failed validation
+			if (waited < waitTimeout.toNanos()) throw e;
+
+			log.warn("mcp: timed out after {} waiting for an available client for '{}': {} in use for this key (limit {} per solution/user/tenant), " +
+				"{} in use in total (limit {}). The call is refused.", waitTimeout, poolKey, Integer.valueOf(clientPool.getNumActive(poolKey)),
+				Integer.valueOf(maxClientsPerKey), Integer.valueOf(clientPool.getNumActive()), Integer.valueOf(totalMaxClients));
+			throw new McpClientPoolTimeoutException(waitTimeout, e);
+		}
 	}
 
 	/**

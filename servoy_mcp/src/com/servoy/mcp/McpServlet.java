@@ -64,6 +64,13 @@ public class McpServlet extends HttpServlet
 		solutionServer.service(request, response);
 	}
 
+	@Override
+	public void destroy()
+	{
+		McpRuntime.shutDown();
+		super.destroy();
+	}
+
 	/**
 	 * The solution out of <code>/mcp/&lt;solution&gt;</code>.
 	 *

@@ -81,6 +81,15 @@ public final class Settings extends SortedProperties
 
 	public static final String TESTING_MODE = "servoy.ngclient.testingMode";
 
+	public static final String MCP_CLIENT_POOL_MAX_CLIENTS_PER_KEY = "servoy.mcpClientPool.maxClientsPerSolUsrTenant";
+	public static final int MCP_CLIENT_POOL_MAX_CLIENTS_PER_KEY_DEFAULT = 100;
+	public static final String MCP_CLIENT_POOL_MAX_IDLE_PER_KEY = "servoy.mcpClientPool.maxIdleClientsPerSolUsrTenant";
+	public static final int MCP_CLIENT_POOL_MAX_IDLE_PER_KEY_DEFAULT = 8;
+	public static final String MCP_CLIENT_POOL_MAX_TOTAL_CLIENTS = "servoy.mcpClientPool.maxTotalClients";
+	public static final int MCP_CLIENT_POOL_MAX_TOTAL_CLIENTS_DEFAULT = -1;
+	public static final String MCP_CLIENT_POOL_WAIT_TIMEOUT = "servoy.mcpClientPool.waitForAvailableClientTimeout";
+	public static final int MCP_CLIENT_POOL_WAIT_TIMEOUT_DEFAULT = 10; // seconds
+
 	private boolean loadedFromServer = false;
 	private File file;
 

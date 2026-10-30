@@ -25,6 +25,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
@@ -32,6 +33,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 import com.servoy.j2db.plugins.IClientPluginAccess;
 import com.servoy.j2db.server.shared.IHeadlessClient;
@@ -101,6 +103,34 @@ public class McpProtocolIntegrationTest
 			});
 
 			server = new McpSolutionServer(runtime, SOLUTION, new McpToolRegistry(runtime, SOLUTION, tools), authenticator);
+		}
+
+		/**
+		 * A server over a pool of one client that gives up after 200 ms, for the tests that exhaust it.
+		 *
+		 * @param scanThroughClient whether the tool list is scanned through the pool, as in production,
+		 *            rather than handed over
+		 */
+		Harness(boolean scanThroughClient) throws Exception
+		{
+			runtime = new McpRuntime(solutionName -> fake.client, 1, 1, -1, Duration.ofMillis(200));
+
+			IClientPluginAccess access = fake.client.getPluginAccess();
+			when(access.executeMethod(any(), any(), any(), anyBoolean())).thenAnswer(invocation -> {
+				ranContext.set((String)invocation.getArgument(0));
+				ranArguments.set((Object[])invocation.getArgument(2));
+				return returns.get();
+			});
+			// a solution that is open and declares nothing, so a scan that gets a client can finish
+			when(fake.application.getSolution()).thenReturn(fake.solution);
+
+			McpSolutionServer.Authenticator authenticator = (solutionName, token) -> {
+				if (!ALICE_TOKEN.equals(token)) throw new McpAuthenticationException("This token was refused");
+				return new McpIdentity("alice-uid", "alice", new String[] { "mcp_user" }, new String[] { "acme" });
+			};
+			McpToolRegistry registry = scanThroughClient ? new McpToolRegistry(runtime, SOLUTION)
+				: new McpToolRegistry(runtime, SOLUTION, McpProtocolIntegrationTest::publishableSampleTools);
+			server = new McpSolutionServer(runtime, SOLUTION, registry, authenticator);
 		}
 	}
 
@@ -342,6 +372,24 @@ public class McpProtocolIntegrationTest
 	}
 
 	@Test
+	@DisplayName("any other failure of a tool keeps the generic message and does not leak the exception text")
+	void anotherFailureKeepsTheGenericMessage() throws Exception
+	{
+		Harness harness = new Harness();
+
+		IClientPluginAccess access = harness.fake.client.getPluginAccess();
+		when(access.executeMethod(any(), eq("add"), any(), anyBoolean()))
+			.thenThrow(new RuntimeException("the table is not there"));
+
+		McpCall call = McpCall.callTool(harness.server, "myScope_add", "{\"first\":2,\"second\":40}", ALICE_TOKEN);
+
+		assertTrue(call.contains("\"isError\":true"), call.body());
+		assertTrue(call.contains("failed. See the server log for details"), call.body());
+		assertFalse(call.contains("the table is not there"), "the raw exception text stays in the log: " + call.body());
+		assertFalse(call.contains("Timed out"), "and it is not mistaken for a pool timeout: " + call.body());
+	}
+
+	@Test
 	@DisplayName("a solution with no tools still answers")
 	void anEmptySolutionAnswers() throws Exception
 	{
@@ -379,6 +427,59 @@ public class McpProtocolIntegrationTest
 
 		assertEquals(null, harness.ranContext.get(), "nothing should have been run");
 		assertTrue(call.status() >= 400 || call.contains("error"), "status " + call.status() + ", body " + call.body());
+	}
+
+	@Test
+	@DisplayName("a tool call that waits the whole pool timeout answers an error result with the pool message")
+	@Timeout(10)
+	void aPoolTimeoutIsReportedToTheCaller() throws Exception
+	{
+		Harness harness = new Harness(false);
+		McpClientKey key = new McpClientKey(SOLUTION, "alice-uid", "acme");
+		harness.runtime.getClient(key);
+
+		try (McpLogCapture log = McpLogCapture.of("servoy.mcp"))
+		{
+			McpCall call = McpCall.callTool(harness.server, "myScope_add", "{\"first\":2,\"second\":40}", ALICE_TOKEN);
+
+			assertEquals(200, call.status(), call.body());
+			assertTrue(call.contains("\"result\""), "a result, not a protocol error: " + call.body());
+			assertTrue(call.contains("\"isError\":true"), call.body());
+			assertTrue(call.contains("Timed out after 200 milliseconds waiting for an available Servoy client"), call.body());
+			assertFalse(call.contains("See the server log for details"), "not the generic message: " + call.body());
+			assertFalse(call.contains("alice-uid"), "no pool key in what the agent reads: " + call.body());
+			assertEquals(null, harness.ranContext.get(), "nothing should have been run");
+
+			// the operator's side of it is one WARN, without a stack trace of a failed tool
+			assertTrue(log.contains("WARN mcp: timed out after"), log.lines().toString());
+			assertFalse(log.contains("failed"), "this is not a tool failure: " + log.lines());
+		}
+	}
+
+	@Test
+	@DisplayName("a scan that waits the whole pool timeout answers 503 with Retry-After, and is tried again next time")
+	@Timeout(10)
+	void aPoolTimeoutDuringTheScanIs503() throws Exception
+	{
+		Harness harness = new Harness(true);
+		McpClientKey scanKey = new McpClientKey(SOLUTION, McpToolRegistry.SCAN_USER, null);
+		IHeadlessClient held = harness.runtime.getClient(scanKey);
+
+		McpCall busy = McpCall.toolsList(harness.server);
+
+		assertEquals(503, busy.status(), busy.body());
+		assertTrue(busy.contains("Timed out after 200 milliseconds waiting for an available Servoy client"), busy.body());
+		assertTrue(busy.contains("\"error\""), "the same JSON shape as the other refusals: " + busy.body());
+		assertEquals("1", busy.header("Retry-After"), "200 ms rounds up to one second");
+
+		harness.runtime.releaseClient(scanKey, held);
+
+		// the failed scan was not cached, so the next request asks the pool again
+		McpCall again = McpCall.toolsList(harness.server);
+		// the stubbed solution declares no tools, so the SDK answers "Method not found" (still a 200):
+		// the scan ran and got a client, which is all this checks
+		assertEquals(200, again.status(), again.body());
+		assertFalse(again.contains("Timed out"), "no longer refused by the pool: " + again.body());
 	}
 
 	/** Kept out of the harness so the unused-mock warning does not hide a real one. */

@@ -134,6 +134,14 @@ public class McpSolutionServer
 		{
 			transport().service(request, response);
 		}
+		catch (McpClientPoolTimeoutException e)
+		{
+			// the pool is busy, not broken: a retryable 503 rather than a 500 error page. Nothing has been
+			// written yet, the scan runs before the transport sees the request.
+			long seconds = Math.max(1, (e.getTimeout().toMillis() + 999) / 1000);
+			response.setHeader("Retry-After", String.valueOf(seconds));
+			respond(response, HttpServletResponse.SC_SERVICE_UNAVAILABLE, e.getMessage());
+		}
 		catch (Exception e)
 		{
 			throw new ServletException(e.getMessage(), e);
@@ -263,6 +271,11 @@ public class McpSolutionServer
 				.isError(Boolean.FALSE)
 				.build();
 		}
+		catch (McpClientPoolTimeoutException e)
+		{
+			// McpRuntime.getClient already logged the WARN with the pool key and the limits
+			return error(e.getMessage());
+		}
 		catch (Exception e)
 		{
 			McpRuntime.log.warn("mcp: tool '" + tool.getName() + "' failed", e);
@@ -271,6 +284,14 @@ public class McpSolutionServer
 			// above; the agent gets a generic message that points at the log.
 			return error("The tool '" + tool.getName() + "' failed. See the server log for details.");
 		}
+	}
+
+	private static void respond(HttpServletResponse response, int status, String message) throws IOException
+	{
+		response.setStatus(status);
+		response.setContentType("application/json");
+		response.setCharacterEncoding("UTF-8");
+		response.getWriter().write("{\"error\":\"" + message.replace("\"", "'") + "\"}");
 	}
 
 	private static McpSchema.CallToolResult error(String message)
