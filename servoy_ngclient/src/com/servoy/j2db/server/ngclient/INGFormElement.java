@@ -43,6 +43,14 @@ public interface INGFormElement extends IPropertyDescriptionProvider
 		return false;
 	}
 
+	/**
+	 * Sample-data mode (SVY-21610); see {@link FormElement#hasSampleData()}.
+	 */
+	default boolean hasSampleData()
+	{
+		return false;
+	}
+
 	String getName();
 
 	Form getForm();

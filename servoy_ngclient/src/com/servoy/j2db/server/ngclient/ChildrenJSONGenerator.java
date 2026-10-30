@@ -119,6 +119,7 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 	private final Form form;
 	private final boolean designer;
 	private final boolean formTemplate;
+	private final boolean sampleData;
 	private static final String TAG_DIRECT_EDIT = "directEdit";
 
 	public ChildrenJSONGenerator(JSONWriter writer, ServoyDataConverterContext context, Object skip, IFormElementCache cache, Part part, Form form,
@@ -130,6 +131,16 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 	public ChildrenJSONGenerator(JSONWriter writer, ServoyDataConverterContext context, Object skip, IFormElementCache cache, Part part, Form form,
 		boolean mainFormGeneration, boolean designer, boolean formTemplate)
 	{
+		this(writer, context, skip, cache, part, form, mainFormGeneration, designer, formTemplate, false);
+	}
+
+	/**
+	 * Sample-data variant (SVY-21610); see {@link FormElement#hasSampleData()}. {@code sampleData} implies
+	 * {@code formTemplate}.
+	 */
+	public ChildrenJSONGenerator(JSONWriter writer, ServoyDataConverterContext context, Object skip, IFormElementCache cache, Part part, Form form,
+		boolean mainFormGeneration, boolean designer, boolean formTemplate, boolean sampleData)
+	{
 		this.writer = writer;
 		this.context = context;
 		this.skip = skip;
@@ -137,6 +148,7 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 		this.form = form;
 		this.designer = designer;
 		this.formTemplate = formTemplate;
+		this.sampleData = sampleData;
 		formUI = (context.getForm() != null && context.getForm().getFormUI() instanceof WebFormUI)
 			? (WebFormUI)context.getForm().getFormUI() : null;
 		this.part = part;
@@ -165,7 +177,7 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 		{
 			// is this is for form component component child element? use the fcc cache value, so security & others can identify
 			// based on persist from the actual form, not from the form component form where it is defined
-			fe = cache.getFormElement((IFormElement)o, this.context.getSolution(), null, designer, formTemplate);
+			fe = cache.getFormElement((IFormElement)o, this.context.getSolution(), null, designer, formTemplate, sampleData);
 			persistToUseForSecurityCheck = fe.getPersistIfAvailable();
 		}
 		if (persistToUseForSecurityCheck == null) persistToUseForSecurityCheck = o;
@@ -197,7 +209,8 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 					}
 				}
 			}
-			fe = fe != null ? fe : FormElementHelper.INSTANCE.getFormElement((IFormElement)o, this.context.getSolution(), null, designer, formTemplate);
+			fe = fe != null ? fe
+				: FormElementHelper.INSTANCE.getFormElement((IFormElement)o, this.context.getSolution(), null, designer, formTemplate, sampleData);
 			writer.object();
 
 			writeFormElement(writer, o, form, fe, formUI, context, designer);
@@ -248,9 +261,9 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 												return formElement;
 											}
 										}
-										return FormElementHelper.INSTANCE.getFormElement(component, flattendSol, path, design, formTemplate);
+										return FormElementHelper.INSTANCE.getFormElement(component, flattendSol, path, design, formTemplate, sampleData);
 									}
-								}, null, this.form, false, designer, formTemplate), PositionComparator.RESPONSIVE_PERSIST_COMPARATOR);
+								}, null, this.form, false, designer, formTemplate, sampleData), PositionComparator.RESPONSIVE_PERSIST_COMPARATOR);
 							}
 							else
 							{
@@ -258,7 +271,8 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 									.sorted(FORM_INDEX_WITH_HIERARCHY_AND_TABSEQUENCE_COMPARATOR).toList();
 								for (IPersist persistOfElement : formElements)
 								{
-									persistOfElement.acceptVisitor(new ChildrenJSONGenerator(writer, context, null, null, null, this.form, false, designer, formTemplate),
+									persistOfElement.acceptVisitor(
+										new ChildrenJSONGenerator(writer, context, null, null, null, this.form, false, designer, formTemplate, sampleData),
 										FORM_INDEX_WITH_HIERARCHY_AND_TABSEQUENCE_COMPARATOR);
 								}
 
@@ -288,12 +302,12 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 			writer.array();
 			if ("csspositioncontainer".equals(layoutContainer.getSpecName()))
 			{
-				o.acceptVisitor(new ChildrenJSONGenerator(writer, context, o, cache, null, this.form, false, designer, formTemplate),
+				o.acceptVisitor(new ChildrenJSONGenerator(writer, context, o, cache, null, this.form, false, designer, formTemplate, sampleData),
 					ChildrenJSONGenerator.FORM_INDEX_WITH_HIERARCHY_COMPARATOR);
 			}
 			else
 			{
-				o.acceptVisitor(new ChildrenJSONGenerator(writer, context, o, cache, null, this.form, false, designer, formTemplate),
+				o.acceptVisitor(new ChildrenJSONGenerator(writer, context, o, cache, null, this.form, false, designer, formTemplate, sampleData),
 					PositionComparator.RESPONSIVE_PERSIST_COMPARATOR);
 			}
 			writer.endArray();
@@ -352,7 +366,10 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 			// can webcomponnt be null in actual client ?
 			TypedData<Map<String, Object>> templateProperties = fe.propertiesForTemplateJSON();
 
-			if (designer)
+			// SVY-21610: the sample-data render reuses the same designer-default hook, so a type that already knows how to
+			// fabricate a placeholder value (e.g. a valuelist's Item1..3) does it for the stateless render too - and a
+			// third-party component package can supply one for its own type without a core change.
+			if (designer || fe.hasSampleData())
 			{
 				fe.getWebComponentSpec().getProperties().values().forEach(pd -> {
 					if (pd.getType() instanceof IDesignerDefaultWriter)
