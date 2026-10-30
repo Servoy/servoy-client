@@ -51,18 +51,21 @@
    a solution that overrides either legacy variable keeps that behaviour: the indicator width is the left border width */
 /* a solution that re-coloured the 2023 sidenav also styled its items for the flat, full-width 2023 layout (no inset, gap or
    rounding); the new spacing on top of its own pushes the text into the collapse arrow */
-.svy-legacy-sidenav-geometry() when not (@sidenav-color = @secondary-color), not (@sidenav-text-color = @secondary-color-inverse),
+.svy-legacy-sidenav-geometry() when not (@sidenav-color = @secondary-color), not (@sidenav-text-color = @svy-chrome-on),
     not (@sidenav-selected-color = @secondary-color-light), not (@sidenav-selected-text-color = @sidenav-text-color) {
     --svy-sidenav-item-inset: 0px;
     --svy-sidenav-item-gap: 0px;
     --svy-sidenav-item-radius: 0px;
+    /* 2023 sets no weight on the row; solutions put it on li.svy-navitem-selected, so the row inherits it */
+    --svy-sidenav-item-weight: inherit;
+    --svy-sidenav-selected-weight: inherit;
 }
 .svy-legacy-sidenav-geometry() when (default()) {
 }
 /* spacing (row height, padding, indent, icon column) is applied with real specificity, so the --svy-sidenav-* properties win over the
    component's own svy-sidenav.css (.svy-sidenav-item { padding: 8px 15px }); a solution that styled the 2023 sidenav (it overrides
    the legacy sidenav colours) gets the same rules inside :where(), so its own item rules keep winning as on 2023.3.0_ng2 */
-.svy-sidenav-spacing() when not (@sidenav-color = @secondary-color), not (@sidenav-text-color = @secondary-color-inverse),
+.svy-sidenav-spacing() when not (@sidenav-color = @secondary-color), not (@sidenav-text-color = @svy-chrome-on),
     not (@sidenav-selected-color = @secondary-color-light), not (@sidenav-selected-text-color = @sidenav-text-color) {
     :where(.svy-sidenav) { .svy-sidenav-spacing-rules(); }
 }
@@ -247,10 +250,10 @@
 /* the active variant's set is read through the legacy names, which default to that variant's seeds (see
    servoy_theme_properties.less?version=semantic), so legacy overrides re-brand whichever variant is active */
 .svy-active-roles() when (@variant = dark) {
-    .svy-color-roles(@body-bg, @text-color, @secondary-color, @main-color, @brand-danger, @brand-warning, @brand-success, @brand-info, @svy-attention, #ffffff, #ffffff, 55%);
+    .svy-color-roles(@svy-r-surface, @svy-r-text, @svy-r-chrome, @svy-r-accent, @svy-r-danger, @svy-r-warning, @svy-r-success, @svy-r-info, @svy-attention, #ffffff, #ffffff, 55%);
 }
 .svy-active-roles() when (default()) {
-    .svy-color-roles(@body-bg, @text-color, @secondary-color, @main-color, @brand-danger, @brand-warning, @brand-success, @brand-info, @svy-attention, #000000, #ffffff, 45%);
+    .svy-color-roles(@svy-r-surface, @svy-r-text, @svy-r-chrome, @svy-r-accent, @svy-r-danger, @svy-r-warning, @svy-r-success, @svy-r-info, @svy-attention, #000000, #ffffff, 45%);
 }
 .svy-light-roles() when (@variant = dark) {
     .svy-color-roles(@surface, @text, @chrome, @accent, @danger, @warning, @success, @info, @attention, #000000, #ffffff, 45%);
@@ -286,8 +289,10 @@
 
 :root {
     --svy-font-family: @font-family;
-    --svy-font-size: @text-font-size;
-    --svy-radius: @border-radius;
+    --svy-font-family-heading: @font-family-heading;
+    --svy-font-family-mono: @font-family-mono;
+    --svy-font-size: @svy-r-font-size;
+    --svy-radius: @svy-r-radius;
     --svy-border-width: @border-width;
     --svy-control-height: @control-height;
     --svy-space: @space;
@@ -316,6 +321,7 @@
     --svy-motion-base: 200ms ease-out;
 
     --bs-body-font-family: var(--svy-font-family);
+    --bs-font-monospace: var(--svy-font-family-mono);
     --bs-body-font-size: var(--svy-font-size);
     --bs-border-width: var(--svy-border-width);
     --bs-border-radius: var(--svy-radius-md);
@@ -725,9 +731,9 @@ div:not(.container):not(.container-fluid):not([class^="col-xs-"]):not([class^="c
     --svy-sidenav-badge-bg: var(--svy-chrome-active);
     --svy-sidenav-badge-fg: var(--svy-chrome-text);
     .svy-legacy(sidenav-bg, @sidenav-color, @secondary-color);
-    .svy-legacy(sidenav-fg, @sidenav-text-color, @secondary-color-inverse);
-    .svy-legacy(sidenav-item-fg, @sidenav-text-color, @secondary-color-inverse);
-    .svy-legacy(sidenav-border, @sidenav-border-color, mix(@secondary-color-inverse, @secondary-color, 14%));
+    .svy-legacy(sidenav-fg, @sidenav-text-color, @svy-chrome-on);
+    .svy-legacy(sidenav-item-fg, @sidenav-text-color, @svy-chrome-on);
+    .svy-legacy(sidenav-border, @sidenav-border-color, mix(@svy-chrome-on, @secondary-color, 14%));
     .svy-legacy(sidenav-selected-bg, @sidenav-selected-color, @secondary-color-light);
     .svy-legacy(sidenav-hover-bg, @sidenav-selected-color, @secondary-color-light);
     .svy-legacy(sidenav-selected-fg, @sidenav-selected-text-color, @sidenav-text-color);
@@ -1423,7 +1429,8 @@ div.svy-message-dialog.svy-message-dialog {
 .svy-layoutcontainer > * > .label_header_0, .svy-layoutcontainer > * > .label_header_3 { padding-top: 15px; padding-bottom: 15px; }
 .label_subheader_0 { position: absolute; top: 25px; left: 160px; }
 
-h1, .h1, h2, .h2, h3, .h3, h4, .h4, h5, .h5, h6, .h6 { margin-top: 0; margin-bottom: 0; }
+h1, .h1, h2, .h2, h3, .h3, h4, .h4, h5, .h5, h6, .h6 { margin-top: 0; margin-bottom: 0; font-family: var(--svy-font-family-heading); }
+code, kbd, pre, samp { font-family: var(--svy-font-family-mono); }
 .svy-heading(@level, @size) when (isnumber(@size)) {
     h@{level}, .h@{level} {
         font-size: @size;
@@ -1509,3 +1516,228 @@ h1, .h1, h2, .h2, h3, .h3, h4, .h4, h5, .h5, h6, .h6 { margin-top: 0; margin-bot
     color: var(--svy-text);
 }
 
+/* START Legacy component variables */
+
+/* 2023.3.0_ng2 component variables that have no own role. Each is applied only when the solution overrides it (it differs from its
+   default in servoy_theme_properties.less?version=semantic), so solutions that do not use them keep the semantic look.
+   ThemeSemanticTest checks that every legacy variable has an effect, except the few listed there with the reason. */
+.svy-lp(@p, @v, @d) when not (@v = @d) {
+    @{p}: @v;
+}
+.svy-lp(@p, @v, @d) when (default()) {
+}
+:root {
+    .svy-lp(~"--svy-border", @border-color, mix(@svy-text, @svy-surface, 16%));
+    .svy-lp(~"--svy-focus-ring", @main-color-light, lighten(@main-color, 10%));
+    .svy-lp(~"--svy-accent-contrast", @main-color-inverse, @svy-surface);
+    .svy-lp(~"--svy-chrome-text", @secondary-color-inverse, @svy-surface);
+    .svy-lp(~"--svy-chrome-active", @secondary-color-light, mix(@svy-chrome-on, @secondary-color, 14%));
+    .svy-lp(~"--svy-chrome-hover", @secondary-color-light, mix(@svy-chrome-on, @secondary-color, 14%));
+}
+html {
+    .svy-legacy-scrollbar();
+}
+.svy-legacy-scrollbar() when not (@scrollbar-color = mix(@svy-text, @svy-surface, 30%)), not (@scrollbar-bg = @svy-surface) {
+    scrollbar-color: @scrollbar-color @scrollbar-bg;
+}
+.svy-legacy-scrollbar() when (default()) {
+}
+.form-control,
+.form-select {
+    .svy-lp(background-color, @field-bg, @svy-surface);
+    .svy-lp(color, @field-color, @text-color);
+    .svy-lp(font-size, @field-font-size, @text-font-size);
+    .svy-lp(border-width, @field-border-width, @border-width);
+    .svy-lp(border-radius, @field-border-radius, @border-radius);
+    .svy-lp(border-color, @border-color, mix(@svy-text, @svy-surface, 16%));
+}
+.form-control:disabled,
+.form-select:disabled {
+    .svy-lp(background-color, @field-disabled-bg, mix(@svy-text, @svy-surface, 4%));
+}
+.input-group-text {
+    .svy-lp(background-color, @field-addon-bg, mix(@svy-text, @svy-surface, 4%));
+    .svy-lp(border-color, @border-color, mix(@svy-text, @svy-surface, 16%));
+}
+input[type=checkbox],
+input[type=radio] {
+    .svy-lp(accent-color, @field-check-color, @main-color);
+}
+.bg-inverse,
+.svy-form-inverse {
+    .svy-lp(background-color, @body-bg-inverse, mix(@svy-text, @svy-surface, 14%));
+    .svy-lp(color, @text-color-default-inverse, @svy-text);
+}
+.bg {
+    .svy-lp(color, @text-color-default, @svy-text);
+}
+.text-tertiary,
+.label-tertiary {
+    .svy-lp(color, @text-tertiary, mix(@svy-text, @svy-surface, 72%));
+}
+.svy-sidenav {
+    .svy-lp(~"--svy-sidenav-border-width", @sidenav-border-width, @border-width);
+}
+.svy-sidenav .svy-sidenav-item {
+    .svy-lp(font-size, @sidenav-text-font-size, @text-font-size);
+}
+.bts-extra-navbar .navbar-nav .dropdown-menu {
+    .svy-lp(background-color, @navbar-dropdown-bg, @body-bg);
+    .svy-lp(color, @navbar-dropdown-text-color, @text-color);
+}
+.svy-tabpanel > .nav-tabs > li > a,
+.bts-tabpanel > .nav-tabs > li > a {
+    .svy-lp(background-color, @tab-bg, @svy-surface);
+    .svy-lp(color, @tab-text-color, @text-color);
+}
+.svy-tabpanel > .nav-tabs > li > .nav-link.active,
+.bts-tabpanel > .nav-tabs > li > .nav-link.active {
+    .svy-lp(background-color, @tab-active-bg, @svy-surface);
+    .svy-lp(color, @tab-active-text-color, @text-color);
+}
+.ag-theme-alpine,
+.ag-theme-servoy {
+    .svy-lp(~"--ag-background-color", @table-row-even-bg-color, @body-bg);
+    .svy-lp(~"--ag-odd-row-background-color", @table-row-odd-bg-color, @body-bg);
+    .svy-lp(~"--ag-header-background-color", @table-header-bg, inherit);
+    .svy-lp(~"--ag-header-foreground-color", @table-header-text-color, @text-color);
+    .svy-lp(~"--ag-row-border-width", @table-row-border-width, @border-width);
+    .svy-lp(~"--ag-border-radius", @table-border-radius, 0);
+    .svy-lp(~"--ag-control-panel-background-color", @ngtable-side-panel-bg, mix(@svy-text, @svy-surface, 4%));
+    .svy-lp(~"--ag-side-button-selected-background-color", @ngtable-side-button-selected-bg, mix(@svy-text, @svy-surface, 4%));
+}
+.ag-table {
+    .svy-lp(background-color, @table-bg, inherit);
+    .svy-lp(border-width, @table-border-width, @border-width);
+}
+.ag-table .ag-header {
+    .svy-lp(text-transform, @table-header-text-transform, none);
+    .svy-lp(font-weight, @table-header-font-style, normal);
+}
+.ag-table .ag-row-even {
+    .svy-lp(color, @table-row-even-text-color, @text-color);
+}
+.ag-table .ag-row-odd {
+    .svy-lp(color, @table-row-odd-text-color, @text-color);
+}
+.bts-table thead,
+.svy-table thead {
+    .svy-lp(background-color, @table-header-bg, inherit);
+    .svy-lp(color, @table-header-text-color, @text-color);
+    .svy-lp(text-transform, @table-header-text-transform, none);
+    .svy-lp(font-style, @table-header-font-style, normal);
+}
+.bts-table,
+.svy-table {
+    .svy-lp(border-width, @table-border-width, @border-width);
+}
+.ag-table .ag-row-group {
+    .svy-lp(background-color, @ngtable-row-group-bg, @body-bg);
+    .svy-lp(color, @ngtable-row-group-color, @text-color);
+}
+.ag-table .ag-row-group.ag-row-level-0 {
+    .svy-lp(background-color, @ngtable-row-group-bg-level-0, mix(@svy-text, @svy-surface, 4%));
+    .svy-lp(color, @ngtable-row-group-color-level-0, @text-color);
+}
+.ag-table .ag-cell-wrapper.ag-row-group {
+    .svy-lp(font-weight, @ngtable-row-group-cell-font-weight, bold);
+}
+.ag-table .ag-menu {
+    .svy-lp(background-color, @ngtable-menu-panel-bg, @body-bg);
+    .svy-lp(color, @ngtable-menu-panel-text-color, @text-color);
+}
+.ag-table .ag-side-bar {
+    .svy-lp(color, @ngtable-side-panel-text-color, @text-color);
+}
+.ag-table .ag-side-bar .ag-side-buttons button {
+    .svy-lp(background-color, @ngtable-side-button-bg, @body-bg);
+    .svy-lp(color, @ngtable-side-button-text-color, @text-color);
+}
+.ag-table .ag-side-bar .ag-side-buttons .ag-selected button {
+    .svy-lp(color, @ngtable-side-button-selected-text-color, @text-color);
+}
+.ag-table .ag-floating-filter-body input {
+    .svy-lp(height, @ngtable-search-field-height, 24px);
+}
+/* .svy-sidenav-secondary (2023.3.0_ng2): an opt-in styleClass for a second sidenav look. Without overrides it uses the accent as rail,
+   like the 2023 default (@sidenav-secondary-color: @main-color); each @sidenav-secondary-* override replaces its part */
+.svy-sidenav-secondary .svy-sidenav,
+.svy-sidenav.svy-sidenav-secondary {
+    --svy-sidenav-bg: var(--svy-accent);
+    --svy-sidenav-fg: var(--svy-accent-contrast);
+    --svy-sidenav-item-fg: var(--svy-accent-contrast);
+    --svy-sidenav-hover-bg: var(--svy-accent-hover);
+    --svy-sidenav-hover-fg: var(--svy-accent-contrast);
+    --svy-sidenav-selected-bg: var(--svy-accent-pressed);
+    --svy-sidenav-selected-fg: var(--svy-accent-contrast);
+    --svy-sidenav-badge-bg: var(--svy-accent-pressed);
+    --svy-sidenav-badge-fg: var(--svy-accent-contrast);
+    .svy-lp(~"--svy-sidenav-bg", @sidenav-secondary-color, @main-color);
+    .svy-lp(~"--svy-sidenav-fg", @sidenav-secondary-text-color, @svy-accent-on);
+    .svy-lp(~"--svy-sidenav-item-fg", @sidenav-secondary-text-color, @svy-accent-on);
+    .svy-lp(~"--svy-sidenav-border", @sidenav-secondary-border-color, @border-color);
+    .svy-lp(~"--svy-sidenav-border-width", @sidenav-secondary-border-width, @border-width);
+    .svy-lp(~"--svy-sidenav-selected-bg", @sidenav-secondary-selected-color, @main-color-light);
+    .svy-lp(~"--svy-sidenav-hover-bg", @sidenav-secondary-selected-color, @main-color-light);
+    .svy-lp(~"--svy-sidenav-selected-fg", @sidenav-secondary-selected-text-color, @svy-accent-on);
+    .svy-lp(~"--svy-sidenav-hover-fg", @sidenav-secondary-selected-text-color, @svy-accent-on);
+    .svy-lp(~"--svy-sidenav-indicator-color", @sidenav-secondary-selected-border-color, @svy-accent-on);
+    .svy-lp(font-size, @sidenav-secondary-text-font-size, @text-font-size);
+}
+.svy-sidenav-secondary .svy-sidenav-item,
+.svy-sidenav.svy-sidenav-secondary .svy-sidenav-item {
+    .svy-lp(font-size, @sidenav-secondary-text-font-size, @text-font-size);
+}
+/* 2023 draws the selected secondary item with a left border (default 5px); the last value of the width list is that left border */
+.svy-sidenav-secondary .svy-sidenav,
+.svy-sidenav.svy-sidenav-secondary {
+    --svy-sidenav-indicator-width: extract(@sidenav-secondary-selected-border-width, length(@sidenav-secondary-selected-border-width));
+}
+
+/* brand colours: a solution that overrides @brand-primary/-tertiary or one of the -inverse/-highlighted shades of any brand colour gets
+   them on the button, background and text classes; the status hues themselves (@brand-success ...) are seeds and need nothing here */
+.svy-legacy-brand(@name, @bg, @fg, @hl, @hlfg) {
+    .btn-@{name} {
+        --bs-btn-bg: @bg;
+        --bs-btn-border-color: @bg;
+        --bs-btn-color: @fg;
+        --bs-btn-hover-bg: if(iscolor(@bg), @hl, @bg);
+        --bs-btn-hover-border-color: if(iscolor(@bg), @hl, @bg);
+        --bs-btn-hover-color: @hlfg;
+        --bs-btn-active-bg: if(iscolor(@bg), @hl, @bg);
+        --bs-btn-active-border-color: if(iscolor(@bg), @hl, @bg);
+        --bs-btn-active-color: @hlfg;
+    }
+    .btn-outline-@{name} {
+        --bs-btn-color: @bg;
+        --bs-btn-border-color: @bg;
+        --bs-btn-hover-bg: @bg;
+        --bs-btn-hover-border-color: @bg;
+        --bs-btn-hover-color: @fg;
+    }
+    .bg-@{name} {
+        background-color: @bg !important;
+        color: @fg;
+    }
+    .text-@{name},
+    .label-@{name} {
+        color: @bg !important;
+    }
+}
+.svy-legacy-brand-if(@name, @bg, @fg, @hl, @hlfg, @dbg, @dfg, @dhl, @dhlfg) when not (@bg = @dbg), not (@fg = @dfg), not (@hl = @dhl), not (@hlfg = @dhlfg) {
+    .svy-legacy-brand(@name, @bg, @fg, @hl, @hlfg);
+}
+.svy-legacy-brand-if(@name, @bg, @fg, @hl, @hlfg, @dbg, @dfg, @dhl, @dhlfg) when (default()) {
+}
+.svy-legacy-brand-if(primary, @brand-primary, @brand-primary-inverse, @brand-primary-highlighted, @brand-primary-highlighted-inverse,
+    @main-color, contrast(if(iscolor(@brand-primary), @brand-primary, @svy-accent), @svy-text, @svy-surface, @svy-on-threshold), darken(@brand-primary, 5%), @brand-primary-inverse);
+.svy-legacy-brand-if(tertiary, @brand-tertiary, @brand-tertiary-inverse, @brand-tertiary-highlighted, @brand-tertiary-highlighted-inverse,
+    mix(@svy-text, @svy-surface, 10%), @text-color, darken(@brand-tertiary, 5%), @brand-tertiary-inverse);
+.svy-legacy-brand-if(success, @brand-success, @brand-success-inverse, @brand-success-highlighted, @brand-success-highlighted-inverse,
+    @brand-success, contrast(if(iscolor(@brand-success), @brand-success, @svy-success), @svy-text, @svy-surface, @svy-on-threshold), darken(@brand-success, 5%), @brand-success-inverse);
+.svy-legacy-brand-if(info, @brand-info, @brand-info-inverse, @brand-info-highlighted, @brand-info-highlighted-inverse,
+    @brand-info, contrast(if(iscolor(@brand-info), @brand-info, @svy-info), @svy-text, @svy-surface, @svy-on-threshold), darken(@brand-info, 5%), @brand-info-inverse);
+.svy-legacy-brand-if(warning, @brand-warning, @brand-warning-inverse, @brand-warning-highlighted, @brand-warning-highlighted-inverse,
+    @brand-warning, contrast(if(iscolor(@brand-warning), @brand-warning, @svy-warning), @svy-text, @svy-surface, @svy-on-threshold), darken(@brand-warning, 5%), @brand-warning-inverse);
+.svy-legacy-brand-if(danger, @brand-danger, @brand-danger-inverse, @brand-danger-highlighted, @brand-danger-highlighted-inverse,
+    @brand-danger, contrast(if(iscolor(@brand-danger), @brand-danger, @svy-danger), @svy-text, @svy-surface, @svy-on-threshold), darken(@brand-danger, 5%), @brand-danger-inverse);

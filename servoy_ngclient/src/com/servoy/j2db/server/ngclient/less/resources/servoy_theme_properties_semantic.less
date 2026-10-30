@@ -6,7 +6,7 @@
    .less files that reference them keep compiling. Defaults follow the seeds below. The colour seeds are read through their
    legacy names (@main-color -> accent, @body-bg -> surface, @text-color -> text, @secondary-color -> chrome, @brand-danger/
    -warning/-success/-info -> status hues, @text-font-size -> font size, @border-radius -> radius), so a solution that overrides
-   a legacy name re-brands the new theme. When both names are overridden, the legacy one wins. This block is before the first
+   a legacy name re-brands the new theme. When both names are overridden, the seed wins once it differs from its default. This block is before the first
    category on purpose: the theme editor does not list it. @font-family and @border-width have the same name in both themes. */
 /* LESS contrast() switches at a luma threshold; this one is the point where @text and @surface have equal WCAG contrast */
 /* the legacy names follow the active variant: solution .less that uses @main-color, @text-color, @body-bg ... gets the dark seeds
@@ -33,15 +33,67 @@
 @svy-info: @@svy-info-name;
 @svy-attention-name: "@{svy-p}attention";
 @svy-attention: @@svy-attention-name;
+/* Seed or legacy name: a seed that differs from its default wins, otherwise the legacy name (which defaults to the seed) is used.
+   So a solution with old overrides (@main-color: #122D40) is re-branded by setting the new seed (@accent) in the theme editor.
+   Catch: setting a seed back to exactly its default hands control back to the legacy name. The defaults below must match the
+   seed values in the Seeds and Dark seeds categories (ThemeSemanticTest checks it). */
+@svy-default-surface: #FFFFFF;
+@svy-default-dark-surface: #111827;
+@svy-sd-surface-name: "svy-default-@{svy-p}surface";
+@svy-sd-surface: @@svy-sd-surface-name;
+@svy-r-surface: if((@svy-surface = @svy-sd-surface), @body-bg, @svy-surface);
+@svy-default-text: #1F2937;
+@svy-default-dark-text: #E5E7EB;
+@svy-sd-text-name: "svy-default-@{svy-p}text";
+@svy-sd-text: @@svy-sd-text-name;
+@svy-r-text: if((@svy-text = @svy-sd-text), @text-color, @svy-text);
+@svy-default-chrome: #F3F4F6;
+@svy-default-dark-chrome: #0B1220;
+@svy-sd-chrome-name: "svy-default-@{svy-p}chrome";
+@svy-sd-chrome: @@svy-sd-chrome-name;
+@svy-r-chrome: if((@svy-chrome = @svy-sd-chrome), @secondary-color, @svy-chrome);
+@svy-default-accent: #2563EB;
+@svy-default-dark-accent: #60A5FA;
+@svy-sd-accent-name: "svy-default-@{svy-p}accent";
+@svy-sd-accent: @@svy-sd-accent-name;
+@svy-r-accent: if((@svy-accent = @svy-sd-accent), @main-color, @svy-accent);
+@svy-default-danger: #C62828;
+@svy-default-dark-danger: #F87171;
+@svy-sd-danger-name: "svy-default-@{svy-p}danger";
+@svy-sd-danger: @@svy-sd-danger-name;
+@svy-r-danger: if((@svy-danger = @svy-sd-danger), @brand-danger, @svy-danger);
+@svy-default-warning: #B45309;
+@svy-default-dark-warning: #FBBF24;
+@svy-sd-warning-name: "svy-default-@{svy-p}warning";
+@svy-sd-warning: @@svy-sd-warning-name;
+@svy-r-warning: if((@svy-warning = @svy-sd-warning), @brand-warning, @svy-warning);
+@svy-default-success: #2E7D32;
+@svy-default-dark-success: #4ADE80;
+@svy-sd-success-name: "svy-default-@{svy-p}success";
+@svy-sd-success: @@svy-sd-success-name;
+@svy-r-success: if((@svy-success = @svy-sd-success), @brand-success, @svy-success);
+@svy-default-info: #0369A1;
+@svy-default-dark-info: #38BDF8;
+@svy-sd-info-name: "svy-default-@{svy-p}info";
+@svy-sd-info: @@svy-sd-info-name;
+@svy-r-info: if((@svy-info = @svy-sd-info), @brand-info, @svy-info);
+@svy-r-font-size: if((@font-size = 14px), @text-font-size, @font-size);
+@svy-r-radius: if((@radius = 4px), @border-radius, @radius);
 @svy-on-threshold: (sqrt((luma(if(iscolor(@svy-text), @svy-text, #1F2937)) + 5%) * (luma(if(iscolor(@svy-surface), @svy-surface, #FFFFFF)) + 5%)) - 5%);
 @main-color: @svy-accent;
-@main-color-inverse: contrast(if(iscolor(@main-color), @main-color, @svy-accent), @svy-text, @svy-surface, @svy-on-threshold);
+/* readable text on the accent / chrome, used for the theme's own defaults */
+@svy-accent-on: contrast(if(iscolor(@main-color), @main-color, @svy-accent), @svy-text, @svy-surface, @svy-on-threshold);
+@svy-chrome-on: contrast(if(iscolor(@secondary-color), @secondary-color, @svy-chrome), @svy-text, @svy-surface, @svy-on-threshold);
+/* on 2023.3.0_ng2 the -inverse names are a fixed #FFF and solutions use them as a white background (tiles, panels) as well as text on
+   the accent; they follow the surface, so that use keeps working in light and dark. Text on the accent in the theme uses
+   --svy-accent-contrast, which stays computed */
+@main-color-inverse: @svy-surface;
 @main-color-light: lighten(@main-color, 10%);
 @main-color-dark: darken(@main-color, 15%);
 @secondary-color: @svy-chrome;
-@secondary-color-inverse: contrast(if(iscolor(@secondary-color), @secondary-color, @svy-chrome), @svy-text, @svy-surface, @svy-on-threshold);
-@secondary-color-light: mix(@secondary-color-inverse, @secondary-color, 14%);
-@secondary-color-dark: mix(@secondary-color-inverse, @secondary-color, 8%);
+@secondary-color-inverse: @svy-surface;
+@secondary-color-light: mix(@svy-chrome-on, @secondary-color, 14%);
+@secondary-color-dark: mix(@svy-chrome-on, @secondary-color, 8%);
 @theme-scrollbar: true;
 @scrollbar-bg: @svy-surface;
 @scrollbar-color: mix(@svy-text, @svy-surface, 30%);
@@ -72,22 +124,22 @@
 @field-border-radius: @border-radius;
 @field-check-color: @main-color;
 @sidenav-color: @secondary-color;
-@sidenav-text-color: @secondary-color-inverse;
+@sidenav-text-color: @svy-chrome-on;
 @sidenav-text-font-size: @text-font-size;
 @sidenav-border-width: @border-width;
-@sidenav-border-color: mix(@secondary-color-inverse, @secondary-color, 14%);
+@sidenav-border-color: mix(@svy-chrome-on, @secondary-color, 14%);
 @sidenav-selected-color: @secondary-color-light;
 @sidenav-selected-text-color: @sidenav-text-color;
 @sidenav-selected-border-color: @main-color;
 @sidenav-selected-border-width: 0px 0px 0px 0px;
 @sidenav-secondary-color: @main-color;
-@sidenav-secondary-text-color: @main-color-inverse;
+@sidenav-secondary-text-color: @svy-accent-on;
 @sidenav-secondary-text-font-size: @text-font-size;
 @sidenav-secondary-border-width: @border-width;
 @sidenav-secondary-border-color: @border-color;
 @sidenav-secondary-selected-color: @main-color-light;
-@sidenav-secondary-selected-text-color: @main-color-inverse;
-@sidenav-secondary-selected-border-color: @main-color-inverse;
+@sidenav-secondary-selected-text-color: @svy-accent-on;
+@sidenav-secondary-selected-border-color: @svy-accent-on;
 @sidenav-secondary-selected-border-width: 0px 0px 0px 5px;
 @navbar-bg: @secondary-color;
 @navbar-bg-highlighted: @secondary-color-light;
@@ -183,6 +235,74 @@
 @box-size-20: 20px;
 @box-size-30: 30px;
 
+/* Role names for solution LESS (SVY-21639). Each one is the matching runtime role, so it follows the active variant and the seeds and also
+   works inside a .svy-theme-dark / .svy-theme-light container: write background-color: @svy-surface-sunken; instead of a hex literal.
+   They are CSS var() references, not colours: LESS colour functions (darken(), mix()) cannot use them; use color-mix() in CSS instead.
+   The seed-level names (@svy-surface, @svy-text, @svy-accent ...) are compile-time colours used inside the theme. */
+@svy-role-surface: ~"var(--svy-surface)";
+@svy-role-text: ~"var(--svy-text)";
+@svy-role-chrome: ~"var(--svy-chrome)";
+@svy-role-accent: ~"var(--svy-accent)";
+@svy-surface-sunken: ~"var(--svy-surface-sunken)";
+@svy-role-danger: ~"var(--svy-danger)";
+@svy-danger-soft-bg: ~"var(--svy-danger-soft-bg)";
+@svy-danger-soft-fg: ~"var(--svy-danger-soft-fg)";
+@svy-danger-on-solid: ~"var(--svy-danger-on-solid)";
+@svy-role-warning: ~"var(--svy-warning)";
+@svy-warning-soft-bg: ~"var(--svy-warning-soft-bg)";
+@svy-warning-soft-fg: ~"var(--svy-warning-soft-fg)";
+@svy-warning-on-solid: ~"var(--svy-warning-on-solid)";
+@svy-role-success: ~"var(--svy-success)";
+@svy-success-soft-bg: ~"var(--svy-success-soft-bg)";
+@svy-success-soft-fg: ~"var(--svy-success-soft-fg)";
+@svy-success-on-solid: ~"var(--svy-success-on-solid)";
+@svy-role-info: ~"var(--svy-info)";
+@svy-info-soft-bg: ~"var(--svy-info-soft-bg)";
+@svy-info-soft-fg: ~"var(--svy-info-soft-fg)";
+@svy-info-on-solid: ~"var(--svy-info-on-solid)";
+@svy-role-attention: ~"var(--svy-attention)";
+@svy-attention-soft-bg: ~"var(--svy-attention-soft-bg)";
+@svy-attention-soft-fg: ~"var(--svy-attention-soft-fg)";
+@svy-attention-on-solid: ~"var(--svy-attention-on-solid)";
+@svy-surface-raised: ~"var(--svy-surface-raised)";
+@svy-surface-hover: ~"var(--svy-surface-hover)";
+@svy-text-muted: ~"var(--svy-text-muted)";
+@svy-text-disabled: ~"var(--svy-text-disabled)";
+@svy-text-inverse: ~"var(--svy-text-inverse)";
+@svy-border: ~"var(--svy-border)";
+@svy-border-strong: ~"var(--svy-border-strong)";
+@svy-focus-ring: ~"var(--svy-focus-ring)";
+@svy-accent-hover: ~"var(--svy-accent-hover)";
+@svy-accent-pressed: ~"var(--svy-accent-pressed)";
+@svy-accent-subtle: ~"var(--svy-accent-subtle)";
+@svy-chrome-text-muted: ~"var(--svy-chrome-text-muted)";
+@svy-chrome-hover: ~"var(--svy-chrome-hover)";
+@svy-chrome-active: ~"var(--svy-chrome-active)";
+@svy-chrome-border: ~"var(--svy-chrome-border)";
+@svy-neutral-soft-bg: ~"var(--svy-neutral-soft-bg)";
+@svy-neutral-soft-fg: ~"var(--svy-neutral-soft-fg)";
+@svy-shadow-sm: ~"var(--svy-shadow-sm)";
+@svy-shadow-md: ~"var(--svy-shadow-md)";
+@svy-shadow-lg: ~"var(--svy-shadow-lg)";
+@svy-radius-sm: ~"var(--svy-radius-sm)";
+@svy-radius-md: ~"var(--svy-radius-md)";
+@svy-radius-lg: ~"var(--svy-radius-lg)";
+@svy-radius-pill: ~"var(--svy-radius-pill)";
+@svy-space-1: ~"var(--svy-space-1)";
+@svy-space-2: ~"var(--svy-space-2)";
+@svy-space-3: ~"var(--svy-space-3)";
+@svy-space-4: ~"var(--svy-space-4)";
+@svy-space-5: ~"var(--svy-space-5)";
+@svy-space-6: ~"var(--svy-space-6)";
+@svy-font-size-xs: ~"var(--svy-font-size-xs)";
+@svy-font-size-sm: ~"var(--svy-font-size-sm)";
+@svy-font-size-base: ~"var(--svy-font-size-base)";
+@svy-font-size-lg: ~"var(--svy-font-size-lg)";
+@svy-font-size-xl: ~"var(--svy-font-size-xl)";
+@svy-font-size-2xl: ~"var(--svy-font-size-2xl)";
+@svy-motion-fast: ~"var(--svy-motion-fast)";
+@svy-motion-base: ~"var(--svy-motion-base)";
+
 /* START Seeds */
 @surface: #FFFFFF;                               /* {"name":"Surface", "category":"Seeds", "desc":"Content background.", "type":"color"} */
 @text: #1F2937;                                  /* {"name":"Text", "category":"Seeds", "desc":"Main text colour. Muted, disabled, border and focus colours are derived from it.", "type":"color"} */
@@ -193,6 +313,8 @@
 @success: #2E7D32;                               /* {"name":"Success", "category":"Seeds", "desc":"Success.", "type":"color"} */
 @info: #0369A1;                                  /* {"name":"Info", "category":"Seeds", "desc":"Informational.", "type":"color"} */
 @font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; /* {"name":"Font family", "category":"Seeds", "desc":"Application font. Set on html and body only, so a font set on a container is inherited by its children.", "type":"custom"} */
+@font-family-heading: @font-family;               /* {"name":"Heading font family", "category":"Seeds", "desc":"Font of h1-h6 and the .h1-.h6 classes. Defaults to the application font.", "type":"custom"} */
+@font-family-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; /* {"name":"Monospace font family", "category":"Seeds", "desc":"Font of code, pre, kbd and samp.", "type":"custom"} */
 @font-size: 14px;                                /* {"name":"Font size", "category":"Seeds", "desc":"Base text size. The font size scale is derived from it.", "type":"unit"} */
 @radius: 4px;                                    /* {"name":"Radius", "category":"Seeds", "desc":"Control corner radius. The radius scale is derived from it.", "type":"unit"} */
 @border-width: 1px;                              /* {"name":"Border width", "category":"Seeds", "desc":"Control and divider width.", "type":"unit"} */

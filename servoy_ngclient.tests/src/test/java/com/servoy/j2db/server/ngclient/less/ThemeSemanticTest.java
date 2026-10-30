@@ -443,6 +443,8 @@ public class ThemeSemanticTest
 			assertTrue(declarations(css, ".svy-sidenav .svy-sidenav-item").get("padding") == null, "no specific padding in legacy mode");
 			assertEquals("0 var(--svy-sidenav-item-padding-x)", declarations(css, ":where(.svy-sidenav) .svy-sidenav-item").get("padding"));
 			assertTrue(declarations(css, ".svy-sidenav .svy-sidenav-menu .svy-sidenav-item").isEmpty(), "no fixed row height in legacy mode");
+			assertEquals("inherit", declarations(css, ".svy-sidenav").get("--svy-sidenav-selected-weight"),
+				"the selected weight comes from the solution's own li.svy-navitem-selected rule, as on 2023");
 		}
 
 		/** F1: switching the version must move the theme rules and the theme properties together, also in the main solution .less */
@@ -462,6 +464,145 @@ public class ThemeSemanticTest
 			assertEquals(".y {}", ThemeResourceLoader.setThemeVersion(".y {}", ThemeResourceLoader.SEMANTIC));
 			assertTrue(ThemeResourceLoader.importsTheme(main));
 			assertFalse(ThemeResourceLoader.importsTheme("@import 'solution_properties.less';"));
+		}
+
+		/** option F: a seed that differs from its default wins over the legacy name, so the theme editor can re-brand old solutions */
+		@Test
+		public void changedSeedWinsOverLegacyName()
+		{
+			Map<String, String> legacyOnly = declarations(compile("@main-color: #122D40; @secondary-color: #FFBA3F;"), ":root");
+			assertEquals("#122D40", legacyOnly.get("--svy-accent").toUpperCase(), "legacy name still applies when the seed is at its default");
+			assertEquals("#FFBA3F", legacyOnly.get("--svy-chrome").toUpperCase());
+			Map<String, String> both = declarations(compile("@main-color: #122D40; @secondary-color: #FFBA3F; @accent: #FF0000; @chrome: #00FF40;"),
+				":root");
+			assertEquals("#FF0000", both.get("--svy-accent").toUpperCase(), "a changed seed wins");
+			assertEquals("#00FF40", both.get("--svy-chrome").toUpperCase());
+			Map<String, String> size = declarations(compile("@text-font-size: 16px; @font-size: 13px; @border-radius: 12px; @radius: 2px;"), ":root");
+			assertEquals("13px", size.get("--svy-font-size"));
+			assertEquals("2px", size.get("--svy-radius"));
+			Map<String, String> dark = declarations(compile("@variant: dark; @main-color: #122D40; @dark-accent: #FFBA3F;"), ":root");
+			assertEquals("#FFBA3F", dark.get("--svy-accent").toUpperCase(), "a changed dark seed wins in the dark variant");
+		}
+
+		/** the seed defaults used by option F must stay in sync with the seed values themselves */
+		@Test
+		public void seedDefaultsMatchTheSeeds()
+		{
+			String props = ThemeResourceLoader.getThemeProperties(ThemeResourceLoader.SEMANTIC);
+			for (String seed : new String[] { "surface", "text", "chrome", "accent", "danger", "warning", "success", "info" })
+				for (String prefix : new String[] { "", "dark-" })
+				{
+					Matcher value = Pattern.compile("(?m)^@" + prefix + seed + ":\\s*([^;]+);").matcher(props);
+					Matcher def = Pattern.compile("(?m)^@svy-default-" + prefix + seed + ":\\s*([^;]+);").matcher(props);
+					assertTrue(value.find() && def.find(), prefix + seed);
+					assertEquals(value.group(1).trim().toUpperCase(), def.group(1).trim().toUpperCase(), "default of @" + prefix + seed);
+				}
+			Matcher fs = Pattern.compile("(?m)^@font-size:\\s*([^;]+);").matcher(props);
+			Matcher rd = Pattern.compile("(?m)^@radius:\\s*([^;]+);").matcher(props);
+			assertTrue(fs.find() && rd.find());
+			assertTrue(props.contains("@font-size = " + fs.group(1).trim()), "font-size default in @svy-r-font-size");
+			assertTrue(props.contains("@radius = " + rd.group(1).trim()), "radius default in @svy-r-radius");
+		}
+
+		/**
+		 * every 2023.3.0_ng2 variable a solution overrides must change the compiled CSS, otherwise the override is silently ignored on the
+		 * semantic theme; the few without an effect are listed with the reason
+		 */
+		@Test
+		public void everyLegacyVariableHasAnEffect()
+		{
+			java.util.Set<String> noEffect = java.util.Set.of(
+				"theme-scrollbar", // webkit scrollbar on/off: the semantic theme uses the standard scrollbar-color only
+				"scrollbar-border-width", // webkit scrollbar track border, not used by scrollbar-color
+				"rem-to-px", // only used to compute heading line heights for rem sizes
+				"border-style", // always solid in the semantic theme
+				"text-color-inverse", // not used by any 2023.3.0_ng2 rule either
+				"main-color-dark", // derived shade; not used by any 2023.3.0_ng2 rule
+				"secondary-color-dark", // derived shade; not used by any 2023.3.0_ng2 rule
+				"navbar-active-border-width", // the active navbar item uses the accent indicator; colour via @navbar-active-border-color
+				"table-row-border-width"); // the row border width is not a variable in the ag-Grid themes used
+			String props = ThemeResourceLoader.getThemeProperties(ThemeResourceLoader.SEMANTIC);
+			String legacy = props.substring(0, props.indexOf("/* START Seeds */"));
+			Matcher m = Pattern.compile("(?m)^@([\\w-]+)\\s*:\\s*([^;]+);").matcher(legacy);
+			String base = compile("");
+			List<String> missing = new java.util.ArrayList<>();
+			int checked = 0;
+			while (m.find())
+			{
+				String name = m.group(1);
+				if (name.startsWith("svy-") || noEffect.contains(name)) continue;
+				checked++;
+				String probe = name.contains("font-weight") || name.contains("font-style") ? "bolder" : name.contains("transform") ? "lowercase"
+					: name.contains("width") || name.contains("radius") || name.contains("size") || name.contains("height") ? "13px" : "#13579B";
+				if (compile("@" + name + ": " + probe + ";").equals(base)) missing.add(name);
+			}
+			assertTrue(missing.isEmpty(), "legacy variables without effect: " + missing);
+			assertTrue(checked > 120, "checked " + checked);
+		}
+
+		@Test
+		public void legacyFieldAndTableOverridesApplyOnlyWhenSet()
+		{
+			String base = compile("");
+			assertFalse(declarations(base, ".form-control,\n.form-select".replace("\n", " ")).containsKey("background-color"));
+			String css = compile("@field-bg: #F5F5F3; @table-header-bg: #EEEEEE; @border-color: #DEE2E6; @brand-tertiary: #FFBA3F;");
+			assertEquals("#F5F5F3", declarations(css, ".form-control").get("background-color"));
+			assertEquals("#EEEEEE", declarations(css, ".ag-theme-alpine").get("--ag-header-background-color"));
+			assertEquals("#DEE2E6", declarations(css, ":root").get("--svy-border"));
+			assertEquals("#FFBA3F !important", declarations(css, ".bg-tertiary").get("background-color"));
+		}
+
+		/** solution LESS can name the runtime roles instead of hex literals; each name must point at a role the theme defines */
+		@Test
+		public void roleVariablesPointAtDefinedRoles()
+		{
+			String props = ThemeResourceLoader.getThemeProperties(ThemeResourceLoader.SEMANTIC);
+			Matcher m = Pattern.compile("(?m)^@(svy-[\\w-]+):\\s*~\"var\\(--svy-([\\w-]+)\\)\";").matcher(props);
+			Map<String, String> root = declarations(compile(""), ":root");
+			int n = 0;
+			while (m.find())
+			{
+				n++;
+				assertTrue(root.containsKey("--svy-" + m.group(2)), "@" + m.group(1) + " points at undefined --svy-" + m.group(2));
+			}
+			assertTrue(n >= 60, "role variables: " + n);
+			Map<String, String> probe = declarations(compile(".probe { background: @svy-surface-sunken; color: @svy-danger-soft-fg; border-color: @svy-role-accent; }"),
+				".probe");
+			assertEquals("var(--svy-surface-sunken)", probe.get("background"));
+			assertEquals("var(--svy-danger-soft-fg)", probe.get("color"));
+			assertEquals("var(--svy-accent)", probe.get("border-color"));
+		}
+
+		@Test
+		public void headingAndMonoFontFamilies()
+		{
+			String css = compile("@font-family-heading: Georgia, serif; @font-family-mono: 'JetBrains Mono', monospace;");
+			Map<String, String> root = declarations(css, ":root");
+			assertEquals("Georgia, serif", root.get("--svy-font-family-heading"));
+			assertEquals("'JetBrains Mono', monospace", root.get("--svy-font-family-mono"));
+			assertEquals("var(--svy-font-family-heading)", declarations(css, "h1").get("font-family"));
+			assertEquals("var(--svy-font-family-mono)", declarations(css, "code").get("font-family"));
+			assertEquals("var(--svy-font-family-mono)", root.get("--bs-font-monospace"));
+			assertEquals(declarations(compile("@font-family: Inter, sans-serif;"), ":root").get("--svy-font-family-heading"), "Inter, sans-serif",
+				"the heading font defaults to the application font");
+		}
+
+		/**
+		 * the -inverse names are #FFF on 2023.3.0_ng2 and solutions use them as a white background; they must stay the surface even for a
+		 * light accent, while the theme's own text on the accent keeps the computed contrast
+		 */
+		@Test
+		public void inverseNamesFollowTheSurfaceNotTheAccentContrast()
+		{
+			String css = compile("@accent: #00FF00; @chrome: #FF8000; .probe { a: @main-color-inverse; b: @secondary-color-inverse; }");
+			Map<String, String> probe = declarations(css, ".probe");
+			assertEquals("#FFFFFF", probe.get("a").toUpperCase(), "a light accent must not turn @main-color-inverse dark");
+			assertEquals("#FFFFFF", probe.get("b").toUpperCase());
+			Map<String, String> root = declarations(css, ":root");
+			assertTrue(contrast("--svy-accent-contrast", "--svy-accent", root) >= 4.5, "text on the light accent stays readable");
+			assertTrue(contrast("--svy-chrome-text", "--svy-chrome", root) >= 4.5);
+			Map<String, String> dark = declarations(compile("@variant: dark; .probe { a: @main-color-inverse; }"), ".probe");
+			assertEquals("#111827", dark.get("a").toUpperCase(), "in the dark variant the inverse is the dark surface");
 		}
 
 		@Test
