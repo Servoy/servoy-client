@@ -8,7 +8,13 @@ Fragment-Host: servoy_ngclient
 Bundle-RequiredExecutionEnvironment: JavaSE-21
 Export-Package: com.servoy.j2db.server.ngclient.component.spec,
  com.servoy.j2db.server.ngclient.property
-Require-Bundle: org.skyscreamer.jsonassert,
+Require-Bundle: junit-jupiter-api,
+ junit-jupiter-engine,
+ junit-jupiter-params,
+ junit-platform-suite-api,
+ junit-platform-suite-engine,
+ org.hamcrest,
+ org.skyscreamer.jsonassert,
  org.apache.logging.log4j.core,
  org.apache.logging.log4j.api
 Automatic-Module-Name: servoy_ngclient.tests

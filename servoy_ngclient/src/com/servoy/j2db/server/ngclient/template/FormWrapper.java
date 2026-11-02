@@ -188,7 +188,18 @@ public class FormWrapper
 						Debug.error("recursive reference found between (List)FormComponents: " + recursiveCheck); //$NON-NLS-1$
 						continue;
 					}
-					FormComponentCache cache = FormElementHelper.INSTANCE.getFormComponentCache(formComponentFormElement, pd, (JSONObject)propertyValue, frm,
+					// SVY-21667: guard the cast; getForm(...) tolerates a bare String/UUID that this cast does not.
+					// Use FormWrapper's own owning "form" field for the message, not
+					// formComponentFormElement.getForm() - the latter resolves to null/something else at this stage
+					// of template generation, while this.form is reliably the form being rendered.
+					JSONObject fcValue = FormComponentPropertyType.asFormComponentValue(propertyValue, form.getName(), formComponentFormElement.getName(),
+						pd.getName());
+					if (fcValue == null)
+					{
+						recursiveCheck.remove(frm.getName()); // undo the add() done a few lines above
+						continue;
+					}
+					FormComponentCache cache = FormElementHelper.INSTANCE.getFormComponentCache(formComponentFormElement, pd, fcValue, frm,
 						context.getSolution());
 					Dimension frmSize = frm.getSize();
 					for (FormElement element : cache.getFormComponentElements())
