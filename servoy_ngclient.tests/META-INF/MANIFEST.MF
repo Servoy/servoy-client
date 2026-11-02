@@ -11,6 +11,7 @@ Export-Package: com.servoy.j2db.server.ngclient.component.spec,
  com.servoy.j2db.server.ngclient.property
 Require-Bundle: junit-jupiter-api,
  junit-jupiter-engine,
+ junit-jupiter-params,
  junit-platform-suite-api,
  junit-platform-suite-engine,
  org.hamcrest,

@@ -36,8 +36,8 @@ import org.sablo.specification.WebObjectSpecification;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IConvertedPropertyType;
 import org.sablo.specification.property.ICustomType;
-import org.sablo.specification.property.IPropertyWithClientSideConversions;
 import org.sablo.specification.property.IPropertyWithAttachDependencies;
+import org.sablo.specification.property.IPropertyWithClientSideConversions;
 import org.sablo.specification.property.IPushToServerSpecialType;
 import org.sablo.specification.property.ISupportsGranularUpdates;
 import org.sablo.specification.property.types.DefaultPropertyType;
@@ -149,12 +149,22 @@ public class FormComponentPropertyType extends DefaultPropertyType<Object> imple
 		{
 			cache = ((FormComponentSabloValue)webComponentValue).getCache();
 		}
+		else if (webComponentValue == null)
+		{
+			// SVY-21667: toSabloComponentValue() already rejected and logged this property (it returns null,
+			// never the raw value, on a non-JSONObject form-component value); do not re-validate and re-log
+			// the same already-rejected value on every scripting access to this property.
+			return null;
+		}
 		else
 		{
 			Form form = getForm(webComponentValue, fs);
 			if (form == null) return null;
+			// SVY-21667: guard the cast; getForm(...) tolerates a bare String/UUID that this cast does not.
+			JSONObject fcValue = asFormComponentValue(webComponentValue, null, null, pd.getName());
+			if (fcValue == null) return null;
 			// TODO return here a NativeScriptable object that understand the full hierarchy?
-			cache = FormElementHelper.INSTANCE.getFormComponentCache(webFormComponent.getFormElement(), pd, (JSONObject)webComponentValue, form, fs);
+			cache = FormElementHelper.INSTANCE.getFormComponentCache(webFormComponent.getFormElement(), pd, fcValue, form, fs);
 		}
 		IWebFormUI formUI = webFormComponent.findParent(IWebFormUI.class);
 
@@ -193,9 +203,15 @@ public class FormComponentPropertyType extends DefaultPropertyType<Object> imple
 		Form form = getForm(formElementValue, fs);
 		if (form != null)
 		{
+			// SVY-21667: guard the cast; getForm(...) tolerates a bare String/UUID that this cast does not.
+			FormElement owningFormElement = formElementContext.getFormElement();
+			JSONObject fcValue = asFormComponentValue(formElementValue,
+				owningFormElement != null && owningFormElement.getForm() != null ? owningFormElement.getForm().getName() : null,
+				owningFormElement != null ? owningFormElement.getName() : null, pd.getName());
+			if (fcValue == null) return writer;
 			JSONUtils.addKeyIfPresent(writer, key);
 			// we output here a uuid that is a uuid that must be used to get the compiled template from the $formcomponentCache
-			String uuid = FormElementHelper.INSTANCE.getFormComponentCache(formElementContext.getFormElement(), pd, (JSONObject)formElementValue, form,
+			String uuid = FormElementHelper.INSTANCE.getFormComponentCache(formElementContext.getFormElement(), pd, fcValue, form,
 				fs).getHtmlTemplateUUIDForAngular();
 			writer.object();
 			writer.key("uuid");
@@ -235,6 +251,31 @@ public class FormComponentPropertyType extends DefaultPropertyType<Object> imple
 		return form;
 	}
 
+	/**
+	 * Validates that a form-component property value has the canonical object shape
+	 * { "svy_form": "<form UUID>" } and returns it as a JSONObject.
+	 *
+	 * Returns null (after logging one clear, actionable Debug.error) when the value is not a
+	 * JSONObject - e.g. a bare form-name/UUID string written by hand into the .frm. Callers
+	 * must treat null as "skip this property" rather than casting and throwing a context-free
+	 * ClassCastException. See SVY-21667.
+	 *
+	 * @param value the raw form-component property value (may be a String, JSONObject, ...)
+	 * @param formName the form that owns the element (for the message), or null if unknown
+	 * @param elementName the element name (for the message), or null if unknown
+	 * @param propertyName the property name, e.g. "containedForm" (for the message)
+	 */
+	public static JSONObject asFormComponentValue(Object value, String formName, String elementName, String propertyName)
+	{
+		if (value instanceof JSONObject) return (JSONObject)value;
+		Debug.error("Form component property '" + propertyName + "' on element '" + elementName +
+			"' of form '" + formName + "' has an unexpected value: " +
+			(value == null ? "null" : value.getClass().getSimpleName() + " " + value) +
+			". Expected a JSON object of the form { \"" + SVY_FORM + "\": \"<form UUID>\" }. " +
+			"Skipping this form-component property. (SVY-21667)");
+		return null;
+	}
+
 
 	@Override
 	public Object toSabloComponentValue(Object formElementValue, PropertyDescription pd, INGFormElement formElement, WebFormComponent component,
@@ -243,13 +284,21 @@ public class FormComponentPropertyType extends DefaultPropertyType<Object> imple
 		Form form = getForm(formElementValue, dataAdapterList.getApplication().getFlattenedSolution());
 		if (form != null)
 		{
+			// SVY-21667: guard the cast; getForm(...) tolerates a bare String/UUID that this cast does not.
+			// Return null (not formElementValue) on rejection: null is this type's own "no value" convention
+			// (see defaultValue()), and it lets toRhinoValue short-circuit on re-read instead of re-validating
+			// and re-logging the very same already-rejected value on every scripting access.
+			JSONObject fcValue = asFormComponentValue(formElementValue,
+				formElement != null && formElement.getForm() != null ? formElement.getForm().getName() : null,
+				formElement != null ? formElement.getName() : null, pd.getName());
+			if (fcValue == null) return null;
 			if (pd.getConfig() instanceof ComponentTypeConfig && ((ComponentTypeConfig)pd.getConfig()).forFoundset != null)
 			{
-				return new FormComponentSabloValue(formElement, (JSONObject)formElementValue, pd, dataAdapterList, component, form);
+				return new FormComponentSabloValue(formElement, fcValue, pd, dataAdapterList, component, form);
 			}
 			else
 			{
-				FormComponentCache formComponentCache = FormElementHelper.INSTANCE.getFormComponentCache(formElement, pd, (JSONObject)formElementValue, form,
+				FormComponentCache formComponentCache = FormElementHelper.INSTANCE.getFormComponentCache(formElement, pd, fcValue, form,
 					dataAdapterList.getApplication().getFlattenedSolution());
 				List<FormElement> elements = formComponentCache.getFormComponentElements();
 
@@ -269,7 +318,9 @@ public class FormComponentPropertyType extends DefaultPropertyType<Object> imple
 	public IFormComponentRhinoConverter getFormComponentRhinoConverter(String property, final Object currentValue, final IApplication application,
 		JSWebComponent webComponnent)
 	{
-		return new FormComponentValue(property, (JSONObject)currentValue, application, webComponnent);
+		// SVY-21667: guard the cast; a bad value yields null, which the FormComponentValue constructor null-coalesces to an empty JSONObject.
+		JSONObject fcValue = asFormComponentValue(currentValue, null, null, property);
+		return new FormComponentValue(property, fcValue, application, webComponnent);
 	}
 
 	/**
