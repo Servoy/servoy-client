@@ -271,6 +271,11 @@ public class WebComponent extends BaseComponent implements IWebComponent, ICommo
 							if (customTypesJSON instanceof JSONObject jsonObject)
 							{
 								UUID childUUID = Utils.getAsUUID(jsonObject.optString(IChildWebObject.UUID_KEY, null), false);
+								if (childUUID == null)
+								{
+									childUUID = UUID.randomUUID();
+									jsonObject.put(IChildWebObject.UUID_KEY, childUUID.toString());
+								}
 								WebCustomType existingCustomType = (WebCustomType)getChild(childUUID);
 								if (existingCustomType != null)
 								{
@@ -285,11 +290,17 @@ public class WebComponent extends BaseComponent implements IWebComponent, ICommo
 							}
 							else if (customTypesJSON instanceof JSONArray arr)
 							{
-								for (int i = 0; i < arr.length(); i++)
+								int arrLength = arr.length();
+								for (int i = 0; i < arrLength; i++)
 								{
 									if (arr.opt(i) instanceof JSONObject jsonObject)
 									{
 										UUID childUUID = Utils.getAsUUID(jsonObject.optString(IChildWebObject.UUID_KEY, null), false);
+										if (childUUID == null)
+										{
+											childUUID = UUID.randomUUID();
+											jsonObject.put(IChildWebObject.UUID_KEY, childUUID.toString());
+										}
 										WebCustomType existingCustomType = (WebCustomType)getChild(childUUID);
 										if (existingCustomType != null)
 										{
@@ -299,7 +310,7 @@ public class WebComponent extends BaseComponent implements IWebComponent, ICommo
 										{
 											WebCustomType.createNewInstance(this, (childPd.getType() instanceof ICustomType< ? >)
 												? ((ICustomType< ? >)childPd.getType()).getCustomJSONTypeDefinition() : childPd, propertyName, i,
-												Utils.getAsUUID(jsonObject.optString(IChildWebObject.UUID_KEY, null), false));
+												childUUID);
 										}
 									}
 								}
