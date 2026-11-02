@@ -1027,8 +1027,18 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 					continue;
 				}
 
+				// SVY-21667: guard the cast; a malformed .frm can hold a bare string here even though
+				// getForm(...) resolved it, which would otherwise throw a context-free ClassCastException.
+				JSONObject frmJSON = FormComponentPropertyType.asFormComponentValue(frmValue,
+					formComponentEl.getForm() != null ? formComponentEl.getForm().getName() : null,
+					formComponentEl.getName(), property.getName());
+				if (frmJSON == null)
+				{
+					recursionCheck.remove(frm.getName()); // undo the add() done a few lines above
+					continue;
+				}
 				// do not use the formcomponentcache, we do not want formelement with wrong tabseq to be cached, must caclulate first the sequence
-				List<IFormElement> formComponentPersistsForFCProp = generateFormComponentPersists(formComponentEl, property, (JSONObject)frmValue, frm,
+				List<IFormElement> formComponentPersistsForFCProp = generateFormComponentPersists(formComponentEl, property, frmJSON, frm,
 					flattenedSolution);
 
 				for (IFormElement childPersistOfFCProp : formComponentPersistsForFCProp)
