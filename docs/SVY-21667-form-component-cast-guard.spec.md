@@ -1,17 +1,35 @@
 # Spec: SVY-21667 — Guard the form-component value cast and report a clear, actionable error
 
-> **Where the code lives:** The defect and all code changes in this spec are in the
-> **`servoy_ngclient`** project, which is a **separate git repository** checked out at
-> `D:\Eclipse\202603Workspace\servoy-client\servoy_ngclient`. This spec document itself
-> lives in the `servoy-eclipse` repo's `docs/` only because that is where this SDD
-> pipeline keeps its artifacts (the triage report is at `docs/SVY-21667-triage.md`).
-> The two files to edit are:
+> **Where the code lives — TWO separate repositories, both affected.** The original defect and
+> the six sites fixed first are in the **`servoy_ngclient`** project (a separate git
+> repository, `servoy-client`, checked out at
+> `D:\Eclipse\202603Workspace\servoy-client\servoy_ngclient`). This spec document and the
+> triage report (`docs/SVY-21667-triage.md`) live in that same repo's `docs/`.
 >
+> **A tenth site, found 2026-11-03 (after the above was already committed/drafted), is in a
+> different repository: `com.servoy.eclipse.model`, part of the `servoy-eclipse`
+> (Servoy Developer IDE) checkout** — the IDE's own project builder
+> (`ServoyFormBuilder.addFormMarkers`), which runs continuously on every save/build. It has
+> the identical defect and was fixed the same way. See §3.3d. This means a fix for SVY-21667
+> is **not complete with a single-repo commit** — both `servoy-client` and `servoy-eclipse`
+> need their own commit.
+>
+> Files fixed, by repository:
+>
+> **`servoy-client` (`servoy_ngclient`, `servoy_ngclient.tests`):**
 > - `D:\Eclipse\202603Workspace\servoy-client\servoy_ngclient\src\com\servoy\j2db\server\ngclient\FormElementHelper.java`
 > - `D:\Eclipse\202603Workspace\servoy-client\servoy_ngclient\src\com\servoy\j2db\server\ngclient\property\types\FormComponentPropertyType.java`
+> - `D:\Eclipse\202603Workspace\servoy-client\servoy_ngclient\src\com\servoy\j2db\server\ngclient\template\FormWrapper.java`
+> - `D:\Eclipse\202603Workspace\servoy-client\servoy_ngclient.tests\META-INF\MANIFEST.MF`
+> - `D:\Eclipse\202603Workspace\servoy-client\servoy_ngclient.tests\src\test\java\com\servoy\j2db\server\ngclient\property\types\FormComponentPropertyTypeAsFormComponentValueTest.java`
+> - `D:\Eclipse\202603Workspace\servoy-client\servoy_ngclient.tests\src\test\java\com\servoy\j2db\server\ngclient\property\types\FormComponentPropertyTypeSabloRhinoGuardTest.java`
 >
-> The coding agent must edit the files in the `servoy_ngclient` checkout, **not** in
-> `servoy-eclipse`.
+> **`servoy-eclipse` (`com.servoy.eclipse.model`):**
+> - `D:\Eclipse\202603Workspace\servoy-eclipse\com.servoy.eclipse.model\src\com\servoy\eclipse\model\builder\ServoyFormBuilder.java`
+>
+> Three more known-but-deliberately-unfixed sites remain in `servoy_ngclient` — see §3.3c.
+> Whether `com.servoy.eclipse.model` or other `servoy-eclipse` plugins have further unguarded
+> sites of this same pattern has **not** been systematically searched — see §7.
 
 ## 1. Goal
 
@@ -410,6 +428,67 @@ rebalance (that bookkeeping is specific to the primary `FormElementHelper` and `
 sites), so the fix at these three would be simpler: no matching `remove()` call is needed on
 rejection.
 
+### 3.3d Tenth site — `ServoyFormBuilder.addFormMarkers` (`servoy-eclipse` repo, `com.servoy.eclipse.model`)
+
+**Found 2026-11-03**, after the `servoy-client`-side fixes above were already implemented and
+tested, via a live symptom: opening/building `testscenario1` and `script_warnings_test` in a
+running Servoy Developer threw the same `ClassCastException`, logged repeatedly by Eclipse's
+`.log` as `"Errors running builder 'Servoy Project Builder' on project '...'"`. This is **not**
+in `servoy_ngclient` — it is in a **different git repository**, `servoy-eclipse`, in the IDE's
+own project builder:
+
+```java
+// com.servoy.eclipse.model/src/com/servoy/eclipse/model/builder/ServoyFormBuilder.java
+// addFormMarkers(...), inside the FormComponentPropertyType properties loop
+Object propertyValue = formComponentEl.getPropertyValue(pd.getName());
+Form frm = FormComponentPropertyType.INSTANCE.getForm(propertyValue, fs);
+if (frm == null) continue;
+...
+FormComponentCache cache = FormElementHelper.INSTANCE.getFormComponentCache(formComponentEl, pd,
+    (JSONObject)propertyValue, frm, fs);
+```
+
+Identical shape to every other site in this spec: `getForm` tolerantly resolves the bare
+string, `if (frm == null) continue;` passes, the unguarded `(JSONObject)` cast throws. Because
+this builder runs on **every save and every incremental/full build**, the exception recurred
+continuously in the IDE's `.log` for any workspace project containing the malformed value —
+far more disruptive than the runtime sites, since it fires on every build rather than once per
+form load.
+
+**Why `com.servoy.eclipse.model` can call `FormComponentPropertyType.asFormComponentValue`:**
+confirmed via `explainTypeResolution` that `com.servoy.eclipse.model` already resolves
+`com.servoy.j2db.server.ngclient.property.types.FormComponentPropertyType` straight from the
+`servoy_ngclient` workspace project's source — both checkouts are open in the same Eclipse
+workbench — so the same shared helper (§3.1) is reused here, not reimplemented.
+
+**Fix applied:**
+
+```java
+BuilderDependencies.getInstance().addDatasourceDependency(datasource, form);
+BuilderDependencies.getInstance().addDatasourceDependency(frm.getDataSource(), form);
+
+// SVY-21667: guard the cast; getForm(...) tolerates a bare String/UUID that this cast does not.
+JSONObject fcValue = FormComponentPropertyType.asFormComponentValue(propertyValue, form.getName(),
+    formComponentEl.getName(), pd.getName());
+if (fcValue == null) continue;
+FormComponentCache cache = FormElementHelper.INSTANCE.getFormComponentCache(formComponentEl, pd,
+    fcValue, frm, fs);
+```
+
+No `recursionCheck`/`recursiveCheck`-style set exists at this site, so no rebalancing is
+needed — a plain `continue` is sufficient, matching the three deferred sites in §3.3c rather
+than the primary/`FormWrapper` sites.
+
+A second, unrelated `(JSONObject)propertyValue` occurrence in the same file
+(`ServoyFormBuilder.java:1930`, inside `checkDataProviders`/`checkDataProvider`) was inspected
+and confirmed **not** affected: it is already guarded by `if (propertyValue instanceof
+JSONObject)` before the cast, so it cannot throw this `ClassCastException`.
+
+**This is a cross-repository fix.** `com.servoy.eclipse.model` is part of the `servoy-eclipse`
+(Servoy Developer IDE) git repository — a different repository from `servoy-client`, where the
+other nine sites live. A commit for SVY-21667 in `servoy-client` alone does not close this
+symptom; `servoy-eclipse` needs its own separate commit for this one file.
+
 ### 3.4 What must not change
 
 - `FormComponentPropertyType.getForm(...)` stays tolerant of String/UUID/JSForm — other code
@@ -466,6 +545,14 @@ All edits are in the **`servoy_ngclient`** checkout at
     a bare resolvable string and open it in a real (test) client
     (`FormComponentPropertyTypeSabloRhinoGuardTest` does this) — that is what actually surfaced
     both the sixth site and the `form 'null'` context-threading gaps.
+11. **Tenth site, different repository — `com.servoy.eclipse.model`** (found 2026-11-03, after
+    steps 1-10 above were already done): in the `servoy-eclipse` checkout, edit
+    `ServoyFormBuilder.java`'s `addFormMarkers` to guard the `(JSONObject)propertyValue` cast
+    the same way, using the already-committed `FormComponentPropertyType.asFormComponentValue`
+    helper from `servoy_ngclient` (confirm it resolves via
+    `tools["eclipse-ide"].explainTypeResolution` first, don't assume). No `recursionCheck`
+    rebalancing needed at this site. This is a **separate commit in a separate repository** —
+    see §3.3d.
 
 ## 5. Acceptance criteria
 
@@ -537,6 +624,7 @@ All edits are in the **`servoy_ngclient`** checkout at
 | **Was the sixth call site (`FormWrapper.checkFormComponents`) the only one missed, or could there be a seventh/eighth?** | implementer | **resolved — no, there are at least three more, found but deliberately left unfixed.** A systematic `grep` for `.getForm(` combined with `(JSONObject)` casts across `servoy_ngclient/src` was run after the sixth site was fixed. It found three further sites with the identical unguarded shape (lenient `getForm(...)` lookup, `if (frm == null) continue;`, then an unguarded `(JSONObject)` cast on the same raw value), all reachable with the same malformed `containedForm` value. **Per the user's explicit decision, these three are documented here but not fixed in this pass** — see the table below. |
 | **The three newly found, unfixed sites — are they fixed?** | user (deferred) | **No — found 2026-11-02, left unfixed by explicit user decision ("Document only, fix later").** See the dedicated subsection below for the exact locations and what each would need. |
 | **Should the duplicate-logging-across-independent-sites gap be fixed now or deferred?** | user | **deferred, by user decision.** A follow-up ticket was drafted ("Form-component cast-guard logs once per independent consumer, not once per malformed property") but the user judged it low priority and has not filed it yet. |
+| **Is `servoy_ngclient` the only project affected, or are there sites in other repositories/plugins too?** | implementer | **resolved — no, `servoy-eclipse` is affected too; found 2026-11-03, fixed.** `com.servoy.eclipse.model`'s project builder (`ServoyFormBuilder.addFormMarkers`) has the identical unguarded cast and was fixed the same way (§3.3d). It was found only because the malformed `.frm` created earlier for manual testing (`testscenario1`) sat in an open IDE workspace and the builder re-ran on every save, throwing continuously into the Eclipse `.log`. **No systematic search of `servoy-eclipse` (or any other plugin/repository) for this same pattern has been done** — only this one occurrence was found, by symptom, not by a deliberate grep as was done for the ninth-site search in `servoy_ngclient`. Whether `com.servoy.eclipse.model` or other `servoy-eclipse` plugins (e.g. `com.servoy.eclipse.designer*`) have further unguarded sites remains unanswered. |
 
 ### Analysis of the ticket's run-011 attachments (added after initial implementation)
 
