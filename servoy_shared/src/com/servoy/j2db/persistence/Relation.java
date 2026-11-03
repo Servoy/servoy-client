@@ -832,14 +832,19 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 						new Object[] { ((LiteralDataprovider)primary[i]).getLiteral(), foreign[i].getDataProviderID() });
 				}
 
-				if (isUUID(primary[i]) && isUUID(foreign[i]))
-				{
-					continue; //allow uuid to media mapping
-				}
-
 				if (primary[i].getDataProviderType() == Types.NULL) continue; // Support is null/is not null
 
 				int primaryType = mapToDefaultType(primary[i].getDataProviderType());
+				if (isUUID(foreign[i]))
+				{
+					if (isUUID(primary[i]))
+						continue; //allow uuid to media mapping
+					// if the column is a uuid but the primary is not then do allow a calc which is a text
+					if (primaryType == IColumnTypes.TEXT && primary[i] instanceof ScriptCalculation)
+						continue;
+				}
+
+
 				int foreignType = mapToDefaultType(foreign[i].getDataProviderType());
 
 				if (primaryType == IColumnTypes.TEXT && (foreignType == IColumnTypes.INTEGER || foreignType == IColumnTypes.NUMBER))
