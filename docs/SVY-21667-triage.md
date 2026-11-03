@@ -190,10 +190,28 @@ record of what was known and decided at the PROCEED gate. Full detail is in
   dedicated integration test opened a real form with the malformed value in a running test
   client, triggering template generation. It has since been fixed the same way as the other
   five sites. **This triage's "recurs at several sibling call sites" list (the four bullet
-  points above) was not exhaustive** — no systematic search across the whole `servoy_ngclient`
-  codebase for this cast pattern was performed, here or during implementation. Whether a
-  seventh site exists is an open question in the spec (§7), not resolved by this triage or by
-  implementation.
+  points above) was not exhaustive** — a systematic search across `servoy_ngclient/src`
+  afterwards found three more sites in that same repo (`ChildrenJSONGenerator`,
+  `FormComponentUtils`, `FormComponentSabloValue`), deliberately left unfixed by explicit user
+  decision; see spec §3.3c.
+- **A tenth site exists in a different repository entirely — `servoy-eclipse`, not
+  `servoy-client`.** This triage's root-cause assessment and git-history scope was written
+  against the `servoy_ngclient` checkout only (per its root-cause-assessment paragraph above:
+  "a real, reproducible NPE-class defect in the NG-client code (`servoy_ngclient`...)"). It did
+  not consider, and could not have been expected to consider without a cross-repository search,
+  that the Servoy Developer IDE's own project builder
+  (`com.servoy.eclipse.model`'s `ServoyFormBuilder.addFormMarkers`) has the identical defect.
+  That builder runs continuously — on every save and every incremental/full build — so once a
+  workspace contains a form with the malformed `containedForm` value (such as the one
+  hand-authored for manual testing against this very ticket), it throws the same
+  `ClassCastException` repeatedly into the Eclipse `.log`, far more disruptively than any of
+  the nine `servoy-client`-side sites. It was found 2026-11-03 by that live symptom, fixed the
+  same way (reusing the already-committed `asFormComponentValue` helper, which
+  `com.servoy.eclipse.model` already resolves from `servoy_ngclient`'s workspace source), and
+  requires its **own, separate commit in the `servoy-eclipse` repository** — see spec §3.3d.
+  No systematic search of `servoy-eclipse` (or any repository beyond `servoy_ngclient`) for
+  this same pattern has been performed; this one occurrence was found by symptom, not by a
+  deliberate search as was done for the ninth-site search above.
 - **The run-011 ticket attachments were analyzed** (not available/reviewed at the time this
   triage was written) and confirm, rather than challenge, this triage's reject-and-report
   recommendation: an AI-agent-authored `.frm` reproduced the exact defect (bare form-name
