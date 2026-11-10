@@ -25,7 +25,6 @@ import java.util.Map;
 import org.eclipse.dltk.rhino.dbgp.LazyInitScope;
 import org.mozilla.javascript.Callable;
 import org.mozilla.javascript.Context;
-import org.mozilla.javascript.NativeJavaMethod;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Wrapper;
 
@@ -92,7 +91,7 @@ import com.servoy.j2db.util.ServoyException;
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
 public class SPDataSourceServer extends DefaultJavaScope implements LazyInitScope
 {
-	private static final Map<String, NativeJavaMethod> jsFunctions = DefaultJavaScope.getJsFunctions(SPDataSourceServer.class);
+	private static final Map<String, JsMethod> jsFunctions = DefaultJavaScope.getJsFunctions(SPDataSourceServer.class);
 	private volatile IApplication application;
 
 	private final String serverName;

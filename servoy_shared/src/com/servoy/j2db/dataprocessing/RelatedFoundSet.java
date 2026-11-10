@@ -16,8 +16,6 @@
  */
 package com.servoy.j2db.dataprocessing;
 
-import static java.util.Arrays.stream;
-
 import static com.servoy.j2db.query.AbstractBaseQuery.deepClone;
 import static java.util.Arrays.stream;
 
@@ -32,7 +30,6 @@ import java.util.StringTokenizer;
 import java.util.stream.IntStream;
 import java.util.stream.IntStream.Builder;
 
-import org.mozilla.javascript.NativeJavaMethod;
 import org.mozilla.javascript.Scriptable;
 
 import com.servoy.base.query.IBaseSQLCondition;
@@ -63,20 +60,6 @@ import com.servoy.j2db.util.visitor.PackVisitor;
  */
 public abstract class RelatedFoundSet extends FoundSet
 {
-
-	private static NativeJavaMethod maxRecord;
-
-	static
-	{
-		try
-		{
-			maxRecord = new NativeJavaMethod(FoundSet.class.getMethod("js_getMaxRecordIndex", (Class[])null), "getMaxRecordIndex"); //$NON-NLS-1$ //$NON-NLS-2$
-		}
-		catch (Exception e)
-		{
-			Debug.error(e);
-		}
-	}
 
 	private boolean skipOptimizeQuery;
 
@@ -567,22 +550,7 @@ public abstract class RelatedFoundSet extends FoundSet
 		{
 			return Integer.valueOf(getSelectedIndex() + 1);
 		}
-		else if ("getMaxRecordIndex".equals(name)) //adding a method here must also  be added in Ident.java //$NON-NLS-1$
-		{
-			return maxRecord;
-		}
 		return super.get(name, start);
-	}
-
-	@Override
-	public boolean has(String name, Scriptable start)
-	{
-		boolean b = super.has(name, start);
-		if (!b)
-		{
-			b = "getMaxRecordIndex".equals(name); //$NON-NLS-1$
-		}
-		return b;
 	}
 
 	@Override
@@ -595,11 +563,6 @@ public abstract class RelatedFoundSet extends FoundSet
 			{
 				setSelectedIndex(i);
 			}
-			return;
-		}
-		else if ("getMaxRecordIndex".equals(name)) //$NON-NLS-1$
-		{
-			// don't set
 			return;
 		}
 		super.put(name, start, value);

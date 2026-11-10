@@ -59,13 +59,10 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.StringTokenizer;
 
-import org.mozilla.javascript.BaseFunction;
 import org.mozilla.javascript.Callable;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.NativeJavaArray;
-import org.mozilla.javascript.NativeJavaMethod;
-import org.mozilla.javascript.ScriptRuntime;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Symbol;
 import org.mozilla.javascript.SymbolKey;
@@ -130,8 +127,10 @@ import com.servoy.j2db.query.TablePlaceholderKey;
 import com.servoy.j2db.querybuilder.IQueryBuilder;
 import com.servoy.j2db.querybuilder.impl.QBSelect;
 import com.servoy.j2db.scripting.DefaultJavaScope;
+import com.servoy.j2db.scripting.DefaultJavaScope.JsMethod;
 import com.servoy.j2db.scripting.GlobalScope;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
+import com.servoy.j2db.scripting.JsFunctionCache;
 import com.servoy.j2db.scripting.LazyCompilationScope;
 import com.servoy.j2db.scripting.TableScope;
 import com.servoy.j2db.scripting.UsedDataProviderTracker;
@@ -175,7 +174,10 @@ public abstract class FoundSet
 {
 	public static final String JS_FOUNDSET = "JSFoundSet"; //$NON-NLS-1$
 
-	public static final Map<String, NativeJavaMethod> jsFunctions = DefaultJavaScope.getJsFunctions(FoundSet.class);
+	public static final Map<String, JsMethod> jsFunctions = DefaultJavaScope.getJsFunctions(FoundSet.class);
+
+	// null until the first js function is accessed on this foundset
+	private volatile JsFunctionCache jsFunctionCache;
 
 	protected final FoundSetManager fsm;
 	protected final RowManager rowManager;
@@ -6709,11 +6711,16 @@ public abstract class FoundSet
 			return new NativeJavaArray(this, alldataproviders());
 		}
 
-		Object mobj = jsFunctions.get(name);
+		JsMethod mobj = jsFunctions.get(name);
 		if (mobj != null)
 		{
-			ScriptRuntime.setFunctionProtoAndParent((BaseFunction)mobj, start);
-			return mobj;
+			JsFunctionCache cache = jsFunctionCache;
+			if (cache == null)
+			{
+				cache = new JsFunctionCache();
+				jsFunctionCache = cache;
+			}
+			return cache.get(mobj, start);
 		}
 
 		if (getSize() == 0)
@@ -7196,6 +7203,7 @@ public abstract class FoundSet
 		}
 		obj.foundSetEventListeners = new ArrayList<IFoundSetEventListener>();
 		obj.aggregateModificationListeners = new ArrayList<IModificationListener>();
+		obj.jsFunctionCache = null;
 		return obj;
 	}
 

@@ -26,7 +26,6 @@ import java.util.function.Supplier;
 
 import org.mozilla.javascript.MemberBox;
 import org.mozilla.javascript.NativeJavaMethod;
-import org.mozilla.javascript.ScriptRuntime;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.annotations.JSFunction;
 import org.mozilla.javascript.lc.type.TypeInfoFactory;
@@ -46,16 +45,46 @@ import com.servoy.j2db.util.Utils;
  */
 public abstract class DefaultJavaScope extends DefaultScope implements IJavaScriptType
 {
-	private boolean filled;
-	private final Map<String, NativeJavaMethod> jsFunctions;
+	/**
+	 * Immutable, statically cacheable description of a js function: its name and its overloads. It never holds a function instance, so
+	 * nothing client specific can end up in the static cache. Use {@link JsFunctionCache} to get the (per owner) function instance.
+	 */
+	public static final class JsMethod
+	{
+		private final String name;
+		private final MemberBox[] methods;
 
-	protected DefaultJavaScope(Scriptable scriptParent, Map<String, NativeJavaMethod> jsFunctions)
+		private JsMethod(String name, MemberBox[] methods)
+		{
+			this.name = name;
+			this.methods = methods;
+		}
+
+		public String getName()
+		{
+			return name;
+		}
+
+		/**
+		 * Creates a fresh, unparented function without prototype.
+		 */
+		NativeJavaMethod newFunction()
+		{
+			return new NativeJavaMethod(methods, name);
+		}
+	}
+
+	private boolean filled;
+	private final Map<String, JsMethod> jsFunctions;
+	private volatile JsFunctionCache jsFunctionCache;
+
+	protected DefaultJavaScope(Scriptable scriptParent, Map<String, JsMethod> jsFunctions)
 	{
 		super(scriptParent);
 		this.jsFunctions = jsFunctions;
 	}
 
-	protected DefaultJavaScope(Scriptable scriptParent, Supplier<Map<String, Object>> allVarsSupplier, Map<String, NativeJavaMethod> jsFunctions)
+	protected DefaultJavaScope(Scriptable scriptParent, Supplier<Map<String, Object>> allVarsSupplier, Map<String, JsMethod> jsFunctions)
 	{
 		super(scriptParent, allVarsSupplier);
 		this.jsFunctions = jsFunctions;
@@ -85,11 +114,16 @@ public abstract class DefaultJavaScope extends DefaultScope implements IJavaScri
 	@Override
 	public Object get(String name, Scriptable start)
 	{
-		NativeJavaMethod jm = jsFunctions.get(name);
+		JsMethod jm = jsFunctions.get(name);
 		if (jm != null)
 		{
-			ScriptRuntime.setFunctionProtoAndParent(jm, start);
-			return jm;
+			JsFunctionCache cache = jsFunctionCache;
+			if (cache == null)
+			{
+				cache = new JsFunctionCache();
+				jsFunctionCache = cache;
+			}
+			return cache.get(jm, start);
 		}
 		checkFill();
 		return super.get(name, start);
@@ -144,13 +178,13 @@ public abstract class DefaultJavaScope extends DefaultScope implements IJavaScri
 		return super.has(index, start);
 	}
 
-	private static final ConcurrentMap<Class< ? >, Map<String, NativeJavaMethod>> functionCache = new ConcurrentHashMap<>();
+	private static final ConcurrentMap<Class< ? >, Map<String, JsMethod>> functionCache = new ConcurrentHashMap<>();
 
-	public static Map<String, NativeJavaMethod> getJsFunctions(Class< ? > clazz)
+	public static Map<String, JsMethod> getJsFunctions(Class< ? > clazz)
 	{
-		Map<String, NativeJavaMethod> jsFunctions = functionCache.get(clazz);
+		Map<String, JsMethod> jsFunctions = functionCache.get(clazz);
 		if (jsFunctions != null) return jsFunctions;
-		jsFunctions = new HashMap<String, NativeJavaMethod>();
+		jsFunctions = new HashMap<String, JsMethod>();
 		try
 		{
 			for (Method method : clazz.getMethods())
@@ -183,17 +217,17 @@ public abstract class DefaultJavaScope extends DefaultScope implements IJavaScri
 				}
 				if (name != null)
 				{
-					NativeJavaMethod nativeJavaMethod = jsFunctions.get(name);
-					if (nativeJavaMethod == null)
+					JsMethod jsMethod = jsFunctions.get(name);
+					MemberBox memberBox = new MemberBox(method, TypeInfoFactory.GLOBAL);
+					if (jsMethod == null)
 					{
-						nativeJavaMethod = new NativeJavaMethod(method, name);
+						jsMethod = new JsMethod(name, new MemberBox[] { memberBox });
 					}
 					else
 					{
-						nativeJavaMethod = new NativeJavaMethod(
-							Utils.arrayAdd(nativeJavaMethod.getMethods(), new MemberBox(method, TypeInfoFactory.GLOBAL), true), name);
+						jsMethod = new JsMethod(name, Utils.arrayAdd(jsMethod.methods, memberBox, true));
 					}
-					jsFunctions.put(name, nativeJavaMethod);
+					jsFunctions.put(name, jsMethod);
 				}
 
 			}
@@ -202,7 +236,7 @@ public abstract class DefaultJavaScope extends DefaultScope implements IJavaScri
 		{
 			Debug.error(e);
 		}
-		Map<String, NativeJavaMethod> alreadyCreatedValue = functionCache.putIfAbsent(clazz, jsFunctions);
+		Map<String, JsMethod> alreadyCreatedValue = functionCache.putIfAbsent(clazz, jsFunctions);
 		if (alreadyCreatedValue != null) return alreadyCreatedValue;
 		return jsFunctions;
 	}

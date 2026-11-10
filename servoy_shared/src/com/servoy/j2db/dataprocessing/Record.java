@@ -31,8 +31,6 @@ import java.util.Set;
 
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.NativeArray;
-import org.mozilla.javascript.NativeJavaMethod;
-import org.mozilla.javascript.ScriptRuntime;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Symbol;
 import org.mozilla.javascript.SymbolScriptable;
@@ -50,6 +48,8 @@ import com.servoy.j2db.IApplication;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.scripting.DefaultJavaScope;
+import com.servoy.j2db.scripting.DefaultJavaScope.JsMethod;
+import com.servoy.j2db.scripting.JsFunctionCache;
 import com.servoy.j2db.scripting.UsedDataProviderTracker;
 import com.servoy.j2db.scripting.UsedDataProviderTracker.UsedAggregate;
 import com.servoy.j2db.scripting.UsedDataProviderTracker.UsedDataProvider;
@@ -91,7 +91,10 @@ public class Record implements Scriptable, SymbolScriptable, IRecordInternal, IJ
 	/*
 	 * _____________________________________________________________ JavaScript stuff
 	 */
-	public static final Map<String, NativeJavaMethod> jsFunctions = DefaultJavaScope.getJsFunctions(Record.class);
+	public static final Map<String, JsMethod> jsFunctions = DefaultJavaScope.getJsFunctions(Record.class);
+
+	// null until the first js function is accessed on this record
+	private volatile JsFunctionCache jsFunctionCache;
 
 	public static final ThreadLocal<Boolean> VALIDATE_CALCS = new ThreadLocal<Boolean>();
 
@@ -504,11 +507,16 @@ public class Record implements Scriptable, SymbolScriptable, IRecordInternal, IJ
 	{
 		if (FoundSet.isToplevelKeyword(name)) return Scriptable.NOT_FOUND;
 		Context context = Context.getCurrentContext();
-		NativeJavaMethod mobj = jsFunctions.get(name);
+		JsMethod mobj = jsFunctions.get(name);
 		if (mobj != null)
 		{
-			ScriptRuntime.setFunctionProtoAndParent(mobj, context, start);
-			return mobj;
+			JsFunctionCache cache = jsFunctionCache;
+			if (cache == null)
+			{
+				cache = new JsFunctionCache();
+				jsFunctionCache = cache;
+			}
+			return cache.get(mobj, context, start);
 		}
 		Object o = getValue(name);
 		if (o != null && o != Scriptable.NOT_FOUND && !(o instanceof Scriptable))

@@ -32,13 +32,11 @@ import java.util.Map.Entry;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableModel;
 
-import org.mozilla.javascript.BaseFunction;
 import org.mozilla.javascript.Callable;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.NativeArray;
 import org.mozilla.javascript.NativeJavaArray;
-import org.mozilla.javascript.NativeJavaMethod;
 import org.mozilla.javascript.ScriptRuntime;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Symbol;
@@ -56,7 +54,9 @@ import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.query.ColumnType;
 import com.servoy.j2db.scripting.DefaultJavaScope;
+import com.servoy.j2db.scripting.DefaultJavaScope.JsMethod;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
+import com.servoy.j2db.scripting.JsFunctionCache;
 import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.HtmlUtils;
@@ -98,7 +98,10 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Symb
 {
 	private static final long serialVersionUID = 1L;
 
-	public static final Map<String, NativeJavaMethod> jsFunctions = DefaultJavaScope.getJsFunctions(JSDataSet.class);
+	public static final Map<String, JsMethod> jsFunctions = DefaultJavaScope.getJsFunctions(JSDataSet.class);
+
+	// null until the first js function is accessed on this instance
+	private transient volatile JsFunctionCache jsFunctionCache;
 
 	private static JSDataSet prototype = new JSDataSet();
 
@@ -1431,11 +1434,16 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Symb
 
 	public Object get(String name, Scriptable start)
 	{
-		Object mobj = jsFunctions.get(name);
+		JsMethod mobj = jsFunctions.get(name);
 		if (mobj != null)
 		{
-			ScriptRuntime.setFunctionProtoAndParent((BaseFunction)mobj, start);
-			return mobj;
+			JsFunctionCache cache = jsFunctionCache;
+			if (cache == null)
+			{
+				cache = new JsFunctionCache();
+				jsFunctionCache = cache;
+			}
+			return cache.get(mobj, start);
 		}
 		if (set != null)
 		{

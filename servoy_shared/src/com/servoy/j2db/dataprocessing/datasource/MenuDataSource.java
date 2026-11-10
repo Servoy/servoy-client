@@ -19,7 +19,6 @@ package com.servoy.j2db.dataprocessing.datasource;
 
 import java.util.Map;
 
-import org.mozilla.javascript.NativeJavaMethod;
 import org.mozilla.javascript.Scriptable;
 
 import com.servoy.j2db.IApplication;
@@ -43,7 +42,7 @@ import com.servoy.j2db.util.DataSourceUtils;
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
 public class MenuDataSource extends DefaultJavaScope
 {
-	private static final Map<String, NativeJavaMethod> jsFunctions = DefaultJavaScope.getJsFunctions(MenuDataSource.class);
+	private static final Map<String, JsMethod> jsFunctions = DefaultJavaScope.getJsFunctions(MenuDataSource.class);
 	private volatile IApplication application;
 
 	MenuDataSource(IApplication application)

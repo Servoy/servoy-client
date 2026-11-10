@@ -19,7 +19,6 @@ package com.servoy.j2db.dataprocessing.datasource;
 
 import java.util.Map;
 
-import org.mozilla.javascript.NativeJavaMethod;
 import org.mozilla.javascript.Scriptable;
 
 import com.servoy.j2db.IApplication;
@@ -62,7 +61,7 @@ import com.servoy.j2db.util.Debug;
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
 public class MemDataSource extends DefaultJavaScope
 {
-	private static Map<String, NativeJavaMethod> jsFunctions = DefaultJavaScope.getJsFunctions(MemDataSource.class);
+	private static Map<String, JsMethod> jsFunctions = DefaultJavaScope.getJsFunctions(MemDataSource.class);
 	private final IApplication application;
 
 	MemDataSource(IApplication application)

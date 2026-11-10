@@ -24,9 +24,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.mozilla.javascript.BaseFunction;
-import org.mozilla.javascript.NativeJavaMethod;
-import org.mozilla.javascript.ScriptRuntime;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Symbol;
 import org.mozilla.javascript.SymbolScriptable;
@@ -46,6 +43,8 @@ import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.query.ISQLTableJoin;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.scripting.DefaultJavaScope;
+import com.servoy.j2db.scripting.DefaultJavaScope.JsMethod;
+import com.servoy.j2db.scripting.JsFunctionCache;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.FormatParser.ParsedFormat;
@@ -63,7 +62,10 @@ import com.servoy.j2db.util.Utils;
  */
 public class FindState implements Scriptable, SymbolScriptable, IRecordInternal, Serializable, IJSRecord, IJSBaseSQLRecord
 {
-	public static final Map<String, NativeJavaMethod> jsFunctions = DefaultJavaScope.getJsFunctions(FindState.class);
+	public static final Map<String, JsMethod> jsFunctions = DefaultJavaScope.getJsFunctions(FindState.class);
+
+	// null until the first js function is accessed on this instance
+	private transient volatile JsFunctionCache jsFunctionCache;
 
 	private final Map<String, Object> columndata;//actual find columndata
 	private final IFoundSetInternal parent;
@@ -364,11 +366,16 @@ public class FindState implements Scriptable, SymbolScriptable, IRecordInternal,
 	public Object get(String name, Scriptable start)
 	{
 		if (FoundSet.isToplevelKeyword(name)) return Scriptable.NOT_FOUND;
-		Object mobj = jsFunctions.get(name);
+		JsMethod mobj = jsFunctions.get(name);
 		if (mobj != null)
 		{
-			ScriptRuntime.setFunctionProtoAndParent((BaseFunction)mobj, start);
-			return mobj;
+			JsFunctionCache cache = jsFunctionCache;
+			if (cache == null)
+			{
+				cache = new JsFunctionCache();
+				jsFunctionCache = cache;
+			}
+			return cache.get(mobj, start);
 		}
 		Object o = getValue(name);
 		if (o == null && !storeDataProvider(name))

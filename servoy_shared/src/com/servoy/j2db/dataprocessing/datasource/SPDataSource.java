@@ -19,8 +19,6 @@ package com.servoy.j2db.dataprocessing.datasource;
 
 import java.util.Map;
 
-import org.mozilla.javascript.NativeJavaMethod;
-
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.RepositoryException;
@@ -79,7 +77,7 @@ import com.servoy.j2db.util.Debug;
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
 public class SPDataSource extends DefaultJavaScope
 {
-	private static final Map<String, NativeJavaMethod> jsFunctions = DefaultJavaScope.getJsFunctions(SPDataSource.class);
+	private static final Map<String, JsMethod> jsFunctions = DefaultJavaScope.getJsFunctions(SPDataSource.class);
 	private volatile IApplication application;
 
 	SPDataSource(IApplication application)

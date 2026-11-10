@@ -26,7 +26,6 @@ import static java.util.stream.IntStream.range;
 import java.util.List;
 import java.util.Map;
 
-import org.mozilla.javascript.NativeJavaMethod;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.WrappedException;
 import org.mozilla.javascript.annotations.JSFunction;
@@ -72,7 +71,7 @@ import com.servoy.j2db.util.Debug;
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
 public class QBJoins extends DefaultJavaScope implements IQueryBuilderJoins
 {
-	private final static Map<String, NativeJavaMethod> jsFunctions = DefaultJavaScope.getJsFunctions(QBJoins.class);
+	private final static Map<String, JsMethod> jsFunctions = DefaultJavaScope.getJsFunctions(QBJoins.class);
 
 	private final QBSelect root;
 	private final QBTableClause parent;

@@ -20,7 +20,6 @@ package com.servoy.j2db.querybuilder.impl;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.mozilla.javascript.NativeJavaMethod;
 import org.mozilla.javascript.Scriptable;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
@@ -44,7 +43,7 @@ import com.servoy.j2db.scripting.DefaultJavaScope;
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
 public class QBColumns extends DefaultJavaScope
 {
-	private final static Map<String, NativeJavaMethod> jsFunctions = getJsFunctions(QBColumns.class);
+	private final static Map<String, JsMethod> jsFunctions = getJsFunctions(QBColumns.class);
 
 	QBColumns(Scriptable scriptParent)
 	{

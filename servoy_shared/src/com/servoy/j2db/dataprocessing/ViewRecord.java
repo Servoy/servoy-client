@@ -28,10 +28,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.mozilla.javascript.BaseFunction;
 import org.mozilla.javascript.Context;
-import org.mozilla.javascript.NativeJavaMethod;
-import org.mozilla.javascript.ScriptRuntime;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Wrapper;
 import org.mozilla.javascript.annotations.JSFunction;
@@ -42,6 +39,8 @@ import com.servoy.base.scripting.api.IJSDataSet;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.scripting.DefaultJavaScope;
+import com.servoy.j2db.scripting.DefaultJavaScope.JsMethod;
+import com.servoy.j2db.scripting.JsFunctionCache;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ServoyException;
@@ -71,7 +70,10 @@ import com.servoy.j2db.util.Utils;
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "ViewRecord", scriptingName = "ViewRecord", extendsComponent = "JSBaseSQLRecord")
 public final class ViewRecord implements IRecordInternal, IJSBaseSQLRecord, Scriptable
 {
-	public static final Map<String, NativeJavaMethod> jsFunctions = DefaultJavaScope.getJsFunctions(ViewRecord.class);
+	public static final Map<String, JsMethod> jsFunctions = DefaultJavaScope.getJsFunctions(ViewRecord.class);
+
+	// null until the first js function is accessed on this instance
+	private volatile JsFunctionCache jsFunctionCache;
 
 	public static final String VIEW_RECORD = "ViewRecord"; //$NON-NLS-1$
 
@@ -609,11 +611,16 @@ public final class ViewRecord implements IRecordInternal, IJSBaseSQLRecord, Scri
 	@Override
 	public Object get(String name, Scriptable start)
 	{
-		Object mobj = jsFunctions.get(name);
+		JsMethod mobj = jsFunctions.get(name);
 		if (mobj != null)
 		{
-			ScriptRuntime.setFunctionProtoAndParent((BaseFunction)mobj, start);
-			return mobj;
+			JsFunctionCache cache = jsFunctionCache;
+			if (cache == null)
+			{
+				cache = new JsFunctionCache();
+				jsFunctionCache = cache;
+			}
+			return cache.get(mobj, start);
 		}
 		Object o = getValue(name);
 		if (o != null && o != Scriptable.NOT_FOUND && !(o instanceof Scriptable))

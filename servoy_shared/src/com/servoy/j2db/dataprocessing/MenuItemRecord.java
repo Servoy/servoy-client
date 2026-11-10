@@ -24,16 +24,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.mozilla.javascript.BaseFunction;
 import org.mozilla.javascript.Context;
-import org.mozilla.javascript.NativeJavaMethod;
-import org.mozilla.javascript.ScriptRuntime;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.annotations.JSFunction;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.DefaultJavaScope;
+import com.servoy.j2db.scripting.DefaultJavaScope.JsMethod;
 import com.servoy.j2db.scripting.JSMenuItem;
+import com.servoy.j2db.scripting.JsFunctionCache;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 import com.servoy.j2db.util.Utils;
 
@@ -51,9 +50,13 @@ import com.servoy.j2db.util.Utils;
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "MenuItemRecord", scriptingName = "MenuItemRecord", extendsComponent = "JSBaseRecord")
 public class MenuItemRecord implements IRecordInternal, Scriptable, IJSBaseRecord, IModificationListener
 {
-	public static final Map<String, NativeJavaMethod> jsFunctions = DefaultJavaScope.getJsFunctions(MenuItemRecord.class);
+	public static final Map<String, JsMethod> jsFunctions = DefaultJavaScope.getJsFunctions(MenuItemRecord.class);
+
 	public static final String MENUITEM_RECORD = "MenuItemRecord"; //$NON-NLS-1$
 	public static final String MENUITEM_RELATION_NAME = "children_menu_items"; //$NON-NLS-1$
+
+	// null until the first js function is accessed on this instance
+	private volatile JsFunctionCache jsFunctionCache;
 
 	private final Map<String, Object> values = new HashMap<>();
 	private final MenuFoundSet foundset;
@@ -215,11 +218,16 @@ public class MenuItemRecord implements IRecordInternal, Scriptable, IJSBaseRecor
 	@Override
 	public Object get(String name, Scriptable start)
 	{
-		Object mobj = jsFunctions.get(name);
+		JsMethod mobj = jsFunctions.get(name);
 		if (mobj != null)
 		{
-			ScriptRuntime.setFunctionProtoAndParent((BaseFunction)mobj, start);
-			return mobj;
+			JsFunctionCache cache = jsFunctionCache;
+			if (cache == null)
+			{
+				cache = new JsFunctionCache();
+				jsFunctionCache = cache;
+			}
+			return cache.get(mobj, start);
 		}
 		Object o = getValue(name);
 		if (o != null && o != Scriptable.NOT_FOUND && !(o instanceof Scriptable))
