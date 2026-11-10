@@ -38,6 +38,10 @@ public interface INGClientApplication extends IApplication
 
 	String getClipboardContent();
 
+	void beep();
+
+	void playSound(String url);
+
 	String getMediaURL(String mediaName);
 
 	JSONObject getBounds(String webComponentID, String subselector);
