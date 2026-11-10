@@ -89,9 +89,9 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 	private boolean allowNull = true;
 	private ColumnInfo columnInfo;
 
-/*
- * _____________________________________________________________ Declaration and definition of constructors
- */
+	/*
+	 * _____________________________________________________________ Declaration and definition of constructors
+	 */
 	public Column(ITable db, String theSQLName, ColumnType columnType, boolean existInDB)
 	{
 		table = db;
@@ -652,107 +652,119 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 	public Object getNewRecordValue(IServiceProvider application) throws Exception
 	{
 		ColumnInfo ci = getColumnInfo();
-		if (ci != null)
+		if (ci == null)
 		{
-			int autoEnterType = ci.getAutoEnterType();
-			int autoEnterSubType = ci.getAutoEnterSubType();
-			switch (autoEnterType)
+			// column info is not (yet) loaded (e.g. during a WAR solution import, before the post-import hooks run, see SVY-21731);
+			// a sequence value can still be produced from the column's own sequence type (the server resolves the actual sequence).
+			if (hasSequence())
 			{
-				case ColumnInfo.SYSTEM_VALUE_AUTO_ENTER :
-					switch (autoEnterSubType)
-					{
-						case ColumnInfo.SYSTEM_VALUE_CREATION_SERVER_DATETIME :
-							return new Timestamp(application.getClientHost().getServerTime(application.getClientID()).getTime());
-
-						case ColumnInfo.SYSTEM_VALUE_CREATION_DATETIME :
-//						case ColumnInfo.SYSTEM_VALUE_MODIFICATION_DATETIME://makes it possible to search for non modified records
-							return new Timestamp(TimezoneUtils.getClientDate(application).getTime());
-
-						case ColumnInfo.SYSTEM_VALUE_CREATION_USERNAME :
-//						case ColumnInfo.SYSTEM_VALUE_MODIFICATION_NAME://makes it possible to search for non modified records
-							return application.getUserName();
-
-						case ColumnInfo.SYSTEM_VALUE_CREATION_USERUID :
-//						case ColumnInfo.SYSTEM_VALUE_MODIFICATION_USERID://makes it possible to search for non modified records
-						{
-							String user_uid = application.getUserUID();
-							if (user_uid == null) user_uid = ""; //$NON-NLS-1$
-							switch (getDataProviderType())
-							{
-								case NUMBER :
-									return new Double(Utils.getAsDouble(user_uid));
-								case INTEGER :
-									return new Integer(Utils.getAsInteger(user_uid));
-								case TEXT :
-								default :
-									return user_uid;
-							}
-						}
-
-						default :
-							return null;
-					}
-
-				case ColumnInfo.SEQUENCE_AUTO_ENTER :
-					if (autoEnterSubType != ColumnInfo.NO_SEQUENCE_SELECTED)
-					{
-						IDataServer ds = application.getDataServer();
-						if (ds != null)
-						{
-							return ds.getNextSequence(getTable().getServerName(), getTable().getName(), getName(), ci.getUUID(), getTable().getServerName());
-						}
-						return Integer.valueOf(0);
-					}
-
-					//$FALL-THROUGH$
-				case ColumnInfo.CUSTOM_VALUE_AUTO_ENTER :
-					String val = ci.getDefaultValue();
-					switch (getDataProviderType())
-					{
-						case NUMBER :
-							return new Double(Utils.getAsDouble(val));
-						case INTEGER :
-							return new Integer(Utils.getAsInteger(val));
-						case TEXT :
-							return val;
-					}
-					return val;
-
-//				case ColumnInfo.CALCULATION_VALUE_AUTO_ENTER:
-//					return "<todo impl>";
-
-//				case ColumnInfo.LOOKUP_VALUE_AUTO_ENTER:
-//					return "<todo impl>";
-
-				case ColumnInfo.NO_AUTO_ENTER :
-//					if (!getAllowNull())//not wanted by Servoy developers, they will fillin/use the autoenter they say
-//					{
-//					switch(mapToDefaultType(type))
-//					{
-//					case TEXT:
-//					return ""; //$NON-NLS-1$
-//					case NUMBER:
-//					return new Double(0);
-//					case INTEGER:
-//					return new Integer(0);
-//					case DATETIME:
-//					return new Date();
-//					}
-//					}
-				default :
-					// If we have a simple table filter (one that can also be used as broadcast filter), take the (first) value from it
-					// Note that security.setTenantValue() generates such a table filter.
-					return application.getFoundSetManager().getTableFilters(getTable().getServerName(), getTable().getName()).stream()
-						.map(TableFilter::createBroadcastFilter)
-						.filter(Objects::nonNull)
-						.filter(bcFilter -> getName().equals(bcFilter.getColumnName()))
-						.map(BroadcastFilter::getFilterValue)
-						.filter(values -> values != null && values.length > 0)
-						.map(values -> values[0])
-						.findFirst().orElse(null);
+				IDataServer ds = application.getDataServer();
+				if (ds != null)
+				{
+					return ds.getNextSequence(getTable().getServerName(), getTable().getName(), getName(), null, getTable().getServerName());
+				}
+				return Integer.valueOf(0);
 			}
+			return null;
 		}
-		return null;
+
+		int autoEnterType = ci.getAutoEnterType();
+		int autoEnterSubType = ci.getAutoEnterSubType();
+		switch (autoEnterType)
+		{
+			case ColumnInfo.SYSTEM_VALUE_AUTO_ENTER :
+				switch (autoEnterSubType)
+				{
+					case ColumnInfo.SYSTEM_VALUE_CREATION_SERVER_DATETIME :
+						return new Timestamp(application.getClientHost().getServerTime(application.getClientID()).getTime());
+
+					case ColumnInfo.SYSTEM_VALUE_CREATION_DATETIME :
+						//						case ColumnInfo.SYSTEM_VALUE_MODIFICATION_DATETIME://makes it possible to search for non modified records
+						return new Timestamp(TimezoneUtils.getClientDate(application).getTime());
+
+					case ColumnInfo.SYSTEM_VALUE_CREATION_USERNAME :
+						//						case ColumnInfo.SYSTEM_VALUE_MODIFICATION_NAME://makes it possible to search for non modified records
+						return application.getUserName();
+
+					case ColumnInfo.SYSTEM_VALUE_CREATION_USERUID :
+					//						case ColumnInfo.SYSTEM_VALUE_MODIFICATION_USERID://makes it possible to search for non modified records
+					{
+						String user_uid = application.getUserUID();
+						if (user_uid == null) user_uid = ""; //$NON-NLS-1$
+						switch (getDataProviderType())
+						{
+							case NUMBER :
+								return new Double(Utils.getAsDouble(user_uid));
+							case INTEGER :
+								return new Integer(Utils.getAsInteger(user_uid));
+							case TEXT :
+							default :
+								return user_uid;
+						}
+					}
+
+					default :
+						return null;
+				}
+
+			case ColumnInfo.SEQUENCE_AUTO_ENTER :
+				if (autoEnterSubType != ColumnInfo.NO_SEQUENCE_SELECTED)
+				{
+					IDataServer ds = application.getDataServer();
+					if (ds != null)
+					{
+						return ds.getNextSequence(getTable().getServerName(), getTable().getName(), getName(), ci.getUUID(), getTable().getServerName());
+					}
+					return Integer.valueOf(0);
+				}
+
+				//$FALL-THROUGH$
+			case ColumnInfo.CUSTOM_VALUE_AUTO_ENTER :
+				String val = ci.getDefaultValue();
+				switch (getDataProviderType())
+				{
+					case NUMBER :
+						return new Double(Utils.getAsDouble(val));
+					case INTEGER :
+						return new Integer(Utils.getAsInteger(val));
+					case TEXT :
+						return val;
+				}
+				return val;
+
+			//				case ColumnInfo.CALCULATION_VALUE_AUTO_ENTER:
+			//					return "<todo impl>";
+
+			//				case ColumnInfo.LOOKUP_VALUE_AUTO_ENTER:
+			//					return "<todo impl>";
+
+			case ColumnInfo.NO_AUTO_ENTER :
+				//					if (!getAllowNull())//not wanted by Servoy developers, they will fillin/use the autoenter they say
+				//					{
+				//					switch(mapToDefaultType(type))
+				//					{
+				//					case TEXT:
+				//					return ""; //$NON-NLS-1$
+				//					case NUMBER:
+				//					return new Double(0);
+				//					case INTEGER:
+				//					return new Integer(0);
+				//					case DATETIME:
+				//					return new Date();
+				//					}
+				//					}
+			default :
+				// If we have a simple table filter (one that can also be used as broadcast filter), take the (first) value from it
+				// Note that security.setTenantValue() generates such a table filter.
+				return application.getFoundSetManager().getTableFilters(getTable().getServerName(), getTable().getName()).stream()
+					.map(TableFilter::createBroadcastFilter)
+					.filter(Objects::nonNull)
+					.filter(bcFilter -> getName().equals(bcFilter.getColumnName()))
+					.map(BroadcastFilter::getFilterValue)
+					.filter(values -> values != null && values.length > 0)
+					.map(values -> values[0])
+					.findFirst().orElse(null);
+		}
 	}
 
 	/**
@@ -786,9 +798,9 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 		return getDisplayTypeString(getColumnType());
 	}
 
-/*
- * _____________________________________________________________ The methods below override methods from superclass <classname>
- */
+	/*
+	 * _____________________________________________________________ The methods below override methods from superclass <classname>
+	 */
 	@Override
 	public boolean equals(Object o)
 	{
@@ -809,9 +821,9 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 		return ((table.hashCode() / 2) + (plainSQLName.hashCode() / 2));
 	}
 
-/*
- * _____________________________________________________________ The methods below belong to interface <interfacename>
- */
+	/*
+	 * _____________________________________________________________ The methods below belong to interface <interfacename>
+	 */
 
 	@Override
 	public String getSQLName()//can be camelcasing
@@ -882,9 +894,9 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 		return getRowIdentType() == NORMAL_COLUMN;
 	}
 
-/*
- * _____________________________________________________________ The methods below belong to this class
- */
+	/*
+	 * _____________________________________________________________ The methods below belong to this class
+	 */
 	public UUID getUUID()
 	{
 		ColumnInfo ci = getColumnInfo();
@@ -1057,7 +1069,7 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 		}
 		else
 		{
-//			dbPK = ((newFlags & PK_COLUMN) != 0);
+			//			dbPK = ((newFlags & PK_COLUMN) != 0);
 			this.flags = newFlags;
 		}
 	}
@@ -1304,6 +1316,18 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 	public boolean isDBIdentity()
 	{
 		return getSequenceType() == ColumnInfo.DATABASE_IDENTITY;
+	}
+
+	/**
+	 * Whether this column has a sequence auto-enter configured. Equivalent to {@link ColumnInfo#hasSequence()} when the column info is loaded:
+	 * {@link #getSequenceType()} returns the column info's sequence sub type only while its auto-enter type is {@code SEQUENCE_AUTO_ENTER} (and
+	 * {@code NO_SEQUENCE_SELECTED} otherwise), so {@code getSequenceType() != NO_SEQUENCE_SELECTED} is exactly {@code ColumnInfo.hasSequence()}.
+	 * Unlike {@code ColumnInfo.hasSequence()} it also works when the column info is not (yet) loaded (then it uses the column's own sequence
+	 * type), e.g. during a WAR solution import before the post-import hooks run (see SVY-21731).
+	 */
+	public boolean hasSequence()
+	{
+		return getSequenceType() != ColumnInfo.NO_SEQUENCE_SELECTED;
 	}
 
 	private transient int sequenceType = ColumnInfo.NO_SEQUENCE_SELECTED;
