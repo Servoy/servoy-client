@@ -218,7 +218,9 @@ public class SQLSheet
 				{
 					array[i] = ValueFactory.createDbIdentValue();
 				}
-				else if (ci != null && ci.hasSequence())
+				// use Column.hasSequence() (the complete information) instead of ColumnInfo.hasSequence(): the column info may not be
+				// loaded yet (e.g. during a WAR solution import, before the post-import hooks run), see SVY-21731
+				else if (c.hasSequence())
 				{
 					array[i] = c.getNewRecordValue(app);
 				}
@@ -286,8 +288,9 @@ public class SQLSheet
 				}
 				else
 				{
-					ColumnInfo ci = c.getColumnInfo();
-					if (c.getRowIdentType() != IBaseColumn.NORMAL_COLUMN && ci != null && ci.hasSequence())
+					// use Column.hasSequence() (the complete information) instead of ColumnInfo.hasSequence(): the column info may not be
+					// loaded yet (e.g. during a WAR solution import, before the post-import hooks run), see SVY-21731
+					if (c.getRowIdentType() != IBaseColumn.NORMAL_COLUMN && c.hasSequence())
 					{
 						//this is here for safety, it can happen that a form has (unwanted) still a related foundset which is created by relation based on primary key
 						array[i] = c.getNewRecordValue(app);
