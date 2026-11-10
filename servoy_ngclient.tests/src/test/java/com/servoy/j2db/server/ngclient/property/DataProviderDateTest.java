@@ -1238,6 +1238,18 @@ public class DataProviderDateTest
 
 		}
 
+		@Override
+		public void beep()
+		{
+
+		}
+
+		@Override
+		public void playSound(String url)
+		{
+
+		}
+
 		/*
 		 * (non-Javadoc)
 		 *

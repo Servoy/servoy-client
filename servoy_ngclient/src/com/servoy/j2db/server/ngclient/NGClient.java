@@ -1408,6 +1408,18 @@ public class NGClient extends AbstractApplication
 	}
 
 	@Override
+	public void beep()
+	{
+		this.getWebsocketSession().getClientService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("beep", new Object[] { });
+	}
+
+	@Override
+	public void playSound(String url)
+	{
+		this.getWebsocketSession().getClientService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("playSound", new Object[] { url });
+	}
+
+	@Override
 	public NGRuntimeWindowManager getRuntimeWindowManager()
 	{
 		if (runtimeWindowManager == null)

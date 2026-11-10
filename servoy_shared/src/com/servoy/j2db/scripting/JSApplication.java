@@ -2006,25 +2006,42 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 *
 	 * @sample application.beep();
 	 */
-	@ServoyClientSupport(ng = false, mc = false, wc = false, sc = true)
+	@ServoyClientSupport(ng = true, mc = false, wc = false, sc = true)
 	public void js_beep()
 	{
 		if (application instanceof ISmartClientApplication)
 		{
 			((ISmartClientApplication)application).beep();
 		}
+		else if (application instanceof INGClientApplication)
+		{
+			((INGClientApplication)application).beep();
+		}
 	}
 
 	/**
-	 * Play a sound (AU file, an AIFF file, a WAV file, and a MIDI file).
+	 * Play a sound from the given url.
+	 *
+	 * The url can be a media url (for example 'media:///click.wav'), which is resolved to the media on the current solution,
+	 * or a regular http(s) url pointing to an audio file.
+	 *
+	 * Note on supported audio formats: in the NGClient/Titanium Client the sound is played by the browser, so only the formats that the
+	 * browser supports will play. In practice MP3 and WAV play on all modern browsers; AAC/M4A and FLAC are widely supported; OGG
+	 * (Vorbis/Opus) plays everywhere except Safari. The old Java-client formats AU, AIFF and MIDI are NOT supported by browsers and
+	 * will not play. Also note that browsers may block audio that is not triggered by a user interaction (autoplay policy); in that
+	 * case the sound is silently not played.
 	 *
 	 * @sample application.playSound('media:///click.wav');
 	 *
 	 * @param url URL of the sound file
 	 */
-	@ServoyClientSupport(ng = false, wc = true, sc = true)
+	@ServoyClientSupport(ng = true, wc = true, sc = true)
 	public void js_playSound(final String url)
 	{
+		if (application instanceof INGClientApplication)
+		{
+			((INGClientApplication)application).playSound(url);
+		}
 	}
 
 	/**
