@@ -201,6 +201,9 @@ public abstract class FoundSet
 	protected List<SortColumn> lastSortColumns;
 	protected List<SortColumn> defaultSort;//as defined on a form
 
+	// the new record that addRecord() is inserting, set while insert/selection listeners run and before it is in edit
+	private transient IRecordInternal recordBeingAdded;
+
 	private String stateToStringdataProviderID;
 	protected String relationName; //mainly used by aggregates and substates and browseAll(Foundset)
 
@@ -5437,11 +5440,30 @@ public abstract class FoundSet
 		}
 
 
-		fireFoundSetEvent(indexToAdd, indexToAdd, FoundSetEvent.CHANGE_INSERT);//always let know about new record
-
-		if (changeSelection)
+		IRecordInternal previousRecordBeingAdded = recordBeingAdded;
+		recordBeingAdded = newRecord;
+		try
 		{
-			setSelectedIndex(indexToAdd);
+			fireFoundSetEvent(indexToAdd, indexToAdd, FoundSetEvent.CHANGE_INSERT);//always let know about new record
+
+			if (changeSelection)
+			{
+				setSelectedIndex(indexToAdd);
+			}
+		}
+		finally
+		{
+			recordBeingAdded = previousRecordBeingAdded;
+		}
+
+		// listeners (like onRecordSelection) can reload the foundset, the new record (not in the db yet) is then gone
+		int currentIndex = getRecordIndex(newRecord);
+		if (currentIndex == -1)
+		{
+			fsm.getApplication().reportJSWarning(
+				"New record was removed from the foundset while it was being created, for example by a reload in onRecordSelection; no record is created: " + //$NON-NLS-1$
+					this);
+			return -1;
 		}
 
 		// Can't start edit earlier (before selection model changes)
@@ -5449,7 +5471,7 @@ public abstract class FoundSet
 		// record again because the selection changes from the last to the new record
 		if (newRecord.startEditing())
 		{
-			return indexToAdd;
+			return currentIndex;
 		}
 		//edit start can fail when in onRecordSelect for example a sort is performed cousing this record fall out of the cached records
 		Debug.trace("New record failed because couldn't start editing for that record (record can already fall out of the foundset again by a save)"); //$NON-NLS-1$
@@ -5865,6 +5887,15 @@ public abstract class FoundSet
 
 	public void sort(List<SortColumn> sortColumns, boolean defer) throws ServoyException
 	{
+		if (!defer && recordBeingAdded != null)
+		{
+			// the new record is not in the db and not in edit yet, the reload of the sort would drop it
+			fsm.getApplication().reportJSError(
+				"Couldn't do a sort because a new record is being created on this foundset (sort called from onRecordSelection or a foundset listener?): " + //$NON-NLS-1$
+					this,
+				null);
+			return;
+		}
 		if (!defer && (getFoundSetManager().getEditRecordList().stopIfEditing(this) != ISaveConstants.STOPPED))
 		{
 			fsm.getApplication().reportJSError("Couldn't do a sort because there are edited records on this foundset: " + this, null); //$NON-NLS-1$
