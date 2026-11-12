@@ -1183,8 +1183,6 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 			// again and sending it to server
 			if (changeFromClientWasCorrectedByServerAndSentBackToClientCount < MAX_LOOP_COUNT)
 			{
-				changeFromClientWasCorrectedByServerAndSentBackToClientCount++;
-
 				uiValue = valueAsCorrectedByServer;
 				// if we detect that the new server value (it's representation on client) is no longer what the client has showing, we must update the client's value
 				jsonValue = null;
