@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.json.JSONException;
-import org.json.JSONObject;
 import org.json.JSONWriter;
 import org.sablo.Container;
 import org.sablo.IEventHandler;
@@ -30,7 +29,6 @@ import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.scripting.info.EVENTS_AGGREGATION_TYPE;
 import com.servoy.j2db.scripting.info.EventType;
-import com.servoy.j2db.server.ngclient.component.EventExecutor;
 import com.servoy.j2db.server.ngclient.property.DataproviderConfig;
 import com.servoy.j2db.server.ngclient.property.FoundsetLinkedConfig;
 import com.servoy.j2db.server.ngclient.property.INGWebObjectContext;
@@ -410,10 +408,8 @@ public class WebFormComponent extends Container implements IContextProvider, ING
 			DataproviderConfig dataproviderConfig = DataAdapterList.getDataproviderConfig(this, key);
 			if (dataproviderConfig != null && dataproviderConfig.getOnDataChangeCallback() != null)
 			{
-				WebObjectApiFunctionDefinition function = DataAdapterList.createWebObjectFunction(dataproviderConfig.getOnDataChangeCallback());
-				JSONObject event = EventExecutor.createEvent(dataproviderConfig.getOnDataChangeCallback(),
-					dataAdapterList.getForm().getFormModel().getSelectedIndex());
-				invokeApi(function, new Object[] { event, null, null });
+				WebObjectApiFunctionDefinition function = DataAdapterList.createOnDataChangeCallbackFunctionDefinition(dataproviderConfig.getOnDataChangeCallback());
+				invokeApi(function, new Object[] { null, null, null });
 				setInvalidState(false);
 			}
 		}

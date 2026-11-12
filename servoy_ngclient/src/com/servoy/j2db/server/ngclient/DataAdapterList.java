@@ -23,7 +23,6 @@ import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
 import org.sablo.BaseWebObject;
 import org.sablo.Container;
-import org.sablo.IWebObjectContext;
 import org.sablo.IllegalChangeFromClientException;
 import org.sablo.WebComponent;
 import org.sablo.eventthread.IEventDispatcher;
@@ -215,7 +214,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 
 		WebObjectFunctionDefinition handlerDef = (webComponent != null ? webComponent.getSpecification().getHandler(event) : null);
 		return NGConversions.INSTANCE.convertRhinoToSabloComponentValue(jsRetVal, null, handlerDef != null ? handlerDef.getReturnType() : null,
-			(IWebObjectContext)webComponent);
+			webComponent);
 	}
 
 	/**
@@ -1072,8 +1071,8 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 					}
 					if (webComponent.isVisible() && onDataChangeCallback != null)
 					{
-						WebObjectApiFunctionDefinition call = createWebObjectFunction(onDataChangeCallback);
-						webComponent.invokeApi(call, new Object[] { event, returnValue, exception == null ? null : exception.getMessage() });
+						WebObjectApiFunctionDefinition call = createOnDataChangeCallbackFunctionDefinition(onDataChangeCallback);
+						webComponent.invokeApi(call, new Object[] { null, returnValue, exception == null ? null : exception.getMessage() });
 					}
 				}
 			}
@@ -1134,12 +1133,13 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		return config instanceof DataproviderConfig ? (DataproviderConfig)config : null;
 	}
 
-	static WebObjectApiFunctionDefinition createWebObjectFunction(String onDataChangeCallback)
+	static WebObjectApiFunctionDefinition createOnDataChangeCallbackFunctionDefinition(String onDataChangeCallback)
 	{
+		// TODO should we mark this as async-now or some other async type? - as we don't need a return value
 		WebObjectApiFunctionDefinition call = new WebObjectApiFunctionDefinition(onDataChangeCallback);
 		call.addParameter(new PropertyDescriptionBuilder().withName("event").withType(TypesRegistry.getType("object")).build());
 		call.addParameter(new PropertyDescriptionBuilder().withName("returnValue").withType(TypesRegistry.getType("object")).build());
-		call.addParameter(new PropertyDescriptionBuilder().withName("exception").withConfig(TypesRegistry.getType("object")).build());
+		call.addParameter(new PropertyDescriptionBuilder().withName("exception").withType(TypesRegistry.getType("string")).build());
 		return call;
 	}
 

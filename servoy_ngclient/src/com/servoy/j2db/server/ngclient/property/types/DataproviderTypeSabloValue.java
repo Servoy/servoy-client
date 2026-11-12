@@ -140,6 +140,8 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 	protected List<IChangeListener> underlyingValueChangeListeners = new ArrayList<>();
 	private boolean isMultiselect = false;
 
+	private final AvoidCorrectionLoopsWithClient avoidCorrectionLoopsWithClient = new AvoidCorrectionLoopsWithClient();
+
 	public DataproviderTypeSabloValue(String dataProviderID, IDataAdapterList dataAdapterList, IServoyDataConverterContext servoyDataConverterContext,
 		PropertyDescription dpPD)
 	{
@@ -1096,14 +1098,9 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 		}
 		if (v != uiValue && (v == null || !Utils.equalObjects(v, uiValue)))
 		{
-			uiValue = v;
-			// if we detect that the new server value (it's representation on client) is no longer what the client has showing, we must update the client's value
-			jsonValue = null;
-
-			changeMonitor.valueChanged(); // value changed from client so why do we need this one might ask (client already has the value)?
-			// because for example in a field an INTEGER dataprovider might be shown with format ##0.00 and if the user enters non-int value client side
-			// the server will trunc/round to an INTEGER and then the client shows double value while the server DP has the int value (which are not the same)
+			avoidCorrectionLoopsWithClient.serverSideCorrectionDetected(v);
 		}
+		else avoidCorrectionLoopsWithClient.pushFromClientAccepted();
 	}
 
 	@Override
@@ -1141,4 +1138,86 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 	{
 		return "DP(" + dataProviderID + ")";
 	}
+
+	/**
+	 * For example a slider that allows only some values might correct the value of the dataprovider,
+	 * automatically changing it to a supported value; then on server, the solution or database might not
+	 * allow that dataprovider to change to that value - and correct it again.<br/><br/>
+	 *
+	 * This can determine never-ending auto-correct loops that we need to avoid (or it will mess up the client). When breaking
+	 * such a loop, an error message will be added to the log & the server vs. client DP values will be left out of sync.<br/><br/>
+	 *
+	 * We do it based on a loop count (with timeouts for corrections) and reset the loop avoidance only after
+	 * all the current events on the event queue are done - as some client side components might send multiple DP
+	 * correction messages to server for each server-sent correction (when this was noticed, slider sent 2 correction
+	 * updates for each server correction, thus ever increasing the pending event counts - so in that case ignoring only
+	 * one server correction would not be enough to break the loop).
+	 *
+	 * @author acostescu
+	 */
+	private class AvoidCorrectionLoopsWithClient
+	{
+
+		/** when corrections happen less often then this value, it might be a user change; don't consider it an automatic loop */
+		private static int MAX_CORRECTION_TWO_WAY_LOOP_TIME_MS = 3000;
+
+		/** if the client correction - server correction loop happens more then this value; it is considered an offense - and interrupted by the server */
+		private static int MAX_LOOP_COUNT = 10;
+
+		int changeFromClientWasCorrectedByServerAndSentBackToClientCount = 0;
+		long lastCorrectionTimeMs = -1;
+
+		public void serverSideCorrectionDetected(Object valueAsCorrectedByServer)
+		{
+			if (changeFromClientWasCorrectedByServerAndSentBackToClientCount >= MAX_LOOP_COUNT) return; // we ignore it as a possibly never-ending auto-correct loop was already detected before; wait for it to get disabled
+
+			if (lastCorrectionTimeMs > 0 && (System.currentTimeMillis() - lastCorrectionTimeMs) < MAX_CORRECTION_TWO_WAY_LOOP_TIME_MS)
+			{
+				changeFromClientWasCorrectedByServerAndSentBackToClientCount++;
+			} // else don't count it as it might be a user change, not an auto-correct
+
+			lastCorrectionTimeMs = System.currentTimeMillis();
+
+			// make sure we do not enter a never-ending loop of client sending value to server,
+			// server correcting that value and sending it back to client, then client correcting it
+			// again and sending it to server
+			if (changeFromClientWasCorrectedByServerAndSentBackToClientCount < MAX_LOOP_COUNT)
+			{
+				changeFromClientWasCorrectedByServerAndSentBackToClientCount++;
+
+				uiValue = valueAsCorrectedByServer;
+				// if we detect that the new server value (it's representation on client) is no longer what the client has showing, we must update the client's value
+				jsonValue = null;
+
+				changeMonitor.valueChanged(); // value changed from client so why do we need this one might ask (client already has the value)?
+				// because for example in a field an INTEGER dataprovider might be shown with format ##0.00 and if the user enters non-int value client side
+				// the server will trunc/round to an INTEGER and then the client shows double value while the server DP has the int value (which are not the same)
+			}
+			else
+			{
+				// changeFromClientWasCorrectedByServerAndSentBackToClientCount >= MAX_LOOP_COUNT here, so until this changes, server will no longer send corrected values to client
+
+				// we seem to have a (probably never-ending) loop between server and client here
+				// just log an error and stop looping (the client will remain with it's own value and the server
+				// with it's own-but-different value)
+				Debug.error("Dataprovider push from client + correction from server + correction from client loop detected." //$NON-NLS-1$
+					+ " Leaving the 2 values out of sync in order to avoid an unresponsive solution.", //$NON-NLS-1$
+					new RuntimeException(MAX_LOOP_COUNT + "+ loop detected for dataprovider property '" //$NON-NLS-1$
+						+ dpPD.getName() + "' of '" + webObjectContext + "'.")); //$NON-NLS-1$ //$NON-NLS-2$
+
+				// disable the loop breaking/pause only when all the current events in the event queue are done
+				servoyDataConverterContext.getApplication().invokeLater(() -> {
+					changeFromClientWasCorrectedByServerAndSentBackToClientCount = 0; // start fresh as we didn't do changeMonitor.valueChanged() to force send the value back to client
+				});
+			}
+		}
+
+		public void pushFromClientAccepted()
+		{
+			if (changeFromClientWasCorrectedByServerAndSentBackToClientCount >= MAX_LOOP_COUNT) return; // we ignore it as a possibly never-ending auto-correct loop was already detected before; wait for the pause period to end
+			changeFromClientWasCorrectedByServerAndSentBackToClientCount = 0;
+		}
+
+	}
+
 }
