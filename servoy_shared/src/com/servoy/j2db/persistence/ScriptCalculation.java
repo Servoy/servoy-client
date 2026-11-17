@@ -17,6 +17,7 @@
 package com.servoy.j2db.persistence;
 
 
+import com.servoy.base.persistence.IBaseColumn;
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.component.ComponentFormat;
 import com.servoy.j2db.query.ColumnType;
@@ -93,7 +94,28 @@ public class ScriptCalculation extends AbstractScriptProvider implements IDataPr
 	@SuppressWarnings("nls")
 	public int getFlags()
 	{
-		return ScriptVariable.getFlags(getDeclaration());
+		String declaration = getDeclaration();
+		int flags = ScriptVariable.getFlags(declaration);
+		if ((flags & IBaseColumn.UUID_COLUMN) == 0 && hasUUIDReturnTag(declaration))
+		{
+			return IBaseColumn.NORMAL_COLUMN | IBaseColumn.UUID_COLUMN;
+		}
+		return flags;
+	}
+
+	/**
+	 * Checks if the first JSDoc block of the given declaration has an <code>@return {UUID}</code> line.
+	 */
+	private static boolean hasUUIDReturnTag(String declaration)
+	{
+		if (declaration == null) return false;
+		int commentEnd = declaration.indexOf("*/");
+		if (commentEnd == -1) return false;
+		int returnIndex = declaration.lastIndexOf("@return", commentEnd);
+		if (returnIndex == -1) return false;
+		int lineEnd = declaration.indexOf('\n', returnIndex);
+		if (lineEnd == -1 || lineEnd > commentEnd) lineEnd = commentEnd;
+		return declaration.substring(returnIndex, lineEnd).indexOf("{UUID}") != -1;
 	}
 
 	public int getDataProviderType()

@@ -910,6 +910,10 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 	private boolean isUUID(IDataProvider dataProvider)
 	{
 		IDataProvider real = dataProvider instanceof ColumnWrapper ? ((ColumnWrapper)dataProvider).getColumn() : dataProvider;
+		if (real instanceof ScriptCalculation)
+		{
+			return Column.mapToDefaultType(real.getDataProviderType()) == IColumnTypes.MEDIA && real.hasFlag(IBaseColumn.UUID_COLUMN);
+		}
 		if (real instanceof AbstractBase)
 		{
 			return "UUID".equals(((AbstractBase)real).getSerializableRuntimeProperty(IScriptProvider.TYPE));

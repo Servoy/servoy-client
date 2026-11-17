@@ -402,7 +402,9 @@ public class ScriptVariable extends AbstractBase implements IVariable, IDataProv
 				int typeIndex = comment.lastIndexOf("@type", index);
 				if (typeIndex != -1)
 				{
-					if (comment.substring(typeIndex, comment.indexOf('\n', typeIndex)).indexOf("{UUID}") != -1)
+					int lineEnd = comment.indexOf('\n', typeIndex);
+					if (lineEnd == -1 || lineEnd > index) lineEnd = index;
+					if (comment.substring(typeIndex, lineEnd).indexOf("{UUID}") != -1)
 					{
 						return IBaseColumn.NORMAL_COLUMN | IBaseColumn.UUID_COLUMN;
 					}
