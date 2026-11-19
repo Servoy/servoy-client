@@ -141,12 +141,17 @@
 @sidenav-secondary-selected-text-color: @svy-accent-on;
 @sidenav-secondary-selected-border-color: @svy-accent-on;
 @sidenav-secondary-selected-border-width: 0px 0px 0px 5px;
-@navbar-bg: @secondary-color;
-@navbar-bg-highlighted: @secondary-color-light;
+/* on 2023.3.0_ng2 the navbar is drawn in @main-color; a solution that overrides that legacy name keeps its coloured navbar, one that
+   does not gets the chrome navbar of the new look. Once the @accent seed is changed the solution is re-branded the new way and the
+   navbar is the chrome again. @svy-navbar-main is @main-color when it drives the navbar, otherwise @secondary-color */
+@svy-main-legacy: if((@svy-accent = @svy-sd-accent), if((@main-color = @svy-accent), off, on), off);
+@svy-navbar-main: if((@svy-main-legacy = on), @main-color, @secondary-color);
+@navbar-bg: @svy-navbar-main;
+@navbar-bg-highlighted: if((@svy-navbar-main = @secondary-color), @secondary-color-light, if(iscolor(@main-color), @main-color-dark, @main-color));
 @navbar-text-color: contrast(if(iscolor(@navbar-bg), @navbar-bg, @svy-chrome), @svy-text, @svy-surface, @svy-on-threshold);
 @navbar-dropdown-bg: @body-bg;
 @navbar-dropdown-text-color: @text-color;
-@navbar-active-bg: @secondary-color-light;
+@navbar-active-bg: if((@svy-navbar-main = @secondary-color), @secondary-color-light, @navbar-bg);
 @navbar-active-text-color: @navbar-text-color;
 @navbar-active-border-color: @main-color;
 @navbar-active-border-width: 0;
@@ -205,7 +210,9 @@
 @breadcrumb-bg: @body-bg;
 @breadcrumb-color: @main-color;
 @breadcrumb-selected-color: @text-color;
-@brand-primary: @main-color;
+/* on 2023.3.0_ng2 @brand-primary is a fixed #428bca, independent of @main-color; a solution that re-coloured only @main-color keeps
+   those primary buttons. Without overrides, or with a changed @accent seed, primary buttons are the accent */
+@brand-primary: if((@svy-main-legacy = on), #428bca, @main-color);
 @brand-tertiary: mix(@svy-text, @svy-surface, 10%);
 @brand-success: @svy-success;
 @brand-info: @svy-info;

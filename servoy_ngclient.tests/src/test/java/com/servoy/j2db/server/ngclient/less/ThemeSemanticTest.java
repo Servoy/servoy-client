@@ -605,6 +605,192 @@ public class ThemeSemanticTest
 			assertEquals("#111827", dark.get("a").toUpperCase(), "in the dark variant the inverse is the dark surface");
 		}
 
+		/**
+		 * scrollbar-color must not be set outside the Firefox fallback: Chrome then ignores the solution's ::-webkit-scrollbar rules
+		 * (bootstrapComponentsSample hides and thins its scrollbars that way)
+		 */
+		@Test
+		public void scrollbarsLeaveTheSolutionsWebkitRulesWorking()
+		{
+			String css = compile("");
+			assertTrue(css.contains("::-webkit-scrollbar-thumb"), "theme draws the thumb with the pseudo-element");
+			String withoutFallback = css.replaceAll("@supports not selector\\(::-webkit-scrollbar\\)\\s*\\{\\s*html\\s*\\{[^}]*\\}\\s*\\}", "");
+			assertFalse(withoutFallback.contains("scrollbar-color"), "scrollbar-color outside the Firefox fallback");
+			String legacy = compile("@scrollbar-color: #FF8000;");
+			assertTrue(legacy.contains("--svy-scrollbar-thumb: #FF8000") || legacy.contains("--svy-scrollbar-thumb: #ff8000"), "legacy @scrollbar-color reaches the thumb");
+		}
+
+		/** a variant class without .btn (styleClass "btn-primary") must still be coloured, as on 2023.3.0_ng2 */
+		@Test
+		public void buttonVariantWithoutBtnClassIsColoured()
+		{
+			String css = compile("");
+			Matcher m = Pattern.compile(":where\\(([^)]*)\\):not\\(\\.btn\\)\\s*[,{]([^}]*)\\}").matcher(css);
+			assertTrue(m.find(), "no rule for variant classes without .btn");
+			for (String variant : new String[] { ".btn-primary", ".btn-success", ".btn-danger", ".btn-warning", ".btn-info", ".btn-outline-primary", ".btn-outline-info" })
+			{
+				assertTrue(m.group(1).contains(variant), variant + " missing");
+			}
+			assertTrue(m.group(2).contains("background-color: var(--bs-btn-bg, transparent)"), m.group(2));
+			assertTrue(m.group(2).contains("color: var(--bs-btn-color)"), m.group(2));
+			assertTrue(css.contains(":not(.btn):hover"), "hover state");
+			assertTrue(css.contains(":not(.btn):disabled"), "disabled state");
+		}
+
+		/**
+		 * servoy.css styles .btn-default:focus at two classes and :active:hover, :active:focus, .disabled:hover, [disabled]:hover at three;
+		 * the variant + btn-default states must reach the same specificity, or a focused, pressed or disabled variant button turns grey
+		 */
+		@Test
+		public void btnDefaultVariantStatesBeatServoyCssLiterals()
+		{
+			String css = compile("").replaceAll("\\s+", " ");
+			String combo = ":where(.btn-default):is(";
+			assertTrue(Pattern.compile(Pattern.quote(combo) + "[^)]*\\):is\\(:focus, \\.focus\\) \\{[^}]*var\\(--bs-btn-bg").matcher(css).find(),
+				"focus state keeps the variant colours (beats .btn-default:focus)");
+			assertTrue(Pattern.compile(Pattern.quote(combo) + "[^)]*\\):is\\(:active, \\.active\\):is\\(:hover, :focus, \\.focus\\) \\{[^}]*var\\(--bs-btn-active-bg\\)").matcher(css).find(),
+				"pressed state at three classes (beats .btn-default:active:hover / :active:focus)");
+			assertTrue(Pattern.compile(Pattern.quote(combo) + "[^)]*\\):is\\(:disabled, \\.disabled\\):is\\(:hover, :focus, \\.focus\\) \\{[^}]*var\\(--bs-btn-disabled-bg").matcher(css).find(),
+				"disabled + hover at three classes (beats .btn-default[disabled]:hover)");
+		}
+
+		/** "label-success border border-round" is a pill on 2023.3.0_ng2: the label-* radius comes before the border utilities */
+		@Test
+		public void borderRoundWinsOverLabelRadius()
+		{
+			String css = compile("").replaceAll("(?s)/\\*.*?\\*/", "");
+			int label = css.indexOf(".label-success");
+			int round = css.indexOf(".border-round");
+			assertTrue(label >= 0 && round >= 0, "both rules present");
+			assertTrue(label < round, "label-* radius must come before .border-round (same specificity, later wins)");
+		}
+
+		/** Bootstrap's outline success/info/warning hard-code their hue for every state; disabled showed #0DCAF0 on the info variant */
+		@Test
+		public void outlineStatusButtonsUseTheToneInEveryState()
+		{
+			String css = compile("");
+			for (String tone : new String[] { "success", "info", "warning" })
+			{
+				Map<String, String> d = declarations(css, ".btn-outline-" + tone);
+				assertEquals("var(--svy-" + tone + ")", d.get("--bs-btn-disabled-color"), tone + " disabled");
+				assertEquals("var(--svy-" + tone + ")", d.get("--bs-btn-disabled-border-color"), tone + " disabled border");
+				assertEquals("var(--svy-" + tone + ")", d.get("--bs-btn-active-bg"), tone + " active");
+			}
+		}
+
+		/** a styleClass replaces form-control on bootstrap fields; without a background of their own Chrome paints #3B3B3B under color-scheme: dark */
+		@Test
+		public void componentFieldsTakeTheSurfaceAndBgUtilitiesKeepReadableText()
+		{
+			String css = compile("@variant: dark;");
+			Map<String, String> field = declarations(css, ".bts-textbox");
+			assertEquals("var(--svy-surface)", field.get("background-color"), "field without form-control gets the surface");
+			assertTrue(css.replaceAll("\\s+", " ").contains(".bg-primary:is(.svy-field"), "bg-primary on a field keeps the accent-contrast text");
+		}
+
+		/** the bootstrapcomponents accordion follows the roles through Bootstrap's own --bs-accordion-* variables */
+		@Test
+		public void accordionFollowsTheRoles()
+		{
+			Map<String, String> acc = declarations(compile(""), ".bts-accordion");
+			assertEquals("var(--svy-surface)", acc.get("--bs-accordion-bg"));
+			assertEquals("var(--svy-text)", acc.get("--bs-accordion-color"));
+			assertEquals("var(--svy-accent-subtle)", acc.get("--bs-accordion-active-bg"));
+		}
+
+		/** bootstrap-switch.css colours every handle with Bootstrap 3 literals (#428bca, white label) */
+		@Test
+		public void switchHandlesFollowTheRoles()
+		{
+			String css = compile("@variant: dark;");
+			Map<String, String> primary = declarations(css, ".bootstrap-switch .bootstrap-switch-handle-on.bootstrap-switch-primary");
+			assertEquals("var(--svy-accent)", primary.get("background"));
+			assertEquals("var(--svy-accent-contrast)", primary.get("color"));
+			Map<String, String> danger = declarations(css, ".bootstrap-switch .bootstrap-switch-handle-on.bootstrap-switch-danger");
+			assertEquals("var(--svy-danger-solid)", danger.get("background"));
+			Map<String, String> label = declarations(css, ".bootstrap-switch .bootstrap-switch-label");
+			assertEquals("var(--svy-surface)", label.get("background"));
+		}
+
+		/** Bootstrap's .text-bg-* hard-code #fff/#000; white on the dark-variant danger (#F87171) is 2.8:1 */
+		@Test
+		public void textBgUtilitiesUseTheComputedOnColour()
+		{
+			Map<String, String> danger = declarations(compile(""), ".text-bg-danger");
+			assertEquals("var(--svy-danger-on-solid) !important", danger.get("color"));
+			Map<String, String> secondary = declarations(compile(""), ".text-bg-secondary");
+			assertEquals("var(--svy-neutral-on-solid) !important", secondary.get("color"));
+		}
+
+		/** collapse.css, @servoy/angular-tree-grid and ngx-slider paint with literals (white cards, #fff rows, #55637d bubbles) */
+		@Test
+		public void servoyExtraComponentLiteralsFollowTheRoles()
+		{
+			String css = compile("@variant: dark;");
+			assertEquals("var(--svy-surface)", declarations(css, ".svy-collapse-collapsible").get("background-color"));
+			assertEquals("var(--svy-surface-sunken)", declarations(css, ".svy-collapse-header").get("background-color"));
+			assertEquals("var(--svy-surface-sunken)", declarations(css, ".svy-collapse-card-body").get("background-color"));
+			String flat = css.replaceAll("\\s+", " ");
+			assertTrue(flat.contains(".svy-treeview.svy-treeview.svy-treeview tr,"), "tree rows outrank the grid's [_ngcontent] rules");
+			assertTrue(flat.contains(".svy-treeview.svy-treeview thead > tr > th"), "sticky tree header");
+			assertTrue(flat.contains(".ngx-slider.ngx-slider .ngx-slider-bubble.ngx-slider-limit"), "slider limit bubbles");
+		}
+
+		/** the uppy dashboard paints light panels and #000 titles; its own dark set needs [data-uppy-theme=dark], which Servoy never sets */
+		@Test
+		public void multifileUploadDashboardFollowsTheRoles()
+		{
+			String css = compile("@variant: dark;");
+			assertEquals("var(--svy-surface-sunken)", declarations(css, ".svy-extra-multifileupload .uppy-Dashboard-inner").get("background-color"));
+			assertEquals("var(--svy-text)", declarations(css, ".svy-extra-multifileupload .uppy-Dashboard-AddFiles-title").get("color"));
+			assertEquals("var(--svy-accent)", declarations(css, ".svy-extra-multifileupload .uppy-Dashboard-browse").get("color"));
+			assertEquals("var(--svy-surface-raised)", declarations(css, ".svy-extra-multifileupload .uppy-DashboardTab-inner").get("background-color"));
+		}
+
+		/** the badge's secondary bubble falls back to #777 with white text, 4.48:1; the neutral tone is AA in both variants */
+		@Test
+		public void badgeBubbleUsesTheNeutralTone()
+		{
+			Map<String, String> badge = declarations(compile(""), ".bts-extra-badge");
+			assertEquals("var(--svy-neutral-solid)", badge.get("--svy-badge-bubble-bg"));
+			assertEquals("var(--svy-neutral-on-solid)", badge.get("--svy-badge-bubble-color"));
+			assertEquals("var(--svy-accent)", badge.get("--svy-badge-link-color"));
+		}
+
+		/** ng-select2-component only reads its own --select2-* variables; unmapped, the tokenizer shows the library's grey chips and #aaa edges */
+		@Test
+		public void select2TokenizerFollowsTheRoles()
+		{
+			Map<String, String> root = declarations(compile(""), ":root");
+			assertEquals("var(--svy-accent-subtle)", root.get("--select2-selection-choice-background"));
+			assertEquals("var(--svy-text)", root.get("--select2-selection-choice-text-color"));
+			assertEquals("var(--svy-border-strong)", root.get("--select2-selection-border-color"));
+			assertEquals("var(--svy-accent)", root.get("--select2-selection-focus-border-color"));
+			assertEquals("var(--svy-surface-raised)", root.get("--select2-dropdown-background"));
+			assertEquals("var(--svy-surface-hover)", root.get("--select2-option-highlighted-background"));
+		}
+
+		/** components add btn-default next to the solution's variant (class="btn btn-default btn-info"); the variant must win, as on 2023.3.0_ng2 */
+		@Test
+		public void btnDefaultLeavesVariantButtonsAlone()
+		{
+			String css = compile("");
+			Matcher m = Pattern.compile("\\.btn-default:where\\(:not\\(([^)]*)\\)\\)\\s*,").matcher(css);
+			assertTrue(m.find(), "btn-default must exclude variant classes");
+			for (String variant : new String[] { ".btn-primary", ".btn-success", ".btn-danger", ".btn-warning", ".btn-info", ".btn-link", ".btn-outline-primary" })
+			{
+				assertTrue(m.group(1).contains(variant), variant + " missing");
+			}
+			assertFalse(Pattern.compile("(^|[,}\\s])\\.btn-default\\s*[,{]").matcher(css).find(), "a bare .btn-default rule still overrides the variant");
+			assertFalse(Pattern.compile("\\.btn-default:(hover|active|disabled)").matcher(css).find(), "every btn-default state excludes the variants");
+			Matcher variant = Pattern.compile(":where\\(\\.btn-default\\):is\\(([^)]*)\\)\\s*\\{([^}]*)\\}").matcher(css);
+			assertTrue(variant.find(), "servoy.css colours .btn-default with literals, the variant must override them");
+			assertTrue(variant.group(1).contains(".btn-info"), variant.group(1));
+			assertTrue(variant.group(2).contains("background-color: var(--bs-btn-bg, transparent)"), variant.group(2));
+			assertTrue(css.contains(":where(.btn-default):is(") && css.contains("):hover"), "hover state");
+		}
+
 		@Test
 		public void legacyFontAndRadiusOverridesReachTheRoles()
 		{
@@ -680,6 +866,49 @@ public class ThemeSemanticTest
 			Map<String, String> navbar = declarations(compile("@navbar-bg: #E9720B;"), ".bts-extra-navbar.bts-navbar-default");
 			assertEquals("#E9720B", navbar.get("--svy-navbar-bg"));
 			assertEquals("#1F2937", navbar.get("--svy-navbar-fg").toUpperCase());
+		}
+
+		/** on 2023.3.0_ng2 the navbar is @main-color: a solution that overrides only that keeps its coloured navbar, others get the chrome */
+		@Test
+		public void navbarFollowsAnOverriddenMainColorAsOn2023()
+		{
+			String sel = ".bts-extra-navbar.bts-navbar-default";
+			Map<String, String> plain = declarations(compile(""), sel);
+			assertFalse(plain.containsKey("--svy-navbar-bg") && plain.get("--svy-navbar-bg").startsWith("#"), "no overrides: chrome navbar");
+
+			Map<String, String> main = declarations(compile("@main-color: #E9720B;"), sel);
+			assertEquals("#E9720B", main.get("--svy-navbar-bg").toUpperCase(), "only @main-color: navbar in the main colour, as on 2023");
+			assertTrue(main.containsKey("--svy-navbar-hover-bg"), "hover is the darker main colour");
+			assertFalse(main.get("--svy-navbar-hover-bg").equalsIgnoreCase("#E9720B"), main.get("--svy-navbar-hover-bg"));
+
+			String secondaryCss = compile("@secondary-color: #18222C;");
+			assertEquals("var(--svy-chrome)", declarations(secondaryCss, sel).get("--svy-navbar-bg"), "only @secondary-color: the chrome role");
+			assertEquals("#18222C", declarations(secondaryCss, ":root").get("--svy-chrome").toUpperCase(), "which is the secondary colour");
+
+			Map<String, String> explicit = declarations(compile("@main-color: #E9720B; @navbar-bg: #123456;"), sel);
+			assertEquals("#123456", explicit.get("--svy-navbar-bg"), "@navbar-bg itself always wins");
+
+			Map<String, String> reseeded = declarations(compile("@main-color: #E9720B; @accent: #0F766E;"), sel);
+			assertFalse(reseeded.containsKey("--svy-navbar-bg") && reseeded.get("--svy-navbar-bg").startsWith("#"),
+				"a changed @accent seed re-brands the new way: chrome navbar");
+		}
+
+		/** on 2023.3.0_ng2 btn-primary is #428bca whatever @main-color is; only a new @accent seed or @brand-primary re-colours it */
+		@Test
+		public void primaryButtonsKeep2023BlueWhenOnlyMainColorIsOverridden()
+		{
+			Map<String, String> plain = declarations(compile(""), ".btn-primary");
+			assertEquals("var(--svy-accent)", plain.get("--bs-btn-bg"), "no overrides: accent");
+
+			Map<String, String> main = declarations(compile("@main-color: #E9720B;"), ".btn-primary");
+			assertEquals("#428BCA", main.get("--bs-btn-bg").toUpperCase(), "only @main-color: 2023 primary blue");
+			assertEquals("#1F2937", main.get("--bs-btn-color").toUpperCase(), "text picked by contrast, as on the navbar (white is 3.7:1 on #428bca)");
+
+			Map<String, String> brand = declarations(compile("@main-color: #E9720B; @brand-primary: #123456;"), ".btn-primary");
+			assertEquals("#123456", brand.get("--bs-btn-bg"), "@brand-primary itself wins");
+
+			Map<String, String> reseeded = declarations(compile("@main-color: #E9720B; @accent: #0F766E;"), ".btn-primary");
+			assertEquals("var(--svy-accent)", reseeded.get("--bs-btn-bg"), "a changed @accent seed: accent buttons");
 		}
 
 		@Test

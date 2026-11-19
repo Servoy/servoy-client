@@ -390,8 +390,33 @@ html, body {
     background-color: var(--svy-surface);
 }
 
+/* Scrollbars use the ::-webkit-scrollbar pseudo-elements, as 2023.3.0_ng2 did. Chrome ignores those on any element where
+   the standard scrollbar colour or width property is set, and the colour inherits: setting it on html would switch off
+   every ::-webkit-scrollbar rule of the solution (thin or hidden scrollbars). The standard property is only the fallback
+   for browsers without the pseudo-elements (Firefox) */
 html {
-    scrollbar-color: var(--svy-border-strong) transparent;
+    --svy-scrollbar-thumb: var(--svy-border-strong);
+    --svy-scrollbar-track: transparent;
+}
+::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+}
+::-webkit-scrollbar-track {
+    background: var(--svy-scrollbar-track);
+}
+::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    border: 3px solid transparent;
+    background: var(--svy-scrollbar-thumb) padding-box;
+}
+::-webkit-scrollbar-corner {
+    background: transparent;
+}
+@supports not selector(::-webkit-scrollbar) {
+    html {
+        scrollbar-color: var(--svy-scrollbar-thumb) var(--svy-scrollbar-track);
+    }
 }
 
 ::selection {
@@ -564,37 +589,104 @@ div:not(.container):not(.container-fluid):not([class^="col-xs-"]):not([class^="c
     --bs-btn-disabled-border-color: var(--svy-danger);
 }
 
-/* btn-default is a Bootstrap 3 class, still the default styleClass of the bootstrap button; the NG client styles it with literals */
-.btn-default,
-.btn-default:focus,
-.btn-default.focus {
+/* btn-default is a Bootstrap 3 class, still the default styleClass of the bootstrap button; the NG client styles it with literals.
+   Components put it next to the solution's variant class (class="btn btn-default btn-info"); on 2023.3.0_ng2 the variant rules
+   came later and won, so btn-default leaves elements with a variant alone. :where keeps the specificity of .btn-default */
+/* mixin for solutions that call .btn-default; in their less, as the old theme allowed */
+.btn-default() {
     color: var(--svy-text);
     background-color: var(--svy-surface);
     border-color: var(--svy-border-strong);
 }
-.btn-default:hover {
+.btn-default:where(:not(.btn-primary, .btn-secondary, .btn-success, .btn-info, .btn-warning, .btn-danger, .btn-tertiary, .btn-link, .btn-outline-primary, .btn-outline-secondary, .btn-outline-success, .btn-outline-info, .btn-outline-warning, .btn-outline-danger, .btn-outline-tertiary)),
+.btn-default:where(:not(.btn-primary, .btn-secondary, .btn-success, .btn-info, .btn-warning, .btn-danger, .btn-tertiary, .btn-link, .btn-outline-primary, .btn-outline-secondary, .btn-outline-success, .btn-outline-info, .btn-outline-warning, .btn-outline-danger, .btn-outline-tertiary)):focus,
+.btn-default:where(:not(.btn-primary, .btn-secondary, .btn-success, .btn-info, .btn-warning, .btn-danger, .btn-tertiary, .btn-link, .btn-outline-primary, .btn-outline-secondary, .btn-outline-success, .btn-outline-info, .btn-outline-warning, .btn-outline-danger, .btn-outline-tertiary)).focus {
+    color: var(--svy-text);
+    background-color: var(--svy-surface);
+    border-color: var(--svy-border-strong);
+}
+.btn-default:where(:not(.btn-primary, .btn-secondary, .btn-success, .btn-info, .btn-warning, .btn-danger, .btn-tertiary, .btn-link, .btn-outline-primary, .btn-outline-secondary, .btn-outline-success, .btn-outline-info, .btn-outline-warning, .btn-outline-danger, .btn-outline-tertiary)):hover {
     color: var(--svy-text);
     background-color: var(--svy-surface-sunken);
     border-color: var(--svy-border-strong);
 }
-.btn-default:active,
-.btn-default.active,
-.btn-default:active:hover,
-.btn-default.active:hover,
-.btn-default:active:focus,
-.btn-default.active:focus {
+.btn-default:where(:not(.btn-primary, .btn-secondary, .btn-success, .btn-info, .btn-warning, .btn-danger, .btn-tertiary, .btn-link, .btn-outline-primary, .btn-outline-secondary, .btn-outline-success, .btn-outline-info, .btn-outline-warning, .btn-outline-danger, .btn-outline-tertiary)):active,
+.btn-default:where(:not(.btn-primary, .btn-secondary, .btn-success, .btn-info, .btn-warning, .btn-danger, .btn-tertiary, .btn-link, .btn-outline-primary, .btn-outline-secondary, .btn-outline-success, .btn-outline-info, .btn-outline-warning, .btn-outline-danger, .btn-outline-tertiary)).active,
+.btn-default:where(:not(.btn-primary, .btn-secondary, .btn-success, .btn-info, .btn-warning, .btn-danger, .btn-tertiary, .btn-link, .btn-outline-primary, .btn-outline-secondary, .btn-outline-success, .btn-outline-info, .btn-outline-warning, .btn-outline-danger, .btn-outline-tertiary)):active:hover,
+.btn-default:where(:not(.btn-primary, .btn-secondary, .btn-success, .btn-info, .btn-warning, .btn-danger, .btn-tertiary, .btn-link, .btn-outline-primary, .btn-outline-secondary, .btn-outline-success, .btn-outline-info, .btn-outline-warning, .btn-outline-danger, .btn-outline-tertiary)).active:hover,
+.btn-default:where(:not(.btn-primary, .btn-secondary, .btn-success, .btn-info, .btn-warning, .btn-danger, .btn-tertiary, .btn-link, .btn-outline-primary, .btn-outline-secondary, .btn-outline-success, .btn-outline-info, .btn-outline-warning, .btn-outline-danger, .btn-outline-tertiary)):active:focus,
+.btn-default:where(:not(.btn-primary, .btn-secondary, .btn-success, .btn-info, .btn-warning, .btn-danger, .btn-tertiary, .btn-link, .btn-outline-primary, .btn-outline-secondary, .btn-outline-success, .btn-outline-info, .btn-outline-warning, .btn-outline-danger, .btn-outline-tertiary)).active:focus {
     color: var(--svy-text);
     background-color: var(--svy-neutral-soft-bg);
     border-color: var(--svy-border-strong);
 }
-.btn-default:disabled,
-.btn-default:disabled:hover,
-.btn-default:disabled:focus,
-.btn-default.disabled,
-.btn-default.disabled:hover {
+.btn-default:where(:not(.btn-primary, .btn-secondary, .btn-success, .btn-info, .btn-warning, .btn-danger, .btn-tertiary, .btn-link, .btn-outline-primary, .btn-outline-secondary, .btn-outline-success, .btn-outline-info, .btn-outline-warning, .btn-outline-danger, .btn-outline-tertiary)):disabled,
+.btn-default:where(:not(.btn-primary, .btn-secondary, .btn-success, .btn-info, .btn-warning, .btn-danger, .btn-tertiary, .btn-link, .btn-outline-primary, .btn-outline-secondary, .btn-outline-success, .btn-outline-info, .btn-outline-warning, .btn-outline-danger, .btn-outline-tertiary)):disabled:hover,
+.btn-default:where(:not(.btn-primary, .btn-secondary, .btn-success, .btn-info, .btn-warning, .btn-danger, .btn-tertiary, .btn-link, .btn-outline-primary, .btn-outline-secondary, .btn-outline-success, .btn-outline-info, .btn-outline-warning, .btn-outline-danger, .btn-outline-tertiary)):disabled:focus,
+.btn-default:where(:not(.btn-primary, .btn-secondary, .btn-success, .btn-info, .btn-warning, .btn-danger, .btn-tertiary, .btn-link, .btn-outline-primary, .btn-outline-secondary, .btn-outline-success, .btn-outline-info, .btn-outline-warning, .btn-outline-danger, .btn-outline-tertiary)).disabled,
+.btn-default:where(:not(.btn-primary, .btn-secondary, .btn-success, .btn-info, .btn-warning, .btn-danger, .btn-tertiary, .btn-link, .btn-outline-primary, .btn-outline-secondary, .btn-outline-success, .btn-outline-info, .btn-outline-warning, .btn-outline-danger, .btn-outline-tertiary)).disabled:hover {
     color: var(--svy-text-disabled);
     background-color: var(--svy-surface);
     border-color: var(--svy-border);
+}
+
+/* 2023.3.0_ng2 coloured .btn-<variant> itself; Bootstrap 5 only sets --bs-btn-* there and lets .btn apply them. A button with
+   only a variant class (styleClass "btn-primary" on a bootstrap button, as many solutions have) would fall back to the
+   browser's grey button, so variant classes without .btn apply the same variables. :where keeps it at the specificity of
+   :not(.btn), so solution rules still win. servoy.css colours .btn-default with literals, and components add it next to the
+   solution's variant (class="btn btn-default btn-info"), so that combination gets the variant's colours the same way */
+:where(.btn-primary, .btn-secondary, .btn-success, .btn-info, .btn-warning, .btn-danger, .btn-tertiary, .btn-outline-primary, .btn-outline-secondary, .btn-outline-success, .btn-outline-info, .btn-outline-warning, .btn-outline-danger, .btn-outline-tertiary):not(.btn),
+:where(.btn-default):is(.btn-primary, .btn-secondary, .btn-success, .btn-info, .btn-warning, .btn-danger, .btn-tertiary, .btn-outline-primary, .btn-outline-secondary, .btn-outline-success, .btn-outline-info, .btn-outline-warning, .btn-outline-danger, .btn-outline-tertiary) {
+    color: var(--bs-btn-color);
+    background-color: var(--bs-btn-bg, transparent);
+    border: var(--svy-border-width) solid var(--bs-btn-border-color);
+}
+:where(.btn-primary, .btn-secondary, .btn-success, .btn-info, .btn-warning, .btn-danger, .btn-tertiary, .btn-outline-primary, .btn-outline-secondary, .btn-outline-success, .btn-outline-info, .btn-outline-warning, .btn-outline-danger, .btn-outline-tertiary):not(.btn):hover,
+:where(.btn-default):is(.btn-primary, .btn-secondary, .btn-success, .btn-info, .btn-warning, .btn-danger, .btn-tertiary, .btn-outline-primary, .btn-outline-secondary, .btn-outline-success, .btn-outline-info, .btn-outline-warning, .btn-outline-danger, .btn-outline-tertiary):hover {
+    color: var(--bs-btn-hover-color);
+    background-color: var(--bs-btn-hover-bg);
+    border-color: var(--bs-btn-hover-border-color);
+}
+:where(.btn-primary, .btn-secondary, .btn-success, .btn-info, .btn-warning, .btn-danger, .btn-tertiary, .btn-outline-primary, .btn-outline-secondary, .btn-outline-success, .btn-outline-info, .btn-outline-warning, .btn-outline-danger, .btn-outline-tertiary):not(.btn):active,
+:where(.btn-primary, .btn-secondary, .btn-success, .btn-info, .btn-warning, .btn-danger, .btn-tertiary, .btn-outline-primary, .btn-outline-secondary, .btn-outline-success, .btn-outline-info, .btn-outline-warning, .btn-outline-danger, .btn-outline-tertiary):not(.btn).active,
+:where(.btn-default):is(.btn-primary, .btn-secondary, .btn-success, .btn-info, .btn-warning, .btn-danger, .btn-tertiary, .btn-outline-primary, .btn-outline-secondary, .btn-outline-success, .btn-outline-info, .btn-outline-warning, .btn-outline-danger, .btn-outline-tertiary):active,
+:where(.btn-default):is(.btn-primary, .btn-secondary, .btn-success, .btn-info, .btn-warning, .btn-danger, .btn-tertiary, .btn-outline-primary, .btn-outline-secondary, .btn-outline-success, .btn-outline-info, .btn-outline-warning, .btn-outline-danger, .btn-outline-tertiary).active {
+    color: var(--bs-btn-active-color);
+    background-color: var(--bs-btn-active-bg);
+    border-color: var(--bs-btn-active-border-color);
+}
+:where(.btn-primary, .btn-secondary, .btn-success, .btn-info, .btn-warning, .btn-danger, .btn-tertiary, .btn-outline-primary, .btn-outline-secondary, .btn-outline-success, .btn-outline-info, .btn-outline-warning, .btn-outline-danger, .btn-outline-tertiary):not(.btn):disabled,
+:where(.btn-primary, .btn-secondary, .btn-success, .btn-info, .btn-warning, .btn-danger, .btn-tertiary, .btn-outline-primary, .btn-outline-secondary, .btn-outline-success, .btn-outline-info, .btn-outline-warning, .btn-outline-danger, .btn-outline-tertiary):not(.btn).disabled,
+:where(.btn-default):is(.btn-primary, .btn-secondary, .btn-success, .btn-info, .btn-warning, .btn-danger, .btn-tertiary, .btn-outline-primary, .btn-outline-secondary, .btn-outline-success, .btn-outline-info, .btn-outline-warning, .btn-outline-danger, .btn-outline-tertiary):disabled,
+:where(.btn-default):is(.btn-primary, .btn-secondary, .btn-success, .btn-info, .btn-warning, .btn-danger, .btn-tertiary, .btn-outline-primary, .btn-outline-secondary, .btn-outline-success, .btn-outline-info, .btn-outline-warning, .btn-outline-danger, .btn-outline-tertiary).disabled {
+    color: var(--bs-btn-disabled-color);
+    background-color: var(--bs-btn-disabled-bg, transparent);
+    border-color: var(--bs-btn-disabled-border-color);
+    opacity: var(--bs-btn-disabled-opacity, 0.65);
+}
+/* servoy.css colours .btn-default:focus with literals at two classes, and :active:hover, :active:focus, .disabled:hover and
+   [disabled]:hover at three; the states of the variant + btn-default combination match those specificities (and come later),
+   otherwise a clicked, pressed or disabled variant button turns grey or white */
+:where(.btn-default):is(.btn-primary, .btn-secondary, .btn-success, .btn-info, .btn-warning, .btn-danger, .btn-tertiary, .btn-outline-primary, .btn-outline-secondary, .btn-outline-success, .btn-outline-info, .btn-outline-warning, .btn-outline-danger, .btn-outline-tertiary):is(:focus, .focus) {
+    color: var(--bs-btn-color);
+    background-color: var(--bs-btn-bg, transparent);
+    border-color: var(--bs-btn-border-color);
+}
+:where(.btn-default):is(.btn-primary, .btn-secondary, .btn-success, .btn-info, .btn-warning, .btn-danger, .btn-tertiary, .btn-outline-primary, .btn-outline-secondary, .btn-outline-success, .btn-outline-info, .btn-outline-warning, .btn-outline-danger, .btn-outline-tertiary):is(:focus, .focus):hover {
+    color: var(--bs-btn-hover-color);
+    background-color: var(--bs-btn-hover-bg);
+    border-color: var(--bs-btn-hover-border-color);
+}
+:where(.btn-default):is(.btn-primary, .btn-secondary, .btn-success, .btn-info, .btn-warning, .btn-danger, .btn-tertiary, .btn-outline-primary, .btn-outline-secondary, .btn-outline-success, .btn-outline-info, .btn-outline-warning, .btn-outline-danger, .btn-outline-tertiary):is(:active, .active):is(:hover, :focus, .focus) {
+    color: var(--bs-btn-active-color);
+    background-color: var(--bs-btn-active-bg);
+    border-color: var(--bs-btn-active-border-color);
+}
+:where(.btn-default):is(.btn-primary, .btn-secondary, .btn-success, .btn-info, .btn-warning, .btn-danger, .btn-tertiary, .btn-outline-primary, .btn-outline-secondary, .btn-outline-success, .btn-outline-info, .btn-outline-warning, .btn-outline-danger, .btn-outline-tertiary):is(:disabled, .disabled):is(:hover, :focus, .focus) {
+    color: var(--bs-btn-disabled-color);
+    background-color: var(--bs-btn-disabled-bg, transparent);
+    border-color: var(--bs-btn-disabled-border-color);
+    opacity: var(--bs-btn-disabled-opacity, 0.65);
 }
 
 /* START Fields */
@@ -1146,6 +1238,252 @@ div.svy-message-dialog.svy-message-dialog {
     color: var(--svy-text-muted);
 }
 
+/* START Select2 tokenizer */
+
+/* ng-select2-component (servoyextra-select2tokenizer) reads only its own --select2-* variables; without them it falls back to its
+   library defaults (#aaa edges, grey chips, black text). Chips are a selection, so they get the accent tint like a selected item */
+:root {
+    --select2-label-text-color: var(--svy-text);
+    --select2-selection-border-radius: var(--svy-radius-md);
+    --select2-selection-background: var(--svy-surface);
+    --select2-selection-disabled-background: var(--svy-surface-sunken);
+    --select2-selection-border-color: var(--svy-border-strong);
+    --select2-selection-focus-border-color: var(--svy-accent);
+    --select2-selection-text-color: var(--svy-text);
+    --select2-selection-choice-background: var(--svy-accent-subtle);
+    --select2-selection-choice-text-color: var(--svy-text);
+    --select2-selection-choice-border-color: var(--svy-border);
+    --select2-selection-choice-close-color: var(--svy-text-muted);
+    --select2-selection-choice-hover-close-color: var(--svy-text);
+    --select2-placeholder-color: var(--svy-text-muted);
+    --select2-reset-color: var(--svy-text-muted);
+    --select2-arrow-color: var(--svy-text-muted);
+    --select2-dropdown-background: var(--svy-surface-raised);
+    --select2-dropdown-border-color: var(--svy-border);
+    --select2-search-border-color: var(--svy-border-strong);
+    --select2-search-background: var(--svy-surface);
+    --select2-search-border-radius: var(--svy-radius-sm);
+    --select2-option-text-color: var(--svy-text);
+    --select2-option-disabled-text-color: var(--svy-text-disabled);
+    --select2-option-disabled-background: transparent;
+    --select2-option-selected-text-color: var(--svy-text);
+    --select2-option-selected-background: var(--svy-accent-subtle);
+    --select2-option-highlighted-text-color: var(--svy-text);
+    --select2-option-highlighted-background: var(--svy-surface-hover);
+    --select2-option-group-text-color: var(--svy-text-muted);
+    --select2-hint-text-color: var(--svy-text-muted);
+}
+.svy-select2-autotokenizer .select2-container--default .select2-selection--multiple {
+    border-style: solid;
+    border-width: var(--svy-border-width);
+}
+.svy-select2-autotokenizer .select2-container-dropdown .select2-results__option[aria-selected]:before {
+    font-family: "FontAwesome", "Font Awesome 5 Free";
+    content: "\f0c8";
+    margin-right: 5px;
+    font-weight: normal;
+}
+.svy-select2-autotokenizer .select2-container-dropdown .select2-results__option[aria-selected=true]:before {
+    content: "\f14a";
+}
+
+/* START Fullcalendar */
+
+/* fullcalendar's classic theme paints from its own --fc-classic-* palette (white grid, #ddd lines, near-black text); its dark palette
+   only applies under [data-color-scheme=dark], which Servoy never sets. :root:root outranks both, as the library css loads after the
+   theme. Event colours, the now line and the toolbar button palette stay the library's: solutions colour events per record */
+:root:root {
+    --fc-classic-background: var(--svy-surface);
+    --fc-classic-foreground: var(--svy-text);
+    --fc-classic-muted-foreground: var(--svy-text-muted);
+    --fc-classic-faint-foreground: var(--svy-text-disabled);
+    --fc-classic-border: var(--svy-border);
+    --fc-classic-strong-border: var(--svy-border-strong);
+    --fc-classic-faint: color-mix(in srgb, var(--svy-text) 4%, transparent);
+    --fc-classic-muted: color-mix(in srgb, var(--svy-text) 8%, transparent);
+    --fc-classic-strong: color-mix(in srgb, var(--svy-text) 14%, transparent);
+    --fc-classic-highlight: color-mix(in srgb, var(--svy-accent) 20%, transparent);
+}
+
+/* START Accordion */
+
+/* bootstrapcomponents accordion: the container takes the surface, Bootstrap's own accordion variables follow the roles */
+.bts-accordion {
+    --bs-accordion-bg: var(--svy-surface);
+    --bs-accordion-color: var(--svy-text);
+    --bs-accordion-border-color: var(--svy-border);
+    --bs-accordion-btn-color: var(--svy-text);
+    --bs-accordion-btn-bg: var(--svy-surface);
+    --bs-accordion-active-color: var(--svy-text);
+    --bs-accordion-active-bg: var(--svy-accent-subtle);
+    background-color: var(--svy-surface);
+    color: var(--svy-text);
+}
+
+/* Bootstrap's .text-bg-* utilities hard-code #fff or #000 text per hue at compile time; with the theme hues (lighter in the dark variant)
+   that text can fall under 4.5:1, so it is the computed on-solid colour. Sidenav badges have their own, more specific rules */
+.text-bg-primary { color: var(--svy-accent-contrast) !important; }
+.text-bg-secondary { color: var(--svy-neutral-on-solid) !important; }
+.text-bg-success { color: var(--svy-success-on-solid) !important; }
+.text-bg-info { color: var(--svy-info-on-solid) !important; }
+.text-bg-warning { color: var(--svy-warning-on-solid) !important; }
+.text-bg-danger { color: var(--svy-danger-on-solid) !important; }
+
+/* START Switch */
+
+/* bootstrapextracomponents switch (bootstrap-switch.css): Bootstrap 3 literals for the frame, the label and every handle colour */
+.bootstrap-switch {
+    border-color: var(--svy-border-strong);
+    border-radius: var(--svy-radius-md);
+}
+.bootstrap-switch .bootstrap-switch-container {
+    border-radius: var(--svy-radius-md);
+}
+.bootstrap-switch .bootstrap-switch-label {
+    color: var(--svy-text);
+    background: var(--svy-surface);
+}
+.bootstrap-switch.bootstrap-switch-focused {
+    border-color: var(--svy-accent);
+    box-shadow: 0 0 0 var(--svy-focus-ring-width) var(--svy-focus-ring);
+}
+.bootstrap-switch .bootstrap-switch-handle-on.bootstrap-switch-primary,
+.bootstrap-switch .bootstrap-switch-handle-off.bootstrap-switch-primary {
+    color: var(--svy-accent-contrast);
+    background: var(--svy-accent);
+}
+.svy-switch-tone(@name) {
+    .bootstrap-switch .bootstrap-switch-handle-on.bootstrap-switch-@{name},
+    .bootstrap-switch .bootstrap-switch-handle-off.bootstrap-switch-@{name} {
+        color: ~"var(--svy-@{name}-on-solid)";
+        background: ~"var(--svy-@{name}-solid)";
+    }
+}
+.svy-switch-tone(info);
+.svy-switch-tone(success);
+.svy-switch-tone(warning);
+.svy-switch-tone(danger);
+.bootstrap-switch .bootstrap-switch-handle-on.bootstrap-switch-default,
+.bootstrap-switch .bootstrap-switch-handle-off.bootstrap-switch-default {
+    color: var(--svy-text);
+    background: var(--svy-surface-sunken);
+}
+
+/* START Servoy extra: collapse, treeview, slider */
+
+/* collapse.css (servoyextracomponents) paints the card white with black text and the header/body #f5f5f5 */
+.svy-collapse-collapsible {
+    background-color: var(--svy-surface);
+    color: var(--svy-text);
+}
+.svy-collapse-header {
+    background-color: var(--svy-surface-sunken);
+    border-color: var(--svy-border);
+}
+.svy-collapse-card-body {
+    background-color: var(--svy-surface-sunken);
+    border-color: var(--svy-border);
+}
+/* @servoy/angular-tree-grid ships emulated-encapsulation styles with literals (white rows, #4b4b4b text, #181818 headers); the
+   repeated class outranks their [_ngcontent] attribute selectors, which are injected after the theme */
+.svy-treeview.svy-treeview .db-tree-view {
+    color: var(--svy-text);
+}
+.svy-treeview.svy-treeview.svy-treeview tr,
+.svy-treeview.svy-treeview.svy-treeview tr.parent,
+.svy-treeview.svy-treeview.svy-treeview tr.child,
+.svy-treeview.svy-treeview.svy-treeview tr.subgrid-row {
+    background: var(--svy-surface);
+    border-bottom-color: var(--svy-border);
+}
+.svy-treeview.svy-treeview.svy-treeview tr.selected {
+    background-color: var(--svy-accent-subtle);
+}
+/* the treeview's own css makes the header sticky with a #fff background */
+.svy-treeview.svy-treeview.svy-treeview tr th,
+.svy-treeview.svy-treeview thead > tr > th {
+    color: var(--svy-text);
+    background-color: var(--svy-surface);
+}
+.svy-treeview.svy-treeview td {
+    border-color: var(--svy-border);
+}
+.svy-treeview.svy-treeview div.icon-container {
+    color: var(--svy-text);
+}
+/* ngx-slider (slider, gauge) writes its value bubbles in #55637d, under 3:1 on the dark surface */
+.ngx-slider.ngx-slider .ngx-slider-bubble,
+.ngx-slider.ngx-slider .ngx-slider-bubble.ngx-slider-limit {
+    color: var(--svy-text-muted);
+}
+
+/* START Multifile upload */
+
+/* the uppy dashboard paints #f4f4f4/#fafafa panels, #000 titles and #1269cf links; its dark set only applies under
+   [data-uppy-theme=dark]. The wrapper class outranks both, as the library css loads after the theme */
+.svy-extra-multifileupload .uppy-Root {
+    color: var(--svy-text);
+}
+.svy-extra-multifileupload .uppy-Dashboard-inner {
+    background-color: var(--svy-surface-sunken);
+    border-color: var(--svy-border);
+}
+.svy-extra-multifileupload .uppy-Dashboard-AddFiles {
+    border-color: var(--svy-border-strong);
+}
+.svy-extra-multifileupload .uppy-Dashboard-AddFiles-title,
+.svy-extra-multifileupload .uppy-DashboardContent-title,
+.svy-extra-multifileupload .uppy-Dashboard-Item-name,
+.svy-extra-multifileupload .uppy-DashboardTab-btn,
+.svy-extra-multifileupload .uppy-DashboardTab-iconScreenRec,
+.svy-extra-multifileupload .uppy-StatusBar-content {
+    color: var(--svy-text);
+}
+.svy-extra-multifileupload .uppy-Dashboard-note,
+.svy-extra-multifileupload .uppy-Dashboard-Item-status,
+.svy-extra-multifileupload .uppy-StatusBar-statusSecondary,
+.svy-extra-multifileupload .uppy-Dashboard-dropFilesHereHint {
+    color: var(--svy-text-muted);
+}
+.svy-extra-multifileupload .uppy-Dashboard-browse,
+.svy-extra-multifileupload .uppy-DashboardTab-iconMyDevice,
+.svy-extra-multifileupload .uppy-DashboardContent-back,
+.svy-extra-multifileupload .uppy-DashboardContent-save,
+.svy-extra-multifileupload .uppy-DashboardContent-addMore {
+    color: var(--svy-accent);
+}
+.svy-extra-multifileupload .uppy-Dashboard-dropFilesHereHint {
+    border-color: var(--svy-accent);
+}
+.svy-extra-multifileupload .uppy-DashboardTab,
+.svy-extra-multifileupload .uppy-Dashboard-Item {
+    border-bottom-color: var(--svy-border);
+}
+.svy-extra-multifileupload .uppy-DashboardTab-btn:hover,
+.svy-extra-multifileupload .uppy-DashboardTab-btn:focus {
+    background-color: var(--svy-surface-hover);
+}
+.svy-extra-multifileupload .uppy-DashboardTab-inner {
+    background-color: var(--svy-surface-raised);
+}
+.svy-extra-multifileupload .uppy-DashboardContent-bar,
+.svy-extra-multifileupload .uppy-Dashboard-AddFilesPanel,
+.svy-extra-multifileupload .uppy-StatusBar {
+    background: var(--svy-surface-raised);
+    border-color: var(--svy-border);
+}
+
+/* START Badge */
+
+/* bootstrapextracomponents badge: the secondary bubble falls back to #777 with white text (4.48:1); the neutral tone keeps
+   it AA in both variants. Declared on the badge, so a .svy-theme-dark/-light container re-resolves it */
+.bts-extra-badge {
+    --svy-badge-bubble-bg: var(--svy-neutral-solid);
+    --svy-badge-bubble-color: var(--svy-neutral-on-solid);
+    --svy-badge-link-color: var(--svy-accent);
+    --svy-badge-link-hover-color: var(--svy-accent-hover);
+}
+
 /* START Calendar picker */
 
 /* tempus-dominus 6: map both its light and dark variable sets to the roles, so the picker follows the application variant
@@ -1216,16 +1554,24 @@ div.svy-message-dialog.svy-message-dialog {
 .btn-info { }
 .btn-warning { }
 .btn-danger { }
-.btn-outline-success { --bs-btn-color: var(--svy-success); --bs-btn-border-color: var(--svy-success); --bs-btn-hover-bg: var(--svy-success); --bs-btn-hover-border-color: var(--svy-success); --bs-btn-hover-color: var(--svy-success-on-solid); }
-.btn-outline-info { --bs-btn-color: var(--svy-info); --bs-btn-border-color: var(--svy-info); --bs-btn-hover-bg: var(--svy-info); --bs-btn-hover-border-color: var(--svy-info); --bs-btn-hover-color: var(--svy-info-on-solid); }
-.btn-outline-warning { --bs-btn-color: var(--svy-warning); --bs-btn-border-color: var(--svy-warning); --bs-btn-hover-bg: var(--svy-warning); --bs-btn-hover-border-color: var(--svy-warning); --bs-btn-hover-color: var(--svy-warning-on-solid); }
+.btn-outline-success { --bs-btn-color: var(--svy-success); --bs-btn-border-color: var(--svy-success); --bs-btn-hover-bg: var(--svy-success); --bs-btn-hover-border-color: var(--svy-success); --bs-btn-hover-color: var(--svy-success-on-solid); --bs-btn-active-bg: var(--svy-success); --bs-btn-active-border-color: var(--svy-success); --bs-btn-active-color: var(--svy-success-on-solid); --bs-btn-disabled-color: var(--svy-success); --bs-btn-disabled-border-color: var(--svy-success); }
+.btn-outline-info { --bs-btn-color: var(--svy-info); --bs-btn-border-color: var(--svy-info); --bs-btn-hover-bg: var(--svy-info); --bs-btn-hover-border-color: var(--svy-info); --bs-btn-hover-color: var(--svy-info-on-solid); --bs-btn-active-bg: var(--svy-info); --bs-btn-active-border-color: var(--svy-info); --bs-btn-active-color: var(--svy-info-on-solid); --bs-btn-disabled-color: var(--svy-info); --bs-btn-disabled-border-color: var(--svy-info); }
+.btn-outline-warning { --bs-btn-color: var(--svy-warning); --bs-btn-border-color: var(--svy-warning); --bs-btn-hover-bg: var(--svy-warning); --bs-btn-hover-border-color: var(--svy-warning); --bs-btn-hover-color: var(--svy-warning-on-solid); --bs-btn-active-bg: var(--svy-warning); --bs-btn-active-border-color: var(--svy-warning); --bs-btn-active-color: var(--svy-warning-on-solid); --bs-btn-disabled-color: var(--svy-warning); --bs-btn-disabled-border-color: var(--svy-warning); }
 .btn-outline-tertiary { --bs-btn-color: var(--svy-text); --bs-btn-border-color: var(--svy-border-strong); --bs-btn-hover-bg: var(--svy-surface-hover); --bs-btn-hover-border-color: var(--svy-border-strong); --bs-btn-hover-color: var(--svy-text); }
 .svy-field, .svy-textfield, .svy-password, .svy-textarea, .svy-typeahead, .svy-calendar, .svy-combobox,
 .bts-textbox, .bts-textarea, .bts-typeahead, .bts-calendar, .bts-combobox, .bts-select {
     color: var(--svy-text);
+    background-color: var(--svy-surface);
     border-color: var(--svy-border-strong);
     border-radius: var(--svy-radius-md);
 }
+/* a styleClass on these components replaces form-control, so the field has no background of its own; under color-scheme: dark the
+   browser then paints its own grey (#3B3B3B in Chrome). A bg-* utility on the field keeps its readable text, as on 2023.3.0_ng2 */
+.bg-primary:is(.svy-field, .svy-textfield, .svy-password, .svy-textarea, .svy-typeahead, .svy-calendar, .svy-combobox, .bts-textbox, .bts-textarea, .bts-typeahead, .bts-calendar, .bts-combobox, .bts-select) { color: var(--svy-accent-contrast); }
+.bg-success:is(.svy-field, .svy-textfield, .svy-password, .svy-textarea, .svy-typeahead, .svy-calendar, .svy-combobox, .bts-textbox, .bts-textarea, .bts-typeahead, .bts-calendar, .bts-combobox, .bts-select) { color: var(--svy-success-on-solid); }
+.bg-info:is(.svy-field, .svy-textfield, .svy-password, .svy-textarea, .svy-typeahead, .svy-calendar, .svy-combobox, .bts-textbox, .bts-textarea, .bts-typeahead, .bts-calendar, .bts-combobox, .bts-select) { color: var(--svy-info-on-solid); }
+.bg-warning:is(.svy-field, .svy-textfield, .svy-password, .svy-textarea, .svy-typeahead, .svy-calendar, .svy-combobox, .bts-textbox, .bts-textarea, .bts-typeahead, .bts-calendar, .bts-combobox, .bts-select) { color: var(--svy-warning-on-solid); }
+.bg-danger:is(.svy-field, .svy-textfield, .svy-password, .svy-textarea, .svy-typeahead, .svy-calendar, .svy-combobox, .bts-textbox, .bts-textarea, .bts-typeahead, .bts-calendar, .bts-combobox, .bts-select) { color: var(--svy-danger-on-solid); }
 .svy-combobox-container, .bts-combobox-container { border-radius: var(--svy-radius-md); }
 .svy-label, .bts-label { color: inherit; }
 .form-required { }
@@ -1327,6 +1673,15 @@ div.svy-message-dialog.svy-message-dialog {
 .svy-check-spacing(30);
 [class*="-horizontal"][class*="-spacing-"] label:last-child { margin-right: 0; }
 
+/* before the border utilities, as on 2023.3.0_ng2: a label-* class next to border-round or border-radius keeps that radius */
+.label-primary, .label-tertiary, .label-success, .label-info, .label-warning, .label-danger { text-align: center; border-radius: var(--svy-radius-md); }
+.label-primary { color: var(--svy-accent); }
+.label-tertiary { color: var(--svy-text-muted); }
+.label-success { color: var(--svy-success); }
+.label-info { color: var(--svy-info); }
+.label-warning { color: var(--svy-warning); }
+.label-danger { color: var(--svy-danger); }
+
 .border-class { border-style: solid; border-color: var(--svy-border); }
 .border { border: var(--svy-border-width) solid var(--svy-border); }
 .border-default { border: var(--svy-border-width) solid var(--svy-border); border-radius: var(--svy-radius-md); }
@@ -1361,13 +1716,6 @@ div.svy-message-dialog.svy-message-dialog {
 .bts-label.text-center-vertical.text-center, .bts-datalabel.text-center-vertical.text-center, .svy-fa .text-center-vertical.text-center {
     justify-content: center;
 }
-.label-primary, .label-tertiary, .label-success, .label-info, .label-warning, .label-danger { text-align: center; border-radius: var(--svy-radius-md); }
-.label-primary { color: var(--svy-accent); }
-.label-tertiary { color: var(--svy-text-muted); }
-.label-success { color: var(--svy-success); }
-.label-info { color: var(--svy-info); }
-.label-warning { color: var(--svy-warning); }
-.label-danger { color: var(--svy-danger); }
 
 .btn-tertiary {
     --bs-btn-color: var(--svy-text);
@@ -1538,7 +1886,8 @@ html {
     .svy-legacy-scrollbar();
 }
 .svy-legacy-scrollbar() when not (@scrollbar-color = mix(@svy-text, @svy-surface, 30%)), not (@scrollbar-bg = @svy-surface) {
-    scrollbar-color: @scrollbar-color @scrollbar-bg;
+    --svy-scrollbar-thumb: @scrollbar-color;
+    --svy-scrollbar-track: @scrollbar-bg;
 }
 .svy-legacy-scrollbar() when (default()) {
 }
