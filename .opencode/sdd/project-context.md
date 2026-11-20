@@ -69,8 +69,37 @@ When writing code for this project, you are writing **OSGi bundles**:
   run with `eclipse-ide_runClassTests`. Class suffix `*Test`.
 - Integration tests (needs OSGi/workspace): `eclipse-test-plugin` packaging, run with
   `eclipse-pde_runJUnitPluginTestClass`. Class suffix `*IntegrationTest`.
-- `servoy_ngclient.tests` is a `Fragment-Host: servoy_ngclient` fragment, giving package-private access.
+- `servoy_ngclient.tests` is a `Fragment-Host: servoy_ngclient` fragment: package-private access only to
+  classes of `servoy_ngclient`, and only from exactly the same package (not to `servoy_shared` classes).
 - See `AGENTS.md` `## Testing` for the catalogue of existing feature test classes.
+
+## Creating persistence objects in tests
+
+`Solution`, `Form`, `Relation`, `RelationItem`, `ScriptVariable`, `ValueList` have
+package-private/protected constructors in `servoy_shared`. Never `new` them or reach them through
+reflection from `servoy_ngclient.tests`: create them with the public factories, as the existing
+tests do (`property/AbstractSolutionTest`, `auth/AuthenticatorManagerInstanceTest`,
+`persistence/RelationUuidArrayKeyTypeTest`).
+
+```java
+// Solution: TestRepository (servoy_ngclient.tests, package ...ngclient.property; its constructor is protected)
+TestRepository tr = new TestRepository() { };
+Solution solution = (Solution)tr.createRootObject(
+    tr.createRootObjectMetaData(UUID.randomUUID(), "TestSolution", IRepository.SOLUTIONS, 1, 1));
+solution.setChangeHandler(new ChangeHandler(tr));
+
+// Children: the Solution's own factory methods
+IValidateName validator = (name, skip, ctx, sqlRelated) -> { };
+Form form = solution.createNewForm(validator, null, "myForm", "mem:myTable", false, new Dimension(600, 400));
+Relation relation = solution.createNewRelation(validator, "a_to_b", "mem:a", "mem:b", IQueryConstants.LEFT_OUTER_JOIN);
+ScriptVariable var = solution.createNewScriptVariable(validator, "globals", "x", IColumnTypes.TEXT);
+ValueList vl = solution.createNewValueList(validator, "myList");
+
+// Any other child type: through the change handler
+RelationItem item = (RelationItem)solution.getChangeHandler().createNewObject(relation, IRepository.RELATION_ITEMS);
+```
+
+`UUID` is `com.servoy.j2db.util.UUID`.
 
 ## Known design decisions (DO NOT CHANGE)
 
