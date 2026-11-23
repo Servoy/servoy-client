@@ -127,7 +127,10 @@ public class FormComponentSabloValue implements ISmartPropertyValue
 							Object propertyValue = element.getPropertyValue(pd.getName());
 							Form frm = FormComponentPropertyType.INSTANCE.getForm(propertyValue, dal.getApplication().getFlattenedSolution());
 							if (frm == null) continue;
-							FormComponentCache innerCache = FormElementHelper.INSTANCE.getFormComponentCache(element, pd, (JSONObject)propertyValue, frm,
+							JSONObject fcValue = FormComponentPropertyType.asFormComponentValue(propertyValue,
+								element.getForm() != null ? element.getForm().getName() : null, element.getName(), pd.getName());
+							if (fcValue == null) continue;
+							FormComponentCache innerCache = FormElementHelper.INSTANCE.getFormComponentCache(element, pd, fcValue, frm,
 								dal.getApplication().getFlattenedSolution());
 							List<FormElement> innerElements = innerCache.getFormComponentElements();
 							for (FormElement innerElement : innerElements)

@@ -89,8 +89,13 @@ public class FormComponentUtils
 				Form formComponent = FormComponentPropertyType.INSTANCE.getForm(rawPropertyValueOfFEsFCProperty, fs);
 				if (formComponent == null) continue;
 
+				JSONObject fcValue = FormComponentPropertyType.asFormComponentValue(rawPropertyValueOfFEsFCProperty,
+					elementThatUsesAFormComponentInIt.getForm() != null ? elementThatUsesAFormComponentInIt.getForm().getName() : null,
+					elementThatUsesAFormComponentInIt.getName(), pd.getName());
+				if (fcValue == null) continue;
+
 				FormComponentCache cache = FormElementHelper.INSTANCE.getFormComponentCache(elementThatUsesAFormComponentInIt, pd,
-					(JSONObject)rawPropertyValueOfFEsFCProperty, formComponent, fs);
+					fcValue, formComponent, fs);
 				for (FormElement element : cache.getFormComponentElements())
 				{
 					IPersist p = element.getPersistIfAvailable();

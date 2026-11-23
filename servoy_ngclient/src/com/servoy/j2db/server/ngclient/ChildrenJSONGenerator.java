@@ -231,6 +231,9 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 							Object propertyValue = fe.getPropertyValue(pd.getName());
 							Form frm = FormComponentPropertyType.INSTANCE.getForm(propertyValue, context.getSolution());
 							if (frm == null) continue;
+							JSONObject fccValue = FormComponentPropertyType.asFormComponentValue(propertyValue,
+								fe.getForm() != null ? fe.getForm().getName() : null, fe.getName(), pd.getName());
+							if (fccValue == null) continue;
 							frm = context.getSolution().getFlattenedForm(frm);
 							isResponsive = frm.isResponsiveLayout();
 							// listformcomponents that are responsive must be also send over here (the components are also send over in the FormComponentSabloValue)
@@ -241,7 +244,7 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 							writer.key("children_" + pd.getName());
 							writer.array();
 							FormComponentCache fccc = FormElementHelper.INSTANCE.getFormComponentCache(fe, pd,
-								(JSONObject)propertyValue, frm,
+								fccValue, frm,
 								context.getSolution());
 							if (isResponsive || frm.containsResponsiveLayout())
 							{
