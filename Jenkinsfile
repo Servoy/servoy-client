@@ -87,6 +87,28 @@ pipeline {
                 }
             }
         }
+
+        // JaCoCo report for the Java tests, same recipe as servoy-eclipse.
+        // 'Build with Tycho' wrote target/jacoco.exec in every test module (servoy_ngclient.tests, servoy_mcp_tests).
+        // The jacoco 'report' goal can only analyze the current module's own classes, so it runs in each PRODUCTION
+        // bundle (-Pcoverage-report, root pom), which first merges the exec files of all test modules into
+        // target/jacoco-merged.exec and then reports its own classes against it.
+        // -Pplugins: activating a profile deactivates the activeByDefault one.
+        stage('Coverage Report') {
+            when {
+                expression { !params.WIPE_WORKSPACE }
+            }
+            steps {
+                configFileProvider([
+                    configFile(fileId: 'master_mvn_repo', variable: 'MAVEN_SETTINGS'),
+                    configFile(fileId: 'maven_toolchain', variable: 'TOOLCHAIN')
+                ]) {
+                    catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
+                        sh 'mvn -B -fae -s "$MAVEN_SETTINGS" -t "$TOOLCHAIN" -Pplugins,coverage-report org.jacoco:jacoco-maven-plugin:merge org.jacoco:jacoco-maven-plugin:report -pl servoy_base,servoy_shared,servoy_smart_client,servoy_headless_client,servoy_ngclient,servoy_mcp,servoy_debug'
+                    }
+                }
+            }
+        }
     }
     
     post {
@@ -95,6 +117,25 @@ pipeline {
                 if (!params.WIPE_WORKSPACE) {
                     // Specifieke testpaden voor servoy-client uit de oude configuratie
                     junit allowEmptyResults: true, testResults: 'servoy_ngclient/target/TEST*.xml,servoy_ngclient.tests/target/surefire-reports/*.xml'
+
+                    // Java (JaCoCo) code coverage, one jacoco.xml per production bundle written by the
+                    // 'Coverage Report' stage, aggregated here into a single Java coverage trend.
+                    // sourceDirectories: jacoco.xml only holds package-relative file names and the plugin
+                    // otherwise only looks in src/main/java, which these Eclipse bundles do not use.
+                    recordCoverage(
+                        tools: [[parser: 'JACOCO', pattern: '**/target/site/jacoco/jacoco.xml']],
+                        id: 'java-jacoco',
+                        name: 'Java Coverage (JaCoCo)',
+                        sourceCodeRetention: 'EVERY_BUILD',
+                        sourceDirectories: [
+                            'servoy_base', 'servoy_shared', 'servoy_smart_client', 'servoy_headless_client',
+                            'servoy_ngclient', 'servoy_mcp', 'servoy_debug'
+                        ].collect { [path: "${it}/src"] }
+                    )
+
+                    // Archive the per-bundle JaCoCo reports so they can be read per build (also via the Jenkins MCP).
+                    // The binary jacoco*.exec files are not archived: they need the exact class files of this build.
+                    archiveArtifacts artifacts: '**/target/site/jacoco/jacoco.xml', allowEmptyArchive: true, fingerprint: false
                     
                     // Jira Cloud integratie stap
                     catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {

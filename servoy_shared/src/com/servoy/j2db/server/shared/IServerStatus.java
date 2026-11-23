@@ -36,8 +36,6 @@ public interface IServerStatus
 
 	void clearPerformanceData(String context);
 
-	Lock[] getLocks();
-
 	TransactionInfo[] getTransactions();
 
 	String[] getDataSourcesForClient(String clientId);

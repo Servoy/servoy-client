@@ -26,7 +26,7 @@ import java.util.TreeSet;
  * @author svanerk
  */
 
-public class Lock implements Comparable<Lock>, Cloneable
+public class Lock implements Comparable<Lock>, ILock
 {
 	private final String serverName; // The server name of the server in which the records live.
 	private final String tableName; // The table name of the table in which the records live.
@@ -55,14 +55,9 @@ public class Lock implements Comparable<Lock>, Cloneable
 		i = Long.valueOf(acquiredTimestamp).compareTo(Long.valueOf(lock.acquiredTimestamp));
 		if (i != 0) return i;
 
+		// NOTE: pkHashKeySet.hashCode() iterates the set and is not synchronized here, so this must only be called under the LockManager monitor.
 		// This is to ensure that two Lock objects are not considered to be the same unless all fields are equal.
 		return pkHashKeySet.hashCode() - lock.pkHashKeySet.hashCode();
-	}
-
-	@Override
-	public Object clone()
-	{
-		return new Lock(serverName, tableName, new TreeSet<Object>(pkHashKeySet), clientId, acquiredTimestamp);
 	}
 
 	public String getServerName()
@@ -75,17 +70,20 @@ public class Lock implements Comparable<Lock>, Cloneable
 		return tableName;
 	}
 
-	public Set<Object> getPkHashKeys()
+	// synchronized: lock instances are shared with outside code (via ILock) while LockManager.releaseLocks can modify the set. Lock order: LockManager.locks, then Lock.
+	@Override
+	public synchronized Set<Object> getPkHashKeys()
 	{
 		return new TreeSet<Object>(pkHashKeySet);
 	}
 
-	public boolean removePkHashKey(Object pkHashKey)
+	public synchronized boolean removePkHashKey(Object pkHashKey)
 	{
 		return pkHashKeySet.remove(pkHashKey);
 	}
 
-	public int getPkHashKeySize()
+	@Override
+	public synchronized int getPkHashKeySize()
 	{
 		return pkHashKeySet.size();
 	}

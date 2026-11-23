@@ -12,6 +12,7 @@
 
 	<properties>
 		<tycho.version>5.0.3</tycho.version>
+		<jacoco.version>0.8.12</jacoco.version>
 		<rhino.version>1.9.1.s5</rhino.version>
         <osgi.version>[2026.12.0,2026.12.1)</osgi.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -70,6 +71,48 @@
 				<module>servoy_ngclient.tests</module>
 				<module>servoy_debug</module>
 			</modules>
+		</profile>
+		<!-- JaCoCo report step, run after a build that executed the tests (target/jacoco.exec in each test module):
+		       mvn -Pplugins,coverage-report org.jacoco:jacoco-maven-plugin:merge org.jacoco:jacoco-maven-plugin:report \
+		           -pl servoy_base,servoy_shared,servoy_smart_client,servoy_headless_client,servoy_ngclient,servoy_mcp,servoy_debug
+		     (-Pplugins is required: activating any profile of this pom deactivates the activeByDefault one.)
+		     In every production bundle, 'merge' unions the exec files of ALL test modules into
+		     target/jacoco-merged.exec (a test of one bundle often exercises classes of another; data for other
+		     bundles' classes is ignored by that bundle's report), then 'report' analyzes the bundle's own
+		     target/classes + sources and writes target/site/jacoco/jacoco.xml, which Jenkins' recordCoverage
+		     (JACOCO) aggregates. One plugin-level configuration serves both direct goals: 'merge' reads
+		     fileSets/destFile, 'report' reads dataFile. Missing exec files are skipped. -->
+		<profile>
+			<id>coverage-report</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.jacoco</groupId>
+						<artifactId>jacoco-maven-plugin</artifactId>
+						<version>${jacoco.version}</version>
+						<configuration>
+							<fileSets>
+								<fileSet>
+									<directory>${project.basedir}/..</directory>
+									<includes>
+										<include>*.tests/target/jacoco.exec</include>
+										<include>*_tests/target/jacoco.exec</include>
+									</includes>
+								</fileSet>
+							</fileSets>
+							<destFile>${project.build.directory}/jacoco-merged.exec</destFile>
+							<dataFile>${project.build.directory}/jacoco-merged.exec</dataFile>
+							<outputDirectory>${project.build.directory}/site/jacoco</outputDirectory>
+							<!-- 'report' only: do not analyze archives that end up in target/classes (bundled libs) -->
+							<excludes>
+								<exclude>**/*.jar</exclude>
+								<exclude>**/*.war</exclude>
+								<exclude>**/*.zip</exclude>
+							</excludes>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
 		</profile>
         <profile>
             <id>version_push</id>
@@ -253,6 +296,27 @@
 				<configuration>
 					<defaultP2Metadata>false</defaultP2Metadata>
 				</configuration>
+			</plugin>
+			<!-- JaCoCo code coverage for the Java tests (same recipe as servoy-eclipse).
+			     The test modules here (servoy_ngclient.tests, servoy_mcp_tests) run through tycho-surefire. For an
+			     eclipse-test-plugin, prepare-agent sets the tycho.testArgLine property, which tycho-surefire adds to the
+			     test JVM by itself, so the agent writes target/jacoco.exec without any change in the test poms.
+			     In the production modules it only sets an unused argLine property, so it is harmless there.
+			     The report is NOT generated here: the classes exercised by a test module belong to the production
+			     bundles, and the report goal only analyzes the current module's own classes. See the
+			     coverage-report profile. -->
+			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<version>${jacoco.version}</version>
+				<executions>
+					<execution>
+						<id>jacoco-prepare-agent</id>
+						<goals>
+							<goal>prepare-agent</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>
