@@ -15,6 +15,12 @@ def pushCoverage(String source, String includes, String line = null) {
         echo "pushCoverage: job ${env.JOB_NAME} is not in a branch folder and no line was given, coverage not pushed"
         return
     }
+    // Only master feeds the combined report. The same Jenkinsfile also runs in release / lts_* folders after a
+    // branch is cut; those builds must not push (there is no combined job for them).
+    if (branchLine != 'master') {
+        echo "pushCoverage: ${env.JOB_NAME} is on line '${branchLine}', only master pushes coverage"
+        return
+    }
     def files = findFiles(glob: includes.split(',').collect { it.trim() }.join(','))
     if (files.length == 0) {
         echo "pushCoverage: no files match '${includes}', coverage of ${source} not pushed"
