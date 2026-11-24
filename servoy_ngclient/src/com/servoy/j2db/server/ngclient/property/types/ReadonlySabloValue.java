@@ -46,6 +46,8 @@ public class ReadonlySabloValue implements ISmartPropertyValue
 
 	private boolean findModeChange;
 
+	private IChangeListener changeMonitor;
+
 	public ReadonlySabloValue(ReadonlyConfig config, boolean readOnly)
 	{
 		this.configuration = config;
@@ -63,6 +65,7 @@ public class ReadonlySabloValue implements ISmartPropertyValue
 	@Override
 	public void attachToBaseObject(IChangeListener changeMonitor, IWebObjectContext webObjectCntxt)
 	{
+		this.changeMonitor = changeMonitor;
 		this.webObjectContext = webObjectCntxt;
 		if (readOnly && !oppositeValue())
 		{
@@ -92,6 +95,7 @@ public class ReadonlySabloValue implements ISmartPropertyValue
 			@Override
 			public void propertyChange(PropertyChangeEvent evt)
 			{
+				if (changeMonitor != null) changeMonitor.valueChanged();
 				// ignore the change when this is a find mode change.
 				if (findModeChange) return;
 				savedOppositeOfValue = (Boolean)evt.getNewValue();
@@ -126,6 +130,9 @@ public class ReadonlySabloValue implements ISmartPropertyValue
 		{
 			webObjectContext.removePropertyChangeListener(configuration.getOppositeOf(), oppositeOfListener);
 		}
+		oppositeOfListener = null;
+		changeMonitor = null;
+		webObjectContext = null;
 	}
 
 	public JSONWriter toJSON(JSONWriter writer)
