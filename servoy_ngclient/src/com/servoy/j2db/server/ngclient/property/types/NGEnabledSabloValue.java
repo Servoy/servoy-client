@@ -19,6 +19,7 @@ package com.servoy.j2db.server.ngclient.property.types;
 
 import org.sablo.BaseWebObject;
 import org.sablo.WebComponent;
+import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IWrappingContext;
 import org.sablo.specification.property.types.EnabledSabloValue;
 
@@ -62,6 +63,17 @@ public class NGEnabledSabloValue extends EnabledSabloValue
 	public void flagChanged(BaseWebObject comp, String propName)
 	{
 		super.flagChanged(comp, propName);
+		if (comp.getSpecification() != null)
+		{
+			for (PropertyDescription pd : comp.getSpecification().getProperties(ReadonlyPropertyType.INSTANCE))
+			{
+				if (pd.getConfig() instanceof ReadonlyConfig readonlyConfig && propName.equals(readonlyConfig.getOppositeOf()) &&
+					comp.getProperties().content.containsKey(pd.getName()))
+				{
+					comp.markPropertyAsChangedByRef(pd.getName());
+				}
+			}
+		}
 		if (comp instanceof WebFormComponent)
 		{
 			IWebFormUI[] visibleForms = ((WebFormComponent)comp).getVisibleForms();
