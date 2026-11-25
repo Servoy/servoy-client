@@ -16,6 +16,7 @@
  */
 package com.servoy.j2db.query;
 
+import com.servoy.base.query.BaseAbstractBaseQuery;
 import com.servoy.j2db.util.serialize.ReplacedObject;
 import com.servoy.j2db.util.visitor.IVisitor;
 
@@ -107,7 +108,8 @@ public final class ArrayContainsCondition implements ISQLCondition
 		result = prime * result + (all ? 1231 : 1237);
 		result = prime * result + (negate ? 1231 : 1237);
 		result = prime * result + ((arrayColumn == null) ? 0 : arrayColumn.hashCode());
-		result = prime * result + ((argument == null) ? 0 : argument.hashCode());
+		// the argument of containsAll is an array, compare/hash its content not its identity
+		result = prime * result + BaseAbstractBaseQuery.arrayHashcode(argument);
 		return result;
 	}
 
@@ -125,18 +127,13 @@ public final class ArrayContainsCondition implements ISQLCondition
 			if (other.arrayColumn != null) return false;
 		}
 		else if (!arrayColumn.equals(other.arrayColumn)) return false;
-		if (argument == null)
-		{
-			if (other.argument != null) return false;
-		}
-		else if (!argument.equals(other.argument)) return false;
-		return true;
+		return BaseAbstractBaseQuery.arrayEquals(argument, other.argument);
 	}
 
 	@Override
 	public String toString()
 	{
-		return (negate ? "!" : "") + (all ? "ARRAY_INCLUDES(" : "ARRAY_CONTAINS(") + arrayColumn + ',' + argument + ')'; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		return (negate ? "!" : "") + (all ? "ARRAY_INCLUDES(" : "ARRAY_CONTAINS(") + arrayColumn + ',' + BaseAbstractBaseQuery.toString(argument) + ')'; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
 
 	///////// serialization ////////////////
