@@ -127,7 +127,12 @@ public final class UUID implements Serializable, Comparable<UUID>, IJavaScriptTy
 		randomBytes[6] |= 0x40; /* set to version 4 */
 		randomBytes[8] &= 0x3f; /* clear variant */
 		randomBytes[8] |= 0x80; /* set to IETF variant */
-		return new UUID(randomBytes);
+		// A generated uuid renders UPPERCASE: that is the Servoy convention for stored uuids (see SVY-10002/SVY-9666,
+		// commit ccb5c516d) and what the dialects write and read back for native uuid columns. UUID(byte[]) itself
+		// keeps the canonical lowercase casing for values read from the database (e.g. an HSQL uuid-array element),
+		// so the casing is set explicitly here instead of inheriting it from that constructor.
+		UUID generated = new UUID(randomBytes);
+		return new UUID(generated.getMostSignificantBits(), generated.getLeastSignificantBits(), false);
 	}
 
 	/**
